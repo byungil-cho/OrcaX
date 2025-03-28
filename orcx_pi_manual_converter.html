@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>ORCX ↔ Pi 수동 입력 계산기</title>
+</head>
+<body style="font-family: Arial; padding: 20px;">
+    <h2>🔄 ORCX ↔ Pi 계산기 (수동 Pi 시세 입력용)</h2>
+
+    <label>📌 현재 Pi 시세 (KRW): </label>
+    <input type="number" id="piPrice" placeholder="예: 3.75" step="0.0001" /><br><br>
+
+    <label>💰 ORCX 수량 입력: </label>
+    <input type="number" id="orcxInput" placeholder="예: 1250000" /><br><br>
+
+    <button onclick="convert()">Pi로 환산</button>
+
+    <p>📌 환산 결과: <span id="result">-</span> Pi</p>
+
+    <script>
+        function convert() {
+            const piPrice = parseFloat(document.getElementById("piPrice").value);
+            const orcxAmount = parseFloat(document.getElementById("orcxInput").value);
+
+            if (isNaN(piPrice) || isNaN(orcxAmount) || piPrice <= 0) {
+                document.getElementById("result").innerText = "입력 오류";
+                return;
+            }
+
+            const result = orcxAmount / piPrice;
+            document.getElementById("result").innerText = result.toFixed(6) + " Pi";
+        }
+    </script>
+</body>
+</html>
