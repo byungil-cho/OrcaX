@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>ORCX ↔ Pi 실시간 환산 계산기</title>
+</head>
+<body style="font-family: Arial; padding: 20px;">
+    <h2>🔄 ORCX ↔ Pi 실시간 환산 계산기</h2>
+    <p>현재 Pi 시세: <span id="piPrice">불러오는 중...</span> KRW</p>
+    <p>ORCX 기준 단가: <strong>1 KRW (고정)</strong></p>
+
+    <label>💰 ORCX 수량 입력: </label>
+    <input type="number" id="orcxInput" placeholder="예: 1250000" />
+    <button onclick="convert()">Pi로 환산</button>
+
+    <p>📌 환산 결과: <span id="result">-</span> Pi</p>
+
+    <script>
+        const apiKey = "cf2555c2-3f54-4855-918b-80920bdcd1ff";
+        const piApiUrl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=PI&convert=KRW";
+
+        let piPrice = null;
+
+        // 실시간 Pi 시세 가져오기
+        fetch(piApiUrl, {
+            method: "GET",
+            headers: {
+                "X-CMC_PRO_API_KEY": apiKey
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            piPrice = data.data.PI.quote.KRW.price;
+            document.getElementById("piPrice").innerText = piPrice.toLocaleString("ko-KR") + " 원";
+        })
+        .catch(error => {
+            document.getElementById("piPrice").innerText = "시세 불러오기 실패";
+            console.error("API 오류:", error);
+        });
+
+        // ORCX → Pi 계산
+        function convert() {
+            const orcxAmount = parseFloat(document.getElementById("orcxInput").value);
+            if (isNaN(orcxAmount) || piPrice === null) {
+                document.getElementById("result").innerText = "입력 또는 시세 오류";
+                return;
+            }
+            const result = orcxAmount / piPrice;
+            document.getElementById("result").innerText = result.toFixed(6) + " Pi";
+        }
+    </script>
+</body>
+</html>
