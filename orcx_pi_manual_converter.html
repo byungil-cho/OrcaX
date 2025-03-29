@@ -1,35 +1,163 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>ORCX ↔ Pi 수동 입력 계산기</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrcaX Pi 계산기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .calculator-section {
+            flex: 1;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-radius: 10px;
+            margin-right: 20px;
+        }
+
+        .qa-section {
+            width: 300px;
+            padding: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+
+        .qa-section h3 {
+            margin-top: 0;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .qa-section p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .qa-section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .qa-section ul li {
+            padding: 8px 0;
+        }
+
+        .qa-section ul li strong {
+            display: inline-block;
+            width: 120px;
+        }
+
+        input, button {
+            padding: 8px;
+            margin-top: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
-<body style="font-family: Arial; padding: 20px;">
-    <h2>🔄 ORCX ↔ Pi 계산기 (수동 Pi 시세 입력용)</h2>
+<body>
+    <div class="container">
+        <!-- 계산기 섹션 -->
+        <div class="calculator-section">
+            <h2>ORCX ↔ Pi 계산기</h2>
+            <label for="pi-rate">현재 Pi 시세 (KRW):</label>
+            <input type="number" id="pi-rate" value="3.75" placeholder="Pi 시세를 입력하세요">
+            
+            <label for="orcx-amount">ORCX 수량 입력:</label>
+            <input type="number" id="orcx-amount" value="1250000" placeholder="ORCX 수량을 입력하세요">
 
-    <label>📌 현재 Pi 시세 (KRW): </label>
-    <input type="number" id="piPrice" placeholder="예: 3.75" step="0.0001" /><br><br>
+            <button onclick="convertPi()">Pi로 환산</button>
 
-    <label>💰 ORCX 수량 입력: </label>
-    <input type="number" id="orcxInput" placeholder="예: 1250000" /><br><br>
+            <p><strong>환산 결과:</strong> <span id="conversion-result">- Pi</span></p>
+        </div>
 
-    <button onclick="convert()">Pi로 환산</button>
-
-    <p>📌 환산 결과: <span id="result">-</span> Pi</p>
+        <!-- Q&A 섹션 -->
+        <div class="qa-section">
+            <h3>ORCX 토큰 구매자용 Q&A</h3>
+            <ul>
+                <li><strong>Q1:</strong> OrcaX는 어디서 구매할 수 있나요?</li>
+                <li>A1: 현재 P2P 방식으로 직접 연결 구매가 가능합니다.</li>
+                <li><strong>Q2:</strong> OrcaX의 가격은 어떻게 되나요?</li>
+                <li>A2: 1 ORCX = 1원으로 고정되어 있습니다.</li>
+                <li><strong>Q3:</strong> OrcaX는 어디에 사용할 수 있나요?</li>
+                <li>A3: 로얄스크린골프 요금 결제, NFT 구매 등 실물 연계 서비스에 사용됩니다.</li>
+                <li><strong>Q4:</strong> NFT 없이 OrcaX만 보유해도 쓸 수 있나요?</li>
+                <li>A4: 네. 실물 서비스 이용과 토큰을 통한 NFT 지급이 가능합니다.</li>
+                <li><strong>Q5:</strong> NFT를 받으려면 OrcaX를 얼마나 보유해야 하나요?</li>
+                <li>A5: 125만 ORCX를 보유하면 NFT 1개가 지급됩니다.</li>
+                <li><strong>Q6:</strong> Pi 코인으로 OrcaX를 구매할 수 있나요?</li>
+                <li>A6: 가능합니다. 실시간 Pi 시세로 교환됩니다.</li>
+                <li><strong>Q7:</strong> OrcaX 보유 시 수익 배당을 받을 수 있나요?</li>
+                <li>A7: 통합 NFT 보유 시 연 5% 기본 배당이 지급됩니다.</li>
+                <li><strong>Q8:</strong> NFT와 OrcaX의 차이는 무엇인가요?</li>
+                <li>A8: OrcaX는 사용 가능한 토큰, NFT는 소유권 및 지분의 증표입니다.</li>
+                <li><strong>Q9:</strong> NFT를 양도하면 권한도 같이 넘어가나요?</li>
+                <li>A9: 네. 권한, 지분, 배당권 모두 함께 이전됩니다.</li>
+                <li><strong>Q10:</strong> OrcaX는 어떤 지갑에서 확인할 수 있나요?</li>
+                <li>A10: 팬텀 지갑에서 NFT와 함께 관리 가능합니다.</li>
+                <li><strong>Q11:</strong> OrcaX는 어떤 블록체인 기반인가요?</li>
+                <li>A11: Solana 기반으로 발행되었으며, 효율적이고 빠른 거래를 지원합니다.</li>
+                <li><strong>Q12:</strong> OrcaX는 지금 거래 가능한가요?</li>
+                <li>A12: 현재는 P2P 거래로만 가능하며, 추후 조건 충족 시 DEX 상장 예정입니다.</li>
+                <li><strong>Q13:</strong> 상장 조건은 무엇인가요?</li>
+                <li>A13: 2,000만 OrcaX 보유자 100명이 모이면 DEX 상장을 진행합니다.</li>
+                <li><strong>Q14:</strong> OrcaX는 언제 다시 팔 수 있나요?</li>
+                <li>A14: P2P 거래로 자유롭게 양도 가능하며, DEX 상장 이후 더 편리해질 예정입니다.</li>
+                <li><strong>Q15:</strong> DAO는 무엇이며 OrcaX와 어떤 관계가 있나요?</li>
+                <li>A15: DAO는 분산 자율 조직이며, 통합 NFT 보유자 중심으로 운영됩니다.</li>
+                <li><strong>Q16:</strong> DAO 투표나 제안은 누구나 할 수 있나요?</li>
+                <li>A16: 통합 NFT 보유자가 제안 및 투표 권한을 갖습니다.</li>
+                <li><strong>Q17:</strong> NFT 없이 OrcaX만으로 DAO에 참여할 수 있나요?</li>
+                <li>A17: 아닙니다. 의결권은 통합 NFT 보유자에게만 부여됩니다.</li>
+                <li><strong>Q18:</strong> OrcaX의 가장 큰 장점은 무엇인가요?</li>
+                <li>A18: 실물 자산과 연계된 실질적 가치와 사용처가 있다는 점입니다.</li>
+                <li><strong>Q19:</strong> NFT 4개를 모으면 어떻게 되나요?</li>
+                <li>A19: 같은 컬렉션 내 4개 보유 시 #5 NFT 발행 → 총 4개의 #5 NFT 보유 시 통합 NFT 발급</li>
+                <li><strong>Q20:</strong> 통합 NFT는 어떻게 활용되나요?</li>
+                <li>A20: 소각된 기존 NFT를 대신하며, DAO 참여, 수익 배당, 지분 보유 권한을 갖습니다.</li>
+                <li><strong>Q21:</strong> OrcaX는 향후 어떤 생태계를 확장하나요?</li>
+                <li>A21: 바다농장(OrcaSea), 골프 연습장, RWA 잔디농장 등으로 확장됩니다.</li>
+                <li><strong>Q22:</strong> 실물 자산과 연결된다는 것은 무슨 뜻인가요?</li>
+                <li>A22: 실제 토지, 건물, 시설 운영 지분이 NFT와 연결되어 있다는 의미입니다.</li>
+                <li><strong>Q23:</strong> OrcaX를 사면 등기 지분도 생기나요?</li>
+                <li>A23: 통합 NFT 보유자 100명이 모이면 공동 등기로 등기 이전이 진행됩니다.</li>
+                <li><strong>Q24:</strong> OrcaX를 소량만 사도 괜찮나요?</li>
+                <li>A24: 네. 10만, 50만 단위로도 구매 가능하며 누적 보유 가능합니다.</li>
+                <li><strong>Q25:</strong> OrcaX가 다른 토큰과 다른 점은 무엇인가요?</li>
+                <li>A25: 실체가 있는 비즈니스, 명확한 DAO 구조, 실물 자산과 연계된 RWA 토큰입니다.</li>
+            </ul>
+        </div>
+    </div>
 
     <script>
-        function convert() {
-            const piPrice = parseFloat(document.getElementById("piPrice").value);
-            const orcxAmount = parseFloat(document.getElementById("orcxInput").value);
-
-            if (isNaN(piPrice) || isNaN(orcxAmount) || piPrice <= 0) {
-                document.getElementById("result").innerText = "입력 오류";
-                return;
-            }
-
-            const result = orcxAmount / piPrice;
-            document.getElementById("result").innerText = result.toFixed(6) + " Pi";
+        function convertPi() {
+            var piRate = document.getElementById('pi-rate').value;
+            var orcxAmount = document.getElementById('orcx-amount').value;
+            var result = (orcxAmount / piRate).toFixed(4);
+            document.getElementById('conversion-result').textContent = result + " Pi";
         }
     </script>
 </body>
