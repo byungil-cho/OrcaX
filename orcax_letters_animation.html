@@ -1,47 +1,9 @@
+body {
+  margin: 0;
+  background: url('./컬렉션1/범고래_02.gif') center center / cover no-repeat;
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
 
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <title>OrcaX 등장 애니메이션</title>
-  <style>
-    body {
-      margin: 0;
-      background: url('범고래_02.gif') center center / cover no-repeat;
-      height: 100vh;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .letter {
-      font-size: 80px;
-      font-weight: bold;
-      color: white;
-      opacity: 0;
-      transform: translateY(60px);
-      animation: rise 0.6s forwards;
-    }
-    @keyframes rise {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
-</head>
-<body>
-  <div id="letters"></div>
-  <script>
-    const text = "ORCAX";
-    const container = document.getElementById("letters");
-
-    [...text].forEach((char, i) => {
-      const span = document.createElement("span");
-      span.className = "letter";
-      span.style.animationDelay = `${i * 0.4}s`;
-      span.textContent = char;
-      container.appendChild(span);
-    });
-  </script>
-</body>
-</html>
