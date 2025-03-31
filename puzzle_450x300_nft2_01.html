@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>NFT 퍼즐 - nft2 시리즈2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    .left {
+      flex: 1;
+      min-width: 300px;
+      max-width: 600px;
+    }
+
+    h1 {
+      color: #ccff00;
+      text-align: center;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 225px);
+      grid-template-rows: repeat(2, 150px);
+      gap: 0;
+      margin: 0 auto;
+      justify-content: center;
+    }
+
+    .puzzle-slot, .puzzle-piece {
+      width: 225px;
+      height: 150px;
+      background-color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .puzzle-piece {
+      cursor: grab;
+    }
+
+    .pieces-container {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .pieces-container img {
+      width: 110px;
+      height: 75px;
+    }
+
+    #final-nft {
+      display: none;
+      width: 450px;
+      border: 4px solid gold;
+      border-radius: 12px;
+      animation: zoomIn 1s ease forwards;
+      margin: 20px auto 0;
+      z-index: 1;
+      position: relative;
+    }
+
+    #nft-info {
+      display: none;
+      background: #222;
+      color: #eee;
+      margin: 20px auto;
+      padding: 15px;
+      border: 1px solid #555;
+      border-radius: 8px;
+      max-width: 450px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    #nft-info h3 {
+      color: #00ffcc;
+    }
+
+    #message {
+      margin-top: 10px;
+      font-size: 20px;
+      color: #00ffcc;
+      text-align: center;
+    }
+
+    #next-button {
+      display: none;
+      margin: 20px auto;
+      padding: 12px 24px;
+      background-color: #00cc99;
+      color: #fff;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #next-button:hover {
+      background-color: #00b386;
+    }
+
+    @keyframes zoomIn {
+      0% {
+        transform: scale(0.2);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .snowflake {
+      position: fixed;
+      top: -40px;
+      width: 30px;
+      height: 30px;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/590/590685.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      animation: fallSlow 10s linear infinite;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    @keyframes fallSlow {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <h1>🧩 NFT 퍼즐 - nft2 시리즈2</h1>
+      <div class="grid-container" id="slots">
+        <div class="puzzle-slot" data-index="1"></div>
+        <div class="puzzle-slot" data-index="2"></div>
+        <div class="puzzle-slot" data-index="3"></div>
+        <div class="puzzle-slot" data-index="4"></div>
+      </div>
+      <div class="pieces-container" id="pieces">
+        <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_01_P3.jpg" data-index="3" draggable="true">
+        <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_01_P1.jpg" data-index="1" draggable="true">
+        <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_01_P4.jpg" data-index="4" draggable="true">
+        <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_01_P2.jpg" data-index="2" draggable="true">
+      </div>
+      <div id="message"></div>
+      <img id="final-nft" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_01.jpg" alt="완성된 NFT">
+      <div id="nft-info">
+        <h3>📘 Adventure Beyond</h3>
+        <p><strong>설명:</strong> 자연과 도시를 넘나드는 탐험과 지속 가능성을 상징.</p>
+        <p><strong>혜택:</strong></p>
+        <ul>
+          <li>지속 가능 프로젝트 참여</li>
+          <li>자연 체험 이벤트 초대</li>
+        </ul>
+        <p><strong>ID:</strong> #2</p>
+        <p><strong>발행량:</strong> 250개</p>
+        <p><strong>기술 사양:</strong> Polygon 기반 ERC-1155, 720x1280 픽셀 (가로형 JPG)</p>
+      </div>
+      <button id="next-button" onclick="goToNext()">다음 퍼즐로 이동 →</button>
+    </div>
+  </div>
+
+  <script>
+    const pieces = document.querySelectorAll('.puzzle-piece');
+    const slots = document.querySelectorAll('.puzzle-slot');
+    const message = document.getElementById('message');
+    const finalNFT = document.getElementById('final-nft');
+    const nextButton = document.getElementById('next-button');
+    const nftInfo = document.getElementById('nft-info');
+
+    pieces.forEach(piece => {
+      piece.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', piece.dataset.index);
+      });
+    });
+
+    slots.forEach(slot => {
+      slot.addEventListener('dragover', e => e.preventDefault());
+      slot.addEventListener('drop', e => {
+        e.preventDefault();
+        const index = e.dataTransfer.getData('text/plain');
+        const piece = document.querySelector(`.puzzle-piece[data-index='${index}']`);
+        if (slot.children.length === 0 && piece) {
+          slot.appendChild(piece);
+          checkCompletion();
+        }
+      });
+    });
+
+    function checkCompletion() {
+      const order = Array.from(slots).map(slot => slot.children[0]?.dataset.index || "");
+      const correct = ["1", "2", "3", "4"];
+      if (JSON.stringify(order) === JSON.stringify(correct)) {
+        message.textContent = "🎉 퍼즐 완성! NFT 생성 완료!";
+        document.getElementById('pieces').style.display = 'none';
+        finalNFT.style.display = 'block';
+        nftInfo.style.display = 'block';
+        nextButton.style.display = 'block';
+        triggerSnowEffect();
+      }
+    }
+
+    function goToNext() {
+      window.location.href = "puzzle_450x300_nft3_01.html";
+    }
+
+    function triggerSnowEffect() {
+      for (let i = 0; i < 30; i++) {
+        const snowflake = document.createElement("div");
+        snowflake.classList.add("snowflake");
+        snowflake.style.left = Math.random() * 100 + "vw";
+        snowflake.style.animationDuration = (Math.random() * 6 + 8) + "s";
+        document.body.appendChild(snowflake);
+        setTimeout(() => snowflake.remove(), 15000);
+      }
+    }
+  </script>
+</body>
+</html>
