@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>NFT 퍼즐 시리즈1 | Pinu Club Elite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    .left {
+      flex: 1;
+      min-width: 300px;
+      max-width: 600px;
+    }
+
+    h1 {
+      color: #ffb6c1;
+      text-align: center;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 225px);
+      grid-template-rows: repeat(2, 150px);
+      gap: 0;
+      margin: 0 auto;
+      justify-content: center;
+    }
+
+    .puzzle-slot, .puzzle-piece {
+      width: 225px;
+      height: 150px;
+      background-color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .puzzle-piece {
+      cursor: grab;
+    }
+
+    .pieces-container {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .pieces-container img {
+      width: 110px;
+      height: 75px;
+    }
+
+    #final-nft {
+      display: none;
+      width: 450px;
+      border: 4px solid gold;
+      border-radius: 12px;
+      animation: zoomIn 1s ease forwards;
+      margin: 20px auto 0;
+      z-index: 1;
+      position: relative;
+    }
+
+    #message {
+      margin-top: 10px;
+      font-size: 20px;
+      color: #00ffcc;
+      text-align: center;
+    }
+
+    #next-button {
+      display: none;
+      margin: 20px auto;
+      padding: 12px 24px;
+      background-color: #00cc99;
+      color: #fff;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #next-button:hover {
+      background-color: #00b386;
+    }
+
+    @keyframes zoomIn {
+      0% {
+        transform: scale(0.2);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .sakura-petal {
+      position: fixed;
+      top: -40px;
+      width: 30px;
+      height: 30px;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/2937/2937594.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      animation: fallSakura 12s linear infinite;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    @keyframes fallSakura {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <h1>🧩 NFT 퍼즐 시리즈1 | Pinu Club Elite</h1>
+      <div class="grid-container" id="slots">
+        <div class="puzzle-slot" data-index="1"></div>
+        <div class="puzzle-slot" data-index="2"></div>
+        <div class="puzzle-slot" data-index="3"></div>
+        <div class="puzzle-slot" data-index="4"></div>
+      </div>
+      <div class="pieces-container" id="pieces">
+        <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P2.jpg" data-index="2" draggable="true">
+        <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P4.jpg" data-index="4" draggable="true">
+        <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P1.jpg" data-index="1" draggable="true">
+        <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P3.jpg" data-index="3" draggable="true">
+      </div>
+      <div id="message"></div>
+      <img id="final-nft" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02.jpg" alt="완성된 NFT">
+      <button id="next-button" onclick="goToNext()">통합 NFT 확인하기 →</button>
+    </div>
+  </div>
+
+  <script>
+    const pieces = document.querySelectorAll('.puzzle-piece');
+    const slots = document.querySelectorAll('.puzzle-slot');
+    const message = document.getElementById('message');
+    const finalNFT = document.getElementById('final-nft');
+    const nextButton = document.getElementById('next-button');
+
+    pieces.forEach(piece => {
+      piece.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', piece.dataset.index);
+      });
+    });
+
+    slots.forEach(slot => {
+      slot.addEventListener('dragover', e => e.preventDefault());
+      slot.addEventListener('drop', e => {
+        e.preventDefault();
+        const index = e.dataTransfer.getData('text/plain');
+        const piece = document.querySelector(`.puzzle-piece[data-index='${index}']`);
+        if (slot.children.length === 0 && piece) {
+          slot.appendChild(piece);
+          checkCompletion();
+        }
+      });
+    });
+
+    function checkCompletion() {
+      const order = Array.from(slots).map(slot => slot.children[0]?.dataset.index || "");
+      const correct = ["1", "2", "3", "4"];
+      if (JSON.stringify(order) === JSON.stringify(correct)) {
+        message.textContent = "🎉 퍼즐 완성! NFT 생성 완료!";
+        document.getElementById('pieces').style.display = 'none';
+        finalNFT.style.display = 'block';
+        nextButton.style.display = 'block';
+        triggerSakura();
+      }
+    }
+
+    function goToNext() {
+      window.location.href = "puzzle_450x300_final_nft1_01.html";
+    }
+
+    function triggerSakura() {
+      for (let i = 0; i < 30; i++) {
+        const sakura = document.createElement("div");
+        sakura.classList.add("sakura-petal");
+        sakura.style.left = Math.random() * 100 + "vw";
+        sakura.style.animationDuration = (Math.random() * 6 + 8) + "s";
+        document.body.appendChild(sakura);
+        setTimeout(() => sakura.remove(), 15000);
+      }
+    }
+  </script>
+</body>
+</html>
