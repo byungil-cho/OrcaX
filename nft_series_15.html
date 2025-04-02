@@ -109,17 +109,17 @@
       <div class="puzzle-slot" data-index="4"></div>
     </div>
     <div class="pieces-container" id="pieces">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/piece1" data-index="1" draggable="true">
       <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/piece2" data-index="2" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/piece3" data-index="3" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/piece4" data-index="4" draggable="true">
+<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/piece4" data-index="4" draggable="true">
+<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/piece3" data-index="3" draggable="true">
+<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/piece1" data-index="1" draggable="true">
     </div>
     <div id="message"></div>
     <div id="next-preview-container">
-      <div id="next-preview-label">🔜 Next Puzzle Preview</div>
-      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft_series_wanseong4" alt="Next Puzzle Preview">
+      <div id="next-preview-label">🔜 다음 퍼즐 미리보기</div>
+      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft4_04.jpg" alt="Next Puzzle Preview">
     </div>
-    <button id="next-button" onclick="goToNext()">Go to Next Puzzle →</button>
+    <button id="next-button" onclick="goToNext()">다음 퍼즐로 이동 →</button>
   </div>
   <script>
     const pieces = document.querySelectorAll('.puzzle-piece');
@@ -151,7 +151,7 @@
       const order = Array.from(slots).map(slot => slot.children[0]?.dataset.index || "");
       const correct = ["1", "2", "3", "4"];
       if (JSON.stringify(order) === JSON.stringify(correct)) {
-        message.textContent = "🎉 Puzzle Complete! NFT Created!";
+        message.textContent = "🎉 퍼즐 완성! NFT 생성 완료!";
         document.getElementById('pieces').style.display = 'none';
         nextPreview.style.display = 'block';
         nextButton.style.display = 'block';
