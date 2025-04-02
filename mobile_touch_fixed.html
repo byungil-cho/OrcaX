@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>모바일 퍼즐 최적화</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 150px);
+      grid-template-rows: repeat(2, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .puzzle-slot, .puzzle-piece {
+      width: 150px;
+      height: 100px;
+      background: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .pieces-container {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .pieces-container img {
+      width: 75px;
+      height: 50px;
+      border-radius: 6px;
+      border: 2px solid #666;
+    }
+    .selected {
+      outline: 3px solid #00ffcc;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #00ffcc;
+    }
+  </style>
+</head>
+<body>
+  <h1>📱 모바일 퍼즐</h1>
+  <div class="grid-container" id="slots">
+    <div class="puzzle-slot" data-index="1"></div>
+    <div class="puzzle-slot" data-index="2"></div>
+    <div class="puzzle-slot" data-index="3"></div>
+    <div class="puzzle-slot" data-index="4"></div>
+  </div>
+  <div class="pieces-container" id="pieces">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P1.jpg" data-index="1">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P2.jpg" data-index="2">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P3.jpg" data-index="3">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P4.jpg" data-index="4">
+  </div>
+  <div id="message"></div>
+
+  <script>
+    let selectedPiece = null;
+    const pieces = document.querySelectorAll('.puzzle-piece');
+    const slots = document.querySelectorAll('.puzzle-slot');
+    const message = document.getElementById('message');
+
+    pieces.forEach(piece => {
+      piece.addEventListener('click', () => {
+        pieces.forEach(p => p.classList.remove('selected'));
+        piece.classList.add('selected');
+        selectedPiece = piece;
+      });
+    });
+
+    slots.forEach(slot => {
+      slot.addEventListener('click', () => {
+        if (selectedPiece && slot.children.length === 0) {
+          slot.appendChild(selectedPiece);
+          selectedPiece.classList.remove('selected');
+          selectedPiece = null;
+          checkCompletion();
+        }
+      });
+    });
+
+    function checkCompletion() {
+      const order = Array.from(slots).map(slot => slot.children[0]?.dataset.index || "");
+      const correct = ["1", "2", "3", "4"];
+      if (JSON.stringify(order) === JSON.stringify(correct)) {
+        message.textContent = "🎉 퍼즐 완성! 축하합니다!";
+      }
+    }
+  </script>
+</body>
+</html>
