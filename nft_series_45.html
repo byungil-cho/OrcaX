@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>NFT Puzzle Series | 45 4 Pinu Club Royale</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #ffb6c1;
+      text-align: center;
+      font-size: 28px;
+      line-height: 1.4;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 225px);
+      grid-template-rows: repeat(2, 150px);
+      gap: 0;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .puzzle-slot, .puzzle-piece {
+      width: 225px;
+      height: 150px;
+      background-color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .puzzle-piece {
+      cursor: grab;
+    }
+    .pieces-container {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .pieces-container img {
+      width: 110px;
+      height: 75px;
+    }
+    #next-preview-container {
+      display: none;
+      margin-top: 30px;
+      text-align: center;
+    }
+    #next-preview {
+      width: 450px;
+      border: 4px solid gold;
+      border-radius: 12px;
+      animation: zoomIn 1s ease forwards;
+    }
+    #next-preview-label {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #ffaa00;
+    }
+    #message {
+      margin-top: 10px;
+      font-size: 20px;
+      color: #00ffcc;
+      text-align: center;
+    }
+    #next-button {
+      display: none;
+      margin: 20px auto;
+      padding: 12px 24px;
+      background-color: #00cc99;
+      color: #fff;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #next-button:hover {
+      background-color: #00b386;
+    }
+    @keyframes zoomIn {
+      0% { transform: scale(0.2); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧩 NFT Puzzle Series<br>| 45 4 Pinu Club Royale</h1>
+    <div class="grid-container" id="slots">
+      <div class="puzzle-slot" data-index="1"></div>
+      <div class="puzzle-slot" data-index="2"></div>
+      <div class="puzzle-slot" data-index="3"></div>
+      <div class="puzzle-slot" data-index="4"></div>
+    </div>
+    <div class="pieces-container" id="pieces">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nan" data-index="1" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nan" data-index="2" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nan" data-index="3" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nan" data-index="4" draggable="true">
+    </div>
+    <div id="message"></div>
+    <div id="next-preview-container">
+      <div id="next-preview-label">🔜 Next Puzzle Preview</div>
+      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nan" alt="Next Puzzle Preview">
+    </div>
+    <button id="next-button" onclick="goToNext()">Go to Next Puzzle →</button>
+  </div>
+  <script>
+    const pieces = document.querySelectorAll('.puzzle-piece');
+    const slots = document.querySelectorAll('.puzzle-slot');
+    const message = document.getElementById('message');
+    const nextButton = document.getElementById('next-button');
+    const nextPreview = document.getElementById('next-preview-container');
+
+    pieces.forEach(piece => {
+      piece.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', piece.dataset.index);
+      });
+    });
+
+    slots.forEach(slot => {
+      slot.addEventListener('dragover', e => e.preventDefault());
+      slot.addEventListener('drop', e => {
+        e.preventDefault();
+        const index = e.dataTransfer.getData('text/plain');
+        const piece = document.querySelector(`.puzzle-piece[data-index='${index}']`);
+        if (slot.children.length === 0 && piece) {
+          slot.appendChild(piece);
+          checkCompletion();
+        }
+      });
+    });
+
+    function checkCompletion() {
+      const order = Array.from(slots).map(slot => slot.children[0]?.dataset.index || "");
+      const correct = ["1", "2", "3", "4"];
+      if (JSON.stringify(order) === JSON.stringify(correct)) {
+        message.textContent = "🎉 Puzzle Complete! NFT Created!";
+        document.getElementById('pieces').style.display = 'none';
+        nextPreview.style.display = 'block';
+        nextButton.style.display = 'block';
+      }
+    }
+
+    function goToNext() {
+      window.location.href = "nft_series_46.html";
+    }
+  </script>
+</body>
+</html>
