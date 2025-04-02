@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>OrcaX 보상 토큰 현황</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #000;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    .token-box {
+      background: #222;
+      border: 3px solid gold;
+      border-radius: 12px;
+      padding: 30px;
+      margin-top: 30px;
+      display: inline-block;
+    }
+    .token-box h2 {
+      margin-bottom: 10px;
+    }
+    .token-value {
+      font-size: 36px;
+      color: #00ffcc;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 OrcaX 내 보상 토큰 현황</h1>
+  <div class="token-box">
+    <h2>현재 보유 중인 OrcaX 토큰:</h2>
+    <div class="token-value" id="tokenAmount">조회 중...</div>
+    <button onclick="resetToken()">토큰 초기화</button>
+  </div>
+
+  <script>
+    function loadToken() {
+      const token = localStorage.getItem("orcax_token_total") || "0";
+      document.getElementById("tokenAmount").innerText = token + " OX";
+    }
+
+    function resetToken() {
+      if (confirm("정말 토큰 기록을 초기화할까요?")) {
+        localStorage.setItem("orcax_token_total", "0");
+        loadToken();
+      }
+    }
+
+    loadToken();
+  </script>
+</body>
+</html>
