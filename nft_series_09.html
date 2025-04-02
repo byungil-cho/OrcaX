@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>NFT 퍼즐 시리즈 | 9 Pinu Club Elite</title>
+  <title>NFT Puzzle Series | 9 4Pinu Club Elite</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -100,7 +101,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>🧩 NFT 퍼즐 시리즈<br>| 9 Pinu Club Elite</h1>
+    <h1>🧩 NFT Puzzle Series<br>| 9 4Pinu Club Elite</h1>
     <div class="grid-container" id="slots">
       <div class="puzzle-slot" data-index="1"></div>
       <div class="puzzle-slot" data-index="2"></div>
@@ -108,17 +109,17 @@
       <div class="puzzle-slot" data-index="4"></div>
     </div>
     <div class="pieces-container" id="pieces">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft9_02_P2.jpg" data-index="2" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft9_02_P4.jpg" data-index="4" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft9_02_P1.jpg" data-index="1" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft9_02_P3.jpg" data-index="3" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P1.jpg" data-index="1" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P2.jpg" data-index="2" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P3.jpg" data-index="3" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P4.jpg" data-index="4" draggable="true">
     </div>
     <div id="message"></div>
     <div id="next-preview-container">
-      <div id="next-preview-label">🔜 다음 퍼즐 미리보기</div>
-      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft10_02.jpg" alt="다음 퍼즐 예고">
+      <div id="next-preview-label">🔜 Next Puzzle Preview</div>
+      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02.jpg" alt="Next Puzzle Preview">
     </div>
-    <button id="next-button" onclick="goToNext()">다음 퍼즐로 이동 →</button>
+    <button id="next-button" onclick="goToNext()">Go to Next Puzzle →</button>
   </div>
   <script>
     const pieces = document.querySelectorAll('.puzzle-piece');
@@ -150,7 +151,7 @@
       const order = Array.from(slots).map(slot => slot.children[0]?.dataset.index || "");
       const correct = ["1", "2", "3", "4"];
       if (JSON.stringify(order) === JSON.stringify(correct)) {
-        message.textContent = "🎉 퍼즐 완성! NFT 생성 완료!";
+        message.textContent = "🎉 Puzzle Complete! NFT Created!";
         document.getElementById('pieces').style.display = 'none';
         nextPreview.style.display = 'block';
         nextButton.style.display = 'block';
