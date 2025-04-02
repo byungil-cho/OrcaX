@@ -1,3 +1,5 @@
+# 수정된 5번 퍼즐 HTML 생성
+html_5_updated = """
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -108,15 +110,15 @@
       <div class="puzzle-slot" data-index="4"></div>
     </div>
     <div class="pieces-container" id="pieces">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft5_02_P2.jpg" data-index="2" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft5_02_P4.jpg" data-index="4" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft5_02_P1.jpg" data-index="1" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft5_02_P3.jpg" data-index="3" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01.jpg" data-index="2" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02.jpg" data-index="4" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_03.jpg" data-index="1" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_04.jpg" data-index="3" draggable="true">
     </div>
     <div id="message"></div>
     <div id="next-preview-container">
       <div id="next-preview-label">🔜 다음 퍼즐 미리보기</div>
-      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft6_02.jpg" alt="다음 퍼즐 예고">
+      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_01.jpg" alt="다음 퍼즐 예고">
     </div>
     <button id="next-button" onclick="goToNext()">다음 퍼즐로 이동 →</button>
   </div>
@@ -150,7 +152,7 @@
       const order = Array.from(slots).map(slot => slot.children[0]?.dataset.index || "");
       const correct = ["1", "2", "3", "4"];
       if (JSON.stringify(order) === JSON.stringify(correct)) {
-        message.textContent = "🎉 퍼즐 완성! NFT 생성 완료!";
+        message.textContent = "🎉 통합퍼즐 완성! NFT 생성 완료!";
         document.getElementById('pieces').style.display = 'none';
         nextPreview.style.display = 'block';
         nextButton.style.display = 'block';
@@ -163,3 +165,10 @@
   </script>
 </body>
 </html>
+"""
+
+# 저장
+html_path = Path("/mnt/data/nft_series_05_updated.html")
+html_path.write_text(html_5_updated, encoding="utf-8")
+html_path.name
+
