@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>NFT Puzzle Series | 11 1Adventure Beyond</title>
+  <title>NFT Puzzle Series | 11 Pinu Club Elite</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -13,18 +13,12 @@
       margin: 0;
       padding: 0;
       overflow-x: hidden;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
+      text-align: center;
     }
     h1 {
       color: #ffb6c1;
-      text-align: center;
       font-size: 28px;
-      line-height: 1.4;
+      margin-top: 20px;
     }
     .grid-container {
       display: grid;
@@ -59,24 +53,21 @@
     #next-preview-container {
       display: none;
       margin-top: 30px;
-      text-align: center;
     }
     #next-preview {
       width: 450px;
       border: 4px solid gold;
       border-radius: 12px;
-      animation: zoomIn 1s ease forwards;
-    }
-    #next-preview-label {
-      margin-top: 10px;
-      font-size: 18px;
-      color: #ffaa00;
     }
     #message {
       margin-top: 10px;
       font-size: 20px;
       color: #00ffcc;
-      text-align: center;
+    }
+    #reward-text {
+      margin-top: 20px;
+      font-size: 20px;
+      color: gold;
     }
     #next-button {
       display: none;
@@ -88,43 +79,40 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s;
     }
     #next-button:hover {
       background-color: #00b386;
     }
-    @keyframes zoomIn {
-      0% { transform: scale(0.2); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🧩 NFT Puzzle Series<br>| 11 1Adventure Beyond</h1>
-    <div class="grid-container" id="slots">
-      <div class="puzzle-slot" data-index="1"></div>
-      <div class="puzzle-slot" data-index="2"></div>
-      <div class="puzzle-slot" data-index="3"></div>
-      <div class="puzzle-slot" data-index="4"></div>
-    </div>
-    <div class="pieces-container" id="pieces">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_03_P1.jpg" data-index="1" draggable="true">
-<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_03_P4.jpg" data-index="4" draggable="true">
-<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_03_P2.jpg" data-index="2" draggable="true">
-<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_03_P3.jpg" data-index="3" draggable="true">
-    </div>
-    <div id="message"></div>
-    <div id="next-preview-container">
-      <div id="next-preview-label">🔜 다음 퍼즐 미리보기</div>
-      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_03.jpg" alt="Next Puzzle Preview">
-    </div>
-    <button id="next-button" onclick="goToNext()">다음 퍼즐로 이동 →</button>
+  <h1>🧩 NFT Puzzle Series | 11</h1>
+  <div class="grid-container" id="slots">
+    <div class="puzzle-slot" data-index="1"></div>
+    <div class="puzzle-slot" data-index="2"></div>
+    <div class="puzzle-slot" data-index="3"></div>
+    <div class="puzzle-slot" data-index="4"></div>
   </div>
+  <div class="pieces-container" id="pieces">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_01_P3.jpg" data-index="3" draggable="true">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_01_P4.jpg" data-index="4" draggable="true">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_01_P1.jpg" data-index="1" draggable="true">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_01_P2.jpg" data-index="2" draggable="true">
+  </div>
+  <div id="message"></div>
+  <div id="reward-text"></div>
+  <div id="next-preview-container">
+    <div id="next-preview-label">🔜 다음 퍼즐 미리보기</div>
+    <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_02.jpg" alt="Next Puzzle Preview">
+  </div>
+  <button id="next-button" onclick="goToNext()">다음 퍼즐로 이동 →</button>
+
   <script>
+    let startTime = Date.now();
     const pieces = document.querySelectorAll('.puzzle-piece');
     const slots = document.querySelectorAll('.puzzle-slot');
     const message = document.getElementById('message');
+    const rewardText = document.getElementById('reward-text');
     const nextButton = document.getElementById('next-button');
     const nextPreview = document.getElementById('next-preview-container');
 
@@ -155,6 +143,15 @@
         document.getElementById('pieces').style.display = 'none';
         nextPreview.style.display = 'block';
         nextButton.style.display = 'block';
+
+        const endTime = Date.now();
+        const durationSec = (endTime - startTime) / 1000;
+        let reward = 10;
+        if (durationSec <= 60) reward = 100;
+        else if (durationSec <= 120) reward = 50;
+        else if (durationSec <= 180) reward = 20;
+
+        rewardText.textContent = `🎁 OrcaX 토큰 ${reward}개가 지급되었습니다!`;
       }
     }
 

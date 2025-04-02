@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>NFT 퍼즐 타이머 리워드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    .hidden { display: none; }
+    button {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #00cc99;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #00b386;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧩 NFT 퍼즐 챌린지</h1>
+  <p>퍼즐을 모두 맞추면 OrcaX 토큰을 보상으로 드려요!</p>
+  <div id="puzzle-area">
+    <p>퍼즐이 여기에 있습니다. (예시)</p>
+    <button onclick="completePuzzle()">퍼즐 완료</button>
+  </div>
+  <div id="reward-message" class="hidden">
+    <h2 id="result-text">🎉 퍼즐 완료!</h2>
+    <p id="reward-text"></p>
+    <button onclick="location.reload()">다시 도전하기</button>
+  </div>
+
+  <script>
+    let startTime = Date.now();
+
+    function completePuzzle() {
+      const endTime = Date.now();
+      const durationSec = (endTime - startTime) / 1000;
+
+      let reward = 10;
+      if (durationSec <= 60) reward = 100;
+      else if (durationSec <= 120) reward = 50;
+      else if (durationSec <= 180) reward = 20;
+
+      // 비공개 시간 표시, 보상만 안내
+      document.getElementById('puzzle-area').style.display = 'none';
+      document.getElementById('reward-message').classList.remove('hidden');
+      document.getElementById('reward-text').textContent = `🎁 OrcaX 토큰 ${reward}개가 지급되었습니다!`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🎡 OrcaX 룰렛 보상 시스템</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    canvas {
+      background-color: #222;
+      border: 5px solid gold;
+      border-radius: 50%;
+      margin: 20px auto;
+    }
+    button {
+      padding: 14px 28px;
+      font-size: 18px;
+      background-color: #00cc99;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #00b386;
+    }
+    #result {
+      font-size: 24px;
+      color: gold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎡 OrcaX 룰렛을 돌려보세요!</h1>
+  <canvas id="wheel" width="400" height="400"></canvas>
+  <br>
+  <button onclick="spin()">룰렛 돌리기</button>
+  <div id="result"></div>
+
+  <script>
+    const canvas = document.getElementById('wheel');
+    const ctx = canvas.getContext('2d');
+    const resultBox = document.getElementById('result');
+
+    const segments = [
+      { label: "JACKPOT 10,000", value: 10000 },
+      { label: "100", value: 100 },
+      { label: "30", value: 30 },
+      { label: "SUPER 1,000", value: 1000 },
+      { label: "MISS", value: 0 },
+      { label: "20", value: 20 },
+      { label: "50", value: 50 },
+      { label: "10", value: 10 }
+    ];
+
+    const colors = ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40", "#ff6384", "#36a2eb"];
+
+    let angle = 0;
+    let isSpinning = false;
+
+    function drawWheel() {
+      const step = 2 * Math.PI / segments.length;
+      for (let i = 0; i < segments.length; i++) {
+        ctx.beginPath();
+        ctx.moveTo(200, 200);
+        ctx.fillStyle = colors[i];
+        ctx.arc(200, 200, 200, i * step + angle, (i + 1) * step + angle);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(200, 200);
+        ctx.rotate((i + 0.5) * step + angle);
+        ctx.fillStyle = "#fff";
+        ctx.font = "16px sans-serif";
+        ctx.fillText(segments[i].label, 80, 0);
+        ctx.restore();
+      }
+    }
+
+    function spin() {
+      if (isSpinning) return;
+      isSpinning = true;
+      let spinTime = 0;
+      const totalSpinTime = Math.random() * 3000 + 4000;
+
+      const spinAnimation = setInterval(() => {
+        angle += 0.1;
+        ctx.clearRect(0, 0, 400, 400);
+        drawWheel();
+        spinTime += 20;
+
+        if (spinTime >= totalSpinTime) {
+          clearInterval(spinAnimation);
+          finalizeSpin();
+          isSpinning = false;
+        }
+      }, 20);
+    }
+
+    function finalizeSpin() {
+      const step = 2 * Math.PI / segments.length;
+      const index = Math.floor(((2 * Math.PI - angle % (2 * Math.PI)) % (2 * Math.PI)) / step);
+      const selected = segments[index];
+      let current = parseInt(localStorage.getItem("orcax_token_total")) || 0;
+      localStorage.setItem("orcax_token_total", current + selected.value);
+      resultBox.innerHTML = `🎉 결과: <strong>${selected.label}</strong><br>💰 OrcaX 누적 토큰: ${current + selected.value} OX`;
+    }
+
+    drawWheel();
+  </script>
+</body>
+</html>
