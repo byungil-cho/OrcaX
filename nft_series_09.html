@@ -1,4 +1,5 @@
-
+# 9번 퍼즐 전체 HTML 소스를 생성
+puzzle_9_html = """
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -109,15 +110,15 @@
       <div class="puzzle-slot" data-index="4"></div>
     </div>
     <div class="pieces-container" id="pieces">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P1.jpg" data-index="1" draggable="true">
-<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P3.jpg" data-index="3" draggable="true">
-<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P2.jpg" data-index="2" draggable="true">
-<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_02_P4.jpg" data-index="4" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P1.jpg" data-index="1" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P3.jpg" data-index="3" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P2.jpg" data-index="2" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P4.jpg" data-index="4" draggable="true">
     </div>
     <div id="message"></div>
     <div id="next-preview-container">
       <div id="next-preview-label">🔜 다음 퍼즐 미리보기</div>
-      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft_series_wanseong3" alt="Next Puzzle Preview">
+      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03.jpg" alt="Next Puzzle Preview">
     </div>
     <button id="next-button" onclick="goToNext()">다음 퍼즐로 이동 →</button>
   </div>
@@ -164,3 +165,9 @@
   </script>
 </body>
 </html>
+"""
+
+# 저장
+html_9_path = Path("/mnt/data/nft_series_09.html")
+html_9_path.write_text(puzzle_9_html, encoding="utf-8")
+html_9_path.name
