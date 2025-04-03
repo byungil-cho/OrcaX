@@ -1,8 +1,5 @@
 
-rom pathlib import Path
-
-# HTML 콘텐츠 정의
-html_content = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -103,10 +100,3 @@ html_content = """<!DOCTYPE html>
   </div>
 </body>
 </html>
-"""
-
-# 저장 경로 설정
-file_path = Path("/mnt/data/index.html")
-file_path.write_text(html_content, encoding="utf-8")
-
-file_path
