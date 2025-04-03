@@ -3,146 +3,118 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>NFT Puzzle Series | 9 3Royal Fairway Cruiser</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFT 퍼즐 9</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <style>
     body {
-      background: #111;
-      color: #fff;
+      background-color: #111;
+      color: white;
       font-family: sans-serif;
       margin: 0;
-      padding: 0;
+      padding: 10px;
+      touch-action: manipulation;
       overflow-x: hidden;
     }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
     h1 {
-      color: #ffb6c1;
       text-align: center;
-      font-size: 28px;
-      line-height: 1.4;
+      font-size: 20px;
+      color: #ffb6c1;
     }
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(2, 225px);
-      grid-template-rows: repeat(2, 150px);
-      gap: 0;
+      grid-template-columns: repeat(2, 45vw);
+      grid-template-rows: repeat(2, 25vh);
+      gap: 8px;
       justify-content: center;
-      margin: 20px auto;
+      margin-top: 10px;
     }
     .puzzle-slot, .puzzle-piece {
-      width: 225px;
-      height: 150px;
-      background-color: #222;
+      width: 45vw;
+      height: 25vh;
+      background: #333;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    .puzzle-piece {
-      cursor: grab;
+      border-radius: 10px;
     }
     .pieces-container {
-      margin-top: 20px;
+      margin-top: 15px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
     }
     .pieces-container img {
-      width: 110px;
-      height: 75px;
+      width: 42vw;
+      height: auto;
+      max-height: 20vh;
+      border-radius: 8px;
+      border: 2px solid #666;
+      transition: transform 0.2s ease;
     }
-    #next-preview-container {
-      display: none;
-      margin-top: 30px;
-      text-align: center;
-    }
-    #next-preview {
-      width: 100%;
-      max-width: 450px;
-      border: 4px solid gold;
-      border-radius: 12px;
-      animation: zoomIn 1s ease forwards;
-    }
-    #next-preview-label {
-      margin-top: 10px;
-      font-size: 18px;
-      color: #ffaa00;
+    .selected {
+      outline: 3px solid #00ffcc;
     }
     #message {
       margin-top: 10px;
-      font-size: 20px;
+      font-size: 16px;
       color: #00ffcc;
       text-align: center;
     }
-    #next-button {
-      display: none;
-      margin: 20px auto;
-      padding: 12px 24px;
-      background-color: #00cc99;
-      color: #fff;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
+    #next-link {
+      text-align: center;
+      margin-top: 10px;
     }
-    #next-button:hover {
-      background-color: #00b386;
+    #next-link img {
+      width: 80vw;
+      max-width: 400px;
+      border-radius: 10px;
+      border: 2px solid #00ffcc;
     }
-    @keyframes zoomIn {
-      0% { transform: scale(0.2); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+    #next-link div {
+      color: #00ffcc;
+      font-size: 14px;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🧩 NFT Puzzle Series<br>| 9 3Royal Fairway Cruiser</h1>
-    <div class="grid-container" id="slots">
-      <div class="puzzle-slot" data-index="1"></div>
-      <div class="puzzle-slot" data-index="2"></div>
-      <div class="puzzle-slot" data-index="3"></div>
-      <div class="puzzle-slot" data-index="4"></div>
-    </div>
-    <div class="pieces-container" id="pieces">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_03_P1.jpg" data-index="1" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_03_P2.jpg" data-index="2" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_03_P3.jpg" data-index="3" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_03_P4.jpg" data-index="4" draggable="true">
-    </div>
-    <div id="message"></div>
-    <div id="next-preview-container">
-      <div id="next-preview-label">🔜 다음 퍼즐 미리보기</div>
-      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03.jpg" alt="Next Puzzle Preview">
-    </div>
-    <button id="next-button" onclick="goToNext()">다음 퍼즐로 이동 →</button>
+  <h1>🧩 NFT 퍼즐 9</h1>
+  <div class="grid-container" id="slots">
+    <div class="puzzle-slot" data-index="1"></div>
+    <div class="puzzle-slot" data-index="2"></div>
+    <div class="puzzle-slot" data-index="3"></div>
+    <div class="puzzle-slot" data-index="4"></div>
   </div>
+  <div class="pieces-container" id="pieces">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P1.jpg" data-index="1">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P2.jpg" data-index="2">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P3.jpg" data-index="3">
+    <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P4.jpg" data-index="4">
+  </div>
+  <div id="message"></div>
+  <div id="next-link"></div>
+
   <script>
+    let selectedPiece = null;
     const pieces = document.querySelectorAll('.puzzle-piece');
     const slots = document.querySelectorAll('.puzzle-slot');
     const message = document.getElementById('message');
-    const nextButton = document.getElementById('next-button');
-    const nextPreview = document.getElementById('next-preview-container');
 
     pieces.forEach(piece => {
-      piece.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', piece.dataset.index);
+      piece.addEventListener('click', () => {
+        pieces.forEach(p => p.classList.remove('selected'));
+        piece.classList.add('selected');
+        selectedPiece = piece;
       });
     });
 
     slots.forEach(slot => {
-      slot.addEventListener('dragover', e => e.preventDefault());
-      slot.addEventListener('drop', e => {
-        e.preventDefault();
-        const index = e.dataTransfer.getData('text/plain');
-        const piece = document.querySelector(\`.puzzle-piece[data-index='\${index}']\`);
-        if (slot.children.length === 0 && piece) {
-          slot.appendChild(piece);
+      slot.addEventListener('click', () => {
+        if (selectedPiece && slot.children.length === 0) {
+          slot.appendChild(selectedPiece);
+          selectedPiece.classList.remove('selected');
+          selectedPiece = null;
           checkCompletion();
         }
       });
@@ -152,15 +124,14 @@
       const order = Array.from(slots).map(slot => slot.children[0]?.dataset.index || "");
       const correct = ["1", "2", "3", "4"];
       if (JSON.stringify(order) === JSON.stringify(correct)) {
-        message.textContent = "🎉 퍼즐 완성! NFT 생성 완료!";
-        document.getElementById('pieces').style.display = 'none';
-        nextPreview.style.display = 'block';
-        nextButton.style.display = 'block';
+        message.textContent = "🎉 퍼즐 완성!";
+        document.getElementById('next-link').innerHTML = `
+          <a href="nft_puzzle_10.html">
+            <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft4_03.jpg" alt="다음 퍼즐">
+            <div>➡️ 다음 퍼즐로 이동</div>
+          </a>
+        `;
       }
-    }
-
-    function goToNext() {
-      window.location.href = "nft_series_10.html";
     }
   </script>
 </body>
