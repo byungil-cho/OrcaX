@@ -21,10 +21,12 @@
     h1 {
       color: #00e0ff;
       margin-bottom: 10px;
+      font-size: 2em;
     }
     h2 {
       color: #ffcc00;
       margin-bottom: 30px;
+      font-size: 1.2em;
     }
     .grid {
       display: flex;
@@ -64,12 +66,35 @@
       background: #00cc99;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.5em;
+      }
+      h2 {
+        font-size: 1em;
+      }
       .grid a {
         width: 100px;
+        padding: 8px;
       }
       .grid a img {
         width: 90px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 10px;
+      }
+      .grid {
+        gap: 10px;
+      }
+      .grid a {
+        width: 90px;
+        padding: 6px;
+      }
+      .grid a img {
+        width: 80px;
       }
     }
   </style>
