@@ -97,6 +97,24 @@
       0% { transform: scale(0.2); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
+
+    @media (max-width: 600px) {
+      .grid-container {
+        grid-template-columns: repeat(2, 160px);
+        grid-template-rows: repeat(2, 110px);
+      }
+      .puzzle-slot, .puzzle-piece {
+        width: 160px;
+        height: 110px;
+      }
+      .pieces-container img {
+        width: 80px;
+        height: 55px;
+      }
+      #next-preview {
+        width: 300px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -110,9 +128,9 @@
     </div>
     <div class="pieces-container" id="pieces">
       <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P3.jpg" data-index="3" draggable="true">
-<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P4.jpg" data-index="4" draggable="true">
-<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P1.jpg" data-index="1" draggable="true">
-<img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P2.jpg" data-index="2" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P4.jpg" data-index="4" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P1.jpg" data-index="1" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft1_01_P2.jpg" data-index="2" draggable="true">
     </div>
     <div id="message"></div>
     <div id="next-preview-container">
@@ -129,6 +147,13 @@
     const nextPreview = document.getElementById('next-preview-container');
 
     pieces.forEach(piece => {
+      piece.addEventListener('touchstart', e => {
+        e.target.classList.add('dragging');
+      });
+      piece.addEventListener('touchend', e => {
+        e.target.classList.remove('dragging');
+      });
+
       piece.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', piece.dataset.index);
       });
