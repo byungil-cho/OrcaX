@@ -3,9 +3,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>🎰 OrcaX 룰렛 이벤트</title>
+  <title>🎰 OrcaX 룰렛</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <style>
     body {
       background-color: #000018;
@@ -14,82 +13,191 @@
       text-align: center;
       margin: 0;
       padding: 0;
-      overflow: hidden;
     }
 
     h1 {
+      margin-top: 30px;
+      font-size: 2.5rem;
       color: #00e0ff;
-      margin-top: 40px;
-      font-size: 2.8rem;
     }
 
-    .roulette-wrapper {
-      margin-top: 60px;
+    #wheel-container {
+      position: relative;
+      margin: 40px auto;
+      width: 320px;
+      height: 320px;
     }
 
-    .wheel {
-      width: 300px;
-      height: 300px;
-      border: 10px solid gold;
+    #wheel {
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
-      margin: 0 auto;
-      background-image: conic-gradient(
-        #00e0ff 0% 25%,
-        #ff4081 25% 50%,
-        #00cc99 50% 75%,
-        #ffcc00 75% 100%
+      border: 8px solid gold;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: rotate(0deg);
+      transition: transform 5s ease-out;
+      background: conic-gradient(
+        #00e0ff 0% 11.11%,
+        #ff4081 11.11% 22.22%,
+        #00cc99 22.22% 33.33%,
+        #ffcc00 33.33% 44.44%,
+        #00ffcc 44.44% 55.55%,
+        #ff6666 55.55% 66.66%,
+        #cc99ff 66.66% 77.77%,
+        #66ff66 77.77% 88.88%,
+        #999999 88.88% 100%
       );
-      animation: spin 5s linear infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .segment-labels {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
     }
 
-    .pointer {
+    .segment-label {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transform-origin: center;
+      text-align: center;
+    }
+
+    .segment-label span {
+      display: block;
+      transform-origin: bottom center;
+      transform: translateY(20px) rotate(0deg);
+      font-size: 14px;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .orca {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 80px;
+      height: 80px;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    #pointer {
       width: 0;
       height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 25px solid red;
-      margin: 30px auto;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      margin: 0 auto;
     }
 
-    .message {
-      margin-top: 40px;
-      font-size: 1.5rem;
-      color: #ccc;
-    }
-
-    .btn {
-      margin-top: 30px;
+    button {
       padding: 12px 24px;
-      font-size: 1.2rem;
-      background-color: #00cc99;
-      color: #fff;
+      font-size: 1.1rem;
+      background-color: #00e0ff;
+      color: #000;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
+      margin-top: 20px;
     }
 
-    .btn:hover {
-      background-color: #009f7a;
+    button:disabled {
+      background-color: gray;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: #ffff99;
     }
   </style>
 </head>
 <body>
-  <h1>🎰 OrcaX 룰렛 이벤트</h1>
-
-  <div class="roulette-wrapper">
-    <div class="pointer"></div>
-    <div class="wheel"></div>
+  <h1>🎰 OrcaX 룰렛</h1>
+  <div id="pointer"></div>
+  <div id="wheel-container">
+    <div id="wheel">
+      <div class="segment-labels" id="segmentLabels"></div>
+    </div>
+    <img class="orca" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="고래">
   </div>
+  <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
+  <div id="result"></div>
+  <button onclick="location.href='index.html'">← 처음으로 돌아가기</button>
 
-  <div class="message">
-    룰렛이 회전 중입니다... 잠시만 기다려주세요!
-  </div>
+  <script>
+    const spinBtn = document.getElementById('spinBtn');
+    const leftCount = document.getElementById('leftCount');
+    const resultDiv = document.getElementById('result');
+    const wheel = document.getElementById('wheel');
+    const segmentLabels = document.getElementById('segmentLabels');
 
-  <button class="btn" onclick="location.href='index.html'">홈으로 돌아가기</button>
+    const rewards = ['꽝', '10 ORCX', '30 ORCX', '50 ORCX', '70 ORCX', '100 ORCX', '120 ORCX', '500 ORCX', '1000 ORCX'];
+
+    function getTodayKey() {
+      const today = new Date();
+      return `spinCount_${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
+    }
+
+    function getSpinCount() {
+      return parseInt(localStorage.getItem(getTodayKey()) || '0');
+    }
+
+    function increaseSpinCount() {
+      const key = getTodayKey();
+      let count = getSpinCount();
+      localStorage.setItem(key, count + 1);
+    }
+
+    function updateSpinUI() {
+      const count = getSpinCount();
+      leftCount.textContent = 10 - count;
+      spinBtn.disabled = count >= 10;
+    }
+
+    function drawLabels() {
+      const n = rewards.length;
+      for (let i = 0; i < n; i++) {
+        const div = document.createElement('div');
+        div.className = 'segment-label';
+        const angle = (360 / n) * i;
+        div.style.transform = `rotate(${angle}deg)`;
+        const span = document.createElement('span');
+        span.textContent = rewards[i];
+        div.appendChild(span);
+        segmentLabels.appendChild(div);
+      }
+    }
+
+    function spin() {
+      if (getSpinCount() >= 10) {
+        resultDiv.innerText = "⛔ 하루 10회 제한입니다.";
+        return;
+      }
+
+      const index = Math.floor(Math.random() * rewards.length);
+      const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
+      wheel.style.transform = `rotate(${degrees}deg)`;
+      increaseSpinCount();
+      updateSpinUI();
+      setTimeout(() => {
+        resultDiv.innerText = `🎉 결과: ${rewards[index]}!`;
+      }, 5200);
+    }
+
+    updateSpinUI();
+    drawLabels();
+  </script>
 </body>
+</html>
 </html>
