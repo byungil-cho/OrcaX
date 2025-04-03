@@ -1,17 +1,8 @@
 
-from pathlib import Path
+rom pathlib import Path
 
-# 16개 퍼즐 이미지에 맞춘 순서로 썸네일 구성
-thumbnail_sources = [
-    "nft1_01.jpg", "nft2_01.jpg", "nft3_01.jpg", "nft4_01.jpg",
-    "nft2_02.jpg", "nft3_02.jpg", "nft4_02.jpg", "nft1_02.jpg",
-    "nft3_03.jpg", "nft4_03.jpg", "nft1_03.jpg", "nft2_03.jpg",
-    "nft4_04.jpg", "nft1_04.jpg", "nft2_04.jpg", "nft3_04.jpg"
-]
-
-# HTML 코드 작성 시작
-puzzle_thumbnails_16 = """
-<!DOCTYPE html>
+# HTML 콘텐츠 정의
+html_content = """<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -92,19 +83,30 @@ puzzle_thumbnails_16 = """
     <h1>🐳 OrcaX Puzzle</h1>
     <h2>Select the First Puzzle to Begin</h2>
     <div class="grid">
-"""
-
-# 썸네일 삽입 (첫 번째만 클릭 가능)
-for i, img in enumerate(thumbnail_sources):
-    label = f"Puzzle {i+1}"
-    if i == 0:
-        puzzle_thumbnails_16 += f'      <a class="active" href="puzzle_{i+1}.html"><img src="{img}" alt="{label}">{label}</a>\n'
-    else:
-        puzzle_thumbnails_16 += f'      <a><img src="{img}" alt="{label}">{label}</a>\n'
-
-# HTML 마무리
-puzzle_thumbnails_16 += """
+      <a class="active" href="puzzle_1.html"><img src="https://byungil-cho.github.io/OrcaX/nft1_01.jpg" alt="Puzzle 1">Puzzle 1</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft2_01.jpg" alt="Puzzle 2">Puzzle 2</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft3_01.jpg" alt="Puzzle 3">Puzzle 3</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="Puzzle 4">Puzzle 4</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg" alt="Puzzle 5">Puzzle 5</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg" alt="Puzzle 6">Puzzle 6</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft4_02.jpg" alt="Puzzle 7">Puzzle 7</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft1_02.jpg" alt="Puzzle 8">Puzzle 8</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft3_03.jpg" alt="Puzzle 9">Puzzle 9</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft4_03.jpg" alt="Puzzle 10">Puzzle 10</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft1_03.jpg" alt="Puzzle 11">Puzzle 11</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft2_03.jpg" alt="Puzzle 12">Puzzle 12</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft4_04.jpg" alt="Puzzle 13">Puzzle 13</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft1_04.jpg" alt="Puzzle 14">Puzzle 14</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft2_04.jpg" alt="Puzzle 15">Puzzle 15</a>
+      <a><img src="https://byungil-cho.github.io/OrcaX/nft3_04.jpg" alt="Puzzle 16">Puzzle 16</a>
     </div>
   </div>
 </body>
 </html>
+"""
+
+# 저장 경로 설정
+file_path = Path("/mnt/data/index.html")
+file_path.write_text(html_content, encoding="utf-8")
+
+file_path
