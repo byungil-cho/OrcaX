@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🎰 OrcaX 룰렛 게임 (하루 10회 한정)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #000018;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      margin-top: 30px;
+      font-size: 2.5rem;
+      color: #00e0ff;
+    }
+
+    #wheel {
+      margin: 50px auto;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 8px solid gold;
+      position: relative;
+      overflow: hidden;
+      transform: rotate(0deg);
+      transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .segment {
+      width: 50%;
+      height: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: 0% 0%;
+      background: #00cc99;
+      color: #000;
+      font-size: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #pointer {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      margin: 0 auto;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      background-color: #00e0ff;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:disabled {
+      background-color: gray;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 30px;
+      font-size: 1.5rem;
+      color: #ffff99;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎰 OrcaX 룰렛 게임</h1>
+  <div id="pointer"></div>
+  <div id="wheel"></div>
+  <button id="spinBtn" onclick="spin()">돌리기 (남은 횟수: <span id='leftCount'></span>)</button>
+  <div id="result"></div>
+
+  <script>
+    const wheel = document.getElementById('wheel');
+    const resultDiv = document.getElementById('result');
+    const spinBtn = document.getElementById('spinBtn');
+    const leftCount = document.getElementById('leftCount');
+
+    const rewards = [
+      { label: '꽝', weight: 15 },
+      { label: '10 ORCX', weight: 15 },
+      { label: '30 ORCX', weight: 15 },
+      { label: '50 ORCX', weight: 15 },
+      { label: '70 ORCX', weight: 15 },
+      { label: '100 ORCX', weight: 10 },
+      { label: '120 ORCX', weight: 8 },
+      { label: '500 ORCX', weight: 5 },
+      { label: '1000 ORCX', weight: 2 }
+    ];
+
+    let segments = [];
+    rewards.forEach((reward) => {
+      for (let i = 0; i < reward.weight; i++) {
+        segments.push(reward.label);
+      }
+    });
+
+    function drawWheel() {
+      const numSegments = rewards.length;
+      for (let i = 0; i < numSegments; i++) {
+        const segment = document.createElement('div');
+        segment.className = 'segment';
+        segment.innerText = rewards[i].label;
+        segment.style.transform = `rotate(${(360 / numSegments) * i}deg) skewY(-60deg)`;
+        segment.style.background = i % 2 === 0 ? '#00cc99' : '#ffcc00';
+        wheel.appendChild(segment);
+      }
+    }
+
+    function getTodayKey() {
+      const today = new Date();
+      return `spinCount_${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
+    }
+
+    function getSpinCount() {
+      const key = getTodayKey();
+      return parseInt(localStorage.getItem(key) || '0');
+    }
+
+    function increaseSpinCount() {
+      const key = getTodayKey();
+      let count = getSpinCount();
+      localStorage.setItem(key, count + 1);
+    }
+
+    function updateSpinUI() {
+      const count = getSpinCount();
+      leftCount.textContent = Math.max(0, 10 - count);
+      spinBtn.disabled = count >= 10;
+    }
+
+    function spin() {
+      const count = getSpinCount();
+      if (count >= 10) {
+        resultDiv.innerText = "⛔ 하루 10회까지만 가능합니다. 내일 다시 도전하세요!";
+        return;
+      }
+
+      const chosen = segments[Math.floor(Math.random() * segments.length)];
+      const index = rewards.findIndex(r => r.label === chosen);
+      const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
+      wheel.style.transition = 'transform 5s ease-out';
+      wheel.style.transform = `rotate(${degrees}deg)`;
+
+      increaseSpinCount();
+      updateSpinUI();
+
+      setTimeout(() => {
+        resultDiv.innerText = `🎉 결과: ${chosen}!`;
+      }, 5200);
+    }
+
+    drawWheel();
+    updateSpinUI();
+  </script>
+</body>
+</html>
