@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🎰 OrcaX 룰렛 이벤트</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      background-color: #000018;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: #00e0ff;
+      margin-top: 40px;
+      font-size: 2.8rem;
+    }
+
+    .roulette-wrapper {
+      margin-top: 60px;
+    }
+
+    .wheel {
+      width: 300px;
+      height: 300px;
+      border: 10px solid gold;
+      border-radius: 50%;
+      margin: 0 auto;
+      background-image: conic-gradient(
+        #00e0ff 0% 25%,
+        #ff4081 25% 50%,
+        #00cc99 50% 75%,
+        #ffcc00 75% 100%
+      );
+      animation: spin 5s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .pointer {
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 25px solid red;
+      margin: 30px auto;
+    }
+
+    .message {
+      margin-top: 40px;
+      font-size: 1.5rem;
+      color: #ccc;
+    }
+
+    .btn {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      background-color: #00cc99;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #009f7a;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎰 OrcaX 룰렛 이벤트</h1>
+
+  <div class="roulette-wrapper">
+    <div class="pointer"></div>
+    <div class="wheel"></div>
+  </div>
+
+  <div class="message">
+    룰렛이 회전 중입니다... 잠시만 기다려주세요!
+  </div>
+
+  <button class="btn" onclick="location.href='index.html'">홈으로 돌아가기</button>
+</body>
+</html>
