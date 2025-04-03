@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>NFT Puzzle Series | 9 4Pinu Club Elite</title>
+  <title>NFT Puzzle Series | 9 3Royal Fairway Cruiser</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -62,7 +62,8 @@
       text-align: center;
     }
     #next-preview {
-      width: 450px;
+      width: 100%;
+      max-width: 450px;
       border: 4px solid gold;
       border-radius: 12px;
       animation: zoomIn 1s ease forwards;
@@ -101,7 +102,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>🧩 NFT Puzzle Series<br>| 9 4Pinu Club Elite</h1>
+    <h1>🧩 NFT Puzzle Series<br>| 9 3Royal Fairway Cruiser</h1>
     <div class="grid-container" id="slots">
       <div class="puzzle-slot" data-index="1"></div>
       <div class="puzzle-slot" data-index="2"></div>
@@ -109,15 +110,15 @@
       <div class="puzzle-slot" data-index="4"></div>
     </div>
     <div class="pieces-container" id="pieces">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P1.jpg" data-index="1" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P3.jpg" data-index="3" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P2.jpg" data-index="2" draggable="true">
-      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03_P4.jpg" data-index="4" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_03_P1.jpg" data-index="1" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_03_P2.jpg" data-index="2" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_03_P3.jpg" data-index="3" draggable="true">
+      <img class="puzzle-piece" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft2_03_P4.jpg" data-index="4" draggable="true">
     </div>
     <div id="message"></div>
     <div id="next-preview-container">
       <div id="next-preview-label">🔜 다음 퍼즐 미리보기</div>
-      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft4_03.jpg" alt="Next Puzzle Preview">
+      <img id="next-preview" src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/nft3_03.jpg" alt="Next Puzzle Preview">
     </div>
     <button id="next-button" onclick="goToNext()">다음 퍼즐로 이동 →</button>
   </div>
@@ -139,7 +140,7 @@
       slot.addEventListener('drop', e => {
         e.preventDefault();
         const index = e.dataTransfer.getData('text/plain');
-        const piece = document.querySelector(`.puzzle-piece[data-index='${index}']`);
+        const piece = document.querySelector(\`.puzzle-piece[data-index='\${index}']\`);
         if (slot.children.length === 0 && piece) {
           slot.appendChild(piece);
           checkCompletion();
