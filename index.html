@@ -1,4 +1,16 @@
 
+from pathlib import Path
+
+# 16개 퍼즐 이미지에 맞춘 순서로 썸네일 구성
+thumbnail_sources = [
+    "nft1_01.jpg", "nft2_01.jpg", "nft3_01.jpg", "nft4_01.jpg",
+    "nft2_02.jpg", "nft3_02.jpg", "nft4_02.jpg", "nft1_02.jpg",
+    "nft3_03.jpg", "nft4_03.jpg", "nft1_03.jpg", "nft2_03.jpg",
+    "nft4_04.jpg", "nft1_04.jpg", "nft2_04.jpg", "nft3_04.jpg"
+]
+
+# HTML 코드 작성 시작
+puzzle_thumbnails_16 = """
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -14,7 +26,7 @@
       padding: 0;
     }
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 20px;
       text-align: center;
@@ -31,29 +43,46 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
+      gap: 20px;
     }
     .grid a {
-      display: block;
-      background: #222;
-      padding: 15px 20px;
-      border-radius: 8px;
-      color: #fff;
-      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #333;
+      padding: 10px;
+      border-radius: 10px;
       text-decoration: none;
+      color: #aaa;
+      width: 140px;
       transition: background 0.3s;
-      min-width: 120px;
-      text-align: center;
+      pointer-events: none;
     }
-    .grid a:hover {
+    .grid a img {
+      width: 120px;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 2px solid transparent;
+    }
+    .grid a.active {
+      background: #222;
+      color: #fff;
+      pointer-events: auto;
+    }
+    .grid a.active img {
+      border-color: #00ccff;
+    }
+    .grid a:hover.active {
       background: #00cc99;
     }
 
     @media (max-width: 600px) {
       .grid a {
-        min-width: 100px;
-        font-size: 14px;
-        padding: 12px;
+        width: 100px;
+      }
+      .grid a img {
+        width: 90px;
       }
     }
   </style>
@@ -61,29 +90,20 @@
 <body>
   <div class="container">
     <h1>🐳 OrcaX Puzzle</h1>
-    <h2>Choose Your NFT Puzzle</h2>
+    <h2>Select the First Puzzle to Begin</h2>
     <div class="grid">
-      <a href="nft_series_01.html">Series 1</a>
-      <a href="nft_series_02.html">Series 2</a>
-      <a href="nft_series_03.html">Series 3</a>
-      <a href="nft_series_04.html">Series 4</a>
-      <a href="nft_series_05.html">Series 5</a>
-      <a href="nft_series_06.html">Series 6</a>
-      <a href="nft_series_07.html">Series 7</a>
-      <a href="nft_series_08.html">Series 8</a>
-      <a href="nft_series_09.html">Series 9</a>
-      <a href="nft_series_10.html">Series 10</a>
-      <a href="nft_series_11.html">Series 11</a>
-      <a href="nft_series_12.html">Series 12</a>
-      <a href="nft_series_13.html">Series 13</a>
-      <a href="nft_series_14.html">Series 14</a>
-      <a href="nft_series_15.html">Series 15</a>
-      <a href="nft_series_16.html">Series 16</a>
-      <a href="nft_series_17.html">Series 17</a>
-      <a href="nft_series_18.html">Series 18</a>
-      <a href="nft_series_19.html">Series 19</a>
-      <a href="tonghap_collection.html">🎁 Collection Page</a>
+"""
 
+# 썸네일 삽입 (첫 번째만 클릭 가능)
+for i, img in enumerate(thumbnail_sources):
+    label = f"Puzzle {i+1}"
+    if i == 0:
+        puzzle_thumbnails_16 += f'      <a class="active" href="puzzle_{i+1}.html"><img src="{img}" alt="{label}">{label}</a>\n'
+    else:
+        puzzle_thumbnails_16 += f'      <a><img src="{img}" alt="{label}">{label}</a>\n'
+
+# HTML 마무리
+puzzle_thumbnails_16 += """
     </div>
   </div>
 </body>
