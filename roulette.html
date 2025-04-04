@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -149,6 +148,11 @@
       return `spinCount_${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
     }
 
+    function getAllowSpinKey() {
+      const today = new Date();
+      return `allowSpin_${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
+    }
+
     function getSpinCount() {
       return parseInt(localStorage.getItem(getTodayKey()) || '0');
     }
@@ -159,10 +163,18 @@
       localStorage.setItem(key, count + 1);
     }
 
+    function setAllowSpin(value) {
+      localStorage.setItem(getAllowSpinKey(), value ? "true" : "false");
+    }
+
+    function getAllowSpin() {
+      return localStorage.getItem(getAllowSpinKey()) === "true";
+    }
+
     function updateSpinUI() {
       const count = getSpinCount();
       leftCount.textContent = 10 - count;
-      spinBtn.disabled = count >= 10;
+      spinBtn.disabled = (count >= 10) || !getAllowSpin();
     }
 
     function drawLabels() {
@@ -180,8 +192,8 @@
     }
 
     function spin() {
-      if (getSpinCount() >= 10) {
-        resultDiv.innerText = "⛔ 하루 10회 제한입니다.";
+      if (getSpinCount() >= 10 || !getAllowSpin()) {
+        resultDiv.innerText = "⛔ 룰렛 기회가 없습니다.";
         return;
       }
 
@@ -189,6 +201,7 @@
       const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
       wheel.style.transform = `rotate(${degrees}deg)`;
       increaseSpinCount();
+      setAllowSpin(false);
       updateSpinUI();
       setTimeout(() => {
         resultDiv.innerText = `🎉 결과: ${rewards[index]}!`;
@@ -199,8 +212,4 @@
     drawLabels();
   </script>
 </body>
-</html>
-  </script>
-</body>
-</html>
 </html>
