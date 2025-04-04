@@ -48,9 +48,6 @@
         #66ff66 77.77% 88.88%,
         #999999 88.88% 100%
       );
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     .segment-labels {
@@ -141,28 +138,33 @@
     const wheel = document.getElementById('wheel');
     const segmentLabels = document.getElementById('segmentLabels');
 
+    // 룰렛에 표시될 보상 항목들
     const rewards = ['꽝', '10 ORCX', '30 ORCX', '50 ORCX', '70 ORCX', '100 ORCX', '120 ORCX', '500 ORCX', '1000 ORCX'];
 
+    // 오늘 날짜 기반 키 생성 (로컬스토리지에서 사용)
     function getTodayKey() {
       const today = new Date();
-      return `spinCount_${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
+      return `spinCount_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
     }
 
     function getAllowSpinKey() {
       const today = new Date();
-      return `allowSpin_${today.getFullYear()}${today.getMonth()}${today.getDate()}`;
+      return `allowSpin_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
     }
 
+    // 현재까지 룰렛 사용 횟수 불러오기
     function getSpinCount() {
       return parseInt(localStorage.getItem(getTodayKey()) || '0');
     }
 
+    // 룰렛 사용 횟수 증가시키기
     function increaseSpinCount() {
       const key = getTodayKey();
       let count = getSpinCount();
       localStorage.setItem(key, count + 1);
     }
 
+    // 퍼즐 완료 여부 확인
     function setAllowSpin(value) {
       localStorage.setItem(getAllowSpinKey(), value ? "true" : "false");
     }
@@ -171,12 +173,14 @@
       return localStorage.getItem(getAllowSpinKey()) === "true";
     }
 
+    // UI에 남은 횟수 표시
     function updateSpinUI() {
       const count = getSpinCount();
       leftCount.textContent = 10 - count;
       spinBtn.disabled = (count >= 10) || !getAllowSpin();
     }
 
+    // 룰렛 위에 텍스트 보상 표시
     function drawLabels() {
       const n = rewards.length;
       for (let i = 0; i < n; i++) {
@@ -191,6 +195,7 @@
       }
     }
 
+    // 룰렛 회전 함수
     function spin() {
       if (getSpinCount() >= 10 || !getAllowSpin()) {
         resultDiv.innerText = "⛔ 룰렛 기회가 없습니다.";
@@ -208,6 +213,7 @@
       }, 5200);
     }
 
+    // 페이지 로드 시 실행
     updateSpinUI();
     drawLabels();
   </script>
