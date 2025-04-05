@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>OrcaX NFT Puzzle Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #00e0ff;
+      margin-bottom: 10px;
+      font-size: 2em;
+    }
+    h2 {
+      color: #ffcc00;
+      margin-bottom: 30px;
+      font-size: 1.2em;
+    }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .grid a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #333;
+      padding: 10px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #aaa;
+      width: 140px;
+      transition: background 0.3s;
+      pointer-events: none;
+    }
+    .grid a img {
+      width: 120px;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 2px solid transparent;
+    }
+    .grid a.active {
+      background: #222;
+      color: #fff;
+      pointer-events: auto;
+    }
+    .grid a.active img {
+      border-color: #00ccff;
+    }
+    .grid a:hover.active {
+      background: #00cc99;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🐳 OrcaX Puzzle</h1>
+    <h2>Select the Puzzle to Begin</h2>
+    <div class="grid">
+      <a class="active" href="nft_series_01.html">
+        <img src="OrcoX_fzl_01_001.jpg" alt="Puzzle 1">Puzzle 1
+      </a>
+      <a class="active" href="nft_series_02.html">
+        <img src="OrcoX_fzl_01_002.jpg" alt="Puzzle 2">Puzzle 2
+      </a>
+      <a class="active" href="nft_series_03.html">
+        <img src="OrcoX_fzl_01_003.jpg" alt="Puzzle 3">Puzzle 3
+      </a>
+      <a class="active" href="nft_series_04.html">
+        <img src="OrcoX_fzl_01_004.jpg" alt="Puzzle 4">Puzzle 4
+      </a>
+    </div>
+  </div>
+</body>
+</html>
