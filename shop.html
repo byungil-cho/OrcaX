@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX NFT 쿠폰 상점</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+      text-align: center;
+    }
+    header {
+      background-color: #101820;
+      color: white;
+      padding: 1rem;
+      font-size: 1.5rem;
+    }
+    .wallet-box {
+      margin: 1rem;
+    }
+    .wallet-box button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .shop-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      padding: 1rem;
+    }
+    .card {
+      background: white;
+      width: 280px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .card-body {
+      padding: 1rem;
+    }
+    .card-body h3 {
+      margin: 0.5rem 0;
+    }
+    .card-body p {
+      margin: 0.25rem 0;
+    }
+    .card-body button {
+      margin-top: 1rem;
+      background-color: #0077ff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>🐳 OrcaX NFT 쿠폰 상점</header>
+
+  <div class="wallet-box">
+    <button onclick="connectPhantom()">🦊 팬텀 지갑 연결</button>
+    <p id="wallet-address"></p>
+  </div>
+
+  <div class="shop-container">
+    <div class="card">
+      <img src="orcax-18000.jpg" alt="NFT 18000">
+      <div class="card-body">
+        <h3>OrcaX 18,000 ORCX 쿠폰</h3>
+        <p>오전 11시 이전 사용 가능</p>
+        <p>조조 할인 NFT</p>
+        <button onclick="buyNft('silver', 18000)">구매하기</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="orcax-20000.jpg" alt="NFT 20000">
+      <div class="card-body">
+        <h3>OrcaX 20,000 ORCX 쿠폰</h3>
+        <p>오후 2시 이전 사용 가능</p>
+        <p>점심 할인 NFT</p>
+        <button onclick="buyNft('gold', 20000)">구매하기</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="orcax-25000.jpg" alt="NFT 25000">
+      <div class="card-body">
+        <h3>OrcaX 25,000 ORCX 쿠폰</h3>
+        <p>시간 제한 없음</p>
+        <p>VVIP NFT 쿠폰</p>
+        <button onclick="buyNft('royal', 25000)">구매하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentWallet = "";
+
+    async function connectPhantom() {
+      if (window.solana && window.solana.isPhantom) {
+        try {
+          const resp = await window.solana.connect();
+          currentWallet = resp.publicKey.toString();
+          document.getElementById("wallet-address").innerText = `🧾 지갑 주소: ${currentWallet}`;
+        } catch (err) {
+          alert("지갑 연결 취소됨");
+        }
+      } else {
+        alert("팬텀 지갑을 설치해주세요.");
+      }
+    }
+
+    async function buyNft(nftType, price) {
+      if (!currentWallet) {
+        alert("먼저 지갑을 연결해주세요");
+        return;
+      }
+
+      const message = `OrcaX 구매 요청: ${nftType} - ${Date.now()}`;
+      const encodedMessage = new TextEncoder().encode(message);
+      const signed = await window.solana.signMessage(encodedMessage, "utf8");
+
+      const res = await fetch("/api/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wallet: currentWallet,
+          message,
+          signature: Array.from(signed.signature),
+          nftType
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("구매 성공!");
+      } else {
+        alert("구매 실패: " + data.error);
+      }
+    }
+  </script>
+</body>
+</html>
