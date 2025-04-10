@@ -1,116 +1,91 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrcaX 프로젝트 소개</title>
+  <meta charset="UTF-8">
+  <title>OrcaX 소개 페이지</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      margin: 0;
+      background: #111;
+      color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #0d0d0d;
-      color: #f0f0f0;
-      line-height: 1.6;
+      margin: 0;
+      padding: 0;
     }
-    header {
-      background: #00cc99;
-      color: #111;
-      padding: 1rem;
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
       text-align: center;
-      font-size: 1.8rem;
-      font-weight: bold;
     }
-    section {
-      padding: 2rem 1.5rem;
-      max-width: 900px;
-      margin: auto;
+    h1 {
+      color: #00e0ff;
+      margin-bottom: 10px;
+      font-size: 2.2em;
     }
     h2 {
-      color: #00e0ff;
-      margin-bottom: 0.5rem;
+      color: #ffcc00;
+      margin-bottom: 20px;
+      font-size: 1.5em;
     }
-    .highlight {
-      color: #00ffcc;
-      font-weight: bold;
+    p {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      color: #ccc;
     }
-    .img-placeholder {
+    .image-placeholder {
       background: #222;
       width: 100%;
-      height: 200px;
-      border-radius: 10px;
-      margin: 1rem 0;
+      max-width: 600px;
+      height: 300px;
+      margin: 0 auto 2rem;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #666;
-      font-style: italic;
+      font-size: 1.2rem;
     }
-    a.back {
-      display: inline-block;
-      margin: 2rem 0;
-      padding: 0.5rem 1rem;
-      background: #00ccff;
-      color: #111;
+    .nav-link {
+      margin-top: 40px;
+    }
+    .nav-link a {
+      color: #00ccff;
       text-decoration: none;
-      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1rem;
+      border: 1px solid #00ccff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .nav-link a:hover {
+      background-color: #00ccff;
+      color: #111;
     }
   </style>
 </head>
 <body>
-  <header>🐳 OrcaX 프로젝트 소개</header>
+  <div class="container">
+    <h1>📘 OrcaX 프로젝트 소개</h1>
+    <h2>함께 하는 세상을 만들어갑니다</h2>
 
-  <section>
-    <h2>🌍 슬로건</h2>
-    <p class="highlight">함께 하는 세상을 만들어간다.</p>
-    <div class="img-placeholder">[슬로건 관련 이미지 자리]</div>
-  </section>
+    <div class="image-placeholder">[ 실물 기반 자산 이미지 자리 ]</div>
 
-  <section>
-    <h2>🚀 OrcaX란?</h2>
-    <p>OrcaX는 <span class="highlight">실물 자산</span>을 기반으로 설계된 Web3 프로젝트입니다.
-      스크린골프장 운영, 건물과 토지 수익 구조를 바탕으로 현실과 디지털을 연결합니다.</p>
-    <div class="img-placeholder">[실물 자산 예시 이미지 자리]</div>
-  </section>
+    <p>OrcaX는 실물 자산 기반의 Web3 프로젝트로, 토지, 건물, 스크린골프 운영 등 현실 세계의 가치를 토큰에 담았습니다. ORCX 토큰은 이러한 실물 기반 경제를 디지털로 확장하는 연결 고리 역할을 합니다.</p>
 
-  <section>
-    <h2>💰 ORCX 토큰</h2>
-    <ul>
-      <li>총 발행량: 50억 ORCX</li>
-      <li>1 ORCX = 1원 (고정가)</li>
-      <li>보유자는 수익 분배, 참여, 투표 등 생태계에 영향력 행사</li>
-    </ul>
-  </section>
+    <div class="image-placeholder">[ ORCX 토큰 생태계 이미지 자리 ]</div>
 
-  <section>
-    <h2>🎟️ NFT 쿠폰 시스템</h2>
-    <ul>
-      <li>쿠폰 NFT: 18,000 / 20,000 / 25,000 ORCX권</li>
-      <li>10장 구매 시 1장 보너스 제공</li>
-      <li>통합 NFT: 예약, 쿠폰, 자격 연동</li>
-    </ul>
-    <div class="img-placeholder">[NFT 카드 시각 예시 이미지 자리]</div>
-  </section>
+    <p>쿠폰형 NFT는 다양한 실물 서비스와 연계되어 있으며, 이를 통해 할인 혜택을 제공하고 게임 요소와 통합하여 재미를 더합니다. Polygon 체인 기반의 NFT와 Solana 기반 토큰을 연계한 구조로 Web3 실용성을 강화합니다.</p>
 
-  <section>
-    <h2>🏪 가맹점 생태계</h2>
-    <p><strong>식당, 리빙, 가전, 뷰티, 체험 업종 중심</strong>의 실사용 기반 가맹점을 모집 중입니다.<br>
-      OrcaX 토큰은 실제 점포에서 결제, 할인, 마케팅 수단으로 사용됩니다.</p>
-  </section>
+    <div class="image-placeholder">[ 제휴 가맹점 예시 이미지 자리 ]</div>
 
-  <section>
-    <h2>🌱 프로젝트 철학</h2>
-    <blockquote style="font-style:italic; color:#aaa; max-width:600px; margin:auto;">
-      "NFT는 내 손에서 나왔지만, 그 안에는 함께 웃고 우는 사람들의 그림자가 들어 있다."
-    </blockquote>
-    <p style="margin-top:1rem;">
-      OrcaX는 단순한 플랫폼이 아닙니다. <span class="highlight">사람 중심의 연결, 신뢰, 경험</span>을 통해
-      Web3의 진짜 의미를 구현해 나가고자 합니다.
-    </p>
-    <div class="img-placeholder">[커뮤니티 철학 관련 이미지 자리]</div>
-  </section>
+    <p>ORCX는 다양한 가맹점을 통해 실생활에 적용됩니다. 식당, 레저, 생활가전 등 다양한 업종에서 사용할 수 있도록 지속적인 제휴를 확장 중이며, 퍼즐 게임과 쇼핑몰 등을 통해 사용자 접점을 확대하고 있습니다.</p>
 
-  <section style="text-align:center">
-    <a href="shop.html" class="back">← 쇼핑몰로 돌아가기</a>
-  </section>
+    <div class="nav-link">
+      <a href="index.html">🏠 퍼즐 메인으로 돌아가기</a>
+    </div>
+  </div>
 </body>
 </html>
