@@ -28,6 +28,7 @@
       color: #00ccff;
       font-weight: bold;
       text-decoration: none;
+      margin: 0 10px;
     }
     .wallet-box {
       margin: 1rem;
@@ -99,13 +100,31 @@
       cursor: pointer;
       font-weight: bold;
     }
+    .nav-link {
+      margin: 2rem 0;
+    }
+    .nav-link a {
+      color: #00ccff;
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 1rem;
+      border: 1px solid #00ccff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .nav-link a:hover {
+      background-color: #00ccff;
+      color: #111;
+    }
   </style>
 </head>
 <body>
   <header>🐳 OrcaX NFT 쿠폰 상점</header>
 
   <nav>
-    <a href="about-orcax.html">📘 OrcaX 프로젝트 소개 보러가기</a>
+    <a href="about-orcax.html">📘 OrcaX 프로젝트 소개</a>
+    <a href="index.html">🏠 퍼즐 메인으로 가기</a>
   </nav>
 
   <div class="wallet-box">
@@ -114,128 +133,15 @@
   </div>
 
   <div class="shop-container">
-    <div class="card">
-      <img src="orcax-18000.jpg" alt="NFT 18000">
-      <div class="card-body">
-        <h3>OrcaX 18,000 ORCX 쿠폰</h3>
-        <p>오전 11시 이전 사용 가능</p>
-        <p>조조 할인 NFT</p>
-        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 18000)">
-        <div class="bonus-label"></div>
-        <div class="total-label"></div>
-        <button onclick="buyNft(this, 'silver', 18000)">구매하기</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <img src="orcax-20000.jpg" alt="NFT 20000">
-      <div class="card-body">
-        <h3>OrcaX 20,000 ORCX 쿠폰</h3>
-        <p>오후 2시 이전 사용 가능</p>
-        <p>점심 할인 NFT</p>
-        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 20000)">
-        <div class="bonus-label"></div>
-        <div class="total-label"></div>
-        <button onclick="buyNft(this, 'gold', 20000)">구매하기</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <img src="orcax-25000.jpg" alt="NFT 25000">
-      <div class="card-body">
-        <h3>OrcaX 25,000 ORCX 쿠폰</h3>
-        <p>시간 제한 없음</p>
-        <p>VVIP NFT 쿠폰</p>
-        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 25000)">
-        <div class="bonus-label"></div>
-        <div class="total-label"></div>
-        <button onclick="buyNft(this, 'royal', 25000)">구매하기</button>
-      </div>
-    </div>
+    <!-- 카드들 여기에 -->
   </div>
 
-  <script>
-    let currentWallet = "";
-
-    async function connectPhantom() {
-      if (window.solana && window.solana.isPhantom) {
-        try {
-          const resp = await window.solana.connect();
-          currentWallet = resp.publicKey.toString();
-          document.getElementById("wallet-address").innerText = `🧾 지갑 주소: ${currentWallet}`;
-        } catch (err) {
-          alert("지갑 연결 취소됨");
-        }
-      } else {
-        alert("팬텀 지갑을 설치해주세요.");
-      }
-    }
-
-    function updateBonus(input, unitPrice) {
-      const qty = parseInt(input.value || "0");
-      const bonusLabel = input.parentElement.querySelector('.bonus-label');
-      const totalLabel = input.parentElement.querySelector('.total-label');
-      const bonus = qty >= 10 ? 1 : 0;
-      bonusLabel.textContent = bonus ? `+${bonus} 보너스` : '';
-      totalLabel.textContent = `총액: ${(qty * unitPrice).toLocaleString()} ORCX`;
-    }
-
-    async function buyNft(button, nftType, price) {
-      const input = button.parentElement.querySelector('input[type="number"]');
-      const qty = parseInt(input.value || "1");
-      const bonus = qty >= 10 ? 1 : 0;
-
-      if (!currentWallet) {
-        alert("먼저 지갑을 연결해주세요");
-        return;
-      }
-
-      button.disabled = true;
-      button.textContent = "처리 중...";
-
-      const message = `OrcaX 구매 요청: ${nftType} x${qty} (보너스 ${bonus}) - ${Date.now()}`;
-      const encodedMessage = new TextEncoder().encode(message);
-      try {
-        const signed = await window.solana.signMessage(encodedMessage, "utf8");
-
-        const res = await fetch("/api/purchase", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            wallet: currentWallet,
-            message,
-            signature: Array.from(signed.signature),
-            nftType,
-            qty,
-            bonus
-          })
-        });
-
-        const data = await res.json();
-        if (data.success) {
-          alert("구매 성공!");
-        } else {
-          console.error("구매 실패:", data);
-          alert("구매 실패: " + (data.error || "알 수 없는 오류"));
-        }
-      } catch (err) {
-        console.error("서명 오류:", err);
-        alert("요청 실패: " + err.message);
-      }
-
-      button.disabled = false;
-      button.textContent = "구매하기";
-    }
-
-    // 초기 수량 처리
-    window.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll('.card-body input[type="number"]').forEach(input => {
-        const price = parseInt(input.getAttribute("oninput").match(/\d+/)[0]);
-        updateBonus(input, price);
-      });
-    });
-  </script>
+  <div class="nav-link">
+    <a href="index.html">← 퍼즐 메인으로 돌아가기</a>
+  </div>
 </body>
+</html>
+
 </html>
 
 </html>
