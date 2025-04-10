@@ -133,16 +133,67 @@
   </div>
 
   <div class="shop-container">
-    <!-- 카드들 여기에 -->
+    <div class="card">
+      <img src="orcax-18000.jpg" alt="NFT 18000">
+      <div class="card-body">
+        <h3>OrcaX 18,000 ORCX 쿠폰</h3>
+        <p>오전 11시 이전 사용 가능</p>
+        <p>조조 할인 NFT</p>
+        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 18000)">
+        <div class="bonus-label"></div>
+        <div class="total-label"></div>
+        <button onclick="buyNft(this, 'silver', 18000)">구매하기</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="orcax-20000.jpg" alt="NFT 20000">
+      <div class="card-body">
+        <h3>OrcaX 20,000 ORCX 쿠폰</h3>
+        <p>오후 2시 이전 사용 가능</p>
+        <p>점심 할인 NFT</p>
+        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 20000)">
+        <div class="bonus-label"></div>
+        <div class="total-label"></div>
+        <button onclick="buyNft(this, 'gold', 20000)">구매하기</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="orcax-25000.jpg" alt="NFT 25000">
+      <div class="card-body">
+        <h3>OrcaX 25,000 ORCX 쿠폰</h3>
+        <p>시간 제한 없음</p>
+        <p>VVIP NFT 쿠폰</p>
+        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 25000)">
+        <div class="bonus-label"></div>
+        <div class="total-label"></div>
+        <button onclick="buyNft(this, 'royal', 25000)">구매하기</button>
+      </div>
+    </div>
   </div>
 
   <div class="nav-link">
     <a href="index.html">← 퍼즐 메인으로 돌아가기</a>
   </div>
+
+  <script>
+    function updateBonus(input, unitPrice) {
+      const qty = parseInt(input.value || "0");
+      const bonusLabel = input.parentElement.querySelector('.bonus-label');
+      const totalLabel = input.parentElement.querySelector('.total-label');
+      const bonus = qty >= 10 ? 1 : 0;
+      bonusLabel.textContent = bonus ? `+${bonus} 보너스` : '';
+      totalLabel.textContent = `총액: ${(qty * unitPrice).toLocaleString()} ORCX`;
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll('.card-body input[type="number"]').forEach(input => {
+        const price = parseInt(input.getAttribute("oninput").match(/\d+/)[0]);
+        updateBonus(input, price);
+      });
+    });
+  </script>
 </body>
-</html>
-
-</html>
-
 </html>
 
