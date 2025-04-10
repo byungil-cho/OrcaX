@@ -6,17 +6,19 @@
   <title>OrcaX NFT 쿠폰 상점</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f0f0f0;
+      background-color: #111;
+      color: #eee;
       text-align: center;
     }
     header {
-      background-color: #101820;
-      color: white;
+      background-color: #00cc99;
+      color: #111;
       padding: 1rem;
       font-size: 1.5rem;
+      font-weight: bold;
     }
     .wallet-box {
       margin: 1rem;
@@ -25,6 +27,10 @@
       padding: 0.5rem 1rem;
       font-size: 1rem;
       cursor: pointer;
+      background-color: #0077ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
     }
     .shop-container {
       display: flex;
@@ -34,11 +40,12 @@
       padding: 1rem;
     }
     .card {
-      background: white;
+      background: #222;
       width: 280px;
       border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
       overflow: hidden;
+      color: #ddd;
     }
     .card img {
       width: 100%;
@@ -50,18 +57,38 @@
     }
     .card-body h3 {
       margin: 0.5rem 0;
+      color: #00e0ff;
     }
     .card-body p {
       margin: 0.25rem 0;
+      font-size: 0.9rem;
+    }
+    .card-body input[type="number"] {
+      width: 60px;
+      padding: 4px;
+      border-radius: 4px;
+      border: none;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .card-body .bonus-label {
+      margin-top: 5px;
+      color: #00ff99;
+      font-size: 0.85rem;
+    }
+    .card-body .total-label {
+      color: #ffffff;
+      font-size: 0.85rem;
     }
     .card-body button {
-      margin-top: 1rem;
-      background-color: #0077ff;
-      color: white;
+      margin-top: 0.5rem;
+      background-color: #00ccff;
+      color: #111;
       border: none;
       padding: 0.5rem 1rem;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -80,7 +107,10 @@
         <h3>OrcaX 18,000 ORCX 쿠폰</h3>
         <p>오전 11시 이전 사용 가능</p>
         <p>조조 할인 NFT</p>
-        <button onclick="buyNft('silver', 18000)">구매하기</button>
+        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 18000)">
+        <div class="bonus-label"></div>
+        <div class="total-label"></div>
+        <button onclick="buyNft(this, 'silver', 18000)">구매하기</button>
       </div>
     </div>
 
@@ -90,7 +120,10 @@
         <h3>OrcaX 20,000 ORCX 쿠폰</h3>
         <p>오후 2시 이전 사용 가능</p>
         <p>점심 할인 NFT</p>
-        <button onclick="buyNft('gold', 20000)">구매하기</button>
+        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 20000)">
+        <div class="bonus-label"></div>
+        <div class="total-label"></div>
+        <button onclick="buyNft(this, 'gold', 20000)">구매하기</button>
       </div>
     </div>
 
@@ -100,7 +133,10 @@
         <h3>OrcaX 25,000 ORCX 쿠폰</h3>
         <p>시간 제한 없음</p>
         <p>VVIP NFT 쿠폰</p>
-        <button onclick="buyNft('royal', 25000)">구매하기</button>
+        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 25000)">
+        <div class="bonus-label"></div>
+        <div class="total-label"></div>
+        <button onclick="buyNft(this, 'royal', 25000)">구매하기</button>
       </div>
     </div>
   </div>
@@ -122,34 +158,70 @@
       }
     }
 
-    async function buyNft(nftType, price) {
+    function updateBonus(input, unitPrice) {
+      const qty = parseInt(input.value || "0");
+      const bonusLabel = input.parentElement.querySelector('.bonus-label');
+      const totalLabel = input.parentElement.querySelector('.total-label');
+      const bonus = qty >= 10 ? 1 : 0;
+      bonusLabel.textContent = bonus ? `+${bonus} 보너스` : '';
+      totalLabel.textContent = `총액: ${(qty * unitPrice).toLocaleString()} ORCX`;
+    }
+
+    async function buyNft(button, nftType, price) {
+      const input = button.parentElement.querySelector('input[type="number"]');
+      const qty = parseInt(input.value || "1");
+      const bonus = qty >= 10 ? 1 : 0;
+
       if (!currentWallet) {
         alert("먼저 지갑을 연결해주세요");
         return;
       }
 
-      const message = `OrcaX 구매 요청: ${nftType} - ${Date.now()}`;
+      button.disabled = true;
+      button.textContent = "처리 중...";
+
+      const message = `OrcaX 구매 요청: ${nftType} x${qty} (보너스 ${bonus}) - ${Date.now()}`;
       const encodedMessage = new TextEncoder().encode(message);
-      const signed = await window.solana.signMessage(encodedMessage, "utf8");
+      try {
+        const signed = await window.solana.signMessage(encodedMessage, "utf8");
 
-      const res = await fetch("/api/purchase", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          wallet: currentWallet,
-          message,
-          signature: Array.from(signed.signature),
-          nftType
-        })
-      });
+        const res = await fetch("/api/purchase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            wallet: currentWallet,
+            message,
+            signature: Array.from(signed.signature),
+            nftType,
+            qty,
+            bonus
+          })
+        });
 
-      const data = await res.json();
-      if (data.success) {
-        alert("구매 성공!");
-      } else {
-        alert("구매 실패: " + data.error);
+        const data = await res.json();
+        if (data.success) {
+          alert("구매 성공!");
+        } else {
+          console.error("구매 실패:", data);
+          alert("구매 실패: " + (data.error || "알 수 없는 오류"));
+        }
+      } catch (err) {
+        console.error("서명 오류:", err);
+        alert("요청 실패: " + err.message);
       }
+
+      button.disabled = false;
+      button.textContent = "구매하기";
     }
+
+    // 초기 수량 처리
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll('.card-body input[type="number"]').forEach(input => {
+        const price = parseInt(input.getAttribute("oninput").match(/\d+/)[0]);
+        updateBonus(input, price);
+      });
+    });
   </script>
 </body>
 </html>
+
