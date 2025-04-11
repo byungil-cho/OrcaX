@@ -1,50 +1,43 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>🎰 OrcaX 루렌</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎰 OrcaX 룰렛</title>
   <style>
     * {
       box-sizing: border-box;
     }
     body {
       margin: 0;
-      background-color: #000018;
-      color: white;
       font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      overflow-x: hidden;
-      padding: 20px 10px;
+      background-color: #000018;
+      color: #fff;
+      text-align: center;
     }
 
     h1 {
-      margin-top: 10px;
+      margin-top: 30px;
       font-size: 2rem;
       color: #00e0ff;
-      text-align: center;
     }
 
     #pointer {
       width: 0;
       height: 0;
+      margin: 0 auto 10px;
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
       border-bottom: 30px solid red;
-      margin: 20px auto;
     }
 
     #wheel-container {
       position: relative;
-      width: 90vw;
-      max-width: 320px;
-      height: 90vw;
-      max-height: 320px;
-      margin-bottom: 20px;
+      margin: 0 auto;
+      width: 80vmin;
+      height: 80vmin;
+      max-width: 400px;
+      max-height: 400px;
     }
 
     #wheel {
@@ -64,6 +57,9 @@
         #999999 88.88% 100%
       );
       transition: transform 5s ease-out;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
     .segment-labels {
@@ -77,108 +73,111 @@
 
     .segment-label {
       position: absolute;
+      width: 100%;
       top: 50%;
       left: 50%;
-      transform-origin: 0 -42%;
-      font-size: 12px;
+      transform-origin: center -40vmin;
+      font-size: 0.9rem;
       font-weight: bold;
       color: #fff;
-      white-space: nowrap;
     }
 
     .orca {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 60px;
-      height: 60px;
+      width: 20%;
+      height: auto;
       transform: translate(-50%, -50%);
       z-index: 10;
-    }
-
-    #result {
-      margin: 10px 0;
-      font-size: 1.2rem;
-      color: #ffff99;
-      text-align: center;
+      border-radius: 50%;
     }
 
     button {
-      padding: 10px 16px;
+      padding: 12px 24px;
       font-size: 1rem;
-      margin: 5px;
+      margin-top: 20px;
       border: none;
       border-radius: 8px;
-      background-color: #00e0ff;
-      color: black;
       cursor: pointer;
     }
 
-    button:disabled {
-      background-color: #666;
-      cursor: not-allowed;
+    #spinBtn {
+      background-color: #333;
+      color: #fff;
+    }
+
+    #spinBtn.enabled {
+      background-color: #00e0ff;
+      color: #000;
+    }
+
+    #result {
+      margin-top: 15px;
+      font-size: 1.2rem;
+      color: #ffff99;
+    }
+
+    #backBtn {
+      background-color: #00e0ff;
+      color: #000;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>🎰 OrcaX 루렌</h1>
+  <h1>🎰 <strong style="color:white">Orca</strong><span style="color:#00e0ff">X</span> 룰렛</h1>
   <div id="pointer"></div>
   <div id="wheel-container">
     <div id="wheel">
       <div class="segment-labels" id="segmentLabels"></div>
     </div>
-    <img class="orca" src="logo_80_80.jpg" alt="고래">
+    <img src="logo_80_80.jpg" alt="고래" class="orca" />
   </div>
-  <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
+  <button id="spinBtn" onclick="spin()">돌리기 (<span id="leftCount">10</span>/10)</button>
   <div id="result"></div>
-  <button onclick="location.href='index.html'">← 처음으로 돌아가기</button>
+  <button id="backBtn" onclick="location.href='index.html'">← 처음으로 돌아가기</button>
 
   <script>
-    const spinBtn = document.getElementById('spinBtn');
-    const leftCount = document.getElementById('leftCount');
-    const resultDiv = document.getElementById('result');
-    const wheel = document.getElementById('wheel');
-    const segmentLabels = document.getElementById('segmentLabels');
-
     const rewards = [
       '10 ORCX', '꽝', '30 ORCX', '꽝',
       '50 ORCX', '꽝', '100 ORCX', '500 ORCX', '1000 ORCX'
     ];
+    const wheel = document.getElementById('wheel');
+    const spinBtn = document.getElementById('spinBtn');
+    const leftCount = document.getElementById('leftCount');
+    const resultDiv = document.getElementById('result');
+    const segmentLabels = document.getElementById('segmentLabels');
 
     function getTodayKey() {
       const today = new Date();
       return `spinCount_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
     }
-    function getAllowSpinKey() {
-      const today = new Date();
-      return `allowSpin_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
-    }
+
     function getSpinCount() {
       return parseInt(localStorage.getItem(getTodayKey()) || '0');
     }
+
     function increaseSpinCount() {
       const key = getTodayKey();
       let count = getSpinCount();
       localStorage.setItem(key, count + 1);
     }
-    function setAllowSpin(value) {
-      localStorage.setItem(getAllowSpinKey(), value ? "true" : "false");
-    }
-    function getAllowSpin() {
-      return localStorage.getItem(getAllowSpinKey()) === "true";
-    }
+
     function updateSpinUI() {
       const count = getSpinCount();
       leftCount.textContent = 10 - count;
-      spinBtn.disabled = (count >= 10) || !getAllowSpin();
+      spinBtn.disabled = count >= 10;
+      spinBtn.classList.toggle('enabled', count < 10);
     }
+
     function drawLabels() {
       const n = rewards.length;
       for (let i = 0; i < n; i++) {
         const div = document.createElement('div');
         div.className = 'segment-label';
-        div.style.transform = `rotate(${(360 / n) * i}deg)`;
-        div.innerHTML = `<span>${rewards[i]}</span>`;
+        div.style.transform = `rotate(${(360 / n) * i}deg) translate(-50%, -50%)`;
+        div.innerHTML = rewards[i];
         segmentLabels.appendChild(div);
       }
     }
@@ -197,29 +196,27 @@
     }
 
     function spin() {
-      if (getSpinCount() >= 10 || !getAllowSpin()) {
-        resultDiv.innerText = "⛔ 룰렛 기회가 없습니다.";
-        return;
-      }
+      if (spinBtn.disabled) return;
 
       const reward = weightedRandomReward();
       const index = rewards.indexOf(reward);
-      const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
+      const anglePerSegment = 360 / rewards.length;
+      const rotation = 360 * 5 + anglePerSegment * index + anglePerSegment / 2;
 
       wheel.style.transition = 'transform 5s ease-out';
-      wheel.style.transform = `rotate(${degrees}deg)`;
+      wheel.style.transform = `rotate(${rotation}deg)`;
 
       increaseSpinCount();
-      setAllowSpin(false);
       updateSpinUI();
 
       setTimeout(() => {
-        resultDiv.innerText = `🎉 결과: ${reward}!`;
+        resultDiv.textContent = `🎉 결과: ${reward}!`;
       }, 5200);
     }
 
-    updateSpinUI();
     drawLabels();
+    updateSpinUI();
   </script>
 </body>
 </html>
+
