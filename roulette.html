@@ -22,10 +22,14 @@
     #pointer {
       width: 0;
       height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 30px solid red;
-      margin: 10px auto;
+      border-top: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      border-right: 30px solid red;
+      position: absolute;
+      left: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
     }
     #wheel-container {
       margin: 0 auto;
@@ -38,17 +42,9 @@
       height: 100%;
       border-radius: 50%;
       border: 8px solid gold;
-      background: conic-gradient(
-        #00e0ff 0% 11.11%,
-        #ff4081 11.11% 22.22%,
-        #00cc99 22.22% 33.33%,
-        #ffcc00 33.33% 44.44%,
-        #00ffcc 44.44% 55.55%,
-        #ff6666 55.55% 66.66%,
-        #cc99ff 66.66% 77.77%,
-        #66ff66 77.77% 88.88%,
-        #999999 88.88% 100%
-      );
+      background-image: url('roulette_img.png');
+      background-size: cover;
+      background-position: center;
       position: absolute;
       top: 0;
       left: 0;
@@ -56,22 +52,7 @@
       transition: transform 5s ease-out;
     }
     .segment-labels {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-    }
-    .segment-label {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform-origin: 0 -140px;
-      font-size: 14px;
-      font-weight: bold;
-      color: white;
-      text-shadow: 0 0 3px #000;
+      display: none;
     }
     .orca {
       position: absolute;
@@ -110,12 +91,12 @@
 </head>
 <body>
   <h1>🎰 <span style="color:white">Orca</span><span style="color:#00cfff">X</span> <span style="color:white">루렌</span></h1>
-  <div id="pointer"></div>
-  <div id="wheel-container">
-    <div id="wheel">
-      <div class="segment-labels" id="segmentLabels"></div>
+  <div style="position: relative; display: inline-block;">
+    <div id="pointer"></div>
+    <div id="wheel-container">
+      <div id="wheel"></div>
+      <img class="orca" src="logo_80_80.jpg" alt="고\B798">
     </div>
-    <img class="orca" src="logo_80_80.jpg" alt="고\B798">
   </div>
   <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
   <div id="result"></div>
@@ -126,7 +107,6 @@
     const leftCount = document.getElementById('leftCount');
     const resultDiv = document.getElementById('result');
     const wheel = document.getElementById('wheel');
-    const segmentLabels = document.getElementById('segmentLabels');
 
     const rewards = [
       '10 ORCX', '꽝', '30 ORCX', '꽝',
@@ -159,16 +139,6 @@
       const count = getSpinCount();
       leftCount.textContent = 10 - count;
       spinBtn.disabled = (count >= 10) || !getAllowSpin();
-    }
-    function drawLabels() {
-      const n = rewards.length;
-      for (let i = 0; i < n; i++) {
-        const div = document.createElement('div');
-        div.className = 'segment-label';
-        div.style.transform = `rotate(${(360 / n) * i}deg)`;
-        div.innerText = rewards[i];
-        segmentLabels.appendChild(div);
-      }
     }
     function weightedRandomReward() {
       const pool = [
@@ -204,7 +174,6 @@
     }
 
     updateSpinUI();
-    drawLabels();
   </script>
 </body>
 </html>
