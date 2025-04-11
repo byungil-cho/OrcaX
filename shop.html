@@ -216,11 +216,17 @@
       }
 
       try {
-        const res = await fetch('http://localhost:3000/api/buy-nft', {
+        const res = await fetch('https://your-backend-server.com/api/buy-nft', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ wallet: userWalletAddress, type, qty })
         });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText);
+        }
+
         const data = await res.json();
         alert(data.message || '처리 완료');
       } catch (err) {
