@@ -1,41 +1,35 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎰 OrcaX 루렌</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎰 OrcaX 룰렛</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #0b0b20;
+      background-color: #0b0b1d;
       color: white;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
+      margin: 0;
+      padding: 0;
     }
     h1 {
-      font-size: 2rem;
       margin-top: 20px;
-    }
-    h1 span {
-      color: #00d5ff;
+      font-size: 2rem;
+      color: #00d4ff;
     }
     #pointer {
       width: 0;
       height: 0;
-      margin: 0 auto;
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
       border-bottom: 30px solid red;
+      margin: 10px auto;
     }
     #wheel-container {
       position: relative;
-      width: 90vw;
-      max-width: 400px;
-      height: 90vw;
-      max-height: 400px;
+      width: 320px;
+      height: 320px;
       margin: 20px auto;
     }
     #wheel {
@@ -51,11 +45,13 @@
         #00ffcc 44.44% 55.55%,
         #ff6666 55.55% 66.66%,
         #cc99ff 66.66% 77.77%,
-        #66ff66 77.77% 88.88%,
+        #99ff66 77.77% 88.88%,
         #999999 88.88% 100%
       );
+      position: absolute;
+      top: 0;
+      left: 0;
       transition: transform 5s ease-out;
-      position: relative;
     }
     .segment-labels {
       position: absolute;
@@ -69,97 +65,99 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      transform-origin: 0 -42%;
-      font-size: 1rem;
-      color: white;
+      transform-origin: center -140px;
+      font-size: 16px;
       font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 4px black;
     }
     .orca {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
       width: 80px;
       height: 80px;
-      z-index: 5;
+      transform: translate(-50%, -50%);
+      z-index: 10;
     }
     button {
-      font-size: 1.2rem;
       padding: 12px 24px;
-      margin-top: 20px;
+      font-size: 1.1rem;
+      background-color: #00d4ff;
+      color: #000;
       border: none;
       border-radius: 10px;
       cursor: pointer;
+      margin: 10px;
     }
-    #spinBtn {
+    button:disabled {
       background-color: #555;
-      color: white;
-    }
-    #spinBtn:enabled {
-      background-color: #00d5ff;
+      color: #ccc;
+      cursor: not-allowed;
     }
     #result {
-      margin-top: 20px;
-      font-size: 1.3rem;
-    }
-    #homeBtn {
-      margin-top: 16px;
-      background-color: #00d5ff;
-      color: black;
+      font-size: 1.5rem;
+      margin-top: 15px;
+      color: #fce96a;
     }
   </style>
 </head>
 <body>
-  <h1>🎰 Orca<span>X</span> 루렌</h1>
+  <h1>🎰 Orca<span style="color:#00e0ff">X</span> 룰렛</h1>
   <div id="pointer"></div>
   <div id="wheel-container">
     <div id="wheel">
       <div class="segment-labels" id="segmentLabels"></div>
     </div>
-    <img class="orca" src="logo_80_80.jpg" alt="Orca Whale">
+    <img src="logo_80_80.jpg" alt="고래" class="orca" />
   </div>
-  <button id="spinBtn" onclick="spin()">돌리기 (10/10)</button>
+  <button id="spinBtn" onclick="spin()">돌리기 (<span id="leftCount">10</span>/10)</button>
   <div id="result"></div>
-  <button id="homeBtn" onclick="location.href='index.html'">← 처음으로 돌아가기</button>
+  <button onclick="location.href='index.html'">← 처음으로 돌아가기</button>
 
   <script>
+    const spinBtn = document.getElementById("spinBtn");
+    const leftCount = document.getElementById("leftCount");
+    const resultDiv = document.getElementById("result");
+    const wheel = document.getElementById("wheel");
+    const segmentLabels = document.getElementById("segmentLabels");
+
     const rewards = [
       '10 ORCX', '꽝', '30 ORCX', '꽝',
       '50 ORCX', '꽝', '100 ORCX', '500 ORCX', '1000 ORCX'
     ];
 
-    const spinBtn = document.getElementById('spinBtn');
-    const resultDiv = document.getElementById('result');
-    const wheel = document.getElementById('wheel');
-    const segmentLabels = document.getElementById('segmentLabels');
-
     function getTodayKey() {
-      const d = new Date();
-      return `spinCount_${d.getFullYear()}${d.getMonth()+1}${d.getDate()}`;
+      const today = new Date();
+      return `spinCount_${today.getFullYear()}${today.getMonth()+1}${today.getDate()}`;
     }
+
     function getSpinCount() {
       return parseInt(localStorage.getItem(getTodayKey()) || '0');
     }
+
     function increaseSpinCount() {
-      const c = getSpinCount() + 1;
-      localStorage.setItem(getTodayKey(), c);
+      localStorage.setItem(getTodayKey(), getSpinCount() + 1);
     }
-    function updateUI() {
-      const left = 10 - getSpinCount();
-      spinBtn.textContent = `돌리기 (${left}/10)`;
-      spinBtn.disabled = left <= 0;
+
+    function updateSpinUI() {
+      const count = getSpinCount();
+      leftCount.textContent = 10 - count;
+      spinBtn.disabled = count >= 10;
     }
+
     function drawLabels() {
-      const angle = 360 / rewards.length;
-      rewards.forEach((r, i) => {
-        const label = document.createElement('div');
-        label.className = 'segment-label';
-        label.textContent = r;
-        label.style.transform = `rotate(${angle * i}deg)`;
-        segmentLabels.appendChild(label);
-      });
+      const n = rewards.length;
+      for (let i = 0; i < n; i++) {
+        const div = document.createElement("div");
+        div.className = "segment-label";
+        div.style.transform = `rotate(${(360 / n) * i}deg) translateY(-50%)`;
+        div.textContent = rewards[i];
+        segmentLabels.appendChild(div);
+      }
     }
-    function getReward() {
+
+    function weightedRandomReward() {
       const pool = [
         ...Array(30).fill('10 ORCX'),
         ...Array(10).fill('30 ORCX'),
@@ -171,22 +169,30 @@
       ];
       return pool[Math.floor(Math.random() * pool.length)];
     }
+
     function spin() {
-      if (getSpinCount() >= 10) return;
-      const reward = getReward();
+      if (getSpinCount() >= 10) {
+        resultDiv.textContent = "⛔ 오늘은 더 이상 돌릴 수 없어요!";
+        return;
+      }
+
+      const reward = weightedRandomReward();
       const index = rewards.indexOf(reward);
-      const deg = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
-      wheel.style.transition = 'transform 5s ease-out';
-      wheel.style.transform = `rotate(${deg}deg)`;
+      const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
+
+      wheel.style.transition = "transform 5s ease-out";
+      wheel.style.transform = `rotate(${degrees}deg)`;
+
       increaseSpinCount();
-      updateUI();
+      updateSpinUI();
+
       setTimeout(() => {
         resultDiv.innerHTML = `🎉 결과: <strong>${reward}</strong>!`;
       }, 5200);
     }
 
-    updateUI();
     drawLabels();
+    updateSpinUI();
   </script>
 </body>
 </html>
