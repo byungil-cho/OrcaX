@@ -139,7 +139,7 @@
         <h3>OrcaX 18,000 ORCX 쿠폰</h3>
         <p>오전 11시 이전 사용 가능</p>
         <p>조조 할인 NFT</p>
-        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 18000)">
+        <input type="number" min="1" max="10" value="1" oninput="updateBonus(this, 18000)">
         <div class="bonus-label"></div>
         <div class="total-label"></div>
         <button onclick="buyNft(this, 'silver', 18000)">구매하기</button>
@@ -152,7 +152,7 @@
         <h3>OrcaX 20,000 ORCX 쿠폰</h3>
         <p>오후 2시 이전 사용 가능</p>
         <p>점심 할인 NFT</p>
-        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 20000)">
+        <input type="number" min="1" max="10" value="1" oninput="updateBonus(this, 20000)">
         <div class="bonus-label"></div>
         <div class="total-label"></div>
         <button onclick="buyNft(this, 'gold', 20000)">구매하기</button>
@@ -165,7 +165,7 @@
         <h3>OrcaX 25,000 ORCX 쿠폰</h3>
         <p>시간 제한 없음</p>
         <p>VVIP NFT 쿠폰</p>
-        <input type="number" min="1" max="99" value="1" oninput="updateBonus(this, 25000)">
+        <input type="number" min="1" max="10" value="1" oninput="updateBonus(this, 25000)">
         <div class="bonus-label"></div>
         <div class="total-label"></div>
         <button onclick="buyNft(this, 'royal', 25000)">구매하기</button>
@@ -178,6 +178,19 @@
   </div>
 
   <script>
+    let userWalletAddress = '';
+
+    function connectPhantom() {
+      if (window.solana && window.solana.isPhantom) {
+        window.solana.connect().then(({ publicKey }) => {
+          userWalletAddress = publicKey.toString();
+          document.getElementById('wallet-address').textContent = `지갑 주소: ${userWalletAddress}`;
+        });
+      } else {
+        alert('팬텀 지갑이 설치되어 있지 않습니다.');
+      }
+    }
+
     function updateBonus(input, unitPrice) {
       const qty = parseInt(input.value || "0");
       const bonusLabel = input.parentElement.querySelector('.bonus-label');
@@ -185,6 +198,34 @@
       const bonus = qty >= 10 ? 1 : 0;
       bonusLabel.textContent = bonus ? `+${bonus} 보너스` : '';
       totalLabel.textContent = `총액: ${(qty * unitPrice).toLocaleString()} ORCX`;
+    }
+
+    async function buyNft(button, type, price) {
+      const card = button.closest('.card-body');
+      const input = card.querySelector('input[type="number"]');
+      const qty = parseInt(input.value);
+
+      if (!userWalletAddress) {
+        alert('지갑을 먼저 연결하세요');
+        return;
+      }
+
+      if (!qty || qty < 1 || qty > 10) {
+        alert('수량은 1~10 사이여야 합니다');
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/api/buy-nft', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ wallet: userWalletAddress, type, qty })
+        });
+        const data = await res.json();
+        alert(data.message || '처리 완료');
+      } catch (err) {
+        alert('❌ 오류 발생: ' + err.message);
+      }
     }
 
     window.addEventListener("DOMContentLoaded", () => {
