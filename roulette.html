@@ -43,8 +43,8 @@
       border-radius: 50%;
       border: 8px solid gold;
       background-image: url('roulette_img.png');
-      background-size: 150%; /* 여기를 조절해봐 */
-      background-position: center 43%; /* ← 여기! */
+      background-size: 150%;
+      background-position: center 43%;
       background-repeat: no-repeat;
       position: absolute;
       top: 0;
@@ -88,9 +88,29 @@
       color: #ffe680;
       margin-top: 10px;
     }
+    #totalScore {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #00ffcc;
+    }
     .home-btn {
       background-color: #00d5ff;
       color: black;
+    }
+    .firework {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: yellow;
+      animation: explode 1s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes explode {
+      to {
+        transform: translate(var(--x), var(--y)) scale(0);
+        opacity: 0;
+      }
     }
   </style>
 </head>
@@ -104,6 +124,7 @@
   <div class="button-container">
     <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
     <div id="result"></div>
+    <div id="totalScore">💰 누적 점수: <strong>0</strong> ORCX</div>
     <button class="home-btn" onclick="location.href='index.html'">← 첫초로 돌아가기</button>
   </div>
 
@@ -112,6 +133,8 @@
     const leftCount = document.getElementById('leftCount');
     const resultDiv = document.getElementById('result');
     const wheel = document.getElementById('wheel');
+    const totalScoreDiv = document.getElementById('totalScore');
+    const totalKey = 'orcax_totalScore';
 
     const rewards = [
       '10 ORCX', '꺷', '30 ORCX', '꺷',
@@ -140,10 +163,19 @@
     function getAllowSpin() {
       return localStorage.getItem(getAllowSpinKey()) === "true";
     }
+    function getTotalScore() {
+      return parseInt(localStorage.getItem(totalKey) || '0');
+    }
+    function setTotalScore(value) {
+      localStorage.setItem(totalKey, value);
+    }
     function updateSpinUI() {
       const count = getSpinCount();
       leftCount.textContent = 10 - count;
       spinBtn.disabled = (count >= 10) || !getAllowSpin();
+    }
+    function updateTotalScoreUI() {
+      totalScoreDiv.innerHTML = `💰 누적 점수: <strong>${getTotalScore()}</strong> ORCX`;
     }
     function weightedRandomReward() {
       const pool = [
@@ -157,6 +189,21 @@
       ];
       return pool[Math.floor(Math.random() * pool.length)];
     }
+    function createFirework(x, y) {
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'firework';
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = Math.random() * 80 + 20;
+        particle.style.setProperty('--x', `${Math.cos(angle) * radius}px`);
+        particle.style.setProperty('--y', `${Math.sin(angle) * radius}px`);
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1000);
+      }
+    }
+
     function spin() {
       if (getSpinCount() >= 10 || !getAllowSpin()) {
         resultDiv.innerText = "⛔ 루렌 기획이 없습니다.";
@@ -175,10 +222,19 @@
 
       setTimeout(() => {
         resultDiv.innerHTML = `🎉 결과: <strong>${reward}</strong>!`;
+        const match = reward.match(/(\d+)/);
+        if (match) {
+          const score = parseInt(match[1]);
+          const total = getTotalScore();
+          setTotalScore(total + score);
+          updateTotalScoreUI();
+          createFirework(window.innerWidth / 2, window.innerHeight / 2);
+        }
       }, 5200);
     }
 
     updateSpinUI();
+    updateTotalScoreUI();
   </script>
 </body>
 </html>
