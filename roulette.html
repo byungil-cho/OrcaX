@@ -22,19 +22,19 @@
     #pointer {
       width: 0;
       height: 0;
-      border-top: 20px solid transparent;
-      border-bottom: 20px solid transparent;
-      border-right: 30px solid red;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
       position: absolute;
-      left: -40px;
-      top: 50%;
-      transform: translateY(-50%);
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 20;
     }
     #wheel-container {
       margin: 0 auto;
-      width: 300px;
-      height: 300px;
+      width: 320px;
+      height: 320px;
       position: relative;
     }
     #wheel {
@@ -43,8 +43,9 @@
       border-radius: 50%;
       border: 8px solid gold;
       background-image: url('roulette_img.png');
-      background-size: cover;
+      background-size: contain;
       background-position: center;
+      background-repeat: no-repeat;
       position: absolute;
       top: 0;
       left: 0;
@@ -92,8 +93,8 @@
 <body>
   <h1>🎰 <span style="color:white">Orca</span><span style="color:#00cfff">X</span> <span style="color:white">루렌</span></h1>
   <div style="position: relative; display: inline-block;">
-    <div id="pointer"></div>
     <div id="wheel-container">
+      <div id="pointer"></div>
       <div id="wheel"></div>
       <img class="orca" src="logo_80_80.jpg" alt="고\B798">
     </div>
@@ -109,8 +110,8 @@
     const wheel = document.getElementById('wheel');
 
     const rewards = [
-      '10 ORCX', '꽝', '30 ORCX', '꽝',
-      '50 ORCX', '꽝', '100 ORCX', '500 ORCX', '1000 ORCX'
+      '10 ORCX', '꽁', '30 ORCX', '꽁',
+      '50 ORCX', '꽁', '100 ORCX', '500 ORCX', '1000 ORCX'
     ];
 
     function getTodayKey() {
@@ -148,13 +149,13 @@
         ...Array(3).fill('100 ORCX'),
         ...Array(1).fill('500 ORCX'),
         ...Array(1).fill('1000 ORCX'),
-        ...Array(20).fill('꽝')
+        ...Array(20).fill('꽁')
       ];
       return pool[Math.floor(Math.random() * pool.length)];
     }
     function spin() {
       if (getSpinCount() >= 10 || !getAllowSpin()) {
-        resultDiv.innerText = "⛔ 룰렛 기회가 없습니다.";
+        resultDiv.innerText = "⛔ 루렌 기획이 없습니다.";
         return;
       }
       const reward = weightedRandomReward();
