@@ -24,17 +24,17 @@
       height: 0;
       border-top: 20px solid transparent;
       border-bottom: 20px solid transparent;
-      border-right: 30px solid red;
+      border-left: 30px solid red;
       position: absolute;
+      right: -30px;
       top: 50%;
-      left: 0;
       transform: translateY(-50%);
       z-index: 20;
     }
     #wheel-container {
-      margin: 0 auto;
-      width: 320px;
-      height: 320px;
+      margin: 40px auto;
+      width: 400px;
+      height: 400px;
       position: relative;
     }
     #wheel {
@@ -43,7 +43,7 @@
       border-radius: 50%;
       border: 8px solid gold;
       background-image: url('roulette_img.png');
-      background-size: contain;
+      background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       position: absolute;
@@ -94,9 +94,9 @@
   <h1>🎰 <span style="color:white">Orca</span><span style="color:#00cfff">X</span> <span style="color:white">루렌</span></h1>
   <div style="position: relative; display: inline-block;">
     <div id="wheel-container">
-      <div id="pointer"></div>
       <div id="wheel"></div>
-      <img class="orca" src="logo_80_80.jpg" alt="고\B798">
+      <div id="pointer"></div>
+      <img class="orca" src="logo_80_80.jpg" alt="고래">
     </div>
   </div>
   <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
@@ -178,6 +178,7 @@
   </script>
 </body>
 </html>
+
 
 
 
