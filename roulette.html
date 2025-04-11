@@ -2,8 +2,9 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>🎰 OrcaX 룰렛</title>
+  <title>🎰 OrcaX 루렌</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./dist/output.css" rel="stylesheet">
   <style>
     body {
       background-color: #000018;
@@ -12,11 +13,6 @@
       text-align: center;
       margin: 0;
       padding: 0;
-    }
-    h1 {
-      margin-top: 30px;
-      font-size: 2.5rem;
-      color: #00e0ff;
     }
     #wheel-container {
       position: relative;
@@ -80,29 +76,10 @@
       border-bottom: 30px solid red;
       margin: 0 auto;
     }
-    button {
-      padding: 12px 24px;
-      font-size: 1.1rem;
-      background-color: #00e0ff;
-      color: #000;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    button:disabled {
-      background-color: gray;
-      cursor: not-allowed;
-    }
-    #result {
-      margin-top: 20px;
-      font-size: 1.5rem;
-      color: #ffff99;
-    }
   </style>
 </head>
-<body>
-  <h1>🎰 OrcaX 룰렛</h1>
+<body class="flex flex-col items-center justify-center min-h-screen">
+  <h1 class="text-4xl font-bold text-cyan-400 mt-8">🎰 OrcaX 루렌</h1>
   <div id="pointer"></div>
   <div id="wheel-container">
     <div id="wheel">
@@ -110,9 +87,11 @@
     </div>
     <img class="orca" src="logo_80_80.jpg" alt="고래">
   </div>
-  <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
-  <div id="result"></div>
-  <button onclick="location.href='index.html'">← 처음으로 돌아가기</button>
+  <button id="spinBtn" onclick="spin()" class="bg-cyan-400 text-black px-6 py-3 mt-6 rounded-lg font-medium disabled:bg-gray-400">
+    돌리기 (<span id='leftCount'></span>/10)
+  </button>
+  <div id="result" class="text-yellow-200 text-xl mt-4"></div>
+  <button onclick="location.href='index.html'" class="text-sm mt-4 text-gray-300 hover:underline">← 처음으로 돌아가기</button>
 
   <script>
     const spinBtn = document.getElementById('spinBtn');
@@ -122,8 +101,8 @@
     const segmentLabels = document.getElementById('segmentLabels');
 
     const rewards = [
-      '10 ORCX', '꽝', '30 ORCX', '꽝',
-      '50 ORCX', '꽝', '100 ORCX', '500 ORCX', '1000 ORCX'
+      '10 ORCX', '꿔', '30 ORCX', '꿔',
+      '50 ORCX', '꿔', '100 ORCX', '500 ORCX', '1000 ORCX'
     ];
 
     function getTodayKey() {
@@ -163,7 +142,6 @@
         segmentLabels.appendChild(div);
       }
     }
-
     function weightedRandomReward() {
       const pool = [
         ...Array(30).fill('10 ORCX'),
@@ -172,33 +150,27 @@
         ...Array(3).fill('100 ORCX'),
         ...Array(1).fill('500 ORCX'),
         ...Array(1).fill('1000 ORCX'),
-        ...Array(20).fill('꽝')
+        ...Array(20).fill('꿔')
       ];
       return pool[Math.floor(Math.random() * pool.length)];
     }
-
     function spin() {
       if (getSpinCount() >= 10 || !getAllowSpin()) {
-        resultDiv.innerText = "⛔ 룰렛 기회가 없습니다.";
+        resultDiv.innerText = "⛔ 루렌 기획이 없습니다.";
         return;
       }
-
       const reward = weightedRandomReward();
       const index = rewards.indexOf(reward);
       const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
-
       wheel.style.transition = 'transform 5s ease-out';
       wheel.style.transform = `rotate(${degrees}deg)`;
-
       increaseSpinCount();
       setAllowSpin(false);
       updateSpinUI();
-
       setTimeout(() => {
         resultDiv.innerText = `🎉 결과: ${reward}!`;
       }, 5200);
     }
-
     updateSpinUI();
     drawLabels();
   </script>
