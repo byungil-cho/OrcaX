@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎰 OrcaX 룰렛</title>
+  <meta charset="UTF-8">
+  <title>🎰 OrcaX 루렌</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      background-color: #090921;
+      background-color: #08081c;
       color: #fff;
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
@@ -14,23 +14,15 @@
       padding: 0;
     }
     h1 {
-      margin-top: 20px;
+      margin-top: 30px;
       font-size: 2rem;
       color: #00e0ff;
     }
-    #pointer {
-      width: 0;
-      height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 30px solid red;
-      margin: 10px auto;
-    }
     #wheel-container {
       position: relative;
-      width: 300px;
-      height: 300px;
-      margin: 0 auto;
+      margin: 40px auto;
+      width: 320px;
+      height: 320px;
     }
     #wheel {
       width: 100%;
@@ -64,13 +56,13 @@
     }
     .segment-label {
       position: absolute;
-      left: 50%;
       top: 50%;
-      transform-origin: center center;
+      left: 50%;
+      transform-origin: 0 -130px;
       font-size: 14px;
       font-weight: bold;
-      color: #00f6ff;
-      text-shadow: 0 0 5px #00f6ff;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
     }
     .orca {
       position: absolute;
@@ -80,7 +72,14 @@
       height: 80px;
       transform: translate(-50%, -50%);
       z-index: 10;
-      border-radius: 50%;
+    }
+    #pointer {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      margin: 0 auto;
     }
     button {
       padding: 12px 24px;
@@ -98,73 +97,71 @@
     }
     #result {
       margin-top: 20px;
-      font-size: 1.2rem;
-      color: #ffff99;
-    }
-    @media screen and (max-width: 480px) {
-      #wheel-container {
-        width: 250px;
-        height: 250px;
-      }
-      .segment-label {
-        font-size: 12px;
-      }
-      button {
-        font-size: 1rem;
-      }
+      font-size: 1.5rem;
+      color: #ffe580;
     }
   </style>
 </head>
 <body>
-  <h1>🎰 <span style="color: #fff;">Orca</span><span style="color:#00e0ff">X 룰렛</span></h1>
+  <h1>🎰 Orca<span style="color:#00ccff">X</span> 루렌</h1>
   <div id="pointer"></div>
   <div id="wheel-container">
     <div id="wheel">
       <div class="segment-labels" id="segmentLabels"></div>
     </div>
-    <img class="orca" src="logo_80_80.jpg" alt="고래" />
+    <img class="orca" src="logo_80_80.jpg" alt="고래">
   </div>
-  <button id="spinBtn" onclick="spin()">돌리기 (<span id="leftCount"></span>/10)</button>
+  <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
   <div id="result"></div>
   <button onclick="location.href='index.html'">← 처음으로 돌아가기</button>
 
   <script>
-    const rewards = [
-      '10 ORCX', '꽝', '30 ORCX', '꽝',
-      '50 ORCX', '꽝', '100 ORCX', '500 ORCX', '1000 ORCX'
-    ];
-
     const spinBtn = document.getElementById('spinBtn');
     const leftCount = document.getElementById('leftCount');
     const resultDiv = document.getElementById('result');
     const wheel = document.getElementById('wheel');
     const segmentLabels = document.getElementById('segmentLabels');
 
+    const rewards = [
+      '10 ORCX', '꽝', '30 ORCX', '꽝',
+      '50 ORCX', '꽝', '100 ORCX', '500 ORCX', '1000 ORCX'
+    ];
+
     function getTodayKey() {
       const today = new Date();
       return `spinCount_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
+    }
+    function getAllowSpinKey() {
+      const today = new Date();
+      return `allowSpin_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
     }
     function getSpinCount() {
       return parseInt(localStorage.getItem(getTodayKey()) || '0');
     }
     function increaseSpinCount() {
       const key = getTodayKey();
-      localStorage.setItem(key, getSpinCount() + 1);
+      let count = getSpinCount();
+      localStorage.setItem(key, count + 1);
+    }
+    function setAllowSpin(value) {
+      localStorage.setItem(getAllowSpinKey(), value ? "true" : "false");
+    }
+    function getAllowSpin() {
+      return localStorage.getItem(getAllowSpinKey()) === "true";
     }
     function updateSpinUI() {
       const count = getSpinCount();
       leftCount.textContent = 10 - count;
-      spinBtn.disabled = count >= 10;
+      spinBtn.disabled = (count >= 10) || !getAllowSpin();
     }
     function drawLabels() {
       const n = rewards.length;
       for (let i = 0; i < n; i++) {
-        const label = document.createElement('div');
-        label.className = 'segment-label';
-        const angle = (360 / n) * i;
-        label.style.transform = `rotate(${angle}deg) translate(0, -120px) rotate(${-angle}deg)`;
-        label.textContent = rewards[i];
-        segmentLabels.appendChild(label);
+        const div = document.createElement('div');
+        div.className = 'segment-label';
+        div.style.transform = `rotate(${(360 / n) * i}deg)`;
+        div.innerHTML = `<span>${rewards[i]}</span>`;
+        segmentLabels.appendChild(div);
       }
     }
 
@@ -182,20 +179,20 @@
     }
 
     function spin() {
-      if (getSpinCount() >= 10) {
+      if (getSpinCount() >= 10 || !getAllowSpin()) {
         resultDiv.innerText = "⛔ 룰렛 기회가 없습니다.";
         return;
       }
 
       const reward = weightedRandomReward();
       const index = rewards.indexOf(reward);
-      const randomOffset = Math.random() * (360 / rewards.length);
-      const degrees = 360 * 5 + (360 / rewards.length) * index + randomOffset;
+      const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
 
       wheel.style.transition = 'transform 5s ease-out';
       wheel.style.transform = `rotate(${degrees}deg)`;
 
       increaseSpinCount();
+      setAllowSpin(false);
       updateSpinUI();
 
       setTimeout(() => {
@@ -203,9 +200,10 @@
       }, 5200);
     }
 
-    drawLabels();
     updateSpinUI();
+    drawLabels();
   </script>
 </body>
 </html>
+
 
