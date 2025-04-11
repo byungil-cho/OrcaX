@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>🎰 OrcaX 루렌</title>
+  <title>🌰 OrcaX 루렌</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { box-sizing: border-box; }
@@ -24,9 +24,9 @@
       height: 0;
       border-top: 20px solid transparent;
       border-bottom: 20px solid transparent;
-      border-left: 30px solid red;
+      border-right: 30px solid red;
       position: absolute;
-      right: -30px;
+      left: -30px;
       top: 50%;
       transform: translateY(-50%);
       z-index: 20;
@@ -64,13 +64,16 @@
       transform: translate(-50%, -50%);
       z-index: 10;
     }
+    .button-container {
+      margin-top: 20px;
+    }
     button {
       padding: 12px 24px;
       font-size: 1rem;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin: 20px 0;
+      margin: 10px 10px 0;
     }
     #spinBtn {
       background-color: #00cfff;
@@ -83,6 +86,7 @@
     #result {
       font-size: 1.2rem;
       color: #ffe680;
+      margin-top: 10px;
     }
     .home-btn {
       background-color: #00d5ff;
@@ -91,17 +95,17 @@
   </style>
 </head>
 <body>
-  <h1>🎰 <span style="color:white">Orca</span><span style="color:#00cfff">X</span> <span style="color:white">루렌</span></h1>
-  <div style="position: relative; display: inline-block;">
-    <div id="wheel-container">
-      <div id="wheel"></div>
-      <div id="pointer"></div>
-      <img class="orca" src="logo_80_80.jpg" alt="고래">
-    </div>
+  <h1>🌰 <span style="color:white">Orca</span><span style="color:#00cfff">X</span> <span style="color:white">루렌</span></h1>
+  <div id="wheel-container">
+    <div id="pointer"></div>
+    <div id="wheel"></div>
+    <img class="orca" src="logo_80_80.jpg" alt="고래">
   </div>
-  <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
-  <div id="result"></div>
-  <button class="home-btn" onclick="location.href='index.html'">← 처음으로 돌아가기</button>
+  <div class="button-container">
+    <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
+    <div id="result"></div>
+    <button class="home-btn" onclick="location.href='index.html'">← 첫초로 돌아가기</button>
+  </div>
 
   <script>
     const spinBtn = document.getElementById('spinBtn');
@@ -110,8 +114,8 @@
     const wheel = document.getElementById('wheel');
 
     const rewards = [
-      '10 ORCX', '꿕', '30 ORCX', '꿕',
-      '50 ORCX', '꿕', '100 ORCX', '500 ORCX', '1000 ORCX'
+      '10 ORCX', '꺷', '30 ORCX', '꺷',
+      '50 ORCX', '꺷', '100 ORCX', '500 ORCX', '1000 ORCX'
     ];
 
     function getTodayKey() {
@@ -149,7 +153,7 @@
         ...Array(3).fill('100 ORCX'),
         ...Array(1).fill('500 ORCX'),
         ...Array(1).fill('1000 ORCX'),
-        ...Array(20).fill('꿕')
+        ...Array(20).fill('꺷')
       ];
       return pool[Math.floor(Math.random() * pool.length)];
     }
