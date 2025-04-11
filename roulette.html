@@ -1,162 +1,225 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <title>🎰 OrcaX 룰렛</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="./dist/output.css" rel="stylesheet" />
-  </head>
-  <body class="bg-[#000018] text-white font-sans text-center">
-    <h1 class="text-4xl font-bold text-cyan-400 mt-10">🎰 OrcaX 룰렛
-    </h1>
+<head>
+  <meta charset="UTF-8">
+  <title>🎰 OrcaX 루렌</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background-color: #000018;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 20px 10px;
+    }
 
-    <div class="w-0 h-0 mx-auto border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-b-[30px] border-b-red-500 mt-8"></div>
+    h1 {
+      margin-top: 10px;
+      font-size: 2rem;
+      color: #00e0ff;
+      text-align: center;
+    }
 
-    <div id="wheel-container" class="relative w-80 h-80 mx-auto mt-4">
-      <div
-        id="wheel"
-        class="w-full h-full rounded-full border-[10px] border-yellow-400 transition-transform duration-[5s] ease-out"
-        style="background: conic-gradient(
-            #00e0ff 0% 11.11%,
-            #ff4081 11.11% 22.22%,
-            #00cc99 22.22% 33.33%,
-            #ffcc00 33.33% 44.44%,
-            #00ffcc 44.44% 55.55%,
-            #ff6666 55.55% 66.66%,
-            #cc99ff 66.66% 77.77%,
-            #66ff66 77.77% 88.88%,
-            #999999 88.88% 100%
-          )"
-      >
-        <div
-          id="segmentLabels"
-          class="absolute inset-0 pointer-events-none"
-        ></div>
-      </div>
-      <img
-        src="logo_80_80.jpg"
-        alt="고래"
-        class="absolute w-20 h-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-contain z-10"
-      />
+    #pointer {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      margin: 20px auto;
+    }
+
+    #wheel-container {
+      position: relative;
+      width: 90vw;
+      max-width: 320px;
+      height: 90vw;
+      max-height: 320px;
+      margin-bottom: 20px;
+    }
+
+    #wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 8px solid gold;
+      background: conic-gradient(
+        #00e0ff 0% 11.11%,
+        #ff4081 11.11% 22.22%,
+        #00cc99 22.22% 33.33%,
+        #ffcc00 33.33% 44.44%,
+        #00ffcc 44.44% 55.55%,
+        #ff6666 55.55% 66.66%,
+        #cc99ff 66.66% 77.77%,
+        #66ff66 77.77% 88.88%,
+        #999999 88.88% 100%
+      );
+      transition: transform 5s ease-out;
+    }
+
+    .segment-labels {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .segment-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: 0 -42%;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .orca {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 60px;
+      height: 60px;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    #result {
+      margin: 10px 0;
+      font-size: 1.2rem;
+      color: #ffff99;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 1rem;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      background-color: #00e0ff;
+      color: black;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎰 OrcaX 루렌</h1>
+  <div id="pointer"></div>
+  <div id="wheel-container">
+    <div id="wheel">
+      <div class="segment-labels" id="segmentLabels"></div>
     </div>
+    <img class="orca" src="logo_80_80.jpg" alt="고래">
+  </div>
+  <button id="spinBtn" onclick="spin()">돌리기 (<span id='leftCount'></span>/10)</button>
+  <div id="result"></div>
+  <button onclick="location.href='index.html'">← 처음으로 돌아가기</button>
 
-    <button
-      id="spinBtn"
-      onclick="spin()"
-      class="mt-6 px-6 py-2 bg-cyan-400 text-black text-lg font-semibold rounded-lg disabled:bg-gray-600 disabled:text-white disabled:cursor-not-allowed"
-    >
-      돌리기 (<span id="leftCount"></span>/10)
-    </button>
+  <script>
+    const spinBtn = document.getElementById('spinBtn');
+    const leftCount = document.getElementById('leftCount');
+    const resultDiv = document.getElementById('result');
+    const wheel = document.getElementById('wheel');
+    const segmentLabels = document.getElementById('segmentLabels');
 
-    <div id="result" class="mt-6 text-2xl text-yellow-300 font-bold"></div>
+    const rewards = [
+      '10 ORCX', '꽝', '30 ORCX', '꽝',
+      '50 ORCX', '꽝', '100 ORCX', '500 ORCX', '1000 ORCX'
+    ];
 
-    <button
-      onclick="location.href='index.html'"
-      class="mt-4 px-4 py-1 border border-white rounded bg-white text-black hover:bg-gray-200"
-    >
-      ← 처음으로 돌아가기
-    </button>
+    function getTodayKey() {
+      const today = new Date();
+      return `spinCount_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
+    }
+    function getAllowSpinKey() {
+      const today = new Date();
+      return `allowSpin_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
+    }
+    function getSpinCount() {
+      return parseInt(localStorage.getItem(getTodayKey()) || '0');
+    }
+    function increaseSpinCount() {
+      const key = getTodayKey();
+      let count = getSpinCount();
+      localStorage.setItem(key, count + 1);
+    }
+    function setAllowSpin(value) {
+      localStorage.setItem(getAllowSpinKey(), value ? "true" : "false");
+    }
+    function getAllowSpin() {
+      return localStorage.getItem(getAllowSpinKey()) === "true";
+    }
+    function updateSpinUI() {
+      const count = getSpinCount();
+      leftCount.textContent = 10 - count;
+      spinBtn.disabled = (count >= 10) || !getAllowSpin();
+    }
+    function drawLabels() {
+      const n = rewards.length;
+      for (let i = 0; i < n; i++) {
+        const div = document.createElement('div');
+        div.className = 'segment-label';
+        div.style.transform = `rotate(${(360 / n) * i}deg)`;
+        div.innerHTML = `<span>${rewards[i]}</span>`;
+        segmentLabels.appendChild(div);
+      }
+    }
 
-    <script>
-      const spinBtn = document.getElementById("spinBtn");
-      const leftCount = document.getElementById("leftCount");
-      const resultDiv = document.getElementById("result");
-      const wheel = document.getElementById("wheel");
-      const segmentLabels = document.getElementById("segmentLabels");
-
-      const rewards = [
-        "10 ORCX",
-        "꽝",
-        "30 ORCX",
-        "꽝",
-        "50 ORCX",
-        "꽝",
-        "100 ORCX",
-        "500 ORCX",
-        "1000 ORCX",
+    function weightedRandomReward() {
+      const pool = [
+        ...Array(30).fill('10 ORCX'),
+        ...Array(10).fill('30 ORCX'),
+        ...Array(5).fill('50 ORCX'),
+        ...Array(3).fill('100 ORCX'),
+        ...Array(1).fill('500 ORCX'),
+        ...Array(1).fill('1000 ORCX'),
+        ...Array(20).fill('꽝')
       ];
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
 
-      function getTodayKey() {
-        const today = new Date();
-        return `spinCount_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
-      }
-      function getAllowSpinKey() {
-        const today = new Date();
-        return `allowSpin_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
-      }
-      function getSpinCount() {
-        return parseInt(localStorage.getItem(getTodayKey()) || "0");
-      }
-      function increaseSpinCount() {
-        const key = getTodayKey();
-        let count = getSpinCount();
-        localStorage.setItem(key, count + 1);
-      }
-      function setAllowSpin(value) {
-        localStorage.setItem(getAllowSpinKey(), value ? "true" : "false");
-      }
-      function getAllowSpin() {
-        return localStorage.getItem(getAllowSpinKey()) === "true";
-      }
-      function updateSpinUI() {
-        const count = getSpinCount();
-        leftCount.textContent = 10 - count;
-        spinBtn.disabled = count >= 10 || !getAllowSpin();
-      }
-      function drawLabels() {
-        const n = rewards.length;
-        for (let i = 0; i < n; i++) {
-          const div = document.createElement("div");
-          div.className =
-            "absolute left-1/2 top-1/2 text-xs font-bold text-white";
-          const angle = (360 / n) * i;
-          div.style.transform = `rotate(${angle}deg) translateY(-130px) rotate(-${angle}deg)`;
-          div.textContent = rewards[i];
-          segmentLabels.appendChild(div);
-        }
+    function spin() {
+      if (getSpinCount() >= 10 || !getAllowSpin()) {
+        resultDiv.innerText = "⛔ 룰렛 기회가 없습니다.";
+        return;
       }
 
-      function weightedRandomReward() {
-        const pool = [
-          ...Array(30).fill("10 ORCX"),
-          ...Array(10).fill("30 ORCX"),
-          ...Array(5).fill("50 ORCX"),
-          ...Array(3).fill("100 ORCX"),
-          ...Array(1).fill("500 ORCX"),
-          ...Array(1).fill("1000 ORCX"),
-          ...Array(20).fill("꽝"),
-        ];
-        return pool[Math.floor(Math.random() * pool.length)];
-      }
+      const reward = weightedRandomReward();
+      const index = rewards.indexOf(reward);
+      const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
 
-      function spin() {
-        if (getSpinCount() >= 10 || !getAllowSpin()) {
-          resultDiv.innerText = "⛔ 룰렛 기회가 없습니다.";
-          return;
-        }
+      wheel.style.transition = 'transform 5s ease-out';
+      wheel.style.transform = `rotate(${degrees}deg)`;
 
-        const reward = weightedRandomReward();
-        const index = rewards.indexOf(reward);
-        const degrees =
-          360 * 5 +
-          (360 / rewards.length) * index +
-          Math.random() * (360 / rewards.length);
-
-        wheel.style.transition = "transform 5s ease-out";
-        wheel.style.transform = `rotate(${degrees}deg)`;
-
-        increaseSpinCount();
-        setAllowSpin(false);
-        updateSpinUI();
-
-        setTimeout(() => {
-          resultDiv.innerText = `🎉 결과: ${reward}!`;
-        }, 5200);
-      }
-
+      increaseSpinCount();
+      setAllowSpin(false);
       updateSpinUI();
-      drawLabels();
-    </script>
-  </body>
-</html>
 
+      setTimeout(() => {
+        resultDiv.innerText = `🎉 결과: ${reward}!`;
+      }, 5200);
+    }
+
+    updateSpinUI();
+    drawLabels();
+  </script>
+</body>
+</html>
