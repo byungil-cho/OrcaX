@@ -216,7 +216,7 @@
       }
 
       try {
-        const res = await fetch('https://your-backend-server.com/api/buy-nft', {
+        const res = await fetch('https://orcax-backend.onrender.com/api/buy-nft', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ wallet: userWalletAddress, type, qty })
