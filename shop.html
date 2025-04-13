@@ -4,149 +4,135 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OrcaX NFT 쿠폰 상점</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Orbitron', sans-serif;
-      background-color: #101010;
-      color: #ffffff;
-    }
-
-    header {
-      background-color: #00e0b8;
-      padding: 1.2rem;
+      background-color: #111;
+      color: #00e0c7;
+      font-family: 'Arial', sans-serif;
       text-align: center;
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #000;
     }
-
-    .container {
-      padding: 2rem;
+    h1 {
+      margin-top: 20px;
+    }
+    .coupon-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 2rem;
+      margin-top: 2rem;
     }
-
-    .card {
-      background-color: #1e1e1e;
-      border-radius: 20px;
-      overflow: hidden;
+    .coupon-card {
+      background-color: #222;
+      border-radius: 1rem;
+      padding: 1rem;
       width: 300px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    }
+    .coupon-card img {
+      width: 100%;
+      border-radius: 1rem;
+    }
+    .buy-btn {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #00e0c7;
+      color: black;
+      border: none;
+      border-radius: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .buy-btn:hover {
+      background-color: #00ffc3;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
       align-items: center;
     }
-
-    .card img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-    }
-
-    .card-body {
-      padding: 1.2rem;
-      text-align: center;
-    }
-
-    .card-title {
-      font-size: 1.2rem;
-      color: #00e0b8;
-      margin-bottom: 0.5rem;
-    }
-
-    .card-desc {
-      font-size: 0.9rem;
-      margin-bottom: 0.8rem;
-    }
-
-    input[type='number'] {
-      width: 60px;
-      padding: 0.3rem;
-      text-align: center;
-      border-radius: 6px;
-      border: none;
-      margin-bottom: 0.5rem;
-    }
-
-    .price {
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
-
-    button {
-      background-color: #00e0b8;
-      border: none;
-      padding: 0.6rem 1.5rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
+    .modal-content {
+      background: #fff;
       color: #000;
-      font-weight: bold;
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 400px;
+      width: 90%;
+      text-align: left;
     }
-
-    button:hover {
-      background-color: #00c0a0;
+    .close-btn {
+      float: right;
+      cursor: pointer;
+      color: red;
+      font-size: 1.5rem;
     }
-
-    @media (max-width: 768px) {
-      .card {
-        width: 90%;
-      }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <header>
-    OrcaX NFT 쿠폰 상점
-  </header>
-
-  <div class="container">
-    <div class="card">
-      <img src="./orcax-18000.jpg" alt="OrcaX 18000" />
-      <div class="card-body">
-        <div class="card-title">OrcaX 18,000 ORCX 쿠폰</div>
-        <div class="card-desc">오전 11시 이전 사용 가능<br>조조 할인 NFT</div>
-        <input type="number" value="1" min="1" class="qty" data-price="18000" />
-        <div class="price">총액: <span class="total">18,000</span> ORCX</div>
-        <button>구매하기</button>
-      </div>
+  <h1>OrcaX NFT 쿠폰 상점</h1>
+  <div class="coupon-container">
+    <div class="coupon-card">
+      <img src="./orcax-18000.jpg" alt="18000 ORCX 쿠폰" />
+      <h2>OrcaX 18,000 ORCX 쿠폰</h2>
+      <p>오전 11시 이전 사용 가능<br/>조조 할인 NFT</p>
+      <button class="buy-btn" onclick="openModal('18,000')">구매하기</button>
     </div>
-
-    <div class="card">
-      <img src="./orcax-20000.jpg" alt="OrcaX 20000" />
-      <div class="card-body">
-        <div class="card-title">OrcaX 20,000 ORCX 쿠폰</div>
-        <div class="card-desc">오후 2시 이전 사용 가능<br>점심 할인 NFT</div>
-        <input type="number" value="1" min="1" class="qty" data-price="20000" />
-        <div class="price">총액: <span class="total">20,000</span> ORCX</div>
-        <button>구매하기</button>
-      </div>
+    <div class="coupon-card">
+      <img src="./orcax-20000.jpg" alt="20000 ORCX 쿠폰" />
+      <h2>OrcaX 20,000 ORCX 쿠폰</h2>
+      <p>오후 2시 이전 사용 가능<br/>점심 할인 NFT</p>
+      <button class="buy-btn" onclick="openModal('20,000')">구매하기</button>
     </div>
+    <div class="coupon-card">
+      <img src="./orcax-25000.jpg" alt="25000 ORCX 쿠폰" />
+      <h2>OrcaX 25,000 ORCX 쿠폰</h2>
+      <p>시간 제한 없음<br/>VVIP NFT 쿠폰</p>
+      <button class="buy-btn" onclick="openModal('25,000')">구매하기</button>
+    </div>
+  </div>
 
-    <div class="card">
-      <img src="./orcax-25000.jpg" alt="OrcaX 25000" />
-      <div class="card-body">
-        <div class="card-title">OrcaX 25,000 ORCX 쿠폰</div>
-        <div class="card-desc">시간 제한 없음<br>VVIP NFT 쿠폰</div>
-        <input type="number" value="1" min="1" class="qty" data-price="25000" />
-        <div class="price">총액: <span class="total">25,000</span> ORCX</div>
-        <button>구매하기</button>
-      </div>
+  <div class="modal" id="orderModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h2>주문 정보 입력</h2>
+      <form id="orderForm">
+        <label>이름<input type="text" name="name" required /></label>
+        <label>전화번호<input type="text" name="phone" required /></label>
+        <label>팬텀(폴리곤) 지갑 주소<input type="text" name="wallet" required /></label>
+        <label>수량<input type="number" name="quantity" min="1" value="1" required /></label>
+        <p><strong>토큰 보낼 주소:</strong><br/>
+        <input type="text" value="BmgSphNXa5Ewr9MZ9ksV4h6j7kF2nBb46D9viwaqroqW" readonly onclick="this.select()" /></p>
+        <button class="buy-btn" type="submit">제출</button>
+      </form>
     </div>
   </div>
 
   <script>
-    document.querySelectorAll('.qty').forEach(input => {
-      input.addEventListener('input', () => {
-        const price = parseInt(input.dataset.price);
-        const qty = parseInt(input.value) || 1;
-        input.parentElement.querySelector('.total').textContent = (price * qty).toLocaleString();
-      });
+    function openModal(price) {
+      document.getElementById('orderModal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('orderModal').style.display = 'none';
+    }
+    document.getElementById('orderForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      alert("주문이 접수되었습니다! (백엔드 연동 예정)");
+      closeModal();
     });
   </script>
 </body>
