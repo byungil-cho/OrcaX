@@ -31,21 +31,25 @@
     .coupon-card img {
       width: 100%;
       border-radius: 1rem;
+      cursor: pointer;
     }
     .buy-btn {
       margin-top: 1rem;
       padding: 0.5rem 1rem;
-      background-color: #00e0c7;
-      color: black;
+      background: linear-gradient(135deg, #00ffc3, #00b2ff);
+      color: #111;
       border: none;
-      border-radius: 1rem;
+      border-radius: 2rem;
       font-weight: bold;
       cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
+      transition: 0.2s ease;
     }
     .buy-btn:hover {
-      background-color: #00ffc3;
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #00b2ff, #00ffc3);
     }
-    .modal {
+    .modal, .desc-modal {
       display: none;
       position: fixed;
       z-index: 1000;
@@ -57,84 +61,140 @@
       justify-content: center;
       align-items: center;
     }
-    .modal-content {
-      background: #fff;
-      color: #000;
+    .modal-content, .desc-modal-content {
+      background: #1c1c1c;
+      color: #00e0c7;
       padding: 2rem;
-      border-radius: 1rem;
-      max-width: 400px;
+      border-radius: 1.5rem;
+      max-width: 420px;
       width: 90%;
       text-align: left;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    }
+    .modal-content h2 {
+      color: #00ffc3;
+      border-bottom: 1px solid #00ffc3;
+      padding-bottom: 0.5rem;
     }
     .close-btn {
       float: right;
       cursor: pointer;
-      color: red;
+      color: #ff6666;
       font-size: 1.5rem;
     }
     label {
       display: block;
       margin-top: 1rem;
+      font-weight: bold;
+      color: #00ffc3;
     }
     input[type="text"], input[type="number"] {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.6rem;
+      border: 1px solid #00ffc3;
+      background: #111;
+      color: #fff;
+      border-radius: 0.7rem;
       margin-top: 0.5rem;
+    }
+    .summary {
+      background: #222;
+      padding: 1rem;
+      margin-top: 1.2rem;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      border: 1px solid #00ffc3;
+    }
+    .copy-btn {
+      background-color: #00ffc3;
+      color: #111;
+      border: none;
+      padding: 0.4rem 1rem;
+      font-size: 0.85rem;
+      margin-top: 0.4rem;
+      cursor: pointer;
+      border-radius: 1rem;
+      transition: 0.2s ease;
+    }
+    .copy-btn:hover {
+      background-color: #00e0c7;
     }
   </style>
 </head>
 <body>
-  <h1>OrcaX NFT 쿠폰 상점</h1>
-  <div class="coupon-container">
-    <div class="coupon-card">
-      <img src="./orcax-18000.jpg" alt="18000 ORCX 쿠폰" />
-      <h2>OrcaX 18,000 ORCX 쿠폰</h2>
-      <p>오전 11시 이전 사용 가능<br/>조조 할인 NFT</p>
-      <button class="buy-btn" onclick="openModal('18,000')">구매하기</button>
-    </div>
-    <div class="coupon-card">
-      <img src="./orcax-20000.jpg" alt="20000 ORCX 쿠폰" />
-      <h2>OrcaX 20,000 ORCX 쿠폰</h2>
-      <p>오후 2시 이전 사용 가능<br/>점심 할인 NFT</p>
-      <button class="buy-btn" onclick="openModal('20,000')">구매하기</button>
-    </div>
-    <div class="coupon-card">
-      <img src="./orcax-25000.jpg" alt="25000 ORCX 쿠폰" />
-      <h2>OrcaX 25,000 ORCX 쿠폰</h2>
-      <p>시간 제한 없음<br/>VVIP NFT 쿠폰</p>
-      <button class="buy-btn" onclick="openModal('25,000')">구매하기</button>
-    </div>
+<h1>OrcaX NFT 쿠폰 상점</h1>
+<div class="modal" id="orderModal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h2>주문 정보 입력</h2>
+    <form id="orderForm">
+      <input type="hidden" name="price" id="unitPrice" />
+      <label>이름<input type="text" name="name" required /></label>
+      <label>전화번호<input type="text" name="phone" required /></label>
+      <label>팬텀(폴리곤) 지갑 주소<input type="text" name="wallet" required /></label>
+      <label>수량<input type="number" name="quantity" id="qtyInput" min="1" value="1" required /></label>
+      <p><strong>토큰 보낼 주소:</strong><br/>
+        <input type="text" id="sendAddress" value="BmgSphNXa5Ewr9MZ9ksV4h6j7kF2nBb46D9viwaqroqW" readonly />
+        <button type="button" class="copy-btn" onclick="copyToClipboard()">복사</button>
+      </p>
+      <div class="summary" id="orderSummary"></div>
+      <button class="buy-btn" type="submit">제출</button>
+    </form>
   </div>
+</div>
 
-  <div class="modal" id="orderModal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal()">&times;</span>
-      <h2>주문 정보 입력</h2>
-      <form id="orderForm">
-        <label>이름<input type="text" name="name" required /></label>
-        <label>전화번호<input type="text" name="phone" required /></label>
-        <label>팬텀(폴리곤) 지갑 주소<input type="text" name="wallet" required /></label>
-        <label>수량<input type="number" name="quantity" min="1" value="1" required /></label>
-        <p><strong>토큰 보낼 주소:</strong><br/>
-        <input type="text" value="BmgSphNXa5Ewr9MZ9ksV4h6j7kF2nBb46D9viwaqroqW" readonly onclick="this.select()" /></p>
-        <button class="buy-btn" type="submit">제출</button>
-      </form>
-    </div>
-  </div>
+<script>
+  let currentPrice = 0;
 
-  <script>
-    function openModal(price) {
-      document.getElementById('orderModal').style.display = 'flex';
+  function openModal(priceStr, priceNum) {
+    document.getElementById('orderModal').style.display = 'flex';
+    document.getElementById('unitPrice').value = priceNum;
+    document.getElementById('qtyInput').value = 1;
+    currentPrice = priceNum;
+    updateSummary();
+  }
+
+  function closeModal() {
+    document.getElementById('orderModal').style.display = 'none';
+  }
+
+  function updateSummary() {
+    const qty = parseInt(document.getElementById('qtyInput').value);
+    const total = currentPrice * qty;
+    const bonus = Math.floor(qty / 10);
+    const totalNft = qty + bonus;
+    document.getElementById('orderSummary').innerHTML = `총액: ${total.toLocaleString()} ORCX<br>보너스: ${bonus > 0 ? bonus + '장' : '없음'}<br>총 수령 NFT: ${totalNft}장`;
+  }
+
+  function copyToClipboard() {
+    const input = document.getElementById('sendAddress');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value);
+    alert("주소가 복사되었습니다: " + input.value);
+  }
+
+  document.getElementById('qtyInput').addEventListener('input', updateSummary);
+
+  document.getElementById('orderForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    alert("주문이 접수되었습니다! 팬텀 지갑에서 토큰을 전송해주세요.");
+    closeModal();
+
+    if (window.solana && window.solana.isPhantom) {
+      try {
+        const resp = await window.solana.connect();
+        const sender = resp.publicKey.toString();
+        console.log("팬텀 지갑 연결됨:", sender);
+      } catch (err) {
+        console.error("팬텀 연결 실패:", err);
+        alert("팬텀 지갑 연결 실패!");
+      }
+    } else {
+      alert("팬텀 지갑이 설치되어 있지 않습니다.");
     }
-    function closeModal() {
-      document.getElementById('orderModal').style.display = 'none';
-    }
-    document.getElementById('orderForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      alert("주문이 접수되었습니다! (백엔드 연동 예정)");
-      closeModal();
-    });
-  </script>
+  });
+</script>
 </body>
 </html>
 
