@@ -123,6 +123,28 @@
 </head>
 <body>
 <h1>OrcaX NFT 쿠폰 상점</h1>
+<div class="coupon-container">
+  <div class="coupon-card">
+    <img src="orcax-18000.jpg" alt="OrcaX 18,000 쿠폰" onclick="openModal('18,000 ORCX', 18000)" />
+    <h3>OrcaX 18,000 ORCX 쿠폰</h3>
+    <p>오전 11시 이전 사용 가능<br/>조조 할인 NFT</p>
+    <button class="buy-btn" onclick="openModal('18,000 ORCX', 18000)">구매하기</button>
+  </div>
+  <div class="coupon-card">
+    <img src="orcax-20000.jpg" alt="OrcaX 20,000 쿠폰" onclick="openModal('20,000 ORCX', 20000)" />
+    <h3>OrcaX 20,000 ORCX 쿠폰</h3>
+    <p>오후 2시 이전 사용 가능<br/>점심 할인 NFT</p>
+    <button class="buy-btn" onclick="openModal('20,000 ORCX', 20000)">구매하기</button>
+  </div>
+  <div class="coupon-card">
+    <img src="orcax-25000.jpg" alt="OrcaX 25,000 쿠폰" onclick="openModal('25,000 ORCX', 25000)" />
+    <h3>OrcaX 25,000 ORCX 쿠폰</h3>
+    <p>시간 제한 없음<br/>VVIP NFT 쿠폰</p>
+    <button class="buy-btn" onclick="openModal('25,000 ORCX', 25000)">구매하기</button>
+  </div>
+</div>
+
+<!-- 주문창 -->
 <div class="modal" id="orderModal">
   <div class="modal-content">
     <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -197,5 +219,6 @@
 </script>
 </body>
 </html>
+
 
 
