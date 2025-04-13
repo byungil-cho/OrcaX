@@ -71,7 +71,7 @@
       text-align: left;
       box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
     }
-    .modal-content h2 {
+    .modal-content h2, .desc-modal-content h2 {
       color: #00ffc3;
       border-bottom: 1px solid #00ffc3;
       padding-bottom: 0.5rem;
@@ -125,22 +125,31 @@
 <h1>OrcaX NFT 쿠폰 상점</h1>
 <div class="coupon-container">
   <div class="coupon-card">
-    <img src="orcax-18000.jpg" alt="OrcaX 18,000 쿠폰" onclick="openModal('18,000 ORCX', 18000)" />
+    <img src="orcax-18000.jpg" alt="OrcaX 18,000 쿠폰" onclick="openDesc('OrcaX 18,000 ORCX 쿠폰', '오전 11시 이전에 사용할 수 있는 조조 할인 쿠폰입니다. OrcaX 생태계를 통해 실질적 절약 혜택을 제공받으세요.\n\n사용 시 18,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
     <h3>OrcaX 18,000 ORCX 쿠폰</h3>
     <p>오전 11시 이전 사용 가능<br/>조조 할인 NFT</p>
     <button class="buy-btn" onclick="openModal('18,000 ORCX', 18000)">구매하기</button>
   </div>
   <div class="coupon-card">
-    <img src="orcax-20000.jpg" alt="OrcaX 20,000 쿠폰" onclick="openModal('20,000 ORCX', 20000)" />
+    <img src="orcax-20000.jpg" alt="OrcaX 20,000 쿠폰" onclick="openDesc('OrcaX 20,000 ORCX 쿠폰', '오후 2시 이전 사용 가능한 골프 게임비 쿠폰입니다. OrcaX 토큰과 함께 사용하여 저렴한 게임 요금을 누리세요.\n\n사용 시 20,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
     <h3>OrcaX 20,000 ORCX 쿠폰</h3>
     <p>오후 2시 이전 사용 가능<br/>점심 할인 NFT</p>
     <button class="buy-btn" onclick="openModal('20,000 ORCX', 20000)">구매하기</button>
   </div>
   <div class="coupon-card">
-    <img src="orcax-25000.jpg" alt="OrcaX 25,000 쿠폰" onclick="openModal('25,000 ORCX', 25000)" />
+    <img src="orcax-25000.jpg" alt="OrcaX 25,000 쿠폰" onclick="openDesc('OrcaX 25,000 ORCX 쿠폰', '오후 2시 이후 사용 가능한 골프 게임비 쿠폰입니다. OrcaX 토큰으로 결제 시 해당 NFT를 사용하여 Royal Screen Golf에서 오후 시간대 혜택을 누리세요.\n\n사용 시 25,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
     <h3>OrcaX 25,000 ORCX 쿠폰</h3>
     <p>시간 제한 없음<br/>VVIP NFT 쿠폰</p>
     <button class="buy-btn" onclick="openModal('25,000 ORCX', 25000)">구매하기</button>
+  </div>
+</div>
+
+<!-- 설명 팝업창 -->
+<div class="desc-modal" id="descModal">
+  <div class="desc-modal-content">
+    <span class="close-btn" onclick="closeDesc()">&times;</span>
+    <h2 id="descTitle"></h2>
+    <p id="descText"></p>
   </div>
 </div>
 
@@ -194,6 +203,16 @@
     input.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(input.value);
     alert("주소가 복사되었습니다: " + input.value);
+  }
+
+  function openDesc(title, text) {
+    document.getElementById('descTitle').textContent = title;
+    document.getElementById('descText').textContent = text;
+    document.getElementById('descModal').style.display = 'flex';
+  }
+
+  function closeDesc() {
+    document.getElementById('descModal').style.display = 'none';
   }
 
   document.getElementById('qtyInput').addEventListener('input', updateSummary);
