@@ -2,138 +2,76 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <title>OrcaX 쿠폰 구매</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OrcaX 쿠폰 상점</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f7f7;
+      text-align: center;
       padding: 20px;
     }
+
     h1 {
-      text-align: center;
       color: #007bff;
+      font-size: 2rem;
+      margin-bottom: 30px;
     }
-    .cards {
+
+    .coupon-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
-      margin-top: 30px;
     }
-    .card {
+
+    .coupon {
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       width: 280px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      overflow: hidden;
-      cursor: pointer;
-      transition: 0.3s;
+      padding: 15px;
+      transition: transform 0.2s;
     }
-    .card img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-    .card:hover {
+
+    .coupon:hover {
       transform: scale(1.03);
     }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-    }
-    .modal-content h2 {
-      margin-top: 0;
-    }
-    input, textarea, button {
+
+    .coupon img {
       width: 100%;
-      margin: 10px 0;
-      padding: 12px;
-      font-size: 1rem;
+      height: auto;
+      border-radius: 10px;
     }
-    .copy-button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    .close-btn {
-      float: right;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-    @media(max-width: 600px) {
-      .cards { flex-direction: column; align-items: center; }
+
+    .coupon p {
+      font-size: 1.1rem;
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>OrcaX 쿠폰 구매</h1>
-    <div class="cards">
-      <div class="card" onclick="openModal('18,000 ORCX 쿠폰')">
-        <img src="images/orcax-18000.jpg" alt="18,000 ORCX 쿠폰">
-      </div>
-      <div class="card" onclick="openModal('20,000 ORCX 쿠폰')">
-        <img src="images/orcax-20000.jpg" alt="20,000 ORCX 쿠폰">
-      </div>
-      <div class="card" onclick="openModal('25,000 ORCX 쿠폰')">
-        <img src="images/orcax-25000.jpg" alt="25,000 ORCX 쿠폰">
-      </div>
+
+  <h1>OrcaX 쿠폰 구매</h1>
+
+  <div class="coupon-container">
+    <div class="coupon">
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-18000.jpg" alt="18,000 ORCX 쿠폰">
+      <p>18,000 ORCX 쿠폰</p>
+    </div>
+
+    <div class="coupon">
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-20000.jpg" alt="20,000 ORCX 쿠폰">
+      <p>20,000 ORCX 쿠폰</p>
+    </div>
+
+    <div class="coupon">
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-25000.jpg" alt="25,000 ORCX 쿠폰">
+      <p>25,000 ORCX 쿠폰</p>
     </div>
   </div>
 
-  <div class="modal" id="orderModal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal()">&times;</span>
-      <h2 id="couponTitle"></h2>
-      <input type="text" placeholder="이름">
-      <input type="text" placeholder="전화번호">
-      <input type="text" placeholder="팬텀 지갑 주소">
-      <input type="text" placeholder="폴리곤 지갑 주소">
-      <p><strong>판매자 솔라나 주소:</strong></p>
-      <input type="text" id="solanaAddress" value="BmgSphNXa5Ewr9MZ9ksV4h6j7kF2nBb46D9viwaqroqW" readonly>
-      <button class="copy-button" onclick="copyAddress()">주소 복사</button>
-      <button style="background:#28a745;color:#fff;border:none;">구매 신청</button>
-    </div>
-  </div>
-
-  <script>
-    function openModal(couponName) {
-      document.getElementById('couponTitle').innerText = couponName;
-      document.getElementById('orderModal').style.display = 'flex';
-    }
-    function closeModal() {
-      document.getElementById('orderModal').style.display = 'none';
-    }
-    function copyAddress() {
-      const copyText = document.getElementById('solanaAddress');
-      copyText.select();
-      copyText.setSelectionRange(0, 99999);
-      navigator.clipboard.writeText(copyText.value).then(() => {
-        alert('주소가 복사되었습니다.');
-      });
-    }
-  </script>
 </body>
 </html>
 
