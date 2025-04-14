@@ -5,237 +5,125 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OrcaX NFT 쿠폰 상점</title>
   <style>
-    body {
-      background-color: #111;
-      color: #00e0c7;
-      font-family: 'Arial', sans-serif;
-      text-align: center;
-    }
-    h1 {
-      margin-top: 20px;
-    }
-    .coupon-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-    .coupon-card {
-      background-color: #222;
-      border-radius: 1rem;
-      padding: 1rem;
-      width: 300px;
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-    }
-    .coupon-card img {
-      width: 100%;
-      border-radius: 1rem;
-      cursor: pointer;
-    }
-    .buy-btn {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background: linear-gradient(135deg, #00ffc3, #00b2ff);
-      color: #111;
-      border: none;
-      border-radius: 2rem;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
-      transition: 0.2s ease;
-    }
-    .buy-btn:hover {
-      transform: scale(1.05);
-      background: linear-gradient(135deg, #00b2ff, #00ffc3);
-    }
-    .modal, .desc-modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content, .desc-modal-content {
-      background: #1c1c1c;
-      color: #00e0c7;
-      padding: 2rem;
-      border-radius: 1.5rem;
-      max-width: 420px;
-      width: 90%;
-      text-align: left;
-      box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
-    }
-    .modal-content h2, .desc-modal-content h2 {
-      color: #00ffc3;
-      border-bottom: 1px solid #00ffc3;
-      padding-bottom: 0.5rem;
-    }
-    .close-btn {
-      float: right;
-      cursor: pointer;
-      color: #ff6666;
-      font-size: 1.5rem;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-      color: #00ffc3;
-    }
-    input[type="text"], input[type="number"] {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #00ffc3;
-      background: #111;
-      color: #fff;
-      border-radius: 0.7rem;
-      margin-top: 0.5rem;
-    }
-    .summary {
-      background: #222;
-      padding: 1rem;
-      margin-top: 1.2rem;
-      border-radius: 1rem;
-      font-size: 0.95rem;
-      border: 1px solid #00ffc3;
-    }
-    .copy-btn {
-      background-color: #00ffc3;
-      color: #111;
-      border: none;
-      padding: 0.4rem 1rem;
-      font-size: 0.85rem;
-      margin-top: 0.4rem;
-      cursor: pointer;
-      border-radius: 1rem;
-      transition: 0.2s ease;
-    }
-    .copy-btn:hover {
-      background-color: #00e0c7;
-    }
+    body { background: #111; color: #00e0c7; font-family: Arial, sans-serif; text-align: center; }
+    .coupon-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; margin-top: 2rem; }
+    .coupon-card { background: #222; border-radius: 1rem; padding: 1rem; width: 300px; box-shadow: 0 0 20px rgba(0,255,255,0.2); }
+    .coupon-card img { width: 100%; border-radius: 1rem; cursor: pointer; }
+    .buy-btn { margin-top: 1rem; padding: 0.5rem 1rem; background: linear-gradient(135deg,#00ffc3,#00b2ff); color: #111; border: none; border-radius: 2rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .modal, .desc-modal { display: none; position: fixed; z-index: 999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+    .modal-content, .desc-modal-content { background: #1c1c1c; color: #00e0c7; padding: 2rem; border-radius: 1rem; width: 90%; max-width: 400px; text-align: left; }
+    .close-btn { float: right; color: #ff6666; font-size: 1.2rem; cursor: pointer; }
+    label { display: block; margin: 1rem 0 0.5rem; }
+    input { width: 100%; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #00ffc3; background: #111; color: white; }
+    .summary { margin-top: 1rem; background: #222; padding: 1rem; border-radius: 1rem; }
   </style>
 </head>
 <body>
-<h1>OrcaX NFT 쿠폰 상점</h1>
-<div class="coupon-container">
-  <div class="coupon-card">
-    <img src="orcax-18000.jpg" alt="OrcaX 18,000 쿠폰" onclick="openDesc('OrcaX 18,000 ORCX 쿠폰', '오전 11시 이전에 사용할 수 있는 조조 할인 쿠폰입니다. OrcaX 생태계를 통해 실질적 절약 혜택을 제공받으세요.\n\n사용 시 18,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
-    <h3>OrcaX 18,000 ORCX 쿠폰</h3>
-    <p>오전 11시 이전 사용 가능<br/>조조 할인 NFT</p>
-    <button class="buy-btn" onclick="openModal('18,000 ORCX', 18000)">구매하기</button>
+  <h1>OrcaX NFT 쿠폰 상점</h1>
+  <div class="coupon-container">
+    <div class="coupon-card">
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-18000.jpg" alt="OrcaX 18000 쿠폰" onclick="openDesc('OrcaX 18,000 ORCX 쿠폰', '오전 11시 이전에 사용할 수 있는 조조 할인 쿠폰입니다. OrcaX 생태계를 통해 실질적 절약 혜택을 제공받으세요.\n\n사용 시 18,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
+      <h3>OrcaX 18,000 ORCX 쿠폰</h3>
+      <p>조조 할인 NFT<br/>오전 11시 이전 사용 가능</p>
+      <button class="buy-btn" onclick="openModal('OrcaX 18,000 ORCX 쿠폰', 18000)">구매하기</button>
+    </div>
+    <div class="coupon-card">
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-20000.jpg" alt="OrcaX 20000 쿠폰" onclick="openDesc('OrcaX 20,000 ORCX 쿠폰', '오후 2시 이전 사용 가능한 골프 게임비 쿠폰입니다. OrcaX 토큰과 함께 사용하여 저렴한 게임 요금을 누리세요.\n\n사용 시 20,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
+      <h3>OrcaX 20,000 ORCX 쿠폰</h3>
+      <p>점심 할인 NFT<br/>오후 2시 이전 사용 가능</p>
+      <button class="buy-btn" onclick="openModal('OrcaX 20,000 ORCX 쿠폰', 20000)">구매하기</button>
+    </div>
+    <div class="coupon-card">
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-25000.jpg" alt="OrcaX 25000 쿠폰" onclick="openDesc('OrcaX 25,000 ORCX 쿠폰', '오후 2시 이후 사용 가능한 골프 게임비 쿠폰입니다. OrcaX 토큰으로 결제 시 해당 NFT를 사용하여 Royal Screen Golf에서 오후 시간대 혜택을 누리세요.\n\n사용 시 25,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
+      <h3>OrcaX 25,000 ORCX 쿠폰</h3>
+      <p>VVIP NFT<br/>시간 제한 없음</p>
+      <button class="buy-btn" onclick="openModal('OrcaX 25,000 ORCX 쿠폰', 25000)">구매하기</button>
+    </div>
   </div>
-  <div class="coupon-card">
-    <img src="orcax-20000.jpg" alt="OrcaX 20,000 쿠폰" onclick="openDesc('OrcaX 20,000 ORCX 쿠폰', '오후 2시 이전 사용 가능한 골프 게임비 쿠폰입니다. OrcaX 토큰과 함께 사용하여 저렴한 게임 요금을 누리세요.\n\n사용 시 20,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
-    <h3>OrcaX 20,000 ORCX 쿠폰</h3>
-    <p>오후 2시 이전 사용 가능<br/>점심 할인 NFT</p>
-    <button class="buy-btn" onclick="openModal('20,000 ORCX', 20000)">구매하기</button>
+
+  <div class="desc-modal" id="descModal">
+    <div class="desc-modal-content">
+      <span class="close-btn" onclick="closeDesc()">&times;</span>
+      <h2 id="descTitle"></h2>
+      <p id="descText"></p>
+    </div>
   </div>
-  <div class="coupon-card">
-    <img src="orcax-25000.jpg" alt="OrcaX 25,000 쿠폰" onclick="openDesc('OrcaX 25,000 ORCX 쿠폰', '오후 2시 이후 사용 가능한 골프 게임비 쿠폰입니다. OrcaX 토큰으로 결제 시 해당 NFT를 사용하여 Royal Screen Golf에서 오후 시간대 혜택을 누리세요.\n\n사용 시 25,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
-    <h3>OrcaX 25,000 ORCX 쿠폰</h3>
-    <p>시간 제한 없음<br/>VVIP NFT 쿠폰</p>
-    <button class="buy-btn" onclick="openModal('25,000 ORCX', 25000)">구매하기</button>
+
+  <div class="modal" id="orderModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h2>주문 정보 입력</h2>
+      <form id="orderForm">
+        <input type="hidden" name="price" id="unitPrice" />
+        <label>이름<input type="text" name="name" required /></label>
+        <label>전화번호<input type="text" name="phone" required /></label>
+        <label>팬텀 지갑 주소<input type="text" name="wallet" required /></label>
+        <label>수량<input type="number" name="quantity" min="1" value="1" required /></label>
+        <div class="summary" id="orderSummary"></div>
+        <button class="buy-btn" type="submit">제출</button>
+      </form>
+    </div>
   </div>
-</div>
 
-<!-- 설명 팝업창 -->
-<div class="desc-modal" id="descModal">
-  <div class="desc-modal-content">
-    <span class="close-btn" onclick="closeDesc()">&times;</span>
-    <h2 id="descTitle"></h2>
-    <p id="descText"></p>
-  </div>
-</div>
+  <script>
+    const modal = document.getElementById("orderModal");
+    const form = document.getElementById("orderForm");
 
-<!-- 주문창 -->
-<div class="modal" id="orderModal">
-  <div class="modal-content">
-    <span class="close-btn" onclick="closeModal()">&times;</span>
-    <h2>주문 정보 입력</h2>
-    <form id="orderForm">
-      <input type="hidden" name="price" id="unitPrice" />
-      <label>이름<input type="text" name="name" required /></label>
-      <label>전화번호<input type="text" name="phone" required /></label>
-      <label>팬텀(폴리곤) 지갑 주소<input type="text" name="wallet" required /></label>
-      <label>수량<input type="number" name="quantity" id="qtyInput" min="1" value="1" required /></label>
-      <p><strong>토큰 보낼 주소:</strong><br/>
-        <input type="text" id="sendAddress" value="BmgSphNXa5Ewr9MZ9ksV4h6j7kF2nBb46D9viwaqroqW" readonly />
-        <button type="button" class="copy-btn" onclick="copyToClipboard()">복사</button>
-      </p>
-      <div class="summary" id="orderSummary"></div>
-      <button class="buy-btn" type="submit">제출</button>
-    </form>
-  </div>
-</div>
-
-<script>
-  let currentPrice = 0;
-
-  function openModal(priceStr, priceNum) {
-    document.getElementById('orderModal').style.display = 'flex';
-    document.getElementById('unitPrice').value = priceNum;
-    document.getElementById('qtyInput').value = 1;
-    currentPrice = priceNum;
-    updateSummary();
-  }
-
-  function closeModal() {
-    document.getElementById('orderModal').style.display = 'none';
-  }
-
-  function updateSummary() {
-    const qty = parseInt(document.getElementById('qtyInput').value);
-    const total = currentPrice * qty;
-    const bonus = Math.floor(qty / 10);
-    const totalNft = qty + bonus;
-    document.getElementById('orderSummary').innerHTML = `총액: ${total.toLocaleString()} ORCX<br>보너스: ${bonus > 0 ? bonus + '장' : '없음'}<br>총 수령 NFT: ${totalNft}장`;
-  }
-
-  function copyToClipboard() {
-    const input = document.getElementById('sendAddress');
-    input.select();
-    input.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(input.value);
-    alert("주소가 복사되었습니다: " + input.value);
-  }
-
-  function openDesc(title, text) {
-    document.getElementById('descTitle').textContent = title;
-    document.getElementById('descText').textContent = text;
-    document.getElementById('descModal').style.display = 'flex';
-  }
-
-  function closeDesc() {
-    document.getElementById('descModal').style.display = 'none';
-  }
-
-  document.getElementById('qtyInput').addEventListener('input', updateSummary);
-
-  document.getElementById('orderForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    alert("주문이 접수되었습니다! 팬텀 지갑에서 토큰을 전송해주세요.");
-    closeModal();
-
-    if (window.solana && window.solana.isPhantom) {
-      try {
-        const resp = await window.solana.connect();
-        const sender = resp.publicKey.toString();
-        console.log("팬텀 지갑 연결됨:", sender);
-      } catch (err) {
-        console.error("팬텀 연결 실패:", err);
-        alert("팬텀 지갑 연결 실패!");
-      }
-    } else {
-      alert("팬텀 지갑이 설치되어 있지 않습니다.");
+    function openModal(title, price) {
+      modal.style.display = "flex";
+      document.getElementById("unitPrice").value = price;
+      updateSummary();
     }
-  });
-</script>
+
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    function openDesc(title, text) {
+      document.getElementById("descModal").style.display = 'flex';
+      document.getElementById("descTitle").innerText = title;
+      document.getElementById("descText").innerText = text;
+    }
+
+    function closeDesc() {
+      document.getElementById("descModal").style.display = 'none';
+    }
+
+    form.quantity.addEventListener("input", updateSummary);
+
+    function updateSummary() {
+      const qty = parseInt(form.quantity.value);
+      const unit = parseInt(form.price.value);
+      const total = qty * unit;
+      const bonus = Math.floor(qty / 10);
+      const nftTotal = qty + bonus;
+      document.getElementById("orderSummary").innerHTML =
+        `총액: ${total.toLocaleString()} ORCX<br>보너스: ${bonus}장<br>총 NFT 수령 수량: ${nftTotal}장`;
+    }
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      alert("주문이 접수되었습니다! 팬텀 지갑에서 수동으로 토큰을 전송해주세요.");
+      closeModal();
+
+      try {
+        await fetch("http://localhost:3000/api/sms/order-notice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name.value,
+            phone: form.phone.value,
+            wallet: form.wallet.value,
+            qty: form.quantity.value,
+            nft: "OrcaX " + form.price.value + " ORCX 쿠폰"
+          })
+        });
+        console.log("문자 발송 요청 완료!");
+      } catch (err) {
+        console.error("문자 발송 실패:", err);
+      }
+    });
+  </script>
 </body>
 </html>
 
