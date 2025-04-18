@@ -107,7 +107,7 @@
       closeModal();
 
       try {
-        await fetch("http://localhost:3000/api/sms/order-notice", {
+        await fetch("http://localhost:3003/api/sms/order-notice", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
