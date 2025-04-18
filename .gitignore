@@ -1,45 +1,44 @@
-# node_modules — 네가 설치한 그 500MB짜리 친구
+# ✅ node_modules — 니가 설치한 무거운 친구
 node_modules/
 
-# 로그 파일들
+# ✅ 로그 파일들
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# 환경 설정 — 여기에 비밀이 다 있어 (.env 같은 거 올리면 안됨 진짜로)
+# ✅ 환경 설정 파일 — 여기에 비밀이 다 있음
 .env
 .env.*
+config.js
+sms-config.js
+secrets.js
 
-# 운영체제 잡동사니
+# ✅ OS 쓰레기들
 .DS_Store
 Thumbs.db
 
-# 에디터 쓰레기
+# ✅ 에디터 설정 파일
 .vscode/
 .idea/
 
-# 빌드 결과물
+# ✅ 빌드 결과물
 dist/
 build/
 out/
 
-# 프론트엔드 임시 파일
+# ✅ 프론트엔드 임시 캐시
 .cache/
 .next/
 .svelte-kit/
 *.log
 
-# 기타 커스텀 파일 (넌 이걸 넣어야 돼)
-config.js
-sms-config.js
-secrets.js
-
-# 백엔드 로그 데이터
+# ✅ 백엔드 로그 데이터
 data/*.json
 logs/
 
-# PM2 로그
+# ✅ PM2 로그
 .pm2/logs/*
 
-# Git ignore 그 자체 (이 줄은 그냥 네 태도 점검용)
+# ✅ Git이 자기 자신을 무시함 (뭔가 멋있다)
 .gitignore
+
