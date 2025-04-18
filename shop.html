@@ -107,17 +107,17 @@
       closeModal();
 
       try {
-        await fetch("http://localhost:3003/api/sms/order-notice", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: form.name.value,
-            phone: form.phone.value,
-            wallet: form.wallet.value,
-            qty: form.quantity.value,
-            nft: "OrcaX " + form.price.value + " ORCX 쿠폰"
-          })
-        });
+       await fetch("http://localhost:3003/api/sms/send", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": "orcax-secret-2025" // 👈 이거 꼭 넣어줘야 작동함
+  },
+  body: JSON.stringify({
+    to: form.phone.value,
+    message: `${form.name.value}님 OrcaX NFT 쿠폰 ${form.price.value} ORCX 구매 신청 완료`
+  })
+});
         console.log("문자 발송 요청 완료!");
       } catch (err) {
         console.error("문자 발송 실패:", err);
