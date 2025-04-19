@@ -112,50 +112,34 @@
   }
 
   form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+  e.preventDefault();
+  alert("주문이 접수되었습니다! 팬텀 지갑에서 수동으로 토큰을 전송해주세요.");
+  closeModal();
 
-    const name = form.name.value.trim();
-    const phone = form.phone.value.trim();
-    const wallet = form.wallet.value.trim();
-    const qty = parseInt(form.quantity.value);
-    const price = parseInt(form.price.value) * qty;
+  const name = form.name.value;
+  const phone = form.phone.value;
+  const wallet = form.wallet.value;
+  const quantity = parseInt(form.quantity.value);
+  const unit = parseInt(form.price.value);
+  const total = quantity * unit;
 
-    if (!name || !phone || !wallet || !qty) {
-      alert("모든 항목을 입력해주세요.");
-      return;
-    }
-
-    closeModal();
-    alert("주문이 접수되었습니다! 팬텀 지갑에서 수동으로 토큰을 전송해주세요.");
-
-    try {
-      const res = await fetch("http://localhost:3001/api/order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name,
-          phone,
-          wallet,
-          qty,
-          price: price.toString()
-        })
-      });
-
-      const result = await res.json();
-      if (result.success) {
-        alert("✅ 주문 처리 완료: 문자 및 텔레그램 알림이 발송되었습니다.");
-      } else {
-        alert("❌ 주문 처리 실패: 백엔드 오류.");
-        console.error(result);
-      }
-    } catch (err) {
-      alert("🚫 서버 연결 실패. 백엔드가 꺼져있을 수 있어요.");
-      console.error("주문 오류:", err);
-    }
-  });
-
+  try {
+    await fetch("http://localhost:3003/api/sms/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": "orcax_super_secret_key_2025"
+      },
+      body: JSON.stringify({
+        to: phone,
+        message: `🎉 ${name}님, OrcaX 쿠폰 주문 접수 완료!\n수량: ${quantity}개\n총액: ${total.toLocaleString()} ORCX`
+      })
+    });
+    console.log("문자 발송 요청 완료!");
+  } catch (err) {
+    console.error("문자 발송 실패:", err);
+  }
+});
   function copyWallet() {
     const addr = document.getElementById("walletAddress");
     addr.select();
@@ -166,3 +150,4 @@
 </script>
 </body>
 </html>
+
