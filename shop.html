@@ -72,72 +72,97 @@
     </div>
   </div>
 
-  <script>
-    const modal = document.getElementById("orderModal");
-    const form = document.getElementById("orderForm");
+  <!-- 중략: <head>, <style>, 본문까지 동일 유지됨 -->
+<!-- ↓ 아래 스크립트 부분만 전면 교체됨 -->
 
-    function openModal(title, price) {
-      modal.style.display = "flex";
-      document.getElementById("unitPrice").value = price;
-      updateSummary();
+<script>
+  const modal = document.getElementById("orderModal");
+  const form = document.getElementById("orderForm");
+
+  function openModal(title, price) {
+    modal.style.display = "flex";
+    document.getElementById("unitPrice").value = price;
+    updateSummary();
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+  }
+
+  function openDesc(title, text) {
+    document.getElementById("descModal").style.display = 'flex';
+    document.getElementById("descTitle").innerText = title;
+    document.getElementById("descText").innerText = text;
+  }
+
+  function closeDesc() {
+    document.getElementById("descModal").style.display = 'none';
+  }
+
+  form.quantity.addEventListener("input", updateSummary);
+
+  function updateSummary() {
+    const qty = parseInt(form.quantity.value);
+    const unit = parseInt(form.price.value);
+    const total = qty * unit;
+    const bonus = Math.floor(qty / 10);
+    const nftTotal = qty + bonus;
+    document.getElementById("orderSummary").innerHTML =
+      `총액: ${total.toLocaleString()} ORCX<br>보너스: ${bonus}장<br>총 NFT 수령 수량: ${nftTotal}장`;
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const name = form.name.value.trim();
+    const phone = form.phone.value.trim();
+    const wallet = form.wallet.value.trim();
+    const qty = parseInt(form.quantity.value);
+    const price = parseInt(form.price.value) * qty;
+
+    if (!name || !phone || !wallet || !qty) {
+      alert("모든 항목을 입력해주세요.");
+      return;
     }
 
-    function closeModal() {
-      modal.style.display = "none";
-    }
+    closeModal();
+    alert("주문이 접수되었습니다! 팬텀 지갑에서 수동으로 토큰을 전송해주세요.");
 
-    function openDesc(title, text) {
-      document.getElementById("descModal").style.display = 'flex';
-      document.getElementById("descTitle").innerText = title;
-      document.getElementById("descText").innerText = text;
-    }
+    try {
+      const res = await fetch("http://localhost:3001/api/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          phone,
+          wallet,
+          qty,
+          price: price.toString()
+        })
+      });
 
-    function closeDesc() {
-      document.getElementById("descModal").style.display = 'none';
-    }
-
-    form.quantity.addEventListener("input", updateSummary);
-
-    function updateSummary() {
-      const qty = parseInt(form.quantity.value);
-      const unit = parseInt(form.price.value);
-      const total = qty * unit;
-      const bonus = Math.floor(qty / 10);
-      const nftTotal = qty + bonus;
-      document.getElementById("orderSummary").innerHTML =
-        `총액: ${total.toLocaleString()} ORCX<br>보너스: ${bonus}장<br>총 NFT 수령 수량: ${nftTotal}장`;
-    }
-
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      alert("주문이 접수되었습니다! 팬텀 지갑에서 수동으로 토큰을 전송해주세요.");
-      closeModal();
-
-      try {
-        await fetch("http://localhost:3003/api/sms/send", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "x-api-key": "orcax_super_secret_key_2025"
-  },
-  body: JSON.stringify({
-    to: "01072362157",
-    message: "🎉 OrcaX 쿠폰 주문 접수 완료!"
-  })
-});
-        console.log("문자 발송 요청 완료!");
-      } catch (err) {
-        console.error("문자 발송 실패:", err);
+      const result = await res.json();
+      if (result.success) {
+        alert("✅ 주문 처리 완료: 문자 및 텔레그램 알림이 발송되었습니다.");
+      } else {
+        alert("❌ 주문 처리 실패: 백엔드 오류.");
+        console.error(result);
       }
-    });
-
-    function copyWallet() {
-      const addr = document.getElementById("walletAddress");
-      addr.select();
-      addr.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-      alert("지갑 주소가 복사되었습니다!");
+    } catch (err) {
+      alert("🚫 서버 연결 실패. 백엔드가 꺼져있을 수 있어요.");
+      console.error("주문 오류:", err);
     }
-  </script>
+  });
+
+  function copyWallet() {
+    const addr = document.getElementById("walletAddress");
+    addr.select();
+    addr.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    alert("지갑 주소가 복사되었습니다!");
+  }
+</script>
 </body>
 </html>
