@@ -113,33 +113,41 @@
 
   form.addEventListener("submit", async function (e) {
   e.preventDefault();
-  alert("주문이 접수되었습니다! 팬텀 지갑에서 수동으로 토큰을 전송해주세요.");
   closeModal();
 
   const name = form.name.value;
   const phone = form.phone.value;
   const wallet = form.wallet.value;
   const quantity = parseInt(form.quantity.value);
-  const unit = parseInt(form.price.value);
-  const total = quantity * unit;
+  const unitPrice = parseInt(form.price.value);
+  const nft = `${quantity} x ${unitPrice.toLocaleString()} ORCX`;
 
   try {
-    await fetch("http://localhost:3004/api/sms/send", {
+    const res = await fetch("http://localhost:3004/api/notify", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": "orcax_super_secret_key_2025"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        to: phone,
-        message: `🎉 ${name}님, OrcaX 쿠폰 주문 접수 완료!\n수량: ${quantity}개\n총액: ${total.toLocaleString()} ORCX`
+        name,
+        phone,
+        wallet,
+        nft
       })
     });
-    console.log("문자 발송 요청 완료!");
+
+    const result = await res.json();
+    if (result.success) {
+      alert("✅ 주문 접수 완료! 알림 전송 성공!");
+    } else {
+      alert("❌ 알림 전송 실패: " + result.error);
+    }
   } catch (err) {
-    console.error("문자 발송 실패:", err);
+    console.error("알림 전송 에러:", err);
+    alert("⚠️ 네트워크 오류 또는 서버 문제!");
   }
 });
+
   function copyWallet() {
     const addr = document.getElementById("walletAddress");
     addr.select();
