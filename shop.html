@@ -123,18 +123,10 @@
   const nft = `${quantity} x ${unitPrice.toLocaleString()} ORCX`;
 
   try {
-    const res = await fetch("http://localhost:3004/api/notify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name,
-        phone,
-        wallet,
-        nft
-      })
-    });
+    const res = await fetch("https://orcax-alert-backend.onrender.com/order", {
+  method: "POST",
+  ...
+});
 
     const result = await res.json();
     if (result.success) {
