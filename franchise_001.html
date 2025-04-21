@@ -51,12 +51,17 @@
 
     .map-container {
       margin-top: 20px;
+      text-align: center;
     }
 
-    iframe {
-      width: 100%;
-      height: 300px;
-      border: none;
+    .map-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #2d98da;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
     }
 
     .highlight {
@@ -72,10 +77,19 @@
       margin-top: 20px;
     }
 
+    .coupon-item {
+      text-align: center;
+    }
+
     .coupon-gallery img {
       width: 220px;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .coupon-price {
+      margin-top: 5px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -99,7 +113,7 @@
   <section>
     <h2>위치 지도 (네이버)</h2>
     <div class="map-container">
-      <iframe src="https://map.naver.com/v5/embed?c=14140709.3459424,4505974.2325124,18,0,0,0,dh" width="100%" height="300" frameborder="0" allowfullscreen></iframe>
+      <a href="https://map.naver.com/v5/entry/place/11327480?c=14140681.5893843,4505963.6306922,18,0,0,0,dh" target="_blank" class="map-button">📍 네이버 지도에서 위치 보기</a>
     </div>
   </section>
 
@@ -112,10 +126,22 @@
   <section>
     <h2>쿠폰 예시</h2>
     <div class="coupon-gallery">
-      <img src="orcax-18000.jpg" alt="OrcaX 18,000 ORCX 쿠폰" />
-      <img src="orcax-20000.jpg" alt="OrcaX 20,000 ORCX 쿠폰" />
-      <img src="orcax-25000.jpg" alt="OrcaX 25,000 ORCX 쿠폰" />
-      <img src="OrcaX_VVIP_01.jpg" alt="OrcaX VVIP 쿠폰" />
+      <div class="coupon-item">
+        <img src="orcax-18000.jpg" alt="OrcaX 18,000 ORCX 쿠폰" />
+        <div class="coupon-price">18,000 ORCX</div>
+      </div>
+      <div class="coupon-item">
+        <img src="orcax-20000.jpg" alt="OrcaX 20,000 ORCX 쿠폰" />
+        <div class="coupon-price">20,000 ORCX</div>
+      </div>
+      <div class="coupon-item">
+        <img src="orcax-25000.jpg" alt="OrcaX 25,000 ORCX 쿠폰" />
+        <div class="coupon-price">25,000 ORCX</div>
+      </div>
+      <div class="coupon-item">
+        <img src="OrcaX_VVIP_01.jpg" alt="OrcaX VVIP 쿠폰" />
+        <div class="coupon-price">VVIP 특별 쿠폰</div>
+      </div>
     </div>
   </section>
 </body>
