@@ -11,60 +11,49 @@
       padding: 0;
       background: #f8f8f8;
     }
-
     header {
       background-color: #0a3d62;
       color: white;
       padding: 30px 20px;
       text-align: center;
     }
-
     .store-name {
       font-size: 2.4em;
       font-weight: 800;
       letter-spacing: 1px;
       margin-bottom: 10px;
     }
-
     .store-desc {
       font-size: 1.1em;
     }
-
     section {
       padding: 20px;
       max-width: 800px;
       margin: auto;
     }
-
     h2 {
       color: #0a3d62;
     }
-
     ul {
       list-style: none;
       padding: 0;
     }
-
     ul li {
       margin-bottom: 10px;
     }
-
     .map-container {
       margin-top: 20px;
       text-align: center;
     }
-
     iframe {
       width: 100%;
       height: 300px;
       border: none;
     }
-
     .highlight {
       font-weight: bold;
       color: #2c3e50;
     }
-
     .coupon-gallery {
       display: flex;
       flex-wrap: wrap;
@@ -72,17 +61,19 @@
       gap: 20px;
       margin-top: 20px;
     }
-
     .coupon-item {
       text-align: center;
     }
-
     .coupon-gallery img {
       width: 220px;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.3s;
     }
-
+    .coupon-gallery img:hover {
+      transform: scale(1.05);
+      cursor: pointer;
+    }
     .coupon-price {
       margin-top: 5px;
       font-weight: bold;
@@ -128,20 +119,28 @@
     <h2>쿠폰 예시</h2>
     <div class="coupon-gallery">
       <div class="coupon-item">
-        <img src="orcax-18000.jpg" alt="OrcaX 18,000 ORCX 쿠폰" />
-        <div class="coupon-price">18,000 ORCX</div>
+        <a href="shop.html">
+          <img src="orcax-18000.jpg" alt="OrcaX 18,000 ORCX 쿠폰" />
+          <div class="coupon-price">18,000 ORCX</div>
+        </a>
       </div>
       <div class="coupon-item">
-        <img src="orcax-20000.jpg" alt="OrcaX 20,000 ORCX 쿠폰" />
-        <div class="coupon-price">20,000 ORCX</div>
+        <a href="shop.html">
+          <img src="orcax-20000.jpg" alt="OrcaX 20,000 ORCX 쿠폰" />
+          <div class="coupon-price">20,000 ORCX</div>
+        </a>
       </div>
       <div class="coupon-item">
-        <img src="orcax-25000.jpg" alt="OrcaX 25,000 ORCX 쿠폰" />
-        <div class="coupon-price">25,000 ORCX</div>
+        <a href="shop.html">
+          <img src="orcax-25000.jpg" alt="OrcaX 25,000 ORCX 쿠폰" />
+          <div class="coupon-price">25,000 ORCX</div>
+        </a>
       </div>
       <div class="coupon-item">
-        <img src="OrcaX_VVIP_01.jpg" alt="OrcaX VVIP 쿠폰" />
-        <div class="coupon-price">VVIP 특별 쿠폰</div>
+        <a href="shop.html">
+          <img src="OrcaX_VVIP_01.jpg" alt="OrcaX VVIP 쿠폰" />
+          <div class="coupon-price">VVIP 특별 쿠폰</div>
+        </a>
       </div>
     </div>
   </section>
