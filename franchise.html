@@ -49,6 +49,34 @@
       color: inherit;
       display: inline-block;
     }
+
+    /* ✨ 깜빡이는 모집중 스타일 */
+    .blink {
+      color: #fff;
+      background: linear-gradient(45deg, #ff3860, #ff6f61);
+      padding: 6px 12px;
+      border-radius: 10px;
+      display: inline-block;
+      font-weight: bold;
+      animation: blink 1.2s ease-in-out infinite;
+      box-shadow: 0 0 12px rgba(255, 56, 96, 0.6);
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.05); }
+    }
+
+    .inquiry {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 5px;
+    }
+
+    .inquiry a {
+      color: #003b6f;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -68,22 +96,25 @@
     <div class="store-item">
       <a href="franchise_002.html">
         <img src="images/logo_01.jpg" alt="2호 가맹점" />
-        <p class="store-name">2호 가맹점: 모집중</p>
       </a>
+      <p class="store-name blink">2호 가맹점: 모집중</p>
+      <p class="inquiry">문의: <a href="tel:0314082238">031-408-2238</a></p>
     </div>
 
     <div class="store-item">
       <a href="franchise_003.html">
         <img src="images/logo_01.jpg" alt="3호 가맹점" />
-        <p class="store-name">3호 가맹점: 모집중</p>
       </a>
+      <p class="store-name blink">3호 가맹점: 모집중</p>
+      <p class="inquiry">문의: <a href="tel:0314082238">031-408-2238</a></p>
     </div>
 
     <div class="store-item">
       <a href="franchise_004.html">
         <img src="images/logo_01.jpg" alt="4호 가맹점" />
-        <p class="store-name">4호 가맹점: 모집중</p>
       </a>
+      <p class="store-name blink">4호 가맹점: 모집중</p>
+      <p class="inquiry">문의: <a href="tel:0314082238">031-408-2238</a></p>
     </div>
   </section>
 </body>
