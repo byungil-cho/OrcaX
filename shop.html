@@ -59,7 +59,7 @@
         <input type="hidden" name="price" id="unitPrice" />
         <label>이름<input type="text" name="name" required /></label>
         <label>전화번호<input type="text" name="phone" required /></label>
-        <label>팬텀 지갑 주소<input type="text" name="wallet" required /></label>
+        <label>패턴 지갑 주소<input type="text" name="wallet" required /></label>
         <label>수량<input type="number" name="quantity" min="1" value="1" required /></label>
         <div class="summary" id="orderSummary"></div>
         <button class="buy-btn" type="submit">제출</button>
@@ -124,7 +124,7 @@
       const nft = `${quantity} x ${unitPrice.toLocaleString()} ORCX`;
 
       try {
-        const res = await fetch("https://orcax-alert-core.onrender.com/order", {
+        const res = await fetch("https://orcax-alert-core.onrender.com/api/notify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, phone, wallet, quantity, nft })
@@ -132,13 +132,13 @@
 
         const result = await res.json();
         if (result.success) {
-          alert("✅ 주문 접수 완료! 알림 전송 성공!");
+          alert("\u2705 \uc8fc\ubb38 \uc811\uc218 \uc644\ub8cc! \uc54c\ub9bc \uc804\uc1a1 \uc131\uacf5!");
         } else {
-          alert("❌ 알림 전송 실패: " + result.error);
+          alert("\u274c \uc54c\ub9bc \uc804\uc1a1 \uc2e4\ud328: " + result.error);
         }
       } catch (err) {
-        console.error("알림 전송 에러:", err);
-        alert("⚠️ 네트워크 오류 또는 서버 문제!");
+        console.error("\uc54c\ub9bc \uc804\uc1a1 \uc5d0\ub7ec:", err);
+        alert("\u26a0\ufe0f \ub124\ud2b8\uc6cc\ud06c \uc624\ub958 \ub610\ub294 \uc11c\ubc84 \ubb38\uc81c!");
       }
     });
 
