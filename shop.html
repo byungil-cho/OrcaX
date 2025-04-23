@@ -26,11 +26,46 @@
     <button onclick="copyWallet()">📋 복사</button>
   </p>
   <div class="coupon-container">
-    <!-- Coupon Cards remain unchanged -->
+    <div class="coupon-card">
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-18000.jpg" alt="OrcaX 18000 쿠폰" onclick="openDesc('OrcaX 18,000 ORCX 쿠폰', '오전 11시 이전에 사용할 수 있는 조조 할인 쿠폰입니다.\n\n사용 시 18,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
+      <h3>OrcaX 18,000 ORCX 쿠폰</h3>
+      <button class="buy-btn" onclick="openModal('OrcaX 18,000 ORCX 쿠폰', 18000)">구매하기</button>
+    </div>
+    <div class="coupon-card">
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-20000.jpg" alt="OrcaX 20000 쿠폰" onclick="openDesc('OrcaX 20,000 ORCX 쿠폰', '오후 2시 이전 사용 가능한 골프 게임비 쿠폰입니다.\n\n사용 시 20,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
+      <h3>OrcaX 20,000 ORCX 쿠폰</h3>
+      <button class="buy-btn" onclick="openModal('OrcaX 20,000 ORCX 쿠폰', 20000)">구매하기</button>
+    </div>
+    <div class="coupon-card">
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-25000.jpg" alt="OrcaX 25000 쿠폰" onclick="openDesc('OrcaX 25,000 ORCX 쿠폰', '오후 2시 이후 사용 가능한 골프 게임비 쿠폰입니다.\n\n사용 시 25,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
+      <h3>OrcaX 25,000 ORCX 쿠폰</h3>
+      <button class="buy-btn" onclick="openModal('OrcaX 25,000 ORCX 쿠폰', 25000)">구매하기</button>
+    </div>
   </div>
 
-  <!-- Description Modal -->
-  <!-- Order Modal -->
+  <div class="desc-modal" id="descModal">
+    <div class="desc-modal-content">
+      <span class="close-btn" onclick="closeDesc()">&times;</span>
+      <h2 id="descTitle"></h2>
+      <p id="descText"></p>
+    </div>
+  </div>
+
+  <div class="modal" id="orderModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h2>주문 정보 입력</h2>
+      <form id="orderForm">
+        <input type="hidden" name="price" id="unitPrice" />
+        <label>이름<input type="text" name="name" required /></label>
+        <label>전화번호<input type="text" name="phone" required /></label>
+        <label>팬텀 지갑 주소<input type="text" name="wallet" required /></label>
+        <label>수량<input type="number" name="quantity" min="1" value="1" required /></label>
+        <div class="summary" id="orderSummary"></div>
+        <button class="buy-btn" type="submit">제출</button>
+      </form>
+    </div>
+  </div>
 
   <div style="margin-top: 2rem;">
     <a href="https://pf.kakao.com/_example/chat" target="_blank"
@@ -117,5 +152,4 @@
   </script>
 </body>
 </html>
-
 
