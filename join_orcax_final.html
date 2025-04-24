@@ -62,28 +62,37 @@
 
     .cta a {
       display: inline-block;
-      background-color: #ff3860;
-      color: white;
+      background-color: #fae100; /* 카카오 노랑 */
+      color: #3c1e1e;             /* 카카오 갈색 텍스트 */
       padding: 12px 24px;
-      border-radius: 8px;
+      border-radius: 30px;
       text-decoration: none;
       font-weight: bold;
       font-size: 1.1em;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.4);
       width: 100%;
       max-width: 400px;
     }
 
-    .email-info {
+    .email-copy {
       text-align: center;
-      font-size: 0.9em;
-      color: #666;
-      margin-top: 10px;
+      margin-top: 20px;
     }
 
-    .email-info a {
-      color: #003b6f;
-      font-weight: bold;
+    .email-copy button {
+      padding: 10px 20px;
+      background: #003b6f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95em;
+    }
+
+    .copy-msg {
+      color: green;
+      font-size: 0.9em;
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -144,10 +153,23 @@
       </a>
     </div>
 
-    <div class="email-info">
-      또는 이메일: <a href="mailto:jbl01570@hanmail.net">jbl01570@hanmail.net</a>
+    <div class="email-copy">
+      <p>문의 이메일: <span id="emailText" style="font-weight:bold; color:#003b6f;">jbl01570@hanmail.net</span></p>
+      <button onclick="copyEmail()">📋 이메일 주소 복사하기</button>
+      <p id="copyMsg" class="copy-msg"></p>
     </div>
   </section>
+
+  <script>
+    function copyEmail() {
+      const email = document.getElementById("emailText").textContent;
+      navigator.clipboard.writeText(email).then(() => {
+        document.getElementById("copyMsg").textContent = "이메일 주소가 복사되었습니다!";
+      }, () => {
+        document.getElementById("copyMsg").textContent = "복사에 실패했어요. 직접 복사해주세요.";
+      });
+    }
+  </script>
 </body>
 </html>
 
