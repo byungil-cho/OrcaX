@@ -184,46 +184,53 @@ function weightedRandomReward() {
 }
 
 function spin() {
-  if (getSpinCount() >= maxSpins) {
+  if (getSpinCount() >= 10 || !getAllowSpin()) {
     resultDiv.innerText = "⛔ 오늘의 룰렛 기회가 끝났어요!";
     return;
   }
 
   const reward = weightedRandomReward();
-  const match = reward.match(/(\d+)/);
-  let score = match ? parseInt(match[1]) : 0;
+  const index = rewards.indexOf(reward);
+  const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
 
-  resultDiv.innerHTML = `🎉 결과: <strong>${reward}</strong>!`;
+  wheel.style.transition = 'transform 5s ease-out';
+  wheel.style.transform = `rotate(${degrees}deg)`;
 
-  if (score > 0) {
-    const total = getTotalScore() + score;
-    setTotalScore(total);
-  }
+  increaseSpinCount();
+  setAllowSpin(false);
+  updateSpinUI();
 
-  const newSpinCount = getSpinCount() + 1;
-  setSpinCount(newSpinCount);
-  updateUI();
+  setTimeout(() => {
+    resultDiv.innerHTML = `🎉 결과: <strong>${reward}</strong>!`;
+    const match = reward.match(/(\d+)/);
+    if (match) {
+      const score = parseInt(match[1]);
+      const total = getTotalScore();
+      setTotalScore(total + score);
+      updateTotalScoreUI();
+      createFirework(window.innerWidth / 2, window.innerHeight / 2);
 
-  // ✅ 여기서 서버로 저장
-  fetch("https://orcax-roulette-backend.onrender.com/api/roulette/record", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user: "phantom123abc", // 실제 로그인한 지갑 주소 등 넣기
-      reward: reward,
-      score: score,
-      timestamp: new Date().toISOString()
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log("✅ 서버 저장 완료:", data);
-  })
-  .catch(err => {
-    console.error("❌ 서버 저장 실패:", err);
-  });
+      // ✅ 서버에 저장
+      fetch("https://orcax-roulette-backend.onrender.com/api/roulette/record", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: localStorage.getItem("orcax_user") || "guest",
+          reward: reward,
+          score: score,
+          timestamp: new Date().toISOString()
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("✅ 서버 저장:", data);
+      })
+      .catch(err => {
+        console.error("❌ 서버 저장 실패:", err);
+      });
+    }
+  }, 5200);
 }
-
 updateUI();
 </script>
 
