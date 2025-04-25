@@ -129,113 +129,104 @@
   </div>
 
   <script>
-    const spinBtn = document.getElementById('spinBtn');
-    const leftCount = document.getElementById('leftCount');
-    const resultDiv = document.getElementById('result');
-    const wheel = document.getElementById('wheel');
-    const totalScoreDiv = document.getElementById('totalScore');
-    const totalKey = 'orcax_totalScore';
+const spinBtn = document.getElementById('spinBtn');
+const resultDiv = document.getElementById('result');
+const totalScoreDiv = document.getElementById('totalScore');
+const leftCount = document.getElementById('leftCount');
 
-    const rewards = [
-      '10 ORCX', '꺷', '30 ORCX', '꺷',
-      '50 ORCX', '꺷', '100 ORCX', '500 ORCX', '1000 ORCX'
-    ];
+const totalKey = 'orcax_totalScore';
+const spinCountKey = 'orcax_spinCount';
+const maxSpins = 10;
 
-    function getTodayKey() {
-      const today = new Date();
-      return `spinCount_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
-    }
-    function getAllowSpinKey() {
-      const today = new Date();
-      return `allowSpin_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
-    }
-    function getSpinCount() {
-      return parseInt(localStorage.getItem(getTodayKey()) || '0');
-    }
-    function increaseSpinCount() {
-      const key = getTodayKey();
-      let count = getSpinCount();
-      localStorage.setItem(key, count + 1);
-    }
-    function setAllowSpin(value) {
-      localStorage.setItem(getAllowSpinKey(), value ? "true" : "false");
-    }
-    function getAllowSpin() {
-      return localStorage.getItem(getAllowSpinKey()) === "true";
-    }
-    function getTotalScore() {
-      return parseInt(localStorage.getItem(totalKey) || '0');
-    }
-    function setTotalScore(value) {
-      localStorage.setItem(totalKey, value);
-    }
-    function updateSpinUI() {
-      const count = getSpinCount();
-      leftCount.textContent = 10 - count;
-      spinBtn.disabled = (count >= 10) || !getAllowSpin();
-    }
-    function updateTotalScoreUI() {
-      totalScoreDiv.innerHTML = `💰 누적 점수: <strong>${getTotalScore()}</strong> ORCX`;
-    }
-    function weightedRandomReward() {
-      const pool = [
-        ...Array(30).fill('10 ORCX'),
-        ...Array(10).fill('30 ORCX'),
-        ...Array(5).fill('50 ORCX'),
-        ...Array(3).fill('100 ORCX'),
-        ...Array(1).fill('500 ORCX'),
-        ...Array(1).fill('1000 ORCX'),
-        ...Array(20).fill('꺷')
-      ];
-      return pool[Math.floor(Math.random() * pool.length)];
-    }
-    function createFirework(x, y) {
-      for (let i = 0; i < 20; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'firework';
-        const angle = Math.random() * 2 * Math.PI;
-        const radius = Math.random() * 80 + 20;
-        particle.style.setProperty('--x', `${Math.cos(angle) * radius}px`);
-        particle.style.setProperty('--y', `${Math.sin(angle) * radius}px`);
-        particle.style.left = `${x}px`;
-        particle.style.top = `${y}px`;
-        document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 1000);
-      }
-    }
+const rewards = [
+  '10 ORCX', '꺷', '30 ORCX', '꺷',
+  '50 ORCX', '꺷', '100 ORCX', '500 ORCX', '1000 ORCX'
+];
 
-    function spin() {
-      if (getSpinCount() >= 10 || !getAllowSpin()) {
-        resultDiv.innerText = "⛔ 루렌 기획이 없습니다.";
-        return;
-      }
-      const reward = weightedRandomReward();
-      const index = rewards.indexOf(reward);
-      const degrees = 360 * 5 + (360 / rewards.length) * index + Math.random() * (360 / rewards.length);
+function getTodayKey() {
+  const today = new Date();
+  return `spinCount_${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
+}
 
-      wheel.style.transition = 'transform 5s ease-out';
-      wheel.style.transform = `rotate(${degrees}deg)`;
+function getSpinCount() {
+  return parseInt(localStorage.getItem(getTodayKey()) || '0');
+}
 
-      increaseSpinCount();
-      setAllowSpin(false);
-      updateSpinUI();
+function setSpinCount(count) {
+  localStorage.setItem(getTodayKey(), count);
+}
 
-      setTimeout(() => {
-        resultDiv.innerHTML = `🎉 결과: <strong>${reward}</strong>!`;
-        const match = reward.match(/(\d+)/);
-        if (match) {
-          const score = parseInt(match[1]);
-          const total = getTotalScore();
-          setTotalScore(total + score);
-          updateTotalScoreUI();
-          createFirework(window.innerWidth / 2, window.innerHeight / 2);
-        }
-      }, 5200);
-    }
+function getTotalScore() {
+  return parseInt(localStorage.getItem(totalKey) || '0');
+}
 
-    updateSpinUI();
-    updateTotalScoreUI();
-  </script>
+function setTotalScore(value) {
+  localStorage.setItem(totalKey, value);
+}
+
+function updateUI() {
+  leftCount.textContent = maxSpins - getSpinCount();
+  totalScoreDiv.innerHTML = `💰 누적 점수: <strong>${getTotalScore()}</strong> ORCX`;
+  spinBtn.disabled = getSpinCount() >= maxSpins;
+}
+
+function weightedRandomReward() {
+  const pool = [
+    ...Array(30).fill('10 ORCX'),
+    ...Array(10).fill('30 ORCX'),
+    ...Array(5).fill('50 ORCX'),
+    ...Array(3).fill('100 ORCX'),
+    ...Array(1).fill('500 ORCX'),
+    ...Array(1).fill('1000 ORCX'),
+    ...Array(20).fill('꺷')
+  ];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function spin() {
+  if (getSpinCount() >= maxSpins) {
+    resultDiv.innerText = "⛔ 오늘의 룰렛 기회가 끝났어요!";
+    return;
+  }
+
+  const reward = weightedRandomReward();
+  const match = reward.match(/(\d+)/);
+  let score = match ? parseInt(match[1]) : 0;
+
+  resultDiv.innerHTML = `🎉 결과: <strong>${reward}</strong>!`;
+
+  if (score > 0) {
+    const total = getTotalScore() + score;
+    setTotalScore(total);
+  }
+
+  const newSpinCount = getSpinCount() + 1;
+  setSpinCount(newSpinCount);
+  updateUI();
+
+  // ✅ 여기서 서버로 저장
+  fetch("https://orcax-roulette-backend.onrender.com/api/roulette/record", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user: "phantom123abc", // 실제 로그인한 지갑 주소 등 넣기
+      reward: reward,
+      score: score,
+      timestamp: new Date().toISOString()
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log("✅ 서버 저장 완료:", data);
+  })
+  .catch(err => {
+    console.error("❌ 서버 저장 실패:", err);
+  });
+}
+
+updateUI();
+</script>
+
 </body>
 </html>
 
