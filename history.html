@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🎰 OrcaX 기록 리스트</title>
+</head>
+<body>
+  <h2>🐳 최근 룰렛 기록</h2>
+  <ul id="logList"></ul>
+
+  <script>
+    fetch('http://localhost:3020/api/roulette/history')
+      .then(res => res.json())
+      .then(data => {
+        const logList = document.getElementById('logList');
+        data.forEach(record => {
+          const li = document.createElement('li');
+          li.textContent = `[${record.timestamp}] ${record.user} - ${record.reward} (${record.score}점)`;
+          logList.appendChild(li);
+        });
+      })
+      .catch(err => {
+        document.body.innerHTML += `<p>💥 에러 발생: ${err}</p>`;
+      });
+  </script>
+</body>
+</html>

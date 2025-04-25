@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>🐳 OrcaX 회원가입</title>
+</head>
+<body>
+  <h2>✨ OrcaX 룰렛 회원가입</h2>
+  <p>팬텀 지갑 주소 또는 이메일을 입력하세요:</p>
+  <input type="text" id="userInput" placeholder="지갑주소 또는 이메일" />
+  <button onclick="register()">가입 신청</button>
+
+  <div id="result" style="margin-top: 20px;"></div>
+
+  <script>
+    function register() {
+      const value = document.getElementById('userInput').value.trim();
+      if (!value) return alert("지갑 주소나 이메일을 입력해주세요!");
+
+      const payload = {};
+      if (value.includes('@')) {
+        payload.email = value;
+      } else {
+        payload.wallet = value;
+      }
+
+      fetch("http://localhost:3020/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('result').innerText = data.message;
+        })
+        .catch(err => {
+          document.getElementById('result').innerText = "에러 발생: " + err;
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🎰 OrcaX 룰렛 게임</title>
+</head>
+<body>
+  <script>
+    // 🔐 회원 인증 확인
+    const user = localStorage.getItem('orcax_user');
+    if (!user) {
+      alert("🐳 회원가입 먼저 해야 해요! 이동할게요.");
+      window.location.href = "register.html";
+    }
+  </script>
+
+  <h2>🎲 OrcaX 룰렛 시뮬레이터</h2>
+  <p><strong>현재 유저:</strong> <span id="who"></span></p>
+  <button onclick="spin()">룰렛 돌리기!</button>
+  <div id="result" style="margin-top:20px;"></div>
+
+  <script>
+    document.getElementById('who').textContent = user;
+
+    const rewards = [10, 30, 50, 100, 500, 1000];
+
+    function spin() {
+      const reward = rewards[Math.floor(Math.random() * rewards.length)];
+      const timestamp = new Date().toISOString();
+
+      fetch("http://localhost:3020/api/roulette/record", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user,
+          reward: `${reward} ORCX`,
+          score: reward,
+          timestamp
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('result').innerHTML =
+          `<p>🎉 ${reward} ORCX 당첨!<br>${data.message}</p>`;
+      })
+      .catch(err => {
+        document.getElementById('result').innerHTML =
+          `<p style="color:red">에러 발생: ${err}</p>`;
+      });
+    }
+  </script>
+</body>
+</html>
