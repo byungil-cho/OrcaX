@@ -1,42 +1,52 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OrcaX 룰렛</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>호랑 OrcaX 루렌</title>
   <style>
     body {
-      background: #0f0f1c;
-      color: white;
+      background-color: #0e0e18;
+      color: #fff;
       font-family: 'Arial', sans-serif;
       text-align: center;
+      margin: 0;
       padding: 20px;
     }
-    .wheel {
-      margin: 0 auto;
+    h1 {
+      font-size: 2em;
+      color: #00c8ff;
+    }
+    #wheel {
       width: 300px;
       height: 300px;
       border: 10px solid gold;
       border-radius: 50%;
+      margin: 20px auto;
       position: relative;
-      background: #9223aa;
+      background: conic-gradient(#9b59b6 0% 12.5%, #e74c3c 12.5% 25%, #3498db 25% 37.5%, #2ecc71 37.5% 50%, #f1c40f 50% 62.5%, #e67e22 62.5% 75%, #1abc9c 75% 87.5%, #34495e 87.5% 100%);
+      transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
     }
-    .arrow {
+    #pointer {
       width: 0;
       height: 0;
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
       border-bottom: 30px solid red;
-      margin: 10px auto;
+      position: absolute;
+      left: 50%;
+      top: -35px;
+      transform: translateX(-50%);
     }
-    button {
-      background: #00cfff;
-      color: black;
+    #spinBtn {
       padding: 10px 20px;
-      border: none;
-      border-radius: 10px;
       font-size: 1.2em;
+      background-color: #00c8ff;
+      border: none;
+      color: black;
       cursor: pointer;
+      border-radius: 10px;
+      margin-top: 20px;
     }
     .result {
       margin-top: 20px;
@@ -45,58 +55,58 @@
   </style>
 </head>
 <body>
-  <h1>🐻 Orca<span style="color:deepskyblue">X</span> 룰렛</h1>
-  <div class="arrow"></div>
-  <div class="wheel" id="wheel">
-    <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Orca" style="width:80px;position:absolute;top:110px;left:110px;">
+  <h1>🌟 OrcaX 루렌</h1>
+  <div style="position: relative; display: inline-block;">
+    <div id="wheel">
+      <div id="pointer"></div>
+    </div>
   </div>
-
-  <button id="spinBtn">돌리기 (0/5)</button>
-
+  <button id="spinBtn">돌리기 (<span id="spin-count">5</span>/5)</button>
   <div class="result">
-    <p id="result">🎉 결과: <strong>-- ORCX!</strong></p>
-    <p id="score">💰 누적 점수: <strong>0 ORCX</strong></p>
-    <a href="index.html" style="color:skyblue;display:inline-block;margin-top:10px;">← 첫초로 돌아가기</a>
+    🎉 결과: <span id="reward">--</span><br />
+    💰 누적 점수: <span id="total">0</span> ORCX
   </div>
-
   <script>
+    const wheel = document.getElementById("wheel");
     const spinBtn = document.getElementById("spinBtn");
-    const resultEl = document.getElementById("result");
-    const scoreEl = document.getElementById("score");
-    const maxSpins = 5;
-    let spinCount = 0;
+    const rewardDisplay = document.getElementById("reward");
+    const totalDisplay = document.getElementById("total");
+    const countDisplay = document.getElementById("spin-count");
+
     let totalScore = 0;
+    let spinsLeft = 5;
 
     const rewards = [10, 30, 50, 80, 100, 500, 1000, 0];
+    const degreesPerSegment = 360 / rewards.length;
 
-    function updateSpinButton() {
-      spinBtn.textContent = `돌리기 (${spinCount}/${maxSpins})`;
-    }
+    spinBtn.onclick = () => {
+      if (spinsLeft <= 0) return alert("더 이상 돌릴 수 없어요!");
+      spinsLeft--;
+      countDisplay.textContent = spinsLeft;
 
-    function spinWheel() {
-      if (spinCount >= maxSpins) return alert("오늘의 기회는 끝났어요!");
-      const reward = rewards[Math.floor(Math.random() * rewards.length)];
-      totalScore += reward;
-      spinCount++;
-      updateSpinButton();
-      resultEl.innerHTML = `🎉 결과: <strong>${reward} ORCX!</strong>`;
-      scoreEl.innerHTML = `💰 누적 점수: <strong>${totalScore} ORCX</strong>`;
+      const randIndex = Math.floor(Math.random() * rewards.length);
+      const reward = rewards[randIndex];
+      const rotateDeg = 360 * 5 + randIndex * degreesPerSegment + degreesPerSegment / 2;
 
-      // 서버 기록 저장
-      fetch("https://orcax-roulette-backend.onrender.com/api/roulette/record", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user: "phantom123abc",
-          reward: `${reward} ORCX`,
-          score: totalScore,
-          timestamp: new Date().toISOString(),
-        })
-      }).then(res => res.json()).then(data => console.log("✅ 서버 기록 완료", data));
-    }
+      wheel.style.transform = `rotate(-${rotateDeg}deg)`;
 
-    spinBtn.addEventListener("click", spinWheel);
-    updateSpinButton();
+      setTimeout(() => {
+        rewardDisplay.textContent = `${reward} ORCX!`;
+        totalScore += reward;
+        totalDisplay.textContent = totalScore;
+
+        fetch("https://orcax-roulette-backend.onrender.com/api/roulette/record", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user: "phantom123abc",
+            reward: `${reward} ORCX`,
+            score: reward,
+            timestamp: new Date().toISOString()
+          })
+        });
+      }, 4200);
+    };
   </script>
 </body>
 </html>
