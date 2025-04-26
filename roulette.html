@@ -2,126 +2,192 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>OrcaX 룰렛</title>
+  <title>🌰 OrcaX 색깔판 룰렛</title>
   <style>
     body {
-      background: #0f0f1c;
-      color: white;
-      font-family: 'Arial', sans-serif;
+      background-color: #0A0A1A;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
       padding: 20px;
     }
-    .wheel {
-      margin: 0 auto;
+    #wheel-container {
+      position: relative;
+      margin: 30px auto;
       width: 300px;
       height: 300px;
-      border: 10px solid gold;
-      border-radius: 50%;
-      position: relative;
-      background: conic-gradient(#9b59b6 0% 12.5%, #e74c3c 12.5% 25%, #3498db 25% 37.5%, #2ecc71 37.5% 50%, #f1c40f 50% 62.5%, #e67e22 62.5% 75%, #1abc9c 75% 87.5%, #34495e 87.5% 100%);
-      transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
     }
-    .arrow {
+    #pointer {
       width: 0;
       height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 30px solid red;
-      margin: 10px auto;
+      border-left: 30px solid red;
+      border-top: 15px solid transparent;
+      border-bottom: 15px solid transparent;
+      position: absolute;
+      left: -30px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
     }
-    button {
-      background: #00cfff;
-      color: black;
+    #wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 8px solid gold;
+      background: conic-gradient(
+        yellow 0deg 72deg,
+        deepskyblue 72deg 144deg,
+        black 144deg 216deg,
+        orange 216deg 288deg,
+        red 288deg 360deg
+      );
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    #result, #total, #emailGuide, #colorGuide {
+      margin-top: 20px;
+    }
+    #spinBtn {
+      margin-top: 10px;
       padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #00cfff;
       border: none;
-      border-radius: 10px;
-      font-size: 1.2em;
+      border-radius: 8px;
       cursor: pointer;
     }
-    .result {
-      margin-top: 20px;
-      font-size: 1.2em;
+    #emailGuide, #colorGuide {
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    #emailGuide strong {
+      color: #ffff00;
     }
   </style>
 </head>
 <body>
-  <h1>🌰 OrcaX 룰레트</h1>
-  <div class="arrow"></div>
-  <div class="wheel" id="wheel"></div>
-  <button id="spinBtn">돌리기 (<span id="spin-count">0</span>/5)</button>
-  <div class="result">
-    🎉 결과: <span id="reward">--</span><br />
-    💰 누적 점수: <span id="total">0</span> ORCX
+  <h1>🌰 OrcaX 색깔판 룰렛</h1>
+
+  <div id="wheel-container">
+    <div id="pointer"></div>
+    <div id="wheel"></div>
   </div>
 
+  <button id="spinBtn">돌리기 (<span id="spinCount">0</span>/5)</button>
+  <div id="result">🎯 결과: 없음</div>
+  <div id="total">💰 총점: 0 ORCX</div>
+
+  <p id="emailGuide">
+    📢 누적 점수 50000 ORCX 이상이면 아래 이메일로 신청하세요!<br>
+    신청 이메일: <strong>jbl01570@hanmail.net</strong><br>
+    (메일 보낼 때 <u>지갑주소와 총 점수</u>를 함께 보내주세요!)
+  </p>
+
+  <p id="colorGuide">
+    🎯 색깔별 점수 안내<br><br>
+    <span style="color:yellow">🟡 노랑색: 200 ORCX</span><br>
+    <span style="color:deepskyblue">🟦 파란색: 300 ORCX</span><br>
+    <span style="color:black">⚫ 검정색: 0 (꽝)</span><br>
+    <span style="color:orange">🟧 주황색: 0 (꽝)</span><br>
+    <span style="color:red">🔴 빨강색: 100 ORCX</span>
+  </p>
+
   <script>
-    const wheel = document.getElementById("wheel");
-    const spinBtn = document.getElementById("spinBtn");
-    const rewardDisplay = document.getElementById("reward");
-    const totalDisplay = document.getElementById("total");
-    const countDisplay = document.getElementById("spin-count");
+    const spinBtn = document.getElementById('spinBtn');
+    const resultDiv = document.getElementById('result');
+    const totalDiv = document.getElementById('total');
+    const spinCountSpan = document.getElementById('spinCount');
+    const wheel = document.getElementById('wheel');
 
-    let totalScore = 0;
-    let spinsLeft = 5;
     let currentRotation = 0;
-    const rewards = [10, 30, 50, 80, 100, 500, 1000, 0];
-    const degreesPerSegment = 360 / rewards.length;
+    let spinCount = 0;
+    let totalScore = 0;
+    let sessionScore = 0;
+    const maxSpins = 5;
 
-    function updateSpinButton() {
-      countDisplay.textContent = spinsLeft;
+    async function fetchTotalScore() {
+      const userWallet = localStorage.getItem("orcax_user") || "guest";
+      try {
+        const response = await fetch(`https://orcax-roulette-backend.onrender.com/api/roulette/score?user=${userWallet}`);
+        const data = await response.json();
+        return data.totalScore || 0;
+      } catch {
+        return 0;
+      }
     }
 
-    function doSpin(auto = false) {
-      if (!auto && spinsLeft <= 0) {
+    async function saveSessionScore() {
+      const userWallet = localStorage.getItem("orcax_user") || "guest";
+      if (sessionScore > 0) {
+        await fetch(`https://orcax-roulette-backend.onrender.com/api/roulette/addscore`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user: userWallet,
+            addedScore: sessionScore
+          })
+        });
+      }
+    }
+
+    function updateUI() {
+      spinCountSpan.innerText = spinCount;
+      totalDiv.innerHTML = `💰 총점: ${totalScore} ORCX`;
+    }
+
+    function doSpin() {
+      if (spinCount >= maxSpins) {
         alert("더 이상 돌릴 수 없어요!");
         return;
       }
 
-      if (!auto) spinsLeft--;
-      updateSpinButton();
+      spinCount++;
+      updateUI();
 
-      const randIndex = Math.floor(Math.random() * rewards.length);
-      const reward = rewards[randIndex];
-      const rotateDeg = 360 * 5 + randIndex * degreesPerSegment + degreesPerSegment / 2;
+      const randomExtraRotation = Math.floor(Math.random() * 360);
+      const spinDeg = (360 * 5) + randomExtraRotation;
+      currentRotation += spinDeg;
 
-      currentRotation += rotateDeg;
       wheel.style.transform = `rotate(-${currentRotation}deg)`;
 
       setTimeout(() => {
-        rewardDisplay.textContent = `${reward} ORCX!`;
+        const normalizedRotation = (currentRotation % 360 + 360) % 360;
+        const pointerDeg = (normalizedRotation + 270) % 360; // ✅ 정확한 방향 보정
+
+        let reward = 0;
+        let label = '';
+
+        if (pointerDeg >= 0 && pointerDeg < 72) {
+          reward = 200; label = '노랑색';
+        } else if (pointerDeg >= 72 && pointerDeg < 144) {
+          reward = 300; label = '파란색';
+        } else if (pointerDeg >= 144 && pointerDeg < 216) {
+          reward = 0; label = '검정색';
+        } else if (pointerDeg >= 216 && pointerDeg < 288) {
+          reward = 0; label = '주황색';
+        } else {
+          reward = 100; label = '빨강색';
+        }
+
+        resultDiv.innerHTML = `🎯 결과: ${label} (${reward > 0 ? reward + ' ORCX' : '꽝'})`;
         totalScore += reward;
-        totalDisplay.textContent = totalScore;
+        sessionScore += reward;
+        updateUI();
 
-        fetch("https://orcax-roulette-backend.onrender.com/api/roulette/record", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user: "phantom123abc",
-            reward: `${reward} ORCX`,
-            score: reward,
-            timestamp: new Date().toISOString()
-          })
-        });
-
-        if (auto) {
-          setTimeout(() => {
-            window.location.href = 'register.html';
-          }, 2000);
+        if (spinCount === maxSpins) {
+          saveSessionScore();
         }
       }, 4200);
     }
 
-    spinBtn.onclick = () => doSpin();
+    spinBtn.addEventListener('click', doSpin);
 
-    window.addEventListener('load', () => {
-      if (localStorage.getItem('puzzleClear') === 'true') {
-        localStorage.removeItem('puzzleClear');
-        setTimeout(() => doSpin(true), 500);
-      }
-    });
-
-    updateSpinButton();
+    (async function init() {
+      totalScore = await fetchTotalScore();
+      updateUI();
+    })();
   </script>
 </body>
 </html>
-
