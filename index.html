@@ -5,7 +5,6 @@
   <title>OrcaX NFT Puzzle Series</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* (여기 스타일은 실장님이 주신 그대로 유지) */
     body {
       background: #111;
       color: #fff;
@@ -97,27 +96,12 @@
       }
     }
   </style>
-
-  <script>
-    function openAuth() {
-      const authWindow = window.open('https://orcax-roulette-backend.onrender.com/auth.html', '_blank', 'width=500,height=700');
-
-      window.addEventListener('message', function(event) {
-        if (event.data === 'login-success') {
-          alert('✅ 로그인 완료! OrcaX Puzzle을 즐겨주세요.');
-          location.reload(); // 로그인 성공 후 메인페이지 새로고침
-        }
-      }, false);
-    }
-  </script>
-
 </head>
 <body>
   <div class="container">
     <h1>🐫 OrcaX Puzzle</h1>
     <h2>Select the First Puzzle to Begin</h2>
-    <button onclick="openAuth()" style="margin-bottom: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer;">회원가입/로그인</button>
-    
+
     <div class="grid">
       <a class="active" href="nft_series_01.html">
         <img src="https://byungil-cho.github.io/OrcaX/nft1_01.jpg" alt="Puzzle 1">
@@ -135,7 +119,6 @@
         <img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="가맹점 모집">
         <strong>📢 가맹점 모집 현황</strong>
       </a>
-      <!-- 비활성 퍼즐 -->
       <a><img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg" alt="Puzzle 5">Puzzle 5</a>
       <a><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg" alt="Puzzle 6">Puzzle 6</a>
       <a><img src="https://byungil-cho.github.io/OrcaX/nft4_02.jpg" alt="Puzzle 7">Puzzle 7</a>
