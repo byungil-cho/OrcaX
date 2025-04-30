@@ -49,6 +49,13 @@
     button:hover {
       background-color: #009f7a;
     }
+    a.withdraw-link {
+      display: inline-block;
+      margin-top: 2rem;
+      color: #00ccff;
+      font-size: 1.1rem;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -61,14 +68,21 @@
 
   <audio id="spin-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7a9dbb37a0.mp3?filename=spin-wheel-110411.mp3"></audio>
   <div id="reward" style="margin-top: 1.5rem;"></div>
-<div id="reward-image" style="margin-top: 1rem;"></div>
+  <div id="reward-image" style="margin-top: 1rem;"></div>
+
+  <!-- 💸 출금 요청 페이지로 이동 링크 -->
+  <div>
+    <a href="/withdraw.html" target="_blank" class="withdraw-link">
+      💸 출금 요청 페이지로 이동
+    </a>
+  </div>
 
   <script>
-    document.getElementById('withdraw-trigger').addEventListener('click', () => {
+    document.getElementById('withdraw-trigger')?.addEventListener('click', () => {
       document.getElementById('withdraw-modal').style.display = 'block';
     });
 
-    document.getElementById('submit-withdraw').addEventListener('click', async () => {
+    document.getElementById('submit-withdraw')?.addEventListener('click', async () => {
       const address = document.getElementById('withdraw-address').value.trim();
       const amount = parseInt(document.getElementById('withdraw-amount').value.trim(), 10);
       const status = document.getElementById('withdraw-status');
@@ -99,7 +113,25 @@
         status.innerText = '❌ 서버 오류로 출금 요청 실패';
       }
     });
+
+    function spinRoulette() {
+      const wheel = document.getElementById("wheel");
+      const spinSound = document.getElementById("spin-sound");
+      const result = document.getElementById("result");
+      const loading = document.getElementById("loading");
+
+      spinSound.play();
+      loading.style.display = "block";
+      result.textContent = "";
+      wheel.style.transform = `rotate(${Math.random() * 360 + 1080}deg)`;
+
+      setTimeout(() => {
+        loading.style.display = "none";
+        result.textContent = "🎉 축하합니다! 보상을 받았습니다!";
+      }, 3000);
+    }
   </script>
 </body>
 </html>
+
 
