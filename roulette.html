@@ -65,71 +65,67 @@
   <div id="loading" style="display: none; margin-top: 1rem; color: #00e0ff; font-size: 1.2rem;">⏳ 룰렛 돌리는 중...</div>
   <div id="result"></div>
   <button onclick="spinRoulette()">스핀!</button>
-
   <audio id="spin-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7a9dbb37a0.mp3?filename=spin-wheel-110411.mp3"></audio>
-  <div id="reward" style="margin-top: 1.5rem;"></div>
-  <div id="reward-image" style="margin-top: 1rem;"></div>
 
-  <!-- 💸 출금 요청 페이지로 이동 링크 -->
+  <!-- 출금 링크 -->
   <div>
-    <a href="/withdraw.html" target="_blank" class="withdraw-link">
-      💸 출금 요청 페이지로 이동
-    </a>
+    <a href="/withdraw.html" target="_blank" class="withdraw-link">💸 출금 요청 페이지로 이동</a>
   </div>
 
   <script>
-    document.getElementById('withdraw-trigger')?.addEventListener('click', () => {
-      document.getElementById('withdraw-modal').style.display = 'block';
-    });
+    const wallet = '0x123abc...'; // TODO: 실제 유저 지갑 주소로 대체
 
-    document.getElementById('submit-withdraw')?.addEventListener('click', async () => {
-      const address = document.getElementById('withdraw-address').value.trim();
-      const amount = parseInt(document.getElementById('withdraw-amount').value.trim(), 10);
-      const status = document.getElementById('withdraw-status');
+    const spinCountDisplay = document.getElementById('spin-count');
+    const result = document.getElementById('result');
+    const wheel = document.getElementById("wheel");
+    const spinSound = document.getElementById("spin-sound");
+    const loading = document.getElementById("loading");
 
-      if (!address || isNaN(amount)) {
-        status.innerText = '❌ 주소와 수량을 모두 입력하세요.';
-        return;
-      }
-      if (amount < 50000) {
-        status.innerText = '❌ 최소 출금 수량은 50000 ORCAX 입니다.';
-        return;
-      }
-
+    async function updateUserInfo() {
       try {
-        const res = await fetch('https://orcax-roulette-backend.onrender.com/api/withdraw-request', {
+        const res = await fetch(`/api/get-score?wallet=${wallet}`);
+        const data = await res.json();
+        if (data.success) {
+          spinCountDisplay.textContent = `🎡 남은 스핀: ${data.spins} | 점수: ${data.score}`;
+        }
+      } catch (e) {
+        console.error('유저 정보 불러오기 실패', e);
+      }
+    }
+
+    async function spinRoulette() {
+      try {
+        const res = await fetch('/api/spin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ walletAddress: address, amount })
+          body: JSON.stringify({ wallet })
         });
+
         const data = await res.json();
-        if (res.status === 200) {
-          status.innerText = '✅ 출금 요청이 성공적으로 접수되었습니다!';
-        } else {
-          status.innerText = `❌ ${data.message || '출금 요청 실패'}`;
+
+        if (!data.success) {
+          alert(data.message || '스핀 실패');
+          return;
         }
+
+        spinSound.play();
+        loading.style.display = "block";
+        result.textContent = "";
+        wheel.style.transform = `rotate(${Math.random() * 360 + 1080}deg)`;
+
+        setTimeout(() => {
+          loading.style.display = "none";
+          result.textContent = "🎉 축하합니다! 보상을 받았습니다!";
+          spinCountDisplay.textContent = `🎡 남은 스핀: ${data.spins} | 점수: ${data.totalScore}`;
+        }, 3000);
+
       } catch (err) {
-        console.error('[출금 요청 오류]', err);
-        status.innerText = '❌ 서버 오류로 출금 요청 실패';
+        console.error('[스핀 요청 실패]', err);
+        alert('서버 오류');
       }
-    });
-
-    function spinRoulette() {
-      const wheel = document.getElementById("wheel");
-      const spinSound = document.getElementById("spin-sound");
-      const result = document.getElementById("result");
-      const loading = document.getElementById("loading");
-
-      spinSound.play();
-      loading.style.display = "block";
-      result.textContent = "";
-      wheel.style.transform = `rotate(${Math.random() * 360 + 1080}deg)`;
-
-      setTimeout(() => {
-        loading.style.display = "none";
-        result.textContent = "🎉 축하합니다! 보상을 받았습니다!";
-      }, 3000);
     }
+
+    updateUserInfo();
   </script>
 </body>
 </html>
