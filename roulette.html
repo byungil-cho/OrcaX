@@ -94,7 +94,7 @@
 
     async function spinRoulette() {
       try {
-        const res = await fetch('/api/spin', {
+        const res = await fetch('https://orcax-roulette-backend.onrender.com/api/spin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ wallet })
@@ -154,4 +154,5 @@
   </script>
 </body>
 </html>
+
 
