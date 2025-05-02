@@ -5,11 +5,11 @@
   <title>OrcaX Final Collection</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 10초 후 자동 이동 + 서버에 보너스 스핀 요청 -->
+  <!-- 🎯 10초 후 자동 이동 + 보너스 스핀 처리 -->
   <script>
-    const walletAddress = localStorage.getItem('walletAddress') || '0xTEST123456'; // 실제 주소 저장되어 있을 경우 사용됨
+    const walletAddress = localStorage.getItem('walletAddress') || '0xTEST123456';
 
-    // 서버에 보너스 스핀 요청
+    // 🎁 서버에 보너스 스핀 요청
     fetch('https://orcax-roulette-backend.onrender.com/api/roulette/bonus-spin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -18,9 +18,9 @@
       .then(data => console.log('[보너스 요청 완료]', data))
       .catch(err => console.error('[보너스 요청 실패]', err));
 
-    // 10초 후 룰렛 페이지로 자동 이동
+    // 🎯 10초 후 룰렛 페이지로 이동 (💥 bonus=1 포함됨)
     setTimeout(function () {
-      window.location.href = "https://orcax-roulette-backend.onrender.com/roulette.html";
+      window.location.href = "https://orcax-roulette-backend.onrender.com/roulette.html?bonus=1";
     }, 10000);
   </script>
 
@@ -83,10 +83,6 @@
       50% { transform: translateY(-15px); }
       100% { transform: translateY(0px); }
     }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
   </style>
 </head>
 <body>
@@ -120,4 +116,5 @@
   </div>
 </body>
 </html>
+
 
