@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>OrcaX 출금 요청 관리자</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #001f3f;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      text-align: center;
+    }
+    table {
+      margin-top: 2rem;
+      width: 100%;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #00e0ff;
+      padding: 0.75rem;
+    }
+    th {
+      background-color: #003366;
+    }
+    td {
+      background-color: #002244;
+    }
+    input[type="password"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      background-color: #00cc99;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #009f7a;
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 OrcaX 출금 요청 관리자</h1>
+
+  <div id="auth-section">
+    <p>관리자 비밀번호를 입력하세요</p>
+    <input type="password" id="admin-pass" placeholder="비밀번호 입력" />
+    <button onclick="checkPassword()">접속</button>
+  </div>
+
+  <div id="table-section" style="display:none;">
+    <table>
+      <thead>
+        <tr>
+          <th>요청일</th>
+          <th>이메일</th>
+          <th>지갑 주소</th>
+          <th>수량</th>
+          <th>상태</th>
+        </tr>
+      </thead>
+      <tbody id="withdraw-rows">
+        <tr><td colspan="5">로딩 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function checkPassword() {
+      const pass = document.getElementById('admin-pass').value;
+      if (pass === '1234') {
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('table-section').style.display = 'block';
+        fetchWithdraws();
+      } else {
+        alert('비밀번호가 틀렸습니다.');
+      }
+    }
+
+    function fetchWithdraws() {
+      fetch('/api/withdraw/list')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('withdraw-rows');
+          tbody.innerHTML = '';
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${new Date(row.createdAt).toLocaleString()}</td>
+              <td>${row.email}</td>
+              <td>${row.wallet}</td>
+              <td>${row.amount}</td>
+              <td>${row.status || '대기중'}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => {
+          alert('데이터 불러오기 실패');
+          console.error(err);
+        });
+    }
+  </script>
+</body>
+</html>
