@@ -1,0 +1,81 @@
+<!-- index-00.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>OrcaX 첫 페이지</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #001f3f;
+      color: white;
+      text-align: center;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+    }
+    h1 {
+      color: #00e0ff;
+    }
+    .nav {
+      margin-top: 2rem;
+    }
+    .nav a {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 1rem 2rem;
+      background: #00cc99;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+    .nav a:hover {
+      background: #009f7a;
+    }
+    #admin-section {
+      margin-top: 2rem;
+    }
+    input[type="password"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin-left: 1rem;
+      font-size: 1rem;
+      background-color: #00cc99;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #009f7a;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐳 OrcaX 메인 페이지</h1>
+
+  <div class="nav">
+    <a href="roulette.html">룰렛 페이지</a>
+    <a href="withdraw.html">출금 요청</a>
+  </div>
+
+  <div id="admin-section">
+    <p>관리자용 페이지 접근</p>
+    <input type="password" id="adminPass" placeholder="비밀번호 입력">
+    <button onclick="checkAdminAccess()">접속</button>
+  </div>
+
+  <script>
+    function checkAdminAccess() {
+      const pass = document.getElementById('adminPass').value;
+      if (pass === '1234') {
+        window.location.href = 'withdraw-list.html';
+      } else {
+        alert('비밀번호가 틀렸습니다.');
+      }
+    }
+  </script>
+</body>
+</html>
