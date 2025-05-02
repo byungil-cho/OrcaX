@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>OrcaX 출금 신청</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      color: #00e0ff;
+      font-size: 2rem;
+    }
+    input, textarea {
+      width: 80%;
+      max-width: 400px;
+      padding: 10px;
+      margin: 10px auto;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      display: block;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      background-color: #00cc99;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #009f7a;
+    }
+  </style>
+</head>
+<body>
+  <h1>💸 OrcaX 출금 신청</h1>
+
+  <form id="withdraw-form">
+    <input type="text" id="user-id" placeholder="이메일 또는 사용자 ID" required />
+    <input type="text" id="wallet" placeholder="팬텀 지갑 주소" required />
+    <input type="number" id="amount" placeholder="출금 수량 (ORCAX)" required />
+    <button type="submit">출금 요청</button>
+  </form>
+
+  <div id="result-message" style="margin-top: 20px;"></div>
+
+  <script>
+    // ✅ 아이디 자동 입력
+    window.onload = () => {
+      const walletId = localStorage.getItem('orcax_user');
+      if (walletId) {
+        const idInput = document.getElementById('user-id');
+        if (idInput) idInput.value = walletId;
+      }
+    };
+
+    // ✅ 출금 요청 전송
+    const form = document.getElementById('withdraw-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('user-id').value;
+      const wallet = document.getElementById('wallet').value;
+      const amount = document.getElementById('amount').value;
+
+      const res = await fetch('https://orcax-roulette-backend.onrender.com/api/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, wallet, amount })
+      });
+
+      const data = await res.json();
+      const resultDiv = document.getElementById('result-message');
+      if (data.success) {
+        resultDiv.textContent = '✅ 출금 요청 완료! 운영자가 확인 후 전송합니다.';
+      } else {
+        resultDiv.textContent = '❌ 요청 실패. 다시 시

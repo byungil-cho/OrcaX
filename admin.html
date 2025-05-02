@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX 관리자 - 출금 요청</title>
+  <style>
+    body {
+      background: #001f3f;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+    th, td {
+      border: 1px solid #00ccff;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    th {
+      background-color: #0074cc;
+    }
+    button {
+      padding: 0.3rem 0.8rem;
+      border: none;
+      border-radius: 4px;
+      margin: 0 4px;
+      cursor: pointer;
+    }
+    .approve { background: green; color: white; }
+    .reject { background: red; color: white; }
+  </style>
+</head>
+<body>
+  <h1>🧾 OrcaX 출금 요청 관리자</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>요청일</th>
+        <th>이메일</th>
+        <th>지갑 주소</th>
+        <th>수량</th>
+        <th>상태</th>
+        <th>처리</th>
+      </tr>
+    </thead>
+    <tbody id="request-table">
+      <tr><td colspan="6">불러오는 중...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    async function fetchRequests() {
+      const res = await fetch('/admin/withdraw-requests');
+      const data = await res.json();
+      const table = document.getElementById('request-table');
+
+      if (!data.success) {
+        table.innerHTML = '<tr><td colspan="6">❌ 데이터 불러오기 실패</td></tr>';
+        return;
+      }
+
+      if (data.data.length === 0) {
+        table.innerHTML = '<tr><td colspan="6">요청 없음</td></tr>';
+        return;
+      }
+
+      table.innerHTML = '';
+      for (const item of data.data) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${new Date(item.createdAt).toLocaleString()}</td>
+          <td>${item.userEmail || '-'}</td>
+          <td>${item.wallet}</td>
+          <td>${item.amount}</td>
+          <td>${item.status}</td>
+          <td>
+            <button class="approve" onclick="updateStatus('${item._id}', 'approved')">승인</button>
+            <button class="reject" onclick="updateStatus('${item._id}', 'rejected')">거절</button>
+          </td>
+        `;
+        table.appendChild(row);
+      }
+    }
+
+    async function updateStatus(id, status) {
+      const res = await fetch(`/admin/withdraw-requests/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ 상태가 '${status}'로 변경됨`);
+        fetchRequests();
+      } else {
+        alert('❌ 상태 변경 실패');
+      }
+    }
+
+    fetchRequests();
+  </script>
+</body>
+</html>
