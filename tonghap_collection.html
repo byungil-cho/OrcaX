@@ -7,7 +7,7 @@
 
   <!-- 🎯 10초 후 자동 이동 + 보너스 스핀 처리 -->
   <script>
-    const walletAddress = localStorage.getItem('walletAddress') || '0xTEST123456';
+    const walletAddress = localStorage.getItem('orcax_user') || '0xTEST123456';
 
     // 🎁 서버에 보너스 스핀 요청
     fetch('https://orcax-roulette-backend.onrender.com/api/roulette/bonus-spin', {
@@ -20,7 +20,7 @@
 
     // 🎯 10초 후 룰렛 페이지로 이동 (💥 bonus=1 포함됨)
     setTimeout(function () {
-      window.location.href = "https://orcax-roulette-backend.onrender.com/roulette.html?bonus=1";
+      window.location.href = "https://byungil-cho.github.io/OrcaX/roulette.html?bonus=1";
     }, 10000);
   </script>
 
@@ -116,5 +116,6 @@
   </div>
 </body>
 </html>
+
 
 
