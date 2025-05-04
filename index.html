@@ -101,15 +101,27 @@
       const message = document.getElementById("message").value.trim();
       if (!sender || !message) return alert("닉네임과 메시지를 입력하세요!");
 
+      console.log("👉 전송 시도:", { sender, message });
+      console.log("📡 요청 보내는 중...");
+
       fetch(apiBase, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sender, message })
       })
-      .then(res => res.json())
+      .then(res => {
+        console.log("📬 응답 상태:", res.status);
+        if (!res.ok) throw new Error(`응답 실패: ${res.status}`);
+        return res.json();
+      })
       .then(() => {
+        alert("✅ 메시지 전송 성공!");
         document.getElementById("message").value = '';
         loadMessages();
+      })
+      .catch(err => {
+        console.error("❌ 전송 실패:", err);
+        alert("❌ 메시지 전송 실패: " + err.message);
       });
     }
 
