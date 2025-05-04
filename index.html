@@ -107,7 +107,7 @@
       fetch(apiBase, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sender, message })
+        body: JSON.stringify({ nickname: sender, content: message, type: 'user' })
       })
       .then(res => {
         console.log("📬 응답 상태:", res.status);
@@ -132,10 +132,10 @@
           const log = document.getElementById("chat-log");
           log.innerHTML = '';
           messages.slice(-10).forEach(msg => {
-            const color = getColorForUser(msg.sender);
+            const color = getColorForUser(msg.nickname);
             const div = document.createElement('div');
             div.className = 'chat-message';
-            div.innerHTML = `<strong style="color:${color}">${msg.sender}:</strong> ${msg.message}`;
+            div.innerHTML = `<strong style="color:${color}">${msg.sender}:</strong> ${msg.content}`;
             log.appendChild(div);
           });
           log.scrollTop = log.scrollHeight;
@@ -144,6 +144,7 @@
   </script>
 </body>
 </html>
+
 
 
 
