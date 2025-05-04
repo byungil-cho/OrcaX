@@ -5,145 +5,38 @@
   <title>OrcaX NFT Puzzle Series</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      background: #111;
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 20px;
-      text-align: center;
-    }
-    h1 {
-      color: #00e0ff;
-      margin-bottom: 10px;
-      font-size: 2em;
-    }
-    h2 {
-      color: #ffcc00;
-      margin-bottom: 30px;
-      font-size: 1.2em;
-    }
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-    .grid a {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #333;
-      padding: 10px;
-      border-radius: 10px;
-      text-decoration: none;
-      color: #aaa;
-      width: 140px;
-      transition: background 0.3s;
-      pointer-events: none;
-    }
-    .grid a img {
-      width: 120px;
-      height: auto;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      border: 2px solid transparent;
-    }
-    .grid a.active {
-      background: #222;
-      color: #fff;
-      pointer-events: auto;
-    }
-    .grid a.active img {
-      border-color: #00ccff;
-    }
-    .grid a:hover.active {
-      background: #00cc99;
-    }
+    body { background: #111; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; text-align: center; }
+    h1 { color: #00e0ff; margin-bottom: 10px; font-size: 2em; }
+    h2 { color: #ffcc00; margin-bottom: 30px; font-size: 1.2em; }
+    .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .grid a { display: flex; flex-direction: column; align-items: center; background: #333; padding: 10px; border-radius: 10px; text-decoration: none; color: #aaa; width: 140px; transition: background 0.3s; pointer-events: auto; }
+    .grid a img { width: 120px; height: auto; border-radius: 8px; margin-bottom: 8px; border: 2px solid transparent; }
+    .grid a.active { background: #222; color: #fff; pointer-events: auto; }
+    .grid a.active img { border-color: #00ccff; }
+    .grid a:hover.active { background: #00cc99; }
     @media (max-width: 768px) {
-      h1 {
-        font-size: 1.5em;
-      }
-      h2 {
-        font-size: 1em;
-      }
-      .grid a {
-        width: 100px;
-        padding: 8px;
-      }
-      .grid a img {
-        width: 90px;
-      }
+      h1 { font-size: 1.5em; }
+      h2 { font-size: 1em; }
+      .grid a { width: 100px; padding: 8px; }
+      .grid a img { width: 90px; }
     }
     @media (max-width: 480px) {
-      .container {
-        padding: 10px;
-      }
-      .grid {
-        gap: 10px;
-      }
-      .grid a {
-        width: 90px;
-        padding: 6px;
-      }
-      .grid a img {
-        width: 80px;
-      }
+      .container { padding: 10px; }
+      .grid { gap: 10px; }
+      .grid a { width: 90px; padding: 6px; }
+      .grid a img { width: 80px; }
     }
-    #chat-widget {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      z-index: 9999;
-    }
-    #chat-box {
-      display: none;
-      width: 300px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-    }
-    #chat-box-header {
-      background: #00cc99;
-      color: white;
-      padding: 10px;
-      text-align: center;
-      font-weight: bold;
-    }
-    #chat-form {
-      padding: 10px;
-    }
-    #chat-form input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 6px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    #chat-form button {
-      width: 100%;
-      padding: 8px;
-      background: #00b894;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    #chat-log {
-      padding: 10px;
-      height: 180px;
-      overflow-y: auto;
-      font-size: 0.9em;
-      background: #f9f9f9;
-      border-top: 1px solid #eee;
-    }
+    #chat-widget { position: fixed; right: 20px; bottom: 20px; z-index: 9999; }
+    #chat-box { display: none; width: 300px; background: white; border-radius: 12px; box-shadow: 0 0 12px rgba(0, 0, 0, 0.2); font-family: Arial, sans-serif; overflow: hidden; }
+    #chat-box-header { background: #00cc99; color: white; padding: 10px; text-align: center; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    #chat-close-btn { cursor: pointer; font-weight: bold; padding: 0 10px; }
+    #chat-form { padding: 10px; }
+    #chat-form input { width: 100%; padding: 8px; margin-bottom: 6px; border: 1px solid #ccc; border-radius: 6px; }
+    #chat-form button { width: 100%; padding: 8px; background: #00b894; color: white; border: none; border-radius: 6px; font-size: 14px; }
+    #chat-log { padding: 10px; height: 180px; overflow-y: auto; font-size: 0.9em; background: #f9f9f9; border-top: 1px solid #eee; display: flex; flex-direction: column; }
+    .chat-message { opacity: 0; transform: translateY(-10px); animation: slideDown 0.3s forwards; }
+    @keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -151,27 +44,11 @@
     <h1>👫 OrcaX Puzzle</h1>
     <h2>Select the First Puzzle to Begin</h2>
     <div class="grid">
-      <a class="active" href="nft_series_01.html">
-        <img src="https://byungil-cho.github.io/OrcaX/nft1_01.jpg" alt="Puzzle 1">
-        <strong>🎮 퍼즐 게임 시작</strong>
-      </a>
-      <a class="active" href="shop.html">
-        <img src="https://byungil-cho.github.io/OrcaX/nft2_01.jpg" alt="NFT Shop">
-        <strong>🛍️ NFT SHOP 입장</strong>
-      </a>
-      <a class="active" href="about-orcax.html">
-        <img src="https://byungil-cho.github.io/OrcaX/nft3_01.jpg" alt="OrcaX 소개">
-        OrcaX 소개
-      </a>
-      <a class="active" href="franchise.html">
-        <img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="가면점 모집">
-        <strong>📢 가면점 모집 현황</strong>
-      </a>
-      <a class="active" href="index-10.html">
-        <img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg" alt="메시지 전송">
-        <strong>💬 메시지 전송</strong>
-      </a>
-      <!-- 다른 퍼즐 카드들 -->
+      <a class="active" href="nft_series_01.html"><img src="https://byungil-cho.github.io/OrcaX/nft1_01.jpg" alt="Puzzle 1"><strong>🎮 퍼즐 게임 시작</strong></a>
+      <a class="active" href="shop.html"><img src="https://byungil-cho.github.io/OrcaX/nft2_01.jpg" alt="NFT Shop"><strong>🛍️ NFT SHOP 입장</strong></a>
+      <a class="active" href="about-orcax.html"><img src="https://byungil-cho.github.io/OrcaX/nft3_01.jpg" alt="OrcaX 소개">OrcaX 소개</a>
+      <a class="active" href="franchise.html"><img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="가맹점 모집"><strong>📢 가맹점 모집 현황</strong></a>
+      <a class="active" href="index-10.html"><img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg" alt="메시지 전송"><strong>💬 메시지 전송</strong></a>
       <a><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg" alt="Puzzle 6">Puzzle 6</a>
       <a><img src="https://byungil-cho.github.io/OrcaX/nft4_02.jpg" alt="Puzzle 7">Puzzle 7</a>
       <a><img src="https://byungil-cho.github.io/OrcaX/nft1_02.jpg" alt="Puzzle 8">Puzzle 8</a>
@@ -186,11 +63,13 @@
     </div>
   </div>
 
-  <!-- Chat Widget -->
   <div id="chat-widget">
     <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;">💬</button>
     <div id="chat-box">
-      <div id="chat-box-header">📎 메시지 보내기</div>
+      <div id="chat-box-header">
+        📎 메시지 보내기
+        <span id="chat-close-btn" onclick="toggleChat()">✖</span>
+      </div>
       <div id="chat-form">
         <input id="sender" type="text" placeholder="닉네임">
         <input id="message" type="text" placeholder="메시지를 입력하세요">
@@ -202,6 +81,14 @@
 
   <script>
     const apiBase = "https://28c5-210-104-209-108.ngrok-free.app/api/messages";
+    const colorMap = {};
+
+    function getColorForUser(user) {
+      if (!colorMap[user]) {
+        colorMap[user] = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+      }
+      return colorMap[user];
+    }
 
     function toggleChat() {
       const box = document.getElementById("chat-box");
@@ -231,11 +118,20 @@
         .then(res => res.json())
         .then(messages => {
           const log = document.getElementById("chat-log");
-          log.innerHTML = messages.map(msg => `<div><strong>${msg.sender}:</strong> ${msg.message}</div>`).reverse().slice(0, 10).join('');
+          log.innerHTML = '';
+          messages.slice(-10).forEach(msg => {
+            const color = getColorForUser(msg.sender);
+            const div = document.createElement('div');
+            div.className = 'chat-message';
+            div.innerHTML = `<strong style="color:${color}">${msg.sender}:</strong> ${msg.message}`;
+            log.appendChild(div);
+          });
+          log.scrollTop = log.scrollHeight;
         });
     }
   </script>
 </body>
 </html>
+
 
 
