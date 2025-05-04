@@ -118,9 +118,15 @@
     <p>OrcaX는 단순한 결제 수단을 넘어, 지역경제와 블록체인 기술을 결합한 새로운 생태계를 지향합니다.<br>
     <strong>“함께 살아가는 세상, 함께 성장하는 플랫폼”</strong>이라는 철학 아래, 지역과 사람, 실물과 디지털을 연결하는 진정한 Web3 프로젝트로 자리매김할 것입니다.</p>
   </div>
-
-  <!-- ✅ OrcaX 실시간 메시지 위젯 스크립트 추가 -->
-  <script src="https://orcax-chat-widget.onrender.com/public/chat-widget.js"></script>
+<!-- 페이지 마지막에 위치할 것 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const script = document.createElement('script');
+    script.src = "https://orcax-chat-widget.onrender.com/public/chat-widget.js";
+    script.defer = true;
+    document.body.appendChild(script);
+  });
+</script>
 </body>
 </html>
 
