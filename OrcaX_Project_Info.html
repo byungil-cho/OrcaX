@@ -119,17 +119,53 @@
     <strong>“함께 살아가는 세상, 함께 성장하는 플랫폼”</strong>이라는 철학 아래, 지역과 사람, 실물과 디지털을 연결하는 진정한 Web3 프로젝트로 자리매김할 것입니다.</p>
   </div>
 <!-- 페이지 마지막에 위치할 것 -->
-<script>
-  (function () {
-    const script = document.createElement('script');
-    script.src = "https://orcax-chat-widget.onrender.com/public/chat-widget.js";
-    script.async = true;
-    script.onload = () => console.log("✅ OrcaX 위젯 스크립트 로딩 완료");
-    script.onerror = () => console.error("❌ OrcaX 위젯 로딩 실패");
-    document.body.appendChild(script);
-  })();
-</script>
+<!-- OrcaX Chat Widget Container -->
+<div id="orcax-widget-box" style="position:fixed;bottom:70px;right:20px;width:300px;height:400px;background:#1e2a38;color:#fff;padding:10px;border-radius:10px;display:flex;flex-direction:column;z-index:9999;">
+  <div id="orcax-log">🔌 위젯 연결 중...</div>
+  <form id="orcax-form">
+    <input id="orcax-nickname" placeholder="닉네임" required style="width:100%;padding:6px;margin:4px 0;border-radius:4px;" />
+    <input id="orcax-content" placeholder="메시지" required style="width:100%;padding:6px;margin:4px 0;border-radius:4px;" />
+    <button type="submit" style="width:100%;padding:6px;background:#00cfff;color:#000;border:none;border-radius:4px;">보내기</button>
+  </form>
+</div>
 
+<script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+<script>
+  const socket = io('https://orcax-chat-widget.onrender.com');
+  const logEl = document.getElementById('orcax-log');
+
+  function addMessage(msg) {
+    const div = document.createElement('div');
+    div.textContent = `[${msg.nickname}] ${msg.content}`;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  socket.on('new-message', addMessage);
+
+  document.getElementById('orcax-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nickname = document.getElementById('orcax-nickname').value;
+    const content = document.getElementById('orcax-content').value;
+    const payload = { nickname, content, type: 'user' };
+
+    await fetch('https://orcax-chat-widget.onrender.com/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    socket.emit('new-message', payload);
+    document.getElementById('orcax-content').value = '';
+  });
+
+  fetch('https://orcax-chat-widget.onrender.com/api/messages')
+    .then(res => res.json())
+    .then(messages => {
+      logEl.innerHTML = '';
+      messages.reverse().forEach(addMessage);
+    });
+</script>
 </body>
 </html>
 
