@@ -120,13 +120,16 @@
   </div>
 <!-- 페이지 마지막에 위치할 것 -->
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+  (function () {
     const script = document.createElement('script');
     script.src = "https://orcax-chat-widget.onrender.com/public/chat-widget.js";
-    script.defer = true;
+    script.async = true;
+    script.onload = () => console.log("✅ OrcaX 위젯 스크립트 로딩 완료");
+    script.onerror = () => console.error("❌ OrcaX 위젯 로딩 실패");
     document.body.appendChild(script);
-  });
+  })();
 </script>
+
 </body>
 </html>
 
