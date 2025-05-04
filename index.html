@@ -95,13 +95,61 @@
         width: 80px;
       }
     }
+    #chat-widget {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 9999;
+    }
+    #chat-box {
+      display: none;
+      width: 300px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    #chat-box-header {
+      background: #00cc99;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+    #chat-form {
+      padding: 10px;
+    }
+    #chat-form input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    #chat-form button {
+      width: 100%;
+      padding: 8px;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    #chat-log {
+      padding: 10px;
+      height: 180px;
+      overflow-y: auto;
+      font-size: 0.9em;
+      background: #f9f9f9;
+      border-top: 1px solid #eee;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🐫 OrcaX Puzzle</h1>
+    <h1>👫 OrcaX Puzzle</h1>
     <h2>Select the First Puzzle to Begin</h2>
-
     <div class="grid">
       <a class="active" href="nft_series_01.html">
         <img src="https://byungil-cho.github.io/OrcaX/nft1_01.jpg" alt="Puzzle 1">
@@ -116,13 +164,14 @@
         OrcaX 소개
       </a>
       <a class="active" href="franchise.html">
-        <img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="가맹점 모집">
-        <strong>📢 가맹점 모집 현황</strong>
+        <img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="가면점 모집">
+        <strong>📢 가면점 모집 현황</strong>
       </a>
       <a class="active" href="index-10.html">
         <img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg" alt="메시지 전송">
         <strong>💬 메시지 전송</strong>
       </a>
+      <!-- 다른 퍼즐 카드들 -->
       <a><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg" alt="Puzzle 6">Puzzle 6</a>
       <a><img src="https://byungil-cho.github.io/OrcaX/nft4_02.jpg" alt="Puzzle 7">Puzzle 7</a>
       <a><img src="https://byungil-cho.github.io/OrcaX/nft1_02.jpg" alt="Puzzle 8">Puzzle 8</a>
@@ -137,19 +186,17 @@
     </div>
   </div>
 
-  <!-- 🐋 OrcaX Floating Chat Widget -->
-  <div id="chat-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
-    <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;">
-      💬
-    </button>
-    <div id="chat-box" style="display:none;width:300px;height:400px;background:white;border-radius:12px;box-shadow:0 0 12px rgba(0,0,0,0.2);overflow:hidden;margin-top:10px;font-family:Arial, sans-serif;">
-      <div style="background:#00cc99;color:white;padding:10px;text-align:center;font-weight:bold;">🐋 메시지 보내기</div>
-      <div style="padding:10px;">
-        <input id="sender" type="text" placeholder="닉네임" style="width:100%;padding:8px;margin-bottom:6px;border:1px solid #ccc;border-radius:6px;" />
-        <input id="message" type="text" placeholder="메시지를 입력하세요" style="width:100%;padding:8px;margin-bottom:6px;border:1px solid #ccc;border-radius:6px;" />
-        <button onclick="sendMessage()" style="width:100%;padding:8px;background:#00b894;color:white;border:none;border-radius:6px;font-size:14px;">전송</button>
+  <!-- Chat Widget -->
+  <div id="chat-widget">
+    <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;">💬</button>
+    <div id="chat-box">
+      <div id="chat-box-header">📎 메시지 보내기</div>
+      <div id="chat-form">
+        <input id="sender" type="text" placeholder="닉네임">
+        <input id="message" type="text" placeholder="메시지를 입력하세요">
+        <button onclick="sendMessage()">전송</button>
       </div>
-      <div id="chat-log" style="padding:10px;height:180px;overflow-y:auto;font-size:0.9em;background:#f9f9f9;border-top:1px solid #eee;"></div>
+      <div id="chat-log"></div>
     </div>
   </div>
 
@@ -190,4 +237,5 @@
   </script>
 </body>
 </html>
+
 
