@@ -1,38 +1,37 @@
-<!-- public/index-10.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐋 OrcaX 채팅</title>
+  <title>🐋 OrcaX 실시간 채팅</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #c2e9fb, #81a4fd);
+      background: linear-gradient(to right, #f2fcfe, #e0f1ff);
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
 
     .chat-container {
-      background-color: white;
+      background-color: #fff;
       padding: 2rem;
       border-radius: 20px;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      max-width: 90%;
-      width: 400px;
+      max-width: 600px;
+      width: 90%;
     }
 
-    h2 {
+    h1 {
       text-align: center;
-      margin-bottom: 1rem;
-      color: #333;
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
     }
 
-    input, button {
+    input, textarea, button {
       width: 100%;
       padding: 12px;
       margin: 0.5rem 0;
@@ -41,90 +40,100 @@
       font-size: 1rem;
     }
 
+    textarea {
+      resize: none;
+      height: 80px;
+    }
+
     button {
-      background-color: #81a4fd;
+      background: linear-gradient(90deg, #3498db, #2ecc71);
       color: white;
       font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.2s ease;
+      transition: opacity 0.2s ease;
     }
 
     button:hover {
-      background-color: #678aff;
+      opacity: 0.9;
     }
 
-    ul#chat-log {
-      list-style: none;
-      padding: 0;
+    #chat-log {
       margin-top: 1rem;
-      max-height: 200px;
+      max-height: 250px;
       overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 1rem;
+      background: #f9f9f9;
     }
 
-    ul#chat-log li {
-      padding: 5px;
-      border-bottom: 1px solid #eee;
-      font-size: 0.9rem;
+    .message {
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      color: #333;
     }
 
-    @media (max-width: 480px) {
-      .chat-container {
-        padding: 1.5rem;
-        border-radius: 15px;
-      }
+    .message:last-child {
+      margin-bottom: 0;
     }
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <h2>🐋 OrcaX 채팅</h2>
-    <input type="text" id="sender" value="익명고래" placeholder="이름 입력">
-    <input type="text" id="message" placeholder="메시지를 입력하세요">
-    <button onclick="sendMessage()">보내기</button>
-    <ul id="chat-log"></ul>
+    <h1>🐋 OrcaX 실시간 채팅</h1>
+    <input type="text" id="sender" placeholder="닉네임을 입력하세요" />
+    <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
+    <button onclick="sendMessage()">전송하기</button>
+
+    <div id="chat-log"></div>
   </div>
 
   <script>
-    const apiBase = "https://28c5-210-104-209-108.ngrok-free.app/api/messages";
+    const apiUrl = "https://28c5-210-104-209-108.ngrok-free.app/api/messages";
 
     function sendMessage() {
-      const sender = document.getElementById("sender").value;
-      const message = document.getElementById("message").value;
+      const sender = document.getElementById("sender").value.trim();
+      const message = document.getElementById("message").value.trim();
 
-      if (!message.trim()) return alert("메시지를 입력하세요.");
+      if (!sender || !message) {
+        alert("닉네임과 메시지를 모두 입력해주세요!");
+        return;
+      }
 
-      fetch(apiBase, {
+      fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sender, message })
       })
       .then(res => res.json())
       .then(data => {
-        console.log("✅ 성공:", data);
         document.getElementById("message").value = '';
         loadMessages();
       })
       .catch(err => {
-        console.error("❌ 실패:", err);
+        alert("⚠️ 메시지 전송 실패!");
+        console.error("전송 에러:", err);
       });
     }
 
     function loadMessages() {
-      fetch(apiBase)
+      fetch(apiUrl)
         .then(res => res.json())
         .then(messages => {
+          if (!Array.isArray(messages)) return;
+
           const log = document.getElementById("chat-log");
-          log.innerHTML = "";
-          messages.forEach(msg => {
-            const li = document.createElement("li");
-            li.textContent = `[${msg.sender}] ${msg.message}`;
-            log.appendChild(li);
-          });
-        });
+          log.innerHTML = messages.map(msg => 
+            `<div class="message">[${msg.sender}] ${msg.message}</div>`
+          ).join('');
+
+          log.scrollTop = log.scrollHeight; // 스크롤 아래로
+        })
+        .catch(err => console.error("불러오기 에러:", err));
     }
 
-    // 페이지 열릴 때 메시지 자동 로드
     loadMessages();
+    setInterval(loadMessages, 5000);
   </script>
 </body>
 </html>
