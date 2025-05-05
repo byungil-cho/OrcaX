@@ -37,26 +37,6 @@
     #chat-log { padding: 10px; height: 180px; overflow-y: auto; font-size: 0.9em; background: #f9f9f9; border-top: 1px solid #eee; display: flex; flex-direction: column; }
     .chat-message { opacity: 0; transform: translateY(-10px); animation: slideDown 0.3s forwards; }
     @keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
-
-    #floating-message {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #00cc99;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 0 0 12px 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      z-index: 99999;
-      font-size: 1rem;
-      display: none;
-      animation: dropDown 0.5s ease;
-    }
-    @keyframes dropDown {
-      0% { top: -60px; opacity: 0; }
-      100% { top: 0; opacity: 1; }
-    }
   </style>
 </head>
 <body>
@@ -64,27 +44,24 @@
     <h1>👫 OrcaX Puzzle</h1>
     <h2>Select the First Puzzle to Begin</h2>
     <div class="grid">
-      <!-- 카드 16개 전부 구성 -->
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft1_01.jpg"><strong>Puzzle 1</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft2_01.jpg"><strong>Puzzle 2</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_01.jpg"><strong>Puzzle 3</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg"><strong>Puzzle 4</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft1_02.jpg"><strong>Puzzle 5</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg"><strong>Puzzle 6</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg"><strong>Puzzle 7</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft4_02.jpg"><strong>Puzzle 8</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft1_03.jpg"><strong>Puzzle 9</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft2_03.jpg"><strong>Puzzle 10</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_03.jpg"><strong>Puzzle 11</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft4_03.jpg"><strong>Puzzle 12</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft1_04.jpg"><strong>Puzzle 13</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft2_04.jpg"><strong>Puzzle 14</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_04.jpg"><strong>Puzzle 15</strong></a>
-      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft4_04.jpg"><strong>Puzzle 16</strong></a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/"><img src="https://byungil-cho.github.io/OrcaX/nft1_01.jpg" alt="Puzzle 1"><strong>🎮 퍼즐 게임 시작</strong></a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/shop.html"><img src="https://byungil-cho.github.io/OrcaX/nft2_01.jpg" alt="NFT Shop"><strong>🛖 NFT SHOP 입장</strong></a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/about-orcax.html"><img src="https://byungil-cho.github.io/OrcaX/nft3_01.jpg" alt="OrcaX 소개">OrcaX 소개</a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/franchise.html"><img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="가명점 목지"><strong>📢 가명점 목지 현황</strong></a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/index-10.html"><img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg" alt="메시지 전송"><strong>💬 메시지 전송</strong></a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg" alt="Puzzle 6">Puzzle 6</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft4_02.jpg" alt="Puzzle 7">Puzzle 7</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft1_02.jpg" alt="Puzzle 8">Puzzle 8</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_03.jpg" alt="Puzzle 9">Puzzle 9</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft4_03.jpg" alt="Puzzle 10">Puzzle 10</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft1_03.jpg" alt="Puzzle 11">Puzzle 11</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft2_03.jpg" alt="Puzzle 12">Puzzle 12</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft4_04.jpg" alt="Puzzle 13">Puzzle 13</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft1_04.jpg" alt="Puzzle 14">Puzzle 14</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft2_04.jpg" alt="Puzzle 15">Puzzle 15</a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_04.jpg" alt="Puzzle 16">Puzzle 16</a>
     </div>
   </div>
-
-  <div id="floating-message"></div>
 
   <div id="chat-widget">
     <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;">💬</button>
@@ -157,31 +134,15 @@
           const color = getColorForUser(msg.nickname);
           const div = document.createElement('div');
           div.className = 'chat-message';
-          div.innerHTML = `<strong style="color:${color}">${msg.nickname}:</strong> ${msg.content}`;
+          div.innerHTML = <strong style="color:${color}">${msg.nickname}:</strong> ${msg.content};
           log.appendChild(div);
         });
         log.scrollTop = log.scrollHeight;
-
-        // floating banner
-        const latestMsg = messages[messages.length - 1];
-        if (!localStorage.getItem("hideFloating") && latestMsg) {
-          const floatBox = document.getElementById("floating-message");
-          floatBox.innerHTML = `<strong>${latestMsg.nickname}:</strong> ${latestMsg.content}
-            <button onclick="hideFloating()" style="margin-left:10px;background:transparent;border:none;color:white;cursor:pointer;">❌</button>`;
-          floatBox.style.display = "block";
-          setTimeout(() => floatBox.style.display = "none", 10000);
-        }
       });
-    }
-
-    function hideFloating() {
-      localStorage.setItem("hideFloating", "true");
-      document.getElementById("floating-message").style.display = "none";
     }
   </script>
 </body>
 </html>
-
 
 
 
