@@ -85,22 +85,9 @@
     const loading = document.getElementById("loading");
 
     const wallet = localStorage.getItem('orcax_user') || 'guest';
-    const API_BASE = "https://orcax-roulette-backend.onrender.com";
+    const API_BASE = "https://orcax-roulette-backend.onrender.com"; // ← 여기는 너 서버 주소로 바꿔
 
     let currentAngle = 0;
-
-    // bonus=1 감지 → 서버에 무료 스핀 요청
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("bonus") === "1") {
-      fetch(`${API_BASE}/api/roulette/bonus-spin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ walletAddress: wallet })
-      })
-      .then(res => res.json())
-      .then(data => console.log("[🎁 bonus-spin 처리됨]", data))
-      .catch(err => console.error("bonus-spin 실패", err));
-    }
 
     async function updateUserInfo() {
       try {
@@ -132,32 +119,22 @@
           return;
         }
 
+        const prizeIndex = data.prizeIndex; // 서버에서 내려줘야 함
+        const reward = data.reward; // ORCAX 포인트
+        const spinsLeft = data.spins;
+        const totalScore = data.totalScore;
+
         spinSound.play();
         loading.style.display = "block";
         result.textContent = "";
 
-        const prizes = ['100 ORCAX', '200 ORCAX', '300 ORCAX', '꽝', '10 ORCAX'];
-        const prizeValues = [100, 200, 300, 0, 10];
-        const prizeIndex = Math.floor(Math.random() * prizes.length);
-        const reward = prizeValues[prizeIndex];
-
-        currentAngle += 1080 + (prizeIndex * 72);
+        currentAngle += 1080 + (prizeIndex * 72); // 360 / 5 = 72도 간격
         wheel.style.transform = `rotate(${currentAngle}deg)`;
 
-        setTimeout(async () => {
+        setTimeout(() => {
           loading.style.display = "none";
-          result.textContent = `🎉 축하합니다! ${prizes[prizeIndex]} 당첨!`;
-
-          if (reward > 0) {
-            await fetch(`${API_BASE}/api/score/save-score`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ wallet, score: reward })
-            });
-          }
-
-          const total = Number(data.totalScore ?? 0) + reward;
-          spinCountDisplay.textContent = `🎡 남은 스핀: ${data.spins} | 점수: ${total}`;
+          result.textContent = `🎉 축하합니다! ${reward} ORCAX 당첨!`;
+          spinCountDisplay.textContent = `🎡 남은 스핀: ${spinsLeft} | 점수: ${totalScore}`;
         }, 3000);
 
       } catch (err) {
@@ -166,7 +143,7 @@
       }
     }
 
-    // 로그인된 유저 정보 가져오기 (최초 1회)
+    // 로그인된 유저 정보 가져오기
     fetch(`${API_BASE}/api/auth/me`)
       .then(res => res.json())
       .then(data => {
@@ -180,3 +157,4 @@
   </script>
 </body>
 </html>
+
