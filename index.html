@@ -122,28 +122,29 @@
       });
     }
 
-    function loadMessages() {
-      fetch(apiBase, {
-        headers: { "ngrok-skip-browser-warning": "true" }
-      })
-      .then(res => res.json())
-      .then(messages => {
-        const log = document.getElementById("chat-log");
-        log.innerHTML = '';
-        messages.slice(-10).forEach(msg => {
-          const color = getColorForUser(msg.nickname);
-          const div = document.createElement('div');
-          div.className = 'chat-message';
-          div.innerHTML = `<strong style="color:${color}">${msg.nickname}:</strong> ${msg.content}`;
-          log.appendChild(div);
-        });
-        log.scrollTop = log.scrollHeight;
-      })
-      .catch(err => {
-        console.error("❌ 메시지 불러오기 실패:", err);
-      });
-    }
-
+   function loadMessages() {
+  fetch(apiBase, {
+    headers: { "ngrok-skip-browser-warning": "true" }
+  })
+  .then(res => res.json())
+  .then(messages => {
+    const log = document.getElementById("chat-log");
+    log.innerHTML = '';
+    messages.slice(-10).forEach(msg => {
+      const color = getColorForUser(msg.nickname || msg.sender || "익명");
+      const content = msg.content || msg.message || "";
+      const nickname = msg.nickname || msg.sender || "익명";
+      const div = document.createElement('div');
+      div.className = 'chat-message';
+      div.innerHTML = `<strong style="color:${color}">${nickname}:</strong> ${content}`;
+      log.appendChild(div);
+    });
+    log.scrollTop = log.scrollHeight;
+  })
+  .catch(err => {
+    console.error("❌ 메시지 불러오기 실패:", err);
+  });
+}
     loadMessages();
     setInterval(loadMessages, 5000);
   </script>
