@@ -65,10 +65,10 @@
   </style>
 </head>
 <body>
-  <h1>🎡 OrcaX 룰렛</h1>
-  <div id="spin-count">🎡 남은 스핀: 계산 중...</div>
+  <h1>🌁 OrcaX 루렛</h1>
+  <div id="spin-count">🌁 남은 스필: 계산 중...</div>
   <div class="wheel" id="wheel"></div>
-  <div id="loading" style="display: none; margin-top: 1rem; color: #00e0ff; font-size: 1.2rem;">⏳ 룰렛 돌리는 중...</div>
+  <div id="loading" style="display: none; margin-top: 1rem; color: #00e0ff; font-size: 1.2rem;">⏳ 루렛 돌린는 중...</div>
   <div id="result"></div>
   <button onclick="spinRoulette()">스핀!</button>
   <audio id="spin-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7a9dbb37a0.mp3?filename=spin-wheel-110411.mp3"></audio>
@@ -78,23 +78,22 @@
   </div>
 
   <script>
+    const API_BASE = "https://orcax-backend.onrender.com"; // 여기에 Render 주소
+    const userId = localStorage.getItem('orcax_user') || prompt("사용자 ID를 입력하세요:");
+    localStorage.setItem('orcax_user', userId);
+
     const spinCountDisplay = document.getElementById('spin-count');
     const result = document.getElementById('result');
     const wheel = document.getElementById("wheel");
     const spinSound = document.getElementById("spin-sound");
     const loading = document.getElementById("loading");
 
-    const wallet = localStorage.getItem('orcax_user') || 'guest';
-    const API_BASE = "https://orcax-roulette-backend.onrender.com"; // ← 여기는 너 서버 주소로 바꿔
-
-    let currentAngle = 0;
-
     async function updateUserInfo() {
       try {
-        const res = await fetch(`${API_BASE}/api/score/get-score?wallet=${wallet}`);
+        const res = await fetch(`${API_BASE}/api/score/get-score?userId=${userId}`);
         const data = await res.json();
         if (data.success) {
-          spinCountDisplay.textContent = `🎡 남은 스핀: ${data.spins ?? 0} | 점수: ${data.score ?? 0}`;
+          spinCountDisplay.textContent = `🌁 남은 스필: ${data.spins ?? 0} | 점수: ${data.score ?? 0}`;
         } else {
           spinCountDisplay.textContent = '❌ 사용자 정보 로드 실패';
         }
@@ -109,7 +108,7 @@
         const res = await fetch(`${API_BASE}/api/spin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ wallet })
+          body: JSON.stringify({ userId })
         });
 
         const data = await res.json();
@@ -119,8 +118,8 @@
           return;
         }
 
-        const prizeIndex = data.prizeIndex; // 서버에서 내려줘야 함
-        const reward = data.reward; // ORCAX 포인트
+        const prizeIndex = data.prizeIndex;
+        const reward = data.reward;
         const spinsLeft = data.spins;
         const totalScore = data.totalScore;
 
@@ -128,13 +127,13 @@
         loading.style.display = "block";
         result.textContent = "";
 
-        currentAngle += 1080 + (prizeIndex * 72); // 360 / 5 = 72도 간격
+        currentAngle += 1080 + (prizeIndex * 72);
         wheel.style.transform = `rotate(${currentAngle}deg)`;
 
         setTimeout(() => {
           loading.style.display = "none";
-          result.textContent = `🎉 축하합니다! ${reward} ORCAX 당첨!`;
-          spinCountDisplay.textContent = `🎡 남은 스핀: ${spinsLeft} | 점수: ${totalScore}`;
+          result.textContent = `🎉 축하합니다! ${reward} ORCAX 당차!`;
+          spinCountDisplay.textContent = `🌁 남은 스필: ${spinsLeft} | 점수: ${totalScore}`;
         }, 3000);
 
       } catch (err) {
@@ -143,15 +142,16 @@
       }
     }
 
-    // 로그인된 유저 정보 가져오기
-    fetch(`${API_BASE}/api/auth/me`)
-      .then(res => res.json())
-      .then(data => {
-        if (data?.user?.wallet) {
-          localStorage.setItem('orcax_user', data.user.wallet);
-        }
-      })
-      .catch(err => console.log('사용자 정보 가져오기 실패', err));
+    let currentAngle = 0;
+
+    // 사용자 초기 등록
+    fetch(`${API_BASE}/api/auth/me`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId })
+    }).then(res => res.json())
+      .then(data => console.log('[사용자 등록됨]', data))
+      .catch(err => console.error('[등록 실패]', err));
 
     updateUserInfo();
   </script>
