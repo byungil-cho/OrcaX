@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX 출금 로그</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #001f3f, #003366);
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      padding: 2rem;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #00e0ff;
+      margin-bottom: 1rem;
+    }
+    #download-btn {
+      display: block;
+      margin: 0 auto 2rem auto;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #00cc99;
+      color: white;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.05);
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #00ccff55;
+    }
+    th {
+      background-color: #003366;
+      color: #00e0ff;
+    }
+    tr:nth-child(even) {
+      background-color: rgba(255,255,255,0.03);
+    }
+    button.action {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #00cc99;
+      color: white;
+      cursor: pointer;
+    }
+    button.action:hover {
+      background-color: #009f7a;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const ACCESS_PASSWORD = 'orcax123';
+    const input = prompt("🔐 관리자 비밀번호를 입력하세요:");
+    if (input !== ACCESS_PASSWORD) {
+      alert("⛔ 접근이 거부되었습니다.");
+      document.body.innerHTML = "<h2 style='color:white;text-align:center;'>⛔ 접근 거부됨</h2>";
+      throw new Error("비밀번호 오류. 접근 차단.");
+    }
+  </script>
+
+  <h1>💸 OrcaX 출금 요청 로그</h1>
+  <button id="download-btn" onclick="downloadCSV()">📥 엑셀(CSV) 다운로드</button>
+
+  <table id="log-table">
+    <thead>
+      <tr>
+        <th>userId</th>
+        <th>이메일</th>
+        <th>점수</th>
+        <th>요청 시간</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="5">로딩 중...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const API_BASE = "https://orcax-backend.onrender.com";
+    let cachedLogs = [];
+
+    fetch(`${API_BASE}/api/withdraw/logs`)
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector('#log-table tbody');
+        tbody.innerHTML = '';
+
+        if (!data.success || !data.logs.length) {
+          tbody.innerHTML = '<tr><td colspan="5">출금 요청이 없습니다.</td></tr>';
+          return;
+        }
+
+        cachedLogs = data.logs;
+
+        data.logs.forEach(log => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${log.userId}</td>
+            <td>${log.email}</td>
+            <td>${log.scoreAtRequest}</td>
+            <td>${new Date(log.requestedAt).toLocaleString()}</td>
+            <td>
+              ${log.isProcessed
+                ? '✅ 완료'
+                : `<button class="action" onclick="markDone('${log._id}', this)">✅ 완료</button>`}
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      })
+      .catch(err => {
+        console.error('로그 로딩 실패', err);
+        const tbody = document.querySelector('#log-table tbody');
+        tbody.innerHTML = '<tr><td colspan="5">로그 로딩 중 오류 발생</td></tr>';
+      });
+
+    function markDone(id, button) {
+      if (!confirm("이 요청을 완료 처리하시겠습니까?")) return;
+
+      fetch(`${API_BASE}/api/withdraw/mark-done`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          button.parentElement.innerHTML = '✅ 완료';
+        } else {
+          alert(data.message || '처리 실패');
+        }
+      })
+      .catch(() => alert("서버 오류"));
+    }
+
+    function downloadCSV() {
+      if (!cachedLogs.length) return alert("출금 로그가 없습니다.");
+
+      const csv = [
+        ["userId", "email", "score", "requestedAt", "status"],
+        ...cachedLogs.map(log => [
+          log.userId,
+          log.email,
+          log.scoreAtRequest,
+          new Date(log.requestedAt).toLocaleString(),
+          log.isProcessed ? "완료" : "미처리"
+        ])
+      ].map(e => e.join(",")).join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `withdraw-log-${Date.now()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>

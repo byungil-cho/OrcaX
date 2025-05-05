@@ -6,32 +6,44 @@
   <title>OrcaX 룰렛</title>
   <style>
     body {
-      background-color: #001f3f;
-      color: #fff;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #001f3f, #003366);
       font-family: 'Segoe UI', sans-serif;
+      color: #fff;
       text-align: center;
-      padding: 2rem;
     }
+
     h1 {
       color: #00e0ff;
       font-size: 2.5rem;
+      margin-top: 2rem;
     }
+
     #spin-count {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       color: gold;
       margin-top: 1rem;
     }
+
     #result {
       font-size: 1.2rem;
       margin-top: 1rem;
       color: #ffcc00;
     }
+
+    .wheel-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 2rem auto;
+    }
+
     .wheel {
-      width: 200px;
-      height: 200px;
+      width: 100%;
+      height: 100%;
       border: 10px solid #00e0ff;
       border-radius: 50%;
-      margin: 2rem auto;
       background: conic-gradient(
         gold 0deg 72deg,
         orange 72deg 144deg,
@@ -41,6 +53,19 @@
       );
       transition: transform 3s ease-out;
     }
+
+    .pointer {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 20px solid #fff;
+    }
+
     button {
       padding: 12px 24px;
       margin-top: 1rem;
@@ -52,23 +77,51 @@
       cursor: pointer;
       transition: 0.3s;
     }
+
     button:hover {
       background-color: #009f7a;
     }
-    a.withdraw-link {
+
+    .withdraw-link {
       display: inline-block;
       margin-top: 2rem;
       color: #00ccff;
       font-size: 1.1rem;
       text-decoration: underline;
     }
+
+    #loading {
+      display: none;
+      margin-top: 1rem;
+      color: #00e0ff;
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 500px) {
+      .wheel-container {
+        width: 200px;
+        height: 200px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      button {
+        font-size: 1rem;
+        padding: 10px 20px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>🌁 OrcaX 루렛</h1>
-  <div id="spin-count">🌁 남은 스필: 계산 중...</div>
-  <div class="wheel" id="wheel"></div>
-  <div id="loading" style="display: none; margin-top: 1rem; color: #00e0ff; font-size: 1.2rem;">⏳ 루렛 돌린는 중...</div>
+  <h1>🎡 OrcaX 룰렛</h1>
+  <div id="spin-count">🎡 남은 스핀: 계산 중...</div>
+  <div class="wheel-container">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+  </div>
+  <div id="loading">⏳ 룰렛 돌리는 중...</div>
   <div id="result"></div>
   <button onclick="spinRoulette()">스핀!</button>
   <audio id="spin-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7a9dbb37a0.mp3?filename=spin-wheel-110411.mp3"></audio>
@@ -78,22 +131,23 @@
   </div>
 
   <script>
-    const API_BASE = "https://orcax-backend.onrender.com"; // 여기에 Render 주소
-    const userId = localStorage.getItem('orcax_user') || prompt("사용자 ID를 입력하세요:");
-    localStorage.setItem('orcax_user', userId);
-
     const spinCountDisplay = document.getElementById('spin-count');
     const result = document.getElementById('result');
     const wheel = document.getElementById("wheel");
     const spinSound = document.getElementById("spin-sound");
     const loading = document.getElementById("loading");
 
+    const userId = localStorage.getItem('userId') || 'guest';
+    const API_BASE = "https://orcax-roulette-backend.onrender.com"; // ← 여기는 너 서버 주소로 바꿔
+
+    let currentAngle = 0;
+
     async function updateUserInfo() {
       try {
         const res = await fetch(`${API_BASE}/api/score/get-score?userId=${userId}`);
         const data = await res.json();
         if (data.success) {
-          spinCountDisplay.textContent = `🌁 남은 스필: ${data.spins ?? 0} | 점수: ${data.score ?? 0}`;
+          spinCountDisplay.textContent = `🎡 남은 스핀: ${data.spins ?? 0} | 점수: ${data.score ?? 0}`;
         } else {
           spinCountDisplay.textContent = '❌ 사용자 정보 로드 실패';
         }
@@ -118,8 +172,8 @@
           return;
         }
 
-        const prizeIndex = data.prizeIndex;
-        const reward = data.reward;
+        const prizeIndex = data.prizeIndex; // 서버에서 내려줘야 함
+        const reward = data.reward; // ORCAX 포인트
         const spinsLeft = data.spins;
         const totalScore = data.totalScore;
 
@@ -127,13 +181,13 @@
         loading.style.display = "block";
         result.textContent = "";
 
-        currentAngle += 1080 + (prizeIndex * 72);
+        currentAngle += 1080 + (prizeIndex * 72); // 360 / 5 = 72도 간격
         wheel.style.transform = `rotate(${currentAngle}deg)`;
 
         setTimeout(() => {
           loading.style.display = "none";
-          result.textContent = `🎉 축하합니다! ${reward} ORCAX 당차!`;
-          spinCountDisplay.textContent = `🌁 남은 스필: ${spinsLeft} | 점수: ${totalScore}`;
+          result.textContent = `🎉 축하합니다! ${reward} ORCAX 당첨!`;
+          spinCountDisplay.textContent = `🎡 남은 스핀: ${spinsLeft} | 점수: ${totalScore}`;
         }, 3000);
 
       } catch (err) {
@@ -142,19 +196,17 @@
       }
     }
 
-    let currentAngle = 0;
-
-    // 사용자 초기 등록
-    fetch(`${API_BASE}/api/auth/me`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId })
-    }).then(res => res.json())
-      .then(data => console.log('[사용자 등록됨]', data))
-      .catch(err => console.error('[등록 실패]', err));
+    // 로그인된 유저 정보 가져오기
+    fetch(`${API_BASE}/api/auth/me`)
+      .then(res => res.json())
+      .then(data => {
+        if (data?.user?.userId) {
+          localStorage.setItem('userId', data.user.userId);
+        }
+      })
+      .catch(err => console.log('사용자 정보 가져오기 실패', err));
 
     updateUserInfo();
   </script>
 </body>
 </html>
-
