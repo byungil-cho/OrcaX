@@ -27,94 +27,225 @@
     .qna {
       margin-top: 30px;
     }
-    .qna p {
-      margin-bottom: 10px;
-    }
     .question {
       font-weight: bold;
       margin-top: 20px;
+      color: #0077aa;
+    }
+    .answer {
+      color: #555;
+      margin-left: 10px;
+    }
+    #chat-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+    #chat-box {
+      display: none;
+      width: 300px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.2);
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    #chat-box-header {
+      background: #00cc99;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #chat-form {
+      padding: 10px;
+    }
+    #chat-form input {
+      width: 100%;
+      padding: 6px;
+      margin: 4px 0;
+      border-radius: 4px;
+    }
+    #chat-form button {
+      width: 100%;
+      padding: 6px;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    #chat-log {
+      padding: 10px;
+      height: 180px;
+      overflow-y: auto;
+      font-size: 0.9em;
+      background: #f9f9f9;
+      border-top: 1px solid #eee;
     }
   </style>
 </head>
 <body>
+  <h1>🌊 OrcaX 프로젝트 & DAO 시스템 Q&A</h1>
 
-<h1>🌊 OrcaX 프로젝트 & DAO 시스템 Q&A</h1>
+  <h2>📜 함께 하는 세상 만들기</h2>
+  <p>
+    OrcaX는 단순한 NFT나 토큰을 넘어, 우리 모든 사람이 함께 만들는 미래를 지향합니다.<br/>
+    소수의 이익이 아닌 공동체의 값이와 연결을 우선으로 하며,<br/>
+    토큰 보유자와 NFT 참여자 모두가 지정적 세상과 연결된 값을 공용하는 것이 목표입니다.
+  </p>
 
-<h2>📜 함께 하는 세상 만들기</h2>
-<p>
-OrcaX는 단순한 NFT나 토큰을 넘어, 우리 모두가 함께 만들는 미래를 지향합니다.
-소수의 이익이 아니라 공동체의 값이와 연결을 우선으로 하며, 
-토큰 보유자와 NFT 참여자 모두가 지정적 세상과 연결된 값을 공용하는 것이 목표입니다.
-</p>
+  <p><strong>OrcaX가 함께 하는 세상의 목적:</strong></p>
+  <ul>
+    <li>✈ 여행을 함께 떠날 수 있게</li>
+    <li>🏌 골프를 함께 즐기고</li>
+    <li>🌾 주말농장을 가까운다</li>
+    <li>❤️ 불우이우를 함께 도움</li>
+    <li>📚 교육과 배우를 나누고</li>
+    <li>🌱 지서가능한 미래를 고민한다</li>
+  </ul>
 
-<p><strong>OrcaX가 함께 하는 세상의 목적:</strong></p>
-<ul>
-  <li>✈ 여행을 함께 떠나고</li>
-  <li>🏌 골프를 함께 즐꧀며</li>
-  <li>🌾 주말농장을 함께 가꿀고</li>
-  <li>❤️ 불우이우을 함께 도우며</li>
-  <li>📚 교육과 배우를 함께 나누고</li>
-  <li>🌱 지서가능한 미래를 함께 고민합니다</li>
-</ul>
+  <p><em>"우리는 함께, 더 머리 가린다."</em></p>
 
-<p><em>"우리는 함께, 더 머리 가린다."</em></p>
+  <h2 class="qna">💬 ORCX 토큰 구매자용 Q&A</h2>
 
-<h2 class="qna">💬 ORCX 토큰 구매자용 Q&A</h2>
+  <div class="question">Q1. ORCX는 어디서 구매할 수 있나요?</div>
+  <div class="answer">• 현재는 P2P 방식으로 직접 연결 구매가 가능합니다.</div>
+  <div class="question">Q2. ORCX 가격은 어떻게 되나요?</div>
+  <div class="answer">• 1 ORCX = 1원으로 고정되어 있습니다.</div>
+  <div class="question">Q3. ORCX는 어디에 사용할 수 있나요?</div>
+  <div class="answer">• 골프 요금 결제, NFT 구매, 주말농장 이용 등 실물 연계 서비스에 사용됩니다.</div>
+  <div class="question">Q4. NFT 없이도 ORCX만 보유해도 쓸 수 있나요?</div>
+  <div class="answer">• 네. 실물 서비스 이용 및 누적을 통한 NFT 지급도 가능합니다.</div>
+  <div class="question">Q5. NFT를 받으려면 ORCX를 얼마나 보유해야 하나요?</div>
+  <div class="answer">• 125만 ORCX 보유 시 NFT 1개가 지급됩니다.</div>
+  <div class="question">Q6. Pi 코인으로 ORCX를 구매할 수 있나요?</div>
+  <div class="answer">• 가능합니다. 실시간 Pi 시세 기준으로 교환됩니다.</div>
+  <div class="question">Q7. ORCX 보유 시 수익 배당을 받을 수 있나요?</div>
+  <div class="answer">• 통합 NFT를 보유한 경우 연 5% 기본 배당과 분기별 수익 배당이 있습니다.</div>
+  <div class="question">Q8. NFT와 ORCX의 차이는 뭔가요?</div>
+  <div class="answer">• ORCX는 사용 가능한 토큰, NFT는 소유권 및 지분의 증표입니다.</div>
+  <div class="question">Q9. NFT를 양도하면 권한도 같이 넘어가나요?</div>
+  <div class="answer">• 네. 권한, 지분, 배당권 모두 함께 이전됩니다.</div>
+  <div class="question">Q10. ORCX는 어떤 지갑에서 확인할 수 있나요?</div>
+  <div class="answer">• 팬텀 지갑에서 NFT와 함께 관리 가능합니다.</div>
+  <div class="question">Q11. ORCX는 어떤 블록체인 기반인가요?</div>
+  <div class="answer">• Solana 기반으로 발행되었으며, 효율적이고 빠른 거래를 지원합니다.</div>
+  <div class="question">Q12. ORCX는 지금 거래 가능한가요?</div>
+  <div class="answer">• 현재는 P2P 거래로만 가능하며, 추후 조건 충족 시 DEX 상장 예정입니다.</div>
+  <div class="question">Q13. 상장 조건은 무엇인가요?</div>
+  <div class="answer">• 2,000만 ORCX 보유자 100명이 모이면 DEX 상장을 진행합니다.</div>
+  <div class="question">Q14. ORCX는 언제든 다시 팔 수 있나요?</div>
+  <div class="answer">• P2P 거래로 자유롭게 양도 가능하며, DEX 상장 이후 더 편리해질 예정입니다.</div>
+  <div class="question">Q15. DAO는 무엇이며 ORCX와 어떤 관계가 있나요?</div>
+  <div class="answer">• DAO는 분산 자율 조직이며, 통합 NFT 보유자 중심으로 운영됩니다.</div>
+  <div class="question">Q16. DAO 투표나 제안은 누구나 할 수 있나요?</div>
+  <div class="answer">• 통합 NFT 보유자가 제안 및 투표 권한을 갖습니다.</div>
+  <div class="question">Q17. NFT 없이 ORCX만으로 DAO에 참여할 수 있나요?</div>
+  <div class="answer">• 아닙니다. 의결권은 통합 NFT 보유자에게만 부여됩니다.</div>
+  <div class="question">Q18. ORCX의 가장 큰 장점은 무엇인가요?</div>
+  <div class="answer">• 실물 자산과 연계된 실질적 가치와 사용처가 있다는 점입니다.</div>
+  <div class="question">Q19. NFT를 모으면 어떻게 되나요?</div>
+  <div class="answer">• 같은 컬렉션 내 4개 보유 시 #5 NFT 발행 → 총 4개의 #5 NFT 보유 시 통합 NFT 발급</div>
+  <div class="question">Q20. 통합 NFT는 어떻게 활용되나요?</div>
+  <div class="answer">• 소각된 기존 NFT를 대신하며, DAO 참여, 수익 배당, 지분 보유 권한을 갖습니다.</div>
+  <div class="question">Q21. ORCX는 향후 어떤 생태계로 확장되나요?</div>
+  <div class="answer">• 바다농장(OrcaSea), 골프 연습장, RWA 잔디농장 등으로 점차 확장됩니다.</div>
+  <div class="question">Q22. 실물 자산과 연결된다는 것은 무슨 뜻인가요?</div>
+  <div class="answer">• 실제 토지, 건물, 시설 운영 지분이 NFT와 연결되어 있다는 의미입니다.</div>
+  <div class="question">Q23. ORCX를 사면 등기 지분도 생기나요?</div>
+  <div class="answer">• 통합 NFT 보유자 100명이 모이면 공동 등기로 등기 이전이 진행됩니다.</div>
+  <div class="question">Q24. ORCX를 소량만 사도 괜찮나요?</div>
+  <div class="answer">• 네. 10만, 50만 단위로도 구매 가능하며 누적 보유 가능합니다.</div>
+  <div class="question">Q25. OrcaX가 다른 토큰과 다른 점은 뭔가요?</div>
+  <div class="answer">• 실체가 있는 비즈니스, 명확한 DAO 구조, 현실 기반 수익 분배가 결합된 RWA 토큰입니다.</div>
 
-<!-- 질문 1~25 전체 포함 -->
-<p class="question">Q1. ORCX는 어디서 구매할 수 있나요?</p>
-<p>• 현재는 P2P 방식으로 직접 연결 구매가 가능합니다.</p>
-<p class="question">Q2. ORCX 가격은 어떻게 되나요?</p>
-<p>• 1 ORCX = 1원으로 고정되어 있습니다.</p>
-<p class="question">Q3. ORCX는 어디에 사용할 수 있나요?</p>
-<p>• 골프 요금 결제, NFT 구매, 주말농장 이용 등 실물 연계 서비스에 사용됩니다.</p>
-<p class="question">Q4. NFT 없이도 ORCX만 보유해도 쓸 수 있나요?</p>
-<p>• 네. 실물 서비스 이용 및 누적을 통한 NFT 지급도 가능합니다.</p>
-<p class="question">Q5. NFT를 받으려면 ORCX를 얼마나 보유해야 하나요?</p>
-<p>• 125만 ORCX 보유 시 NFT 1개가 지급됩니다.</p>
-<p class="question">Q6. Pi 코인으로 ORCX를 구매할 수 있나요?</p>
-<p>• 가능합니다. 실시간 Pi 시세 기준으로 교환됩니다.</p>
-<p class="question">Q7. ORCX 보유 시 수익 배당을 받을 수 있나요?</p>
-<p>• 통합 NFT를 보유한 경우 연 5% 기본 배당과 분기별 수익 배당이 있습니다.</p>
-<p class="question">Q8. NFT와 ORCX의 차이는 뭔가요?</p>
-<p>• ORCX는 사용 가능한 토큰, NFT는 소유권 및 지분의 증표입니다.</p>
-<p class="question">Q9. NFT를 양도하면 권한도 같이 넘어가나요?</p>
-<p>• 네. 권한, 지분, 배당권 모두 함께 이전됩니다.</p>
-<p class="question">Q10. ORCX는 어떤 지갑에서 확인할 수 있나요?</p>
-<p>• 팬텀 지갑에서 NFT와 함께 관리 가능합니다.</p>
-<p class="question">Q11. ORCX는 어떤 블록체인 기반인가요?</p>
-<p>• Solana 기반으로 발행되었으며, 효율적이고 빠른 거래를 지원합니다.</p>
-<p class="question">Q12. ORCX는 지금 거래 가능한가요?</p>
-<p>• 현재는 P2P 거래로만 가능하며, 추후 조건 충족 시 DEX 상장 예정입니다.</p>
-<p class="question">Q13. 상장 조건은 무엇인가요?</p>
-<p>• 2,000만 ORCX 보유자 100명이 모이면 DEX 상장을 진행합니다.</p>
-<p class="question">Q14. ORCX는 언제든 다시 팔 수 있나요?</p>
-<p>• P2P 거래로 자유롭게 양도 가능하며, DEX 상장 이후 더 편리해질 예정입니다.</p>
-<p class="question">Q15. DAO는 무엇이며 ORCX와 어떤 관계가 있나요?</p>
-<p>• DAO는 분산 자율 조직이며, 통합 NFT 보유자 중심으로 운영됩니다.</p>
-<p class="question">Q16. DAO 투표나 제안은 누구나 할 수 있나요?</p>
-<p>• 통합 NFT 보유자가 제안 및 투표 권한을 갖습니다.</p>
-<p class="question">Q17. NFT 없이 ORCX만으로 DAO에 참여할 수 있나요?</p>
-<p>• 아닙니다. 의결권은 통합 NFT 보유자에게만 부여됩니다.</p>
-<p class="question">Q18. ORCX의 가장 큰 장점은 무엇인가요?</p>
-<p>• 실물 자산과 연계된 실질적 가치와 사용처가 있다는 점입니다.</p>
-<p class="question">Q19. NFT를 모으면 어떻게 되나요?</p>
-<p>• 같은 컬렉션 내 4개 보유 시 #5 NFT 발행 → 총 4개의 #5 NFT 보유 시 통합 NFT 발급</p>
-<p class="question">Q20. 통합 NFT는 어떻게 활용되나요?</p>
-<p>• 소각된 기존 NFT를 대신하며, DAO 참여, 수익 배당, 지분 보유 권한을 갖습니다.</p>
-<p class="question">Q21. ORCX는 향후 어떤 생태계로 확장되나요?</p>
-<p>• 바다농장(OrcaSea), 골프 연습장, RWA 잔디농장 등으로 점차 확장됩니다.</p>
-<p class="question">Q22. 실물 자산과 연결된다는 것은 무슨 뜻인가요?</p>
-<p>• 실제 토지, 건물, 시설 운영 지분이 NFT와 연결되어 있다는 의미입니다.</p>
-<p class="question">Q23. ORCX를 사면 등기 지분도 생기나요?</p>
-<p>• 통합 NFT 보유자 100명이 모이면 공동 등기로 등기 이전이 진행됩니다.</p>
-<p class="question">Q24. ORCX를 소량만 사도 괜찮나요?</p>
-<p>• 네. 10만, 50만 단위로도 구매 가능하며 누적 보유 가능합니다.</p>
-<p class="question">Q25. OrcaX가 다른 토큰과 다른 점은 뭔가요?</p>
-<p>• 실체가 있는 비즈니스, 명확한 DAO 구조, 현실 기반 수익 분배가 결합된 RWA 토큰입니다.</p>
+  <!-- 채팅 위젯 -->
+  <div id="chat-widget">
+    <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;">💬</button>
+    <div id="chat-box">
+      <div id="chat-box-header">
+        📎 메시지 보내기
+        <span onclick="toggleChat()" style="cursor:pointer;">✖</span>
+      </div>
+      <div id="chat-form">
+        <input id="sender" type="text" placeholder="닉네임" />
+        <input id="message" type="text" placeholder="메시지를 입력하세요" />
+        <button onclick="sendMessage()">전송</button>
+      </div>
+      <div id="chat-log"></div>
+    </div>
+  </div>
 
-<!-- ✅ OrcaX 실시간 메시지 위젯 스크립트 (배포 주소) -->
-<script src="https://orcax-chat-widget.onrender.com/public/chat-widget.js"></script>
+  <script>
+    const apiBase = "https://f07e-210-104-209-108.ngrok-free.app/api/messages";
+    const colorMap = {};
+
+    function getColorForUser(user) {
+      if (!colorMap[user]) {
+        colorMap[user] = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+      }
+      return colorMap[user];
+    }
+
+    function toggleChat() {
+      const box = document.getElementById("chat-box");
+      box.style.display = (box.style.display === "none") ? "block" : "none";
+      if (box.style.display === "block") loadMessages();
+    }
+
+    function sendMessage() {
+      const sender = document.getElementById("sender").value.trim();
+      const message = document.getElementById("message").value.trim();
+      if (!sender || !message) return alert("닉네임과 메시지를 입력하세요!");
+
+      fetch(apiBase, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify({ nickname: sender, content: message, type: 'user' })
+      })
+      .then(res => res.json())
+      .then(() => {
+        document.getElementById("message").value = '';
+        loadMessages();
+      })
+      .catch(err => {
+        alert("❌ 메시지 전송 실패: " + err.message);
+      });
+    }
+
+    function loadMessages() {
+      fetch(apiBase, {
+        headers: { "ngrok-skip-browser-warning": "true" }
+      })
+      .then(res => res.json())
+      .then(messages => {
+        const log = document.getElementById("chat-log");
+        log.innerHTML = '';
+        messages.slice(-10).forEach(msg => {
+          const color = getColorForUser(msg.nickname || msg.sender || "익명");
+          const nickname = msg.nickname || msg.sender || "익명";
+          const content = msg.content || msg.message || "";
+          const div = document.createElement('div');
+          div.innerHTML = `<strong style="color:${color}">${nickname}:</strong> ${content}`;
+          log.appendChild(div);
+        });
+        log.scrollTop = log.scrollHeight;
+      });
+    }
+
+    window.onload = function() {
+      loadMessages();
+      setInterval(loadMessages, 5000);
+    };
+  </script>
 </body>
 </html>
+
 
