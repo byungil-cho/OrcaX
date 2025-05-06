@@ -51,14 +51,14 @@
 </head>
 <body>
   <h1>🌊 OrcaX 프로젝트 상세 소개</h1>
+
   <div class="section">
-    <h2>📌 OrcaX 토큰 개요 
-      <a href="OrcaX_QA.html" style="font-size: 0.7em; margin-left: 10px; background-color: #003b6f; color: white; padding: 4px 10px; border-radius: 6px; text-decoration: none;">
-        📖 Q&A 보기
-      </a>
-    </h2>
-    <p>OrcaX 토큰은 실물자산 NFT와 연계된 <strong>실물자산 기반 토큰</strong>입니다.<br>지역 상권을 활성화하기 위해 만들어졌으며, 다양한 업종을 가맹점으로 모집하고<br>소비자와 상인이 함께 상생하는 세상을 목표로 하고 있습니다.</p>
-    <p>OrcaX 가맹점을 이용하면 소비자는 상품 및 거래 품목에 대해 <strong>10% 할인</strong>을 받으며,<br>가맹점은 불경기 속에서도 손님을 유치해 매출을 올릴 수 있습니다.</p>
+    <h2>📌 OrcaX 토큰 개요</h2>
+    <p>OrcaX 토큰은 실물자산 NFT와 연계된 <strong>실물자산 기반 토큰</strong>입니다.<br>
+    지역 상권을 활성화하기 위해 만들어졌으며, 다양한 업종을 가맹점으로 모집하고<br>
+    소비자와 상인이 함께 상생하는 세상을 목표로 하고 있습니다.</p>
+    <p>OrcaX 가맹점을 이용하면 소비자는 상품 및 거래 품목에 대해 <strong>10% 할인</strong>을 받으며,<br>
+    가맹점은 불경기 속에서도 손님을 유치해 매출을 올릴 수 있습니다.</p>
   </div>
 
   <div class="section">
@@ -98,7 +98,6 @@
       </li>
     </ul>
   </div>
-
   <div class="section">
     <h2>🧙‍♂️ “영혼의 집” 프로젝트</h2>
     <p>OrcaX의 궁극적 비전은 “영혼의 집”이라는 이름의 <strong>블록체인 기반 디지털 추모 공간</strong>입니다.<br>
@@ -118,55 +117,93 @@
     <p>OrcaX는 단순한 결제 수단을 넘어, 지역경제와 블록체인 기술을 결합한 새로운 생태계를 지향합니다.<br>
     <strong>“함께 살아가는 세상, 함께 성장하는 플랫폼”</strong>이라는 철학 아래, 지역과 사람, 실물과 디지털을 연결하는 진정한 Web3 프로젝트로 자리매김할 것입니다.</p>
   </div>
-<!-- 페이지 마지막에 위치할 것 -->
-<!-- OrcaX Chat Widget Container -->
-<div id="orcax-widget-box" style="position:fixed;bottom:70px;right:20px;width:300px;height:400px;background:#1e2a38;color:#fff;padding:10px;border-radius:10px;display:flex;flex-direction:column;z-index:9999;">
-  <div id="orcax-log">🔌 위젯 연결 중...</div>
-  <form id="orcax-form">
-    <input id="orcax-nickname" placeholder="닉네임" required style="width:100%;padding:6px;margin:4px 0;border-radius:4px;" />
-    <input id="orcax-content" placeholder="메시지" required style="width:100%;padding:6px;margin:4px 0;border-radius:4px;" />
-    <button type="submit" style="width:100%;padding:6px;background:#00cfff;color:#000;border:none;border-radius:4px;">보내기</button>
-  </form>
-</div>
 
-<script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
-<script>
-  const socket = io('https://orcax-chat-widget.onrender.com');
-  const logEl = document.getElementById('orcax-log');
+  <!-- 최신 채팅 위젯 -->
+  <div id="chat-widget" style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;">
+    <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;">💬</button>
+    <div id="chat-box" style="display:none;width:300px;background:white;border-radius:12px;box-shadow:0 0 12px rgba(0,0,0,0.2);font-family:Arial,sans-serif;overflow:hidden;">
+      <div id="chat-box-header" style="background:#00cc99;color:white;padding:10px;text-align:center;font-weight:bold;display:flex;justify-content:space-between;align-items:center;">
+        📎 메시지 보내기
+        <span id="chat-close-btn" onclick="toggleChat()" style="cursor:pointer;font-weight:bold;padding:0 10px;">✖</span>
+      </div>
+      <div id="chat-form" style="padding:10px;">
+        <input id="sender" type="text" placeholder="닉네임" style="width:100%;padding:8px;margin-bottom:6px;border:1px solid #ccc;border-radius:6px;" />
+        <input id="message" type="text" placeholder="메시지를 입력하세요" style="width:100%;padding:8px;margin-bottom:6px;border:1px solid #ccc;border-radius:6px;" />
+        <button onclick="sendMessage()" style="width:100%;padding:8px;background:#00b894;color:white;border:none;border-radius:6px;font-size:14px;">전송</button>
+      </div>
+      <div id="chat-log" style="padding:10px;height:180px;overflow-y:auto;font-size:0.9em;background:#f9f9f9;border-top:1px solid #eee;display:flex;flex-direction:column;"></div>
+    </div>
+  </div>
 
-  function addMessage(msg) {
-    const div = document.createElement('div');
-    div.textContent = `[${msg.nickname}] ${msg.content}`;
-    logEl.appendChild(div);
-    logEl.scrollTop = logEl.scrollHeight;
-  }
+  <script>
+    const apiBase = "https://f07e-210-104-209-108.ngrok-free.app/api/messages";
+    const colorMap = {};
 
-  socket.on('new-message', addMessage);
+    function getColorForUser(user) {
+      if (!colorMap[user]) {
+        colorMap[user] = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+      }
+      return colorMap[user];
+    }
 
-  document.getElementById('orcax-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const nickname = document.getElementById('orcax-nickname').value;
-    const content = document.getElementById('orcax-content').value;
-    const payload = { nickname, content, type: 'user' };
+    function toggleChat() {
+      const box = document.getElementById("chat-box");
+      box.style.display = (box.style.display === "none") ? "block" : "none";
+      if (box.style.display === "block") loadMessages();
+    }
 
-    await fetch('https://orcax-chat-widget.onrender.com/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    function sendMessage() {
+      const sender = document.getElementById("sender").value.trim();
+      const message = document.getElementById("message").value.trim();
+      if (!sender || !message) return alert("닉네임과 메시지를 입력하세요!");
 
-    socket.emit('new-message', payload);
-    document.getElementById('orcax-content').value = '';
-  });
+      fetch(apiBase, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify({ nickname: sender, content: message, type: 'user' })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("메시지 전송 실패");
+        return res.json();
+      })
+      .then(() => {
+        document.getElementById("message").value = '';
+        loadMessages();
+      })
+      .catch(err => {
+        alert("❌ 메시지 전송 실패: " + err.message);
+      });
+    }
 
-  fetch('https://orcax-chat-widget.onrender.com/api/messages')
-    .then(res => res.json())
-    .then(messages => {
-      logEl.innerHTML = '';
-      messages.reverse().forEach(addMessage);
-    });
-</script>
+    function loadMessages() {
+      fetch(apiBase, {
+        headers: { "ngrok-skip-browser-warning": "true" }
+      })
+      .then(res => res.json())
+      .then(messages => {
+        const log = document.getElementById("chat-log");
+        log.innerHTML = '';
+        messages.slice(-10).forEach(msg => {
+          const color = getColorForUser(msg.nickname || msg.sender || "익명");
+          const content = msg.content || msg.message || "";
+          const nickname = msg.nickname || msg.sender || "익명";
+          const div = document.createElement('div');
+          div.className = 'chat-message';
+          div.innerHTML = `<strong style="color:${color}">${nickname}:</strong> ${content}`;
+          log.appendChild(div);
+        });
+        log.scrollTop = log.scrollHeight;
+      })
+      .catch(err => {
+        console.error("❌ 메시지 불러오기 실패:", err);
+      });
+    }
+
+    loadMessages();
+    setInterval(loadMessages, 5000);
+  </script>
 </body>
 </html>
-
-
