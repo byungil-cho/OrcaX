@@ -51,6 +51,11 @@
 </head>
 <body>
   <h1>🌊 OrcaX 프로젝트 상세 소개</h1>
+  <p style="text-align:center; margin-top: -10px;">
+    <a href="./orcax-qna.html" style="color:#00bcd4; font-weight:bold; text-decoration:none;">
+      📖 OrcaX 프로젝트 Q&A 보기
+    </a>
+  </p>
 
   <div class="section">
     <h2>📌 OrcaX 토큰 개요</h2>
@@ -118,13 +123,13 @@
     <strong>“함께 살아가는 세상, 함께 성장하는 플랫폼”</strong>이라는 철학 아래, 지역과 사람, 실물과 디지털을 연결하는 진정한 Web3 프로젝트로 자리매김할 것입니다.</p>
   </div>
 
-  <!-- 최신 채팅 위젯 -->
+  <!-- 기존 위젯 및 스크립트 유지 -->
   <div id="chat-widget" style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;">
-    <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;">💬</button>
-    <div id="chat-box" style="display:none;width:300px;background:white;border-radius:12px;box-shadow:0 0 12px rgba(0,0,0,0.2);font-family:Arial,sans-serif;overflow:hidden;">
+    <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;z-index:10000;">💬</button>
+    <div id="chat-box" style="display: none; width: 300px; background: white; border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.2); font-family: Arial, sans-serif; overflow: hidden; margin-top: 10px;">
       <div id="chat-box-header" style="background:#00cc99;color:white;padding:10px;text-align:center;font-weight:bold;display:flex;justify-content:space-between;align-items:center;">
         📎 메시지 보내기
-        <span id="chat-close-btn" onclick="toggleChat()" style="cursor:pointer;font-weight:bold;padding:0 10px;">✖</span>
+        <span onclick="toggleChat()" style="cursor:pointer;">✖</span>
       </div>
       <div id="chat-form" style="padding:10px;">
         <input id="sender" type="text" placeholder="닉네임" style="width:100%;padding:8px;margin-bottom:6px;border:1px solid #ccc;border-radius:6px;" />
@@ -148,7 +153,8 @@
 
     function toggleChat() {
       const box = document.getElementById("chat-box");
-      box.style.display = (box.style.display === "none") ? "block" : "none";
+      const display = box.style.display;
+      box.style.display = (display === "none" || display === "") ? "block" : "none";
       if (box.style.display === "block") loadMessages();
     }
 
@@ -165,10 +171,7 @@
         },
         body: JSON.stringify({ nickname: sender, content: message, type: 'user' })
       })
-      .then(res => {
-        if (!res.ok) throw new Error("메시지 전송 실패");
-        return res.json();
-      })
+      .then(res => res.json())
       .then(() => {
         document.getElementById("message").value = '';
         loadMessages();
@@ -188,22 +191,20 @@
         log.innerHTML = '';
         messages.slice(-10).forEach(msg => {
           const color = getColorForUser(msg.nickname || msg.sender || "익명");
-          const content = msg.content || msg.message || "";
           const nickname = msg.nickname || msg.sender || "익명";
+          const content = msg.content || msg.message || "";
           const div = document.createElement('div');
-          div.className = 'chat-message';
           div.innerHTML = `<strong style="color:${color}">${nickname}:</strong> ${content}`;
           log.appendChild(div);
         });
         log.scrollTop = log.scrollHeight;
-      })
-      .catch(err => {
-        console.error("❌ 메시지 불러오기 실패:", err);
       });
     }
 
-    loadMessages();
-    setInterval(loadMessages, 5000);
+    window.onload = function() {
+      loadMessages();
+      setInterval(loadMessages, 5000);
+    };
   </script>
 </body>
 </html>
