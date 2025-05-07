@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>가맹점 신청서</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 py-10 px-4">
+  <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
+    <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">가맹점 신청서</h1>
+    <form action="/api/apply" method="POST" enctype="multipart/form-data" class="space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700">상호</label>
+        <input type="text" name="name" required class="mt-1 w-full border border-gray-300 rounded-md p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700">연락처</label>
+        <input type="text" name="phone" required class="mt-1 w-full border border-gray-300 rounded-md p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700">사업자등록번호</label>
+        <input type="text" name="bizNo" required class="mt-1 w-full border border-gray-300 rounded-md p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700">지역</label>
+        <input type="text" name="region" required class="mt-1 w-full border border-gray-300 rounded-md p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700">사업장 주소</label>
+        <input type="text" name="address" required class="mt-1 w-full border border-gray-300 rounded-md p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700">업종 및 종목</label>
+        <input type="text" name="category" required class="mt-1 w-full border border-gray-300 rounded-md p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700">사업자등록증 파일 업로드</label>
+        <input type="file" name="bizFile" accept=".pdf,image/*" required class="mt-1 w-full" />
+      </div>
+
+      <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition">
+        신청하기
+      </button>
+    </form>
+  </div>
+</body>
+</html>
