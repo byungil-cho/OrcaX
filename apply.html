@@ -1,56 +1,30 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>가맹점 신청서</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 30px auto; }
-    input, textarea { width: 100%; padding: 8px; margin: 6px 0; }
-    button { background: #0066ff; color: white; padding: 10px; border: none; width: 100%; cursor: pointer; }
-    #result { margin-top: 20px; font-weight: bold; color: red; }
-  </style>
-</head>
-<body>
-  <h2>가맹점 신청서</h2>
-  <form id="form" enctype="multipart/form-data">
-    <input name="name" placeholder="상호" required />
-    <input name="phone" placeholder="연락처" required />
-    <input name="biznum" placeholder="사업자등록번호" required />
-    <input name="region" placeholder="지역" required />
-    <input name="address" placeholder="사업장 주소" required />
-    <input name="type" placeholder="업종 및 종목" required />
-    <textarea name="message" placeholder="비고사항" rows="3"></textarea>
-    <label>사업자등록증 파일 업로드:</label>
-    <input type="file" id="file" name="file" required />
-    <button type="submit">신청하기</button>
-  </form>
-  <div id="result"></div>
+document.getElementById("applyForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-  <script>
-    document.getElementById("form").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
+  const form = e.target;
+  const formData = new FormData(form);
+  const resultElement = document.getElementById("result");
 
-      try {
-        const res = await fetch("https://orcax-franchise-backend.onrender.com/apply", {
-          method: "POST",
-          body: formData,
-        });
-
-        const result = await res.json();
-
-        if (res.ok && result.success) {
-          window.location.href = "/thankyou.html";
-        } else {
-          document.getElementById("result").textContent = "❌ 오류: " + (result.message || "신청 실패");
-        }
-      } catch (err) {
-        document.getElementById("result").textContent = "❌ 네트워크 또는 서버 오류: " + err.message;
-      }
+  try {
+    const res = await fetch("https://orcax-franchise-backend.onrender.com/apply", {
+      method: "POST",
+      body: formData
     });
-  </script>
-</body>
-</html>
+
+    const result = await res.json();
+
+    if (res.ok && result.success) {
+      resultElement.textContent = "✅ 신청 완료! 범고래 접수 완료!";
+      resultElement.style.color = "green";
+      form.reset();
+    } else {
+      resultElement.textContent = "❌ 오류: " + (result.message || "신청 실패");
+      resultElement.style.color = "red";
+    }
+  } catch (error) {
+    console.error("❌ 네트워크 오류:", error);
+    resultElement.textContent = "❌ 서버에 연결할 수 없습니다.";
+    resultElement.style.color = "red";
+  }
+});
 
