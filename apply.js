@@ -26,3 +26,4 @@ document.getElementById("applyForm").addEventListener("submit", async function (
     resultElement.style.color = "red";
   }
 });
+
