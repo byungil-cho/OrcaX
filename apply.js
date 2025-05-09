@@ -14,5 +14,3 @@ document.getElementById("applyForm").addEventListener("submit", async function (
     document.getElementById("result").textContent = "❌ 오류: " + err.message;
   }
 });
-
-
