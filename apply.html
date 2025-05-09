@@ -1,30 +1,32 @@
-document.getElementById("applyForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaX 가맹점 신청서</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
+    input, textarea, button { display: block; width: 100%; margin-bottom: 1rem; padding: 0.5rem; }
+    #result { font-weight: bold; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>가맹점 신청</h1>
 
-  const form = e.target;
-  const formData = new FormData(form);
-  const resultElement = document.getElementById("result");
+  <form id="applyForm" enctype="multipart/form-data">
+    <input type="text" name="name" placeholder="상호명" required />
+    <input type="text" name="phone" placeholder="연락처" required />
+    <input type="text" name="biznum" placeholder="사업자등록번호" required />
+    <input type="text" name="region" placeholder="지역" required />
+    <input type="text" name="address" placeholder="주소" required />
+    <input type="text" name="type" placeholder="업종" required />
+    <textarea name="message" placeholder="비고사항"></textarea>
+    <input type="file" name="file" required />
+    <button type="submit">신청하기</button>
+  </form>
 
-  try {
-    const res = await fetch("https://orcax-franchise-backend.onrender.com/apply", {
-      method: "POST",
-      body: formData
-    });
+  <div id="result"></div>
 
-    const result = await res.json();
-
-    if (res.ok && result.success) {
-      resultElement.textContent = "✅ 신청 완료! 범고래 접수 완료!";
-      resultElement.style.color = "green";
-      form.reset();
-    } else {
-      resultElement.textContent = "❌ 오류: " + (result.message || "신청 실패");
-      resultElement.style.color = "red";
-    }
-  } catch (error) {
-    console.error("❌ 네트워크 오류:", error);
-    resultElement.textContent = "❌ 서버에 연결할 수 없습니다.";
-    resultElement.style.color = "red";
-  }
-});
+  <script src="apply.js"></script>
+</body>
+</html>
 
