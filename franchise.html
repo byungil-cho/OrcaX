@@ -76,11 +76,16 @@
       color: #003b6f;
       font-weight: bold;
     }
+
+    /* 커서 포인터 스타일 */
+    #admin-title {
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>OrcaX 가맹점 안내</h1>
+    <h1 id="admin-title">OrcaX 가맹점 안내</h1>
     <p>OrcaX 토큰으로 결제 가능한 오프라인 가맹점</p>
     <p>
       <a href="/OrcaX/apply.html" style="color: #ff3860; font-weight: bold; text-decoration: underline;">
@@ -121,6 +126,21 @@
       </a>
     </div>
   </section>
+
+  <!-- 관리자 비밀번호 체크 스크립트 -->
+  <script>
+    document.getElementById("admin-title").addEventListener("click", () => {
+      const pass = prompt("🔒 관리자 비밀번호를 입력하세요:");
+      if (pass === "orcax2025") {
+        window.location.href = "franchise-admin.html";
+      } else if (pass) {
+        alert("❌ 비밀번호가 틀렸습니다.");
+      }
+    });
+  </script>
+</body>
+</html>
+
 
   <script src="https://orcax-chat-widget.onrender.com/public/chat-widget.js"></script>
 </body>
