@@ -11,7 +11,7 @@ document.getElementById("applyForm").addEventListener("submit", async function (
     const result = await res.json();
 
     if (res.ok) {
-      // ✅ 성공 시 thankyou.html로 자동 이동
+      // ✅ 여기! 자동 이동 부분
       window.location.href = "thankyou.html";
     } else {
       document.getElementById("result").textContent = "❌ 오류: " + result.message;
