@@ -9,7 +9,13 @@ document.getElementById("applyForm").addEventListener("submit", async function (
     });
 
     const result = await res.json();
-    document.getElementById("result").textContent = "✅ " + result.message;
+
+    if (res.ok) {
+      // ✅ 여기서 thankyou.html로 이동해야 함!
+      window.location.href = "thankyou.html";
+    } else {
+      document.getElementById("result").textContent = "❌ 오류: " + result.message;
+    }
   } catch (err) {
     document.getElementById("result").textContent = "❌ 오류: " + err.message;
   }
