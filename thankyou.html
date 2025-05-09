@@ -1,22 +1,28 @@
-document.getElementById("applyForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-
-  try {
-    const res = await fetch("https://orcax-franchise-backend.onrender.com/apply", {
-      method: "POST",
-      body: formData
-    });
-
-    const result = await res.json();
-
-    if (res.ok) {
-      // ✅ 여기! 자동 이동 부분
-      window.location.href = "thankyou.html";
-    } else {
-      document.getElementById("result").textContent = "❌ 오류: " + result.message;
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>신청 완료</title>
+  <meta http-equiv="refresh" content="5; url=https://byungil-cho.github.io/OrcaX/franchise.html">
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 100px; }
+    h2 { color: #007bff; }
+    p { font-size: 18px; }
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #0066ff;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
     }
-  } catch (err) {
-    document.getElementById("result").textContent = "❌ 오류: " + err.message;
-  }
-});
+  </style>
+</head>
+<body>
+  <h2>신청이 완료되었습니다!</h2>
+  <p>감사합니다. 담당자가 곧 연락드리겠습니다.</p>
+  <p>5초 후에 OrcaX 가맹점 안내 페이지로 자동 이동합니다.</p>
+  <a href="https://byungil-cho.github.io/OrcaX/franchise.html">👉 바로 이동하기</a>
+</body>
+</html>
