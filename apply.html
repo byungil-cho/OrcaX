@@ -13,7 +13,7 @@
 </head>
 <body>
   <h2>가맹점 신청서</h2>
-  <form id="form">
+  <form id="form" enctype="multipart/form-data">
     <input name="name" placeholder="상호" required />
     <input name="phone" placeholder="연락처" required />
     <input name="biznum" placeholder="사업자등록번호" required />
@@ -21,6 +21,8 @@
     <input name="address" placeholder="사업장 주소" required />
     <input name="type" placeholder="업종 및 종목" required />
     <textarea name="message" placeholder="비고사항" rows="3"></textarea>
+    <label>사업자등록증 파일 업로드:</label>
+    <input type="file" name="file" required />
     <button type="submit">신청하기</button>
   </form>
   <div id="result"></div>
@@ -28,20 +30,21 @@
   <script>
     document.getElementById("form").addEventListener("submit", async function (e) {
       e.preventDefault();
-      const formData = Object.fromEntries(new FormData(this).entries());
+      const form = e.target;
+      const formData = new FormData(form);
 
       try {
         const res = await fetch("https://orcax-franchise-backend.onrender.com/apply", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: formData,
         });
         const result = await res.json();
         document.getElementById("result").textContent = "✅ " + result.message;
       } catch (err) {
-        document.getElementById("result").textContent = "❌ 오류: " + err.message;
+        document.getElementById("result").textContent = "❌ 오류 발생: " + err.message;
       }
     });
   </script>
 </body>
 </html>
+
