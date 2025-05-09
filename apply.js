@@ -1,6 +1,5 @@
 document.getElementById("applyForm").addEventListener("submit", async function (e) {
   e.preventDefault();
-
   const form = e.target;
   const formData = new FormData(form);
   const resultElement = document.getElementById("result");
@@ -8,7 +7,7 @@ document.getElementById("applyForm").addEventListener("submit", async function (
   try {
     const res = await fetch("https://orcax-franchise-backend.onrender.com/apply", {
       method: "POST",
-      body: formData
+      body: formData,
     });
 
     const result = await res.json();
