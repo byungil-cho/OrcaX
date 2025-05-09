@@ -39,7 +39,12 @@
           body: formData,
         });
         const result = await res.json();
-        document.getElementById("result").textContent = "✅ " + result.message;
+
+        if (result.success) {
+          window.location.href = "/thankyou.html";  // ✅ 신청 성공 시 이동
+        } else {
+          document.getElementById("result").textContent = "❌ 오류: " + result.message;
+        }
       } catch (err) {
         document.getElementById("result").textContent = "❌ 오류 발생: " + err.message;
       }
@@ -47,4 +52,5 @@
   </script>
 </body>
 </html>
+
 
