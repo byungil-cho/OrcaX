@@ -2,65 +2,152 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>가맹점 신청 관리자</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX 가맹 신청서 관리</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; max-width: 1000px; margin: auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 2rem; }
-    th, td { border: 1px solid #ccc; padding: 0.75rem; text-align: center; }
-    th { background-color: #f0f0f0; }
-    h2 { color: #007bff; }
-    .file-link { color: #0066ff; text-decoration: none; font-weight: bold; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f4f4f4;
+      color: #333;
+    }
+
+    h2 {
+      color: #003b6f;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+      word-break: break-word;
+    }
+
+    th {
+      background-color: #003b6f;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .file-link {
+      color: #0066cc;
+      text-decoration: underline;
+    }
+
+    .loading {
+      text-align: center;
+      margin-top: 20px;
+      color: gray;
+    }
+
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border-bottom: 2px solid #ccc;
+        padding-bottom: 10px;
+      }
+
+      td {
+        position: relative;
+        padding-left: 50%;
+      }
+
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-weight: bold;
+        color: #003b6f;
+        white-space: nowrap;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>가맹점 신청 관리 페이지</h2>
-  <table>
+  <h2>📋 OrcaX 가맹 신청서 접수 목록</h2>
+  <div id="status" class="loading">🔄 데이터를 불러오는 중입니다...</div>
+
+  <table id="applicationTable" style="display: none;">
     <thead>
       <tr>
         <th>상호명</th>
-        <th>연락처</th>
+        <th>전화번호</th>
+        <th>사업자번호</th>
         <th>지역</th>
+        <th>주소</th>
         <th>업종</th>
-        <th>신청일</th>
-        <th>사업자등록증</th>
+        <th>비고</th>
+        <th>파일</th>
+        <th>신청시간</th>
       </tr>
     </thead>
-    <tbody id="table-body">
-      <tr><td colspan="6">📡 신청 데이터를 불러오는 중...</td></tr>
+    <tbody id="tableBody">
+      <!-- 신청 정보가 여기에 추가됩니다 -->
     </tbody>
   </table>
 
   <script>
-    async function loadApplications() {
-      try {
-        const res = await fetch("https://orcax-franchise-backend.onrender.com/admin/applications");
-        const data = await res.json();
-        const tbody = document.getElementById("table-body");
-        tbody.innerHTML = "";
+    fetch("https://orcax-franchise-backend.onrender.com/api/applications")
+      .then(response => response.json())
+      .then(data => {
+        const table = document.getElementById("applicationTable");
+        const body = document.getElementById("tableBody");
+        const status = document.getElementById("status");
+
+        if (!data || data.length === 0) {
+          status.innerText = "📭 아직 신청된 내역이 없습니다.";
+          return;
+        }
+
+        status.style.display = "none";
+        table.style.display = "table";
 
         data.forEach(app => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${app.name}</td>
-            <td>${app.phone}</td>
-            <td>${app.region}</td>
-            <td>${app.type}</td>
-            <td>${new Date(app.createdAt).toLocaleString()}</td>
-            <td>
-              ${app.file && app.file.originalname
-                ? `<a class="file-link" href="https://orcax-franchise-backend.onrender.com/admin/file/${app._id}" target="_blank">📎 파일 보기</a>`
-                : "없음"}
-            </td>
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td data-label="상호명">${app.name}</td>
+            <td data-label="전화번호">${app.phone}</td>
+            <td data-label="사업자번호">${app.biznum || "-"}</td>
+            <td data-label="지역">${app.region}</td>
+            <td data-label="주소">${app.address}</td>
+            <td data-label="업종">${app.type}</td>
+            <td data-label="비고">${app.message || "-"}</td>
+            <td data-label="파일">${app.fileUrl ? `<a class="file-link" href="${app.fileUrl}" target="_blank">보기</a>` : "없음"}</td>
+            <td data-label="신청시간">${new Date(app.createdAt).toLocaleString()}</td>
           `;
-          tbody.appendChild(tr);
+          body.appendChild(row);
         });
+      })
+      .catch(err => {
+        console.error("❌ 오류:", err);
+        document.getElementById("status").innerText = "❌ 데이터를 불러오지 못했습니다.";
+      });
+  </script>
+</body>
+</html>
 
-      } catch (err) {
-        document.getElementById("table-body").innerHTML =
-          `<tr><td colspan="6">❌ 데이터를 불러오는 데 실패했습니다.</td></tr>`;
-        console.error(err);
-      }
-    }
 
     loadApplications();
   </script>
