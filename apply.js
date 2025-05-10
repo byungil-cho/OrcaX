@@ -1,7 +1,11 @@
-document.getElementById("applyForm").addEventListener("submit", async (e) => {
+document.getElementById("applyForm").addEventListener("submit", async function (e) {
   e.preventDefault();
-  const formData = new FormData(e.target);
-  const resultBox = document.getElementById("result");
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerText = "🚀 전송 중...";
 
   try {
     const res = await fetch("https://orcax-franchise-backend.onrender.com/api/applications", {
@@ -9,14 +13,15 @@ document.getElementById("applyForm").addEventListener("submit", async (e) => {
       body: formData,
     });
 
-    if (!res.ok) throw new Error(`서버 응답 실패 (${res.status})`);
+    if (!res.ok) {
+      throw new Error("서버 응답 오류 (" + res.status + ")");
+    }
 
     const data = await res.json();
-    console.log("✅ 신청 성공:", data);
-    resultBox.textContent = "✅ 신청 완료되었습니다!";
-    resultBox.style.color = "green";
+    resultDiv.innerHTML = "✅ 전송 성공: " + data.message;
   } catch (err) {
     console.error("❌ 전송 실패:", err);
-    resultBox.textContent = "❌ 전송 실패! 서버 응답 없음 또는 오류.";
+    resultDiv.innerHTML = "❌ 전송 실패! " + err.message;
   }
 });
+
