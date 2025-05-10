@@ -11,35 +11,40 @@
       margin: 0;
       padding: 20px;
       color: #333;
+      text-align: center; /* 중앙 정렬 핵심 */
     }
 
     h1 {
       color: #003b6f;
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       margin-bottom: 20px;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
     }
 
     ul {
       list-style: none;
       padding: 0;
+      margin: 0 auto;
+      max-width: 700px;
+      text-align: left; /* 목록은 좌측 정렬 유지 */
     }
 
     li {
       background: #fff;
-      margin: 10px 0;
+      margin: 10px auto;
       padding: 15px;
       border-left: 4px solid #0077cc;
       border-radius: 6px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       font-size: 0.95rem;
-      word-break: break-all;
+      word-break: break-word;
     }
 
     .empty {
-      font-size: 1rem;
+      font-size: 1.05rem;
       color: #666;
       margin-top: 20px;
     }
@@ -49,9 +54,8 @@
         padding: 10px;
       }
       h1 {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         flex-direction: column;
-        align-items: flex-start;
       }
       li {
         font-size: 0.9rem;
@@ -109,4 +113,5 @@
   </script>
 </body>
 </html>
+
 
