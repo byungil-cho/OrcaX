@@ -109,47 +109,44 @@
   </table>
 
   <script>
-    fetch("https://orcax-franchise-backend.onrender.com/api/applications")
-      .then(response => response.json())
-      .then(data => {
-        const table = document.getElementById("applicationTable");
-        const body = document.getElementById("tableBody");
-        const status = document.getElementById("status");
+function loadApplications() {
+  fetch("https://orcax-franchise-backend.onrender.com/api/applications")
+    .then(res => res.json())
+    .then(data => {
+      const table = document.getElementById("applicationTable");
+      const body = document.getElementById("tableBody");
+      const status = document.getElementById("status");
 
-        if (!data || data.length === 0) {
-          status.innerText = "📭 아직 신청된 내역이 없습니다.";
-          return;
-        }
+      if (!data || data.length === 0) {
+        status.innerText = "📭 아직 신청된 내역이 없습니다.";
+        return;
+      }
 
-        status.style.display = "none";
-        table.style.display = "table";
+      status.style.display = "none";
+      table.style.display = "table";
 
-        data.forEach(app => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td data-label="상호명">${app.name}</td>
-            <td data-label="전화번호">${app.phone}</td>
-            <td data-label="사업자번호">${app.biznum || "-"}</td>
-            <td data-label="지역">${app.region}</td>
-            <td data-label="주소">${app.address}</td>
-            <td data-label="업종">${app.type}</td>
-            <td data-label="비고">${app.message || "-"}</td>
-            <td data-label="파일">${app.fileUrl ? `<a class="file-link" href="${app.fileUrl}" target="_blank">보기</a>` : "없음"}</td>
-            <td data-label="신청시간">${new Date(app.createdAt).toLocaleString()}</td>
-          `;
-          body.appendChild(row);
-        });
-      })
-      .catch(err => {
-        console.error("❌ 오류:", err);
-        document.getElementById("status").innerText = "❌ 데이터를 불러오지 못했습니다.";
+      data.forEach(app => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td data-label="상호명">${app.name}</td>
+          <td data-label="전화번호">${app.phone}</td>
+          <td data-label="사업자번호">${app.biznum || "-"}</td>
+          <td data-label="지역">${app.region}</td>
+          <td data-label="주소">${app.address}</td>
+          <td data-label="업종">${app.type}</td>
+          <td data-label="비고">${app.message || "-"}</td>
+          <td data-label="파일">${app.fileUrl ? `<a class="file-link" href="${app.fileUrl}" target="_blank">보기</a>` : "없음"}</td>
+          <td data-label="신청시간">${new Date(app.createdAt).toLocaleString()}</td>
+        `;
+        body.appendChild(row);
       });
-  </script>
-</body>
-</html>
-
-
-    loadApplications();
-  </script>
+    })
+    .catch(err => {
+      console.error("❌ 오류:", err);
+      document.getElementById("status").innerText = "❌ 데이터를 불러오지 못했습니다.";
+    });
+}
+loadApplications();
+</script>
 </body>
 </html>
