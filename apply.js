@@ -1,23 +1,20 @@
-document.getElementById("applyForm").addEventListener("submit", async function (e) {
-  e.preventDefault(); // 브라우저 기본 전송 막기
+document.getElementById("applyForm").addEventListener("submit", async (e) => {
+  e.preventDefault(); // 기본 form 제출 막기
 
-  const formData = new FormData(this);
+  const form = e.target;
+  const formData = new FormData(form);
 
   try {
-    const res = await fetch("https://orcax-franchise-backend.onrender.com/apply", {
+    const res = await fetch("http://localhost:3030/api/applications", {
       method: "POST",
-      body: formData
+      body: formData,
     });
 
     const result = await res.json();
-
-    if (res.ok) {
-      window.location.href = "thankyou.html"; // 성공 시 이동
-    } else {
-      document.getElementById("result").textContent = "❌ 오류: " + result.message;
-    }
+    console.log("✅ 서버 응답:", result);
+    document.getElementById("result").textContent = "신청 완료!";
   } catch (err) {
-    document.getElementById("result").textContent = "❌ 네트워크 오류: " + err.message;
+    console.error("❌ 요청 실패:", err);
+    document.getElementById("result").textContent = "전송 실패!";
   }
 });
-
