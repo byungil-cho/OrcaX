@@ -93,16 +93,18 @@
         emptyMsg.remove();
 
         data.forEach(item => {
+          const time = new Date(item.createdAt).toLocaleString("ko-KR");
           const li = document.createElement("li");
           li.innerHTML = `
             <strong>🏷️ 이름:</strong> ${item.name}<br>
             <strong>📞 전화:</strong> ${item.phone}<br>
-            <strong>📛 사업자번호:</strong> ${item.corpnum}<br>
+            <strong>📛 사업자번호:</strong> ${item.corpnum || "없음"}<br>
             <strong>📍 지역:</strong> ${item.region}<br>
             <strong>🏠 주소:</strong> ${item.address}<br>
             <strong>📂 업종:</strong> ${item.type}<br>
             <strong>📝 비고:</strong> ${item.note || "(없음)"}<br>
-            ${item.fileUrl ? `<strong>🖼️ 파일:</strong> <a href="https://orcax-franchise-backend.onrender.com${item.fileUrl}" target="_blank">[보기]</a>` : ""}
+            ${item.fileUrl ? `<strong>🖼️ 파일:</strong> <a href="https://orcax-franchise-backend.onrender.com${item.fileUrl}" target="_blank">[보기]</a><br>` : ""}
+            <strong>📅 신청일:</strong> ${time}
           `;
           list.appendChild(li);
         });
@@ -114,6 +116,7 @@
   </script>
 </body>
 </html>
+
 
 
 
