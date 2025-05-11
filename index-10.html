@@ -59,7 +59,7 @@
 
     #chat-log {
       margin-top: 1rem;
-      max-height: 300px;
+      max-height: 250px;
       overflow-y: auto;
       border: 1px solid #ddd;
       border-radius: 10px;
@@ -70,12 +70,16 @@
     .message {
       margin-bottom: 10px;
       font-size: 0.95rem;
-      color: #111;
+      color: #333;
     }
 
-    .timestamp {
+    .message .timestamp {
       font-size: 0.75rem;
-      color: #888;
+      color: #999;
+    }
+
+    .message:last-child {
+      margin-bottom: 0;
     }
   </style>
 </head>
@@ -104,7 +108,7 @@
       fetch(apiBase, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender, message })
+        body: JSON.stringify({ nickname: sender, content: message })
       })
       .then(res => res.json())
       .then(() => {
@@ -117,13 +121,6 @@
       });
     }
 
-    function formatTimestamp(isoString) {
-      const date = new Date(isoString);
-      return date.toLocaleString('ko-KR', {
-        hour12: false
-      });
-    }
-
     function loadMessages() {
       fetch(apiBase)
         .then(res => res.json())
@@ -131,16 +128,30 @@
           if (!Array.isArray(messages)) return;
 
           const log = document.getElementById("chat-log");
-          log.innerHTML = messages.map(msg => `
-            <div class="message">
-              <strong>[${msg.sender}]</strong> ${msg.message}
-              <div class="timestamp">${formatTimestamp(msg.createdAt || msg.timestamp)}</div>
-            </div>
-          `).join('');
+          log.innerHTML = messages.map(msg => {
+            const nickname = msg.nickname || msg.sender || "알 수 없음";
+            const content = msg.content || msg.message || "(내용 없음)";
+            const time = formatTimestamp(msg.createdAt || msg.timestamp);
+            return `
+              <div class="message">
+                <div class="timestamp">${time}</div>
+                <strong>[${nickname}]</strong> ${content}
+              </div>
+            `;
+          }).join('');
 
           log.scrollTop = log.scrollHeight;
         })
         .catch(err => console.error("불러오기 에러:", err));
+    }
+
+    function formatTimestamp(ts) {
+      try {
+        const date = new Date(ts);
+        return `${date.getFullYear()}. ${date.getMonth()+1}. ${date.getDate()} ${date.getHours()}시 ${date.getMinutes()}분 ${date.getSeconds()}초`;
+      } catch {
+        return '';
+      }
     }
 
     loadMessages();
