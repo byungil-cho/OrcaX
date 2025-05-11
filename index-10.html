@@ -15,7 +15,6 @@
       align-items: center;
       min-height: 100vh;
     }
-
     .chat-container {
       background-color: #fff;
       padding: 2rem;
@@ -24,14 +23,12 @@
       max-width: 600px;
       width: 90%;
     }
-
     h1 {
       text-align: center;
       color: #2c3e50;
       margin-bottom: 1.5rem;
     }
-
-    input, textarea, select, button {
+    input, textarea, button {
       width: 100%;
       padding: 12px;
       margin: 0.5rem 0;
@@ -39,12 +36,10 @@
       border-radius: 10px;
       font-size: 1rem;
     }
-
     textarea {
       resize: none;
       height: 80px;
     }
-
     button {
       background: linear-gradient(90deg, #3498db, #2ecc71);
       color: white;
@@ -52,11 +47,9 @@
       cursor: pointer;
       transition: opacity 0.2s ease;
     }
-
     button:hover {
       opacity: 0.9;
     }
-
     #chat-log {
       margin-top: 1rem;
       max-height: 250px;
@@ -66,14 +59,17 @@
       padding: 1rem;
       background: #f9f9f9;
     }
-
     .message {
       margin-bottom: 10px;
       font-size: 0.95rem;
+      color: #333;
     }
-
-    .message:last-child {
-      margin-bottom: 0;
+    .scroll-toggle {
+      margin-top: 0.3rem;
+      font-size: 0.9rem;
+      text-align: right;
+      cursor: pointer;
+      color: #3498db;
     }
   </style>
 </head>
@@ -82,40 +78,38 @@
     <h1>🐋 OrcaX 실시간 채팅</h1>
     <input type="text" id="sender" placeholder="닉네임을 입력하세요" />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
-
-    <!-- 🎨 글자 색상 선택 -->
-    <select id="color">
-      <option value="#333">글자 색상 선택 (기본)</option>
-      <option value="#e74c3c">빨강</option>
-      <option value="#2980b9">파랑</option>
-      <option value="#27ae60">초록</option>
-      <option value="#8e44ad">보라</option>
-      <option value="#f39c12">주황</option>
-      <option value="#111111">검정</option>
-    </select>
-
     <button onclick="sendMessage()">전송하기</button>
-
+    <div class="scroll-toggle" onclick="toggleScroll()">📌 자동 스크롤: <span id="scroll-state">켜짐</span></div>
     <div id="chat-log"></div>
   </div>
 
   <script>
-    const apiBase = "https://climbing-wholly-grouper.ngrok-free.app/api/messages";
+    const apiUrl = "https://climbing-wholly-grouper.ngrok-free.app/api/messages";
+    let autoScroll = true;
 
+    // ✅ 로컬 저장된 닉네임 불러오기
+    window.onload = () => {
+      const saved = localStorage.getItem('nickname');
+      if (saved) document.getElementById('sender').value = saved;
+      loadMessages();
+      setInterval(loadMessages, 5000);
+    };
+
+    // ✅ 전송 함수
     function sendMessage() {
       const sender = document.getElementById("sender").value.trim();
       const message = document.getElementById("message").value.trim();
-      const color = document.getElementById("color").value;
-
       if (!sender || !message) {
         alert("닉네임과 메시지를 모두 입력해주세요!");
         return;
       }
 
-      fetch(apiBase, {
+      localStorage.setItem("nickname", sender); // 저장
+
+      fetch(apiUrl, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname: sender, content: message, color: color, type: 'user' })
+        body: JSON.stringify({ sender, message })
       })
       .then(res => res.json())
       .then(() => {
@@ -128,30 +122,35 @@
       });
     }
 
+    // ✅ 엔터 키 입력 시 전송
+    document.getElementById("message").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // ✅ 채팅 불러오기
     function loadMessages() {
-      fetch(apiBase)
+      fetch(apiUrl)
         .then(res => res.json())
         .then(messages => {
           if (!Array.isArray(messages)) return;
-
           const log = document.getElementById("chat-log");
-          log.innerHTML = messages.map(msg => {
-            const name = msg.nickname || msg.sender || "익명";
-            const content = msg.content || msg.message || "";
-            const color = msg.color || "#333"; // 기본 색상
-            return `<div class="message" style="color:${color}"><strong>[${name}]</strong> ${content}</div>`;
-          }).join('');
-
-          // 최신 메시지로 정확하게 스크롤
-          setTimeout(() => {
-            log.scrollTop = log.scrollHeight;
-          }, 50);
+          log.innerHTML = messages.map(msg =>
+            `<div class="message"><strong>[${msg.sender}]</strong> ${msg.message}</div>`
+          ).join('');
+          if (autoScroll) log.scrollTop = log.scrollHeight;
         })
         .catch(err => console.error("불러오기 에러:", err));
     }
 
-    loadMessages();
-    setInterval(loadMessages, 5000);
+    // ✅ 자동 스크롤 ON/OFF
+    function toggleScroll() {
+      autoScroll = !autoScroll;
+      document.getElementById("scroll-state").innerText = autoScroll ? "켜짐" : "꺼짐";
+    }
   </script>
 </body>
 </html>
+
