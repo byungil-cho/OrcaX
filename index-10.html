@@ -31,7 +31,7 @@
       margin-bottom: 1.5rem;
     }
 
-    input, textarea, button {
+    input, textarea, select, button {
       width: 100%;
       padding: 12px;
       margin: 0.5rem 0;
@@ -70,7 +70,6 @@
     .message {
       margin-bottom: 10px;
       font-size: 0.95rem;
-      color: #333;
     }
 
     .message:last-child {
@@ -83,6 +82,18 @@
     <h1>🐋 OrcaX 실시간 채팅</h1>
     <input type="text" id="sender" placeholder="닉네임을 입력하세요" />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
+
+    <!-- 🎨 글자 색상 선택 -->
+    <select id="color">
+      <option value="#333">글자 색상 선택 (기본)</option>
+      <option value="#e74c3c">빨강</option>
+      <option value="#2980b9">파랑</option>
+      <option value="#27ae60">초록</option>
+      <option value="#8e44ad">보라</option>
+      <option value="#f39c12">주황</option>
+      <option value="#111111">검정</option>
+    </select>
+
     <button onclick="sendMessage()">전송하기</button>
 
     <div id="chat-log"></div>
@@ -94,6 +105,7 @@
     function sendMessage() {
       const sender = document.getElementById("sender").value.trim();
       const message = document.getElementById("message").value.trim();
+      const color = document.getElementById("color").value;
 
       if (!sender || !message) {
         alert("닉네임과 메시지를 모두 입력해주세요!");
@@ -103,7 +115,7 @@
       fetch(apiBase, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname: sender, content: message, type: 'user' })
+        body: JSON.stringify({ nickname: sender, content: message, color: color, type: 'user' })
       })
       .then(res => res.json())
       .then(() => {
@@ -123,12 +135,17 @@
           if (!Array.isArray(messages)) return;
 
           const log = document.getElementById("chat-log");
-          log.innerHTML = messages.map(msg =>
-            `<div class="message"><strong>[${msg.nickname || msg.sender}]</strong> ${msg.content || msg.message}</div>`
-          ).join('');
+          log.innerHTML = messages.map(msg => {
+            const name = msg.nickname || msg.sender || "익명";
+            const content = msg.content || msg.message || "";
+            const color = msg.color || "#333"; // 기본 색상
+            return `<div class="message" style="color:${color}"><strong>[${name}]</strong> ${content}</div>`;
+          }).join('');
 
-          // 최신 메시지로 자동 스크롤
-          log.scrollTop = log.scrollHeight;
+          // 최신 메시지로 정확하게 스크롤
+          setTimeout(() => {
+            log.scrollTop = log.scrollHeight;
+          }, 50);
         })
         .catch(err => console.error("불러오기 에러:", err));
     }
@@ -138,5 +155,3 @@
   </script>
 </body>
 </html>
-
-
