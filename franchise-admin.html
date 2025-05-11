@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -58,6 +59,21 @@
       text-decoration: underline;
     }
 
+    #loadMore {
+      background-color: #0077cc;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin: 20px auto;
+    }
+
+    #loadMore:hover {
+      background-color: #005fa3;
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 10px;
@@ -77,13 +93,19 @@
   <h1>📋 OrcaX 가맹 신청서 접수 목록</h1>
   <p class="empty">🔄 데이터를 불러오는 중입니다...</p>
   <ul id="list"></ul>
+  <button id="loadMore" style="display:none;">더보기</button>
 
   <script>
+    let allData = [];
+    let currentIndex = 0;
+    const itemsPerPage = 5;
+
     fetch("https://orcax-franchise-backend.onrender.com/api/apply")
       .then(res => res.json())
       .then(data => {
         const list = document.getElementById("list");
         const emptyMsg = document.querySelector(".empty");
+        const loadMoreBtn = document.getElementById("loadMore");
 
         if (!data || data.length === 0) {
           emptyMsg.textContent = "📭 아직 접수된 신청서가 없습니다.";
@@ -91,28 +113,49 @@
         }
 
         emptyMsg.remove();
+        allData = data;
+        renderItems();
 
-        data.forEach(item => {
-          const time = new Date(item.createdAt).toLocaleString("ko-KR");
-          const li = document.createElement("li");
-          li.innerHTML = `
-            <strong>🏷️ 이름:</strong> ${item.name}<br>
-            <strong>📞 전화:</strong> ${item.phone}<br>
-            <strong>📛 사업자번호:</strong> ${item.corpnum || "없음"}<br>
-            <strong>📍 지역:</strong> ${item.region}<br>
-            <strong>🏠 주소:</strong> ${item.address}<br>
-            <strong>📂 업종:</strong> ${item.type}<br>
-            <strong>📝 비고:</strong> ${item.note || "(없음)"}<br>
-            ${item.fileUrl ? `<strong>🖼️ 파일:</strong> <a href="https://orcax-franchise-backend.onrender.com${item.fileUrl}" target="_blank">[보기]</a><br>` : ""}
-            <strong>📅 신청일:</strong> ${time}
-          `;
-          list.appendChild(li);
+        if (allData.length > itemsPerPage) {
+          loadMoreBtn.style.display = "inline-block";
+        }
+
+        loadMoreBtn.addEventListener("click", () => {
+          renderItems();
         });
       })
       .catch(err => {
         document.querySelector(".empty").textContent = "❌ 데이터를 불러오지 못했습니다.";
         console.error("데이터 요청 실패:", err);
       });
+
+    function renderItems() {
+      const list = document.getElementById("list");
+      const nextItems = allData.slice(currentIndex, currentIndex + itemsPerPage);
+
+      nextItems.forEach(item => {
+        const time = new Date(item.createdAt).toLocaleString("ko-KR");
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>🏷️ 이름:</strong> ${item.name}<br>
+          <strong>📞 전화:</strong> ${item.phone}<br>
+          <strong>📛 사업자번호:</strong> ${item.corpnum || "없음"}<br>
+          <strong>📍 지역:</strong> ${item.region}<br>
+          <strong>🏠 주소:</strong> ${item.address}<br>
+          <strong>📂 업종:</strong> ${item.type}<br>
+          <strong>📝 비고:</strong> ${item.note || "(없음)"}<br>
+          ${item.fileUrl ? `<strong>🖼️ 파일:</strong> <a href="https://orcax-franchise-backend.onrender.com${item.fileUrl}" target="_blank">[보기]</a><br>` : ""}
+          <strong>📅 신청일:</strong> ${time}
+        `;
+        list.appendChild(li);
+      });
+
+      currentIndex += itemsPerPage;
+
+      if (currentIndex >= allData.length) {
+        document.getElementById("loadMore").style.display = "none";
+      }
+    }
   </script>
 </body>
 </html>
