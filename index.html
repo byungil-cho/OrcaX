@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <title>OrcaX NFT Puzzle Series</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#003b6f" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').then(() => {
+        console.log("✅ 서비스워커 등록 완료");
+      }).catch(err => {
+        console.error("❌ 서비스워커 등록 실패:", err);
+      });
+    }
+  </script>
+
   <style>
     body { background: #111; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
     .container { max-width: 1100px; margin: 0 auto; padding: 20px; text-align: center; }
@@ -40,7 +53,7 @@
       <a class="active" href="https://byungil-cho.github.io/OrcaX/about-orcax.html"><img src="https://byungil-cho.github.io/OrcaX/nft3_01.jpg" alt="Puzzle 3"><strong>OrcaX 소개</strong></a>
       <a class="active" href="https://byungil-cho.github.io/OrcaX/franchise.html"><img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="Puzzle 4"><strong>📢 가망점 현황</strong></a>
       <a class="active" href="https://byungil-cho.github.io/OrcaX/index-10.html"><img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg" alt="Puzzle 5"><strong>💬 메시지 전송</strong></a>
-      <a class="active" href="https://byungil-cho.github.io/OrcaX/Foundation.html"><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg" alt="OrcaX 정책"><strong>📘 OrcaX 정책</strong></a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/foundation.html"><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg" alt="OrcaX 정책"><strong>📘 OrcaX 정책</strong></a>
       <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft4_02.jpg" alt="Puzzle 7"><strong>Puzzle 7</strong></a>
       <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft1_02.jpg" alt="Puzzle 8"><strong>Puzzle 8</strong></a>
       <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_03.jpg" alt="Puzzle 9"><strong>Puzzle 9</strong></a>
@@ -53,14 +66,5 @@
       <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_04.jpg" alt="Puzzle 16"><strong>Puzzle 16</strong></a>
     </div>
   </div>
-
-  <!-- 기존 채팅 스크립트 및 기능 유지 -->
-  <!-- 이하 동일 -->
 </body>
 </html>
-
-
-
-
-
-
