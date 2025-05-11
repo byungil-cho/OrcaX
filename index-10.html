@@ -59,7 +59,7 @@
 
     #chat-log {
       margin-top: 1rem;
-      max-height: 250px;
+      max-height: 300px;
       overflow-y: auto;
       border: 1px solid #ddd;
       border-radius: 10px;
@@ -70,11 +70,12 @@
     .message {
       margin-bottom: 10px;
       font-size: 0.95rem;
-      color: #333;
+      color: #111;
     }
 
-    .message:last-child {
-      margin-bottom: 0;
+    .timestamp {
+      font-size: 0.75rem;
+      color: #888;
     }
   </style>
 </head>
@@ -90,6 +91,7 @@
 
   <script>
     const apiBase = "https://climbing-wholly-grouper.ngrok-free.app/api/messages";
+
     function sendMessage() {
       const sender = document.getElementById("sender").value.trim();
       const message = document.getElementById("message").value.trim();
@@ -99,13 +101,13 @@
         return;
       }
 
-      fetch(apiUrl, {
+      fetch(apiBase, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sender, message })
       })
       .then(res => res.json())
-      .then(data => {
+      .then(() => {
         document.getElementById("message").value = '';
         loadMessages();
       })
@@ -115,18 +117,28 @@
       });
     }
 
+    function formatTimestamp(isoString) {
+      const date = new Date(isoString);
+      return date.toLocaleString('ko-KR', {
+        hour12: false
+      });
+    }
+
     function loadMessages() {
-      fetch(apiUrl)
+      fetch(apiBase)
         .then(res => res.json())
         .then(messages => {
           if (!Array.isArray(messages)) return;
 
           const log = document.getElementById("chat-log");
-          log.innerHTML = messages.map(msg => 
-            `<div class="message">[${msg.sender}] ${msg.message}</div>`
-          ).join('');
+          log.innerHTML = messages.map(msg => `
+            <div class="message">
+              <strong>[${msg.sender}]</strong> ${msg.message}
+              <div class="timestamp">${formatTimestamp(msg.createdAt || msg.timestamp)}</div>
+            </div>
+          `).join('');
 
-          log.scrollTop = log.scrollHeight; // 스크롤 아래로
+          log.scrollTop = log.scrollHeight;
         })
         .catch(err => console.error("불러오기 에러:", err));
     }
@@ -136,3 +148,4 @@
   </script>
 </body>
 </html>
+
