@@ -126,7 +126,9 @@
           log.innerHTML = messages.map(msg =>
             `<div class="message"><strong>[${msg.nickname || msg.sender}]</strong> ${msg.content || msg.message}</div>`
           ).join('');
-          log.scrollTop = log.scrollHeight; // 최신 메시지로 스크롤
+
+          // 최신 메시지로 자동 스크롤
+          log.scrollTop = log.scrollHeight;
         })
         .catch(err => console.error("불러오기 에러:", err));
     }
