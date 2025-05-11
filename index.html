@@ -4,19 +4,6 @@
   <meta charset="UTF-8">
   <title>OrcaX NFT Puzzle Series</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#003b6f" />
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js').then(() => {
-        console.log("✅ 서비스워커 등록 완료");
-      }).catch(err => {
-        console.error("❌ 서비스워커 등록 실패:", err);
-      });
-    }
-  </script>
-
   <style>
     body { background: #111; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
     .container { max-width: 1100px; margin: 0 auto; padding: 20px; text-align: center; }
@@ -48,12 +35,12 @@
     <h1 onclick="requestAdminAccess()">👫 OrcaX Puzzle</h1>
     <h2>Select the First Puzzle to Begin</h2>
     <div class="grid">
-      <a class="active" href="https://byungil-cho.github.io/OrcaX/nft_series_01.html"><img src="https://byungil-cho.github.io/OrcaX/nft1_01.jpg" alt="Puzzle 1"><strong>퍼즐게임</strong></a>
-      <a class="active" href="https://byungil-cho.github.io/OrcaX/shop.html"><img src="https://byungil-cho.github.io/OrcaX/nft2_01.jpg" alt="Puzzle 2"><strong>NFT SHOP</strong></a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/nft_series_01.html"><img src="https://byungil-cho.github.io/OrcaX/nft1_01.jpg" alt="Puzzle 1"><strong>🎮 퍼즐 게임 시작</strong></a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/shop.html"><img src="https://byungil-cho.github.io/OrcaX/nft2_01.jpg" alt="Puzzle 2"><strong>🏦 NFT SHOP 입장</strong></a>
       <a class="active" href="https://byungil-cho.github.io/OrcaX/about-orcax.html"><img src="https://byungil-cho.github.io/OrcaX/nft3_01.jpg" alt="Puzzle 3"><strong>OrcaX 소개</strong></a>
-      <a class="active" href="https://byungil-cho.github.io/OrcaX/franchise.html"><img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="Puzzle 4"><strong>가맹점현황</strong></a>
-      <a class="active" href="https://byungil-cho.github.io/OrcaX/index-10.html"><img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg" alt="Puzzle 5"><strong>메시지전송</strong></a>
-      <a class="active" href="https://byungil-cho.github.io/OrcaX/Foundation.html"><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg" alt="OrcaX 정책"><strong>OrcaX정책</strong></a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/franchise.html"><img src="https://byungil-cho.github.io/OrcaX/nft4_01.jpg" alt="Puzzle 4"><strong>📢 가망점 현황</strong></a>
+      <a class="active" href="https://byungil-cho.github.io/OrcaX/index-10.html"><img src="https://byungil-cho.github.io/OrcaX/nft2_02.jpg" alt="Puzzle 5"><strong>💬 메시지 전송</strong></a>
+      <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_02.jpg" alt="Puzzle 6"><strong>Puzzle 6</strong></a>
       <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft4_02.jpg" alt="Puzzle 7"><strong>Puzzle 7</strong></a>
       <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft1_02.jpg" alt="Puzzle 8"><strong>Puzzle 8</strong></a>
       <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_03.jpg" alt="Puzzle 9"><strong>Puzzle 9</strong></a>
@@ -66,21 +53,21 @@
       <a class="active" href="#"><img src="https://byungil-cho.github.io/OrcaX/nft3_04.jpg" alt="Puzzle 16"><strong>Puzzle 16</strong></a>
     </div>
   </div>
-</body>
-  <!-- 기존 위젯 및 스크립트 유지 -->
-  <div id="chat-widget" style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;">
-    <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;z-index:10000;">💬</button>
-    <div id="chat-box" style="display: none; width: 300px; background: white; border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.2); font-family: Arial, sans-serif; overflow: hidden; margin-top: 10px;">
-      <div id="chat-box-header" style="background:#00cc99;color:white;padding:10px;text-align:center;font-weight:bold;display:flex;justify-content:space-between;align-items:center;">
+
+  <!-- 채팅 위젯 -->
+  <div id="chat-widget" style="position:fixed;bottom:20px;right:20px;z-index:9999;">
+    <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;">💬</button>
+    <div id="chat-box" style="display:none;width:300px;background:white;border-radius:12px;box-shadow:0 0 12px rgba(0,0,0,0.2);margin-top:10px;">
+      <div style="background:#00cc99;color:white;padding:10px;display:flex;justify-content:space-between;align-items:center;font-weight:bold;">
         📎 메시지 보내기
-        <span onclick="toggleChat()" style="cursor:pointer;">✖</span>
+        <span style="cursor:pointer;" onclick="toggleChat()">✖</span>
       </div>
-      <div id="chat-form" style="padding:10px;">
-        <input id="sender" type="text" placeholder="닉네임" style="width:100%;padding:8px;margin-bottom:6px;border:1px solid #ccc;border-radius:6px;" />
-        <input id="message" type="text" placeholder="메시지를 입력하세요" style="width:100%;padding:8px;margin-bottom:6px;border:1px solid #ccc;border-radius:6px;" />
-        <button onclick="sendMessage()" style="width:100%;padding:8px;background:#00b894;color:white;border:none;border-radius:6px;font-size:14px;">전송</button>
+      <div style="padding:10px;">
+        <input id="sender" type="text" placeholder="닉네임" style="width:100%;padding:6px;margin:4px 0;border-radius:4px;" />
+        <input id="message" type="text" placeholder="메시지를 입력하세요" style="width:100%;padding:6px;margin:4px 0;border-radius:4px;" />
+        <button onclick="sendMessage()" style="width:100%;padding:6px;background:#00b894;color:white;border:none;border-radius:4px;">전송</button>
       </div>
-      <div id="chat-log" style="padding:10px;height:180px;overflow-y:auto;font-size:0.9em;background:#f9f9f9;border-top:1px solid #eee;display:flex;flex-direction:column;"></div>
+      <div id="chat-log" style="padding:10px;height:180px;overflow-y:auto;font-size:0.9em;background:#f9f9f9;border-top:1px solid #eee;"></div>
     </div>
   </div>
 
@@ -97,8 +84,7 @@
 
     function toggleChat() {
       const box = document.getElementById("chat-box");
-      const display = box.style.display;
-      box.style.display = (display === "none" || display === "") ? "block" : "none";
+      box.style.display = (box.style.display === "none") ? "block" : "none";
       if (box.style.display === "block") loadMessages();
     }
 
@@ -138,11 +124,20 @@
           const nickname = msg.nickname || msg.sender || "익명";
           const content = msg.content || msg.message || "";
           const div = document.createElement('div');
-          div.innerHTML = `<strong style="color:${color}">${nickname}:</strong> ${content}`;
+          div.innerHTML = `<strong style="color:${color}">${nickname}:</strong> <span style="color:#222">${content}</span>`;
           log.appendChild(div);
         });
         log.scrollTop = log.scrollHeight;
       });
+    }
+
+    function requestAdminAccess() {
+      const input = prompt("관리자 비밀번호를 입력하세요:");
+      if (input === "orcax2025") {
+        window.location.href = "https://byungil-cho.github.io/OrcaX/admin-log.html";
+      } else if (input) {
+        alert("❌ 비밀번호가 틀렸습니다.");
+      }
     }
 
     window.onload = function() {
@@ -150,4 +145,6 @@
       setInterval(loadMessages, 5000);
     };
   </script>
+</body>
 </html>
+
