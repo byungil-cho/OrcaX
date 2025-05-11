@@ -87,4 +87,87 @@
     </div>
   </div>
 </body>
+  <!-- 기존 위젯 및 스크립트 유지 -->
+  <div id="chat-widget" style="position: fixed; right: 20px; bottom: 20px; z-index: 9999;">
+    <button onclick="toggleChat()" style="background:#00cc99;color:white;border:none;padding:12px 16px;border-radius:50%;font-size:20px;cursor:pointer;z-index:10000;">💬</button>
+    <div id="chat-box" style="display: none; width: 300px; background: white; border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.2); font-family: Arial, sans-serif; overflow: hidden; margin-top: 10px;">
+      <div id="chat-box-header" style="background:#00cc99;color:white;padding:10px;text-align:center;font-weight:bold;display:flex;justify-content:space-between;align-items:center;">
+        📎 메시지 보내기
+        <span onclick="toggleChat()" style="cursor:pointer;">✖</span>
+      </div>
+      <div id="chat-form" style="padding:10px;">
+        <input id="sender" type="text" placeholder="닉네임" style="width:100%;padding:8px;margin-bottom:6px;border:1px solid #ccc;border-radius:6px;" />
+        <input id="message" type="text" placeholder="메시지를 입력하세요" style="width:100%;padding:8px;margin-bottom:6px;border:1px solid #ccc;border-radius:6px;" />
+        <button onclick="sendMessage()" style="width:100%;padding:8px;background:#00b894;color:white;border:none;border-radius:6px;font-size:14px;">전송</button>
+      </div>
+      <div id="chat-log" style="padding:10px;height:180px;overflow-y:auto;font-size:0.9em;background:#f9f9f9;border-top:1px solid #eee;display:flex;flex-direction:column;"></div>
+    </div>
+  </div>
+
+  <script>
+    const apiBase = "https://f07e-210-104-209-108.ngrok-free.app/api/messages";
+    const colorMap = {};
+
+    function getColorForUser(user) {
+      if (!colorMap[user]) {
+        colorMap[user] = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+      }
+      return colorMap[user];
+    }
+
+    function toggleChat() {
+      const box = document.getElementById("chat-box");
+      const display = box.style.display;
+      box.style.display = (display === "none" || display === "") ? "block" : "none";
+      if (box.style.display === "block") loadMessages();
+    }
+
+    function sendMessage() {
+      const sender = document.getElementById("sender").value.trim();
+      const message = document.getElementById("message").value.trim();
+      if (!sender || !message) return alert("닉네임과 메시지를 입력하세요!");
+
+      fetch(apiBase, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify({ nickname: sender, content: message, type: 'user' })
+      })
+      .then(res => res.json())
+      .then(() => {
+        document.getElementById("message").value = '';
+        loadMessages();
+      })
+      .catch(err => {
+        alert("❌ 메시지 전송 실패: " + err.message);
+      });
+    }
+
+    function loadMessages() {
+      fetch(apiBase, {
+        headers: { "ngrok-skip-browser-warning": "true" }
+      })
+      .then(res => res.json())
+      .then(messages => {
+        const log = document.getElementById("chat-log");
+        log.innerHTML = '';
+        messages.slice(-10).forEach(msg => {
+          const color = getColorForUser(msg.nickname || msg.sender || "익명");
+          const nickname = msg.nickname || msg.sender || "익명";
+          const content = msg.content || msg.message || "";
+          const div = document.createElement('div');
+          div.innerHTML = `<strong style="color:${color}">${nickname}:</strong> ${content}`;
+          log.appendChild(div);
+        });
+        log.scrollTop = log.scrollHeight;
+      });
+    }
+
+    window.onload = function() {
+      loadMessages();
+      setInterval(loadMessages, 5000);
+    };
+  </script>
 </html>
