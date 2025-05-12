@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>카카오 로그인</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background: #f2f2f2;
+    }
+
+    .kakao-btn {
+      background-color: #fee500;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #000;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>OrcaX 카카오 로그인</h1>
+  <p>계속하려면 카카오 계정으로 로그인하세요.</p>
+  <button class="kakao-btn" onclick="kakaoLogin()">카카오로 로그인</button>
+
+  <script>
+    function kakaoLogin() {
+      const REST_API_KEY = "284b798a9d9be8202f9c2e129fa6f329";
+      const REDIRECT_URI = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
+      const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+
+      window.location.href = kakaoURL;
+    }
+  </script>
+</body>
+</html>
