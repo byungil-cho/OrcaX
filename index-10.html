@@ -64,12 +64,32 @@
       font-size: 0.95rem;
       color: #333;
     }
+    .message.me {
+      color: #2ecc71;
+      font-weight: bold;
+    }
     .scroll-toggle {
       margin-top: 0.3rem;
       font-size: 0.9rem;
       text-align: right;
       cursor: pointer;
       color: #3498db;
+    }
+    .exit-button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      background: linear-gradient(90deg, #ff6b6b, #f06595);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .exit-button:hover {
+      transform: scale(1.02);
     }
   </style>
 </head>
@@ -79,8 +99,9 @@
     <input type="text" id="sender" placeholder="닉네임을 입력하세요" />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
     <button onclick="sendMessage()">전송하기</button>
-    <div class="scroll-toggle" onclick="toggleScroll()">📌 자동 스크롤: <span id="scroll-state">켜짐</span></div>
+    <div class="scroll-toggle" onclick="toggleScroll()">📌 자동 스크롤: <span id="scroll-state">케지름</span></div>
     <div id="chat-log"></div>
+    <button class="exit-button" onclick="window.location.href='index.html'">나가기</button>
   </div>
 
   <script>
@@ -135,8 +156,9 @@
         .then(messages => {
           if (!Array.isArray(messages)) return;
           const log = document.getElementById("chat-log");
+          const currentUser = localStorage.getItem("nickname");
           log.innerHTML = messages.map(msg =>
-            `<div class="message"><strong>[${msg.sender}]</strong> ${msg.message}</div>`
+            `<div class="message ${msg.sender === currentUser ? "me" : ""}"><strong>[${msg.sender}]</strong> ${msg.message}</div>`
           ).join('');
           if (autoScroll) log.scrollTop = log.scrollHeight;
         })
@@ -145,7 +167,7 @@
 
     function toggleScroll() {
       autoScroll = !autoScroll;
-      document.getElementById("scroll-state").innerText = autoScroll ? "켜짐" : "꺼짐";
+      document.getElementById("scroll-state").innerText = autoScroll ? "케지름" : "끊길";
     }
   </script>
 </body>
