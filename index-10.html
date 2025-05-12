@@ -87,7 +87,7 @@
     const apiUrl = "https://climbing-wholly-grouper.ngrok-free.app/api/messages";
     let autoScroll = true;
 
-    // ✅ 로컬 저장된 닉네임 불러오기
+    // 로컬 저장된 닉네임 불러오기
     window.onload = () => {
       const saved = localStorage.getItem('nickname');
       if (saved) document.getElementById('sender').value = saved;
@@ -95,7 +95,6 @@
       setInterval(loadMessages, 5000);
     };
 
-    // ✅ 전송 함수
     function sendMessage() {
       const sender = document.getElementById("sender").value.trim();
       const message = document.getElementById("message").value.trim();
@@ -104,7 +103,7 @@
         return;
       }
 
-      localStorage.setItem("nickname", sender); // 저장
+      localStorage.setItem("nickname", sender);
 
       fetch(apiUrl, {
         method: "POST",
@@ -122,7 +121,7 @@
       });
     }
 
-    // ✅ 엔터 키 입력 시 전송
+    // 엔터로 전송
     document.getElementById("message").addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -130,7 +129,6 @@
       }
     });
 
-    // ✅ 채팅 불러오기
     function loadMessages() {
       fetch(apiUrl)
         .then(res => res.json())
@@ -145,7 +143,6 @@
         .catch(err => console.error("불러오기 에러:", err));
     }
 
-    // ✅ 자동 스크롤 ON/OFF
     function toggleScroll() {
       autoScroll = !autoScroll;
       document.getElementById("scroll-state").innerText = autoScroll ? "켜짐" : "꺼짐";
