@@ -2,77 +2,52 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OrcaX 계약 완료</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>카카오 로그인 처리 중...</title>
   <style>
     body {
-      margin: 0;
-      padding: 2rem;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #fdfdfd;
+      background-color: #f7f8fa;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    p {
-      font-size: 1.2rem;
       color: #333;
     }
-
-    .login-btn {
-      background-color: #fee500;
-      border: none;
-      padding: 15px 25px;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #191600;
-      cursor: pointer;
-      margin-top: 2rem;
-      width: 100%;
-      max-width: 320px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: background 0.3s;
+    h2 {
+      color: #222;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
     }
-
-    .login-btn:hover {
-      background-color: #ffeb3b;
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      p {
-        font-size: 1rem;
-      }
-
-      .login-btn {
-        font-size: 1rem;
-        padding: 12px;
-      }
+    .status {
+      font-size: 1rem;
+      color: #888;
     }
   </style>
 </head>
 <body>
-  <h1>📋 OrcaX 계약 동의 완료</h1>
-  <p>이제 카카오톡 계정으로 로그인해주세요.</p>
-  <button class="login-btn" onclick="kakaoLogin()">카카오로 로그인</button>
+  <h2>⏳ 카카오 로그인 처리 중입니다...</h2>
+  <div class="status">잠시만 기다려주세요.</div>
 
   <script>
-    function kakaoLogin() {
-      // 이 부분에 실제 카카오 OAuth 연결
-      location.href = "https://kauth.kakao.com/oauth/authorize?client_id=284b798a9d9be8202f9c2e129fa6f329_uri=YOUR_REDIRECT_URI&response_type=code";
+    const code = new URL(window.location.href).searchParams.get("code");
+
+    if (code) {
+      console.log("✅ 인가코드 수신:", code);
+
+      // 실제 환경에선 여기에 토큰 요청 백엔드 API 호출 필요
+      // 예시:
+      // fetch("/auth/kakao/token", { method: "POST", body: JSON.stringify({ code }) })
+
+      setTimeout(() => {
+        alert("로그인 성공! 인가코드: " + code);
+        // 로그인 이후 원하는 페이지로 이동
+        window.location.href = "index.html";
+      }, 1500);
+    } else {
+      console.warn("❌ 인가 코드 없음. 로그인 실패 혹은 사용자 취소.");
+      document.querySelector(".status").textContent = "로그인 실패 또는 취소됨.";
     }
   </script>
 </body>
