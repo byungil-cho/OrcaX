@@ -29,11 +29,12 @@
 
   <script>
     function goKakaoLogin() {
-      const client_id = "284b798a9d9be8202f9c2e129fa6f329"; // 네 진짜 REST API 키
-      const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html"; // 등록된 Redirect URI
-      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
+      const client_id="284b798a9d9be8202f9c2e129fa6f329"; // 네 진짜 REST API 키
+      const redirect_uri="https://byungil-cho.github.io/OrcaX/kakao-callback.html"; // 등록된 Redirect URI
+      const url=`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
       window.location.href = url;
     }
   </script>
 </body>
 </html>
+
