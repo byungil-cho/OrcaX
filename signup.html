@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaX 회원가입</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f2f2f2;
+      text-align: center;
+    }
+    .btn {
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #fee500;
+      color: #000;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 OrcaX 계약 동의 완료</h1>
+  <p>이제 카카오톡 계정으로 로그인해주세요.</p>
+  <button class="btn" onclick="goKakaoLogin()">카카오로 로그인</button>
+
+  <script>
+    function goKakaoLogin() {
+      const client_id = "YOUR_REST_API_KEY"; // 여기에 REST API 키 넣기
+      const redirect_uri = "http://localhost:3000/auth/kakao/callback";
+      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`;
+      window.location.href = url;
+    }
+  </script>
+</body>
+</html>
