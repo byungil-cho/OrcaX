@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>OrcaX 회원가입</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
     body {
       font-family: sans-serif;
@@ -28,9 +29,9 @@
 
   <script>
     function goKakaoLogin() {
-      const client_id = "YOUR_REST_API_KEY"; // 여기에 REST API 키 넣기
-      const redirect_uri = "http://localhost:3000/auth/kakao/callback";
-      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`;
+      const client_id = "284b798a9d9be8202f9c2e129fa6f329"; // 네 진짜 REST API 키
+      const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html"; // 등록된 Redirect URI
+      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
       window.location.href = url;
     }
   </script>
