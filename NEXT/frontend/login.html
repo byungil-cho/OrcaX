@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaX 로그인</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .form-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .link-btn {
+      background-color: #eee;
+      color: #333;
+      margin-top: 0.6rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-box">
+    <h2>로그인</h2>
+    <input type="text" id="nickname" placeholder="닉네임 또는 아이디" />
+    <button onclick="login()">로그인</button>
+    <button class="link-btn" onclick="location.href='signup.html'">회원가입 하러 가기</button>
+  </div>
+
+  <script>
+    function login() {
+      const nickname = document.getElementById('nickname').value.trim();
+      if (!nickname) {
+        alert("아이디를 입력하세요!");
+        return;
+      }
+
+      // 실제로는 여기서 DB 확인이 들어가야 하지만 지금은 생략
+      localStorage.setItem("nickname", nickname);
+      alert(`${nickname}님, 환영합니다!`);
+      location.href = "home.html"; // 로그인 성공 후 홈으로 이동
+    }
+  </script>
+</body>
+</html>
