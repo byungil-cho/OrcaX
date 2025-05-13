@@ -1,4 +1,4 @@
-<!-- login.html (로그인 페이지 리팩토링) -->
+<!-- login.html (로그인 페이지 리팩토링 + 비밀번호 찾기 연결 추가) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -64,6 +64,15 @@
       margin-top: 1rem;
       text-align: center;
     }
+    .links {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .links button {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
@@ -78,7 +87,11 @@
 
     <div id="message"></div>
     <button class="submit-btn" onclick="submitLogin()">로그인</button>
-    <button class="link-btn" onclick="goSignup()">회원가입 하러 가기</button>
+
+    <div class="links">
+      <button class="link-btn" onclick="goSignup()">회원가입 하러 가기</button>
+      <button class="link-btn" onclick="goReset()">비밀번호 찾기</button>
+    </div>
   </div>
 
   <script>
@@ -139,6 +152,10 @@
 
     function goSignup() {
       window.location.href = "signup-form.html";
+    }
+
+    function goReset() {
+      window.location.href = "reset-password.html";
     }
   </script>
 </body>
