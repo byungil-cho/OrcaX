@@ -79,7 +79,7 @@
 <body>
   <div class="form-box">
     <h2>OrcaX 회원가입</h2>
-    
+
     <label for="name">성명</label>
     <input type="text" id="name" placeholder="홍길동" />
 
@@ -130,13 +130,20 @@
           body: JSON.stringify({ name, phone, email, password: pw })
         });
 
-        const result = await response.json();
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const result = await response.json();
 
-        if (response.ok) {
-          alert("가입 성공! 로그인 페이지로 이동합니다.");
-          window.location.href = "login.html";
+          if (response.ok) {
+            alert("가입 성공! 로그인 페이지로 이동합니다.");
+            window.location.href = "login.html";
+          } else {
+            alert("가입 실패: " + result.message);
+          }
         } else {
-          alert("가입 실패: " + result.message);
+          const resultText = await response.text();
+          console.error("예계치 않은 JSON 응답:", resultText);
+          alert("서버가 올바르지 않은 응답을 보내였습니다.");
         }
 
       } catch (error) {
@@ -146,7 +153,7 @@
     }
 
     function goKakaoLogin() {
-      window.location.href = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=10f866fdd3ac8d4c3d9d75a794dddab5&redirect_uri=https://byungil-cho.github.io/OrcaX/kakao-callback.html";
+      window.location.href = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=284b798a9d9be8202f9c2e129fa6f329&redirect_uri=https://byungil-cho.github.io/OrcaX/kakao-callback.html";
     }
   </script>
 </body>
