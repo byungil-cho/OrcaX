@@ -53,7 +53,7 @@
   <div id="error"></div>
 
   <script>
-    fetch("https://orcax-franchise-backend.onrender.com/api/users")
+    fetch("https://orcax-franchise-backend.onrender.com/api/apply")
       .then(res => {
         if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
         return res.json();
@@ -63,11 +63,11 @@
         const table = document.getElementById("user-table");
         table.innerHTML = users.map(u => `
           <tr>
-            <td>${u.name}</td>
-            <td>${u.phone}</td>
-            <td>${u.email}</td>
-            <td>${u.nickname}</td>
-            <td>${new Date(u.createdAt).toLocaleString()}</td>
+            <td>${u.name || ''}</td>
+            <td>${u.phone || ''}</td>
+            <td>${u.email || ''}</td>
+            <td>${u.nickname || ''}</td>
+            <td>${u.createdAt ? new Date(u.createdAt).toLocaleString() : ''}</td>
           </tr>`).join("");
       })
       .catch(err => {
@@ -77,5 +77,6 @@
   </script>
 </body>
 </html>
+
 
 
