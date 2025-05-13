@@ -98,7 +98,7 @@
   <div class="chat-container">
     <h1>🐋 OrcaX 실시간 채팅</h1>
     <div id="nickname-banner" style="text-align:center; font-weight:bold; margin-bottom: 10px; color: #2c3e50;"></div>
-    <input type="text" id="sender" placeholder="님코리임을 입력하세요" disabled />
+    <input type="text" id="sender" placeholder="닉네임을 입력하세요" disabled />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
     <button onclick="sendMessage()">전송하기</button>
     <div class="scroll-toggle" onclick="toggleScroll()">📜 자동 스크롤: <span id="scroll-state">케지면</span></div>
@@ -131,7 +131,7 @@
       const sender = document.getElementById("sender").value.trim();
       const message = document.getElementById("message").value.trim();
       if (!sender || !message) {
-        alert("님보와 메시지를 전달해주세요!");
+        alert("닉네임과 메시지를 전달해주세요!");
         return;
       }
       currentNickname = sender;
