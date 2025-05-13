@@ -1,0 +1,131 @@
+<!-- reset-form.html (비밀번호 재설정 완료 페이지) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>새 비밀번호 설정</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .form-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: white;
+    }
+    #message {
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-box">
+    <h2>새 비밀번호 설정</h2>
+    <label for="password">새 비밀번호</label>
+    <input type="password" id="password" placeholder="********" />
+
+    <label for="confirm">비밀번호 확인</label>
+    <input type="password" id="confirm" placeholder="********" />
+
+    <div id="message"></div>
+    <button onclick="resetPassword()">비밀번호 재설정</button>
+  </div>
+
+  <script>
+    function getTokenFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("token");
+    }
+
+    async function resetPassword() {
+      const token = getTokenFromURL();
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm").value;
+      const messageBox = document.getElementById("message");
+      messageBox.textContent = "";
+
+      if (!password || !confirm) {
+        messageBox.textContent = "모든 항목을 입력해주세요.";
+        messageBox.style.color = "red";
+        return;
+      }
+      if (password !== confirm) {
+        messageBox.textContent = "비밀번호가 일치하지 않습니다.";
+        messageBox.style.color = "red";
+        return;
+      }
+      if (!token) {
+        messageBox.textContent = "토큰이 유효하지 않습니다.";
+        messageBox.style.color = "red";
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:3040/api/users/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, newPassword: password })
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          messageBox.textContent = "비밀번호가 재설정되었습니다. 다시 로그인해주세요.";
+          messageBox.style.color = "green";
+          setTimeout(() => {
+            window.location.href = "login.html?force=true";
+          }, 3000);
+        } else {
+          messageBox.textContent = result.message || "실패했습니다.";
+          messageBox.style.color = "red";
+        }
+      } catch (err) {
+        console.error(err);
+        messageBox.textContent = "서버 오류가 발생했습니다.";
+        messageBox.style.color = "red";
+      }
+    }
+  </script>
+</body>
+</html>
