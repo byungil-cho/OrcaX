@@ -53,7 +53,7 @@
   <div id="error"></div>
 
   <script>
-    fetch("https://orcax-backend.onrender.com/api/users")
+    fetch("http://localhost:3040/api/users")
       .then(res => {
         if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
         return res.json();
