@@ -1,9 +1,10 @@
+<!-- login.html (로그인 페이지 리팩토링) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>OrcaX 로그인</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -58,6 +59,11 @@
       background-color: #ccc;
       color: #333;
     }
+    #message {
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -70,17 +76,32 @@
     <label for="password">비밀번호</label>
     <input type="password" id="password" placeholder="********" />
 
+    <div id="message"></div>
     <button class="submit-btn" onclick="submitLogin()">로그인</button>
     <button class="link-btn" onclick="goSignup()">회원가입 하러 가기</button>
   </div>
 
   <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("force") === "true") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("nickname");
+        const msgBox = document.getElementById("message");
+        msgBox.textContent = "비밀번호가 변경되어 로그아웃되었습니다. 다시 로그인해주세요.";
+        msgBox.style.color = "red";
+      }
+    });
+
     async function submitLogin() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+      const msgBox = document.getElementById("message");
+      msgBox.textContent = "";
 
       if (!email || !password) {
-        alert("모든 항목을 입력해주세요.");
+        msgBox.textContent = "모든 항목을 입력해주세요.";
+        msgBox.style.color = "red";
         return;
       }
 
@@ -92,25 +113,27 @@
         });
 
         const contentType = response.headers.get("content-type");
-        if (contentType.includes("application/json")) {
+        if (contentType && contentType.includes("application/json")) {
           const result = await response.json();
 
           if (response.ok && result.token) {
             localStorage.setItem("token", result.token);
-            localStorage.setItem("nickname", result.nickname || ""); // 나중에 서버에서 nickname 주면 쓰임
-            alert("로그인 성공!");
+            localStorage.setItem("nickname", result.nickname || "");
             window.location.href = "home.html";
           } else {
-            alert("로그인 실패: " + result.message);
+            msgBox.textContent = result.message || "로그인에 실패했습니다.";
+            msgBox.style.color = "red";
           }
         } else {
           const text = await response.text();
           console.error("비정상 응답:", text);
-          alert("서버 오류가 발생했습니다.");
+          msgBox.textContent = "서버 오류가 발생했습니다.";
+          msgBox.style.color = "red";
         }
       } catch (err) {
         console.error("로그인 중 오류:", err);
-        alert("서버 오류가 발생했습니다.");
+        msgBox.textContent = "서버 오류가 발생했습니다.";
+        msgBox.style.color = "red";
       }
     }
 
