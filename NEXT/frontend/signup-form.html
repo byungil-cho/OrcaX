@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>OrcaX 회원가입</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .form-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .kakao-btn {
+      background-color: #FEE500;
+      color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .kakao-btn img {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-box">
+    <h2>OrcaX 회원가입</h2>
+    
+    <label for="name">성명</label>
+    <input type="text" id="name" placeholder="홍길동" />
+
+    <label for="phone">전번</label>
+    <input type="text" id="phone" placeholder="010-1234-5678" />
+
+    <label for="email">이메일</label>
+    <input type="email" id="email" placeholder="email@example.com" />
+
+    <label for="password">비밀번호</label>
+    <input type="password" id="password" placeholder="********" />
+
+    <label for="confirm">비밀번호 확인</label>
+    <input type="password" id="confirm" placeholder="********" />
+
+    <button class="submit-btn" onclick="submitSignup()">가입 신청</button>
+
+    <button class="kakao-btn" onclick="goKakaoLogin()">
+      <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오톡" />
+      간편가입하기
+    </button>
+  </div>
+
+  <script>
+    function submitSignup() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const pw = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm').value;
+
+      if (!name || !phone || !email || !pw || !confirm) {
+        alert("모든 항목을 입력해주세요.");
+        return;
+      }
+
+      if (pw !== confirm) {
+        alert("비밀번호가 일치하지 않습니다.");
+        return;
+      }
+
+      alert("가입 완료! 로그인 페이지로 이동합니다.");
+      window.location.href = "login.html";
+    }
+
+    function goKakaoLogin() {
+      window.location.href = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=10f866fdd3ac8d4c3d9d75a794dddab5&redirect_uri=https://byungil-cho.github.io/OrcaX/kakao-callback.html";
+    }
+  </script>
+</body>
+</html>

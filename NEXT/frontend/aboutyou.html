@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>바로 당신입니다</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #00d9ff;
+      animation: fadeIn 2s ease-out;
+    }
+
+    p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      color: #ddd;
+      animation: fadeIn 3s ease-out;
+    }
+
+    .btn-group {
+      margin-top: 2rem;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      background: #00bcd4;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #111;
+      transition: 0.2s ease-in-out;
+      min-width: 150px;
+    }
+
+    .btn:hover {
+      background: #008c9e;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 바로 당신입니다.!</h1>
+  <p>
+    이 프로젝트에 관심을 가지고 여기에 도달하신 당신,  
+    지금 이 순간, OrcaX의 변화는 바로 당신으로부터 시작됩니다.
+  </p>
+  <div class="btn-group">
+    <button class="btn" onclick="location.href='signup.html'">가맹 신청하러 가기</button>
+    <button class="btn" onclick="location.href='home.html'">메인으로 돌아가기</button>
+  </div>
+</body>
+</html>
