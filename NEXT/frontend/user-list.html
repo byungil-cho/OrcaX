@@ -61,14 +61,17 @@
       .then(users => {
         if (!Array.isArray(users)) throw new Error("잘못된 형식의 데이터");
         const table = document.getElementById("user-table");
-        table.innerHTML = users.map(u => `
-          <tr>
+        table.innerHTML = users.map(u => {
+          const email = u.email || u.mail || "";
+          const nickname = u.nickname || u.nick || "";
+          return `<tr>
             <td>${u.name || ''}</td>
             <td>${u.phone || ''}</td>
-            <td>${u.email || ''}</td>
-            <td>${u.nickname || ''}</td>
+            <td>${email}</td>
+            <td>${nickname}</td>
             <td>${u.createdAt ? new Date(u.createdAt).toLocaleString() : ''}</td>
-          </tr>`).join("");
+          </tr>`;
+        }).join("");
       })
       .catch(err => {
         console.error(err);
