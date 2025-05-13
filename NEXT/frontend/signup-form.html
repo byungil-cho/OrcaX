@@ -1,21 +1,83 @@
-<!-- signup-form.html -->
+<!-- signup-form.html (리팩토링된 버전) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>OrcaX 회원가입</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background-color: #f7f9fb; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-    .form-box { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-    h2 { text-align: center; color: #333; margin-bottom: 1.5rem; }
-    label { display: block; margin-top: 1rem; font-weight: bold; font-size: 0.9rem; }
-    input { width: 100%; padding: 10px; margin-top: 0.3rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
-    button { width: 100%; padding: 12px; margin-top: 1.5rem; font-size: 1rem; border: none; border-radius: 6px; cursor: pointer; }
-    .submit-btn { background-color: #3498db; color: white; }
-    .kakao-btn { background-color: #FEE500; color: #000; display: flex; justify-content: center; align-items: center; gap: 10px; }
-    .kakao-btn img { width: 20px; height: 20px; }
-    #nickname-status { font-size: 0.8rem; color: green; margin-top: 0.3rem; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .form-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .submit-btn {
+      background-color: #3498db;
+      color: white;
+    }
+    .kakao-btn {
+      background-color: #FEE500;
+      color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    .kakao-btn img {
+      width: 20px;
+      height: 20px;
+    }
+    #nickname-status, #error-message {
+      font-size: 0.85rem;
+      margin-top: 0.3rem;
+    }
+    #nickname-status { color: green; }
+    #error-message { color: red; text-align: center; margin-top: 1rem; }
+    .link {
+      text-align: center;
+      margin-top: 1rem;
+    }
+    .link a { color: #007BFF; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -41,11 +103,17 @@
     <label for="confirm">비밀번호 확인</label>
     <input type="password" id="confirm" placeholder="********" />
 
+    <div id="error-message"></div>
+
     <button class="submit-btn" onclick="submitSignup()">가입 신청</button>
     <button class="kakao-btn" onclick="goKakaoLogin()">
       <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오톡" />
       간편가입하기
     </button>
+
+    <div class="link">
+      <a href="reset-password.html">비밀번호를 잊으셨나요?</a>
+    </div>
   </div>
 
   <script>
@@ -53,11 +121,15 @@
       const nickname = document.getElementById('nickname').value;
       if (!nickname) return;
 
-      const res = await fetch(`http://localhost:3040/api/user/check?nickname=${nickname}`);
-      const result = await res.json();
-      const status = document.getElementById('nickname-status');
-      status.textContent = result.exists ? '이미 사용 중인 닉네임입니다.' : '사용 가능한 닉네임입니다.';
-      status.style.color = result.exists ? 'red' : 'green';
+      try {
+        const res = await fetch(`http://localhost:3040/api/user/check?nickname=${nickname}`);
+        const result = await res.json();
+        const status = document.getElementById('nickname-status');
+        status.textContent = result.exists ? '이미 사용 중인 닉네임입니다.' : '사용 가능한 닉네임입니다.';
+        status.style.color = result.exists ? 'red' : 'green';
+      } catch (e) {
+        console.error("닉네임 확인 오류:", e);
+      }
     }
 
     async function submitSignup() {
@@ -67,13 +139,15 @@
       const nickname = document.getElementById('nickname').value.trim();
       const pw = document.getElementById('password').value;
       const confirm = document.getElementById('confirm').value;
+      const errorBox = document.getElementById('error-message');
+      errorBox.textContent = "";
 
       if (!name || !phone || !email || !nickname || !pw || !confirm) {
-        alert("모든 항목을 입력해주세요.");
+        errorBox.textContent = "모든 항목을 입력해주세요.";
         return;
       }
       if (pw !== confirm) {
-        alert("비밀번호가 일치하지 않습니다.");
+        errorBox.textContent = "비밀번호가 일치하지 않습니다.";
         return;
       }
 
@@ -89,11 +163,11 @@
           alert("가입 성공! 로그인 페이지로 이동합니다.");
           location.href = "login.html";
         } else {
-          alert("가입 실패: " + result.message);
+          errorBox.textContent = result.message || "가입 실패. 다시 시도해주세요.";
         }
       } catch (err) {
         console.error(err);
-        alert("서버 오류가 발생했습니다.");
+        errorBox.textContent = "서버 오류가 발생했습니다.";
       }
     }
 
@@ -102,6 +176,8 @@
     }
   </script>
 </body>
+</html>
+
 </html>
 
 
