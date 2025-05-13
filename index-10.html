@@ -97,10 +97,11 @@
 <body>
   <div class="chat-container">
     <h1>🐋 OrcaX 실시간 채팅</h1>
-    <input type="text" id="sender" placeholder="닉네임을 입력하세요" />
+    <div id="nickname-banner" style="text-align:center; font-weight:bold; margin-bottom: 10px; color: #2c3e50;"></div>
+    <input type="text" id="sender" placeholder="님코리임을 입력하세요" disabled />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
     <button onclick="sendMessage()">전송하기</button>
-    <div class="scroll-toggle" onclick="toggleScroll()">📌 자동 스크롤: <span id="scroll-state">켜짐</span></div>
+    <div class="scroll-toggle" onclick="toggleScroll()">📜 자동 스크롤: <span id="scroll-state">케지면</span></div>
     <div id="chat-log"></div>
     <div class="back-button">
       <a href="index.html">← 대화방 나가기</a>
@@ -114,10 +115,14 @@
 
     window.onload = () => {
       const saved = localStorage.getItem('nickname');
-      if (saved) {
-        document.getElementById('sender').value = saved;
-        currentNickname = saved;
+      if (!saved) {
+        alert("로그인 후 이용가능합니다. 로그인 페이지로 이동합니다.");
+        window.location.href = "login.html";
+        return;
       }
+      document.getElementById('sender').value = saved;
+      document.getElementById('nickname-banner').textContent = `👤 ${saved} 님의 채팅 방입니다.`;
+      currentNickname = saved;
       loadMessages();
       setInterval(loadMessages, 5000);
     };
@@ -126,7 +131,7 @@
       const sender = document.getElementById("sender").value.trim();
       const message = document.getElementById("message").value.trim();
       if (!sender || !message) {
-        alert("닉네임과 메시지를 모두 입력해주세요!");
+        alert("님보와 메시지를 전달해주세요!");
         return;
       }
       currentNickname = sender;
@@ -168,12 +173,12 @@
           ).join('');
           if (autoScroll) log.scrollTop = log.scrollHeight;
         })
-        .catch(err => console.error("불러오기 에러:", err));
+        .catch(err => console.error("빠른 로드 에러:", err));
     }
 
     function toggleScroll() {
       autoScroll = !autoScroll;
-      document.getElementById("scroll-state").innerText = autoScroll ? "켜짐" : "꺼짐";
+      document.getElementById("scroll-state").innerText = autoScroll ? "케지면" : "무지금";
     }
   </script>
 </body>
