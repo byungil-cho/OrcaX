@@ -1,90 +1,111 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <title>OrcaX 로그인</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>로그인</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f2f2f2;
+      background-color: #f7f9fb;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
 
-    .login-container {
-      background: #fff;
+    .login-box {
+      background: white;
       padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      width: 300px;
-      text-align: center;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
     }
 
     h2 {
+      text-align: center;
+      color: #333;
       margin-bottom: 1.5rem;
     }
 
     input {
       width: 100%;
       padding: 10px;
-      margin-bottom: 1rem;
+      margin-top: 0.8rem;
       border: 1px solid #ccc;
       border-radius: 6px;
+      font-size: 1rem;
     }
 
-    .btn {
+    button {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
+      margin-top: 1.2rem;
+      font-size: 1rem;
       border: none;
-      background-color: #3498db;
-      color: white;
-      font-weight: bold;
       border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 1rem;
     }
 
-    .btn.gray {
+    .login-btn {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .signup-btn {
       background-color: #ccc;
-      color: #333;
+      color: #000;
     }
   </style>
 </head>
 <body>
-  <div class="login-container">
+  <div class="login-box">
     <h2>로그인</h2>
-    <input type="text" id="nickname" placeholder="닉네임 입력" />
-    <button class="btn" onclick="login()">로그인</button>
-    <button class="btn gray" onclick="goSignup()">회원가입 하러 가기</button>
+    <input type="text" id="username" placeholder="아이디 입력" />
+    <input type="password" id="password" placeholder="비밀번호 입력" />
+    <button class="login-btn" onclick="handleLogin()">로그인</button>
+    <button class="signup-btn" onclick="goToSignup()">회원가입 하러 가기</button>
   </div>
 
   <script>
-    // 로그인 상태 유지 확인
-    window.onload = function () {
-      const user = localStorage.getItem("user");
-      if (user) {
-        alert("이미 로그인된 사용자입니다.");
-        location.href = "index.html"; // 로그인된 사용자는 오픈방으로 이동
-      }
-    };
+    function handleLogin() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-    function login() {
-      const nickname = document.getElementById("nickname").value.trim();
-      if (!nickname) {
-        alert("닉네임을 입력하세요!");
+      if (!username || !password) {
+        alert("아이디와 비밀번호를 모두 입력해주세요.");
         return;
       }
 
-      localStorage.setItem("user", nickname);
-      alert(`${nickname}님 환영합니다!`);
-      location.href = "index.html";
+      // 실제 서버 연동은 여기서 fetch 사용
+      fetch("https://orcax-franchise-backend.onrender.com/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          alert("로그인 성공!");
+          // ✅ 절대경로 리다이렉트
+          window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+        } else {
+          alert("로그인 실패: " + (result.message || "아이디 또는 비밀번호가 일치하지 않습니다."));
+        }
+      })
+      .catch(error => {
+        console.error("로그인 오류:", error);
+        alert("서버 오류가 발생했습니다.");
+      });
     }
 
-    function goSignup() {
-      location.href = "signup-form.html";
+    function goToSignup() {
+      // 상대경로 가능, 이미 절대경로 배치
+      window.location.href = "signup-form.html";
     }
   </script>
 </body>
