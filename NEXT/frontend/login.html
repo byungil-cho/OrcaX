@@ -3,111 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <title>OrcaX 로그인</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f7f9fb;
+      background-color: #f4f6f9;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
     }
-
-    .login-box {
+    .form-box {
       background: white;
       padding: 2rem;
-      border-radius: 12px;
+      border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 400px;
     }
-
     h2 {
       text-align: center;
       color: #333;
       margin-bottom: 1.5rem;
     }
-
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
     input {
       width: 100%;
       padding: 10px;
-      margin-top: 0.8rem;
+      margin-top: 0.3rem;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 1rem;
     }
-
     button {
       width: 100%;
       padding: 12px;
-      margin-top: 1.2rem;
+      margin-top: 1.5rem;
       font-size: 1rem;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-
-    .login-btn {
+    .submit-btn {
       background-color: #3498db;
       color: white;
     }
-
-    .signup-btn {
+    .link-btn {
       background-color: #ccc;
-      color: #000;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
+  <div class="form-box">
     <h2>로그인</h2>
-    <input type="text" id="username" placeholder="아이디 입력" />
-    <input type="password" id="password" placeholder="비밀번호 입력" />
-    <button class="login-btn" onclick="handleLogin()">로그인</button>
-    <button class="signup-btn" onclick="goToSignup()">회원가입 하러 가기</button>
+
+    <label for="email">이메일</label>
+    <input type="email" id="email" placeholder="email@example.com" />
+
+    <label for="password">비밀번호</label>
+    <input type="password" id="password" placeholder="********" />
+
+    <button class="submit-btn" onclick="submitLogin()">로그인</button>
+    <button class="link-btn" onclick="goSignup()">회원가입 하러 가기</button>
   </div>
 
   <script>
-    function handleLogin() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
+    async function submitLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
 
-      if (!username || !password) {
-        alert("아이디와 비밀번호를 모두 입력해주세요.");
+      if (!email || !password) {
+        alert("모든 항목을 입력해주세요.");
         return;
       }
 
-      // 실제 서버 연동은 여기서 fetch 사용
-      fetch("https://orcax-franchise-backend.onrender.com/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username, password })
-      })
-      .then(res => res.json())
-      .then(result => {
-        if (result.success) {
-          alert("로그인 성공!");
-          // ✅ 절대경로 리다이렉트
-          window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+      try {
+        const response = await fetch("http://localhost:3040/api/users/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const contentType = response.headers.get("content-type");
+        if (contentType.includes("application/json")) {
+          const result = await response.json();
+
+          if (response.ok && result.token) {
+            localStorage.setItem("token", result.token);
+            localStorage.setItem("nickname", result.nickname || ""); // 나중에 서버에서 nickname 주면 쓰임
+            alert("로그인 성공!");
+            window.location.href = "home.html";
+          } else {
+            alert("로그인 실패: " + result.message);
+          }
         } else {
-          alert("로그인 실패: " + (result.message || "아이디 또는 비밀번호가 일치하지 않습니다."));
+          const text = await response.text();
+          console.error("비정상 응답:", text);
+          alert("서버 오류가 발생했습니다.");
         }
-      })
-      .catch(error => {
-        console.error("로그인 오류:", error);
+      } catch (err) {
+        console.error("로그인 중 오류:", err);
         alert("서버 오류가 발생했습니다.");
-      });
+      }
     }
 
-    function goToSignup() {
-      // 상대경로 가능, 이미 절대경로 배치
+    function goSignup() {
       window.location.href = "signup-form.html";
     }
   </script>
 </body>
 </html>
+
 
