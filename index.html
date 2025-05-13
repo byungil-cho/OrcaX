@@ -33,6 +33,10 @@
 <body>
   <div class="container">
     <h1 onclick="requestAdminAccess()">👫 OrcaX Puzzle</h1>
+
+    <!-- 닉네임 표시 영역 -->
+    <div id="user-info" style="margin-top: 10px; font-size: 1.1rem; color: #00e0ff;"></div>
+
     <h2>Select the First Puzzle to Begin</h2>
 
     <div class="grid">
@@ -59,6 +63,15 @@
     function requestAdminAccess() {
       alert("관리자 접근 권한이 필요합니다.");
     }
+
+    const nickname = localStorage.getItem("nickname");
+    if (nickname) {
+      const userInfo = document.getElementById("user-info");
+      if (userInfo) {
+        userInfo.textContent = `👤 ${nickname}님, 환영합니다.`;
+      }
+    }
   </script>
 </body>
 </html>
+
