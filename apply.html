@@ -14,8 +14,8 @@
 <body>
   <h2>가맹점 신청</h2>
   <form id="form" enctype="multipart/form-data">
-    <input name="name" placeholder="대표자명" required />
-    <input name="phone" placeholder="전화번호" required />
+    <input name="name" placeholder="대표자명" required id="name" />
+    <input name="phone" placeholder="전화번호" required id="phone" />
     <input name="corpnum" placeholder="사업자번호" required />
     <input name="region" placeholder="지역" required />
     <input name="address" placeholder="주소" required />
@@ -27,32 +27,45 @@
   <div id="result"></div>
 
   <script>
-  const form = document.getElementById("form");
-  const result = document.getElementById("result");
+    // 로그인 상태 확인
+    const nickname = localStorage.getItem("nickname");
+    const phone = localStorage.getItem("phone");
+    const email = localStorage.getItem("email");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
+    if (!nickname) {
+      alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "login.html";
+    } else {
+      // 자동으로 대표자명, 전화번호 채우기 (있다면)
+      document.getElementById("name").value = nickname;
+      if (phone) document.getElementById("phone").value = phone;
+    }
 
-    try {
-      const response = await fetch("https://orcax-franchise-backend.onrender.com/api/apply", {
-        method: "POST",
-        body: formData
-      });
+    const form = document.getElementById("form");
+    const result = document.getElementById("result");
 
-      if (response.ok) {
-        // 성공하면 페이지 이동
-        window.location.href = "thankyou.html";
-      } else {
-        result.textContent = "❌ 전송 실패! 서버 오류 (" + response.status + ")";
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch("https://orcax-franchise-backend.onrender.com/api/apply", {
+          method: "POST",
+          body: formData
+        });
+
+        if (response.ok) {
+          window.location.href = "thankyou.html";
+        } else {
+          result.textContent = "\u274c 전송 실패! 서버 오류 (" + response.status + ")";
+          result.style.color = "red";
+        }
+      } catch (err) {
+        result.textContent = "\u274c 네트워크 오류: " + err.message;
         result.style.color = "red";
       }
-    } catch (err) {
-      result.textContent = "❌ 네트워크 오류: " + err.message;
-      result.style.color = "red";
-    }
-  });
-</script>
+    });
+  </script>
 
 </body>
 </html>
