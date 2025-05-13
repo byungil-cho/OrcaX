@@ -2,82 +2,91 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaX 로그인</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>로그인</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f4f4f4;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
     }
 
-    .form-box {
-      background: white;
+    .login-container {
+      background: #fff;
       padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width: 300px;
       text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 1.5rem;
     }
 
     input {
       width: 100%;
       padding: 10px;
-      margin-top: 1rem;
+      margin-bottom: 1rem;
       border: 1px solid #ccc;
       border-radius: 6px;
-      font-size: 1rem;
     }
 
-    button {
+    .btn {
       width: 100%;
-      padding: 12px;
-      margin-top: 1.2rem;
-      font-size: 1rem;
+      padding: 10px;
       border: none;
-      border-radius: 6px;
       background-color: #3498db;
       color: white;
+      font-weight: bold;
+      border-radius: 6px;
       cursor: pointer;
+      margin-bottom: 1rem;
     }
 
-    button:hover {
-      background-color: #2980b9;
-    }
-
-    .link-btn {
-      background-color: #eee;
+    .btn.gray {
+      background-color: #ccc;
       color: #333;
-      margin-top: 0.6rem;
     }
   </style>
 </head>
 <body>
-  <div class="form-box">
+  <div class="login-container">
     <h2>로그인</h2>
-    <input type="text" id="nickname" placeholder="닉네임 또는 아이디" />
-    <button onclick="login()">로그인</button>
-    <button class="link-btn" onclick="location.href='signup-form.html'">회원가입 하러 가기</button>
+    <input type="text" id="nickname" placeholder="닉네임 입력" />
+    <button class="btn" onclick="login()">로그인</button>
+    <button class="btn gray" onclick="goSignup()">회원가입 하러 가기</button>
   </div>
 
   <script>
+    // 로그인 상태 유지 확인
+    window.onload = function () {
+      const user = localStorage.getItem("user");
+      if (user) {
+        alert("이미 로그인된 사용자입니다.");
+        location.href = "index.html"; // 로그인된 사용자는 오픈방으로 이동
+      }
+    };
+
     function login() {
-      const nickname = document.getElementById('nickname').value.trim();
+      const nickname = document.getElementById("nickname").value.trim();
       if (!nickname) {
-        alert("아이디를 입력하세요!");
+        alert("닉네임을 입력하세요!");
         return;
       }
 
-      // 실제로는 여기서 DB 확인이 들어가야 하지만 지금은 생략
-      localStorage.setItem("nickname", nickname);
-      alert(`${nickname}님, 환영합니다!`);
-      location.href = "home.html"; // 로그인 성공 후 홈으로 이동
+      localStorage.setItem("user", nickname);
+      alert(`${nickname}님 환영합니다!`);
+      location.href = "index.html";
+    }
+
+    function goSignup() {
+      location.href = "signup-form.html";
     }
   </script>
 </body>
 </html>
+
