@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>가입자 명부</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+      background: white;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background: #3498db;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>가입자 명부</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>이름</th>
+        <th>전화</th>
+        <th>이메일</th>
+        <th>닉네임</th>
+        <th>가입일</th>
+      </tr>
+    </thead>
+    <tbody id="user-list">
+      <tr><td colspan="5">로드 중...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    fetch('http://localhost:3040/api/users/list')
+      .then(res => res.json())
+      .then(users => {
+        const tbody = document.getElementById("user-list");
+        tbody.innerHTML = users.map(user => `
+          <tr>
+            <td>${user.name || '-'}</td>
+            <td>${user.phone || '-'}</td>
+            <td>${user.email || '-'}</td>
+            <td>${user.nickname || '-'}</td>
+            <td>${new Date(user.createdAt).toLocaleString()}</td>
+          </tr>
+        `).join('');
+      })
+      .catch(err => {
+        console.error("명부 로드 실패:", err);
+        document.getElementById("user-list").innerHTML = '<tr><td colspan="5">정보 로드 실패</td></tr>';
+      });
+  </script>
+</body>
+</html>
