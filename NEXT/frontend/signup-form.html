@@ -1,4 +1,4 @@
-<!-- signup-form.html (리팩토링된 버전) -->
+<!-- signup-form.html (완전 보완 버전) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -77,35 +77,42 @@
       text-align: center;
       margin-top: 1rem;
     }
-    .link a { color: #007BFF; text-decoration: none; margin: 0 0.5rem; }
+    .link a {
+      color: #007BFF;
+      text-decoration: none;
+      margin: 0 0.5rem;
+    }
   </style>
 </head>
 <body>
   <div class="form-box">
     <h2>OrcaX 회원가입</h2>
 
-    <label for="name">성명</label>
-    <input type="text" id="name" placeholder="홍길동" />
+    <form onsubmit="submitSignup(); return false;">
+      <label for="name">성명</label>
+      <input type="text" id="name" placeholder="홍길동" required />
 
-    <label for="phone">전번</label>
-    <input type="text" id="phone" placeholder="010-1234-5678" />
+      <label for="phone">전번</label>
+      <input type="text" id="phone" placeholder="010-1234-5678" required />
 
-    <label for="email">이메일</label>
-    <input type="email" id="email" placeholder="email@example.com" />
+      <label for="email">이메일</label>
+      <input type="email" id="email" placeholder="email@example.com" required />
 
-    <label for="nickname">닉네임</label>
-    <input type="text" id="nickname" placeholder="닉네임" onblur="checkNickname()" />
-    <div id="nickname-status"></div>
+      <label for="nickname">닉네임</label>
+      <input type="text" id="nickname" placeholder="닉네임" onblur="checkNickname()" required />
+      <div id="nickname-status"></div>
 
-    <label for="password">비밀번호</label>
-    <input type="password" id="password" placeholder="********" />
+      <label for="password">비밀번호</label>
+      <input type="password" id="password" placeholder="********" required />
 
-    <label for="confirm">비밀번호 확인</label>
-    <input type="password" id="confirm" placeholder="********" />
+      <label for="confirm">비밀번호 확인</label>
+      <input type="password" id="confirm" placeholder="********" required />
 
-    <div id="error-message"></div>
+      <div id="error-message"></div>
 
-    <button class="submit-btn" onclick="submitSignup()">가입 신청</button>
+      <button class="submit-btn" type="submit">가입 신청</button>
+    </form>
+
     <button class="kakao-btn" onclick="goKakaoLogin()">
       <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오톡" />
       간편가입하기
@@ -144,10 +151,6 @@
       const errorBox = document.getElementById('error-message');
       errorBox.textContent = "";
 
-      if (!name || !phone || !email || !nickname || !pw || !confirm) {
-        errorBox.textContent = "모든 항목을 입력해주세요.";
-        return;
-      }
       if (pw !== confirm) {
         errorBox.textContent = "비밀번호가 일치하지 않습니다.";
         return;
@@ -165,6 +168,13 @@
           alert("가입 성공! 로그인 페이지로 이동합니다.");
           location.href = "login.html";
         } else {
+          if (result.message && result.message.includes("이미 가입된 이메일")) {
+            const goLogin = confirm("이미 가입된 이메일입니다. 로그인 하시겠습니까?");
+            if (goLogin) {
+              window.location.href = "login.html";
+              return;
+            }
+          }
           errorBox.textContent = result.message || "가입 실패. 다시 시도해주세요.";
         }
       } catch (err) {
