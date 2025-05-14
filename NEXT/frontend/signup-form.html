@@ -132,13 +132,21 @@
       if (!nickname) return;
 
       try {
-        const res = await fetch(`${BASE_URL}/api/users/check?nickname=${nickname}`); // ✅ 수정됨
-        const result = await res.json();
-        const status = document.getElementById('nickname-status');
-        status.textContent = result.exists ? '이미 사용 중인 닉네임입니다.' : '사용 가능한 닉네임입니다.';
-        status.style.color = result.exists ? 'red' : 'green';
+        const res = await fetch(`${BASE_URL}/api/users/check?nickname=${encodeURIComponent(nickname)}`);
+        const contentType = res.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+          const result = await res.json();
+          const status = document.getElementById('nickname-status');
+          status.textContent = result.exists ? '이미 사용 중인 닉네임입니다.' : '사용 가능한 닉네임입니다.';
+          status.style.color = result.exists ? 'red' : 'green';
+        } else {
+          throw new Error("서버 응답이 JSON이 아닙니다.");
+        }
       } catch (e) {
         console.error("닉네임 확인 오류:", e);
+        document.getElementById('nickname-status').textContent = "닉네임 확인 중 오류 발생";
+        document.getElementById('nickname-status').style.color = "gray";
       }
     }
 
