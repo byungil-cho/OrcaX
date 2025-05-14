@@ -1,4 +1,3 @@
-<!-- signup-form.html (완전 보완 버전 + render용 주소 적용) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -133,7 +132,7 @@
       if (!nickname) return;
 
       try {
-        const res = await fetch(`${BASE_URL}/api/user/check?nickname=${nickname}`);
+        const res = await fetch(`${BASE_URL}/api/users/check?nickname=${nickname}`); // ✅ 수정됨
         const result = await res.json();
         const status = document.getElementById('nickname-status');
         status.textContent = result.exists ? '이미 사용 중인 닉네임입니다.' : '사용 가능한 닉네임입니다.';
@@ -191,4 +190,5 @@
   </script>
 </body>
 </html>
+
 
