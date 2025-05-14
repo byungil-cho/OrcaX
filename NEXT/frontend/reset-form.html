@@ -1,14 +1,13 @@
-<!-- reset-form.html (비밀번호 재설정 완료 페이지) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>새 비밀번호 설정</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>비밀번호 재설정</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f7f9fb;
+      background-color: #f4f7f9;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -28,16 +27,10 @@
       color: #333;
       margin-bottom: 1.5rem;
     }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-      font-size: 0.9rem;
-    }
     input {
       width: 100%;
       padding: 10px;
-      margin-top: 0.3rem;
+      margin-top: 1rem;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 1rem;
@@ -49,81 +42,62 @@
       font-size: 1rem;
       border: none;
       border-radius: 6px;
-      cursor: pointer;
-      background-color: #3498db;
+      background-color: #e67e22;
       color: white;
+      cursor: pointer;
     }
     #message {
-      font-size: 0.9rem;
-      margin-top: 1rem;
       text-align: center;
+      margin-top: 1rem;
+      color: #c0392b;
     }
   </style>
 </head>
 <body>
   <div class="form-box">
     <h2>새 비밀번호 설정</h2>
-    <label for="password">새 비밀번호</label>
-    <input type="password" id="password" placeholder="********" />
-
-    <label for="confirm">비밀번호 확인</label>
-    <input type="password" id="confirm" placeholder="********" />
-
+    <input type="password" id="newPassword" placeholder="새 비밀번호" required />
+    <input type="password" id="confirmPassword" placeholder="비밀번호 확인" required />
+    <button onclick="resetPassword()">비밀번호 변경</button>
     <div id="message"></div>
-    <button onclick="resetPassword()">비밀번호 재설정</button>
   </div>
 
   <script>
-    function getTokenFromURL() {
+    const BASE_URL = "http://localhost:3040"; // 배포 시 변경
+
+    function getTokenFromUrl() {
       const params = new URLSearchParams(window.location.search);
-      return params.get("token");
+      return params.get('token');
     }
 
     async function resetPassword() {
-      const token = getTokenFromURL();
-      const password = document.getElementById("password").value;
-      const confirm = document.getElementById("confirm").value;
-      const messageBox = document.getElementById("message");
-      messageBox.textContent = "";
+      const token = getTokenFromUrl();
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const messageBox = document.getElementById('message');
+      messageBox.textContent = '';
 
-      if (!password || !confirm) {
-        messageBox.textContent = "모든 항목을 입력해주세요.";
-        messageBox.style.color = "red";
-        return;
-      }
-      if (password !== confirm) {
-        messageBox.textContent = "비밀번호가 일치하지 않습니다.";
-        messageBox.style.color = "red";
-        return;
-      }
-      if (!token) {
-        messageBox.textContent = "토큰이 유효하지 않습니다.";
-        messageBox.style.color = "red";
+      if (newPassword !== confirmPassword) {
+        messageBox.textContent = '비밀번호가 일치하지 않습니다.';
         return;
       }
 
       try {
-        const res = await fetch("http://localhost:3040/api/users/reset-password", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, newPassword: password })
+        const res = await fetch(`${BASE_URL}/api/users/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, newPassword })
         });
 
         const result = await res.json();
-        if (res.ok) {
-          messageBox.textContent = "비밀번호가 재설정되었습니다. 다시 로그인해주세요.";
-          messageBox.style.color = "green";
-          setTimeout(() => {
-            window.location.href = "login.html?force=true";
-          }, 3000);
-        } else {
-          messageBox.textContent = result.message || "실패했습니다.";
-          messageBox.style.color = "red";
-        }
+        messageBox.textContent = res.ok
+          ? '비밀번호가 성공적으로 변경되었습니다. 로그인하세요.'
+          : result.message || '변경 실패';
+
+        if (res.ok) setTimeout(() => location.href = 'login.html', 2000);
       } catch (err) {
         console.error(err);
-        messageBox.textContent = "서버 오류가 발생했습니다.";
-        messageBox.style.color = "red";
+        messageBox.textContent = '서버 오류가 발생했습니다';
       }
     }
   </script>
