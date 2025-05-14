@@ -1,4 +1,4 @@
-<!-- signup-form.html (완전 보완 버전) -->
+<!-- signup-form.html (완전 보완 버전 + render용 주소 적용) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -126,12 +126,14 @@
   </div>
 
   <script>
+    const BASE_URL = "https://orcax-franchise-backend.onrender.com";
+
     async function checkNickname() {
       const nickname = document.getElementById('nickname').value;
       if (!nickname) return;
 
       try {
-        const res = await fetch(`http://localhost:3040/api/user/check?nickname=${nickname}`);
+        const res = await fetch(`${BASE_URL}/api/user/check?nickname=${nickname}`);
         const result = await res.json();
         const status = document.getElementById('nickname-status');
         status.textContent = result.exists ? '이미 사용 중인 닉네임입니다.' : '사용 가능한 닉네임입니다.';
@@ -157,7 +159,7 @@
       }
 
       try {
-        const res = await fetch("http://localhost:3040/api/users/register", {
+        const res = await fetch(`${BASE_URL}/api/users/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, phone, email, nickname, password: pw })
