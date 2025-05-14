@@ -7,111 +7,99 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f7f7f7;
+      background-color: #f2f2f2;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
     }
-
     .form-container {
-      background: white;
+      background: #fff;
       padding: 2rem;
-      border-radius: 8px;
+      border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 400px;
     }
-
     h2 {
       text-align: center;
       margin-bottom: 1.5rem;
-      color: #333;
     }
-
     input {
       width: 100%;
-      padding: 0.75rem;
-      margin: 0.5rem 0;
+      padding: 10px;
+      margin-bottom: 1rem;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 8px;
+      font-size: 1rem;
     }
-
-    .error {
-      color: red;
-      font-size: 0.9rem;
-    }
-
     button {
       width: 100%;
-      padding: 0.75rem;
-      background-color: #3498db;
+      padding: 12px;
+      background: #3498db;
       color: white;
       font-size: 1rem;
       border: none;
-      border-radius: 4px;
-      margin-top: 1rem;
+      border-radius: 8px;
       cursor: pointer;
     }
-
-    button:hover {
-      background-color: #2980b9;
+    #error {
+      color: red;
+      text-align: center;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
   <div class="form-container">
     <h2>회원가입</h2>
-    <input type="text" id="name" placeholder="이름" />
-    <input type="text" id="phone" placeholder="전화번호" />
-    <input type="email" id="email" placeholder="이메일" />
-    <input type="text" id="nickname" placeholder="닉네임" />
-    <input type="password" id="password" placeholder="비밀번호" />
-    <input type="password" id="confirmPassword" placeholder="비밀번호 확인" />
-    <div class="error" id="error"></div>
+    <input type="text" id="name" placeholder="이름" required />
+    <input type="text" id="phone" placeholder="전화번호" required />
+    <input type="email" id="email" placeholder="이메일" required />
+    <input type="text" id="nickname" placeholder="닉네임" required />
+    <input type="password" id="password" placeholder="비밀번호" required />
+    <input type="password" id="confirm" placeholder="비밀번호 확인" required />
+    <div id="error"></div>
     <button onclick="submitSignup()">가입하기</button>
   </div>
 
   <script>
-    function submitSignup() {
+    async function submitSignup() {
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const email = document.getElementById("email").value.trim();
       const nickname = document.getElementById("nickname").value.trim();
       const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const errorDiv = document.getElementById("error");
+      const confirm = document.getElementById("confirm").value;
 
-      if (!name || !phone || !email || !nickname || !password || !confirmPassword) {
-        errorDiv.textContent = "모든 항목을 입력해주세요.";
+      const errorDiv = document.getElementById("error");
+      errorDiv.textContent = "";
+
+      if (!name || !phone || !email || !nickname || !password || !confirm) {
+        errorDiv.textContent = "모든 항목을 입력하세요.";
         return;
       }
 
-      if (password !== confirmPassword) {
+      if (password !== confirm) {
         errorDiv.textContent = "비밀번호가 일치하지 않습니다.";
         return;
       }
 
-      const data = { name, phone, email, nickname, password };
+      try {
+        const res = await fetch("https://orcax-franchise-backend.onrender.com/api/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phone, email, nickname, password })
+        });
 
-      fetch("https://orcax-franchise-backend.onrender.com/api/apply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-      .then(res => {
         if (!res.ok) throw new Error("서버 오류");
-        return res.json();
-      })
-      .then(() => {
+
         alert("회원가입이 완료되었습니다!");
         location.href = "user-list.html";
-      })
-      .catch(err => {
+      } catch (err) {
         console.error(err);
-        errorDiv.textContent = "서버 오류 발생";
-      });
+        errorDiv.textContent = "서버 오류가 발생했습니다.";
+      }
     }
   </script>
 </body>
