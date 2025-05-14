@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>로그인</title>
   <style>
     body {
@@ -18,7 +18,7 @@
       background: white;
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 400px;
     }
@@ -58,6 +58,7 @@
     #signup-link a {
       color: #3498db;
       text-decoration: underline;
+      font-size: 0.95rem;
     }
   </style>
 </head>
@@ -72,15 +73,16 @@
   </div>
 
   <script>
-    const BASE_URL = "http://localhost:3040"; // 배포 시 수정
+    const BASE_URL = "http://localhost:3040"; // 필요 시 배포 주소로 변경
 
     async function loginUser() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
       const errorBox = document.getElementById('error-message');
-      const signupLinkBox = document.getElementById('signup-link');
+      const signupBox = document.getElementById('signup-link');
+
       errorBox.textContent = "";
-      signupLinkBox.innerHTML = "";
+      signupBox.innerHTML = "";
 
       try {
         const res = await fetch(`${BASE_URL}/api/users/login`, {
@@ -96,12 +98,13 @@
             email,
             nickname: result.nickname
           }));
-          alert('로그인 성공! 홈으로 이동합니다.');
-          window.location.href = 'home.html';
+          alert("로그인 성공! 홈으로 이동합니다.");
+          window.location.href = "home.html";
         } else {
           errorBox.textContent = result.message || "로그인 실패";
+
           if (result.redirect) {
-            signupLinkBox.innerHTML = `<a href="${result.redirect}">회원가입 하러 가기</a>`;
+            signupBox.innerHTML = `<a href="${result.redirect}">회원가입 하러 가기</a>`;
           }
         }
       } catch (err) {
