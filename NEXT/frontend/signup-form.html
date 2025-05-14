@@ -1,115 +1,121 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>회원가입</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f2f2f2;
-      padding: 2rem;
+      background-color: #f7f7f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-    .form-box {
-      max-width: 400px;
-      margin: auto;
+
+    .form-container {
       background: white;
       padding: 2rem;
-      border-radius: 10px;
+      border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
     }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
     input {
       width: 100%;
-      padding: 10px;
-      margin-top: 10px;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 4px;
     }
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 20px;
-      background-color: #3498db;
-      border: none;
-      color: white;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-    #nickname-status, #error-message {
-      margin-top: 0.5rem;
+
+    .error {
+      color: red;
       font-size: 0.9rem;
     }
-    #nickname-status { color: green; }
-    #error-message { color: red; }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #3498db;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
   </style>
 </head>
 <body>
-  <div class="form-box">
+  <div class="form-container">
     <h2>회원가입</h2>
-    <input type="text" id="name" placeholder="이름" required />
-    <input type="text" id="phone" placeholder="전화번호" required />
-    <input type="email" id="email" placeholder="이메일" required />
-    <input type="text" id="nickname" placeholder="닉네임" onblur="checkNickname()" required />
-    <div id="nickname-status"></div>
-    <input type="password" id="password" placeholder="비밀번호" required />
-    <input type="password" id="confirm" placeholder="비밀번호 확인" required />
-    <div id="error-message"></div>
+    <input type="text" id="name" placeholder="이름" />
+    <input type="text" id="phone" placeholder="전화번호" />
+    <input type="email" id="email" placeholder="이메일" />
+    <input type="text" id="nickname" placeholder="닉네임" />
+    <input type="password" id="password" placeholder="비밀번호" />
+    <input type="password" id="confirmPassword" placeholder="비밀번호 확인" />
+    <div class="error" id="error"></div>
     <button onclick="submitSignup()">가입하기</button>
   </div>
 
   <script>
-    const BASE_URL = "http://localhost:3040"; // 배포 시 수정 필요
+    function submitSignup() {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const nickname = document.getElementById("nickname").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const errorDiv = document.getElementById("error");
 
-    async function checkNickname() {
-      const nickname = document.getElementById('nickname').value;
-      if (!nickname) return;
-      try {
-        const res = await fetch(`${BASE_URL}/api/users/check?nickname=${encodeURIComponent(nickname)}`);
-        const result = await res.json();
-        const status = document.getElementById('nickname-status');
-        status.textContent = result.exists ? '이미 사용 중인 닉네임입니다.' : '사용 가능한 닉네임입니다.';
-        status.style.color = result.exists ? 'red' : 'green';
-      } catch (e) {
-        console.error("중복 확인 실패", e);
-      }
-    }
-
-    async function submitSignup() {
-      const name = document.getElementById('name').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const nickname = document.getElementById('nickname').value.trim();
-      const password = document.getElementById('password').value;
-      const confirm = document.getElementById('confirm').value;
-      const errorBox = document.getElementById('error-message');
-      errorBox.textContent = "";
-
-      if (password !== confirm) {
-        errorBox.textContent = "비밀번호가 일치하지 않습니다.";
+      if (!name || !phone || !email || !nickname || !password || !confirmPassword) {
+        errorDiv.textContent = "모든 항목을 입력해주세요.";
         return;
       }
 
-      try {
-        const res = await fetch(`${BASE_URL}/api/users/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, phone, email, nickname, password })
-        });
-
-        const result = await res.json();
-        if (res.ok) {
-          alert("가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
-          window.location.href = "login.html";
-        } else {
-          errorBox.textContent = result.message || "가입 실패";
-        }
-      } catch (err) {
-        errorBox.textContent = "서버 오류 발생";
-        console.error(err);
+      if (password !== confirmPassword) {
+        errorDiv.textContent = "비밀번호가 일치하지 않습니다.";
+        return;
       }
+
+      const data = { name, phone, email, nickname, password };
+
+      fetch("https://orcax-franchise-backend.onrender.com/api/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("서버 오류");
+        return res.json();
+      })
+      .then(() => {
+        alert("회원가입이 완료되었습니다!");
+        location.href = "user-list.html";
+      })
+      .catch(err => {
+        console.error(err);
+        errorDiv.textContent = "서버 오류 발생";
+      });
     }
   </script>
 </body>
 </html>
+
 
 
