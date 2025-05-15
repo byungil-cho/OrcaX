@@ -66,8 +66,8 @@
       border-bottom: 1px solid #eee;
       font-size: 1.05em;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      align-items: flex-start;
     }
     .empty {
       text-align: center;
@@ -88,7 +88,7 @@
   <main>
     <h2>📋 등록된 고객 목록</h2>
     <div class="controls">
-      <input type="text" id="searchInput" placeholder="고객 이름 또는 활동 검색..." />
+      <input type="text" id="searchInput" placeholder="이름, 닉네임, 이메일, 활동 검색..." />
     </div>
     <ul id="customerList">
       <li class="empty">불러오는 중...</li>
@@ -104,7 +104,7 @@
     function renderList() {
       const keyword = searchInput.value.toLowerCase();
       const filtered = customers.filter(c =>
-        (c.name + c.activity).toLowerCase().includes(keyword)
+        (c.name + c.nickname + c.email + c.activity).toLowerCase().includes(keyword)
       );
 
       list.innerHTML = '';
@@ -117,10 +117,11 @@
       filtered.forEach(c => {
         const li = document.createElement('li');
         li.innerHTML = `
-          <span>
-            🙋 <strong>${c.name}</strong> - ${c.activity} <br>
-            🕓 ${new Date(c.createdAt).toLocaleString('ko-KR')}
-          </span>
+          🙋 <strong>이름:</strong> ${c.name || '정보 없음'}<br>
+          🏷️ <strong>닉네임:</strong> ${c.nickname || '정보 없음'}<br>
+          📧 <strong>이메일:</strong> ${c.email || '정보 없음'}<br>
+          📝 <strong>활동:</strong> ${c.activity || '정보 없음'}<br>
+          🕓 <strong>신청일:</strong> ${c.createdAt ? new Date(c.createdAt).toLocaleString('ko-KR') : '정보 없음'}
         `;
         list.appendChild(li);
       });
