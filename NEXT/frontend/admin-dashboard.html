@@ -148,8 +148,8 @@
         console.error(err);
       });
 
-    // 옥수수 고객 정보
-    fetch("/api/customers")
+    // 옥수수 고객 정보 (절대 경로로 수정)
+    fetch("https://orcax-franchise-backend.onrender.com/api/customers")
       .then(res => res.json())
       .then(data => {
         const customerList = document.getElementById("customerList");
@@ -167,5 +167,6 @@
   </script>
 </body>
 </html>
+
 
 
