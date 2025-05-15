@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>옥수수 고객 관리자 페이지</title>
+  <title>고객 대시보드</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -49,11 +49,13 @@
       text-align: center;
       margin-bottom: 20px;
     }
-    .controls input, .controls button {
+    .controls input {
       margin: 5px;
       padding: 8px 12px;
       border-radius: 6px;
       border: 1px solid #ccc;
+      width: 80%;
+      max-width: 400px;
     }
     ul {
       list-style: none;
@@ -72,17 +74,6 @@
       color: #aaa;
       padding: 20px 0;
     }
-    .del-btn {
-      background: #ff7675;
-      border: none;
-      color: white;
-      border-radius: 4px;
-      padding: 6px 10px;
-      cursor: pointer;
-    }
-    .del-btn:hover {
-      background: #d63031;
-    }
   </style>
 </head>
 <body>
@@ -91,14 +82,13 @@
     <div class="top-button">
       <a href="/OrcaX/index.html">🚓 현장출동</a>
     </div>
-    🌽 옥수수 고객 관리자
+    🌽 고객 대시보드
   </header>
 
   <main>
     <h2>📋 등록된 고객 목록</h2>
     <div class="controls">
       <input type="text" id="searchInput" placeholder="고객 이름 또는 활동 검색..." />
-      <button id="sortToggle">정렬: 최신순</button>
     </div>
     <ul id="customerList">
       <li class="empty">불러오는 중...</li>
@@ -107,20 +97,15 @@
 
   <script>
     let customers = [];
-    let sortNewest = true;
 
     const list = document.getElementById("customerList");
     const searchInput = document.getElementById("searchInput");
-    const sortToggle = document.getElementById("sortToggle");
 
     function renderList() {
       const keyword = searchInput.value.toLowerCase();
-      const filtered = customers
-        .filter(c => (c.name + c.activity).toLowerCase().includes(keyword))
-        .sort((a, b) => sortNewest
-          ? new Date(b.createdAt) - new Date(a.createdAt)
-          : new Date(a.createdAt) - new Date(b.createdAt)
-        );
+      const filtered = customers.filter(c =>
+        (c.name + c.activity).toLowerCase().includes(keyword)
+      );
 
       list.innerHTML = '';
 
@@ -136,44 +121,36 @@
             🙋 <strong>${c.name}</strong> - ${c.activity} <br>
             🕓 ${new Date(c.createdAt).toLocaleString('ko-KR')}
           </span>
-          <button class="del-btn" onclick="deleteCustomer('${c._id}')">❌</button>
         `;
         list.appendChild(li);
       });
     }
 
-    function deleteCustomer(id) {
-      if (!confirm('정말 삭제하시겠습니까?')) return;
-      fetch(`/api/customers/${id}`, { method: 'DELETE' })
+    function fetchCustomers() {
+      fetch('/api/customers')
         .then(res => {
-          if (res.ok) {
-            customers = customers.filter(c => c._id !== id);
-            renderList();
-          } else {
-            alert('삭제 실패');
-          }
+          if (!res.ok) throw new Error('서버 응답 오류');
+          return res.json();
+        })
+        .then(data => {
+          customers = data;
+          renderList();
+        })
+        .catch(() => {
+          list.innerHTML = '<li class="empty">❌ 고객 정보를 불러오지 못했습니다.</li>';
         });
     }
 
-    fetch('/api/customers')
-      .then(res => res.json())
-      .then(data => {
-        customers = data;
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
         renderList();
-      })
-      .catch(() => {
-        list.innerHTML = '<li class="empty">❌ 고객 정보를 불러오지 못했습니다.</li>';
-      });
-
-    searchInput.addEventListener('input', renderList);
-
-    sortToggle.addEventListener('click', () => {
-      sortNewest = !sortNewest;
-      sortToggle.textContent = `정렬: ${sortNewest ? '최신순' : '오래된순'}`;
-      renderList();
+      }
     });
+
+    fetchCustomers();
   </script>
 
 </body>
 </html>
+
 
