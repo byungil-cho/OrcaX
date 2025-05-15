@@ -1,109 +1,98 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrcaX 관리자 - 출금 요청</title>
+  <meta charset="UTF-8">
+  <title>OrcaX NFT Puzzle Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      background: #001f3f;
-      color: #fff;
-      font-family: sans-serif;
-      padding: 2rem;
+    body { background: #111; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; text-align: center; }
+    h1 { color: #00e0ff; margin-bottom: 10px; font-size: 2em; cursor: pointer; display: inline-block; }
+    h2 { color: #ffcc00; margin-bottom: 30px; font-size: 1.2em; }
+    .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .grid a { display: flex; flex-direction: column; align-items: center; background: #333; padding: 10px; border-radius: 10px; text-decoration: none; color: #aaa; width: 140px; transition: background 0.3s; pointer-events: auto; }
+    .grid a img { width: 120px; height: auto; border-radius: 8px; margin-bottom: 8px; border: 2px solid transparent; }
+    .grid a.active { background: #222; color: #fff; pointer-events: auto; }
+    .grid a.active img { border-color: #00ccff; }
+    .grid a:hover.active { background: #00cc99; }
+
+    footer { text-align: center; margin-top: 40px; color: #888; font-size: 0.9rem; }
+    footer a { color: #00e0ff; margin: 0 5px; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 1.5em; }
+      h2 { font-size: 1em; }
+      .grid a { width: 100px; padding: 8px; }
+      .grid a img { width: 90px; }
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 2rem;
+    @media (max-width: 480px) {
+      .container { padding: 10px; }
+      .grid { gap: 10px; }
+      .grid a { width: 90px; padding: 6px; }
+      .grid a img { width: 80px; }
     }
-    th, td {
-      border: 1px solid #00ccff;
-      padding: 0.5rem;
-      text-align: center;
-    }
-    th {
-      background-color: #0074cc;
-    }
-    button {
-      padding: 0.3rem 0.8rem;
-      border: none;
-      border-radius: 4px;
-      margin: 0 4px;
-      cursor: pointer;
-    }
-    .approve { background: green; color: white; }
-    .reject { background: red; color: white; }
   </style>
 </head>
 <body>
-  <h1>🧾 OrcaX 출금 요청 관리자</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>요청일</th>
-        <th>이메일</th>
-        <th>지갑 주소</th>
-        <th>수량</th>
-        <th>상태</th>
-        <th>처리</th>
-      </tr>
-    </thead>
-    <tbody id="request-table">
-      <tr><td colspan="6">불러오는 중...</td></tr>
-    </tbody>
-  </table>
+  <div class="container">
+    <h1><a href="admin.html" style="text-decoration:none; color:#00e0ff;">👫 OrcaX Puzzle</a></h1>
+
+    <div id="user-info" style="margin-top: 10px; font-size: 1.1rem; color: #00e0ff;"></div>
+
+    <h2>Select the First Puzzle to Begin</h2>
+
+    <div class="grid">
+      <a class="active" href="nft_series_01.html"><img src="nft1_01.jpg" alt="Puzzle 1"><strong> 퍼즐 게임</strong></a>
+      <a class="active" href="shop.html"><img src="nft2_01.jpg" alt="Puzzle 2"><strong>NFT SHOP</strong></a>
+      <a class="active" href="about-orcax.html"><img src="nft3_01.jpg" alt="Puzzle 3"><strong>OrcaX 소개</strong></a>
+      <a class="active" href="franchise.html"><img src="nft4_01.jpg" alt="Puzzle 4"><strong>가맹점 현황</strong></a>
+      <a class="active" href="index-10.html"><img src="nft2_02.jpg" alt="Puzzle 5"><strong>메시지 전송</strong></a>
+      <a class="active" href="Foundation.html"><img src="nft3_02.jpg" alt="OrcaX 정책"><strong>OrcaX 정책</strong></a>
+      <a class="active" href="#"><img src="nft4_02.jpg" alt="Puzzle 7"><strong>Puzzle 7</strong></a>
+      <a class="active" href="#"><img src="nft1_02.jpg" alt="Puzzle 8"><strong>Puzzle 8</strong></a>
+      <a class="active" href="#"><img src="nft3_03.jpg" alt="Puzzle 9"><strong>Puzzle 9</strong></a>
+      <a class="active" href="#"><img src="nft4_03.jpg" alt="Puzzle 10"><strong>Puzzle 10</strong></a>
+      <a class="active" href="#"><img src="nft1_03.jpg" alt="Puzzle 11"><strong>Puzzle 11</strong></a>
+      <a class="active" href="#"><img src="nft2_03.jpg" alt="Puzzle 12"><strong>Puzzle 12</strong></a>
+      <a class="active" href="#"><img src="nft4_04.jpg" alt="Puzzle 13"><strong>Puzzle 13</strong></a>
+      <a class="active" href="#"><img src="nft1_04.jpg" alt="Puzzle 14"><strong>Puzzle 14</strong></a>
+      <a class="active" href="#"><img src="nft2_04.jpg" alt="Puzzle 15"><strong>Puzzle 15</strong></a>
+      <a class="active" href="#"><img src="nft3_04.jpg" alt="Puzzle 16"><strong>Puzzle 16</strong></a>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      <a href="privacy-policy-detailed.html" target="_blank">개인정보처리방침</a> |
+      <a href="terms-of-service-detailed.html" target="_blank">이용약관</a> |
+      <a href="notice.html" target="_blank">공지사항</a> |
+      <a href="survey.html" target="_blank">고객만족도</a> |
+      <a href="#" onclick="toggleBusinessInfo()">사업자정보</a>
+    </p>
+    <div id="business-info" style="display: none; margin-top: 10px;">
+      <p>상호: 로얄스크린골프</p>
+      <p>대표자: 조병일</p>
+      <p>주소: 경기도 안산시 상록구 강골로 161</p>
+      <p>연락처: 031-408-2238</p>
+      <p>이메일: jbl01570@hanmail.net</p>
+    </div>
+  </footer>
 
   <script>
-    async function fetchRequests() {
-      const res = await fetch('/admin/withdraw-requests');
-      const data = await res.json();
-      const table = document.getElementById('request-table');
-
-      if (!data.success) {
-        table.innerHTML = '<tr><td colspan="6">❌ 데이터 불러오기 실패</td></tr>';
-        return;
-      }
-
-      if (data.data.length === 0) {
-        table.innerHTML = '<tr><td colspan="6">요청 없음</td></tr>';
-        return;
-      }
-
-      table.innerHTML = '';
-      for (const item of data.data) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${new Date(item.createdAt).toLocaleString()}</td>
-          <td>${item.userEmail || '-'}</td>
-          <td>${item.wallet}</td>
-          <td>${item.amount}</td>
-          <td>${item.status}</td>
-          <td>
-            <button class="approve" onclick="updateStatus('${item._id}', 'approved')">승인</button>
-            <button class="reject" onclick="updateStatus('${item._id}', 'rejected')">거절</button>
-          </td>
-        `;
-        table.appendChild(row);
+    const nickname = localStorage.getItem("nickname");
+    if (nickname) {
+      const userInfo = document.getElementById("user-info");
+      if (userInfo) {
+        userInfo.textContent = `👤 ${nickname}님, 환영합니다.`;
       }
     }
 
-    async function updateStatus(id, status) {
-      const res = await fetch(`/admin/withdraw-requests/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert(`✅ 상태가 '${status}'로 변경됨`);
-        fetchRequests();
-      } else {
-        alert('❌ 상태 변경 실패');
-      }
+    function toggleBusinessInfo() {
+      const info = document.getElementById("business-info");
+      info.style.display = info.style.display === "none" ? "block" : "none";
     }
-
-    fetchRequests();
   </script>
 </body>
 </html>
+
