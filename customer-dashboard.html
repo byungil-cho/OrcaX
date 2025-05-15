@@ -1,119 +1,106 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>고객 관리 대시보드</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>옥수수 고객 관리자 페이지</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(120deg, #fdfbfb, #ebedee);
+      background: #f7f9fa;
       margin: 0;
       padding: 0;
     }
     header {
-      background-color: #00b894;
+      background-color: #00cec9;
+      padding: 20px;
       color: white;
       text-align: center;
-      padding: 20px;
-      font-size: 1.5em;
+      font-size: 1.8em;
+      position: relative;
     }
-    .container {
+    .top-button {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
+    .top-button a {
+      background: white;
+      color: #00cec9;
+      padding: 8px 14px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    main {
       max-width: 800px;
-      margin: 20px auto;
+      margin: 30px auto;
       padding: 20px;
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .search-container {
+    h2 {
+      text-align: center;
       margin-bottom: 20px;
-    }
-    .search-container input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      color: #2d3436;
     }
     ul {
       list-style: none;
       padding: 0;
     }
     li {
-      background: #f1f2f6;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 6px;
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      font-size: 1.05em;
+      display: flex;
+      justify-content: space-between;
     }
-    .no-results {
+    .empty {
       text-align: center;
-      color: #888;
-      margin-top: 20px;
+      color: #aaa;
+      padding: 20px 0;
     }
   </style>
 </head>
 <body>
+
   <header>
-    🌽 고객 관리 대시보드
-  </header>
-  <div class="container">
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="이름, 이메일, 닉네임, 전화번호로 검색...">
+    <div class="top-button">
+      <a href="/OrcaX/index.html">🚓 현장출동</a>
     </div>
+    🌽 옥수수 고객 관리자
+  </header>
+
+  <main>
+    <h2>📋 등록된 고객 목록</h2>
     <ul id="customerList">
-      <li>고객 정보를 불러오는 중...</li>
+      <li class="empty">불러오는 중...</li>
     </ul>
-    <div id="noResults" class="no-results" style="display: none;">검색 결과가 없습니다.</div>
-  </div>
+  </main>
 
   <script>
-    let customers = [];
-
-    // 고객 데이터 불러오기
-    fetch("https://orcax-franchise-backend.onrender.com/api/apply")
+    fetch('/api/customers')
       .then(res => res.json())
       .then(data => {
-        customers = data.filter(c => c.name || c.email || c.nickname || c.phone);
-        displayCustomers(customers);
+        const list = document.getElementById('customerList');
+        list.innerHTML = '';
+
+        if (!data.length) {
+          list.innerHTML = '<li class="empty">등록된 고객이 없습니다.</li>';
+        } else {
+          data.forEach(c => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>🙋 ${c.name}</span><span>${c.activity}</span>`;
+            list.appendChild(li);
+          });
+        }
       })
       .catch(() => {
-        document.getElementById("customerList").innerHTML = '<li>❌ 고객 정보를 불러오지 못했습니다.</li>';
+        const list = document.getElementById('customerList');
+        list.innerHTML = '<li class="empty">고객 목록을 불러오지 못했습니다.</li>';
       });
-
-    // 고객 정보 표시
-    function displayCustomers(data) {
-      const list = document.getElementById("customerList");
-      const noResults = document.getElementById("noResults");
-      list.innerHTML = "";
-      if (data.length === 0) {
-        noResults.style.display = "block";
-        return;
-      }
-      noResults.style.display = "none";
-      data.forEach(c => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>이름:</strong> ${c.name || '없음'}<br>
-          <strong>닉네임:</strong> ${c.nickname || '없음'}<br>
-          <strong>이메일:</strong> ${c.email || '없음'}<br>
-          <strong>전화번호:</strong> ${c.phone || '없음'}<br>
-          <strong>신청일:</strong> ${c.createdAt ? new Date(c.createdAt).toLocaleString("ko-KR") : '없음'}
-        `;
-        list.appendChild(li);
-      });
-    }
-
-    // 검색 기능
-    document.getElementById("searchInput").addEventListener("input", function() {
-      const keyword = this.value.toLowerCase();
-      const filtered = customers.filter(c =>
-        (c.name && c.name.toLowerCase().includes(keyword)) ||
-        (c.nickname && c.nickname.toLowerCase().includes(keyword)) ||
-        (c.email && c.email.toLowerCase().includes(keyword)) ||
-        (c.phone && c.phone.toLowerCase().includes(keyword))
-      );
-      displayCustomers(filtered);
-    });
   </script>
+
 </body>
 </html>
