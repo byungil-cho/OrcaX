@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>공지사항 등록 - Render 연결</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f9f9f9; padding: 20px; max-width: 600px; margin: auto; color: #333; }
+    h1 { color: #004a99; text-align: center; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 20px; padding: 10px 20px; background: #0066cc; color: white; border: none; cursor: pointer; width: 100%; }
+    .message { margin-top: 20px; padding: 10px; background: #eee; border-radius: 5px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>공지사항 등록 (Render 연결)</h1>
+
+  <label for="password">비밀번호</label>
+  <input type="password" id="password" placeholder="비밀번호 입력 (예: 2025)">
+
+  <label for="title">제목</label>
+  <input type="text" id="title" placeholder="[공지] 제목을 입력하세요">
+
+  <label for="date">날짜</label>
+  <input type="date" id="date">
+
+  <label for="content">내용</label>
+  <textarea id="content" rows="6" placeholder="공지사항 내용을 입력하세요"></textarea>
+
+  <button onclick="submitNotice()">공지사항 저장하기</button>
+
+  <div id="message" class="message"></div>
+
+  <script>
+    const today = new Date();
+    const defaultDate = new Date('2025-' + String(today.getMonth()+1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0'));
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('date').valueAsDate = defaultDate;
+    });
+
+    function submitNotice() {
+      const password = document.getElementById('password').value;
+      const title = document.getElementById('title').value;
+      const date = document.getElementById('date').value;
+      const content = document.getElementById('content').value;
+      const messageBox = document.getElementById('message');
+
+      if (!password || !title || !date || !content) {
+        alert('모든 항목을 입력해주세요.');
+        return;
+      }
+
+      fetch("https://orcax-franchise-backend.onrender.com/addNotice", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, title, date, content })
+      })
+      .then(res => res.json())
+      .then(data => {
+        messageBox.style.display = 'block';
+        messageBox.textContent = data.message || '응답 없음';
+      })
+      .catch(err => {
+        messageBox.style.display = 'block';
+        messageBox.textContent = '서버 오류: ' + err.message;
+      });
+    }
+  </script>
+</body>
+</html>
