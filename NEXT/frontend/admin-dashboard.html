@@ -1,13 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>감자 & 보리 신혼 대시보드</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>감자 & 보리 & 옥수수 통합 대시보드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f1f2f6;
+      background: linear-gradient(120deg, #fdfbfb, #ebedee);
       margin: 0;
       padding: 0;
     }
@@ -16,14 +17,14 @@
       color: white;
       text-align: center;
       padding: 20px;
-      font-size: 1.8em;
+      font-size: 1.5em;
     }
     .container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 30px;
-      padding: 30px;
+      padding: 20px;
+      gap: 40px;
     }
     .panel {
       background: white;
@@ -31,142 +32,130 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       padding: 20px;
       width: 400px;
+      position: relative;
     }
     .panel h2 {
+      color: #2d3436;
       border-bottom: 2px solid #00cec9;
       padding-bottom: 10px;
-      color: #2d3436;
     }
     .panel ul {
       list-style: none;
       padding: 0;
+      margin-top: 15px;
     }
     .panel li {
-      background: #ecf0f1;
-      padding: 8px;
-      margin: 6px 0;
+      background: #f1f2f6;
+      padding: 10px;
+      margin-bottom: 8px;
       border-radius: 6px;
     }
-    .count-box {
+    .love-button {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #fd79a8;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 10px;
+      transition: background 0.3s;
+    }
+    .love-button:hover {
+      background-color: #e84393;
+    }
+    .info-box {
+      position: absolute;
+      top: 20px;
+      right: 20px;
       background: #ffeaa7;
       color: #2d3436;
       padding: 6px 12px;
       border-radius: 8px;
+      font-size: 0.9em;
       font-weight: bold;
-      margin-bottom: 10px;
-      display: inline-block;
-    }
-    .link-button {
-      display: block;
-      margin-top: 15px;
-      text-align: center;
-      background-color: #fd79a8;
-      color: white;
-      padding: 10px;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-    .link-button:hover {
-      background-color: #e84393;
     }
   </style>
 </head>
 <body>
-  <header>👩‍❤️‍👨 감자 & 보리 신혼 대시보드</header>
+  <header>
+    👩‍❤️‍👨 감자 & 보리 & 옥수수 통합 신혼 대시보드
+  </header>
 
   <div class="container">
-    <!-- 보리 패널 -->
     <div class="panel">
-      <h2>🧜‍♀️ 보리 (회원가입)</h2>
-      <div class="count-box" id="memberCount">가입자 수: 로딩 중...</div>
-      <ul id="memberList">
-        <li>로딩 중...</li>
+      <h2>🌾 보리 (회원가입)</h2>
+      <div class="info-box" id="userCount">회원 수: 로딩 중...</div>
+      <ul id="userList">
+        <li>불러오는 중...</li>
       </ul>
-      <a href="/OrcaX/NEXT/frontend/user-list.html" class="link-button">회원 관리 보기</a>
+      <a href="/OrcaX/NEXT/frontend/user-list.html" class="love-button">💍 회원 관리 보기</a>
     </div>
 
-    <!-- 감자 패널 -->
     <div class="panel">
       <h2>🥔 감자 (가맹점 신청)</h2>
-      <div class="count-box" id="franchiseCount">신청자 수: 로딩 중...</div>
-      <ul id="franchiseList">
-        <li>로딩 중...</li>
+      <div class="info-box" id="applyCount">신청자 수: 로딩 중...</div>
+      <ul id="applyList">
+        <li>불러오는 중...</li>
       </ul>
-      <a href="/OrcaX/franchise-admin.html" class="link-button">가맹점 관리 보기</a>
+      <a href="/OrcaX/franchise-admin.html" class="love-button">💍 가맹점 관리 보기</a>
     </div>
 
-    <!-- 옥수수 패널 -->
     <div class="panel">
       <h2>🌽 옥수수 (고객)</h2>
-      <div class="count-box" id="customerCount">고객 수: 로딩 중...</div>
+      <div class="info-box" id="customerCount">고객 수: 로딩 중...</div>
       <ul id="customerList">
-        <li>로딩 중...</li>
+        <li>불러오는 중...</li>
       </ul>
-      <a href="/OrcaX/customer-dashboard.html" class="link-button">고객 관리 보기</a>
+      <a href="/OrcaX/customer-dashboard.html" class="love-button">💛 고객 관리 보기</a>
     </div>
   </div>
 
   <script>
-    // 보리 회원가입 정보
     fetch("https://orcax-franchise-backend.onrender.com/api/apply")
       .then(res => res.json())
       .then(data => {
-        const memberList = document.getElementById("memberList");
-        const members = data.filter(d => d.email || d.mail);
-        document.getElementById("memberCount").textContent = `가입자 수: ${members.length}명`;
-
-        memberList.innerHTML = '';
-        members.slice(0, 3).forEach(user => {
-          const email = user.email || user.mail || '이메일 없음';
-          const name = user.name || '이름 없음';
-          memberList.innerHTML += `<li>👤 ${email} (${name})</li>`;
-        });
-      })
-      .catch(err => {
-        document.getElementById("memberList").innerHTML = '<li>회원 정보를 불러올 수 없습니다.</li>';
-        document.getElementById("memberCount").textContent = '가입자 수: 오류';
-        console.error(err);
-      });
-
-    // 감자 가맹점 신청 정보 요약
-    fetch("https://orcax-franchise-backend.onrender.com/api/apply")
-      .then(res => res.json())
-      .then(data => {
-        const franchiseList = document.getElementById("franchiseList");
-        document.getElementById("franchiseCount").textContent = `신청자 수: ${data.length}명`;
-
-        franchiseList.innerHTML = '';
-        data.slice(0, 3).forEach(item => {
-          const name = item.name || '이름 없음';
-          franchiseList.innerHTML += `<li>📍 ${name}</li>`;
-        });
-      })
-      .catch(err => {
-        document.getElementById("franchiseList").innerHTML = '<li>신청자 정보를 불러올 수 없습니다.</li>';
-        document.getElementById("franchiseCount").textContent = '신청자 수: 오류';
-        console.error(err);
-      });
-
-    // 옥수수 고객 정보 (절대 경로로 수정)
-    fetch("https://orcax-franchise-backend.onrender.com/api/customers")
-      .then(res => res.json())
-      .then(data => {
+        const applyList = document.getElementById("applyList");
+        const applyCount = document.getElementById("applyCount");
         const customerList = document.getElementById("customerList");
-        document.getElementById("customerCount").textContent = `고객 수: ${data.length}명`;
+        const customerCount = document.getElementById("customerCount");
+        const userList = document.getElementById("userList");
+        const userCount = document.getElementById("userCount");
+
+        // 감자
+        applyCount.textContent = `신청자 수: ${data.length}명`;
+        applyList.innerHTML = '';
+        data.slice(0, 3).forEach(app => {
+          applyList.innerHTML += `<li>📍 ${app.address || '(주소 없음)'}</li>`;
+        });
+
+        // 보리 (회원: 이메일+닉네임 존재하는 사람)
+        const users = data.filter(u => u.email && u.nickname);
+        userCount.textContent = `회원 수: ${users.length}명`;
+        userList.innerHTML = '';
+        users.slice(0, 3).forEach(user => {
+          userList.innerHTML += `<li>👤 ${user.email} (${user.nickname})</li>`;
+        });
+
+        // 옥수수 (고객: 전화+이름 존재)
+        const customers = data.filter(c => c.phone && c.name);
+        customerCount.textContent = `고객 수: ${customers.length}명`;
         customerList.innerHTML = '';
-        data.slice(0, 3).forEach(c => {
-          customerList.innerHTML += `<li>🙋 ${c.name} - ${c.activity}</li>`;
+        customers.slice(0, 3).forEach(c => {
+          customerList.innerHTML += `<li>🙋 ${c.name} (${c.phone})</li>`;
         });
       })
-      .catch(err => {
-        document.getElementById("customerList").innerHTML = '<li>고객 정보를 불러올 수 없습니다.</li>';
-        document.getElementById("customerCount").textContent = '고객 수: 오류';
-        console.error(err);
+      .catch(() => {
+        document.getElementById("applyList").innerHTML = '<li>❌ 불러오기 실패</li>';
+        document.getElementById("customerList").innerHTML = '<li>❌ 불러오기 실패</li>';
+        document.getElementById("userList").innerHTML = '<li>❌ 불러오기 실패</li>';
+        document.getElementById("applyCount").textContent = "신청자 수: 오류";
+        document.getElementById("customerCount").textContent = "고객 수: 오류";
+        document.getElementById("userCount").textContent = "회원 수: 오류";
       });
   </script>
 </body>
 </html>
-
 
 
