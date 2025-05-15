@@ -121,10 +121,8 @@
 
     <div class="panel">
       <h2>🌽 옥수수 (고객 관리)</h2>
-      <ul>
-        <li>🙋‍♀️ 이소라 - 첫 상담 요청</li>
-        <li>🙋‍♂️ 김민수 - 후기 작성</li>
-        <li>🙋 박정우 - 자주 묻는 질문 확인</li>
+      <ul id="cornList">
+        <li>불러오는 중...</li>
       </ul>
       <a href="/OrcaX/customer-dashboard.html" class="love-button">💛 고객 관리 보기</a>
     </div>
@@ -169,6 +167,23 @@
       .catch(() => {
         document.getElementById('applyCount').innerText = '신청자 수: 연결 오류';
       });
+
+    // 🌽 옥수수 CRM 연동 - 고객 목록 실시간 로딩
+    fetch('/api/customers')
+      .then(res => res.json())
+      .then(data => {
+        const cornList = document.getElementById('cornList');
+        cornList.innerHTML = '';
+        data.forEach(c => {
+          const li = document.createElement('li');
+          li.textContent = `🙋 ${c.name} - ${c.activity}`;
+          cornList.appendChild(li);
+        });
+      })
+      .catch(() => {
+        document.getElementById('cornList').innerHTML = '<li>고객 정보를 불러올 수 없습니다.</li>';
+      });
   </script>
 </body>
 </html>
+
