@@ -32,7 +32,8 @@
 </head>
 <body>
   <div class="container">
-    <h1 onclick="requestAdminAccess()">👫 OrcaX Puzzle</h1>
+    <!-- 👥 이모지 클릭 시 admin.html 이동 -->
+    <h1><a href="admin.html" style="text-decoration:none; color:#00e0ff;">👫 OrcaX Puzzle</a></h1>
 
     <!-- 닉네임 표시 영역 -->
     <div id="user-info" style="margin-top: 10px; font-size: 1.1rem; color: #00e0ff;"></div>
@@ -60,10 +61,6 @@
   </div>
 
   <script>
-    function requestAdminAccess() {
-      alert("관리자 접근 권한이 필요합니다.");
-    }
-
     const nickname = localStorage.getItem("nickname");
     if (nickname) {
       const userInfo = document.getElementById("user-info");
