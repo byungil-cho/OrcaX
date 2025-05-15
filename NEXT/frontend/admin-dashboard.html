@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(120deg, #fdfbfb, #ebedee);
+      background: #f1f2f6;
       margin: 0;
       padding: 0;
     }
@@ -16,145 +16,168 @@
       color: white;
       text-align: center;
       padding: 20px;
-      font-size: 1.6em;
+      font-size: 1.8em;
     }
     .container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
+      gap: 30px;
       padding: 30px;
-      gap: 40px;
     }
     .panel {
       background: white;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 25px;
+      padding: 20px;
       width: 400px;
-      position: relative;
     }
     .panel h2 {
-      color: #2d3436;
       border-bottom: 2px solid #00cec9;
       padding-bottom: 10px;
-    }
-    .info-box {
-      background: #ffeaa7;
       color: #2d3436;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 0.95em;
-      font-weight: bold;
-      margin-bottom: 10px;
-      display: inline-block;
     }
     .panel ul {
       list-style: none;
       padding: 0;
-      margin-top: 10px;
     }
     .panel li {
-      background: #f1f2f6;
-      padding: 10px;
-      margin-bottom: 8px;
+      background: #ecf0f1;
+      padding: 8px;
+      margin: 6px 0;
       border-radius: 6px;
     }
-    .love-button {
+    .count-box {
+      background: #ffeaa7;
+      color: #2d3436;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+    .link-button {
       display: block;
+      margin-top: 15px;
       text-align: center;
-      margin-top: 20px;
-      padding: 12px;
       background-color: #fd79a8;
       color: white;
-      font-weight: bold;
+      padding: 10px;
       text-decoration: none;
-      border-radius: 10px;
-      transition: background 0.3s;
+      border-radius: 8px;
+      font-weight: bold;
     }
-    .love-button:hover {
+    .link-button:hover {
       background-color: #e84393;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #81ecec;
     }
   </style>
 </head>
 <body>
-  <header>👰‍♂️ 감자 & 보리 신혼 대시보드</header>
+  <header>👩‍❤️‍👨 감자 & 보리 신혼 대시보드</header>
 
   <div class="container">
-
-    <!-- 🌾 보리 -->
     <div class="panel">
-      <h2>🌾 보리 (회원가입)</h2>
-      <div class="info-box" id="userCount">가입자 수: 로딩 중...</div>
-      <ul>
-        <li>👤 bori@orcax.io (보리)</li>
-        <li>👤 user@example.com (지민)</li>
-        <li>👤 hello@naver.com (태현)</li>
+      <h2>🧜‍♀️ 보리 (회원가입)</h2>
+      <div class="count-box" id="memberCount">가입자 수: 로딩 중...</div>
+      <ul id="memberList">
+        <li>로딩 중...</li>
       </ul>
-      <a href="/OrcaX/NEXT/frontend/user-list.html" class="love-button">💍 회원 관리 보기</a>
+      <a href="/OrcaX/NEXT/frontend/user-list.html" class="link-button">회원 관리 보기</a>
     </div>
 
-    <!-- 🥔 감자 -->
     <div class="panel">
       <h2>🥔 감자 (가맹점 신청)</h2>
-      <div class="info-box" id="applyCount">신청자 수: 로딩 중...</div>
-      <ul>
-        <li>📍 파이이누 골프점 - 경기 안산</li>
-        <li>📍 로얄스크린 김포점 - 서울 강서</li>
-        <li>📍 퍼즐NFT센터 - 대전 중구</li>
+      <div class="count-box" id="franchiseCount">신청자 수: 로딩 중...</div>
+      <ul id="franchiseList">
+        <li>로딩 중...</li>
       </ul>
-      <a href="/OrcaX/franchise-admin.html" class="love-button">💍 가맹점 관리 보기</a>
+      <a href="/OrcaX/franchise-admin.html" class="link-button">가맹점 관리 보기</a>
     </div>
 
-    <!-- 🌽 옥수수 -->
     <div class="panel">
       <h2>🌽 옥수수 (고객)</h2>
-      <div class="info-box" id="customerCount">고객 수: 로딩 중...</div>
-      <ul id="cornList">
-        <li>불러오는 중...</li>
+      <div class="count-box" id="customerCount">고객 수: 로딩 중...</div>
+      <ul id="customerList">
+        <li>로딩 중...</li>
       </ul>
-      <a href="/OrcaX/customer-dashboard.html" class="love-button">💛 고객 관리 보기</a>
+      <a href="/OrcaX/customer-dashboard.html" class="link-button">고객 관리 보기</a>
     </div>
   </div>
 
   <script>
-    // 🌾 보리 회원 수
-    fetch('/api/users')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('userCount').innerText = `가입자 수: ${data.length}명`;
+    // 회원가입 정보
+    fetch("https://orcax-franchise-backend.onrender.com/api/apply")
+      .then(res => {
+        if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
+        return res.json();
       })
-      .catch(() => {
-        document.getElementById('userCount').innerText = '가입자 수: 오류';
-      });
-
-    // 🥔 감자 신청 수
-    fetch('/api/franchise')
-      .then(res => res.json())
       .then(data => {
-        document.getElementById('applyCount').innerText = `신청자 수: ${data.length}명`;
-      })
-      .catch(() => {
-        document.getElementById('applyCount').innerText = '신청자 수: 오류';
-      });
+        const memberList = document.getElementById("memberList");
+        const members = data.filter(d => d.email || d.mail); // 최소 이메일 있는 데이터만
+        document.getElementById("memberCount").textContent = `가입자 수: ${members.length}명`;
 
-    // 🌽 옥수수 고객 수 + 목록
-    fetch('/api/customers')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('customerCount').innerText = `고객 수: ${data.length}명`;
-        const list = document.getElementById('cornList');
-        list.innerHTML = '';
-        data.forEach(c => {
-          const li = document.createElement('li');
-          li.textContent = `🙋 ${c.name} - ${c.activity}`;
-          list.appendChild(li);
+        memberList.innerHTML = '';
+        members.forEach(user => {
+          const email = user.email || user.mail || '이메일 없음';
+          const name = user.name || '이름 없음';
+          memberList.innerHTML += `<li>👤 ${email} (${name})</li>`;
         });
       })
-      .catch(() => {
-        document.getElementById('customerCount').innerText = '고객 수: 오류';
-        document.getElementById('cornList').innerHTML = '<li>고객 정보를 불러올 수 없습니다.</li>';
+      .catch(err => {
+        document.getElementById("memberList").innerHTML = '<li>회원 정보를 불러올 수 없습니다.</li>';
+        document.getElementById("memberCount").textContent = '가입자 수: 오류';
+        console.error(err);
+      });
+
+    // 가맹점 신청 정보
+    fetch("https://orcax-franchise-backend.onrender.com/api/apply")
+      .then(res => res.json())
+      .then(data => {
+        const franchiseList = document.getElementById("franchiseList");
+        document.getElementById("franchiseCount").textContent = `신청자 수: ${data.length}명`;
+        franchiseList.innerHTML = '';
+        data.forEach(item => {
+          const info = item.business_name || item.store || item.address || '신청 정보 없음';
+          franchiseList.innerHTML += `<li>📍 ${info}</li>`;
+        });
+      })
+      .catch(err => {
+        document.getElementById("franchiseList").innerHTML = '<li>가맹점 정보를 불러올 수 없습니다.</li>';
+        document.getElementById("franchiseCount").textContent = '신청자 수: 오류';
+        console.error(err);
+      });
+
+    // 고객 정보
+    fetch("/api/customers")
+      .then(res => res.json())
+      .then(data => {
+        const customerList = document.getElementById("customerList");
+        document.getElementById("customerCount").textContent = `고객 수: ${data.length}명`;
+        customerList.innerHTML = '';
+        data.forEach(c => {
+          customerList.innerHTML += `<li>🙋 ${c.name} - ${c.activity}</li>`;
+        });
+      })
+      .catch(err => {
+        document.getElementById("customerList").innerHTML = '<li>고객 정보를 불러올 수 없습니다.</li>';
+        document.getElementById("customerCount").textContent = '고객 수: 오류';
+        console.error(err);
       });
   </script>
 </body>
 </html>
+
 
