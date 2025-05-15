@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>옥수수 고객 등록</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      text-align: center;
+      padding: 50px;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      display: inline-block;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input {
+      width: 250px;
+      margin: 10px 0;
+      padding: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #00b894;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>🌽 옥수수 고객 등록</h2>
+  <form id="customerForm">
+    <input type="text" name="name" placeholder="고객 이름" required /><br />
+    <input type="text" name="activity" placeholder="요청/활동 내용" required /><br />
+    <button type="submit">등록하기</button>
+  </form>
+
+  <script>
+    document.getElementById('customerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        name: form.name.value,
+        activity: form.activity.value
+      };
+
+      const res = await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      alert(result.message);
+      if (res.status === 201) form.reset();
+    });
+  </script>
+</body>
+</html>
