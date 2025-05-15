@@ -127,7 +127,7 @@
     }
 
     function fetchCustomers() {
-      fetch('/api/customers')
+      fetch('https://orcax-franchise-backend.onrender.com/api/apply')
         .then(res => {
           if (!res.ok) throw new Error('서버 응답 오류');
           return res.json();
@@ -152,5 +152,6 @@
 
 </body>
 </html>
+
 
 
