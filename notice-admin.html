@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>공지사항 등록</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f9f9f9; padding: 20px; max-width: 600px; margin: auto; color: #333; }
+    h1 { color: #004a99; text-align: center; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 20px; padding: 10px 20px; background: #0066cc; color: white; border: none; cursor: pointer; width: 100%; }
+    .result { margin-top: 20px; white-space: pre-wrap; background: #eee; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>공지사항 등록</h1>
+  <label for="title">공지 제목</label>
+  <input type="text" id="title" placeholder="[공지] 제목을 입력하세요">
+
+  <label for="date">날짜</label>
+  <input type="date" id="date">
+
+  <label for="content">내용</label>
+  <textarea id="content" rows="6" placeholder="공지사항 내용을 입력하세요"></textarea>
+
+  <button onclick="generateNotice()">JSON 생성하기</button>
+
+  <div class="result" id="result" style="display:none;"></div>
+
+  <script>
+    function generateNotice() {
+      const title = document.getElementById('title').value.trim();
+      const date = document.getElementById('date').value;
+      const content = document.getElementById('content').value.trim();
+
+      if (!title || !date || !content) {
+        alert("모든 항목을 입력해주세요.");
+        return;
+      }
+
+      const notice = {
+        title: title,
+        date: date,
+        content: content
+      };
+
+      const json = JSON.stringify(notice, null, 2);
+      const resultBox = document.getElementById('result');
+      resultBox.style.display = 'block';
+      resultBox.textContent = json;
+    }
+  </script>
+</body>
+</html>

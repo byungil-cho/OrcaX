@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>공지사항</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #fefefe; color: #222; max-width: 960px; margin: auto; }
+    h1 { color: #004a99; }
+    .notice { border-bottom: 1px solid #ddd; padding: 10px 0; cursor: pointer; }
+    .notice h2 { margin: 0; color: #0066cc; }
+    .notice .date { font-size: 0.9em; color: #888; }
+    .notice .content { display: none; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>공지사항</h1>
+  <div id="notices"></div>
+
+  <script>
+    fetch('notices.json')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('notices');
+        data.forEach((item, index) => {
+          const div = document.createElement('div');
+          div.className = 'notice';
+          div.innerHTML = `
+            <h2>${item.title}</h2>
+            <p class="date">${item.date}</p>
+            <p class="content" id="content-${index}">${item.content}</p>
+          `;
+          div.addEventListener('click', () => {
+            const content = document.getElementById(`content-${index}`);
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+          });
+          container.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>
