@@ -41,47 +41,126 @@
       font-size: 1.05em;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
     .empty {
       text-align: center;
       color: #aaa;
       padding: 20px 0;
     }
+    button.delete {
+      background: #ff7675;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .date {
+      font-size: 0.85em;
+      color: #888;
+      margin-left: 10px;
+    }
+    #passwordBox {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #dff9fb;
+    }
+    #passwordBox input {
+      padding: 10px;
+      font-size: 1em;
+      margin-bottom: 10px;
+      width: 200px;
+    }
+    #passwordBox button {
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #00b894;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #content.hidden { display: none; }
   </style>
 </head>
 <body>
 
-  <header>🌽 옥수수 고객 관리자</header>
+  <div id="passwordBox">
+    <h2>관리자 비밀번호를 입력하세요</h2>
+    <input type="password" id="adminPass" placeholder="비밀번호 입력" />
+    <button onclick="checkPassword()">확인</button>
+    <p id="errorMsg" style="color:red;"></p>
+  </div>
 
-  <main>
-    <h2>📋 등록된 고객 목록</h2>
-    <ul id="customerList">
-      <li class="empty">불러오는 중...</li>
-    </ul>
-  </main>
+  <div id="content" class="hidden">
+    <header>🌽 옥수수 고객 관리자</header>
+    <main>
+      <h2>📋 등록된 고객 목록</h2>
+      <ul id="customerList">
+        <li class="empty">불러오는 중...</li>
+      </ul>
+    </main>
+  </div>
 
   <script>
-    fetch('/api/customers')
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('customerList');
-        list.innerHTML = '';
+    function checkPassword() {
+      const input = document.getElementById('adminPass').value;
+      const errorMsg = document.getElementById('errorMsg');
+      if (input === '2025') {
+        document.getElementById('passwordBox').style.display = 'none';
+        document.getElementById('content').classList.remove('hidden');
+        loadCustomers();
+      } else {
+        errorMsg.textContent = '비밀번호가 올바르지 않습니다.';
+      }
+    }
 
-        if (!data.length) {
-          list.innerHTML = '<li class="empty">등록된 고객이 없습니다.</li>';
-        } else {
-          data.forEach(c => {
-            const li = document.createElement('li');
-            li.innerHTML = `<span>🙋 ${c.name}</span><span>${c.activity}</span>`;
-            list.appendChild(li);
-          });
-        }
-      })
-      .catch(() => {
-        const list = document.getElementById('customerList');
-        list.innerHTML = '<li class="empty">고객 목록을 불러오지 못했습니다.</li>';
-      });
+    function loadCustomers() {
+      fetch('/api/customers')
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('customerList');
+          list.innerHTML = '';
+
+          if (!data.length) {
+            list.innerHTML = '<li class="empty">등록된 고객이 없습니다.</li>';
+          } else {
+            data.forEach(c => {
+              const li = document.createElement('li');
+              const created = new Date(c.createdAt).toLocaleString();
+              li.innerHTML = `
+                <span>🙋 ${c.name}<span class="date">(${created})</span></span>
+                <span>${c.activity} <button class="delete" onclick="deleteCustomer('${c._id}')">삭제</button></span>
+              `;
+              list.appendChild(li);
+            });
+          }
+        })
+        .catch(() => {
+          const list = document.getElementById('customerList');
+          list.innerHTML = '<li class="empty">고객 목록을 불러오지 못했습니다.</li>';
+        });
+    }
+
+    function deleteCustomer(id) {
+      if (confirm('정말 삭제하시겠습니까?')) {
+        fetch(`/api/customers/${id}`, {
+          method: 'DELETE'
+        })
+          .then(res => res.json())
+          .then(result => {
+            alert(result.message);
+            loadCustomers();
+          })
+          .catch(() => alert('삭제 실패'));
+      }
+    }
   </script>
 
 </body>
 </html>
+
