@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>감자 & 보리 신혼 대시보드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #fdfbfb, #ebedee);
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #00b894;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 1.5em;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px;
+      gap: 40px;
+    }
+    .panel {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 400px;
+      position: relative;
+    }
+    .panel h2 {
+      color: #2d3436;
+      border-bottom: 2px solid #00cec9;
+      padding-bottom: 10px;
+    }
+    .panel ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 15px;
+    }
+    .panel li {
+      background: #f1f2f6;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+    }
+    .love-button {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #fd79a8;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 10px;
+      transition: background 0.3s;
+    }
+    .love-button:hover {
+      background-color: #e84393;
+    }
+    .info-box {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #ffeaa7;
+      color: #2d3436;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+    .search-container {
+      margin-top: 15px;
+      text-align: left;
+    }
+    .search-container input {
+      padding: 8px;
+      width: 90%;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    👰‍♂️ 감자 & 보리 결혼 기념 신혼 대시보드
+  </header>
+
+  <div class="container">
+    <div class="panel">
+      <h2>🧜 보리 (회원가입 관리)</h2>
+      <div class="search-container">
+        <label>회원 검색 (닉네임/이메일)</label>
+        <input type="text" id="userSearch" placeholder="검색어 입력...">
+      </div>
+      <ul id="userList">
+        <li>👤 bori@orcax.io (보리)</li>
+        <li>👤 user2@example.com (지민)</li>
+        <li>👤 hello@naver.com (태현)</li>
+      </ul>
+      <a href="/OrcaX/NEXT/frontend/user-list.html" class="love-button">💍 회원 관리 보기</a>
+    </div>
+
+    <div class="panel">
+      <h2>🚶‍♂️ 감자 (가맹점 신청자 관리)</h2>
+      <div class="info-box" id="applyCount">신청자 수: 로딩 중...</div>
+      <ul>
+        <li>📍 파이이누 골프점 - 경기 안산</li>
+        <li>📍 로얄스크린 김포점 - 서울 강서</li>
+        <li>📍 퍼즐NFT센터 - 대전 중구</li>
+      </ul>
+      <a href="/OrcaX/franchise-admin.html" class="love-button">💍 가맹점 관리 보기</a>
+    </div>
+
+    <div class="panel">
+      <h2>🌽 옥수수 (고객 관리)</h2>
+      <ul>
+        <li>🙋‍♀️ 이소라 - 첫 상담 요청</li>
+        <li>🙋‍♂️ 김민수 - 후기 작성</li>
+        <li>🙋 박정우 - 자주 묻는 질문 확인</li>
+      </ul>
+      <a href="/OrcaX/customer-dashboard.html" class="love-button">💛 고객 관리 보기</a>
+    </div>
+  </div>
+
+  <script>
+    // 🌾 보리 마을 검색 기능
+    const userSearch = document.getElementById('userSearch');
+    const userList = document.getElementById('userList');
+    const allUsers = Array.from(userList.getElementsByTagName('li'));
+
+    userSearch.addEventListener('input', () => {
+      const keyword = userSearch.value.toLowerCase();
+      let hasResults = false;
+
+      allUsers.forEach(li => {
+        const text = li.textContent.toLowerCase();
+        const match = text.includes(keyword);
+        li.style.display = match ? 'block' : 'none';
+        if (match) hasResults = true;
+      });
+
+      if (!hasResults) {
+        if (!document.getElementById('noResults')) {
+          const noItem = document.createElement('li');
+          noItem.id = 'noResults';
+          noItem.textContent = '검색 결과가 없습니다';
+          userList.appendChild(noItem);
+        }
+      } else {
+        const existing = document.getElementById('noResults');
+        if (existing) existing.remove();
+      }
+    });
+
+    // 🥔 감자 마을 실시간 신청자 수 fetch 예시 (Mock)
+    fetch('/api/franchise')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('applyCount').innerText = `신청자 수: ${data.length}명`;
+      })
+      .catch(() => {
+        document.getElementById('applyCount').innerText = '신청자 수: 연결 오류';
+      });
+  </script>
+</body>
+</html>
