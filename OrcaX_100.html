@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>범고래 재단 창립 멤버</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #0a2a4d;
+      color: white;
+      padding: 40px 16px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 8px;
+    }
+    p.sub {
+      font-size: 1em;
+      margin-bottom: 24px;
+      color: #ddd;
+    }
+    .member-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .member-card {
+      background-color: #11355b;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    .member-card img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      border: 3px solid white;
+      transition: transform 0.2s ease;
+    }
+    .member-card img:hover {
+      transform: scale(1.05);
+      cursor: pointer;
+    }
+    .member-card h3 {
+      margin: 0;
+      font-size: 1.1em;
+    }
+    .member-card p {
+      margin: 4px 0 0;
+      font-size: 0.95em;
+      color: #bbb;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #aaa;
+    }
+    .footer a {
+      display: inline-block;
+      margin-top: 12px;
+      color: #6cf;
+      text-decoration: none;
+    }
+    .member-card h3 img {
+      height: 32px;
+    }
+    a.card-link {
+      text-decoration: none;
+      color: inherit;
+    }
+  </style>
+  <script>
+    function checkPassword() {
+      const pw = prompt("비밀번호를 입력하세요:");
+      if (pw === "2025") {
+        window.location.href = "https://orcax-survey-3060.onrender.com/survey-list.html";
+      } else if (pw === "5588") {
+        document.getElementById("protected").style.display = "block";
+      } else {
+        alert("비밀번호가 틀렸습니다.");
+      }
+    }
+  </script>
+</head>
+<body onload="checkPassword()">
+  <div id="protected" style="display:none">
+    <h1>범고래 재단 창립 멤버</h1>
+    <p class="sub">
+      본 명단은 파3 골프 동호회의 창립 멤버로 구성되었으며,<br>
+      범고래 재단 1차 목표 달성 시 멤버에게 재단 지분 0.2%,<br>
+      즉 <strong>1,000만 ORCX 토큰</strong>이 스마트컨트랙트를 통해 자동 지급됩니다.
+    </p>
+
+    <div class="member-grid">
+      <div class="member-card">
+        <img src="assets/images/jung.jpg" alt="정갑식">
+        <h3><img src="assets/names/jung-name.png" alt="정갑식"></h3>
+        <p>회장</p>
+      </div>
+      <div class="member-card">
+        <img src="assets/images/choi.jpg" alt="최남실">
+        <h3><img src="assets/names/choi-name.png" alt="최남실"></h3>
+        <p>부회장</p>
+      </div>
+      <div class="member-card">
+        <img src="assets/images/jobyungil-new.jpg" alt="조병일">
+        <h3><img src="assets/names/jobyungil-name.png" alt="조병일"></h3>
+        <p>사무총장</p>
+      </div>
+      <div class="member-card">
+        <img src="assets/images/leebj.jpg" alt="이병진">
+        <h3><img src="assets/names/leebj-name.png" alt="이병진"></h3>
+        <p>홍보이사</p>
+      </div>
+      <div class="member-card">
+        <img src="assets/images/kimjt.jpg" alt="김정태">
+        <h3><img src="assets/names/kimjt-name.png" alt="김정태"></h3>
+        <p>홍보이사</p>
+      </div>
+      <div class="member-card">
+        <img src="assets/images/shin.jpg" alt="신휘철">
+        <h3><img src="assets/names/shin-name.png" alt="신휘철"></h3>
+        <p>감사</p>
+      </div>
+      <div class="member-card">
+        <img src="assets/images/lim.jpg" alt="임동연">
+        <h3><img src="assets/names/lim-name.png" alt="임동연"></h3>
+        <p>감사</p>
+      </div>
+      <div class="member-card">
+        <img src="assets/images/seo.jpg" alt="서병원">
+        <h3><img src="assets/names/seo-name.png" alt="서병원"></h3>
+        <p>추진이사</p>
+      </div>
+      <div class="member-card">
+        <img src="assets/images/jungsg.jpg" alt="정성균">
+        <h3><img src="assets/names/jungsg-name.png" alt="정성균"></h3>
+        <p>추진이사</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="#">🔗 지분보유현황</a><br>
+      ※ 상기 명단은 2025년 기준 파3 골프 동호회 등록자를 기준으로 하며,<br>
+      OrcaX 토큰은 조건 충족 시 스마트컨트랙트를 통해 자동 지급됩니다.
+    </div>
+  </div>
+</body>
+</html>
