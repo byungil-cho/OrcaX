@@ -21,8 +21,8 @@
       background-color: rgba(0, 0, 0, 0.6);
       padding: 30px 20px;
       border-radius: 12px;
-      width: fit-content;
-      max-width: 100%;
+      width: 700px;
+      max-width: 90%;
       margin: 40px auto;
     }
     h1 {
@@ -35,14 +35,15 @@
       font-size: 1.2em;
       line-height: 1.8;
       margin: 0.6em 0;
-      white-space: nowrap;
+      white-space: normal;
     }
     .images {
       margin: 20px 0;
     }
     .images img {
       display: block;
-      width: auto;
+      width: 100%;
+      max-width: 700px;
       height: auto;
       margin: 20px auto;
       border-radius: 8px;
@@ -62,12 +63,17 @@
       color: #000;
     }
     @media (max-width: 640px) {
+      .container {
+        width: 100%;
+      }
       h1 {
         font-size: 1.8em;
       }
       p {
         font-size: 1em;
-        white-space: normal;
+      }
+      .images img {
+        width: 100%;
       }
     }
   </style>
@@ -90,6 +96,7 @@
     <div class="images">
       <img src="cul_017.jpg" alt="">
       <img src="cul_001.jpg" alt="">
+      <img src="350bbe9e-d465-4725-a110-31c797294d57.png" alt="">
     </div>
 
     <a href="log-15.html" class="prev-button">← 이전 이야기로</a>
