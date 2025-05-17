@@ -11,23 +11,19 @@
       padding: 0;
       font-family: 'Noto Sans KR', sans-serif;
       color: #e0e0e0;
-      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
-      background-size: 100% auto;
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center top fixed;
+      background-size: cover;
       background-repeat: no-repeat;
       background-attachment: fixed;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
       text-align: center;
     }
     .container {
       background-color: rgba(0, 0, 0, 0.6);
       padding: 30px 20px;
       border-radius: 12px;
-      max-width: 800px;
-      margin: 20px;
+      width: fit-content;
+      max-width: 100%;
+      margin: 40px auto;
     }
     h1 {
       font-family: 'Cinzel', serif;
@@ -39,15 +35,16 @@
       font-size: 1.2em;
       line-height: 1.8;
       margin: 0.6em 0;
+      white-space: nowrap;
     }
     .images {
       margin: 20px 0;
     }
     .images img {
-      width: 90%;
-      max-width: 500px;
+      display: block;
+      width: auto;
       height: auto;
-      margin-bottom: 20px;
+      margin: 20px auto;
       border-radius: 8px;
     }
     a.prev-button {
@@ -70,12 +67,7 @@
       }
       p {
         font-size: 1em;
-      }
-      .images img {
-        width: 100%;
-      }
-      body {
-        background-size: cover;
+        white-space: normal;
       }
     }
   </style>
