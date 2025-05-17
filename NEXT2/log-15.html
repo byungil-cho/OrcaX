@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OrcaX 항해일지 16 - 전설의 완성</title>
+  <title>OrcaX 항해일지 15 - 전환점</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Sans+KR&display=swap" rel="stylesheet">
   <style>
     body {
@@ -11,21 +11,19 @@
       padding: 0;
       font-family: 'Noto Sans KR', sans-serif;
       color: #e0e0e0;
-      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center top fixed;
       background-size: cover;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       text-align: center;
     }
     .container {
       background-color: rgba(0, 0, 0, 0.6);
       padding: 30px 20px;
       border-radius: 12px;
-      max-width: 800px;
-      margin: 20px;
+      width: 700px;
+      max-width: 90%;
+      margin: 40px auto;
     }
     h1 {
       font-family: 'Cinzel', serif;
@@ -37,19 +35,25 @@
       font-size: 1.2em;
       line-height: 1.8;
       margin: 0.6em 0;
+      white-space: normal;
     }
     .images {
       margin: 20px 0;
     }
     .images img {
-      max-width: 100%;
+      display: block;
+      width: 100%;
+      max-width: 700px;
       height: auto;
-      margin-bottom: 20px;
+      margin: 20px auto;
       border-radius: 8px;
     }
-    a.prev-button {
-      display: inline-block;
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
       margin-top: 2em;
+    }
+    .nav-buttons a {
       padding: 12px 24px;
       border: 2px solid #00bfff;
       color: #00bfff;
@@ -57,41 +61,46 @@
       border-radius: 8px;
       transition: background 0.3s, color 0.3s;
     }
-    a.prev-button:hover {
+    .nav-buttons a:hover {
       background: #00bfff;
       color: #000;
     }
     @media (max-width: 640px) {
+      .container {
+        width: 100%;
+      }
       h1 {
         font-size: 1.8em;
       }
       p {
         font-size: 1em;
       }
+      .images img {
+        width: 100%;
+      }
+      .nav-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>전설의 완성</h1>
-    <p>전설은 그렇게 퍼즐 하나로 기억된다.<br>우리는 1조각씩 맞춰왔습니다.</p>
-    <p>처음엔 아무것도 보이지 않았던 이야기들이,<br>
-    조각 하나하나에 비전과 감정, 의미를 담아<br>
-    이제 하나의 완성된 그림으로 드러났습니다.</p>
-    <p>이 퍼즐은 단순한 그림이 아닌, 항해의 기록이며<br>
-    수많은 선택, 도전, 연대, 신념이 모여 탄생한<br>
-    살아있는 전설입니다.</p>
-    <p>전설은 거창한 사건이 아니라,<br>
-    그저 매일 이어진 여정과 작은 선택들의 기록입니다.</p>
-    <p>그리고 그 전설은<br>
-    이제 당신의 이야기가 되어 세상에 퍼져나갑니다.</p>
+    <h1>전환점</h1>
+    <p>이 퍼즐은 끝이 아닌 새로운 시작의 열쇠.<br>우리는 지금까지 14개의 조각을 통해<br>탑승하고, 항해하고, 연결하며, 가치를 쌓아왔습니다.</p>
+    <p>하지만 이 퍼즐의 진짜 힘은<br>조각을 다 맞췄을 때 비로소 드러납니다.</p>
+    <p>그 완성은 끝이 아니라,<br>전혀 새로운 세계로 들어가는 입구입니다.</p>
+    <p>OrcaX는 단일 토큰이 아닙니다.<br>하나의 퍼즐을 맞추며 시스템을 배우고,<br>네트워크를 형성하며 공동체를 만들고,<br>실체 있는 토큰 경제 안에서 지속 가능한 미래를 창조하는<br>완성형 Web3 RWA 생태계입니다.</p>
 
     <div class="images">
-      <img src="/NEXT2/cul_001.jpg" alt="With OrcaX image">
-      <img src="/NEXT2/CUL_017.jpg" alt="OrcaX 퍼즐 안내 이미지">
+      <img src="cul_016.jpg" alt="">
     </div>
 
-    <a href="log-15.html" class="prev-button">← 이전 이야기로</a>
+    <div class="nav-buttons">
+      <a href="log-14.html">← 이전 이야기로</a>
+      <a href="log-16.html">다음 이야기로 →</a>
+    </div>
   </div>
 </body>
 </html>
