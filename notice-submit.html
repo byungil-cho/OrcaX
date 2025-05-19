@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📢 공지사항 등록</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #eef3f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .msg {
+      text-align: center;
+      margin-top: 1rem;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>📢 공지사항 등록</h2>
+    <input type="text" id="title" placeholder="제목을 입력하세요" />
+    <textarea id="message" rows="4" placeholder="메시지를 입력하세요"></textarea>
+    <button onclick="submitNotice()">공지 등록</button>
+    <div class="msg" id="response"></div>
+  </div>
+
+  <script>
+    async function submitNotice() {
+      const title = document.getElementById('title').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const resMsg = document.getElementById('response');
+
+      if (!title || !message) {
+        resMsg.textContent = "제목과 메시지를 모두 입력해주세요.";
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/notice', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, message })
+        });
+
+        const data = await response.json();
+        resMsg.style.color = data.success ? "green" : "red";
+        resMsg.textContent = data.success ? "✅ 등록 성공!" : "❌ 등록 실패: " + data.error;
+      } catch (err) {
+        resMsg.textContent = "⚠️ 서버 오류: 등록 실패";
+      }
+    }
+  </script>
+</body>
+</html>

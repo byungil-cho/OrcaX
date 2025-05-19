@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📋 공지사항 목록</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background-color: #f4f8fc;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+    }
+    h2 {
+      text-align: center;
+      color: #00796b;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 1.2rem;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-left: 4px solid #00796b;
+    }
+    .date {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+    .title {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📋 OrcaX 공지사항</h2>
+    <ul id="notice-list">로딩 중...</ul>
+  </div>
+
+  <script>
+    async function fetchNotices() {
+      const res = await fetch('/api/notice');
+      const notices = await res.json();
+      const list = document.getElementById('notice-list');
+      list.innerHTML = '';
+      if (notices.length === 0) {
+        list.innerHTML = '<li>공지사항이 없습니다.</li>';
+        return;
+      }
+      for (const item of notices) {
+        const li = document.createElement('li');
+        li.innerHTML = \`
+          <div class="date">\${new Date(item.date).toLocaleString()}</div>
+          <div class="title">\${item.title}</div>
+          <div class="msg">\${item.message}</div>
+        \`;
+        list.appendChild(li);
+      }
+    }
+    fetchNotices();
+  </script>
+</body>
+</html>
