@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐋 OrcaX 실시간 채팅 (Render)</title>
+  <title>🐋 OrcaX 채팅 (콕 연결)</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -55,7 +55,7 @@
 </head>
 <body>
   <div class="chat-container">
-    <h1>🐋 OrcaX 채팅 (Render)</h1>
+    <h1>🐋 OrcaX 채팅 (Kok 연결)</h1>
     <input type="text" id="sender" placeholder="닉네임을 입력하세요" disabled />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
     <button onclick="sendMessage()">전송</button>
@@ -63,7 +63,7 @@
   </div>
 
   <script>
-    const apiUrl = "https://orcax-chat-server.onrender.com/api/messages";
+    const apiUrl = "https://orcax-chat.kok.io/api/messages";
     let currentNickname = "";
 
     window.onload = () => {
