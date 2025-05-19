@@ -1,77 +1,64 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📋 공지사항 목록</title>
+  <meta charset="UTF-8" />
+  <title>공지사항 등록</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 2rem;
-      background-color: #f4f8fc;
+      background-color: #f0f2f5;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
     }
     .container {
-      max-width: 600px;
-      width: 100%;
       background: white;
-      padding: 2rem;
+      padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 400px;
     }
     h2 {
       text-align: center;
-      color: #00796b;
+      color: #333;
     }
-    ul {
-      list-style: none;
-      padding: 0;
+    input, textarea, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 14px;
     }
-    li {
-      margin-bottom: 1.2rem;
-      padding: 1rem;
-      background: #f9f9f9;
-      border-left: 4px solid #00796b;
-    }
-    .date {
-      font-size: 0.8rem;
-      color: #666;
-      margin-bottom: 0.5rem;
-    }
-    .title {
-      font-weight: bold;
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
     }
   </style>
+  <script>
+    function checkPasswordAndSubmit(e) {
+      e.preventDefault();
+      const pw = document.getElementById('password').value;
+      if (pw !== '2025') {
+        alert('비밀번호가 틀렸습니다!');
+        return false;
+      }
+      // 실제 제출
+      e.target.form.submit();
+    }
+  </script>
 </head>
 <body>
   <div class="container">
-    <h2>📋 OrcaX 공지사항</h2>
-    <ul id="notice-list">로딩 중...</ul>
+    <h2>공지사항 등록</h2>
+    <form method="POST" action="/api/notices">
+      <input type="password" id="password" placeholder="비밀번호 입력 (2025)" required />
+      <input type="text" name="title" placeholder="제목" required />
+      <textarea name="content" placeholder="내용" rows="6" required></textarea>
+      <button onclick="checkPasswordAndSubmit(event)">제출</button>
+    </form>
   </div>
-
-  <script>
-    async function fetchNotices() {
-      const res = await fetch('/api/notice');
-      const notices = await res.json();
-      const list = document.getElementById('notice-list');
-      list.innerHTML = '';
-      if (notices.length === 0) {
-        list.innerHTML = '<li>공지사항이 없습니다.</li>';
-        return;
-      }
-      for (const item of notices) {
-        const li = document.createElement('li');
-        li.innerHTML = \`
-          <div class="date">\${new Date(item.date).toLocaleString()}</div>
-          <div class="title">\${item.title}</div>
-          <div class="msg">\${item.message}</div>
-        \`;
-        list.appendChild(li);
-      }
-    }
-    fetchNotices();
-  </script>
 </body>
 </html>
