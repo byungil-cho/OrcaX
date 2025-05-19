@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐋 OrcaX 채팅 (ngrok 연결)</title>
+  <title>🐋 OrcaX 채팅 (최종 ngrok 연결)</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -55,7 +55,7 @@
 </head>
 <body>
   <div class="chat-container">
-    <h1>🐋 OrcaX 채팅 (ngrok 연결)</h1>
+    <h1>🐋 OrcaX 채팅 (ngrok 연결됨)</h1>
     <input type="text" id="sender" placeholder="닉네임을 입력하세요" disabled />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
     <button onclick="sendMessage()">전송</button>
@@ -63,13 +63,13 @@
   </div>
 
   <script>
-    const apiUrl = "https://climbing-wholly-grouper.ngrok-free.app/api/messages";
+    const apiUrl = "https://3ba8c781cd35.ngrok.app/api/messages";
     let currentNickname = "";
 
     window.onload = () => {
       const saved = localStorage.getItem('nickname');
       if (!saved) {
-        alert("로그인 후 이용해주세요."); return;
+        alert("닉네임 저장 필요: localStorage.setItem('nickname', '홍길동');"); return;
       }
       document.getElementById('sender').value = saved;
       currentNickname = saved;
