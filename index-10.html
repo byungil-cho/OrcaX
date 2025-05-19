@@ -5,124 +5,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🐋 OrcaX 실시간 채팅</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #f2fcfe, #e0f1ff);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .chat-container {
-      background-color: #fff;
-      padding: 2rem;
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      max-width: 600px;
-      width: 90%;
-    }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 1.5rem;
-    }
-    input, textarea, button {
-      width: 100%;
-      padding: 12px;
-      margin: 0.5rem 0;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 1rem;
-    }
-    textarea {
-      resize: none;
-      height: 80px;
-    }
-    button {
-      background: linear-gradient(90deg, #3498db, #2ecc71);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: opacity 0.2s ease;
-    }
-    button:hover {
-      opacity: 0.9;
-    }
-    #chat-log {
-      margin-top: 1rem;
-      max-height: 250px;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 1rem;
-      background: #f9f9f9;
-    }
-    .message {
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      color: #333;
-    }
-    .message.self {
-      background-color: #e0f7da;
-      padding: 8px;
-      border-radius: 8px;
-    }
-    .scroll-toggle {
-      margin-top: 0.3rem;
-      font-size: 0.9rem;
-      text-align: right;
-      cursor: pointer;
-      color: #3498db;
-    }
-    .back-button {
-      margin-top: 1rem;
-      text-align: center;
-    }
-    .back-button a {
-      color: #fff;
-      background-color: #3498db;
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      text-decoration: none;
-      display: inline-block;
-      font-weight: bold;
-    }
-    .back-button a:hover {
-      background-color: #2980b9;
-    }
-  </style>
 </head>
 <body>
   <div class="chat-container">
     <h1>🐋 OrcaX 실시간 채팅</h1>
-    <div id="nickname-banner" style="text-align:center; font-weight:bold; margin-bottom: 10px; color: #2c3e50;"></div>
     <input type="text" id="sender" placeholder="닉네임을 입력하세요" disabled />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
     <button onclick="sendMessage()">전송하기</button>
-    <div class="scroll-toggle" onclick="toggleScroll()">📜 자동 스크롤: <span id="scroll-state">케지면</span></div>
     <div id="chat-log"></div>
-    <div class="back-button">
-      <a href="index.html">← 대화방 나가기</a>
-    </div>
   </div>
 
   <script>
-    const apiUrl = "https://climbing-wholly-grouper.ngrok-free.app/api/messages";
-    let autoScroll = true;
+    const apiUrl = "http://localhost:3050/api/messages";
     let currentNickname = "";
 
     window.onload = () => {
       const saved = localStorage.getItem('nickname');
       if (!saved) {
-        alert("로그인 후 이용가능합니다. 로그인 페이지로 이동합니다.");
-        window.location.href = "login.html";
+        alert("로그인 후 이용가능합니다.");
         return;
       }
       document.getElementById('sender').value = saved;
-      document.getElementById('nickname-banner').textContent = `👤 ${saved} 님의 채팅 방입니다.`;
       currentNickname = saved;
       loadMessages();
       setInterval(loadMessages, 5000);
@@ -132,11 +35,9 @@
       const sender = document.getElementById("sender").value.trim();
       const message = document.getElementById("message").value.trim();
       if (!sender || !message) {
-        alert("닉네임과 메시지를 전달해주세요!");
+        alert("닉네임과 메시지를 입력하세요!");
         return;
       }
-      currentNickname = sender;
-      localStorage.setItem("nickname", sender);
 
       fetch(apiUrl, {
         method: "POST",
@@ -154,34 +55,19 @@
       });
     }
 
-    document.getElementById("message").addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
     function loadMessages() {
       fetch(apiUrl)
         .then(res => res.json())
         .then(messages => {
-          if (!Array.isArray(messages)) return;
           const log = document.getElementById("chat-log");
           log.innerHTML = messages.map(msg =>
             `<div class="message${msg.sender === currentNickname ? ' self' : ''}">
               <strong>[${msg.sender}]</strong> ${msg.message}
             </div>`
           ).join('');
-          if (autoScroll) log.scrollTop = log.scrollHeight;
         })
-        .catch(err => console.error("빠른 로드 에러:", err));
-    }
-
-    function toggleScroll() {
-      autoScroll = !autoScroll;
-      document.getElementById("scroll-state").innerText = autoScroll ? "케지면" : "무지금";
+        .catch(err => console.error("메시지 로딩 실패:", err));
     }
   </script>
 </body>
 </html>
-
