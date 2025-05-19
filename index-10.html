@@ -6,9 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🐋 OrcaX 실시간 채팅</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -85,6 +83,12 @@
       border-radius: 6px;
     }
 
+    .timestamp {
+      font-size: 0.75rem;
+      color: gray;
+      margin-top: 4px;
+    }
+
     @media (max-width: 480px) {
       .chat-container {
         padding: 1rem;
@@ -134,10 +138,12 @@
         return;
       }
 
+      const timestamp = new Date().toLocaleString();
+
       fetch(apiUrl, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender, message })
+        body: JSON.stringify({ sender, message, timestamp })
       })
       .then(res => res.json())
       .then(() => {
@@ -158,6 +164,7 @@
           log.innerHTML = messages.map(msg =>
             `<div class="message${msg.sender === currentNickname ? ' self' : ''}">
               <strong>[${msg.sender}]</strong> ${msg.message}
+              <div class="timestamp">🕒 ${msg.timestamp || ''}</div>
             </div>`
           ).join('');
           log.scrollTop = log.scrollHeight;
@@ -167,3 +174,4 @@
   </script>
 </body>
 </html>
+
