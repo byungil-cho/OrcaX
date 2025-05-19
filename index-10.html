@@ -5,13 +5,108 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🐋 OrcaX 실시간 채팅</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #e1f5fe);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .chat-container {
+      background-color: #fff;
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 95%;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00796b;
+      margin-bottom: 1rem;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    textarea {
+      resize: none;
+      height: 80px;
+    }
+
+    button {
+      background: linear-gradient(90deg, #26c6da, #00acc1);
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #00acc1, #26c6da);
+    }
+
+    #chat-log {
+      margin-top: 1rem;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      background: #f5f5f5;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .message.self {
+      background-color: #c8e6c9;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 480px) {
+      .chat-container {
+        padding: 1rem;
+      }
+
+      input, textarea, button {
+        font-size: 0.95rem;
+        padding: 10px;
+      }
+
+      #chat-log {
+        max-height: 200px;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="chat-container">
-    <h1>🐋 OrcaX 실시간 채팅</h1>
+    <h1>🐋 OrcaX 채팅</h1>
     <input type="text" id="sender" placeholder="닉네임을 입력하세요" disabled />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
-    <button onclick="sendMessage()">전송하기</button>
+    <button onclick="sendMessage()">전송</button>
     <div id="chat-log"></div>
   </div>
 
@@ -22,7 +117,7 @@
     window.onload = () => {
       const saved = localStorage.getItem('nickname');
       if (!saved) {
-        alert("로그인 후 이용가능합니다.");
+        alert("로그인 후 이용해주세요.");
         return;
       }
       document.getElementById('sender').value = saved;
@@ -35,7 +130,7 @@
       const sender = document.getElementById("sender").value.trim();
       const message = document.getElementById("message").value.trim();
       if (!sender || !message) {
-        alert("닉네임과 메시지를 입력하세요!");
+        alert("닉네임과 메시지를 입력해주세요.");
         return;
       }
 
@@ -65,6 +160,7 @@
               <strong>[${msg.sender}]</strong> ${msg.message}
             </div>`
           ).join('');
+          log.scrollTop = log.scrollHeight;
         })
         .catch(err => console.error("메시지 로딩 실패:", err));
     }
