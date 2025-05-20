@@ -36,14 +36,16 @@
 </head>
 <body>
   <div class="container">
-    <h1><a href="https://orcax-survey-3060.onrender.com/survey-list.html" style="text-decoration:none; color:#00e0ff;">👫 OrcaX Puzzle</a></h1>
+    <h1>
+      <a href="#" onclick="checkPassword()" style="text-decoration:none; color:#00e0ff;">👫 OrcaX Puzzle</a>
+    </h1>
 
     <div id="user-info" style="margin-top: 10px; font-size: 1.1rem; color: #00e0ff;"></div>
 
     <h2>Select the First Puzzle to Begin</h2>
 
     <div class="grid">
-      <a class="active" href="nft_series_01.html"><img src="nft1_01.jpg" alt="Puzzle 1"><strong> 퍼즐 게임</strong></a>
+      <a class="active" href="nft_series_01.html"><img src="nft1_01.jpg" alt="Puzzle 1"><strong>퍼즐 게임</strong></a>
       <a class="active" href="shop.html"><img src="nft2_01.jpg" alt="Puzzle 2"><strong>NFT SHOP</strong></a>
       <a class="active" href="about-orcax.html"><img src="nft3_01.jpg" alt="Puzzle 3"><strong>OrcaX 소개</strong></a>
       <a class="active" href="franchise.html"><img src="nft4_01.jpg" alt="Puzzle 4"><strong>가맹점 현황</strong></a>
@@ -66,9 +68,7 @@
     <p>
       <a href="privacy-policy-detailed.html" target="_blank">개인정보처리방침</a> |
       <a href="https://byungil-cho.github.io/OrcaX/terms-of-service.html" target="_blank">이용약관</a> |
-     <a href="https://orcax-chat-widget.onrender.com/notice-view.html" target="_blank">
-  📢 공지사항 보기
-</a>|
+      <a href="https://orcax-chat-widget.onrender.com/notice-view.html" target="_blank">📢 공지사항 보기</a> |
       <a href="https://orcax-survey-3060.onrender.com/survey-submit.html" target="_blank">고객만족도</a> |
       <a href="#" onclick="toggleBusinessInfo()">사업자정보</a>
     </p>
@@ -93,6 +93,16 @@
     function toggleBusinessInfo() {
       const info = document.getElementById("business-info");
       info.style.display = info.style.display === "none" ? "block" : "none";
+    }
+
+    // 🔐 비밀번호 입력 후 링크 이동
+    function checkPassword() {
+      const input = prompt("비밀번호를 입력하세요:");
+      if (input === "2025") {
+        window.location.href = "https://orcax-survey-3060.onrender.com/survey-list.html";
+      } else {
+        alert("비밀번호가 틀렸습니다.");
+      }
     }
   </script>
 </body>
