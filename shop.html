@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OrcaX NFT 쿠폰 상점</title>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
   <style>
     body { background: #111; color: #00e0c7; font-family: Arial, sans-serif; text-align: center; }
     .coupon-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; margin-top: 2rem; }
@@ -27,17 +27,17 @@
   </p>
   <div class="coupon-container">
     <div class="coupon-card">
-      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-18000.jpg" alt="OrcaX 18000 쿠폰" onclick="openDesc('OrcaX 18,000 ORCX 쿠폰', '오전 11시 이전에 사용할 수 있는 조조 할인 쿠폰입니다.\n\n사용 시 18,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-18000.jpg" alt="OrcaX 18,000 ORCX 쿠폰" onclick="openDesc('OrcaX 18,000 ORCX 쿠폰', '오전 11시 이전에 사용할 수 있는 조조 할인 쿠폰입니다. 사용 시 18,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
       <h3>OrcaX 18,000 ORCX 쿠폰</h3>
       <button class="buy-btn" onclick="openModal('OrcaX 18,000 ORCX 쿠폰', 18000)">구매하기</button>
     </div>
     <div class="coupon-card">
-      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-20000.jpg" alt="OrcaX 20000 쿠폰" onclick="openDesc('OrcaX 20,000 ORCX 쿠폰', '오후 2시 이전 사용 가능한 골프 게임비 쿠폰입니다.\n\n사용 시 20,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-20000.jpg" alt="OrcaX 20,000 ORCX 쿠폰" onclick="openDesc('OrcaX 20,000 ORCX 쿠폰', '오후 2시 이전 사용 가능한 골프 게임비 쿠폰입니다. 사용 시 20,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
       <h3>OrcaX 20,000 ORCX 쿠폰</h3>
       <button class="buy-btn" onclick="openModal('OrcaX 20,000 ORCX 쿠폰', 20000)">구매하기</button>
     </div>
     <div class="coupon-card">
-      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-25000.jpg" alt="OrcaX 25000 쿠폰" onclick="openDesc('OrcaX 25,000 ORCX 쿠폰', '오후 2시 이후 사용 가능한 골프 게임비 쿠폰입니다.\n\n사용 시 25,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
+      <img src="https://raw.githubusercontent.com/byungil-cho/OrcaX/orx-main/orcax-25000.jpg" alt="OrcaX 25,000 ORCX 쿠폰" onclick="openDesc('OrcaX 25,000 ORCX 쿠폰', '오후 2시 이후 사용 가능한 골프 게임비 쿠폰입니다. 사용 시 25,000 ORCX 상당의 NFT 1개 회수됩니다.')" />
       <h3>OrcaX 25,000 ORCX 쿠폰</h3>
       <button class="buy-btn" onclick="openModal('OrcaX 25,000 ORCX 쿠폰', 25000)">구매하기</button>
     </div>
@@ -115,10 +115,17 @@
       const nft = `${quantity} x ${unitPrice.toLocaleString()} ORCX`;
 
       try {
-        const res = await fetch("https://orcax-alert-backend.onrender.com/order", {
+        const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, phone, wallet, quantity, nft })
+          body: JSON.stringify({
+            name,
+            phone,
+            wallet,
+            quantity,
+            nft,
+            rd_token: "rd_2weyBadD7jdLes8yA6M0NZCuPBn"
+          })
         });
 
         const result = await res.json();
