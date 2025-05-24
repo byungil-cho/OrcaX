@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐳 OrcaX Chat Widget</title>
+  <title>🐳 OrcaX 메시지 통신</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #eef9fb;
       display: flex;
       flex-direction: column;
@@ -22,9 +22,10 @@
       height: 400px;
       border: 1px solid #ccc;
       padding: 1rem;
-      overflow-y: scroll;
+      overflow-y: auto;
       background-color: #fff;
       margin-bottom: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .message {
       margin: 0.5rem 0;
@@ -32,16 +33,26 @@
     .error {
       color: red;
     }
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
     input, button {
       padding: 0.5rem;
       font-size: 1rem;
     }
+    input {
+      flex: 1;
+      min-width: 150px;
+    }
   </style>
 </head>
 <body>
-  <h1>🐳 OrcaX Chat Widget</h1>
+  <h1>🐳 OrcaX 메시지 통신</h1>
   <div id="chat-box">로딩 중...</div>
-  <div>
+  <div class="input-group">
     <input id="sender" type="text" placeholder="닉네임" />
     <input id="message" type="text" placeholder="메시지를 입력하세요" />
     <button onclick="sendMessage()">전송</button>
@@ -89,9 +100,10 @@
     }
 
     window.onload = loadMessages;
-    setInterval(loadMessages, 5000);
+    setInterval(loadMessages, 5050);
   </script>
 </body>
 </html>
+
 
 
