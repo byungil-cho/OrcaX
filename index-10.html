@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐋 OrcaX 채팅 (최종 ngrok 연결)</title>
+  <title>🐋 OrcaX 채팅</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -46,16 +46,11 @@
     .timestamp {
       font-size: 0.75rem; color: gray; margin-top: 4px;
     }
-    @media (max-width: 480px) {
-      .chat-container { padding: 1rem; }
-      input, textarea, button { font-size: 0.95rem; padding: 10px; }
-      #chat-log { max-height: 200px; }
-    }
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <h1>🐋 OrcaX 채팅 (ngrok 연결됨)</h1>
+    <h1>🐋 OrcaX 채팅</h1>
     <input type="text" id="sender" placeholder="닉네임을 입력하세요" disabled />
     <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
     <button onclick="sendMessage()">전송</button>
@@ -63,13 +58,14 @@
   </div>
 
   <script>
-    const apiUrl = "https://3ba8c781cd35.ngrok.app/api/messages";
+    const apiUrl = "https://orcax-chat-widget.onrender.com/api/messages";
     let currentNickname = "";
 
     window.onload = () => {
       const saved = localStorage.getItem('nickname');
       if (!saved) {
-        alert("닉네임 저장 필요: localStorage.setItem('nickname', '홍길동');"); return;
+        alert("닉네임 저장 필요: localStorage.setItem('nickname', '홍길동');");
+        return;
       }
       document.getElementById('sender').value = saved;
       currentNickname = saved;
@@ -81,21 +77,28 @@
       const sender = document.getElementById("sender").value.trim();
       const message = document.getElementById("message").value.trim();
       if (!sender || !message) {
-        alert("닉네임과 메시지를 입력해주세요."); return;
+        alert("닉네임과 메시지를 입력해주세요.");
+        return;
       }
+
       const timestamp = new Date().toLocaleString();
+
       fetch(apiUrl, {
         method: "POST",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sender, message, timestamp })
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("전송 실패");
+        return res.json();
+      })
       .then(() => {
         document.getElementById("message").value = '';
         loadMessages();
       })
       .catch(err => {
-        alert("⚠️ 메시지 전송 실패!"); console.error(err);
+        alert("⚠️ 메시지 전송 실패! 백엔드 서버를 확인하세요.");
+        console.error(err);
       });
     }
 
