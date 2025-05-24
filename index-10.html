@@ -58,13 +58,13 @@
   </div>
 
   <script>
-    const apiUrl = "https://orcax-chat-widget.onrender.com/api/messages";
+    const apiUrl = "https://orcax-chat-widget.onrender.com/send";
     let currentNickname = "";
 
     window.onload = () => {
       const saved = localStorage.getItem('nickname');
       if (!saved) {
-        alert("닉네임 저장 필요: localStorage.setItem('nickname', '홍길동');");
+        alert("⚠️ 닉네임이 저장되지 않았습니다.\n개발자 도구 콘솔에 아래 명령어를 입력하세요:\n\nlocalStorage.setItem('nickname', '고래')");
         return;
       }
       document.getElementById('sender').value = saved;
@@ -120,3 +120,4 @@
   </script>
 </body>
 </html>
+
