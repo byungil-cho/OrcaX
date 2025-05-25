@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OrcaX 농장 입구</title>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
     body {
       margin: 0;
@@ -19,11 +20,20 @@
     }
     h1 {
       font-size: 2rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
       background-color: rgba(0, 0, 0, 0.5);
       display: inline-block;
       padding: 0.5rem 1rem;
       border-radius: 10px;
+    }
+    .nickname {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 8px;
+      color: #fff;
     }
     .choice-section {
       display: flex;
@@ -72,11 +82,24 @@
     .exit-link:hover {
       color: #fff;
     }
+    .kakao-login {
+      margin-top: 3rem;
+    }
+    .kakao-btn {
+      background: #FEE500;
+      color: #000;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>OrcaX Sea Farm에 오신 것을 환영합니다.</h1>
+    <div id="nicknameDisplay" class="nickname"></div>
 
     <div class="choice-section">
       <a href="gamja-farm.html" class="choice-item">
@@ -88,8 +111,28 @@
         <span>보리 밭</span>
       </a>
     </div>
+
+    <div class="kakao-login">
+      <button class="kakao-btn" onclick="goKakaoLogin()">카카오 간편 로그인</button>
+    </div>
   </div>
 
   <a class="exit-link" href="index.html">⬅ 농장 밖으로 나가기</a>
+
+  <script>
+    Kakao.init('284b798a9d9be8202f9c2e129fa6f329');
+    function goKakaoLogin() {
+      const client_id = "284b798a9d9be8202f9c2e129fa6f329";
+      const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
+      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
+      window.location.href = url;
+    }
+
+    const nickname = localStorage.getItem("nickname");
+    if (nickname) {
+      document.getElementById("nicknameDisplay").textContent = `👤 ${nickname}님, 환영합니다!`;
+    }
+  </script>
 </body>
 </html>
+
