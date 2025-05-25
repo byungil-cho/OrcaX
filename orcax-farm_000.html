@@ -41,6 +41,10 @@
       align-items: flex-end;
       gap: 5rem;
       margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .choice-item {
+      margin-bottom: 2rem;
     }
     .choice-item img {
       width: 180px;
@@ -94,6 +98,42 @@
       font-size: 1rem;
       cursor: pointer;
     }
+    .market-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #222;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
+    .market-link:hover {
+      background-color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1.5rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      .choice-section {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .choice-item img {
+        width: 150px;
+      }
+      .market-link {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -118,6 +158,7 @@
   </div>
 
   <a class="exit-link" href="index.html">⬅ 농장 밖으로 나가기</a>
+  <a class="market-link" href="auction-house.html">📊 경매장 바로가기</a>
 
   <script>
     Kakao.init('284b798a9d9be8202f9c2e129fa6f329');
@@ -135,4 +176,5 @@
   </script>
 </body>
 </html>
+
 
