@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>보리 제품 만들기</title>
   <style>
     body {
@@ -147,6 +147,23 @@
       input.value = '';
 
       updateInventory();
+
+      // ✅ 서버 저장 추가
+      const nickname = localStorage.getItem("nickname") || "익명농부";
+      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/farm/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nickname: nickname,
+          product: product,
+          quantity: 1
+        })
+      })
+      .then(res => res.json())
+      .then(data => console.log("✅ 서버 저장 완료:", data))
+      .catch(err => console.error("❌ 서버 저장 실패:", err));
 
       if (yieldLeft === 0) {
         document.getElementById('footerNav').style.display = 'block';
