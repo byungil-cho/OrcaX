@@ -1,1 +1,184 @@
-<!DOCTYPE html><html lang="ko"><head>  <meta charset="UTF-8">  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>감자 제품 만들기</title>  <style>    body {      margin: 0;      padding: 0;      background-color: #222;      color: #fff;      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;      text-align: center;    }    .container {      padding: 2rem;      max-width: 700px;      margin: auto;    }    h1 {      margin-bottom: 1rem;    }    .info {      margin-bottom: 2rem;      font-size: 1.2rem;    }    .form-group {      margin: 1rem 0;    }    input[type="text"] {      padding: 0.5rem;      font-size: 1rem;      width: 300px;      border-radius: 5px;      border: none;      text-align: center;    }    .button {      margin-top: 1rem;      padding: 1rem 2rem;      font-size: 1.1rem;      background-color: #ffaa00;      color: #000;      border: none;      border-radius: 8px;      cursor: pointer;    }    .button:hover {      background-color: #ff8800;    }    .result {      margin-top: 2rem;      padding: 1rem;      background-color: #333;      border-radius: 10px;    }    .inventory {      margin-top: 1rem;      font-size: 1rem;      background-color: #444;      padding: 1rem;      border-radius: 8px;    }    .exit-options {      margin-top: 2rem;      display: none;    }    .exit-options button {      margin: 0.5rem;      padding: 0.8rem 1.5rem;      font-size: 1rem;      border-radius: 8px;      border: none;      background-color: #ffaa00;      color: #000;      cursor: pointer;    }    .exit-options button:hover {      background-color: #ff8800;    }  </style></head><body>  <div class="container">    <h1>감자 제품 만들기</h1>    <div class="info" id="summary"></div>    <div class="form-group">      <input type="text" id="productInput" placeholder="예: 칩, 전, 튀김, 라떼, 스프...">      <br>      <button class="button" onclick="makeProduct()">제품 만들기</button>    </div>    <div class="result" id="resultBox"></div>    <div class="inventory" id="inventoryBox"></div>    <div class="exit-options" id="exitBox">      <p>감자가 모두 소진되었습니다. 이제 어디로 가시겠습니까?</p>      <button onclick="location.href='orcax-farm_000.html'">농장 입구로 가기</button>      <button onclick="location.href='bori-farm.html'">보리밭으로 가기</button>      <button onclick="location.href='orcax-farm_000.html'">퇴근하기</button>    </div>  </div>  <script>    let potatoName = localStorage.getItem("potatoName") || "";    let potatoCount = parseInt(localStorage.getItem("potatoCount")) || 0;    let productInventory = JSON.parse(localStorage.getItem("productInventory") || '{}');    const summary = document.getElementById("summary");    const resultBox = document.getElementById("resultBox");    const inventoryBox = document.getElementById("inventoryBox");    const exitBox = document.getElementById("exitBox");    function updateInventoryDisplay() {      let html = '<strong>📦 보관함:</strong><br>';      for (let key in productInventory) {        html += `- ${key}: ${productInventory[key]}개<br>`;      }      inventoryBox.innerHTML = html;    }    function makeProduct() {      const input = document.getElementById("productInput").value.trim();      if (!input) {        alert("제품 이름을 입력하세요!");        return;      }      if (potatoCount <= 0) {        alert("더 이상 감자가 없습니다!");        return;      }      const productName = `${potatoName}감자${input}`;      productInventory[productName] = (productInventory[productName] || 0) + 1;      potatoCount--;      localStorage.setItem("potatoCount", potatoCount);      localStorage.setItem("productInventory", JSON.stringify(productInventory));      document.getElementById("count").innerText = potatoCount;      resultBox.innerHTML = `✅ <strong>${productName}</strong> 1개 만들었어요!<br>남은 감자: ${potatoCount}개`;      resultBox.style.display = 'block';      updateInventoryDisplay();      if (potatoCount <= 0) {        exitBox.style.display = 'block';      }    }    summary.innerHTML = `<strong>${potatoName}감자</strong> 수확량: <span id="count">${potatoCount}</span>개`;    updateInventoryDisplay();    if (potatoCount <= 0) {      exitBox.style.display = 'block';    }  </script></body></html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감자 제품 만들기</title>
+  <style>
+    body {
+      background-color: #222;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .initial-box {
+      background-color: #444;
+      padding: 1rem;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: 0 auto 2rem auto;
+    }
+    #initial-yield {
+      font-size: 1.2rem;
+      color: #f0c741;
+      font-weight: bold;
+    }
+    .input-section {
+      margin-bottom: 2rem;
+    }
+    input[type="text"] {
+      padding: 0.75rem;
+      font-size: 1rem;
+      width: 250px;
+      border-radius: 8px;
+      border: none;
+      text-align: center;
+    }
+    .button {
+      padding: 0.7rem 1.4rem;
+      font-size: 1rem;
+      margin-left: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #f5c842;
+      color: #000;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #e0b636;
+    }
+    #log {
+      margin-top: 2rem;
+      background-color: #333;
+      padding: 1.5rem;
+      border-radius: 10px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .summary {
+      margin-top: 2rem;
+      background-color: #444;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: left;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .footer-nav {
+      margin-top: 2rem;
+    }
+    .footer-nav button {
+      background-color: #ffaa00;
+      border: none;
+      color: #000;
+      padding: 0.5rem 1rem;
+      margin: 0 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .footer-nav button:hover {
+      background-color: #e69a00;
+    }
+  </style>
+</head>
+<body>
+  <h1>감자 제품 만들기</h1>
+  <div class="initial-box">
+    <div id="initial-yield"></div>
+  </div>
+
+  <div class="input-section">
+    <input type="text" id="productInput" placeholder="제품 종류 (예: 칩, 전, 튀김 등)" />
+    <button class="button" onclick="makeProduct()">제품 만들기</button>
+  </div>
+
+  <div id="log"></div>
+  <div class="summary" id="inventory"></div>
+
+  <div class="footer-nav" id="footerNav" style="display: none;">
+    <p>감자가 모두 소진되었습니다. 이제 어디로 가시겠습니까?</p>
+    <button onclick="location.href='orcax-farm_000.html'">농장 입구로 가기</button>
+    <button onclick="location.href='gamja-main.html'">감자밭으로 가기</button>
+    <button onclick="location.href='index.html'">퇴근하기</button>
+  </div>
+
+  <script>
+    let yieldLeft = parseInt(localStorage.getItem('potatoCount')) || 0;
+    let potatoName = localStorage.getItem('potatoName') || '';
+    let logDiv = document.getElementById('log');
+    let yieldDisplay = document.getElementById('initial-yield');
+    let inventoryDiv = document.getElementById('inventory');
+    let productStorage = JSON.parse(localStorage.getItem('productInventory')) || {};
+
+    yieldDisplay.textContent = `🥔 들고온 감자 수확량: ${yieldLeft}개`;
+
+    function makeProduct() {
+      const input = document.getElementById('productInput');
+      let product = input.value.trim();
+      if (!product) return alert('제품 이름을 입력하세요.');
+
+      if (yieldLeft <= 0) {
+        logDiv.innerHTML += `<p>💀 감자가 부족합니다. 더 이상 만들 수 없습니다.</p>`;
+        document.getElementById('footerNav').style.display = 'block';
+        return;
+      }
+
+      product = `${potatoName}감자${product}`;
+
+      yieldLeft--;
+      localStorage.setItem('potatoCount', yieldLeft);
+
+      if (!productStorage[product]) {
+        productStorage[product] = 0;
+      }
+      productStorage[product]++;
+      localStorage.setItem('productInventory', JSON.stringify(productStorage));
+
+      logDiv.innerHTML += `<p>✅ ${product} 1개 만들었어요!<br>남은 감자: ${yieldLeft}개</p>`;
+      input.value = '';
+
+      updateInventory();
+
+      const nickname = localStorage.getItem("nickname") || "익명농부";
+      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/farm/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nickname: nickname,
+          product: product,
+          quantity: 1
+        })
+      })
+      .then(res => res.json())
+      .then(data => console.log("✅ 감자 제품 서버 저장 완료:", data))
+      .catch(err => console.error("❌ 감자 저장 실패:", err));
+
+      if (yieldLeft === 0) {
+        document.getElementById('footerNav').style.display = 'block';
+      }
+    }
+
+    function updateInventory() {
+      let html = '<strong>📦 보관함:</strong><ul>';
+      for (let key in productStorage) {
+        html += `<li>${key}: ${productStorage[key]}개</li>`;
+      }
+      html += '</ul>';
+      inventoryDiv.innerHTML = html;
+    }
+
+    updateInventory();
+  </script>
+</body>
+</html>
+
