@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamja Farm - My Potato</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #222;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .stage {
+      margin: 2rem 0;
+    }
+    .button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffaa00;
+      color: #000;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .button:hover {
+      background-color: #ff8800;
+    }
+    .input-group {
+      margin-top: 2rem;
+      display: none;
+    }
+    input[type="text"] {
+      padding: 0.75rem;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      border: none;
+      width: 300px;
+      text-align: center;
+    }
+    .result {
+      margin-top: 3rem;
+      background-color: #333;
+      padding: 2rem;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>나만의 감자 농사</h1>
+
+    <div class="stage" id="farmStage">
+      <p>감자를 키워보세요! 감자를 심고 키우면 수확할 수 있습니다.</p>
+      <button class="button" onclick="growPotato()">🌱 감자 키우기</button>
+    </div>
+
+    <div class="input-group" id="nameStage">
+      <label for="potatoName">감자 이름을 지어주세요</label><br>
+      <input type="text" id="potatoName" placeholder="감자 이름 입력" />
+      <button class="button" onclick="submitPotato()">다음 단계로</button>
+    </div>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    function growPotato() {
+      document.getElementById('farmStage').style.display = 'none';
+      document.getElementById('nameStage').style.display = 'block';
+    }
+
+    function submitPotato() {
+      const name = document.getElementById('potatoName').value.trim();
+      if (!name) {
+        alert('감자 이름을 입력해주세요!');
+        return;
+      }
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `🌱 당신의 감자 이름은 <strong>${name}감자</strong>입니다.`;
+      resultDiv.style.display = 'block';
+      setTimeout(() => {
+        window.location.href = 'gamja-factory.html';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

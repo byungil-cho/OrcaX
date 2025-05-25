@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>보리 시장통</title>
+  <style>
+    body {
+      background-color: #1d1d1d;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .market-list {
+      background-color: #333;
+      padding: 1.5rem;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .market-list ul {
+      padding: 0;
+      list-style: none;
+    }
+    .market-list li {
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border-bottom: 1px solid #555;
+    }
+    .nav {
+      margin-top: 2rem;
+    }
+    .nav button {
+      background-color: #ffaa00;
+      border: none;
+      color: #000;
+      padding: 0.5rem 1rem;
+      margin: 0 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .nav button:hover {
+      background-color: #e69a00;
+    }
+  </style>
+</head>
+<body>
+  <h1>📈 보리 시장통</h1>
+  <p>지금껏지 생성된 보리 제품들의 시세를 확인하세요.</p>
+
+  <div class="market-list">
+    <ul id="marketItems"></ul>
+  </div>
+
+  <div class="nav">
+    <button onclick="location.href='bori-result.html'">보리 채가로 돌아가기</button>
+    <button onclick="location.href='index.html'">티웨팅하기</button>
+  </div>
+
+  <script>
+    const items = JSON.parse(localStorage.getItem('bori_products')) || {};
+    const market = document.getElementById('marketItems');
+
+    if (Object.keys(items).length === 0) {
+      market.innerHTML = '<li>🥜 시장에 제품이 없습니다.</li>';
+    } else {
+      for (const [name, qty] of Object.entries(items)) {
+        const li = document.createElement('li');
+        li.textContent = `${name} - ${qty} 개 (예상가: ${100 + qty * 5}원)`;
+        market.appendChild(li);
+      }
+    }
+  </script>
+</body>
+</html>

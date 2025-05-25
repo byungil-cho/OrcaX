@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감자 공장</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+    }
+    .container {
+      padding: 2rem;
+    }
+    .button {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      margin: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffaa00;
+      color: #000;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #ff8800;
+    }
+    .growth-image {
+      margin-top: 2rem;
+      width: 180px;
+      height: 180px;
+      animation: wiggle 2s infinite ease-in-out;
+      border-radius: 50%;
+      object-fit: cover;
+      overflow: hidden;
+    }
+    @keyframes wiggle {
+      0%, 100% {
+        transform: rotate(0deg);
+      }
+      25% {
+        transform: rotate(1deg);
+      }
+      50% {
+        transform: rotate(-1.5deg);
+      }
+      75% {
+        transform: rotate(1deg);
+      }
+    }
+    .count-display {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+    }
+    .result {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span id="potatoName">감자</span>감자가 자라고 있습니다</h1>
+    <p>물을 주거나 거름을 주세요!</p>
+    <button class="button" onclick="addWater()">💧 물 주기</button>
+    <button class="button" onclick="addFertilizer()">🌾 거름 주기</button>
+    <div class="count-display" id="countDisplay"></div>
+    <div id="harvestSection" style="margin-top: 2rem; display: none;">
+      <button class="button" onclick="harvestPotato()">🥔 수확하기</button>
+    </div>
+    <div>
+      <img src="farm-101_01.png" alt="감자싹" class="growth-image">
+    </div>
+    <div class="result" id="resultBox"></div>
+  </div>
+
+  <script>
+    let waterCount = 0;
+    let fertilizerCount = 0;
+    let totalActions = 0;
+    let potatoName = localStorage.getItem("potatoName") || "감자";
+    document.getElementById("potatoName").innerText = potatoName;
+
+    function addWater() {
+      waterCount++;
+      totalActions++;
+      updateCountDisplay();
+      maybeShowHarvest();
+    }
+
+    function addFertilizer() {
+      fertilizerCount++;
+      totalActions++;
+      updateCountDisplay();
+      maybeShowHarvest();
+    }
+
+    function updateCountDisplay() {
+      document.getElementById("countDisplay").innerText = `💧 물: ${waterCount}번 | 🌾 거름: ${fertilizerCount}번`;
+    }
+
+    function maybeShowHarvest() {
+      if (totalActions >= 3) {
+        document.getElementById("harvestSection").style.display = 'block';
+      }
+    }
+
+    function harvestPotato() {
+      let total = 0;
+      if (fertilizerCount === 1 && waterCount === 3) {
+        total = 10;
+      } else if (fertilizerCount === 1 && waterCount === 4) {
+        total = 8;
+      } else if (fertilizerCount === 2 && waterCount === 3) {
+        total = 7;
+      } else {
+        total = Math.max(1, 10 - Math.abs(3 - waterCount) * 2 - Math.abs(1 - fertilizerCount) * 2);
+      }
+
+      localStorage.setItem("potatoCount", total);
+      const resultBox = document.getElementById("resultBox");
+      resultBox.innerHTML = `🎉 수확 완료!<br><strong>${potatoName}감자</strong>를 ${total}개 수확했습니다.`;
+      resultBox.style.display = 'block';
+
+      setTimeout(() => {
+        window.location.href = 'gamja-result.html';
+      }, 10000); // 10초 후 이동
+    }
+  </script>
+</body>
+</html>

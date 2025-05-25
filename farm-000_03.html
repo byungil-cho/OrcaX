@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrcaX 농장</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-image: url('farm-000_03.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .entrance-link {
+      position: absolute;
+      bottom: 5%;
+      left: 5%;
+    }
+    .entrance-image {
+      height: 250px;
+      border-radius: 0.75rem;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+    }
+    .text-footer-wrapper {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      overflow: hidden;
+      height: 3rem;
+    }
+    .text-footer {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 15s linear infinite;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.2rem;
+      padding: 1rem 0;
+    }
+    @keyframes marquee {
+      0%   { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    .enter-button {
+      display: inline-block;
+      margin-left: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background-color: #ffb300;
+      color: black;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      transition: background-color 0.3s ease;
+    }
+    .enter-button:hover {
+      background-color: #ffa000;
+    }
+  </style>
+</head>
+<body>
+  <a href="auction-house.html" class="entrance-link">
+    <img src="farm-000_02.png" alt="경매장 입구" class="entrance-image">
+  </a>
+  <div class="text-footer-wrapper">
+    <div class="text-footer">
+      OrcaX 농장에 오신 걸 환영합니다 – 이곳은 실시간 생산과 거래가 이루어지는 디지털 농장입니다.
+      <a href="auction-house.html" class="enter-button">경매장 입장</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bori Farm - My Barley</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #222;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      margin: 0.5rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #f5c842;
+      color: #000;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .button:hover {
+      background-color: #e0b636;
+    }
+    .plant-image {
+      margin-top: 2rem;
+    }
+    .plant-image img {
+      width: 200px;
+      border-radius: 90%;
+      animation: sway 2s infinite alternate;
+    }
+    @keyframes sway {
+      0% { transform: rotate(-2deg); }
+      100% { transform: rotate(2deg); }
+    }
+    #status {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+    }
+    #harvest-section {
+      margin-top: 2rem;
+      display: none;
+    }
+    #harvest-result {
+      margin-top: 1rem;
+      font-size: 1.3rem;
+      color: #f0c741;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="barley-title">보리가 자라고 있습니다</h1>
+    <p>물을 주거나 거름을 주세요!</p>
+    <button class="button" onclick="water()">💧 물 주기</button>
+    <button class="button" onclick="fertilize()">🌾 거름 주기</button>
+
+    <div class="plant-image">
+      <img src="bori-201_01.png" alt="보리 싹">
+    </div>
+
+    <div id="status"></div>
+
+    <div id="harvest-section">
+      <button class="button" onclick="harvest()">🌾 수확하기</button>
+      <div id="harvest-result"></div>
+    </div>
+  </div>
+
+  <script>
+    let waterCount = 0;
+    let fertilizerCount = 0;
+    let harvestReady = false;
+
+    function updateStatus() {
+      document.getElementById('status').textContent = `물: ${waterCount}번 / 거름: ${fertilizerCount}번`;
+    }
+
+    function water() {
+      waterCount++;
+      updateStatus();
+      checkHarvest();
+    }
+
+    function fertilize() {
+      fertilizerCount++;
+      updateStatus();
+      checkHarvest();
+    }
+
+    function checkHarvest() {
+      const total = waterCount + fertilizerCount;
+      if (total >= 4 && !harvestReady) {
+        document.getElementById('harvest-section').style.display = 'block';
+        harvestReady = true;
+      }
+    }
+
+    function harvest() {
+      const total = waterCount + fertilizerCount;
+      let yieldAmount = 0;
+
+      if (waterCount === 3 && fertilizerCount === 1) {
+        yieldAmount = 10;
+      } else if (waterCount === 4 && fertilizerCount === 1) {
+        yieldAmount = 8;
+      } else if (waterCount === 3 && fertilizerCount === 2) {
+        yieldAmount = 7;
+      } else {
+        yieldAmount = Math.max(1, 5 - Math.abs(4 - total));
+      }
+
+      localStorage.setItem('bori_yield', yieldAmount);
+      document.getElementById('harvest-result').textContent = `🌾 ${yieldAmount}말의 보리를 수확했습니다!`;
+
+      setTimeout(() => {
+        window.location.href = 'bori-result.html';
+      }, 10000);
+    }
+  </script>
+</body>
+</html>

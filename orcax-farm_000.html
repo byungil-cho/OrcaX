@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrcaX 농장 입구</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('farm-000.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+    }
+    .container {
+      padding: 3rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+    }
+    .choice-section {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 5rem;
+      margin-top: 2rem;
+    }
+    .choice-item img {
+      width: 180px;
+      height: auto;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: 0 0 10px #000;
+    }
+    .choice-item img:hover {
+      animation: squishy 0.4s ease-in-out;
+    }
+    @keyframes squishy {
+      0% { transform: scale(1.05, 0.95); }
+      50% { transform: scale(0.95, 1.05); }
+      100% { transform: scale(1.05, 0.95); }
+    }
+    .choice-item span {
+      display: block;
+      margin-top: 0.5rem;
+      font-weight: bold;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+    }
+    .exit-link {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.85rem;
+      color: #eee;
+      text-decoration: underline;
+      cursor: pointer;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 0.3rem 0.8rem;
+      border-radius: 5px;
+    }
+    .exit-link:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>OrcaX Sea Farm에 오신 것을 환영합니다.</h1>
+
+    <div class="choice-section">
+      <a href="gamja-farm.html" class="choice-item">
+        <img src="farm-101.png" alt="감자 밭 입장">
+        <span>감자 밭</span>
+      </a>
+      <a href="bori-farm.html" class="choice-item">
+        <img src="farm-201.png" alt="보리 밭 입장">
+        <span>보리 밭</span>
+      </a>
+    </div>
+  </div>
+
+  <a class="exit-link" href="index.html">⬅ 농장 밖으로 나가기</a>
+</body>
+</html>

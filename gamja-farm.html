@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gamja Farm Entrance</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: url('farm-101.png') no-repeat center center/cover;
+    }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+    .label {
+      position: absolute;
+      top: 5%;
+      left: 5%;
+      padding: 0.75rem 1.5rem;
+      background-color: #ffaa00cc;
+      color: #000;
+      font-weight: bold;
+      font-size: 1.25rem;
+      border-radius: 8px;
+    }
+    .entry-button {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 1rem 2rem;
+      background-color: #ffaa00;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+    }
+    .entry-button:hover {
+      background-color: #ff8800;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="overlay"></div>
+    <div class="label">Gamja Farm Entrance</div>
+    <button class="entry-button" onclick="enterGamjaFarm()">Enter the Field</button>
+  </div>
+  <script>
+    function enterGamjaFarm() {
+      window.location.href = 'gamja-main.html';
+    }
+  </script>
+</body>
+</html>
