@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>감자 제품 만들기</title>
   <style>
     body {
@@ -13,10 +13,12 @@
       padding: 2rem;
       text-align: center;
     }
+
     h1 {
       font-size: 2rem;
       margin-bottom: 0.5rem;
     }
+
     .initial-box {
       background-color: #444;
       padding: 1rem;
@@ -24,161 +26,112 @@
       max-width: 500px;
       margin: 0 auto 2rem auto;
     }
+
     #initial-yield {
       font-size: 1.2rem;
       color: #f0c741;
       font-weight: bold;
     }
+
     .input-section {
       margin-bottom: 2rem;
     }
+
     input[type="text"] {
-      padding: 0.75rem;
+      padding: 0.5rem;
       font-size: 1rem;
       width: 250px;
-      border-radius: 8px;
+      border-radius: 5px;
       border: none;
-      text-align: center;
+      margin-right: 0.5rem;
     }
-    .button {
-      padding: 0.7rem 1.4rem;
-      font-size: 1rem;
-      margin-left: 1rem;
-      border: none;
-      border-radius: 8px;
-      background-color: #f5c842;
-      color: #000;
-      cursor: pointer;
-    }
-    .button:hover {
-      background-color: #e0b636;
-    }
-    #log {
-      margin-top: 2rem;
-      background-color: #333;
-      padding: 1.5rem;
-      border-radius: 10px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .summary {
-      margin-top: 2rem;
-      background-color: #444;
-      padding: 1rem;
-      border-radius: 10px;
-      text-align: left;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .footer-nav {
-      margin-top: 2rem;
-    }
-    .footer-nav button {
-      background-color: #ffaa00;
-      border: none;
-      color: #000;
+
+    button {
       padding: 0.5rem 1rem;
-      margin: 0 0.5rem;
+      font-size: 1rem;
+      background-color: #f0c741;
+      color: #000;
+      border: none;
       border-radius: 5px;
       cursor: pointer;
     }
-    .footer-nav button:hover {
-      background-color: #e69a00;
+
+    .result-box {
+      background-color: #333;
+      padding: 1rem;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .result-box h2 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-box ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .result-box li {
+      margin: 0.25rem 0;
+    }
+
+    #server-status {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #00ff88;
     }
   </style>
 </head>
 <body>
-  <h1>감자 제품 만들기</h1>
+  <h1>🥔 감자 제품 만들기</h1>
+
   <div class="initial-box">
-    <div id="initial-yield"></div>
+    <p id="initial-yield">들고온 감자 수확량: 6개</p>
   </div>
 
   <div class="input-section">
-    <input type="text" id="productInput" placeholder="제품 종류 (예: 칩, 전, 튀김 등)" />
-    <button class="button" onclick="makeProduct()">제품 만들기</button>
+    <input type="text" placeholder="제품 종류 (예: 칩, 전, 튀김 등)" />
+    <button>제품 만들기</button>
   </div>
 
-  <div id="log"></div>
-  <div class="summary" id="inventory"></div>
+  <!-- ✅ 서버 연결 상태 표시 -->
+  <div id="server-status">🔄 서버 연결 상태 확인 중...</div>
 
-  <div class="footer-nav" id="footerNav" style="display: none;">
-    <p>감자가 모두 소진되었습니다. 이제 어디로 가시겠습니까?</p>
-    <button onclick="location.href='orcax-farm_000.html'">농장 입구로 가기</button>
-    <button onclick="location.href='gamja-main.html'">감자밭으로 가기</button>
-    <button onclick="location.href='index.html'">퇴근하기</button>
+  <div class="result-box">
+    <h2>📦 보관함:</h2>
+    <ul>
+      <li>감자감자칩: 3개</li>
+      <li>감자감자전: 5개</li>
+      <li>감자감자고구마: 1개</li>
+      <li>감자감자전전: 1개</li>
+      <li>OrcaX감자레전: 1개</li>
+      <li>OrcaX감자타래: 1개</li>
+      <li>OrcaX감자부라보: 1개</li>
+      <li>OrcaX감자동통: 1개</li>
+      <li>OrcaX감자오뚜기: 1개</li>
+      <li>OrcaX감자표범: 1개</li>
+      <li>감자목반: 1개</li>
+    </ul>
   </div>
 
   <script>
-    let yieldLeft = parseInt(localStorage.getItem('potatoCount')) || 0;
-    let potatoName = localStorage.getItem('potatoName') || '';
-    let logDiv = document.getElementById('log');
-    let yieldDisplay = document.getElementById('initial-yield');
-    let inventoryDiv = document.getElementById('inventory');
-    let productStorage = JSON.parse(localStorage.getItem('productInventory')) || {};
-
-    yieldDisplay.textContent = `🥔 들고온 감자 수확량: ${yieldLeft}개`;
-
-    function makeProduct() {
-      const input = document.getElementById('productInput');
-      let product = input.value.trim();
-      if (!product) return alert('제품 이름을 입력하세요.');
-
-      if (yieldLeft <= 0) {
-        logDiv.innerHTML += `<p>💀 감자가 부족합니다. 더 이상 만들 수 없습니다.</p>`;
-        document.getElementById('footerNav').style.display = 'block';
-        return;
-      }
-
-      product = `${potatoName}감자${product}`;
-
-      yieldLeft--;
-      localStorage.setItem('potatoCount', yieldLeft);
-
-      if (!productStorage[product]) {
-        productStorage[product] = 0;
-      }
-      productStorage[product]++;
-      localStorage.setItem('productInventory', JSON.stringify(productStorage));
-
-      logDiv.innerHTML += `<p>✅ ${product} 1개 만들었어요!<br>남은 감자: ${yieldLeft}개</p>`;
-      input.value = '';
-
-      updateInventory();
-
-      const nickname = localStorage.getItem("nickname") || "익명농부";
-      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/farm/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          nickname: nickname,
-          product: product,
-          quantity: 1
-        })
+    // ✅ 서버 연결 상태 확인
+    fetch("https://orcax-farm-6000.onrender.com/api/ping")
+      .then(res => {
+        if (res.ok) {
+          document.getElementById("server-status").innerText = "🟢 서버 연결 성공: 감자 밭과 통신 중입니다!";
+        } else {
+          document.getElementById("server-status").innerText = "🔴 서버 응답 없음";
+        }
       })
-      .then(res => res.json())
-      .then(data => console.log("✅ 감자 제품 서버 저장 완료:", data))
-      .catch(err => console.error("❌ 감자 저장 실패:", err));
-
-      if (yieldLeft === 0) {
-        document.getElementById('footerNav').style.display = 'block';
-      }
-    }
-
-    function updateInventory() {
-      let html = '<strong>📦 보관함:</strong><ul>';
-      for (let key in productStorage) {
-        html += `<li>${key}: ${productStorage[key]}개</li>`;
-      }
-      html += '</ul>';
-      inventoryDiv.innerHTML = html;
-    }
-
-    updateInventory();
+      .catch(err => {
+        document.getElementById("server-status").innerText = "🔴 서버 연결 실패: 감자 창고가 잠겼습니다!";
+      });
   </script>
 </body>
 </html>
-
