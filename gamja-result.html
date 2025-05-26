@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -101,6 +102,14 @@
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
     let currentGamjaCount = 0;
 
+    // 수확 제한 체크
+    if (localStorage.getItem("gamjaHarvested") === "true") {
+      alert("⚠️ 이미 감자를 수확한 기록이 있습니다. 이번 회차는 더 이상 수확 및 생산이 불가능합니다.");
+      window.location.href = "index.html";
+    } else {
+      localStorage.setItem("gamjaHarvested", "true"); // 수확 기록
+    }
+
     fetch(BASE_URL + "/api/ping")
       .then(res => {
         if (res.ok) {
@@ -153,7 +162,7 @@
         .then(res => res.json())
         .then(data => {
           alert("✅ 제품 제작 완료: " + data.name);
-          currentGamjaCount--; // 수량 차감
+          currentGamjaCount--;
           document.getElementById("yield-count").innerText = currentGamjaCount;
           loadInventory();
         })
