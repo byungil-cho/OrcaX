@@ -99,6 +99,7 @@
 
   <script>
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
+    let currentGamjaCount = 0;
 
     fetch(BASE_URL + "/api/ping")
       .then(res => {
@@ -119,7 +120,9 @@
         .then(data => {
           const ul = document.getElementById("storage-list");
           ul.innerHTML = "";
-          document.getElementById("yield-count").innerText = data.total || 0;
+          currentGamjaCount = data.total || 0;
+          document.getElementById("yield-count").innerText = currentGamjaCount;
+
           data.items.forEach(item => {
             const li = document.createElement("li");
             li.textContent = `${item.name}: ${item.count}개`;
@@ -135,6 +138,11 @@
       const input = document.getElementById("productInput").value.trim();
       if (!input) return alert("제품명을 입력해주세요!");
 
+      if (currentGamjaCount <= 0) {
+        alert("❌ 감자가 부족합니다. 수확량을 확인해주세요!");
+        return;
+      }
+
       const formattedName = `감자${input}`;
 
       fetch(BASE_URL + "/api/create-product", {
@@ -145,6 +153,8 @@
         .then(res => res.json())
         .then(data => {
           alert("✅ 제품 제작 완료: " + data.name);
+          currentGamjaCount--; // 수량 차감
+          document.getElementById("yield-count").innerText = currentGamjaCount;
           loadInventory();
         })
         .catch(err => alert("❌ 제품 제작 실패"));
