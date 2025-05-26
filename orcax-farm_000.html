@@ -1,7 +1,8 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OrcaX 농장 입구</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
@@ -152,7 +153,7 @@
       </a>
     </div>
 
-    <div class="kakao-login">
+    <div class="kakao-login" id="loginBox">
       <button class="kakao-btn" onclick="goKakaoLogin()">카카오 간편 로그인</button>
     </div>
   </div>
@@ -162,19 +163,19 @@
 
   <script>
     Kakao.init('284b798a9d9be8202f9c2e129fa6f329');
+
     function goKakaoLogin() {
       const client_id = "284b798a9d9be8202f9c2e129fa6f329";
       const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
-      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
+      const url = \`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=\${client_id}&redirect_uri=\${encodeURIComponent(redirect_uri)}\`;
       window.location.href = url;
     }
 
     const nickname = localStorage.getItem("nickname");
     if (nickname) {
-      document.getElementById("nicknameDisplay").textContent = `👤 ${nickname}님, 환영합니다!`;
+      document.getElementById("nicknameDisplay").textContent = \`👤 \${nickname}님, 환영합니다!\`;
+      document.getElementById("loginBox").style.display = "none";
     }
   </script>
 </body>
 </html>
-
-
