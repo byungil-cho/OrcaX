@@ -13,12 +13,10 @@
       padding: 2rem;
       text-align: center;
     }
-
     h1 {
       font-size: 2rem;
       margin-bottom: 0.5rem;
     }
-
     .initial-box {
       background-color: #444;
       padding: 1rem;
@@ -26,17 +24,14 @@
       max-width: 500px;
       margin: 0 auto 2rem auto;
     }
-
     #initial-yield {
       font-size: 1.2rem;
       color: #f0c741;
       font-weight: bold;
     }
-
     .input-section {
       margin-bottom: 2rem;
     }
-
     input[type="text"] {
       padding: 0.5rem;
       font-size: 1rem;
@@ -45,7 +40,6 @@
       border: none;
       margin-right: 0.5rem;
     }
-
     button {
       padding: 0.5rem 1rem;
       font-size: 1rem;
@@ -55,7 +49,6 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
     .result-box {
       background-color: #333;
       padding: 1rem;
@@ -64,22 +57,18 @@
       margin: 0 auto;
       text-align: left;
     }
-
     .result-box h2 {
       font-size: 1.2rem;
       margin-bottom: 0.5rem;
     }
-
     .result-box ul {
       list-style-type: none;
       padding: 0;
       margin: 0;
     }
-
     .result-box li {
       margin: 0.25rem 0;
     }
-
     #server-status {
       margin-top: 1rem;
       font-weight: bold;
@@ -100,7 +89,7 @@
   </div>
 
   <!-- ✅ 서버 연결 상태 표시 -->
-  <div id="server-status">🔄 서버 연결 상태 확인 중...</div>
+  <div id="server-status">🔄 서버 상태 확인 중...</div>
 
   <div class="result-box">
     <h2>📦 보관함:</h2>
@@ -120,7 +109,7 @@
   </div>
 
   <script>
-    // ✅ 서버 연결 상태 확인
+    // ✅ Render에 연결된 감자 농장 서버로 상태 확인
     fetch("https://orcax-farm-6000.onrender.com/api/ping")
       .then(res => {
         if (res.ok) {
