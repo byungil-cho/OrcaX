@@ -3,14 +3,113 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OrcaX 농장 입구</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🐳 OrcaX 농장 입구</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('farm-000.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      color: white;
+    }
+    .container {
+      padding-top: 12vh;
+    }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      background-color: rgba(0,0,0,0.6);
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+    }
+    .nickname {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      color: #90ee90;
+    }
+    .field-section {
+      margin-top: 3rem;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .field {
+      display: inline-block;
+    }
+    .field img {
+      width: 200px;
+      height: auto;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 10px black;
+    }
+    .field span {
+      display: block;
+      margin-top: 0.5rem;
+      background: rgba(0,0,0,0.5);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .kakao-btn {
+      margin-top: 3rem;
+      background: #FEE500;
+      color: #000;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .bottom-links {
+      margin-top: 4rem;
+      font-size: 0.9rem;
+    }
+    .bottom-links a {
+      display: inline-block;
+      background: rgba(255,255,255,0.8);
+      padding: 0.4rem 0.8rem;
+      color: #222;
+      margin: 0 0.5rem;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      .field img { width: 160px; }
+    }
+  </style>
 </head>
-<body style="background:#111;color:#fff;text-align:center;font-family:sans-serif;padding-top:100px;">
-  <h1>🐳 OrcaX 농장 입구</h1>
-  <p id="nicknameDisplay"></p>
-  <button id="loginBtn" onclick="goKakaoLogin()" style="margin-top:2rem;padding:1rem 2rem;font-size:1.2rem;">카카오 로그인</button>
+<body>
+  <div class="container">
+    <h1>🐳 OrcaX 농장 입구</h1>
+    <div id="nicknameDisplay" class="nickname"></div>
+
+    <div class="field-section">
+      <a href="gamja-farm.html" class="field">
+        <img src="farm-101.png" alt="감자 밭">
+        <span>🥔 감자 밭</span>
+      </a>
+      <a href="bori-farm.html" class="field">
+        <img src="farm-201.png" alt="보리 밭">
+        <span>🌾 보리 밭</span>
+      </a>
+    </div>
+
+    <button id="loginBtn" class="kakao-btn" onclick="goKakaoLogin()">카카오 로그인</button>
+
+    <div class="bottom-links">
+      <a href="index.html">⬅ 농장 밖으로</a>
+      <a href="auction-house.html">📊 경매장 입장</a>
+    </div>
+  </div>
 
   <script>
     Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
