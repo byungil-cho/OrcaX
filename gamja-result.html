@@ -100,12 +100,11 @@
   <script>
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
 
-    // 서버 상태 체크
     fetch(BASE_URL + "/api/ping")
       .then(res => {
         if (res.ok) {
           document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
-          loadInventory(); // 연결 성공 시 인벤토리도 불러옴
+          loadInventory();
         } else {
           document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴";
         }
@@ -114,7 +113,6 @@
         document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴: 감자 창고가 잠겼습니다!";
       });
 
-    // 감자 인벤토리 불러오기
     function loadInventory() {
       fetch(BASE_URL + "/api/gamja")
         .then(res => res.json())
@@ -122,7 +120,6 @@
           const ul = document.getElementById("storage-list");
           ul.innerHTML = "";
           document.getElementById("yield-count").innerText = data.total || 0;
-
           data.items.forEach(item => {
             const li = document.createElement("li");
             li.textContent = `${item.name}: ${item.count}개`;
@@ -134,20 +131,21 @@
         });
     }
 
-    // 제품 만들기 요청
     function makeProduct() {
-      const input = document.getElementById("productInput").value;
+      const input = document.getElementById("productInput").value.trim();
       if (!input) return alert("제품명을 입력해주세요!");
+
+      const formattedName = `감자${input}`;
 
       fetch(BASE_URL + "/api/create-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: input })
+        body: JSON.stringify({ type: formattedName })
       })
         .then(res => res.json())
         .then(data => {
           alert("✅ 제품 제작 완료: " + data.name);
-          loadInventory(); // 다시 목록 갱신
+          loadInventory();
         })
         .catch(err => alert("❌ 제품 제작 실패"));
     }
