@@ -100,7 +100,17 @@
 
   <script>
     function loadUserData() {
-      alert("여기서 서버에서 로그인된 유저 데이터를 불러와야 합니다.");
+      const nickname = localStorage.getItem("nickname");
+      const tokenAmount = localStorage.getItem("orcxToken") || 0;
+
+      if (!nickname) {
+        alert("⚠️ 로그인 정보가 없습니다. 먼저 로그인 해주세요.");
+        return;
+      }
+
+      document.querySelector('.token-display').innerHTML = `보유 ORCX: <span id="userToken">${Number(tokenAmount).toLocaleString()}</span> 토큰`;
+
+      alert(`👤 ${nickname}님 환영합니다!`);
     }
 
     async function checkServerStatus() {
