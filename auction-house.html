@@ -64,6 +64,12 @@
     button:hover {
       background: #0056b3;
     }
+    #server-status {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: green;
+    }
   </style>
 </head>
 <body>
@@ -80,7 +86,6 @@
     <h2>실시간 종합 시세</h2>
     <table id="marketItems">
       <tr><th>제품명</th><th>총 수량</th><th>현재 시세</th></tr>
-      <!-- 전체 시장 데이터 렌더링 -->
     </table>
   </section>
 
@@ -88,15 +93,30 @@
     <h3>내 보유 품목</h3>
     <table id="userItems">
       <tr><th>제품명</th><th>수량</th><th>시세</th><th>판매</th></tr>
-      <!-- 유저 품목 목록이 여기에 렌더됨 -->
     </table>
   </div>
+
+  <div id="server-status">🔄 서버 상태 확인 중...</div>
 
   <script>
     function loadUserData() {
       alert("여기서 서버에서 로그인된 유저 데이터를 불러와야 합니다.");
-      // document.getElementById("userData").style.display = "block"; // 필요 시 동적 표시
     }
+
+    async function checkServerStatus() {
+      try {
+        const res = await fetch("https://orcax-farm-6000.onrender.com/api/ping");
+        if (res.ok) {
+          document.getElementById("server-status").innerText = "🟢 서버 연결 성공: 경매장 서버 작동 중!";
+        } else {
+          document.getElementById("server-status").innerText = "🔴 서버 응답 없음";
+        }
+      } catch (err) {
+        document.getElementById("server-status").innerText = "🔴 서버 연결 실패: 서버에 접근할 수 없습니다.";
+      }
+    }
+
+    checkServerStatus();
   </script>
 </body>
 </html>
