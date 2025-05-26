@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>씨감자 상점</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    .section {
+      background-color: #222;
+      padding: 1.5rem;
+      margin: 1rem auto;
+      border-radius: 10px;
+      max-width: 400px;
+      box-shadow: 0 0 10px #000;
+    }
+    .button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: #ffaa00;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .button:hover {
+      background-color: #ff8800;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌱 씨감자 상점</h1>
+
+  <div class="section">
+    <h2>🪙 ORCX로 구매</h2>
+    <p>씨감자 1개 = 1 ORCX</p>
+    <button class="button" onclick="buySeedWithOrcx()">구매하기</button>
+  </div>
+
+  <div class="section">
+    <h2>📦 제품으로 교환</h2>
+    <p>보유한 감자 제품을 씨감자로 최대 3회 교환 가능합니다.</p>
+    <button class="button" onclick="exchangeWithProduct()">교환하기</button>
+  </div>
+
+  <script>
+    function buySeedWithOrcx() {
+      const orcx = Number(localStorage.getItem("orcxToken") || 0);
+      if (orcx < 1) {
+        alert("❌ ORCX가 부족합니다.");
+        return;
+      }
+      localStorage.setItem("orcxToken", orcx - 1);
+      localStorage.setItem("hasSeed", "true");
+      alert("✅ 씨감자 구매 완료! 농사를 시작하세요.");
+      window.location.href = "gamja-factory.html";
+    }
+
+    function exchangeWithProduct() {
+      const count = Number(localStorage.getItem("seedExchangeCount") || 0);
+      if (count >= 3) {
+        alert("❌ 씨감자 교환 가능 횟수를 초과했습니다. (최대 3회)");
+        return;
+      }
+      localStorage.setItem("seedExchangeCount", count + 1);
+      localStorage.setItem("hasSeed", "true");
+      alert(`✅ 씨감자 교환 완료! (남은 교환 횟수: ${2 - count})`);
+      window.location.href = "gamja-factory.html";
+    }
+  </script>
+</body>
+</html>
