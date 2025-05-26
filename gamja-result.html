@@ -80,47 +80,77 @@
   <h1>🥔 감자 제품 만들기</h1>
 
   <div class="initial-box">
-    <p id="initial-yield">들고온 감자 수확량: 6개</p>
+    <p id="initial-yield">들고온 감자 수확량: <span id="yield-count">-</span>개</p>
   </div>
 
   <div class="input-section">
-    <input type="text" placeholder="제품 종류 (예: 칩, 전, 튀김 등)" />
-    <button>제품 만들기</button>
+    <input type="text" id="productInput" placeholder="제품 종류 (예: 칩, 전, 튀김 등)" />
+    <button onclick="makeProduct()">제품 만들기</button>
   </div>
 
-  <!-- ✅ 서버 연결 상태 표시 -->
-  <div id="server-status">🔄 서버 상태 확인 중...</div>
+  <div id="server-status">🔄 전기 공급 상태 확인 중...</div>
 
   <div class="result-box">
     <h2>📦 보관함:</h2>
-    <ul>
-      <li>감자감자칩: 3개</li>
-      <li>감자감자전: 5개</li>
-      <li>감자감자고구마: 1개</li>
-      <li>감자감자전전: 1개</li>
-      <li>OrcaX감자레전: 1개</li>
-      <li>OrcaX감자타래: 1개</li>
-      <li>OrcaX감자부라보: 1개</li>
-      <li>OrcaX감자동통: 1개</li>
-      <li>OrcaX감자오뚜기: 1개</li>
-      <li>OrcaX감자표범: 1개</li>
-      <li>감자목반: 1개</li>
+    <ul id="storage-list">
+      <li>데이터 불러오는 중...</li>
     </ul>
   </div>
 
   <script>
-    // ✅ Render에 연결된 감자 농장 서버로 상태 확인
-    fetch("https://orcax-farm-6000.onrender.com/api/ping")
+    const BASE_URL = "https://orcax-farm-6000.onrender.com";
+
+    // 서버 상태 체크
+    fetch(BASE_URL + "/api/ping")
       .then(res => {
         if (res.ok) {
-          document.getElementById("server-status").innerText = "🟢 서버 연결 성공: 감자 밭과 통신 중입니다!";
+          document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
+          loadInventory(); // 연결 성공 시 인벤토리도 불러옴
         } else {
-          document.getElementById("server-status").innerText = "🔴 서버 응답 없음";
+          document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴";
         }
       })
       .catch(err => {
-        document.getElementById("server-status").innerText = "🔴 서버 연결 실패: 감자 창고가 잠겼습니다!";
+        document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴: 감자 창고가 잠겼습니다!";
       });
+
+    // 감자 인벤토리 불러오기
+    function loadInventory() {
+      fetch(BASE_URL + "/api/gamja")
+        .then(res => res.json())
+        .then(data => {
+          const ul = document.getElementById("storage-list");
+          ul.innerHTML = "";
+          document.getElementById("yield-count").innerText = data.total || 0;
+
+          data.items.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = `${item.name}: ${item.count}개`;
+            ul.appendChild(li);
+          });
+        })
+        .catch(err => {
+          document.getElementById("storage-list").innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
+        });
+    }
+
+    // 제품 만들기 요청
+    function makeProduct() {
+      const input = document.getElementById("productInput").value;
+      if (!input) return alert("제품명을 입력해주세요!");
+
+      fetch(BASE_URL + "/api/create-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: input })
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert("✅ 제품 제작 완료: " + data.name);
+          loadInventory(); // 다시 목록 갱신
+        })
+        .catch(err => alert("❌ 제품 제작 실패"));
+    }
   </script>
 </body>
 </html>
