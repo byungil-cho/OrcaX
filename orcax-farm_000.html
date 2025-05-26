@@ -82,7 +82,8 @@
       cursor: pointer;
       font-weight: bold;
       position: relative;
-      z-index: 1000;
+      z-index: 9999;
+      pointer-events: auto;
     }
     @media (max-width: 768px) {
       .field img { width: 160px; }
@@ -110,7 +111,7 @@
       <a href="auction-house.html">📊 경매장 입장</a>
     </div>
 
-    <button id="loginBtn" class="kakao-btn" onclick="goKakaoLogin()">카카오 로그인</button>
+    <button id="loginBtn" class="kakao-btn" type="button" onclick="goKakaoLogin()">카카오 로그인</button>
   </div>
 
   <script>
