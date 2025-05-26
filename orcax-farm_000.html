@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -120,13 +119,13 @@
     function goKakaoLogin() {
       const client_id = "284b798a9d9be8202f9c2e129fa6f329";
       const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
-      const url = \`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=\${client_id}&redirect_uri=\${encodeURIComponent(redirect_uri)}\`;
+      const url = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + client_id + "&redirect_uri=" + encodeURIComponent(redirect_uri);
       window.location.href = url;
     }
 
     const nickname = localStorage.getItem("nickname");
     if (nickname) {
-      document.getElementById("nicknameDisplay").textContent = \`👤 \${nickname}님, 환영합니다!\`;
+      document.getElementById("nicknameDisplay").textContent = "👤 " + nickname + "님, 환영합니다!";
       document.getElementById("loginBtn").style.display = "none";
     }
   </script>
