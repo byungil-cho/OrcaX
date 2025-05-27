@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -39,18 +40,10 @@
       overflow: hidden;
     }
     @keyframes wiggle {
-      0%, 100% {
-        transform: rotate(0deg);
-      }
-      25% {
-        transform: rotate(1deg);
-      }
-      50% {
-        transform: rotate(-1.5deg);
-      }
-      75% {
-        transform: rotate(1deg);
-      }
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(1deg); }
+      50% { transform: rotate(-1.5deg); }
+      75% { transform: rotate(1deg); }
     }
     .count-display {
       margin-top: 1rem;
@@ -65,7 +58,7 @@
 </head>
 <body>
   <div class="container">
-    <h1><span id="potatoName">감자</span>감자가 자라고 있습니다</h1>
+    <h1><span id="farmName"></span> 감자가 자라고 있습니다</h1>
     <p>물을 주거나 거름을 주세요!</p>
     <button class="button" onclick="addWater()">💧 물 주기</button>
     <button class="button" onclick="addFertilizer()">🌾 거름 주기</button>
@@ -83,8 +76,9 @@
     let waterCount = 0;
     let fertilizerCount = 0;
     let totalActions = 0;
-    let potatoName = localStorage.getItem("potatoName") || "감자";
-    document.getElementById("potatoName").innerText = potatoName;
+
+    const farmName = localStorage.getItem("farmName") || "이름없는농장";
+    document.getElementById("farmName").innerText = `[${farmName}]`;
 
     function addWater() {
       waterCount++;
@@ -124,12 +118,12 @@
 
       localStorage.setItem("potatoCount", total);
       const resultBox = document.getElementById("resultBox");
-      resultBox.innerHTML = `🎉 수확 완료!<br><strong>${potatoName}감자</strong>를 ${total}개 수확했습니다.`;
+      resultBox.innerHTML = `🎉 수확 완료!<br><strong>[${farmName}]</strong>에서 감자 ${total}개를 수확했습니다.`;
       resultBox.style.display = 'block';
 
       setTimeout(() => {
         window.location.href = 'gamja-result.html';
-      }, 10000); // 10초 후 이동
+      }, 10000);
     }
   </script>
 </body>
