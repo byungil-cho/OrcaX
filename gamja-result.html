@@ -136,7 +136,7 @@
           document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
           // 제품 제작 후 감자 수량 감소는 이미 반영되었으므로 보관함만 업데이트
           // 감자 보관함 UI는 업데이트하지만, 감자 수량은 누적되지 않도록 막음
-          updateStorageList();
+          loadInventory();
         } else {
           document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴";
         }
