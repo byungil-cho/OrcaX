@@ -134,6 +134,7 @@
       .then(res => {
         if (res.ok) {
           document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
+          // 제품 제작 후 감자 수량 감소는 이미 반영되었으므로 보관함만 업데이트
           loadInventory();
         } else {
           document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴";
@@ -149,7 +150,7 @@
         .then(data => {
           const ul = document.getElementById("storage-list");
           ul.innerHTML = "";
-          currentGamjaCount = data.total || 0;
+          currentGamjaCount += data.total || 0;
           document.getElementById("yield-count").innerText = currentGamjaCount;
           data.items.forEach(item => {
             const li = document.createElement("li");
@@ -179,7 +180,7 @@
         .then(data => {
           alert("✅ 제품 제작 완료: " + data.name);
           currentGamjaCount = Math.max(0, currentGamjaCount - 1);
-          document.getElementById("yield-count").innerText = currentGamjaCount;
+document.getElementById("yield-count").innerText = currentGamjaCount;
           loadInventory();
         })
         .catch(err => alert("❌ 제품 제작 실패"));
