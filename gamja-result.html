@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 제품 만들기</title>
+  <title>길동이의 농장 현황</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -88,7 +88,7 @@
   </style>
 </head>
 <body>
-  <h1>🥔 감자 제품 만들기</h1>
+  <h1>🌾 길동이의 농장 현황</h1>
   <div class="initial-box">
     <p id="initial-yield">들고온 감자 수확량: <span id="yield-count">-</span>개</p>
   </div>
@@ -135,7 +135,8 @@
         if (res.ok) {
           document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
           // 제품 제작 후 감자 수량 감소는 이미 반영되었으므로 보관함만 업데이트
-          loadInventory();
+          // 감자 보관함 UI는 업데이트하지만, 감자 수량은 누적되지 않도록 막음
+          updateStorageList();
         } else {
           document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴";
         }
@@ -145,16 +146,25 @@
       });
 
     function loadInventory() {
-      fetch(BASE_URL + "/api/gamja")
-        .then(res => res.json())
-        .then(data => {
-          const ul = document.getElementById("storage-list");
-          ul.innerHTML = "";
-          currentGamjaCount += data.total || 0;
-          document.getElementById("yield-count").innerText = currentGamjaCount;
-          data.items.forEach(item => {
-            const li = document.createElement("li");
-            li.textContent = `${item.name}: ${item.count}개`;
+  fetch(BASE_URL + "/api/gamja")
+    .then(res => res.json())
+    .then(data => {
+      updateStorageList(data.items);
+    })
+    .catch(err => {
+      document.getElementById("storage-list").innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
+    });
+}
+
+function updateStorageList(items = []) {
+  const ul = document.getElementById("storage-list");
+  ul.innerHTML = "";
+  items.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = `${item.name}: ${item.count}개`;
+    ul.appendChild(li);
+  });
+}: ${item.count}개`;
             ul.appendChild(li);
           });
         })
