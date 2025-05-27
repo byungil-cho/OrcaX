@@ -74,7 +74,32 @@
       h1 { font-size: 1.5rem; }
     }
   </style>
-</head>
+
+    <style>
+      #news-ticker {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #111;
+        color: #f0c741;
+        padding: 0.5rem;
+        font-size: 1rem;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      #news-ticker span {
+        display: inline-block;
+        padding-left: 100%;
+        animation: scroll-left 20s linear infinite;
+      }
+      @keyframes scroll-left {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+      }
+    </style>
+    </head>
+    
 <body>
   <h1>🌾 나의 농장 현황판</h1>
   <div class="initial-box">
@@ -185,5 +210,44 @@
         .catch(err => alert("❌ 제품 제작 실패"));
     }
   </script>
-</body>
+
+    <div id="news-ticker"><span id="news-message">🚨 신제품 발표가 곧 이어집니다...</span></div>
+    <script>
+      function announceNewProduct(productName, farmName) {
+        const ticker = document.getElementById("news-message");
+        ticker.innerText = `🚨 [${farmName}] ${productName} 신제품 출시!`;
+      }
+
+      // makeProduct 안에서 신제품 감지 시 호출
+      function makeProduct() {
+        const input = document.getElementById("productInput").value.trim();
+        if (!input) return alert("제품명을 입력해주세요!");
+        if (containsBadWord(input)) return alert("🚫 사용할 수 없는 단어가 포함되어 있습니다!");
+        if (rawPotatoCount <= 0) return alert("❌ 감자가 부족합니다. 수확량을 확인해주세요!");
+
+        const formattedName = input.startsWith('감자') ? input : `감자${input}`;
+        const farmName = localStorage.getItem("farmName") || "이름없는농장";
+
+        fetch(BASE_URL + "/api/create-product", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: formattedName, farm: farmName })
+        })
+        .then(res => res.json())
+        .then(data => {
+          alert("✅ 제품 제작 완료: " + data.name);
+          rawPotatoCount = Math.max(0, rawPotatoCount - 1);
+          document.getElementById("potato-count").innerText = "보유 감자: " + rawPotatoCount + "개";
+
+          if (data.isNew) {
+            announceNewProduct(data.name, farmName);
+          }
+
+          loadInventory();
+        })
+        .catch(err => alert("❌ 제품 제작 실패"));
+      }
+    </script>
+    </body>
+    
 </html>
