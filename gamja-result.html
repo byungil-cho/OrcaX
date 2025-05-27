@@ -106,30 +106,28 @@
   <script>
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
     let currentGamjaCount = 0;
-
     if (localStorage.getItem("gamjaHarvested") === "true") {
-      const warningBox = document.createElement("div");
-      warningBox.style.background = "#333";
-      warningBox.style.color = "#fff";
-      warningBox.style.padding = "1.5rem";
-      warningBox.style.borderRadius = "10px";
-      warningBox.style.maxWidth = "500px";
-      warningBox.style.margin = "2rem auto";
-      warningBox.innerHTML = `
-        <p style='font-size:1.1rem; margin-bottom:1rem;'>⚠️ 이미 감자를 수확한 기록이 있습니다.<br>이 페이지에서는 더 이상 생산할 수 없습니다.</p>
-        <button style='background:#ffaa00; color:#000;' onclick="goToFarm()">🌱 감자 농장으로 이동</button>
-      `;
-      document.body.innerHTML = "";
-      document.body.appendChild(warningBox);
+  const warningBox = document.createElement("div");
+  warningBox.style.background = "#333";
+  warningBox.style.color = "#fff";
+  warningBox.style.padding = "1.5rem";
+  warningBox.style.borderRadius = "10px";
+  warningBox.style.maxWidth = "500px";
+  warningBox.style.margin = "2rem auto";
+  warningBox.innerHTML = `
+    <p style='font-size:1.1rem; margin-bottom:1rem;'>⚠️ 이미 감자를 수확한 기록이 있습니다.<br>이 페이지에서는 더 이상 생산할 수 없습니다.</p>
+    <button style='background:#ffaa00; color:#000;' onclick="goToFarm()">🌱 감자 농장으로 이동</button>
+  `;
+  document.body.innerHTML = "";
+  document.body.appendChild(warningBox);
+}
+function goToFarm() {
+  localStorage.removeItem("gamjaHarvested");
+  window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm-integrated.html";
+}
     } else {
       localStorage.setItem("gamjaHarvested", "true");
     }
-
-    function goToFarm() {
-      localStorage.removeItem("gamjaHarvested");
-      window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm-integrated.html";
-    }
-
     fetch(BASE_URL + "/api/ping")
       .then(res => {
         if (res.ok) {
@@ -142,7 +140,6 @@
       .catch(err => {
         document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴: 감자 창고가 잠겼습니다!";
       });
-
     function loadInventory() {
       fetch(BASE_URL + "/api/gamja")
         .then(res => res.json())
@@ -161,7 +158,6 @@
           document.getElementById("storage-list").innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
         });
     }
-
     function makeProduct() {
       const input = document.getElementById("productInput").value.trim();
       if (!input) return alert("제품명을 입력해주세요!");
@@ -178,7 +174,7 @@
         .then(res => res.json())
         .then(data => {
           alert("✅ 제품 제작 완료: " + data.name);
-          currentGamjaCount--;
+          currentGamjaCount = Math.max(0, currentGamjaCount - 1);
           document.getElementById("yield-count").innerText = currentGamjaCount;
           loadInventory();
         })
