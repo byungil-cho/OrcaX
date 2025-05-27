@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -25,7 +26,7 @@
       max-width: 500px;
       margin: 0 auto 2rem auto;
     }
-    #initial-yield {
+    #potato-count, #initial-yield {
       font-size: 1.2rem;
       color: #f0c741;
       font-weight: bold;
@@ -77,7 +78,8 @@
 <body>
   <h1>🌾 나의 농장 현황판</h1>
   <div class="initial-box">
-    <p id="initial-yield">보유 감자: <span id="yield-count">-</span>개</p>
+    <p id="potato-count">보유 감자: -개</p>
+    <p id="initial-yield">오늘 수확: -개</p>
   </div>
   <div class="input-section">
     <input type="text" id="productInput" placeholder="제품 종류 (예: 칩, 전, 튀김 등)" />
@@ -92,7 +94,8 @@
   </div>
   <script>
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
-    let currentGamjaCount = 0;
+    let rawPotatoCount = 0;
+    let harvestedToday = 0;
     let products = [];
 
     fetch(BASE_URL + "/api/ping")
@@ -112,8 +115,10 @@
       fetch(BASE_URL + "/api/gamja")
         .then(res => res.json())
         .then(data => {
-          currentGamjaCount = data.total || 0;
-          document.getElementById("yield-count").innerText = currentGamjaCount;
+          rawPotatoCount = data.potatoes || 0;
+          harvestedToday = data.harvested || 0;
+          document.getElementById("potato-count").innerText = "보유 감자: " + rawPotatoCount + "개";
+          document.getElementById("initial-yield").innerText = "오늘 수확: " + harvestedToday + "개";
           products = Array.isArray(data.items) ? data.items : [];
           updateStorageList(products);
         })
@@ -139,21 +144,23 @@
     function makeProduct() {
       const input = document.getElementById("productInput").value.trim();
       if (!input) return alert("제품명을 입력해주세요!");
-      if (currentGamjaCount <= 0) {
+      if (rawPotatoCount <= 0) {
         alert("❌ 감자가 부족합니다. 수확량을 확인해주세요!");
         return;
       }
-      const formattedName = `감자${input}`;
+      const formattedName = input.startsWith("감자") ? input : `감자${input}`;
+      const farmName = localStorage.getItem("farmName") || "이름없는농장";
+
       fetch(BASE_URL + "/api/create-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: formattedName })
+        body: JSON.stringify({ type: formattedName, farm: farmName })
       })
         .then(res => res.json())
         .then(data => {
           alert("✅ 제품 제작 완료: " + data.name);
-          currentGamjaCount = Math.max(0, currentGamjaCount - 1);
-          document.getElementById("yield-count").innerText = currentGamjaCount;
+          rawPotatoCount = Math.max(0, rawPotatoCount - 1);
+          document.getElementById("potato-count").innerText = "보유 감자: " + rawPotatoCount + "개";
           loadInventory();
         })
         .catch(err => alert("❌ 제품 제작 실패"));
