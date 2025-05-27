@@ -160,7 +160,21 @@
       localStorage.setItem("gamjaHarvested", "true");
     }
 
+    
     fetch(BASE_URL + "/api/ping")
+      .then(res => {
+        if (res.ok) {
+          document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
+        } else {
+          document.getElementById("server-status").innerText = "🟡 전기 상태 불안정, 감자 정보를 불러옵니다...";
+        }
+        loadInventory(); // ✅ 무조건 호출
+      })
+      .catch(err => {
+        document.getElementById("server-status").innerText = "🔴 전기 연결 실패, 공장은 잠시 쉬는 중입니다.";
+        loadInventory(); // ✅ 실패해도 정보 불러오기 시도
+      });
+    
       .then(res => {
         if (res.ok) {
           document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
