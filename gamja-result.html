@@ -102,7 +102,10 @@
 </head>
 <body>
   <h1>🌾 <span id="farmNameTag">나의 농장</span> 현황판</h1>
-  <div class="initial-box">
+  
+    <div id="cooltime-warning" style="background:#333; color:#fff; padding:1rem; margin-bottom:1rem; border-radius:10px; display:none;"></div>
+    <div class="initial-box">
+    
     <p id="potato-count">보유 감자: - 개</p>
     <p id="yield-count">오늘 수확: - 개</p>
   </div>
@@ -139,20 +142,7 @@
       window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm-integrated.html";
     }
 
-    
-    const warningMessage = `
-      <div style="background:#333; color:#fff; padding:1rem; margin-bottom:1rem; border-radius:10px;">
-        ⚠️ 이미 감자를 수확한 기록이 있습니다.<br>
-        이 페이지는 <strong>생산이 제한된 상태</strong>입니다.<br>
-        <br>
-        🕒 <em>감자는 2시간 후 다시 재배할 수 있습니다.</em><br>
-        📦 <em>보유 감자 및 제품 보관함은 아래에서 확인 가능합니다.</em>
-      </div>
-    `;
-    const notice = document.createElement("div");
-    notice.innerHTML = warningMessage;
-    document.body.insertBefore(notice, document.body.firstChild);
-    
+    if (localStorage.getItem("gamjaHarvested") === "true") {
       const warningBox = document.createElement("div");
       warningBox.style.background = "#333";
       warningBox.style.color = "#fff";
@@ -239,6 +229,24 @@
         })
         .catch(err => alert("❌ 제품 제작 실패"));
     }
-  </script>
+  
+    const HARVEST_INTERVAL = 2 * 60 * 60 * 1000; // 2시간
+    const lastHarvest = parseInt(localStorage.getItem("lastHarvest"), 10);
+    const now = Date.now();
+
+    if (localStorage.getItem("gamjaHarvested") === "true" && lastHarvest && (now - lastHarvest < HARVEST_INTERVAL)) {
+      const timeLeft = HARVEST_INTERVAL - (now - lastHarvest);
+      const mins = Math.floor(timeLeft / 60000);
+      const secs = Math.floor((timeLeft % 60000) / 1000);
+      const warning = document.getElementById("cooltime-warning");
+      warning.innerHTML = `
+        🌾 다음 농사 계절까지 <strong>${mins}분 ${secs}초</strong> 남았습니다.<br>
+        🏭 가공 공장에 자리가 없습니다.<br>
+        예약 하시겠습니까? (※ 시간 되면 자동으로 풀립니다 😊)
+      `;
+      warning.style.display = 'block';
+    }
+    </script>
+    
 </body>
 </html>
