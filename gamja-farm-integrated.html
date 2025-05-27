@@ -3,193 +3,178 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 농장 통합 시스템</title>
+  <title>🌾 나의 농장 현황판</title>
   <style>
     * { box-sizing: border-box; }
     body {
       background-color: #222;
       color: #fff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 1rem;
       margin: 0;
+      padding: 1rem;
       text-align: center;
     }
-    .box {
-      background-color: #333;
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .initial-box {
+      background-color: #444;
       padding: 1rem;
-      margin: 1rem auto;
       border-radius: 10px;
       max-width: 500px;
+      margin: 0 auto 2rem auto;
     }
-    button {
-      padding: 0.75rem 1.25rem;
-      font-size: 1rem;
-      background-color: #ffaa00;
-      color: #000;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 0.5rem 0;
-      width: 100%;
-      max-width: 300px;
+    #initial-yield {
+      font-size: 1.2rem;
+      color: #f0c741;
+      font-weight: bold;
     }
-    button:hover { background-color: #ff8800; }
-    input {
+    .input-section {
+      margin-bottom: 2rem;
+    }
+    input[type="text"], button {
       padding: 0.5rem;
       font-size: 1rem;
-      width: calc(100% - 1rem);
+      width: 100%;
       max-width: 300px;
       border-radius: 5px;
       margin: 0.5rem auto;
       display: block;
     }
+    button {
+      background-color: #f0c741;
+      color: #000;
+      border: none;
+      cursor: pointer;
+    }
+    .result-box {
+      background-color: #333;
+      padding: 1rem;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .result-box ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+    .result-box li {
+      margin: 0.25rem 0;
+    }
+    #server-status {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #00ff88;
+    }
     @media screen and (max-width: 480px) {
-      h1, h2 { font-size: 1.2rem; }
-      button { font-size: 0.9rem; padding: 0.5rem; }
+      h1 { font-size: 1.5rem; }
     }
   </style>
 </head>
 <body>
-  <h1>🥔 감자 농장 통합 시스템</h1>
-
-  <div class="box">
-    <h2>🌾 감자 수확</h2>
-    <p>씨감자로 즉시 농사 가능<br>무료 농사는 2시간마다 2회 제공됩니다.</p>
-    <p id="farmCountDisplay">잔여 수확 횟수: 0</p>
-    <button onclick="harvest()">농사 짓기</button>
-    <button onclick="useSeedAndMove()">🌱 씨감자 사용</button>
+  <h1>🌾 나의 농장 현황판</h1>
+  <div class="initial-box">
+    <p id="initial-yield">들고온 감자 수확량: <span id="yield-count">-</span>개</p>
   </div>
-
-  <div class="box">
-    <h2>🏭 제품 생산</h2>
-    <p>보유 감자: <span id="gamjaCount">0</span></p>
-    <input type="text" id="productInput" placeholder="제품 종류 입력 (예: 칩, 전)" />
+  <div class="input-section">
+    <input type="text" id="productInput" placeholder="제품 종류 (예: 칩, 전, 튀김 등)" />
     <button onclick="makeProduct()">제품 만들기</button>
   </div>
-
-  <div class="box">
-    <h2>📦 제품 보관함</h2>
-    <ul id="storageList"><li>제품 없음</li></ul>
+  <div id="server-status">🔄 전기 공급 상태 확인 중...</div>
+  <div class="result-box">
+    <h2>📦 보관함:</h2>
+    <ul id="storage-list">
+      <li>데이터 불러오는 중...</li>
+    </ul>
   </div>
-
-  <div class="box">
-    <h2>🌱 씨감자 획득</h2>
-    <p>ORCX: <span id="orcxDisplay">0</span></p>
-    <button onclick="buySeedWithOrcx()">ORCX로 씨감자 구매</button>
-    <p>가공제품으로 교환 (최대 3개)</p>
-    <button onclick="exchangeWithProduct()">제품으로 교환</button>
-    <p>현재 씨감자 수: <span id="seedCount">0</span></p>
-  </div>
-
   <script>
-    let farmCount = 0;
-    let gamjaCount = 0;
-    let products = {};
-    let seedCount = Number(localStorage.getItem("seedCount") || 0);
-    let orcx = Number(localStorage.getItem("orcxToken") || 5);
+    const BASE_URL = "https://orcax-farm-6000.onrender.com";
+    let currentGamjaCount = 0;
 
-    function updateDisplays() {
-      document.getElementById("farmCountDisplay").innerText = `잔여 수확 횟수: ${farmCount}`;
-      document.getElementById("gamjaCount").innerText = gamjaCount;
-      document.getElementById("orcxDisplay").innerText = orcx;
-      document.getElementById("seedCount").innerText = seedCount;
-      const ul = document.getElementById("storageList");
-      ul.innerHTML = "";
-      const keys = Object.keys(products);
-      if (keys.length === 0) {
-        ul.innerHTML = "<li>제품 없음</li>";
-      } else {
-        keys.forEach(name => {
-          const li = document.createElement("li");
-          li.innerText = `${name}: ${products[name]}개`;
-          ul.appendChild(li);
-        });
-      }
-    }
-
-    function initFarmSystem() {
-      const lastTime = Number(localStorage.getItem("lastFarmingTime") || 0);
-      const now = Date.now();
-      if (now - lastTime >= 2 * 60 * 60 * 1000) {
-        farmCount = 2;
-        localStorage.setItem("lastFarmingTime", now);
-        localStorage.setItem("usedSeedStreak", 0);
-      } else {
-        farmCount = Number(localStorage.getItem("farmingCount") || 0);
-      }
-      updateDisplays();
-    }
-
-    function harvest() {
-      if (farmCount <= 0) return alert("❌ 수확 횟수가 없습니다. 2시간 후에 다시 시도하세요.");
-      if (seedCount <= 0) return alert("❌ 씨감자가 없습니다. 씨감자를 획득하세요.");
-      farmCount--;
-      seedCount--;
-      gamjaCount++;
-      if (farmCount === 0) {
-        localStorage.setItem("lastFarmingTime", Date.now());
-      }
-      localStorage.setItem("farmingCount", farmCount);
-      localStorage.setItem("seedCount", seedCount);
-      updateDisplays();
-    }
-
-    function useSeedAndMove() {
-      if (seedCount <= 0) {
-        alert("❌ 씨감자가 없습니다. 사용 불가");
-        return;
-      }
-      const usedCount = Number(localStorage.getItem("usedSeedStreak") || 0);
-      if (usedCount >= 3) {
-        alert("❌ 씨감자는 연속 3회까지만 사용할 수 있습니다. 잠시 후 다시 시도하세요.");
-        return;
-      }
-      seedCount--;
-      localStorage.setItem("seedCount", seedCount);
-      localStorage.setItem("usedSeedStreak", usedCount + 1);
+    function goToFarm() {
       localStorage.removeItem("gamjaHarvested");
-      window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-main.html";
+      window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm-integrated.html";
+    }
+
+    if (localStorage.getItem("gamjaHarvested") === "true") {
+      const warningBox = document.createElement("div");
+      warningBox.style.background = "#333";
+      warningBox.style.color = "#fff";
+      warningBox.style.padding = "1.5rem";
+      warningBox.style.borderRadius = "10px";
+      warningBox.style.maxWidth = "500px";
+      warningBox.style.margin = "2rem auto";
+      warningBox.innerHTML = `
+        <p style='font-size:1.1rem; margin-bottom:1rem;'>⚠️ 이미 감자를 수확한 기록이 있습니다.<br>이 페이지에서는 더 이상 생산할 수 없습니다.</p>
+        <button style='background:#ffaa00; color:#000;' onclick="goToFarm()">🌱 감자 농장으로 이동</button>
+      `;
+      document.body.innerHTML = "";
+      document.body.appendChild(warningBox);
+    } else {
+      localStorage.setItem("gamjaHarvested", "true");
+    }
+
+    fetch(BASE_URL + "/api/ping")
+      .then(res => {
+        if (res.ok) {
+          document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
+          loadInventory();
+        } else {
+          document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴";
+        }
+      })
+      .catch(err => {
+        document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴: 감자 창고가 잠겼습니다!";
+      });
+
+    function loadInventory() {
+      fetch(BASE_URL + "/api/gamja")
+        .then(res => res.json())
+        .then(data => {
+          currentGamjaCount = data.total || 0;
+          document.getElementById("yield-count").innerText = currentGamjaCount;
+          updateStorageList(data.items);
+        })
+        .catch(err => {
+          document.getElementById("storage-list").innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
+        });
+    }
+
+    function updateStorageList(items = []) {
+      const ul = document.getElementById("storage-list");
+      ul.innerHTML = "";
+      items.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name}: ${item.count}개`;
+        ul.appendChild(li);
+      });
     }
 
     function makeProduct() {
-      const name = document.getElementById("productInput").value.trim();
-      if (!name) return alert("제품명을 입력해주세요");
-      if (gamjaCount <= 0) return alert("❌ 감자가 부족합니다.");
-      const fullName = `감자${name}`;
-      products[fullName] = (products[fullName] || 0) + 1;
-      gamjaCount--;
-      updateDisplays();
-    }
-
-    function buySeedWithOrcx() {
-      if (orcx < 1) return alert("❌ ORCX 부족");
-      orcx--;
-      seedCount++;
-      localStorage.setItem("orcxToken", orcx);
-      localStorage.setItem("seedCount", seedCount);
-      updateDisplays();
-      alert("✅ 씨감자 구매 완료!");
-    }
-
-    function exchangeWithProduct() {
-      const total = Object.values(products).reduce((a, b) => a + b, 0);
-      if (seedCount >= 3) return alert("❌ 씨감자는 최대 3개까지 교환 가능합니다.");
-      if (total <= 0) return alert("❌ 가공된 제품이 없습니다.");
-      const keys = Object.keys(products);
-      for (let i = 0; i < keys.length; i++) {
-        if (products[keys[i]] > 0) {
-          products[keys[i]]--;
-          if (products[keys[i]] === 0) delete products[keys[i]];
-          break;
-        }
+      const input = document.getElementById("productInput").value.trim();
+      if (!input) return alert("제품명을 입력해주세요!");
+      if (currentGamjaCount <= 0) {
+        alert("❌ 감자가 부족합니다. 수확량을 확인해주세요!");
+        return;
       }
-      seedCount++;
-      localStorage.setItem("seedCount", seedCount);
-      updateDisplays();
-      alert(`✅ 씨감자 교환 완료 (${seedCount}/3)`);
+      const formattedName = `감자${input}`;
+      fetch(BASE_URL + "/api/create-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: formattedName })
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert("✅ 제품 제작 완료: " + data.name);
+          currentGamjaCount = Math.max(0, currentGamjaCount - 1);
+          document.getElementById("yield-count").innerText = currentGamjaCount;
+          loadInventory();
+        })
+        .catch(err => alert("❌ 제품 제작 실패"));
     }
-
-    initFarmSystem();
   </script>
 </body>
 </html>
