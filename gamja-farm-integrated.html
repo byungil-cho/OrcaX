@@ -103,7 +103,10 @@
 <body>
   <h1>🌾 <span id="farmNameTag">나의 농장</span> 현황판</h1>
   
-    <div id="cooltime-warning" style="background:#333; color:#fff; padding:1rem; margin-bottom:1rem; border-radius:10px; display:none;"></div>
+    
+    <div id="cooltime-remaining" style="background:#333; color:#fff; padding:1rem; margin-bottom:1rem; border-radius:10px; display:none;"></div>
+    <div id="cooltime-warning"
+     style="background:#333; color:#fff; padding:1rem; margin-bottom:1rem; border-radius:10px; display:none;"></div>
     <div class="initial-box">
     
     <p id="potato-count">보유 감자: - 개</p>
@@ -262,7 +265,24 @@
       `;
       warning.style.display = 'block';
     }
+    
+    const HARVEST_INTERVAL = 2 * 60 * 60 * 1000;
+    const lastHarvest = parseInt(localStorage.getItem("lastHarvest"), 10);
+    const now = Date.now();
+
+    if (lastHarvest && (now - lastHarvest < HARVEST_INTERVAL)) {
+      const timeLeft = HARVEST_INTERVAL - (now - lastHarvest);
+      const mins = Math.floor(timeLeft / 60000);
+      const secs = Math.floor((timeLeft % 60000) / 1000);
+      const timerBox = document.getElementById("cooltime-remaining");
+      timerBox.innerHTML = `
+        ⏱ <strong>${mins}분 ${secs}초</strong> 후에 다음 농사 계절이 시작됩니다.<br>
+        🍠 현재 감자밭은 휴식 중입니다. 서버와 연결되어 대기 중입니다.
+      `;
+      timerBox.style.display = 'block';
+    }
     </script>
+    
     
     
 </body>
