@@ -67,13 +67,13 @@
     <h1>나만의 감자 농장</h1>
 
     <div class="stage" id="farmStage">
-      <p>나만의 농장 이름을 지어주세요. 이 이름은 감자 제국에서 당신의 브랜드가 됩니다.</p>
+      <p>나만의 농장 이름을 지어주세요. <strong>“농장”이라는 단어는 입력하지 마세요!</strong><br>자동으로 붙여드립니다.</p>
       <button class="button" onclick="startNaming()">🌾 농장 이름 짓기</button>
     </div>
 
     <div class="input-group" id="nameStage">
       <label for="farmName">농장 이름을 입력하세요</label><br>
-      <input type="text" id="farmName" placeholder="예: 아름다운농장" />
+      <input type="text" id="farmName" placeholder="예: 범고래X, 구름이네" />
       <button class="button" onclick="submitFarmName()">감자밭으로 이동</button>
     </div>
 
@@ -86,15 +86,21 @@
       document.getElementById('nameStage').style.display = 'block';
     }
 
+    function cleanName(raw) {
+      return raw.replace(/\s/g, '').replace(/농장/gi, '');
+    }
+
     function submitFarmName() {
-      const name = document.getElementById('farmName').value.trim();
+      let name = document.getElementById('farmName').value.trim();
       if (!name) {
         alert('농장 이름을 입력해주세요!');
         return;
       }
-      localStorage.setItem("farmName", name);
+      name = cleanName(name);
+      const finalName = name + " 농장";
+      localStorage.setItem("farmName", finalName);
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = `🌾 당신의 농장은 <strong>[${name}]</strong> 입니다.`;
+      resultDiv.innerHTML = `🌾 당신의 농장은 <strong>[${finalName}]</strong> 입니다.`;
       resultDiv.style.display = 'block';
       setTimeout(() => {
         window.location.href = 'gamja-factory.html';
