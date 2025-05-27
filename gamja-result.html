@@ -139,7 +139,20 @@
       window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm-integrated.html";
     }
 
-    if (localStorage.getItem("gamjaHarvested") === "true") {
+    
+    const warningMessage = `
+      <div style="background:#333; color:#fff; padding:1rem; margin-bottom:1rem; border-radius:10px;">
+        ⚠️ 이미 감자를 수확한 기록이 있습니다.<br>
+        이 페이지는 <strong>생산이 제한된 상태</strong>입니다.<br>
+        <br>
+        🕒 <em>감자는 2시간 후 다시 재배할 수 있습니다.</em><br>
+        📦 <em>보유 감자 및 제품 보관함은 아래에서 확인 가능합니다.</em>
+      </div>
+    `;
+    const notice = document.createElement("div");
+    notice.innerHTML = warningMessage;
+    document.body.insertBefore(notice, document.body.firstChild);
+    
       const warningBox = document.createElement("div");
       warningBox.style.background = "#333";
       warningBox.style.color = "#fff";
