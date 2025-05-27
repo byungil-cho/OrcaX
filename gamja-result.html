@@ -33,28 +33,20 @@
     .input-section {
       margin-bottom: 2rem;
     }
-    input[type="text"] {
+    input[type="text"], button {
       padding: 0.5rem;
       font-size: 1rem;
       width: 100%;
       max-width: 300px;
       border-radius: 5px;
-      border: none;
       margin: 0.5rem auto;
       display: block;
     }
     button {
-      padding: 0.5rem;
-      font-size: 1rem;
       background-color: #f0c741;
       color: #000;
       border: none;
-      border-radius: 5px;
       cursor: pointer;
-      margin: 0.5rem auto;
-      display: block;
-      width: 100%;
-      max-width: 300px;
     }
     .result-box {
       background-color: #333;
@@ -63,10 +55,6 @@
       max-width: 500px;
       margin: 0 auto;
       text-align: left;
-    }
-    .result-box h2 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
     }
     .result-box ul {
       list-style-type: none;
@@ -83,7 +71,6 @@
     }
     @media screen and (max-width: 480px) {
       h1 { font-size: 1.5rem; }
-      .initial-box, .result-box { padding: 1rem 0.5rem; }
     }
   </style>
 </head>
@@ -147,6 +134,8 @@
       fetch(BASE_URL + "/api/gamja")
         .then(res => res.json())
         .then(data => {
+          currentGamjaCount += data.total || 0;
+          document.getElementById("yield-count").innerText = currentGamjaCount;
           updateStorageList(data.items);
         })
         .catch(err => {
