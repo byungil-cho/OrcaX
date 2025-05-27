@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gamja Farm - My Potato</title>
+  <title>나만의 감자 농장</title>
   <style>
     body {
       margin: 0;
@@ -63,36 +64,37 @@
 </head>
 <body>
   <div class="container">
-    <h1>나만의 감자 농사</h1>
+    <h1>나만의 감자 농장</h1>
 
     <div class="stage" id="farmStage">
-      <p>감자를 키워보세요! 감자를 심고 키우면 수확할 수 있습니다.</p>
-      <button class="button" onclick="growPotato()">🌱 감자 키우기</button>
+      <p>나만의 농장 이름을 지어주세요. 이 이름은 감자 제국에서 당신의 브랜드가 됩니다.</p>
+      <button class="button" onclick="startNaming()">🌾 농장 이름 짓기</button>
     </div>
 
     <div class="input-group" id="nameStage">
-      <label for="potatoName">감자 이름을 지어주세요</label><br>
-      <input type="text" id="potatoName" placeholder="감자 이름 입력" />
-      <button class="button" onclick="submitPotato()">다음 단계로</button>
+      <label for="farmName">농장 이름을 입력하세요</label><br>
+      <input type="text" id="farmName" placeholder="예: 아름다운농장" />
+      <button class="button" onclick="submitFarmName()">감자밭으로 이동</button>
     </div>
 
     <div id="result" class="result"></div>
   </div>
 
   <script>
-    function growPotato() {
+    function startNaming() {
       document.getElementById('farmStage').style.display = 'none';
       document.getElementById('nameStage').style.display = 'block';
     }
 
-    function submitPotato() {
-      const name = document.getElementById('potatoName').value.trim();
+    function submitFarmName() {
+      const name = document.getElementById('farmName').value.trim();
       if (!name) {
-        alert('감자 이름을 입력해주세요!');
+        alert('농장 이름을 입력해주세요!');
         return;
       }
+      localStorage.setItem("farmName", name);
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = `🌱 당신의 감자 이름은 <strong>${name}감자</strong>입니다.`;
+      resultDiv.innerHTML = `🌾 당신의 농장은 <strong>[${name}]</strong> 입니다.`;
       resultDiv.style.display = 'block';
       setTimeout(() => {
         window.location.href = 'gamja-factory.html';
