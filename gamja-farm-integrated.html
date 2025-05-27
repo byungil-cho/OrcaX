@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>감자 농장 통합 시스템</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #222;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 1rem;
+      margin: 0;
+      text-align: center;
+    }
+    .box {
+      background-color: #333;
+      padding: 1rem;
+      margin: 1rem auto;
+      border-radius: 10px;
+      max-width: 500px;
+    }
+    button {
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      background-color: #ffaa00;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0.5rem 0;
+      width: 100%;
+      max-width: 300px;
+    }
+    button:hover { background-color: #ff8800; }
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: calc(100% - 1rem);
+      max-width: 300px;
+      border-radius: 5px;
+      margin: 0.5rem auto;
+      display: block;
+    }
+    @media screen and (max-width: 480px) {
+      h1, h2 { font-size: 1.2rem; }
+      button { font-size: 0.9rem; padding: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🥔 감자 농장 통합 시스템</h1>
+
+  <div class="box">
+    <h2>🌾 감자 수확</h2>
+    <p>씨감자로 즉시 농사 가능<br>무료 농사는 2시간마다 2회 제공됩니다.</p>
+    <p id="farmCountDisplay">잔여 수확 횟수: 0</p>
+    <button onclick="harvest()">농사 짓기</button>
+    <button onclick="useSeedAndMove()">🌱 씨감자 사용</button>
+  </div>
+
+  <div class="box">
+    <h2>🏭 제품 생산</h2>
+    <p>보유 감자: <span id="gamjaCount">0</span></p>
+    <input type="text" id="productInput" placeholder="제품 종류 입력 (예: 칩, 전)" />
+    <button onclick="makeProduct()">제품 만들기</button>
+  </div>
+
+  <div class="box">
+    <h2>📦 제품 보관함</h2>
+    <ul id="storageList"><li>제품 없음</li></ul>
+  </div>
+
+  <div class="box">
+    <h2>🌱 씨감자 획득</h2>
+    <p>ORCX: <span id="orcxDisplay">0</span></p>
+    <button onclick="buySeedWithOrcx()">ORCX로 씨감자 구매</button>
+    <p>가공제품으로 교환 (최대 3개)</p>
+    <button onclick="exchangeWithProduct()">제품으로 교환</button>
+    <p>현재 씨감자 수: <span id="seedCount">0</span></p>
+  </div>
+
+  <script>
+    let farmCount = 0;
+    let gamjaCount = 0;
+    let products = {};
+    let seedCount = Number(localStorage.getItem("seedCount") || 0);
+    let orcx = Number(localStorage.getItem("orcxToken") || 5);
+
+    function updateDisplays() {
+      document.getElementById("farmCountDisplay").innerText = `잔여 수확 횟수: ${farmCount}`;
+      document.getElementById("gamjaCount").innerText = gamjaCount;
+      document.getElementById("orcxDisplay").innerText = orcx;
+      document.getElementById("seedCount").innerText = seedCount;
+      const ul = document.getElementById("storageList");
+      ul.innerHTML = "";
+      const keys = Object.keys(products);
+      if (keys.length === 0) {
+        ul.innerHTML = "<li>제품 없음</li>";
+      } else {
+        keys.forEach(name => {
+          const li = document.createElement("li");
+          li.innerText = `${name}: ${products[name]}개`;
+          ul.appendChild(li);
+        });
+      }
+    }
+
+    function initFarmSystem() {
+      const lastTime = Number(localStorage.getItem("lastFarmingTime") || 0);
+      const now = Date.now();
+      if (now - lastTime >= 2 * 60 * 60 * 1000) {
+        farmCount = 2;
+        localStorage.setItem("lastFarmingTime", now);
+        localStorage.setItem("usedSeedStreak", 0);
+      } else {
+        farmCount = Number(localStorage.getItem("farmingCount") || 0);
+      }
+      updateDisplays();
+    }
+
+    function harvest() {
+      if (farmCount <= 0) return alert("❌ 수확 횟수가 없습니다. 2시간 후에 다시 시도하세요.");
+      if (seedCount <= 0) return alert("❌ 씨감자가 없습니다. 씨감자를 획득하세요.");
+      farmCount--;
+      seedCount--;
+      gamjaCount++;
+      if (farmCount === 0) {
+        localStorage.setItem("lastFarmingTime", Date.now());
+      }
+      localStorage.setItem("farmingCount", farmCount);
+      localStorage.setItem("seedCount", seedCount);
+      updateDisplays();
+    }
+
+    function useSeedAndMove() {
+      if (seedCount <= 0) {
+        alert("❌ 씨감자가 없습니다. 사용 불가");
+        return;
+      }
+      const usedCount = Number(localStorage.getItem("usedSeedStreak") || 0);
+      if (usedCount >= 3) {
+        alert("❌ 씨감자는 연속 3회까지만 사용할 수 있습니다. 잠시 후 다시 시도하세요.");
+        return;
+      }
+      seedCount--;
+      localStorage.setItem("seedCount", seedCount);
+      localStorage.setItem("usedSeedStreak", usedCount + 1);
+      localStorage.removeItem("gamjaHarvested");
+      window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-main.html";
+    }
+
+    function makeProduct() {
+      const name = document.getElementById("productInput").value.trim();
+      if (!name) return alert("제품명을 입력해주세요");
+      if (gamjaCount <= 0) return alert("❌ 감자가 부족합니다.");
+      const fullName = `감자${name}`;
+      products[fullName] = (products[fullName] || 0) + 1;
+      gamjaCount--;
+      updateDisplays();
+    }
+
+    function buySeedWithOrcx() {
+      if (orcx < 1) return alert("❌ ORCX 부족");
+      orcx--;
+      seedCount++;
+      localStorage.setItem("orcxToken", orcx);
+      localStorage.setItem("seedCount", seedCount);
+      updateDisplays();
+      alert("✅ 씨감자 구매 완료!");
+    }
+
+    function exchangeWithProduct() {
+      const total = Object.values(products).reduce((a, b) => a + b, 0);
+      if (seedCount >= 3) return alert("❌ 씨감자는 최대 3개까지 교환 가능합니다.");
+      if (total <= 0) return alert("❌ 가공된 제품이 없습니다.");
+      const keys = Object.keys(products);
+      for (let i = 0; i < keys.length; i++) {
+        if (products[keys[i]] > 0) {
+          products[keys[i]]--;
+          if (products[keys[i]] === 0) delete products[keys[i]];
+          break;
+        }
+      }
+      seedCount++;
+      localStorage.setItem("seedCount", seedCount);
+      updateDisplays();
+      alert(`✅ 씨감자 교환 완료 (${seedCount}/3)`);
+    }
+
+    initFarmSystem();
+  </script>
+</body>
+</html>
