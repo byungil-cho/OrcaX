@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -25,7 +26,7 @@
       max-width: 500px;
       margin: 0 auto 2rem auto;
     }
-    #initial-yield {
+    #potato-count, #yield-count {
       font-size: 1.2rem;
       color: #f0c741;
       font-weight: bold;
@@ -77,7 +78,8 @@
 <body>
   <h1>🌾 나의 농장 현황판</h1>
   <div class="initial-box">
-    <p id="initial-yield">들고온 감자 수확량: <span id="yield-count">-</span>개</p>
+    <p id="potato-count">보유 감자: - 개</p>
+    <p id="yield-count">오늘 수확: - 개</p>
   </div>
   <div class="input-section">
     <input type="text" id="productInput" placeholder="제품 종류 (예: 칩, 전, 튀김 등)" />
@@ -92,7 +94,14 @@
   </div>
   <script>
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
-    let currentGamjaCount = 0;
+    let rawPotatoCount = 0;
+
+    const bannedWords = ["보지", "자지", "씨발", "fuck", "shit", "좆", "애널", "섹스", "병신"];
+
+    function containsBadWord(text) {
+      const cleaned = text.toLowerCase().replace(/\s|[^a-zA-Z가-힣0-9]/g, '');
+      return bannedWords.some(word => cleaned.includes(word));
+    }
 
     function goToFarm() {
       localStorage.removeItem("gamjaHarvested");
@@ -134,8 +143,9 @@
       fetch(BASE_URL + "/api/gamja")
         .then(res => res.json())
         .then(data => {
-          currentGamjaCount += data.total || 0;
-          document.getElementById("yield-count").innerText = currentGamjaCount;
+          rawPotatoCount = data.potatoes || 0;
+          document.getElementById("potato-count").innerText = "보유 감자: " + rawPotatoCount + "개";
+          document.getElementById("yield-count").innerText = "오늘 수확: " + (data.harvested || 0) + "개";
           updateStorageList(data.items);
         })
         .catch(err => {
@@ -156,11 +166,10 @@
     function makeProduct() {
       const input = document.getElementById("productInput").value.trim();
       if (!input) return alert("제품명을 입력해주세요!");
-      if (currentGamjaCount <= 0) {
-        alert("❌ 감자가 부족합니다. 수확량을 확인해주세요!");
-        return;
-      }
-      const formattedName = `감자${input}`;
+      if (containsBadWord(input)) return alert("🚫 사용할 수 없는 단어가 포함되어 있습니다!");
+      if (rawPotatoCount <= 0) return alert("❌ 감자가 부족합니다. 수확량을 확인해주세요!");
+
+      const formattedName = input.startsWith('감자') ? input : `감자${input}`;
       fetch(BASE_URL + "/api/create-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -169,8 +178,8 @@
         .then(res => res.json())
         .then(data => {
           alert("✅ 제품 제작 완료: " + data.name);
-          currentGamjaCount = Math.max(0, currentGamjaCount - 1);
-          document.getElementById("yield-count").innerText = currentGamjaCount;
+          rawPotatoCount = Math.max(0, rawPotatoCount - 1);
+          document.getElementById("potato-count").innerText = "보유 감자: " + rawPotatoCount + "개";
           loadInventory();
         })
         .catch(err => alert("❌ 제품 제작 실패"));
