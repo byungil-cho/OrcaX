@@ -107,8 +107,24 @@
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
     let currentGamjaCount = 0;
     if (localStorage.getItem("gamjaHarvested") === "true") {
-      alert("⚠️ 이미 감자를 수확한 기록이 있습니다. 이번 회차는 더 이상 수확 및 생산이 불가능합니다.");
-      window.location.href = "index.html";
+  const warningBox = document.createElement("div");
+  warningBox.style.background = "#333";
+  warningBox.style.color = "#fff";
+  warningBox.style.padding = "1.5rem";
+  warningBox.style.borderRadius = "10px";
+  warningBox.style.maxWidth = "500px";
+  warningBox.style.margin = "2rem auto";
+  warningBox.innerHTML = `
+    <p style='font-size:1.1rem; margin-bottom:1rem;'>⚠️ 이미 감자를 수확한 기록이 있습니다.<br>이 페이지에서는 더 이상 생산할 수 없습니다.</p>
+    <button style='background:#ffaa00; color:#000;' onclick="goToFarm()">🌱 감자 농장으로 이동</button>
+  `;
+  document.body.innerHTML = "";
+  document.body.appendChild(warningBox);
+}
+function goToFarm() {
+  localStorage.removeItem("gamjaHarvested");
+  window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm-integrated.html";
+}
     } else {
       localStorage.setItem("gamjaHarvested", "true");
     }
