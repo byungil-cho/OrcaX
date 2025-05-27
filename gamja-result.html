@@ -134,8 +134,6 @@
       .then(res => {
         if (res.ok) {
           document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
-          // 제품 제작 후 감자 수량 감소는 이미 반영되었으므로 보관함만 업데이트
-          // 감자 보관함 UI는 업데이트하지만, 감자 수량은 누적되지 않도록 막음
           loadInventory();
         } else {
           document.getElementById("server-status").innerText = "🔴 공장 전기 끊킴";
@@ -146,31 +144,24 @@
       });
 
     function loadInventory() {
-  fetch(BASE_URL + "/api/gamja")
-    .then(res => res.json())
-    .then(data => {
-      updateStorageList(data.items);
-    })
-    .catch(err => {
-      document.getElementById("storage-list").innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
-    });
-}
-
-function updateStorageList(items = []) {
-  const ul = document.getElementById("storage-list");
-  ul.innerHTML = "";
-  items.forEach(item => {
-    const li = document.createElement("li");
-    li.textContent = `${item.name}: ${item.count}개`;
-    ul.appendChild(li);
-  });
-}: ${item.count}개`;
-            ul.appendChild(li);
-          });
+      fetch(BASE_URL + "/api/gamja")
+        .then(res => res.json())
+        .then(data => {
+          updateStorageList(data.items);
         })
         .catch(err => {
           document.getElementById("storage-list").innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
         });
+    }
+
+    function updateStorageList(items = []) {
+      const ul = document.getElementById("storage-list");
+      ul.innerHTML = "";
+      items.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name}: ${item.count}개`;
+        ul.appendChild(li);
+      });
     }
 
     function makeProduct() {
@@ -190,7 +181,7 @@ function updateStorageList(items = []) {
         .then(data => {
           alert("✅ 제품 제작 완료: " + data.name);
           currentGamjaCount = Math.max(0, currentGamjaCount - 1);
-document.getElementById("yield-count").innerText = currentGamjaCount;
+          document.getElementById("yield-count").innerText = currentGamjaCount;
           loadInventory();
         })
         .catch(err => alert("❌ 제품 제작 실패"));
