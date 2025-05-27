@@ -77,7 +77,7 @@
 <body>
   <h1>🌾 나의 농장 현황판</h1>
   <div class="initial-box">
-    <p id="initial-yield">들고온 감자 수확량: <span id="yield-count">-</span>개</p>
+    <p id="initial-yield">보유 감자: <span id="yield-count">-</span>개</p>
   </div>
   <div class="input-section">
     <input type="text" id="productInput" placeholder="제품 종류 (예: 칩, 전, 튀김 등)" />
@@ -85,7 +85,7 @@
   </div>
   <div id="server-status">🔄 전기 공급 상태 확인 중...</div>
   <div class="result-box">
-    <h2>📦 보관함:</h2>
+    <h2>📦 제품 보관함:</h2>
     <ul id="storage-list">
       <li>데이터 불러오는 중...</li>
     </ul>
@@ -93,29 +93,7 @@
   <script>
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
     let currentGamjaCount = 0;
-
-    function goToFarm() {
-      localStorage.removeItem("gamjaHarvested");
-      window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm-integrated.html";
-    }
-
-    if (localStorage.getItem("gamjaHarvested") === "true") {
-      const warningBox = document.createElement("div");
-      warningBox.style.background = "#333";
-      warningBox.style.color = "#fff";
-      warningBox.style.padding = "1.5rem";
-      warningBox.style.borderRadius = "10px";
-      warningBox.style.maxWidth = "500px";
-      warningBox.style.margin = "2rem auto";
-      warningBox.innerHTML = `
-        <p style='font-size:1.1rem; margin-bottom:1rem;'>⚠️ 이미 감자를 수확한 기록이 있습니다.<br>이 페이지에서는 더 이상 생산할 수 없습니다.</p>
-        <button style='background:#ffaa00; color:#000;' onclick="goToFarm()">🌱 감자 농장으로 이동</button>
-      `;
-      document.body.innerHTML = "";
-      document.body.appendChild(warningBox);
-    } else {
-      localStorage.setItem("gamjaHarvested", "true");
-    }
+    let products = {};
 
     fetch(BASE_URL + "/api/ping")
       .then(res => {
@@ -136,7 +114,8 @@
         .then(data => {
           currentGamjaCount = data.total || 0;
           document.getElementById("yield-count").innerText = currentGamjaCount;
-          updateStorageList(data.items);
+          products = data.items || {};
+          updateStorageList(products);
         })
         .catch(err => {
           document.getElementById("storage-list").innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
@@ -146,11 +125,15 @@
     function updateStorageList(items = []) {
       const ul = document.getElementById("storage-list");
       ul.innerHTML = "";
-      items.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.name}: ${item.count}개`;
-        ul.appendChild(li);
-      });
+      if (items.length === 0) {
+        ul.innerHTML = "<li>제품 없음</li>";
+      } else {
+        items.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = `${item.name}: ${item.count}개`;
+          ul.appendChild(li);
+        });
+      }
     }
 
     function makeProduct() {
