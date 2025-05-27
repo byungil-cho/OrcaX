@@ -236,6 +236,7 @@
         .then(data => {
           alert("✅ 제품 제작 완료: " + data.name);
           rawPotatoCount = Math.max(0, rawPotatoCount - 1);
+      localStorage.setItem("lastHarvest", Date.now());
           document.getElementById("potato-count").innerText = "보유 감자: " + rawPotatoCount + "개";
 
           if (data.isNew) {
