@@ -81,6 +81,10 @@
       margin: 0.5rem 0;
       font-size: 1rem;
     }
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
   </style>
 </head>
 <body>
@@ -127,6 +131,10 @@
       <p>🌿 거름 교환 (제품으로)</p>
       <button onclick="exchangeFertilizer()">거름 교환하기</button>
     </div>
+    <div class="exchange-item">
+      <p>🧺 선택한 제품들 교환</p>
+      <button onclick="exchangeSelectedItems()">선택한 제품 교환하기</button>
+    </div>
   </div>
 
   <div id="newsTicker" style="width: 100%; overflow: hidden; white-space: nowrap; background: #444; color: #fff; padding: 0.5rem; font-size: 0.9rem; position: fixed; bottom: 0; left: 0;">
@@ -135,41 +143,137 @@
     </div>
   </div>
 
-  <style>
-    @keyframes scroll-left {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
-  </style>
-
   <script>
+    const API_URL = "https://orcax-farm-6000.onrender.com/api";
     const kakaoId = localStorage.getItem("kakaoId") || "익명손님";
     const nickname = localStorage.getItem("nickname") || kakaoId;
     document.getElementById("nickname").textContent = nickname;
 
-    function processProduct() {
+    async function fetchFarmStatus() {
+      try {
+        const res = await fetch(`${API_URL}/gamja`);
+        const data = await res.json();
+        document.getElementById("totalPotatoes").textContent = data.potatoes;
+        document.getElementById("todayHarvest").textContent = data.harvested;
+        document.getElementById("statusMsg").textContent = "⚡ 전기 정상 공급 중";
+        document.getElementById("statusMsg").style.color = "#39ff14";
+        updateStorage(data.items);
+      } catch (err) {
+        document.getElementById("statusMsg").textContent = "❌ 정전 발생 - 서버 응답 없음";
+        document.getElementById("statusMsg").style.color = "#ff4444";
+      }
+    }
+
+    function updateStorage(items) {
+      const container = document.getElementById("storageList");
+      if (!items || items.length === 0) {
+        container.innerHTML = "<div>보관된 제품이 없습니다.</div>";
+        return;
+      }
+
+      container.innerHTML = items.map(item => `
+        <label style="display:block; margin-bottom:5px;">
+          <input type="checkbox" class="productCheckbox" value="${item.name}" />
+          ${item.name}: ${item.count}개
+        </label>
+      `).join("");
+    }
+
+    async function processProduct() {
       const selected = document.getElementById("productName").value;
       const custom = document.getElementById("customProductName").value.trim();
       const name = custom || selected;
       if (!name) return alert("제품을 선택하거나 입력하세요.");
+
       document.getElementById("statusMsg").textContent = `${name} 제품을 가공 중...`;
+
+      try {
+        const res = await fetch(`${API_URL}/create-product`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: name, farm: nickname }),
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message);
+        alert(result.message);
+        fetchFarmStatus();
+      } catch (e) {
+        alert("⚠️ 가공 실패: " + e.message);
+        fetchFarmStatus();
+      }
     }
 
-    function buySeedWithOrcx() {
-      alert("씨감자 1개 교환 완료 (ORCX 차감)");
+    async function buySeedWithOrcx() {
+      const res = await fetch(`${API_URL}/buy-seed`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ count: 1 }),
+      });
+      const result = await res.json();
+      alert(result.message || "처리 실패");
+      fetchFarmStatus();
     }
 
-    function exchangeWithProduct() {
-      alert("제품으로 씨감자 교환 완료 (최대 3회 제한 적용)");
+    async function exchangeWithProduct() {
+      const res = await fetch(`${API_URL}/exchange`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemType: "감자칩" }),
+      });
+      const result = await res.json();
+      alert(result.message || "처리 실패");
+      fetchFarmStatus();
     }
 
-    function exchangeWater() {
-      alert("제품으로 물 1개 교환 완료");
+    async function exchangeWater() {
+      const res = await fetch(`${API_URL}/exchange`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemType: "물" }),
+      });
+      const result = await res.json();
+      alert(result.message || "처리 실패");
+      fetchFarmStatus();
     }
 
-    function exchangeFertilizer() {
-      alert("제품으로 거름 1개 교환 완료");
+    async function exchangeFertilizer() {
+      const res = await fetch(`${API_URL}/exchange`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemType: "거름" }),
+      });
+      const result = await res.json();
+      alert(result.message || "처리 실패");
+      fetchFarmStatus();
     }
+
+    async function exchangeSelectedItems() {
+      const selected = [...document.querySelectorAll(".productCheckbox:checked")]
+        .map(el => el.value);
+
+      if (selected.length === 0) {
+        return alert("교환할 제품을 선택하세요.");
+      }
+
+      for (const itemType of selected) {
+        try {
+          const res = await fetch(`${API_URL}/exchange`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ itemType }),
+          });
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.message);
+          alert(`${itemType} 교환 완료`);
+        } catch (e) {
+          alert(`⚠️ ${itemType} 교환 실패: ${e.message}`);
+        }
+      }
+
+      fetchFarmStatus();
+    }
+
+    window.addEventListener("load", fetchFarmStatus);
   </script>
 </body>
 </html>
