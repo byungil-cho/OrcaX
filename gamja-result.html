@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 가공 결과 페이지</title>
+  <title>감자 제품 가공 공장</title>
   <style>
     body {
       background-color: #111;
@@ -57,10 +57,22 @@
       color: #00ff88;
       font-weight: bold;
     }
+    .notice {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: #331100;
+      color: #ffc;
+      border-radius: 10px;
+    }
+    .link-button {
+      margin-top: 0.5rem;
+      background-color: #00aaff;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <h1>🥔 감자 가공 결과 페이지</h1>
+  <h1>🥔 감자 가공 제품 공장</h1>
 
   <div class="box">
     <p id="farm-name">농장 이름: -</p>
@@ -71,6 +83,11 @@
     <button onclick="makeProduct()">제품 만들기</button>
 
     <div id="server-status">🔄 전기 공급 상태 확인 중...</div>
+
+    <div id="no-potato-notice" class="notice" style="display: none;">
+      😢 감자가 부족합니다. 씨감자 구매 또는 제품 교환 페이지로 이동하세요.<br />
+      <button class="link-button" onclick="location.href='gamja-ccc.html'">교환소로 이동</button>
+    </div>
   </div>
 
   <div class="box">
@@ -109,6 +126,12 @@
           document.getElementById("potato-count").innerText = `보유 감자: ${rawPotatoCount}개`;
           document.getElementById("harvest-count").innerText = `오늘 수확: ${data.harvested || 0}개`;
           updateStorageList(data.items);
+
+          if (rawPotatoCount <= 0) {
+            document.getElementById("no-potato-notice").style.display = "block";
+          } else {
+            document.getElementById("no-potato-notice").style.display = "none";
+          }
         })
         .catch(err => {
           document.getElementById("storage-list").innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
@@ -118,7 +141,10 @@
     function makeProduct() {
       const input = document.getElementById("productInput").value.trim();
       if (!input) return alert("제품명을 입력해주세요!");
-      if (rawPotatoCount <= 0) return alert("❌ 감자가 부족합니다. 수확한 감자가 없습니다.");
+      if (rawPotatoCount <= 0) {
+        document.getElementById("no-potato-notice").style.display = "block";
+        return;
+      }
 
       const productName = input.startsWith("감자") ? input : `감자${input}`;
       fetch(`${BASE_URL}/api/create-product`, {
