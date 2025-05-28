@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -102,10 +101,8 @@
 </head>
 <body>
   <h1>🌾 <span id="farmNameTag">나의 농장</span> 현황판</h1>
-  
-    <div id="cooltime-warning" style="background:#333; color:#fff; padding:1rem; margin-bottom:1rem; border-radius:10px; display:none;"></div>
-    <div class="initial-box">
-    
+  <div id="cooltime-warning" style="background:#333; color:#fff; padding:1rem; margin-bottom:1rem; border-radius:10px; display:none;"></div>
+  <div class="initial-box">
     <p id="potato-count">보유 감자: - 개</p>
     <p id="yield-count">오늘 수확: - 개</p>
   </div>
@@ -120,22 +117,16 @@
       <li>데이터 불러오는 중...</li>
     </ul>
   </div>
-
   <div id="news-ticker"><span id="news-message">🚨 신제품 발표가 곧 이어집니다...</span></div>
 
   <script>
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
-    let rawPotatoCount = 0;
-
+    const HARVEST_INTERVAL = 2 * 60 * 60 * 1000;
+    const lastHarvest = parseInt(localStorage.getItem("lastHarvest"), 10);
+    const now = Date.now();
     const farmName = localStorage.getItem("farmName") || "이름없는농장";
     document.getElementById("farmNameTag").innerText = `[${farmName}]`;
-
-    const bannedWords = ["보지", "자지", "씨발", "fuck", "shit", "좆", "애널", "섹스", "병신"];
-
-    function containsBadWord(text) {
-      const cleaned = text.toLowerCase().replace(/\s|[^a-zA-Z가-힣0-9]/g, '');
-      return bannedWords.some(word => cleaned.includes(word));
-    }
+    let rawPotatoCount = 0;
 
     function goToFarm() {
       localStorage.removeItem("gamjaHarvested");
@@ -143,19 +134,32 @@
     }
 
     if (localStorage.getItem("gamjaHarvested") === "true") {
-      const warningBox = document.createElement("div");
-      warningBox.style.background = "#333";
-      warningBox.style.color = "#fff";
-      warningBox.style.padding = "1.5rem";
-      warningBox.style.borderRadius = "10px";
-      warningBox.style.maxWidth = "500px";
-      warningBox.style.margin = "2rem auto";
-      warningBox.innerHTML = `
-        <p style='font-size:1.1rem; margin-bottom:1rem;'>⚠️ 이미 감자를 수확한 기록이 있습니다.<br>이 페이지에서는 더 이상 생산할 수 없습니다.</p>
-        <button style='background:#ffaa00; color:#000;' onclick="goToFarm()">🌱 감자 농장으로 이동</button>
-      `;
-      document.body.innerHTML = "";
-      document.body.appendChild(warningBox);
+      if (!lastHarvest || now - lastHarvest >= HARVEST_INTERVAL) {
+        localStorage.removeItem("gamjaHarvested");
+        localStorage.removeItem("lastHarvest");
+      } else {
+        const remaining = HARVEST_INTERVAL - (now - lastHarvest);
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+
+        const warningBox = document.createElement("div");
+        warningBox.style.background = "#333";
+        warningBox.style.color = "#fff";
+        warningBox.style.padding = "2rem";
+        warningBox.style.borderRadius = "10px";
+        warningBox.style.maxWidth = "500px";
+        warningBox.style.margin = "2rem auto";
+        warningBox.style.textAlign = "center";
+        warningBox.innerHTML = `
+          <h2>⏳ 감자가 쉬고 있어요!</h2>
+          <p>이미 수확한 기록이 있어 현재는 생산이 중단되었습니다.<br>
+          다음 농사 계절은 <strong>${mins}분 ${secs}초</strong> 후에 시작됩니다.</p>
+          <p>⏰ 시간이 지나면 자동으로 다시 농사를 지을 수 있어요!</p>
+          <button onclick="goToFarm()" style="margin-top:1rem; padding:0.7rem 1.5rem; background:#ffaa00; border:none; border-radius:8px;">🌱 감자 농장으로 돌아가기</button>
+        `;
+        document.body.innerHTML = "";
+        document.body.appendChild(warningBox);
+      }
     } else {
       localStorage.setItem("gamjaHarvested", "true");
     }
@@ -202,6 +206,12 @@
       ticker.innerText = `🚨 [${farmName}] ${productName} 신제품 출시!`;
     }
 
+    function containsBadWord(text) {
+      const bannedWords = ["보지", "자지", "씨발", "fuck", "shit", "좆", "애널", "섹스", "병신"];
+      const cleaned = text.toLowerCase().replace(/\s|[^a-zA-Z가-힣0-9]/g, '');
+      return bannedWords.some(word => cleaned.includes(word));
+    }
+
     function makeProduct() {
       const input = document.getElementById("productInput").value.trim();
       if (!input) return alert("제품명을 입력해주세요!");
@@ -220,33 +230,11 @@
           alert("✅ 제품 제작 완료: " + data.name);
           rawPotatoCount = Math.max(0, rawPotatoCount - 1);
           document.getElementById("potato-count").innerText = "보유 감자: " + rawPotatoCount + "개";
-
-          if (data.isNew) {
-            announceNewProduct(data.name, farmName);
-          }
-
+          if (data.isNew) announceNewProduct(data.name, farmName);
           loadInventory();
         })
         .catch(err => alert("❌ 제품 제작 실패"));
     }
-  
-    const HARVEST_INTERVAL = 2 * 60 * 60 * 1000; // 2시간
-    const lastHarvest = parseInt(localStorage.getItem("lastHarvest"), 10);
-    const now = Date.now();
-
-    if (localStorage.getItem("gamjaHarvested") === "true" && lastHarvest && (now - lastHarvest < HARVEST_INTERVAL)) {
-      const timeLeft = HARVEST_INTERVAL - (now - lastHarvest);
-      const mins = Math.floor(timeLeft / 60000);
-      const secs = Math.floor((timeLeft % 60000) / 1000);
-      const warning = document.getElementById("cooltime-warning");
-      warning.innerHTML = `
-        🌾 다음 농사 계절까지 <strong>${mins}분 ${secs}초</strong> 남았습니다.<br>
-        🏭 가공 공장에 자리가 없습니다.<br>
-        예약 하시겠습니까? (※ 시간 되면 자동으로 풀립니다 😊)
-      `;
-      warning.style.display = 'block';
-    }
-    </script>
-    
+  </script>
 </body>
 </html>
