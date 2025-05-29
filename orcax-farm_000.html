@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐳 OrcaX 농장 입구</title>
+  <title>🌫 OrcaX 농장 입구</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
     body {
@@ -26,18 +26,26 @@
       padding: 0.5rem 1rem;
       border-radius: 10px;
     }
-    .nickname-float {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: #f8f8f8;
-      padding: 10px 18px;
+    .nickname {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
       font-weight: bold;
-      font-size: 18px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      z-index: 1000;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      border-radius: 10px;
+    }
+    .logout-btn {
+      margin-top: 1rem;
+      background: #bbb;
+      color: #000;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: bold;
       display: none;
     }
     .field-section {
@@ -99,10 +107,11 @@
   </style>
 </head>
 <body>
-  <div id="nicknameDisplay" class="nickname-float"></div>
-
   <div class="container">
-    <h1>🐳 OrcaX 농장 입구</h1>
+    <h1>🌫 OrcaX 농장 입구</h1>
+
+    <div id="nicknameDisplay" class="nickname" style="display: none;"></div>
+    <button id="logoutBtn" class="logout-btn" onclick="logout()">로그아웃</button>
 
     <div class="field-section">
       <a href="gamja-farm.html" class="field">
@@ -133,12 +142,19 @@
       window.location.href = url;
     }
 
+    function logout() {
+      localStorage.clear();
+      alert("\ub85c\uadf8\uc544\uc6c3 \ub418\uc5c8\uc2b5\ub2c8\ub2e4.");
+      window.location.reload();
+    }
+
     const nickname = localStorage.getItem("nickname");
     if (nickname) {
       const nicknameEl = document.getElementById("nicknameDisplay");
       nicknameEl.textContent = "👤 " + nickname + "님, 환영합니다!";
-      nicknameEl.style.display = "block";
+      nicknameEl.style.display = "inline-block";
       document.getElementById("loginBtn").style.display = "none";
+      document.getElementById("logoutBtn").style.display = "inline-block";
     }
   </script>
 </body>
