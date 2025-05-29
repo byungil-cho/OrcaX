@@ -131,7 +131,7 @@
       const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 60000);
       document.getElementById("cooldownInfo").textContent = `⏳ 농사 대기 시간: ${remain}분 남음`;
     } else {
-      document.getElementById("cooldownInfo").textContent = "✅ 농사 가능!";
+      document.getElementById("cooldownInfo").textContent = "✅ 농사 철!";
     }
 
     const farmName = localStorage.getItem("farmName") || "이름없는농장";
