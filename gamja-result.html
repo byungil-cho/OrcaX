@@ -69,10 +69,19 @@
       background-color: #00aaff;
       color: white;
     }
+    .status {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
   <h1>🥔 감자 가공 제품 공장</h1>
+
+  <div class="status" id="nicknameDisplay"></div>
+  <div class="status" id="cooldownInfo"></div>
+  <div class="status" id="lastTimeInfo"></div>
 
   <div class="box">
     <p id="farm-name">농장 이름: -</p>
@@ -100,6 +109,24 @@
   <script>
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
     let rawPotatoCount = 0;
+    const nickname = localStorage.getItem("nickname");
+    const lastLoginGlobal = localStorage.getItem("lastLoginGlobal");
+    const now = Date.now();
+    const TWO_HOURS = 2 * 60 * 60 * 1000;
+
+    if (nickname) {
+      document.getElementById("nicknameDisplay").textContent = `👤 ${nickname}님 어서오세요!`;
+    }
+    if (lastLoginGlobal) {
+      const diffMin = Math.floor((now - parseInt(lastLoginGlobal)) / 60000);
+      document.getElementById("lastTimeInfo").textContent = `🕒 마지막 작업 이후 ${diffMin}분 경과됨`;
+    }
+    if (lastLoginGlobal && now - parseInt(lastLoginGlobal) < TWO_HOURS) {
+      const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 60000);
+      document.getElementById("cooldownInfo").textContent = `⏳ 농사 대기 시간: ${remain}분 남음`;
+    } else {
+      document.getElementById("cooldownInfo").textContent = "✅ 농사 가능!";
+    }
 
     const farmName = localStorage.getItem("farmName") || "이름없는농장";
     document.getElementById("farm-name").innerText = `농장 이름: ${farmName}`;
