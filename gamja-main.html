@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>나만의 감자 농장</title>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
     body {
       margin: 0;
@@ -80,6 +81,8 @@
   </div>
 
   <script>
+    Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
+
     window.addEventListener("DOMContentLoaded", () => {
       const userId = localStorage.getItem("userId");
       const farmName = localStorage.getItem("farmName");
@@ -119,14 +122,29 @@
       }
       name = cleanName(name);
       const finalName = name + " 농장";
-      localStorage.setItem("farmName", finalName);
-      localStorage.setItem("lastScene", "factory");
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = `🌾 당신의 농장은 <strong>[${finalName}]</strong> 입니다.`;
-      resultDiv.style.display = 'block';
-      setTimeout(() => {
-        window.location.href = 'gamja-factory.html';
-      }, 2000);
+
+      // 카카오 로그인 사용자 정보 불러오기
+      Kakao.API.request({
+        url: '/v2/user/me',
+        success: function(response) {
+          const kakaoUserId = response.id;
+          const kakaoNickname = response.kakao_account.profile.nickname;
+          localStorage.setItem("userId", kakaoUserId);
+          localStorage.setItem("nickname", kakaoNickname);
+          localStorage.setItem("farmName", finalName);
+          localStorage.setItem("lastScene", "factory");
+
+          const resultDiv = document.getElementById('result');
+          resultDiv.innerHTML = `🌾 당신의 농장은 <strong>[${finalName}]</strong> 입니다.`;
+          resultDiv.style.display = 'block';
+          setTimeout(() => {
+            window.location.href = 'gamja-factory.html';
+          }, 2000);
+        },
+        fail: function(error) {
+          alert("카카오 사용자 정보를 불러오지 못했습니다: " + JSON.stringify(error));
+        }
+      });
     }
   </script>
 </body>
