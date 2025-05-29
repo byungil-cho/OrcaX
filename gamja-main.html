@@ -87,10 +87,10 @@
       const userId = localStorage.getItem("userId");
 
       if (!userId) {
-        // 로그인 먼저 시도
         Kakao.Auth.login({
           scope: 'profile_nickname',
           success: function(authObj) {
+            Kakao.Auth.setAccessToken(authObj.access_token); // ✅ 핵심 추가
             Kakao.API.request({
               url: '/v2/user/me',
               success: function(response) {
