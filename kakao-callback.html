@@ -1,62 +1,52 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>Kakao 로그인 완료</title>
+  <meta charset="UTF-8">
+  <title>로그인 중...</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 </head>
-<body style="background-color: #1a1a1a; color: #fff; font-family: sans-serif; text-align: center; padding-top: 100px;">
-  <h1>로그인 처리 중...</h1>
-  <p>잠시만 기다려 주세요 🐳</p>
-
+<body>
   <script>
-    Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
+    Kakao.init('284b798a9d9be8202f9c2e129fa6f329');
+    const code = new URL(window.location.href).searchParams.get("code");
 
-    async function exchangeCodeForToken() {
-      const code = new URLSearchParams(window.location.search).get("code");
-      if (!code) {
-        document.body.innerHTML = "<h2 style='color:red;'>❌ 인가코드 없음</h2>";
-        return;
-      }
-
-      const data = {
-        grant_type: "authorization_code",
-        client_id: "284b798a9d9be8202f9c2e129fa6f329",
-        redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",
-        code: code
-      };
-
-      const query = Object.keys(data)
-        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
-        .join('&');
-
-      try {
-        const response = await fetch("https://kauth.kakao.com/oauth/token", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: query
-        });
-
-        const tokenData = await response.json();
-        const accessToken = tokenData.access_token;
-
-        Kakao.Auth.setAccessToken(accessToken);
-
-        const userRes = await Kakao.API.request({ url: "/v2/user/me" });
-        const nickname = userRes.properties?.nickname || "사용자";
-
+    if (code) {
+      fetch(`https://kauth.kakao.com/oauth/token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+          grant_type: "authorization_code",
+          client_id: "284b798a9d9be8202f9c2e129fa6f329",
+          redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",
+          code: code
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.access_token) {
+          Kakao.Auth.setAccessToken(data.access_token);
+          return Kakao.API.request({ url: '/v2/user/me' });
+        } else {
+          throw new Error("토큰이 없습니다.");
+        }
+      })
+      .then(response => {
+        const userId = response.id;
+        const nickname = response.kakao_account.profile.nickname;
+        localStorage.setItem("userId", userId);
         localStorage.setItem("nickname", nickname);
-        localStorage.setItem("access_token", accessToken);
-
-        window.location.href = "https://byungil-cho.github.io/OrcaX/orcax-farm_000.html";
-      } catch (error) {
-        console.error("토큰 요청 실패:", error);
-        document.body.innerHTML = "<h2 style='color:red;'>❌ 로그인 처리 실패</h2><p>" + error + "</p>";
-      }
+        window.location.href = "orcax-farm-000.html";
+      })
+      .catch(error => {
+        alert("로그인 실패: " + error.message);
+        window.location.href = "index.html";
+      });
+    } else {
+      alert("인증 코드가 없습니다.");
+      window.location.href = "index.html";
     }
-
-    exchangeCodeForToken();
   </script>
 </body>
 </html>
