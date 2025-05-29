@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>감자 공장</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🥔 감자 농장</title>
   <style>
     body {
       margin: 0;
@@ -53,11 +53,20 @@
       font-size: 1.2rem;
       display: none;
     }
+    .status {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1><span id="farmName"></span> 감자가 자라고 있습니다</h1>
+    <div id="nicknameDisplay" class="status"></div>
+    <div id="cooldownInfo" class="status"></div>
+    <div id="lastTimeInfo" class="status"></div>
+
     <p>물을 주거나 거름을 주세요!</p>
     <button class="button" onclick="addWater()">💧 물 주기</button>
     <button class="button" onclick="addFertilizer()">🌾 거름 주기</button>
@@ -78,7 +87,34 @@
 
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
     const farmName = localStorage.getItem("farmName") || "이름없는농장";
+    const nickname = localStorage.getItem("nickname");
+    const lastLoginGlobal = localStorage.getItem("lastLoginGlobal");
+    const now = Date.now();
+    const TWO_HOURS = 2 * 60 * 60 * 1000;
+
     document.getElementById("farmName").innerText = `[${farmName}]`;
+    const nicknameEl = document.getElementById("nicknameDisplay");
+    const cooldownInfo = document.getElementById("cooldownInfo");
+    const lastTimeInfo = document.getElementById("lastTimeInfo");
+
+    if (nickname) {
+      nicknameEl.textContent = `👤 ${nickname}님 어서오세요!`;
+    } else {
+      nicknameEl.textContent = "로그인이 필요합니다.";
+    }
+
+    if (lastLoginGlobal) {
+      const diffMin = Math.floor((now - parseInt(lastLoginGlobal)) / 60000);
+      lastTimeInfo.textContent = `🕒 마지막 작업 이후 ${diffMin}분 경과됨`;
+    }
+
+    if (lastLoginGlobal && now - parseInt(lastLoginGlobal) < TWO_HOURS) {
+      const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 60000);
+      cooldownInfo.textContent = `⏳ 농사 대기 시간: ${remain}분 남음`;
+    } else {
+      cooldownInfo.textContent = "✅ 농사 가능!";
+      localStorage.setItem("lastLoginGlobal", now.toString());
+    }
 
     function addWater() {
       waterCount++;
@@ -116,10 +152,8 @@
         total = Math.max(1, 10 - Math.abs(3 - waterCount) * 2 - Math.abs(1 - fertilizerCount) * 2);
       }
 
-      // 1. 로컬에도 저장
       localStorage.setItem("potatoCount", total);
 
-      // 2. 서버에 수확 데이터 전송
       fetch(`${BASE_URL}/api/harvest`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -136,7 +170,6 @@
         console.error("❌ 서버 전송 실패:", err);
       });
 
-      // 3. 결과 표시 후 페이지 이동
       const resultBox = document.getElementById("resultBox");
       resultBox.innerHTML = `🎉 수확 완료!<br><strong>[${farmName}]</strong>에서 감자 ${total}개를 수확했습니다.`;
       resultBox.style.display = 'block';
