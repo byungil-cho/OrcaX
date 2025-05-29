@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🌫 OrcaX 농장 입구</title>
+  <title>🐳 OrcaX 농장 입구</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
     body {
@@ -35,18 +35,6 @@
       display: inline-block;
       padding: 0.4rem 1rem;
       border-radius: 10px;
-    }
-    .logout-btn {
-      margin-top: 1rem;
-      background: #bbb;
-      color: #000;
-      border: none;
-      padding: 0.5rem 1.2rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: bold;
-      display: none;
     }
     .field-section {
       margin-top: 2rem;
@@ -108,10 +96,9 @@
 </head>
 <body>
   <div class="container">
-    <h1>🌫 OrcaX 농장 입구</h1>
+    <h1>🐳 OrcaX 농장 입구</h1>
 
     <div id="nicknameDisplay" class="nickname" style="display: none;"></div>
-    <button id="logoutBtn" class="logout-btn" onclick="logout()">로그아웃</button>
 
     <div class="field-section">
       <a href="gamja-farm.html" class="field">
@@ -129,57 +116,32 @@
       <a href="auction-house.html">📊 경매장 입장</a>
     </div>
 
-    <button id="loginBtn" class="kakao-btn" type="button" onclick="popupKakaoLogin()">카카오 로그인</button>
+    <button id="loginBtn" class="kakao-btn" type="button" onclick="goKakaoLogin()">카카오 로그인</button>
+    <button id="logoutBtn" class="kakao-btn" style="display: none; background-color: #ff4d4d;" onclick="logout()">로그아웃</button>
   </div>
 
   <script>
-    Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
-
-    function popupKakaoLogin() {
-      Kakao.Auth.login({
-        scope: 'profile_nickname',
-        throughTalk: false,
-        success: function(authObj) {
-          Kakao.Auth.setAccessToken(authObj.access_token);
-          Kakao.API.request({
-            url: '/v2/user/me',
-            success: function(response) {
-              const kakaoUserId = response.id;
-              const kakaoNickname = response.kakao_account.profile.nickname;
-              localStorage.setItem("userId", kakaoUserId);
-              localStorage.setItem("nickname", kakaoNickname);
-              updateLoginUI(kakaoNickname);
-            },
-            fail: function(error) {
-              alert("사용자 정보 요청 실패: " + JSON.stringify(error));
-            }
-          });
-        },
-        fail: function(err) {
-          alert("로그인 실패: " + JSON.stringify(err));
-        }
-      });
+    function goKakaoLogin() {
+      const client_id = "284b798a9d9be8202f9c2e129fa6f329";
+      const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
+      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
+      window.location.href = url;
     }
 
-    function updateLoginUI(nickname) {
+    function logout() {
+      localStorage.removeItem("nickname");
+      localStorage.removeItem("userId");
+      alert("로그아웃 되었습니다.");
+      location.reload();
+    }
+
+    const nickname = localStorage.getItem("nickname");
+    if (nickname) {
       const nicknameEl = document.getElementById("nicknameDisplay");
       nicknameEl.textContent = "👤 " + nickname + "님, 환영합니다!";
       nicknameEl.style.display = "inline-block";
       document.getElementById("loginBtn").style.display = "none";
       document.getElementById("logoutBtn").style.display = "inline-block";
-    }
-
-    function logout() {
-      Kakao.Auth.logout(function() {
-        localStorage.clear();
-        alert("\ub85c\uadf8\uc544\uc6c3 \ub418\uc5c8\uc2b5\ub2c8\ub2e4.");
-        window.location.reload();
-      });
-    }
-
-    const storedNickname = localStorage.getItem("nickname");
-    if (storedNickname) {
-      updateLoginUI(storedNickname);
     }
   </script>
 </body>
