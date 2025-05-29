@@ -55,7 +55,7 @@
   <div class="box">
     <p class="count">닉네임: <span id="nickname">-</span></p>
     <p class="count" id="orcx-token">보유 ORCX: - 개</p>
-    <p class="count" id="farming-count">오늘 농사 횟수: - 회</p>
+    <p class="count" id="farming-count">보유 농사 티켓: - 장</p>
     <button onclick="exchangeSeed()">씨감자 1개 교환 (1 ORCX)</button>
   </div>
 
@@ -82,8 +82,11 @@
       fetch(`${BASE_URL}/api/gamja?nickname=${nickname}`)
         .then(res => res.json())
         .then(data => {
+          if (data.newUser) {
+            alert("🎁 신규 입장 보상: 토큰 5개, 물 10개, 거름 10개 지급되었습니다!");
+          }
           document.getElementById("orcx-token").innerText = `보유 ORCX: ${data.orcx || 0}개`;
-          document.getElementById("farming-count").innerText = `오늘 농사 티켓: ${data.farmingCount || 0}회`;
+          document.getElementById("farming-count").innerText = `보유 농사 티켓: ${data.farmingCount || 0}장`;
           updateProductList(data.items);
           document.getElementById("exchange-status").innerText = "교환 가능 상태입니다.";
         })
@@ -132,7 +135,7 @@
         return fetch(`${BASE_URL}/api/exchange`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ itemType: resource, sourceProduct: itemType, nickname })
+          body: JSON.stringify({ nickname, sourceProduct: itemType, itemType: resource })
         })
           .then(res => res.json())
           .then(result => {
