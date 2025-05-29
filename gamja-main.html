@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -81,6 +80,28 @@
   </div>
 
   <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const userId = localStorage.getItem("userId");
+      const farmName = localStorage.getItem("farmName");
+      const lastScene = localStorage.getItem("lastScene");
+
+      if (!userId) {
+        alert("로그인이 필요합니다. (userId 없음)");
+        return;
+      }
+
+      if (!farmName) {
+        document.getElementById('farmStage').style.display = 'block';
+        return;
+      }
+
+      if (lastScene) {
+        window.location.href = `gamja-${lastScene}.html`;
+      } else {
+        window.location.href = 'gamja-factory.html';
+      }
+    });
+
     function startNaming() {
       document.getElementById('farmStage').style.display = 'none';
       document.getElementById('nameStage').style.display = 'block';
@@ -99,6 +120,7 @@
       name = cleanName(name);
       const finalName = name + " 농장";
       localStorage.setItem("farmName", finalName);
+      localStorage.setItem("lastScene", "factory");
       const resultDiv = document.getElementById('result');
       resultDiv.innerHTML = `🌾 당신의 농장은 <strong>[${finalName}]</strong> 입니다.`;
       resultDiv.style.display = 'block';
