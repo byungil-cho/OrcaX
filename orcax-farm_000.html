@@ -131,17 +131,30 @@
     function logout() {
       localStorage.removeItem("nickname");
       localStorage.removeItem("userId");
+      localStorage.removeItem("lastLogin");
       alert("로그아웃 되었습니다.");
       location.reload();
     }
 
     const nickname = localStorage.getItem("nickname");
+    const lastLogin = localStorage.getItem("lastLogin");
+    const now = Date.now();
+    const TWO_HOURS = 2 * 60 * 60 * 1000; // 2시간
+
     if (nickname) {
       const nicknameEl = document.getElementById("nicknameDisplay");
       nicknameEl.textContent = "👤 " + nickname + "님, 환영합니다!";
       nicknameEl.style.display = "inline-block";
       document.getElementById("loginBtn").style.display = "none";
       document.getElementById("logoutBtn").style.display = "inline-block";
+
+      if (lastLogin && now - parseInt(lastLogin) < TWO_HOURS) {
+        const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLogin))) / 60000);
+        alert(`⏳ 농장 이용 대기 시간: ${remain}분 남음`);
+        // 여기에 버튼 disable 또는 이동 차단 처리 가능
+      } else {
+        localStorage.setItem("lastLogin", now.toString());
+      }
     }
   </script>
 </body>
