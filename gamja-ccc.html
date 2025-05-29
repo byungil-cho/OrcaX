@@ -2,278 +2,152 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>나의 농장 현황판</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>씨감자 및 자원 교환소</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #1c1c1c;
-      color: #f2f2f2;
+      background-color: #111;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 1rem;
+      padding: 2rem;
+      text-align: center;
     }
     h1 {
-      text-align: center;
-      font-size: 1.8rem;
-      color: #fdd835;
-    }
-    .nickname {
-      text-align: center;
+      font-size: 2rem;
       margin-bottom: 1rem;
-      font-size: 1rem;
-      color: #aaa;
     }
-    .panel {
-      background: #2e2e2e;
+    .box {
+      background-color: #222;
+      padding: 1rem;
       border-radius: 10px;
-      padding: 1.5rem;
       margin: 1rem auto;
       max-width: 500px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.5);
     }
-    .panel-title {
+    .count {
       font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: #fdd835;
-    }
-    .value {
-      font-size: 1.2rem;
-      text-align: center;
-      margin: 0.5rem 0;
-    }
-    select, input[type="text"] {
-      width: 100%;
-      padding: 0.6rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 5px;
-      margin-bottom: 1rem;
-      background: #444;
-      color: #fff;
+      color: #f0c741;
+      font-weight: bold;
     }
     button {
-      width: 100%;
-      padding: 0.8rem;
+      padding: 0.5rem;
       font-size: 1rem;
-      background-color: #fdd835;
-      border: none;
+      margin: 0.5rem;
       border-radius: 5px;
+      background-color: #ffaa00;
+      color: #000;
+      border: none;
       cursor: pointer;
-      color: #333;
     }
     button:hover {
-      background-color: #fbc02d;
+      background-color: #ff8800;
     }
-    .status {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #39ff14;
-      margin-top: 0.5rem;
-    }
-    .exchange-item {
-      margin: 1rem 0;
-      padding: 1rem;
-      border: 1px solid #666;
-      border-radius: 8px;
-      background: #3a3a3a;
-    }
-    .exchange-item p {
-      margin: 0.5rem 0;
-      font-size: 1rem;
-    }
-    @keyframes scroll-left {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
+    label {
+      display: block;
+      margin: 0.5rem;
+      text-align: left;
     }
   </style>
 </head>
 <body>
-  <div class="nickname">👤 <span id="nickname">닉네임</span> 님의 농장</div>
-  <h1>🌾 나의 농장 현황판</h1>
+  <h1>🌱 씨감자 & 물/거름 교환소</h1>
 
-  <div class="panel">
-    <div class="panel-title">보유 감자: <span id="totalPotatoes">-</span> 개</div>
-    <div class="value">오늘 수확: <span id="todayHarvest">-</span> 개</div>
+  <div class="box">
+    <p class="count">닉네임: <span id="nickname">-</span></p>
+    <p class="count" id="orcx-token">보유 ORCX: - 개</p>
+    <p class="count" id="farming-count">오늘 농사 횟수: - 회</p>
+    <button onclick="exchangeSeed()">씨감자 1개 교환 (1 ORCX)</button>
   </div>
 
-  <div class="panel">
-    <select id="productName">
-      <option value="">-- 기존 제품 선택 --</option>
-      <option value="감자칩">감자칩</option>
-      <option value="감자전">감자전</option>
-      <option value="감자튀김">감자튀김</option>
-    </select>
-    <input type="text" id="customProductName" placeholder="또는 새 제품명 직접 입력" />
-    <button onclick="processProduct()">제품 만들기</button>
-    <div class="status" id="statusMsg">🔌 전기 공급 상태 확인 중...</div>
+  <div class="box">
+    <p class="count">보관소 제품으로 물/거름 교환</p>
+    <div id="product-list">제품 불러오는 중...</div>
+    <button onclick="exchangeSelected('물')">선택 제품으로 물 교환</button>
+    <button onclick="exchangeSelected('거름')">선택 제품으로 거름 교환</button>
   </div>
 
-  <div class="panel">
-    <div class="panel-title">📦 보관함:</div>
-    <div id="storageList">데이터 불러오는 중...</div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-title">🌱 교환소</div>
-    <div class="exchange-item">
-      <p>💰 씨감자 교환 (1 ORCX)</p>
-      <button onclick="buySeedWithOrcx()">씨감자 구매</button>
-    </div>
-    <div class="exchange-item">
-      <p>🔄 씨감자 교환 (제품으로 최대 3회)</p>
-      <button onclick="exchangeWithProduct()">제품으로 교환</button>
-    </div>
-    <div class="exchange-item">
-      <p>🧴 물 교환 (제품으로)</p>
-      <button onclick="exchangeWater()">물 교환하기</button>
-    </div>
-    <div class="exchange-item">
-      <p>🌿 거름 교환 (제품으로)</p>
-      <button onclick="exchangeFertilizer()">거름 교환하기</button>
-    </div>
-    <div class="exchange-item">
-      <p>🧺 선택한 제품들 교환</p>
-      <button onclick="exchangeSelectedItems()">선택한 제품 교환하기</button>
-    </div>
-  </div>
-
-  <div id="newsTicker" style="width: 100%; overflow: hidden; white-space: nowrap; background: #444; color: #fff; padding: 0.5rem; font-size: 0.9rem; position: fixed; bottom: 0; left: 0;">
-    <div id="tickerText" style="display: inline-block; padding-left: 100%; animation: scroll-left 15s linear infinite;">
-      🚜 새로운 제품 출시 소식! 감자칩, 감자전, 감자튀김 등 다양한 제품들이 판매 중입니다! 확인하세요~
-    </div>
+  <div class="box">
+    <p id="exchange-status">상태 확인 중...</p>
+    <button onclick="goToFarm()">🌾 농장으로 돌아가기</button>
   </div>
 
   <script>
-    const API_URL = "https://orcax-farm-6000.onrender.com/api";
+    const BASE_URL = "https://orcax-farm-6000.onrender.com";
     const kakaoId = localStorage.getItem("kakaoId") || "익명손님";
     const nickname = localStorage.getItem("nickname") || kakaoId;
+
     document.getElementById("nickname").textContent = nickname;
 
-    async function fetchFarmStatus() {
-      try {
-        const res = await fetch(`${API_URL}/gamja`);
-        const data = await res.json();
-        document.getElementById("totalPotatoes").textContent = data.potatoes;
-        document.getElementById("todayHarvest").textContent = data.harvested;
-        document.getElementById("statusMsg").textContent = "⚡ 전기 정상 공급 중";
-        document.getElementById("statusMsg").style.color = "#39ff14";
-        updateStorage(data.items);
-      } catch (err) {
-        document.getElementById("statusMsg").textContent = "❌ 정전 발생 - 서버 응답 없음";
-        document.getElementById("statusMsg").style.color = "#ff4444";
-      }
+    function loadStatus() {
+      fetch(`${BASE_URL}/api/gamja?nickname=${nickname}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("orcx-token").innerText = `보유 ORCX: ${data.orcx || 0}개`;
+          document.getElementById("farming-count").innerText = `오늘 농사 티켓: ${data.farmingCount || 0}회`;
+          updateProductList(data.items);
+          document.getElementById("exchange-status").innerText = "교환 가능 상태입니다.";
+        })
+        .catch(err => {
+          document.getElementById("exchange-status").innerText = "❌ 상태 정보를 불러올 수 없습니다.";
+        });
     }
 
-    function updateStorage(items) {
-      const container = document.getElementById("storageList");
+    function updateProductList(items) {
+      const list = document.getElementById("product-list");
       if (!items || items.length === 0) {
-        container.innerHTML = "<div>보관된 제품이 없습니다.</div>";
+        list.innerHTML = "보관된 제품이 없습니다.";
         return;
       }
 
-      container.innerHTML = items.map(item => `
-        <label style="display:block; margin-bottom:5px;">
-          <input type="checkbox" class="productCheckbox" value="${item.name}" />
+      list.innerHTML = items.map(item => `
+        <label>
+          <input type="checkbox" value="${item.name}" data-count="${item.count}" />
           ${item.name}: ${item.count}개
         </label>
       `).join("");
     }
 
-    async function processProduct() {
-      const selected = document.getElementById("productName").value;
-      const custom = document.getElementById("customProductName").value.trim();
-      const name = custom || selected;
-      if (!name) return alert("제품을 선택하거나 입력하세요.");
+    function exchangeSeed() {
+      fetch(`${BASE_URL}/api/buy-seed`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ count: 1, nickname })
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert(`✅ ${data.message}`);
+          loadStatus();
+        })
+        .catch(err => {
+          alert("❌ 씨감자 교환 실패");
+        });
+    }
 
-      document.getElementById("statusMsg").textContent = `${name} 제품을 가공 중...`;
+    function exchangeSelected(resource) {
+      const selectedCheckboxes = [...document.querySelectorAll("input[type=checkbox]:checked")];
+      if (selectedCheckboxes.length === 0) return alert("교환할 제품을 선택하세요.");
 
-      try {
-        const res = await fetch(`${API_URL}/create-product`, {
+      Promise.all(selectedCheckboxes.map(checkbox => {
+        const itemType = checkbox.value;
+        return fetch(`${BASE_URL}/api/exchange`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: name, farm: nickname }),
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.message);
-        alert(result.message);
-        fetchFarmStatus();
-      } catch (e) {
-        alert("⚠️ 가공 실패: " + e.message);
-        fetchFarmStatus();
-      }
+          body: JSON.stringify({ itemType: resource, sourceProduct: itemType, nickname })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result.message) alert(`${itemType} → ${resource} 교환 완료`);
+            else throw new Error("응답 없음");
+          })
+          .catch(err => alert(`⚠️ ${itemType} 교환 실패: ${err.message}`));
+      })).then(loadStatus);
     }
 
-    async function buySeedWithOrcx() {
-      const res = await fetch(`${API_URL}/buy-seed`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ count: 1 }),
-      });
-      const result = await res.json();
-      alert(result.message || "처리 실패");
-      fetchFarmStatus();
+    function goToFarm() {
+      location.href = "gamja-factory.html";
     }
 
-    async function exchangeWithProduct() {
-      const res = await fetch(`${API_URL}/exchange`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemType: "감자칩" }),
-      });
-      const result = await res.json();
-      alert(result.message || "처리 실패");
-      fetchFarmStatus();
-    }
-
-    async function exchangeWater() {
-      const res = await fetch(`${API_URL}/exchange`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemType: "물" }),
-      });
-      const result = await res.json();
-      alert(result.message || "처리 실패");
-      fetchFarmStatus();
-    }
-
-    async function exchangeFertilizer() {
-      const res = await fetch(`${API_URL}/exchange`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemType: "거름" }),
-      });
-      const result = await res.json();
-      alert(result.message || "처리 실패");
-      fetchFarmStatus();
-    }
-
-    async function exchangeSelectedItems() {
-      const selected = [...document.querySelectorAll(".productCheckbox:checked")]
-        .map(el => el.value);
-
-      if (selected.length === 0) {
-        return alert("교환할 제품을 선택하세요.");
-      }
-
-      for (const itemType of selected) {
-        try {
-          const res = await fetch(`${API_URL}/exchange`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ itemType }),
-          });
-          const result = await res.json();
-          if (!res.ok) throw new Error(result.message);
-          alert(`${itemType} 교환 완료`);
-        } catch (e) {
-          alert(`⚠️ ${itemType} 교환 실패: ${e.message}`);
-        }
-      }
-
-      fetchFarmStatus();
-    }
-
-    window.addEventListener("load", fetchFarmStatus);
+    loadStatus();
   </script>
 </body>
 </html>
