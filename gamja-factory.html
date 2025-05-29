@@ -112,7 +112,7 @@
       const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 60000);
       cooldownInfo.textContent = `⏳ 농사 대기 시간: ${remain}분 남음`;
     } else {
-      cooldownInfo.textContent = "✅ 농사 가능!";
+      cooldownInfo.textContent = "✅ 농사 철!";
       localStorage.setItem("lastLoginGlobal", now.toString());
     }
 
