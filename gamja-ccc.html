@@ -56,6 +56,8 @@
     <p class="count">닉네임: <span id="nickname">-</span></p>
     <p class="count" id="orcx-token">보유 ORCX: - 개</p>
     <p class="count" id="farming-count">보유 농사 티켓: - 장</p>
+    <p class="count" id="water-count">보유 물: - 개</p>
+    <p class="count" id="fertilizer-count">보유 거름: - 개</p>
     <button onclick="exchangeSeed()">씨감자 1개 교환 (1 ORCX)</button>
   </div>
 
@@ -87,6 +89,8 @@
           }
           document.getElementById("orcx-token").innerText = `보유 ORCX: ${data.orcx || 0}개`;
           document.getElementById("farming-count").innerText = `보유 농사 티켓: ${data.farmingCount || 0}장`;
+          document.getElementById("water-count").innerText = `보유 물: ${data.water || 0}개`;
+          document.getElementById("fertilizer-count").innerText = `보유 거름: ${data.fertilizer || 0}개`;
           updateProductList(data.items);
           document.getElementById("exchange-status").innerText = "교환 가능 상태입니다.";
         })
