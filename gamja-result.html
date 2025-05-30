@@ -112,7 +112,32 @@
     <p style="margin-top:1rem; color:#ccc">교환 후 농사 짓기 페이지로 자동 이동됩니다.</p>
   </div>
 
-  <script>
+  
+
+<script>
+function safeJsonFetch(url, options = {}) {
+  return fetch(url, options).then(async res => {
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const text = await res.text();
+      throw new Error("⚠️ JSON 아님: " + text.slice(0, 100));
+    }
+    return res.json();
+  });
+}
+</script>
+<script>
+const BASE_URL = "https://orcax-farm-6000.onrender.com";
+
+const nickname = localStorage.getItem("nickname");
+const farmName = localStorage.getItem("farmName");
+
+if (!nickname || !farmName) {
+  alert("닉네임 또는 농장이름 정보가 없습니다. 메인으로 이동합니다.");
+  location.href = "gamja-main.html";
+}
+</script>
+<script>
     const BASE_URL = "https://orcax-farm-6000.onrender.com";
     let rawPotatoCount = 0;
     const nickname = localStorage.getItem("nickname");
