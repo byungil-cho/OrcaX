@@ -202,5 +202,27 @@
       }, 2000);
     }
   </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const startButton = document.getElementById("startFarm");
+  if (startButton) {
+    startButton.addEventListener("click", () => {
+      const nickname = document.getElementById("nicknameInput").value.trim();
+      const farmName = document.getElementById("farmInput").value.trim();
+
+      if (!nickname || !farmName) {
+        alert("닉네임과 농장이름을 모두 입력해주세요!");
+        return;
+      }
+
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("farmName", farmName);
+      window.location.href = "gamja-factory.html";
+    });
+  }
+});
+</script>
+
 </body>
 </html>
