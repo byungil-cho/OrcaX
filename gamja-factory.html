@@ -75,7 +75,7 @@
       <button class="button" onclick="harvestPotato()">🥔 수확하기</button>
     </div>
     <div>
-      <img src="farm-101_01.png" alt="감자싹" class="growth-image">
+      <img src="./assets/farm-101_01.png" alt="감자싹" class="growth-image">
     </div>
     <div class="result" id="resultBox"></div>
   </div>
@@ -98,21 +98,21 @@
     const lastTimeInfo = document.getElementById("lastTimeInfo");
 
     if (nickname) {
-      nicknameEl.textContent = `👤 ${nickname}님 어서오세요!`;
+      nicknameEl.textContent = `👤 ${nickname}님 여서오세요!`;
     } else {
       nicknameEl.textContent = "로그인이 필요합니다.";
     }
 
     if (lastLoginGlobal) {
       const diffMin = Math.floor((now - parseInt(lastLoginGlobal)) / 60000);
-      lastTimeInfo.textContent = `🕒 마지막 작업 이후 ${diffMin}분 경과됨`;
+      lastTimeInfo.textContent = `🕒 마지막 작업 이후 ${diffMin}분 건강`;
     }
 
     if (lastLoginGlobal && now - parseInt(lastLoginGlobal) < TWO_HOURS) {
       const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 60000);
       cooldownInfo.textContent = `⏳ 농사 대기 시간: ${remain}분 남음`;
     } else {
-      cooldownInfo.textContent = "✅ 농사 철!";
+      cooldownInfo.textContent = "✅ 농사 차례!";
       localStorage.setItem("lastLoginGlobal", now.toString());
     }
 
@@ -159,7 +159,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           farm: farmName,
-          count: total
+          count: total,
+          nickname: nickname
         })
       })
       .then(res => res.json())

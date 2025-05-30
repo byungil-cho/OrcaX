@@ -94,7 +94,7 @@
     <div id="server-status">🔄 전기 공급 상태 확인 중...</div>
 
     <div id="no-potato-notice" class="notice" style="display: none;">
-      😢 감자가 부족합니다. 씨감자 구매 또는 제품 교환 페이지로 이동하세요.<br />
+      😞 감자가 부족합니다. 씨감자 구매 또는 제품 교환 페이지로 이동하세요.<br />
       <button class="link-button" onclick="location.href='gamja-ccc.html'">교환소로 이동</button>
     </div>
   </div>
@@ -121,11 +121,11 @@
     const TWO_HOURS = 2 * 60 * 60 * 1000;
 
     if (nickname) {
-      document.getElementById("nicknameDisplay").textContent = `👤 ${nickname}님 어서오세요!`;
+      document.getElementById("nicknameDisplay").textContent = `👤 ${nickname}님 여서오세요!`;
     }
     if (lastLoginGlobal) {
       const diffMin = Math.floor((now - parseInt(lastLoginGlobal)) / 60000);
-      document.getElementById("lastTimeInfo").textContent = `🕒 마지막 작업 이후 ${diffMin}분 경과됨`;
+      document.getElementById("lastTimeInfo").textContent = `🕒 마지막 작업 이후 ${diffMin}분 경간된`;  
     }
     if (lastLoginGlobal && now - parseInt(lastLoginGlobal) < TWO_HOURS) {
       const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 60000);
@@ -152,12 +152,12 @@
     }
 
     function loadInventory() {
-      fetch(`${BASE_URL}/api/gamja`)
+      fetch(`${BASE_URL}/api/gamja?farm=${encodeURIComponent(farmName)}&nickname=${encodeURIComponent(nickname)}`)
         .then(res => res.json())
         .then(data => {
           rawPotatoCount = data.potatoes || 0;
           document.getElementById("potato-count").innerText = `보유 감자: ${rawPotatoCount}개`;
-          document.getElementById("harvest-count").innerText = `오늘 수확: ${data.harvested || 0}개`;
+          document.getElementById("harvest-count").innerText = `오늘 수화: ${data.harvested || 0}개`;
           updateStorageList(data.items);
 
           if (rawPotatoCount <= 0) {
@@ -183,7 +183,7 @@
       fetch(`${BASE_URL}/api/create-product`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: productName, farm: farmName })
+        body: JSON.stringify({ type: productName, farm: farmName, nickname })
       })
         .then(res => res.json())
         .then(data => {
@@ -219,7 +219,7 @@
           wakeUpServer(retryCount + 1);
         }, 4000);
       } else {
-        document.getElementById("server-status").innerText = "🔴 공장 전기 끊김: 감자 창고가 잠겼습니다!";
+        document.getElementById("server-status").innerText = "🔴 공장 전기 깨우기: 감자 창고가 잠기게되었습니다!";
       }
     }
 
