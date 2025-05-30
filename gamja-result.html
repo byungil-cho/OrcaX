@@ -114,88 +114,6 @@
 
   
 
-
-<script>
-const BASE_URL = "https://orcax-farm-6000.onrender.com";
-const nickname = localStorage.getItem("nickname");
-const farmName = localStorage.getItem("farmName");
-
-// 기본 보호
-if (!nickname || !farmName) {
-  alert("닉네임이나 농장이름이 없습니다. 메인으로 이동합니다.");
-  location.href = "gamja-main.html";
-}
-
-// 안전한 fetch
-function safeJsonFetch(url, options = {}) {
-  return fetch(url, options).then(async res => {
-    const contentType = res.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      const text = await res.text();
-      throw new Error("⚠️ JSON 아님: " + text.slice(0, 100));
-    }
-    return res.json();
-  });
-}
-
-// 서버 깨우기 + 감자 정보 로드
-function wakeUpServer() {
-  document.getElementById("powerStatus").textContent = "🔌 전기 공급 상태 확인 중...";
-  safeJsonFetch(`${BASE_URL}/api/gamja?nickname=${nickname}`)
-    .then(data => {
-      document.getElementById("potatoCount").textContent = data.potatoCount + "개";
-      document.getElementById("harvestCount").textContent = data.harvestCount + "개";
-      document.getElementById("farmDisplay").textContent = farmName;
-      loadInventory(data.inventory || []);
-      document.getElementById("powerStatus").textContent = "🟢 공장 전기 공급 완료!";
-    })
-    .catch(err => {
-      console.error("서버 응답 실패:", err);
-      document.getElementById("powerStatus").textContent = "🔴 공장 전기 공급 실패. 재시도 중...";
-      setTimeout(wakeUpServer, 3000);
-    });
-}
-
-// 인벤토리 표시
-function loadInventory(inventory) {
-  const box = document.getElementById("inventoryBox");
-  box.innerHTML = "";
-  if (!inventory || inventory.length === 0) {
-    box.innerHTML = "<p>보관된 감자 제품이 없습니다.</p>";
-    return;
-  }
-  inventory.forEach(item => {
-    const div = document.createElement("div");
-    div.textContent = `📦 ${item.name} × ${item.count}`;
-    box.appendChild(div);
-  });
-}
-
-// 제품 만들기
-function createProduct() {
-  const type = document.getElementById("productName").value.trim();
-  if (!type) {
-    alert("제품명을 입력해주세요!");
-    return;
-  }
-  fetch(`${BASE_URL}/api/create-product`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ type, nickname, farm: farmName })
-  })
-  .then(res => res.json())
-  .then(result => {
-    alert(result.message || "제품이 만들어졌습니다.");
-    wakeUpServer();
-  })
-  .catch(err => {
-    console.error("제품 만들기 실패:", err);
-    alert("⚠️ 제품 만들기에 실패했습니다.");
-  });
-}
-
-document.addEventListener("DOMContentLoaded", wakeUpServer);
-</script>
 <script>
 function safeJsonFetch(url, options = {}) {
   return fetch(url, options).then(async res => {
@@ -231,11 +149,11 @@ if (!nickname || !farmName) {
       document.getElementById("nicknameDisplay").textContent = `👤 ${nickname}님 여서오세요!`;
     }
     if (lastLoginGlobal) {
-      const diffMin = Math.floor((now - parseInt(lastLoginGlobal)) / 60000);
+      const diffMin = Math.floor((now - parseInt(lastLoginGlobal)) / 6000);
       document.getElementById("lastTimeInfo").textContent = `🕒 마지막 작업 이후 ${diffMin}분 경간된`;  
     }
     if (lastLoginGlobal && now - parseInt(lastLoginGlobal) < TWO_HOURS) {
-      const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 60000);
+      const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 6000);
       document.getElementById("cooldownInfo").textContent = `⏳ 농사 대기 시간: ${remain}분 남음`;
     } else {
       document.getElementById("cooldownInfo").textContent = "✅ 농사 철!";
@@ -264,7 +182,7 @@ if (!nickname || !farmName) {
         .then(data => {
           rawPotatoCount = data.potatoes || 0;
           document.getElementById("potato-count").innerText = `보유 감자: ${rawPotatoCount}개`;
-          document.getElementById("harvest-count").innerText = `오늘 수확: ${data.harvested || 0}개`;
+          document.getElementById("harvest-count").innerText = `오늘 수화: ${data.harvested || 0}개`;
           updateStorageList(data.items);
 
           if (rawPotatoCount <= 0) {
@@ -332,6 +250,87 @@ if (!nickname || !farmName) {
 
     wakeUpServer();
   </script>
+
+<script>
+const BASE_URL = "https://orcax-farm-6000.onrender.com";
+const nickname = localStorage.getItem("nickname");
+const farmName = localStorage.getItem("farmName");
+
+if (!nickname || !farmName) {
+  alert("닉네임이나 농장이름이 없습니다. 메인으로 이동합니다.");
+  location.href = "gamja-main.html";
+}
+
+// 안전한 fetch 함수 정의
+function safeJsonFetch(url, options = {}) {
+  return fetch(url, options).then(async res => {
+    const type = res.headers.get("content-type") || "";
+    if (!type.includes("application/json")) {
+      const text = await res.text();
+      throw new Error("⚠️ JSON 아님: " + text.slice(0, 100));
+    }
+    return res.json();
+  });
+}
+
+// 서버 깨우기
+function wakeUpServer() {
+  document.getElementById("powerStatus").textContent = "🔌 전기 공급 상태 확인 중...";
+  safeJsonFetch(`${BASE_URL}/api/gamja?nickname=${nickname}`)
+    .then(data => {
+      document.getElementById("farmDisplay").textContent = farmName;
+      document.getElementById("potatoCount").textContent = data.potatoCount + "개";
+      document.getElementById("harvestCount").textContent = data.harvestCount + "개";
+      loadInventory(data.inventory || []);
+      document.getElementById("powerStatus").textContent = "🟢 전기 공급 완료!";
+    })
+    .catch(err => {
+      console.error("서버 응답 실패:", err);
+      document.getElementById("powerStatus").textContent = "❌ 서버 오류: " + err.message;
+    });
+}
+
+// 보관함 표시
+function loadInventory(items) {
+  const box = document.getElementById("inventoryBox");
+  box.innerHTML = "";
+  if (!items || items.length === 0) {
+    box.innerHTML = "<p>보관된 감자 제품이 없습니다.</p>";
+    return;
+  }
+  items.forEach(item => {
+    const div = document.createElement("div");
+    div.textContent = `📦 ${item.name} × ${item.count}`;
+    box.appendChild(div);
+  });
+}
+
+// 제품 만들기
+function createProduct() {
+  const type = document.getElementById("productName").value.trim();
+  if (!type) {
+    alert("제품명을 입력해주세요!");
+    return;
+  }
+  fetch(`${BASE_URL}/api/create-product`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ type, nickname, farm: farmName })
+  })
+  .then(res => res.json())
+  .then(result => {
+    alert(result.message || "제품 생성 완료");
+    wakeUpServer(); // 새로고침
+  })
+  .catch(err => {
+    alert("⚠️ 제품 생성 실패: " + err.message);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", wakeUpServer);
+</script>
+
 </body>
 </html>
+
 
