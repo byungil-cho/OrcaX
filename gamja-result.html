@@ -31,10 +31,15 @@
     table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
     th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
     th { background: #e0ffc4; }
+    #electricStatus {
+      font-weight: bold;
+      margin: 1rem 0;
+    }
   </style>
 </head>
 <body>
   <h1>🥔 감자 가공 공장</h1>
+  <p id="electricStatus">🔌 전기 상태 확인 중...</p>
   <p>수확한 감자 수: <strong id="potatoCount">0</strong> 개</p>
   <p>
     제품 이름 입력: <input type="text" id="productName" placeholder="예: 왕감자칩">
@@ -74,11 +79,31 @@
       });
     }
 
+    async function checkElectricity() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        const statusText = document.getElementById("electricStatus");
+        if (data.mongoConnected) {
+          statusText.textContent = "🔌 전기 공급 정상 (MongoDB 연결됨)";
+          statusText.style.color = "green";
+        } else {
+          statusText.textContent = "⚡ 전기 공급 안됨 (MongoDB 연결 실패)";
+          statusText.style.color = "red";
+        }
+      } catch (err) {
+        const statusText = document.getElementById("electricStatus");
+        statusText.textContent = "⚠️ 서버 연결 실패";
+        statusText.style.color = "darkred";
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       const info = JSON.parse(localStorage.getItem('harvestInfo') || '{}');
       document.getElementById('potatoCount').textContent = info.yield || 0;
       document.getElementById('productName').value = `감자칩_${Date.now()}`;
       await fetchPriceBoard();
+      await checkElectricity();
 
       document.getElementById('processBtn').onclick = async () => {
         if (!info.yield || info.yield <= 0) {
