@@ -1,261 +1,30 @@
-<!-- gamja-main.html (수정됨: 네가 준 버전 기반 + 경로 처리 및 닉네임 기준 동기화) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>나만의 감자 농장</title>
-  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <meta charset="UTF-8" />
+  <title>감자농장 메인</title>
+  <script src="js/gamja-utils.js" type="module"></script>
+  <script src="js/gamja-core.js" type="module" defer></script>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #222;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff;
-      overflow-x: hidden;
-    }
-    .container {
-      padding: 2rem;
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-    }
-    .stage {
-      margin: 2rem 0;
-    }
-    .button {
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
-      margin-top: 1rem;
-      border: none;
-      border-radius: 8px;
-      background-color: #ffaa00;
-      color: #000;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .button:hover {
-      background-color: #ff8800;
-    }
-    .input-group {
-      margin-top: 2rem;
-      display: none;
-    }
-    input[type="text"] {
-      padding: 0.75rem;
-      font-size: 1.2rem;
-      border-radius: 8px;
-      border: none;
-      width: 300px;
-      text-align: center;
-    }
-    .result {
-      margin-top: 3rem;
-      background-color: #333;
-      padding: 2rem;
-      border-radius: 10px;
-      display: none;
-    }
-    .status {
-      margin-top: 1rem;
-      font-size: 1.1rem;
-      color: #ccc;
-    }
+    body { font-family: sans-serif; background: #fdf6e3; text-align: center; padding: 2rem; }
+    button { font-size: 1.2rem; padding: 1rem 2rem; background: #bada55; border: none; border-radius: 10px; }
+    h1 { color: #754c24; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>나만의 감자 농장</h1>
-    <div id="nicknameDisplay" class="status"></div>
-    <div id="cooldownInfo" class="status"></div>
-    <div id="lastTimeInfo" class="status"></div>
+  <h1>🥔 감자농장에 오신 걸 환영합니다!</h1>
+  <input type="text" id="nickname" placeholder="농장 이름을 입력하세요" />
+  <button id="startFarm">농장 시작하기</button>
 
-    <div class="stage" id="farmStage">
-      <p>나만의 농장 이름을 지어주세요. <strong>“농장”이라는 단어는 입력하지 마세요!</strong></p>
-      <button class="button" onclick="startNaming()">🌾 농장 이름 짓기</button>
-    </div>
+  <script type="module">
+    import { saveNickname } from './js/gamja-utils.js';
 
-    <div class="input-group" id="nameStage">
-      <label for="farmName">농장 이름을 입력하세요</label><br>
-      <input type="text" id="farmName" placeholder="예: 범고래X, 구름이네" />
-      <button class="button" onclick="submitFarmName()">감자밭으로 이동</button>
-    </div>
-
-    <div id="result" class="result"></div>
-  </div>
-
-  <script>
-    Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
-
-    const nickname = localStorage.getItem("nickname");
-    const lastLoginGlobal = localStorage.getItem("lastLoginGlobal");
-    const now = Date.now();
-    const TWO_HOURS = 2 * 60 * 60 * 1000;
-
-    const nicknameEl = document.getElementById("nicknameDisplay");
-    const cooldownInfo = document.getElementById("cooldownInfo");
-    const lastTimeInfo = document.getElementById("lastTimeInfo");
-
-    if (nickname) {
-      nicknameEl.textContent = `👤 ${nickname}님 어서오세요!`;
-    }
-
-    if (lastLoginGlobal) {
-      const diffMin = Math.floor((now - parseInt(lastLoginGlobal)) / 60000);
-      lastTimeInfo.textContent = `🕒 마지막 작업 이후 ${diffMin}분 경과됨`;
-    }
-
-    if (lastLoginGlobal && now - parseInt(lastLoginGlobal) < TWO_HOURS) {
-      const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 60000);
-      cooldownInfo.textContent = `⏳ 농사 대기 시간: ${remain}분 남음`;
-    } else {
-      cooldownInfo.textContent = "✅ 농사 가능!";
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const userId = localStorage.getItem("userId");
-
-      if (!userId) {
-        Kakao.Auth.login({
-          scope: 'profile_nickname',
-          success: function(authObj) {
-            Kakao.Auth.setAccessToken(authObj.access_token);
-            Kakao.API.request({
-              url: '/v2/user/me',
-              success: function(response) {
-                const kakaoUserId = response.id;
-                const kakaoNickname = response.kakao_account.profile.nickname;
-                localStorage.setItem("userId", kakaoUserId);
-                localStorage.setItem("nickname", kakaoNickname);
-                checkFarmStatus();
-              },
-              fail: function(error) {
-                alert("카카오 사용자 정보 요청 실패: " + JSON.stringify(error));
-              }
-            });
-          },
-          fail: function(err) {
-            alert("카카오 로그인 실패: " + JSON.stringify(err));
-          }
-        });
-      } else {
-        checkFarmStatus();
-      }
+    document.getElementById("startFarm").addEventListener("click", () => {
+      const name = document.getElementById("nickname").value.trim();
+      if (!name) return alert("이름을 입력해라 이노마!");
+      saveNickname(name);
+      location.href = "gamja-factory.html";
     });
-
-    function checkFarmStatus() {
-      const farmName = localStorage.getItem("farmName");
-      const lastScene = localStorage.getItem("lastScene");
-
-      if (!farmName) {
-        document.getElementById('farmStage').style.display = 'block';
-        return;
-      }
-
-      if (lastScene) {
-        window.location.href = `gamja-${lastScene}.html`;
-      } else {
-        window.location.href = 'gamja-factory.html';
-      }
-    }
-
-    function startNaming() {
-      document.getElementById('farmStage').style.display = 'none';
-      document.getElementById('nameStage').style.display = 'block';
-    }
-
-    function cleanName(raw) {
-      return raw.replace(/\s/g, '').replace(/농장/gi, '');
-    }
-
-    function submitFarmName() {
-      let name = document.getElementById('farmName').value.trim();
-      if (!name) {
-        alert('농장 이름을 입력해주세요!');
-        return;
-      }
-      name = cleanName(name);
-      const finalName = name + " 농장";
-
-      const userId = localStorage.getItem("userId");
-      const nickname = localStorage.getItem("nickname");
-
-      if (!userId || !nickname) {
-        alert("로그인 정보가 확인되지 않습니다. 새로고침 후 다시 시도해주세요.");
-        return;
-      }
-
-      localStorage.setItem("farmName", finalName);
-      localStorage.setItem("lastScene", "factory");
-      localStorage.setItem("lastLoginGlobal", now.toString());
-
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = `🌾 당신의 농장은 <strong>[${finalName}]</strong> 입니다.`;
-      resultDiv.style.display = 'block';
-      setTimeout(() => {
-        window.location.href = 'gamja-factory.html';
-      }, 2000);
-    }
   </script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const startButton = document.getElementById("startFarm");
-  if (startButton) {
-    startButton.addEventListener("click", () => {
-      const nickname = document.getElementById("nicknameInput").value.trim();
-      const farmName = document.getElementById("farmInput").value.trim();
-
-      if (!nickname || !farmName) {
-        alert("닉네임과 농장이름을 모두 입력해주세요!");
-        return;
-      }
-
-      localStorage.setItem("nickname", nickname);
-      localStorage.setItem("farmName", farmName);
-      window.location.href = "gamja-factory.html";
-    });
-  }
-});
-</script>
-
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  // 강제 이동 막기 (자동 이동 제거)
-  localStorage.removeItem("farmName");
-  localStorage.removeItem("lastScene");
-
-  const startButton = document.getElementById("startFarm");
-  if (startButton) {
-    startButton.addEventListener("click", () => {
-      const nickname = document.getElementById("nicknameInput").value.trim();
-      const farmName = document.getElementById("farmInput").value.trim();
-
-      if (!nickname || !farmName) {
-        alert("닉네임과 농장이름을 모두 입력해주세요!");
-        return;
-      }
-
-      // 닉네임을 기반으로 모든 서버 데이터 저장
-      localStorage.setItem("nickname", nickname);
-
-      // 농장이름은 표기용 UI용으로만 사용 (표시용)
-      localStorage.setItem("farmName", farmName);
-
-      // 저장 후 다음 화면 이동
-      window.location.href = "gamja-factory.html";
-    });
-  }
-});
-</script>
-
 </body>
 </html>
-
-
