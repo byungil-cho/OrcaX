@@ -1,336 +1,88 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 제품 가공 공장</title>
+  <meta charset="UTF-8">
+  <title>홈 감자 가공 공장</title>
   <style>
     body {
-      background-color: #111;
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 2rem;
+      background-color: #f4fff4;
+      font-family: sans-serif;
       text-align: center;
+      padding: 2rem;
     }
     h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-    .box {
-      background-color: #222;
-      padding: 1rem;
-      border-radius: 10px;
-      margin: 1rem auto;
-      max-width: 500px;
-    }
-    .count {
-      font-size: 1.2rem;
-      color: #f0c741;
-      font-weight: bold;
+      color: #4a752c;
     }
     input, button {
-      padding: 0.5rem;
+      padding: 0.6rem;
+      margin-top: 0.5rem;
       font-size: 1rem;
-      margin-top: 1rem;
-      border-radius: 5px;
     }
     button {
-      background-color: #ffaa00;
-      color: #000;
+      background-color: #ffcc66;
       border: none;
+      border-radius: 10px;
       cursor: pointer;
+      margin: 0.5rem;
     }
     button:hover {
-      background-color: #ff8800;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-      text-align: left;
-    }
-    li {
-      padding: 0.2rem 0;
-    }
-    #server-status {
-      margin-top: 1rem;
-      color: #00ff88;
-      font-weight: bold;
-    }
-    .notice {
-      margin-top: 1rem;
-      padding: 1rem;
-      background-color: #331100;
-      color: #ffc;
-      border-radius: 10px;
-    }
-    .link-button {
-      margin-top: 0.5rem;
-      background-color: #00aaff;
-      color: white;
-    }
-    .status {
-      margin-top: 1rem;
-      font-size: 1rem;
-      color: #ccc;
+      background-color: #ffb933;
     }
   </style>
 </head>
 <body>
-  <h1>🥔 감자 가공 제품 공장</h1>
-
-  <div class="status" id="nicknameDisplay"></div>
-  <div class="status" id="cooldownInfo"></div>
-  <div class="status" id="lastTimeInfo"></div>
-
-  <div class="box">
-    <p id="farm-name">농장 이름: -</p>
-    <p class="count" id="potato-count">보유 감자: - 개</p>
-    <p class="count" id="harvest-count">오늘 수확: - 개</p>
-
-    <input type="text" id="productInput" placeholder="제품명 입력 (예: 칩, 전 등)" />
-    <button onclick="makeProduct()">제품 만들기</button>
-
-    <div id="server-status">🔄 전기 공급 상태 확인 중...</div>
-
-    <div id="no-potato-notice" class="notice" style="display: none;">
-      😞 감자가 부족합니다. 씨감자 구매 또는 제품 교환 페이지로 이동하세요.<br />
-      <button class="link-button" onclick="location.href='gamja-ccc.html'">교환소로 이동</button>
-    </div>
+  <h1>🥔 감자 가공 공장</h1>
+  <p>수확한 감자 수: <strong id="potatoCount">0</strong> 개</p>
+  <p>
+    제품 이름 입력: <input type="text" id="productName" placeholder="예: 왕감자칩">
+  </p>
+  <button id="processBtn">📦 감자 가공 시작</button>
+  <div id="nextOptions" style="display:none;">
+    <p>감자가 없습니다. 다음 작업을 선택하세요:</p>
+    <button onclick="location.href='gamja-main.html'">🌿 농장으로 돌아가기</button>
+    <button onclick="location.href='gamja-market.html'">💰 경매장 가기</button>
   </div>
 
-  <div class="box">
-    <h2>📦 보관함</h2>
-    <ul id="storage-list">
-      <li>불러오는 중...</li>
-    </ul>
-  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const info = JSON.parse(localStorage.getItem('harvestInfo') || '{}');
+      document.getElementById('potatoCount').textContent = info.yield || 0;
+      document.getElementById('productName').value = `감자칩_${Date.now()}`;
 
-  <div class="box">
-    <h2>🌱 씨감자 교환소</h2>
-    <button onclick="location.href='gamja-ccc.html'">씨감자 교환소로 이동</button>
-    <p style="margin-top:1rem; color:#ccc">교환 후 농사 짓기 페이지로 자동 이동됩니다.</p>
-  </div>
+      document.getElementById('processBtn').onclick = async () => {
+        if (!info.yield || info.yield <= 0) {
+          document.getElementById('processBtn').style.display = 'none';
+          document.getElementById('nextOptions').style.display = 'block';
+          return;
+        }
+        const productName = document.getElementById('productName').value;
+        const nickname = localStorage.getItem('nickname') || '무명농장';
 
-  
-
-<script>
-function safeJsonFetch(url, options = {}) {
-  return fetch(url, options).then(async res => {
-    const contentType = res.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      const text = await res.text();
-      throw new Error("⚠️ JSON 아님: " + text.slice(0, 100));
-    }
-    return res.json();
-  });
-}
-</script>
-<script>
-const BASE_URL = "https://orcax-farm-6000.onrender.com";
-
-
-
-
-if (!nickname || !farmName) {
-  alert("닉네임 또는 농장이름 정보가 없습니다. 메인으로 이동합니다.");
-  location.href = "gamja-main.html";
-}
-</script>
-<script>
-    const BASE_URL = "https://orcax-farm-6000.onrender.com";
-    let rawPotatoCount = 0;
-    
-    const lastLoginGlobal = localStorage.getItem("lastLoginGlobal");
-    const now = Date.now();
-    const TWO_HOURS = 2 * 60 * 60 * 1000;
-
-    if (nickname) {
-      document.getElementById("nicknameDisplay").textContent = `👤 ${nickname}님 여서오세요!`;
-    }
-    if (lastLoginGlobal) {
-      const diffMin = Math.floor((now - parseInt(lastLoginGlobal)) / 6000);
-      document.getElementById("lastTimeInfo").textContent = `🕒 마지막 작업 이후 ${diffMin}분 경간된`;  
-    }
-    if (lastLoginGlobal && now - parseInt(lastLoginGlobal) < TWO_HOURS) {
-      const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLoginGlobal))) / 6000);
-      document.getElementById("cooldownInfo").textContent = `⏳ 농사 대기 시간: ${remain}분 남음`;
-    } else {
-      document.getElementById("cooldownInfo").textContent = "✅ 농사 철!";
-    }
-
-    
-    document.getElementById("farm-name").innerText = `농장 이름: ${farmName}`;
-
-    function updateStorageList(items = []) {
-      const ul = document.getElementById("storage-list");
-      ul.innerHTML = "";
-      if (!items || items.length === 0) {
-        ul.innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
-        return;
-      }
-      items.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.name}: ${item.count}개`;
-        ul.appendChild(li);
-      });
-    }
-
-    function loadInventory() {
-      fetch(`${BASE_URL}/api/gamja?farm=${encodeURIComponent(farmName)}&nickname=${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
-        .then(data => {
-          rawPotatoCount = data.potatoes || 0;
-          document.getElementById("potato-count").innerText = `보유 감자: ${rawPotatoCount}개`;
-          document.getElementById("harvest-count").innerText = `오늘 수화: ${data.harvested || 0}개`;
-          updateStorageList(data.items);
-
-          if (rawPotatoCount <= 0) {
-            document.getElementById("no-potato-notice").style.display = "block";
-          } else {
-            document.getElementById("no-potato-notice").style.display = "none";
+        const res = await fetch('/api/factory/process', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nickname,
+            count: 1,
+            productName,
+            metadata: info
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`'${productName}' 가공 완료! 감자 1개 소비됨.`);
+          info.yield -= 1;
+          localStorage.setItem('harvestInfo', JSON.stringify(info));
+          document.getElementById('potatoCount').textContent = info.yield;
+          if (info.yield <= 0) {
+            document.getElementById('processBtn').style.display = 'none';
+            document.getElementById('nextOptions').style.display = 'block';
           }
-        })
-        .catch(err => {
-          document.getElementById("storage-list").innerHTML = "<li>❌ 감자 보관함을 불러올 수 없습니다.</li>";
-        });
-    }
-
-    function makeProduct() {
-      const input = document.getElementById("productInput").value.trim();
-      if (!input) return alert("제품명을 입력해주세요!");
-      if (rawPotatoCount <= 0) {
-        document.getElementById("no-potato-notice").style.display = "block";
-        return;
+        } else {
+          alert('가공 실패: ' + (data.message || '알 수 없는 오류'));
+        }
       }
-
-      const productName = input.startsWith("감자") ? input : `감자${input}`;
-      fetch(`${BASE_URL}/api/create-product`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: productName, farm: farmName, nickname })
-      })
-        .then(res => res.json())
-        .then(data => {
-          alert(`✅ ${data.name} 제품이 가공되었습니다!`);
-          rawPotatoCount = Math.max(0, rawPotatoCount - 1);
-          document.getElementById("potato-count").innerText = `보유 감자: ${rawPotatoCount}개`;
-          loadInventory();
-        })
-        .catch(err => {
-          alert("❌ 제품 가공 실패");
-        });
-    }
-
-    function wakeUpServer(retryCount = 0) {
-      fetch(`${BASE_URL}/api/ping`)
-        .then(res => {
-          if (res.ok) {
-            document.getElementById("server-status").innerText = "🟢 공장에 전기 들어왔어요~!";
-            loadInventory();
-          } else {
-            handleRetry(retryCount);
-          }
-        })
-        .catch(() => {
-          handleRetry(retryCount);
-        });
-    }
-
-    function handleRetry(retryCount) {
-      if (retryCount < 5) {
-        document.getElementById("server-status").innerText = `🔄 공장 깨우는 중... (${retryCount + 1}회 시도)`;
-        setTimeout(() => {
-          wakeUpServer(retryCount + 1);
-        }, 4000);
-      } else {
-        document.getElementById("server-status").innerText = "🔴 공장 전기 깨우기: 감자 창고가 잠기게되었습니다!";
-      }
-    }
-
-    wakeUpServer();
-  </script>
-
-<script>
-const BASE_URL = "https://orcax-farm-6000.onrender.com";
-const nickname = localStorage.getItem("nickname");
-const farmName = localStorage.getItem("farmName");
-
-if (!nickname || !farmName) {
-  alert("닉네임이나 농장이름이 없습니다. 메인으로 이동합니다.");
-  location.href = "gamja-main.html";
-}
-
-// 안전한 fetch 함수 정의
-function safeJsonFetch(url, options = {}) {
-  return fetch(url, options).then(async res => {
-    const type = res.headers.get("content-type") || "";
-    if (!type.includes("application/json")) {
-      const text = await res.text();
-      throw new Error("⚠️ JSON 아님: " + text.slice(0, 100));
-    }
-    return res.json();
-  });
-}
-
-// 서버 깨우기
-function wakeUpServer() {
-  document.getElementById("powerStatus").textContent = "🔌 전기 공급 상태 확인 중...";
-  safeJsonFetch(`${BASE_URL}/api/gamja?nickname=${nickname}`)
-    .then(data => {
-      document.getElementById("farmDisplay").textContent = farmName;
-      document.getElementById("potatoCount").textContent = data.potatoCount + "개";
-      document.getElementById("harvestCount").textContent = data.harvestCount + "개";
-      loadInventory(data.inventory || []);
-      document.getElementById("powerStatus").textContent = "🟢 전기 공급 완료!";
-    })
-    .catch(err => {
-      console.error("서버 응답 실패:", err);
-      document.getElementById("powerStatus").textContent = "❌ 서버 오류: " + err.message;
     });
-}
-
-// 보관함 표시
-function loadInventory(items) {
-  const box = document.getElementById("inventoryBox");
-  box.innerHTML = "";
-  if (!items || items.length === 0) {
-    box.innerHTML = "<p>보관된 감자 제품이 없습니다.</p>";
-    return;
-  }
-  items.forEach(item => {
-    const div = document.createElement("div");
-    div.textContent = `📦 ${item.name} × ${item.count}`;
-    box.appendChild(div);
-  });
-}
-
-// 제품 만들기
-function createProduct() {
-  const type = document.getElementById("productName").value.trim();
-  if (!type) {
-    alert("제품명을 입력해주세요!");
-    return;
-  }
-  fetch(`${BASE_URL}/api/create-product`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ type, nickname, farm: farmName })
-  })
-  .then(res => res.json())
-  .then(result => {
-    alert(result.message || "제품 생성 완료");
-    wakeUpServer(); // 새로고침
-  })
-  .catch(err => {
-    alert("⚠️ 제품 생성 실패: " + err.message);
-  });
-}
-
-document.addEventListener("DOMContentLoaded", wakeUpServer);
-</script>
-
+  </script>
 </body>
 </html>
-
-
