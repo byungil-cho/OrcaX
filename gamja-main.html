@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>감자농장 메인</title>
-  <script src="js/gamja-utils.js" type="module"></script>
-  <script src="js/gamja-core.js" type="module" defer></script>
   <style>
     body {
       font-family: sans-serif;
@@ -24,36 +22,27 @@
       color: #754c24;
     }
     input {
-      font-size: 1.1rem;
-      padding: 0.5rem;
+      padding: 0.8rem;
+      font-size: 1rem;
       margin-bottom: 1rem;
-      width: 300px;
     }
   </style>
 </head>
 <body>
   <h1>🥔 감자농장에 오신 걸 환영합니다!</h1>
   <input type="text" id="nickname" placeholder="농장 이름을 입력하세요" />
-  <br />
+  <br>
   <button id="startFarm">농장 시작하기</button>
 
-  <script type="module">
-    import { saveNickname } from './js/gamja-utils.js';
-
-    document.getElementById("startFarm").addEventListener("click", async () => {
+  <script>
+    document.getElementById("startFarm").addEventListener("click", () => {
       const name = document.getElementById("nickname").value.trim();
-      if (!name) return alert("이름을 입력해라 이노마!");
-      saveNickname(name);
-
-      // 서버에 농장 등록
-      await fetch('/api/farm/init', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname: name })
-      });
-
-      // 농사 페이지로 이동
-      location.href = "gamja-farm.html";
+      if (!name) {
+        alert("이름을 입력해라 이노마!");
+        return;
+      }
+      localStorage.setItem("nickname", name);
+      location.href = "gamja-farm.html"; // <-- 이거다, 감자놈아!
     });
   </script>
 </body>
