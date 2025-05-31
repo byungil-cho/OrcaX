@@ -29,6 +29,10 @@
     #potatoImage {
       margin-top: 2rem;
     }
+    #yieldResult, #timeStatus {
+      font-size: 1.1rem;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -38,15 +42,32 @@
   <button onclick="giveFertilizer()">🧪 거름 주기</button>
   <br>
   <button onclick="harvest()">🌾 수확하기</button>
-
   <div id="potatoImage">
     <img src="potato-grow.png" alt="감자" width="200">
   </div>
+  <p id="yieldResult"></p>
+  <p id="timeStatus"></p>
 
   <script>
     let water = 0;
     let fertilizer = 0;
     let yieldCount = 0;
+    const harvestCooldown = 2 * 60 * 60 * 1000; // 2시간
+    const lastTime = localStorage.getItem('lastHarvest') || 0;
+
+    function updateTimeStatus() {
+      const now = Date.now();
+      const elapsed = now - lastTime;
+      const remaining = harvestCooldown - elapsed;
+      const el = document.getElementById('timeStatus');
+
+      if (remaining > 0) {
+        const mins = Math.ceil(remaining / 60000);
+        el.textContent = `⏳ 다음 무료 농사까지 ${mins}분 남음`;
+      } else {
+        el.textContent = `✅ 무료 농사 가능!`;
+      }
+    }
 
     function giveWater() {
       water++;
@@ -59,16 +80,29 @@
     }
 
     function harvest() {
-      // 간단한 수확 로직
+      const now = Date.now();
+      const last = parseInt(localStorage.getItem('lastHarvest') || 0);
+
+      if (now - last < harvestCooldown) {
+        alert('🚫 무료 수확은 2시간 후에 가능합니다!');
+        return;
+      }
+
       if (water >= 2 && fertilizer >= 1) {
         yieldCount = 5 + Math.floor(Math.random() * 6); // 5~10 사이
-        alert(`🎉 감자 ${yieldCount}개 수확 성공!`);
+        document.getElementById('yieldResult').textContent = `🎉 감자 ${yieldCount}개 수확 성공!`;
         localStorage.setItem('harvestInfo', JSON.stringify({ yield: yieldCount }));
-        window.location.href = 'gamja-factory.html';
+        localStorage.setItem('lastHarvest', now);
+        setTimeout(() => {
+          window.location.href = 'gamja-factory.html';
+        }, 1500);
       } else {
         alert('⚠️ 물과 거름을 충분히 주세요!');
       }
     }
+
+    updateTimeStatus();
+    setInterval(updateTimeStatus, 60000);
   </script>
 </body>
 </html>
