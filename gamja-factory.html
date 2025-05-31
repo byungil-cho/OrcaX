@@ -2,93 +2,73 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>감자 공장</title>
-  <script type="module">
-    window.addEventListener('DOMContentLoaded', () => {
-      const harvestInfo = JSON.parse(localStorage.getItem('harvestInfo') || '{}');
-      document.getElementById('potatoCount').textContent = harvestInfo.yield || 0;
-      document.getElementById('productName').value = `감자칩_${Date.now()}`;
-    });
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감자 농사 시작</title>
   <style>
-    body { background: #f6ffe6; font-family: sans-serif; text-align: center; padding: 2rem; }
-    h1 { color: #6b8e23; }
-    input, button {
-      padding: 0.6rem;
-      margin-top: 1rem;
-      font-size: 1rem;
+    body {
+      background-color: #f6ffe6;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
     }
-    #processBtn, #routeBtn {
-      background-color: #ffe18d;
+    h1 {
+      color: #6b8e23;
+    }
+    button {
+      padding: 1rem 2rem;
+      margin: 1rem;
+      background-color: #ffaa00;
       border: none;
       border-radius: 10px;
+      font-size: 1.25rem;
       cursor: pointer;
-      margin: 0.5rem;
+    }
+    button:hover {
+      background-color: #ff8800;
+    }
+    #potatoImage {
+      margin-top: 2rem;
     }
   </style>
 </head>
 <body>
-  <h1>🥔 감자 가공 공장</h1>
-  <p>수확한 감자 수: <strong id="potatoCount">0</strong> 개</p>
-  <p>
-    제품 이름 입력: <input type="text" id="productName" placeholder="예: 왕감자칩">
-  </p>
-  <button id="processBtn">📦 감자 가공 시작</button>
-  <div id="nextOptions" style="display:none;">
-    <p>감자가 없습니다. 다음 작업을 선택하세요:</p>
-    <button id="goFarm" class="routeBtn">🌱 농장으로 돌아가기</button>
-    <button id="goMarket" class="routeBtn">💰 경매장 가기</button>
+  <h1>🥔 감자가 자라고 있습니다</h1>
+  <p>💧 물 주기: <span id="waterCount">0</span> / 🧪 거름 주기: <span id="fertilizerCount">0</span></p>
+  <button onclick="giveWater()">💧 물 주기</button>
+  <button onclick="giveFertilizer()">🧪 거름 주기</button>
+  <br>
+  <button onclick="harvest()">🌾 수확하기</button>
+
+  <div id="potatoImage">
+    <img src="potato-grow.png" alt="감자" width="200">
   </div>
 
-  <script type="module">
-    import { getNickname } from './js/gamja-utils.js';
+  <script>
+    let water = 0;
+    let fertilizer = 0;
+    let yieldCount = 0;
 
-    const processBtn = document.getElementById("processBtn");
-    const nextOptions = document.getElementById("nextOptions");
+    function giveWater() {
+      water++;
+      document.getElementById('waterCount').textContent = water;
+    }
 
-    processBtn.onclick = async () => {
-      const nickname = getNickname();
-      const harvestInfo = JSON.parse(localStorage.getItem("harvestInfo") || '{}');
-      const productName = document.getElementById("productName").value || '무명감자';
+    function giveFertilizer() {
+      fertilizer++;
+      document.getElementById('fertilizerCount').textContent = fertilizer;
+    }
 
-      if (!harvestInfo.yield || harvestInfo.yield <= 0) {
-        processBtn.style.display = 'none';
-        nextOptions.style.display = 'block';
-        return;
-      }
-
-      const res = await fetch("/api/factory/process", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nickname,
-          count: 1, // 한 번에 감자 하나 가공
-          productName,
-          metadata: harvestInfo
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert(`'${productName}' 가공 완료! 감자 1개 소비됨.`);
-        harvestInfo.yield -= 1;
-        localStorage.setItem("harvestInfo", JSON.stringify(harvestInfo));
-        document.getElementById("potatoCount").textContent = harvestInfo.yield;
-        if (harvestInfo.yield <= 0) {
-          processBtn.style.display = 'none';
-          nextOptions.style.display = 'block';
-        }
+    function harvest() {
+      // 간단한 수확 로직
+      if (water >= 2 && fertilizer >= 1) {
+        yieldCount = 5 + Math.floor(Math.random() * 6); // 5~10 사이
+        alert(`🎉 감자 ${yieldCount}개 수확 성공!`);
+        localStorage.setItem('harvestInfo', JSON.stringify({ yield: yieldCount }));
+        window.location.href = 'gamja-factory.html';
       } else {
-        alert("가공 실패: " + (data.message || '알 수 없는 오류'));
+        alert('⚠️ 물과 거름을 충분히 주세요!');
       }
-    };
-
-    document.getElementById("goFarm").onclick = () => {
-      location.href = 'gamja-farm.html';
-    };
-    document.getElementById("goMarket").onclick = () => {
-      location.href = 'gamja-market.html';
-    };
+    }
   </script>
 </body>
 </html>
