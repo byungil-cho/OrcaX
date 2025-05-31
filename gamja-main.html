@@ -40,11 +40,20 @@
   <script type="module">
     import { saveNickname } from './js/gamja-utils.js';
 
-    document.getElementById("startFarm").addEventListener("click", () => {
+    document.getElementById("startFarm").addEventListener("click", async () => {
       const name = document.getElementById("nickname").value.trim();
       if (!name) return alert("이름을 입력해라 이노마!");
       saveNickname(name);
-      location.href = "gamja-factory.html";
+
+      // 서버에 농장 등록
+      await fetch('/api/farm/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname: name })
+      });
+
+      // 농사 페이지로 이동
+      location.href = "gamja-farm.html";
     });
   </script>
 </body>
