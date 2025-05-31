@@ -6,26 +6,58 @@
   <script src="js/gamja-utils.js" type="module"></script>
   <script src="js/gamja-core.js" type="module" defer></script>
   <style>
-    body { font-family: sans-serif; background: #fdf6e3; text-align: center; padding: 2rem; }
-    button { font-size: 1.2rem; padding: 1rem 2rem; background: #bada55; border: none; border-radius: 10px; }
-    h1 { color: #754c24; }
+    body {
+      font-family: sans-serif;
+      background: #fdf6e3;
+      text-align: center;
+      padding: 2rem;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 1rem 2rem;
+      background: #bada55;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    h1 {
+      color: #754c24;
+    }
+    input {
+      font-size: 1.2rem;
+      padding: 0.6rem;
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
   <h1>🥔 감자농장에 오신 걸 환영합니다!</h1>
   <input type="text" id="nickname" placeholder="농장 이름을 입력하세요" />
+  <br />
   <button id="startFarm">농장 시작하기</button>
 
   <script type="module">
     import { saveNickname } from './js/gamja-utils.js';
 
-    document.getElementById("startFarm").addEventListener("click", () => {
+    document.getElementById("startFarm").addEventListener("click", async () => {
       const name = document.getElementById("nickname").value.trim();
       if (!name) return alert("이름을 입력해라 이노마!");
       saveNickname(name);
-      location.href = "farm.html"; // 🔥 링크 수정됨: 원래 gamja-factory.html → farm.html
+
+      // 서버에 로그인 요청 보내기 → 자원 지급
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname: name })
+      });
+      const data = await res.json();
+      if (!data.success) return alert("서버 접속 실패다 이노마!");
+
+      // 다음 화면으로 이동 (농장 메인)
+      window.location.href = "gamja-farm.html";
     });
   </script>
 </body>
 </html>
+
 
