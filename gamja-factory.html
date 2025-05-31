@@ -29,6 +29,15 @@
     #potatoImage {
       margin-top: 2rem;
     }
+    #potatoImage img {
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+      animation: float 2s infinite ease-in-out;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
     #yieldResult, #timeStatus {
       font-size: 1.1rem;
       margin-top: 1rem;
@@ -43,15 +52,11 @@
   <br>
   <button onclick="harvest()">🌾 수확하기</button>
   <div id="potatoImage">
-  </div>
-    <div>
-      <img src="https://byungil-cho.github.io/OrcaX/farm-101_01.png" alt="감자싹" class="growth-image">
-    </div>
-    <div class="result" id="resultBox"></div>
-  </div>
+    <img src="https://byungil-cho.github.io/OrcaX/farm-101_01.png" alt="감자" width="200">
   </div>
   <p id="yieldResult"></p>
   <p id="timeStatus"></p>
+  <button onclick="goToFactory()">🏭 가공 공장으로 가기</button>
 
   <script>
     let water = 0;
@@ -98,12 +103,18 @@
         document.getElementById('yieldResult').textContent = `🎉 감자 ${yieldCount}개 수확 성공!`;
         localStorage.setItem('harvestInfo', JSON.stringify({ yield: yieldCount }));
         localStorage.setItem('lastHarvest', now);
-        setTimeout(() => {
-          window.location.href = 'gamja-factory.html';
-        }, 1500);
       } else {
         alert('⚠️ 물과 거름을 충분히 주세요!');
       }
+    }
+
+    function goToFactory() {
+      const harvestInfo = localStorage.getItem('harvestInfo');
+      if (!harvestInfo) {
+        alert('먼저 감자를 수확하세요!');
+        return;
+      }
+      window.location.href = 'gamja-factory.html';
     }
 
     updateTimeStatus();
@@ -111,3 +122,4 @@
   </script>
 </body>
 </html>
+
