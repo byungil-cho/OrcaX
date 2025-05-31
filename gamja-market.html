@@ -2,95 +2,160 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>감자 시장</title>
-  <script type="module">
-    import { getNickname } from './js/gamja-utils.js';
-
-    async function fetchPriceBoard() {
-      const res = await fetch(`/api/market/pricelist`);
-      const { topProducts } = await res.json();
-      const board = document.getElementById("priceBoard");
-      board.innerHTML = "";
-      topProducts.forEach((item, i) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${i + 1}</td>
-          <td>${item.productName}</td>
-          <td>${item.totalCount}</td>
-          <td>${item.marketPrice.toFixed(2)} Ⓣ</td>
-        `;
-        board.appendChild(tr);
-      });
-    }
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      await fetchPriceBoard();
-
-      const nickname = getNickname();
-      const res = await fetch(`/api/factory/products?nickname=${nickname}`);
-      const data = await res.json();
-
-      const list = document.getElementById("productList");
-      data.products.forEach(prod => {
-        const div = document.createElement("div");
-        div.className = 'product-entry';
-        div.innerHTML = `
-          <div class='product-box'>
-            <strong>📦 ${prod.productName}</strong><br>
-            <em>가공일자: ${new Date(prod.createdAt).toLocaleString()}</em><br>
-            <button onclick='registerSale("${prod._id}")'>💱 시세에 따라 판매</button>
-          </div>
-        `;
-        list.appendChild(div);
-      });
-    });
-
-    window.registerSale = async function(productId) {
-      const nickname = getNickname();
-      const res = await fetch('/api/market/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, nickname })
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert("판매 완료: " + data.tokenGain + " Ⓣ 획득");
-      } else {
-        alert("실패: " + (data.message || '오류 발생'));
-      }
-    }
-  </script>
+  <title>GamjaX 감자 마켓</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { background: #fffdf0; font-family: sans-serif; padding: 2rem; }
-    .product-entry { margin: 1rem 0; }
-    .product-box {
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-bottom: 1rem;
+    body { font-family: 'Arial', sans-serif; background: #f1f9e8; padding: 1rem; margin: 0; }
+    h1, h2 { text-align: center; color: #305030; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #b5d7a6; padding: 0.5rem; text-align: center; font-size: 0.9rem; }
+    th { background-color: #d9f2c4; }
+    #notice { margin-top: 1rem; color: #4b6042; text-align: center; }
+    #myStorage { margin-top: 2rem; }
+    #userInfo {
+      position: sticky; top: 0; z-index: 999;
+      background: #edf7e2; padding: 0.5rem 1rem;
+      border-bottom: 2px solid #c7e1b5;
+      font-size: 0.95rem; text-align: right;
     }
     button {
-      padding: 0.4rem 1rem;
-      background: #ffe79a;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+      margin: 1rem auto; display: block;
+      padding: 0.6rem 1.2rem; font-size: 1rem;
+      background: #85b765; color: white; border: none;
+      border-radius: 5px; cursor: pointer;
     }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
-    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
-    th { background: #e0ffc4; }
+    button:hover { background-color: #739c54; }
+    @media screen and (max-width: 600px) {
+      th, td { font-size: 0.75rem; padding: 0.4rem; }
+      button { font-size: 0.9rem; padding: 0.5rem 1rem; }
+    }
   </style>
 </head>
 <body>
-  <h1>💱 감자 시장 (시세 교환소)</h1>
-  <h3>📊 감자 시세 전광판 (10분마다 갱신)</h3>
-  <table>
+  <div id="userInfo">
+    👤 <span id="nickname">닉네임</span> | 💰 <span id="tokenBalance">0</span> ORCAX
+  </div>
+
+  <h1>🥔 GamjaX 감자 마켓</h1>
+  <table id="priceTable">
     <thead>
-      <tr><th>#</th><th>제품명</th><th>총 생산량</th><th>현재 시세</th></tr>
+      <tr>
+        <th>제품명</th>
+        <th>판매량</th>
+        <th>시세 (토큰)</th>
+      </tr>
     </thead>
-    <tbody id="priceBoard"></tbody>
+    <tbody></tbody>
   </table>
-  <div id="productList"></div>
+  <p id="notice"></p>
+
+  <div id="myStorage">
+    <h2>🥔 <span id='userFarmTitle'></span> 감자 창고 <span style='font-size:0.9rem;'>(개인 전용)</span></h2>
+    <table id="storageTable">
+      <thead>
+        <tr>
+          <th>선택</th>
+          <th>제품명</th>
+          <th>보유 수량</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button onclick="sellSelectedItems()">✅ 선택한 감자 판매</button>
+  </div>
+
+  <div id="newsTicker" style="width: 100%; overflow: hidden; white-space: nowrap; background: #406040; color: #fff; padding: 0.5rem; font-size: 0.9rem; position: fixed; bottom: 0; left: 0;">
+    <div id="tickerText" style="display: inline-block; padding-left: 100%; animation: scroll-left 15s linear infinite;">
+      🥔 감자 대란! 감자칩, 감자피자, 감자콘 등 새로운 제품이 입고되었습니다. 지금 바로 판매하거나 수확하세요!
+    </div>
+  </div>
+
+  <style>
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+  </style>
+
+  <script>
+    const kakaoId = localStorage.getItem("kakaoId") || "익명손님";
+    const farmName = localStorage.getItem("farmName") || "내 감자밭";
+    const nickname = localStorage.getItem("nickname") || "사용자";
+
+    async function fetchMarketData() {
+      try {
+        const res = await fetch("/api/market/prices");
+        const data = await res.json();
+        const tbody = document.querySelector("#priceTable tbody");
+        tbody.innerHTML = "";
+
+        data.prices.forEach(item => {
+          const row = `<tr><td>${item.type}</td><td>${item.count}</td><td>${item.price}</td></tr>`;
+          tbody.insertAdjacentHTML("beforeend", row);
+        });
+
+        document.getElementById("notice").textContent = data.notice;
+      } catch (e) {
+        console.error("시세 불러오기 실패:", e);
+        document.getElementById("notice").textContent = "시세 정보를 불러오지 못했습니다.";
+      }
+    }
+
+    async function fetchMyStorage() {
+      try {
+        const res = await fetch(`/api/storage/${kakaoId}`);
+        const data = await res.json();
+        const tbody = document.querySelector("#storageTable tbody");
+        tbody.innerHTML = "";
+
+        data.forEach(item => {
+          const row = `<tr>
+            <td><input type='checkbox' name='product' value='${item.type}' data-count='${item.count}'></td>
+            <td>${item.type}</td>
+            <td>${item.count}</td>
+          </tr>`;
+          tbody.insertAdjacentHTML("beforeend", row);
+        });
+      } catch (e) {
+        console.error("보관소 불러오기 실패:", e);
+        const tbody = document.querySelector("#storageTable tbody");
+        tbody.innerHTML = `<tr><td colspan='3'>불러오기 실패</td></tr>`;
+      }
+    }
+
+    async function fetchTokenBalance() {
+      try {
+        const res = await fetch(`/api/user/token/${kakaoId}`);
+        const data = await res.json();
+        document.getElementById("tokenBalance").textContent = data.token || 0;
+      } catch (e) {
+        console.error("토큰 잔액 불러오기 실패:", e);
+      }
+    }
+
+    async function sellSelectedItems() {
+      const checkboxes = document.querySelectorAll("input[name='product']:checked");
+      for (const cb of checkboxes) {
+        const type = cb.value;
+        const count = parseInt(cb.dataset.count);
+        await fetch("/api/market/sell", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId, type, count })
+        });
+      }
+      await fetchMyStorage();
+      await fetchTokenBalance();
+    }
+
+    document.getElementById("userFarmTitle").textContent = farmName;
+    document.getElementById("nickname").textContent = nickname;
+    fetchMarketData();
+    fetchMyStorage();
+    fetchTokenBalance();
+    setInterval(fetchMarketData, 600000);
+    setInterval(fetchMyStorage, 600000);
+    setInterval(fetchTokenBalance, 600000);
+  </script>
 </body>
 </html>

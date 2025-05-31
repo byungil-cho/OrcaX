@@ -2,143 +2,118 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>감자 가공 제품 공장</title>
+  <title>항행 감자 가공 공장</title>
   <style>
     body {
-      background-color: #f4fff4;
+      background-color: #e5f9d7;
+      color: #2b2b2b;
       font-family: sans-serif;
-      text-align: center;
       padding: 2rem;
+      text-align: center;
     }
     h1 {
-      color: #4a752c;
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
     }
-    input, button {
-      padding: 0.6rem;
+    .info-box, .inventory-box {
+      background-color: #f0ffe0;
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 1rem auto;
+      max-width: 400px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      width: 200px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
       margin-top: 0.5rem;
-      font-size: 1rem;
     }
     button {
-      background-color: #ffcc66;
+      margin-top: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      background-color: #a7d676;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      margin: 0.5rem;
+      color: #2b2b2b;
     }
     button:hover {
-      background-color: #ffb933;
+      background-color: #8bc34a;
     }
-    table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
-    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
-    th { background: #e0ffc4; }
-    #electricStatus {
-      font-weight: bold;
-      margin: 1rem 0;
+    .green {
+      color: green;
+    }
+    .red {
+      color: red;
     }
   </style>
 </head>
 <body>
   <h1>🥔 감자 가공 제품 공장</h1>
-  <p id="electricStatus">🔌 전기 상태 확인 중...</p>
-  <p>수확한 감자 수: <strong id="potatoCount">0</strong> 개</p>
-  <p>
-    제품 이름 입력: <input type="text" id="productName" placeholder="예: 왕감자칩">
-  </p>
-  <button id="processBtn">📦 감자 가공 시작</button>
-  <div id="nextOptions" style="display:none;">
-    <p>감자가 없습니다. 다음 작업을 선택하세요:</p>
-    <button onclick="location.href='gamja-main.html'">🌿 농장으로 돌아가기</button>
-    <button onclick="location.href='gamja-market.html'">💰 경매장 가기</button>
+  <div class="info-box">
+    <div>환영합니다 <strong id="nickname">-</strong> 님!</div>
+    <div>보유 감자: <span id="potatoCount">-</span> 개</div>
+    <div>오늘 수확: <span id="harvestCount">-</span> 개</div>
+    <div id="statusMsg">⚙️ 전기 공급 상태 확인 중...</div>
   </div>
 
-  <h2>📊 감자 시세 전광판 (10분마다 갱신)</h2>
-  <table>
-    <thead>
-      <tr><th>#</th><th>제품명</th><th>총 생산량</th><th>현재 시세</th></tr>
-    </thead>
-    <tbody id="priceBoard"></tbody>
-  </table>
+  <div class="info-box">
+    <input type="text" id="productName" placeholder="제품 이름 (예: 칩, 전 등)">
+    <button onclick="createProduct()">제품 만들기</button>
+  </div>
 
-  <script type="module">
-    import { getNickname } from './js/gamja-utils.js';
+  <div class="inventory-box">
+    <h3>📦 보관함 목록</h3>
+    <ul id="inventoryList"></ul>
+  </div>
 
-    async function fetchPriceBoard() {
-      const res = await fetch(`/api/market/pricelist`);
-      const { topProducts } = await res.json();
-      const board = document.getElementById("priceBoard");
-      board.innerHTML = "";
-      topProducts.forEach((item, i) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${i + 1}</td>
-          <td>${item.productName}</td>
-          <td>${item.totalCount}</td>
-          <td>${item.marketPrice.toFixed(2)} Ⓣ</td>
-        `;
-        board.appendChild(tr);
-      });
-    }
+  <script>
+    const serverUrl = 'https://orcax-farm-6000.onrender.com';
+    const nickname = localStorage.getItem('nickname') || '이름없는농장';
+    document.getElementById('nickname').textContent = nickname;
 
-    async function checkElectricity() {
+    async function loadData() {
       try {
-        const res = await fetch('/api/status');
+        const res = await fetch(`${serverUrl}/api/gamja?nickname=${nickname}`);
         const data = await res.json();
-        const statusText = document.getElementById("electricStatus");
-        if (data.mongoConnected) {
-          statusText.textContent = "🔌 전기 공급 정상 (MongoDB 연결됨)";
-          statusText.style.color = "green";
-        } else {
-          statusText.textContent = "⚡ 전기 공급 안됨 (MongoDB 연결 실패)";
-          statusText.style.color = "red";
-        }
+        document.getElementById('potatoCount').textContent = data.potatoCount;
+        document.getElementById('harvestCount').textContent = data.harvestCount;
+        document.getElementById('statusMsg').innerHTML = '<span class="green">✅ 서버 연결됨</span>';
+
+        const inventoryList = document.getElementById('inventoryList');
+        inventoryList.innerHTML = '';
+        data.inventory.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `🔹 ${item}`;
+          inventoryList.appendChild(li);
+        });
       } catch (err) {
-        const statusText = document.getElementById("electricStatus");
-        statusText.textContent = "⚠️ 서버 연결 실패";
-        statusText.style.color = "darkred";
+        document.getElementById('statusMsg').innerHTML = '<span class="red">❌ 서버 응답 실패</span>';
       }
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const info = JSON.parse(localStorage.getItem('harvestInfo') || '{}');
-      document.getElementById('potatoCount').textContent = info.yield || 0;
-      document.getElementById('productName').value = `감자칩_${Date.now()}`;
-      await fetchPriceBoard();
-      await checkElectricity();
+    async function createProduct() {
+      const product = document.getElementById('productName').value.trim();
+      if (!product) return alert('제품 이름을 입력해주세요.');
 
-      document.getElementById('processBtn').onclick = async () => {
-        if (!info.yield || info.yield <= 0) {
-          document.getElementById('processBtn').style.display = 'none';
-          document.getElementById('nextOptions').style.display = 'block';
-          return;
-        }
-        const productName = document.getElementById('productName').value;
-        const nickname = localStorage.getItem('nickname') || '무명농장';
-
-        const res = await fetch('/api/factory/process', {
+      try {
+        const res = await fetch(`${serverUrl}/api/create-product`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nickname,
-            count: 1,
-            productName,
-            metadata: info
-          })
+          body: JSON.stringify({ nickname, type: product })
         });
-        const data = await res.json();
-        if (data.success) {
-          alert(`'${productName}' 가공 완료! 감자 1개 소비됨.`);
-          info.yield -= 1;
-          localStorage.setItem('harvestInfo', JSON.stringify(info));
-          document.getElementById('potatoCount').textContent = info.yield;
-          if (info.yield <= 0) {
-            document.getElementById('processBtn').style.display = 'none';
-            document.getElementById('nextOptions').style.display = 'block';
-          }
-        } else {
-          alert('가공 실패: ' + (data.message || '알 수 없는 오류'));
-        }
+        const result = await res.json();
+        alert(result.message || '제품 생성 완료!');
+        loadData();
+      } catch (err) {
+        alert('제품 생성 실패');
       }
-    });
+    }
+
+    loadData();
   </script>
 </body>
 </html>

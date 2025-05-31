@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>감자 가공 결과</title>
+  <style>
+    body {
+      background-color: #fdf8e6;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 2rem;
+      color: #3c3c3c;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .box {
+      background-color: #ffffff;
+      border: 2px solid #ddd;
+      border-radius: 16px;
+      padding: 2rem;
+      margin: auto;
+      max-width: 500px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+    }
+    .highlight {
+      font-size: 1.3rem;
+      color: #4caf50;
+      margin-top: 1rem;
+    }
+    .back-button {
+      margin-top: 2rem;
+      background-color: #a7d676;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #2b2b2b;
+    }
+  </style>
+</head>
+<body>
+  <h1>🥔 감자 제품 생산 완료!</h1>
+  <div class="box">
+    <p><strong id="nickname">-</strong> 님, 제품 가공이 성공적으로 완료되었습니다.</p>
+    <p class="highlight">[ <span id="productName">제품</span> ]이(가) 보관함에 추가되었습니다!</p>
+    <button class="back-button" onclick="goBack()">공장으로 돌아가기</button>
+  </div>
+
+  <script>
+    const nickname = localStorage.getItem('nickname') || '이름없는농장';
+    const product = localStorage.getItem('lastProduct') || '감자칩';
+
+    document.getElementById('nickname').textContent = nickname;
+    document.getElementById('productName').textContent = product;
+
+    function goBack() {
+      window.location.href = 'gamja-factory.html';
+    }
+  </script>
+</body>
+</html>
