@@ -1,137 +1,70 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 농장</title>
+  <title>Gamja Farm Entrance</title>
   <style>
     body {
-      font-family: sans-serif;
       margin: 0;
-      padding: 20px;
-      background-color: #f4fff1;
+      padding: 0;
+      background-color: #000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
     }
-    h1 {
-      text-align: center;
-      color: #4c7031;
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: url('farm-101.png') no-repeat center center/cover;
     }
-    .farm-status, .farm-actions {
-      margin: 15px auto;
-      max-width: 400px;
-      background-color: #ffffff;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .farm-status div, .farm-actions button {
-      margin-bottom: 10px;
-      font-size: 1rem;
-    }
-    button {
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      padding: 10px;
-      font-size: 1rem;
-      background-color: #b7e196;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+    .label {
+      position: absolute;
+      top: 5%;
+      left: 5%;
+      padding: 0.75rem 1.5rem;
+      background-color: #ffaa00cc;
+      color: #000;
+      font-weight: bold;
+      font-size: 1.25rem;
+      border-radius: 8px;
+    }
+    .entry-button {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 1rem 2rem;
+      background-color: #ffaa00;
       border: none;
       border-radius: 8px;
+      font-size: 1.5rem;
       cursor: pointer;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
     }
-    button:hover {
-      background-color: #a0d17b;
-    }
-    .timer {
-      font-weight: bold;
-      color: #333;
-      text-align: center;
-      margin-top: 10px;
+    .entry-button:hover {
+      background-color: #ff8800;
     }
   </style>
 </head>
 <body>
-  <h1>🥔 감자 농장</h1>
-
-  <div class="farm-status" id="status">
-    <div>🌊 물: <span id="water">-</span></div>
-    <div>🌱 거름: <span id="fertilizer">-</span></div>
-    <div>🥔 감자: <span id="potato">-</span></div>
-    <div>💰 토큰: <span id="token">-</span></div>
-    <div>🎁 무료농사 횟수: <span id="freeFarm">-</span></div>
-    <div class="timer">⏳ 다음 무료 농사까지: <span id="timer-minutes">--</span></div>
+  <div class="container">
+    <div class="overlay"></div>
+    <div class="label">Gamja Farm Entrance</div>
+    <button class="entry-button" onclick="enterGamjaFarm()">Enter the Field</button>
   </div>
-
-  <div class="farm-actions">
-    <button onclick="farmFree()">무료 농사 짓기</button>
-    <button onclick="buySeed()">씨감자 구매 후 농사</button>
-    <button onclick="goToFactory()">👉 가공 공장 가기</button>
-  </div>
-
   <script>
-    const nickname = prompt("닉네임을 입력하세요");
-
-    async function loadStatus() {
-      const res = await fetch(`/api/farm/status/${nickname}`);
-      const data = await res.json();
-      if (data.success) {
-        document.getElementById('water').textContent = data.water;
-        document.getElementById('fertilizer').textContent = data.fertilizer;
-        document.getElementById('potato').textContent = data.potatoCount;
-        document.getElementById('token').textContent = data.token;
-        document.getElementById('freeFarm').textContent = data.freeFarmCount;
-
-        let remaining = data.timeRemaining;
-        const timerEl = document.getElementById('timer-minutes');
-        if (remaining <= 0) {
-          timerEl.textContent = '바로 가능';
-        } else {
-          timerEl.textContent = `${remaining}분`;
-          const interval = setInterval(() => {
-            remaining--;
-            if (remaining <= 0) {
-              timerEl.textContent = '바로 가능';
-              clearInterval(interval);
-            } else {
-              timerEl.textContent = `${remaining}분`;
-            }
-          }, 60000);
-        }
-      }
+    function enterGamjaFarm() {
+      window.location.href = 'gamja-main.html';
     }
-
-    async function farmFree() {
-      const res = await fetch('/api/farm/useFree', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname })
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert("무료 농사 성공!");
-        loadStatus();
-      } else {
-        alert("무료 농사 실패!");
-      }
-    }
-
-    async function buySeed() {
-      const res = await fetch('/api/farm/buySeed', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname, quantity: 1 })
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert("씨감자 농사 성공!");
-        loadStatus();
-      } else {
-        alert("씨감자 구매 실패: " + data.message);
-      }
-    }
-
-    function goToFactory() {
-      window.location.href = "/factory.html";
-    }
-
-    loadStatus();
   </script>
 </body>
 </html>
