@@ -42,9 +42,12 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-8px); }
     }
-    #yieldResult, #timeStatus {
+    #yieldResult, #timeStatus, #powerStatus {
       font-size: 1rem;
       margin-top: 0.5rem;
+    }
+    #powerStatus {
+      color: green;
     }
   </style>
 </head>
@@ -60,6 +63,7 @@
   </div>
   <p id="yieldResult"></p>
   <p id="timeStatus"></p>
+  <p id="powerStatus">🔌 전기 상태 확인 중...</p>
   <button onclick="goToFactory()">🏭 가공 공장으로 가기</button>
 
   <script>
@@ -118,7 +122,28 @@
       window.location.href = 'gamja-result.html';
     }
 
+    function checkPowerStatus() {
+      fetch('/api/power/status')
+        .then(res => res.json())
+        .then(data => {
+          const el = document.getElementById('powerStatus');
+          if (data && data.connected) {
+            el.textContent = '🔌 전기 연결됨';
+            el.style.color = 'green';
+          } else {
+            el.textContent = '⚠️ 전기 연결 안됨';
+            el.style.color = 'red';
+          }
+        })
+        .catch(() => {
+          const el = document.getElementById('powerStatus');
+          el.textContent = '⚠️ 전기 상태 확인 실패';
+          el.style.color = 'gray';
+        });
+    }
+
     updateTimeStatus();
+    checkPowerStatus();
     setInterval(updateTimeStatus, 60000);
   </script>
 </body>
