@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>감자 시장</title>
+  <script type="module">
+    import { getNickname } from './js/gamja-utils.js';
+
+    async function fetchPriceBoard() {
+      const res = await fetch(`/api/market/pricelist`);
+      const { topProducts } = await res.json();
+      const board = document.getElementById("priceBoard");
+      board.innerHTML = "";
+      topProducts.forEach((item, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${item.productName}</td>
+          <td>${item.totalCount}</td>
+          <td>${item.marketPrice.toFixed(2)} Ⓣ</td>
+        `;
+        board.appendChild(tr);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await fetchPriceBoard();
+
+      const nickname = getNickname();
+      const res = await fetch(`/api/factory/products?nickname=${nickname}`);
+      const data = await res.json();
+
+      const list = document.getElementById("productList");
+      data.products.forEach(prod => {
+        const div = document.createElement("div");
+        div.className = 'product-entry';
+        div.innerHTML = `
+          <div class='product-box'>
+            <strong>📦 ${prod.productName}</strong><br>
+            <em>가공일자: ${new Date(prod.createdAt).toLocaleString()}</em><br>
+            <button onclick='registerSale("${prod._id}")'>💱 시세에 따라 판매</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    });
+
+    window.registerSale = async function(productId) {
+      const nickname = getNickname();
+      const res = await fetch('/api/market/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, nickname })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("판매 완료: " + data.tokenGain + " Ⓣ 획득");
+      } else {
+        alert("실패: " + (data.message || '오류 발생'));
+      }
+    }
+  </script>
+  <style>
+    body { background: #fffdf0; font-family: sans-serif; padding: 2rem; }
+    .product-entry { margin: 1rem 0; }
+    .product-box {
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    button {
+      padding: 0.4rem 1rem;
+      background: #ffe79a;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
+    th { background: #e0ffc4; }
+  </style>
+</head>
+<body>
+  <h1>💱 감자 시장 (시세 교환소)</h1>
+  <h3>📊 감자 시세 전광판 (10분마다 갱신)</h3>
+  <table>
+    <thead>
+      <tr><th>#</th><th>제품명</th><th>총 생산량</th><th>현재 시세</th></tr>
+    </thead>
+    <tbody id="priceBoard"></tbody>
+  </table>
+  <div id="productList"></div>
+</body>
+</html>
