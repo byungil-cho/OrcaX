@@ -95,7 +95,6 @@
   <script>
     const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app'; // 유료 ngrok 고정 도메인
 
-    // 안전한 뉴스 텍스트 업데이트
     function updateNews(newsList) {
       const newsText = document.getElementById("newsText");
       while (newsText.firstChild) {
@@ -107,9 +106,28 @@
         newsText.appendChild(span);
       });
     }
+
+    async function checkServerStatus() {
+      try {
+        const res = await fetch(`${serverUrl}/status`);
+        if (!res.ok) throw new Error('응답 없음');
+        const data = await res.json();
+
+        document.getElementById("nickname").textContent = data.nickname ?? '-';
+        document.getElementById("potatoCount").textContent = data.potatoes ?? '0';
+        document.getElementById("harvestCount").textContent = data.harvested ?? '0';
+        document.getElementById("statusMsg").innerHTML = '🔌 <span class="green">전기 공급 정상!</span>';
+
+        updateNews(data.news ?? []);
+      } catch (err) {
+        document.getElementById("statusMsg").innerHTML = '❌ <span class="red">서버 연결 실패</span>';
+        updateNews(['서버와 연결할 수 없습니다. 감자 전력 끊김 상태입니다.']);
+      }
+    }
+
+    checkServerStatus();
   </script>
 </body>
 </html>
-
 
 
