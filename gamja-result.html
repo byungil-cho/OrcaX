@@ -86,11 +86,8 @@
         const inventoryList = document.getElementById('inventoryList');
         inventoryList.innerHTML = '';
         data.inventory.forEach(item => {
-          const type = item.type || item.name || item.title || "이름없음";
-          const count = item.count || item.quantity || 0;
-          const productLabel = `감자${type}`;
           const li = document.createElement('li');
-          li.textContent = `🔹 ${productLabel} (${count}개)`;
+          li.textContent = `🔹 ${item.type} (${item.count}개)`; // ✅ 감자 중복 제거
           inventoryList.appendChild(li);
         });
       } catch (err) {
@@ -110,13 +107,13 @@
         });
         const result = await res.json();
         alert(result.message || '제품 생성 완료!');
-        loadData(); // 다시 로드해서 보관함 갱신
+        loadData();
       } catch (err) {
         alert('제품 생성 실패');
       }
     }
 
-    loadData(); // 최초 로딩
+    loadData();
   </script>
 </body>
 </html>
