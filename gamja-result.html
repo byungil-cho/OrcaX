@@ -114,7 +114,10 @@
       try {
         const res = await fetch(`${serverUrl}/api/gamja?nickname=${nickname}`);
         const contentType = res.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) throw new Error("Invalid JSON response");
+        if (!contentType.includes("application/json")) {
+          const text = await res.text();
+          throw new Error(`Invalid JSON response: ${text}`);
+        }
         const data = await res.json();
         document.getElementById('potatoCount').textContent = data.potatoCount;
         document.getElementById('harvestCount').textContent = data.harvestCount;
@@ -146,7 +149,10 @@
           body: JSON.stringify({ nickname, type: product })
         });
         const contentType = res.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) throw new Error("Invalid JSON response");
+        if (!contentType.includes("application/json")) {
+          const text = await res.text();
+          throw new Error(`Invalid JSON response: ${text}`);
+        }
         const result = await res.json();
         alert(result.message || '제품 생성 완료!');
         showNews(`${result.type || product}이 출시되었습니다!`);
