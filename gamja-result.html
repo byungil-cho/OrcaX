@@ -81,13 +81,13 @@
         const data = await res.json();
         document.getElementById('potatoCount').textContent = data.potatoCount;
         document.getElementById('harvestCount').textContent = data.harvestCount;
-        document.getElementById('statusMsg').innerHTML = '<span class="green">✅ 서버 연결됨</span>';
+        document.getElementById('statusMsg').innerHTML = '<span class="green">✅ 전기가 공급되고있어요.</span>';
 
         const inventoryList = document.getElementById('inventoryList');
         inventoryList.innerHTML = '';
         data.inventory.forEach(item => {
           const li = document.createElement('li');
-          li.textContent = `🔹 ${item}`;
+          li.textContent = `🔹 ${item.name} (${item.quantity}개)`;  // 🧩 수정 완료!
           inventoryList.appendChild(li);
         });
       } catch (err) {
