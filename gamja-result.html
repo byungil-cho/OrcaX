@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>항행 감자 가공 공장</title>
+  <title>항행 감자 가공 공장 - 디버그 모드</title>
   <style>
     body {
       background-color: #e5f9d7;
@@ -10,10 +10,6 @@
       font-family: sans-serif;
       padding: 2rem;
       text-align: center;
-    }
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
     }
     .info-box, .inventory-box {
       background-color: #f0ffe0;
@@ -49,30 +45,10 @@
     .red {
       color: red;
     }
-    #newsTicker {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: #333;
-      color: white;
-      padding: 0.5rem;
-      font-weight: bold;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    #newsText span {
-      display: inline-block;
-      padding-right: 2rem;
-      animation: scrollLeft 20s linear infinite;
-    }
-    @keyframes scrollLeft {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
   </style>
 </head>
 <body>
-  <h1>🥔 감자 가공 제품 공장</h1>
+  <h1>🥔 감자 가공 제품 공장 (디버그 모드)</h1>
   <div class="info-box">
     <div>환영합니다 <strong id="nickname">-</strong> 님!</div>
     <div>보유 감자: <span id="potatoCount">-</span> 개</div>
@@ -90,30 +66,17 @@
     <ul id="inventoryList"></ul>
   </div>
 
-  <div id="newsTicker"><div id="newsText"></div></div>
-
   <script>
     const serverUrl = 'https://orcax-farm-6000.onrender.com';
     const nickname = localStorage.getItem('nickname') || '이름없는농장';
+    console.log("✅ 현재 닉네임:", nickname);
     document.getElementById('nickname').textContent = nickname;
-
-    const newsList = [];
-
-    function updateNewsTicker() {
-      const newsText = document.getElementById("newsText");
-      newsText.innerHTML = newsList.map(msg => `<span><신제품> ${msg}</span>`).join('');
-    }
-
-    function showNews(message) {
-      if (newsList.length >= 5) newsList.shift(); // 가장 오래된 것 제거
-      newsList.push(message);
-      updateNewsTicker();
-    }
 
     async function loadData() {
       try {
         const res = await fetch(`${serverUrl}/api/gamja?nickname=${nickname}`);
         const data = await res.json();
+        console.log("📦 감자 데이터 응답:", data);
         document.getElementById('potatoCount').textContent = data.potatoCount;
         document.getElementById('harvestCount').textContent = data.harvestCount;
         document.getElementById('statusMsg').innerHTML = '<span class="green">✅ 전기가 공급되고있어요.</span>';
@@ -128,6 +91,7 @@
           inventoryList.appendChild(li);
         });
       } catch (err) {
+        console.error("❌ 감자 현황 불러오기 실패:", err);
         document.getElementById('statusMsg').innerHTML = '<span class="red">❌ 서버 응답 실패</span>';
       }
     }
@@ -135,6 +99,7 @@
     async function createProduct() {
       const product = document.getElementById('productName').value.trim();
       if (!product) return alert('제품 이름을 입력해주세요.');
+      console.log("🚀 제품 생산 요청:", { nickname, type: product });
 
       try {
         const res = await fetch(`${serverUrl}/api/create-product`, {
@@ -143,10 +108,14 @@
           body: JSON.stringify({ nickname, type: product })
         });
         const result = await res.json();
+        console.log("📨 제품 생성 응답:", result);
         alert(result.message || '제품 생성 완료!');
-        showNews(`${result.type}이 출시되었습니다!`);
+        if (result.isNew) {
+          console.log("🆕 신제품 등록:", result.type);
+        }
         loadData();
       } catch (err) {
+        console.error("❌ 제품 생성 중 오류:", err);
         alert('제품 생성 실패');
       }
     }
@@ -155,3 +124,4 @@
   </script>
 </body>
 </html>
+
