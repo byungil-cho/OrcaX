@@ -101,7 +101,7 @@
 
     function updateNewsTicker() {
       const newsText = document.getElementById("newsText");
-      newsText.innerHTML = newsList.map(msg => `<span>🆕 ${msg}</span>`).join('');
+      newsText.innerHTML = newsList.map(msg => `<span><신제품> ${msg}</span>`).join('');
     }
 
     function showNews(message) {
