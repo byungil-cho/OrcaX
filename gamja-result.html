@@ -49,6 +49,26 @@
     .red {
       color: red;
     }
+    #newsTicker {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #333;
+      color: white;
+      padding: 0.5rem;
+      font-weight: bold;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    #newsText span {
+      display: inline-block;
+      padding-right: 2rem;
+      animation: scrollLeft 20s linear infinite;
+    }
+    @keyframes scrollLeft {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
   </style>
 </head>
 <body>
@@ -70,10 +90,25 @@
     <ul id="inventoryList"></ul>
   </div>
 
+  <div id="newsTicker"><div id="newsText"></div></div>
+
   <script>
     const serverUrl = 'https://orcax-farm-6000.onrender.com';
     const nickname = localStorage.getItem('nickname') || '이름없는농장';
     document.getElementById('nickname').textContent = nickname;
+
+    const newsList = [];
+
+    function updateNewsTicker() {
+      const newsText = document.getElementById("newsText");
+      newsText.innerHTML = newsList.map(msg => `<span>🆕 ${msg}</span>`).join('');
+    }
+
+    function showNews(message) {
+      if (newsList.length >= 5) newsList.shift(); // 가장 오래된 것 제거
+      newsList.push(message);
+      updateNewsTicker();
+    }
 
     async function loadData() {
       try {
@@ -109,6 +144,7 @@
         });
         const result = await res.json();
         alert(result.message || '제품 생성 완료!');
+        showNews(`${result.type}이 출시되었습니다!`);
         loadData();
       } catch (err) {
         alert('제품 생성 실패');
