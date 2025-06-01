@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>항행 감자 가공 공장</title>
+  <title>감자 가공 제품 공장 (실전용)</title>
   <style>
     body {
       background-color: #e5f9d7;
@@ -72,7 +72,7 @@
   </style>
 </head>
 <body>
-  <h1>🥔 감자 가공 제품 공장</h1>
+  <h1>🥔 감자 가공 제품 공장 (실전용)</h1>
   <div class="info-box">
     <div>환영합니다 <strong id="nickname">-</strong> 님!</div>
     <div>보유 감자: <span id="potatoCount">-</span> 개</div>
@@ -105,7 +105,7 @@
     }
 
     function showNews(message) {
-      if (newsList.length >= 5) newsList.shift(); // 가장 오래된 것 제거
+      if (newsList.length >= 5) newsList.shift();
       newsList.push(message);
       updateNewsTicker();
     }
