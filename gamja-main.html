@@ -2,72 +2,49 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <title>GamjaX 감자 농장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>감자 농장 입장</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      background-image: url('images/gamja-field.jpg'); /* 배경 이미지 - 감자 밭 */
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: #406c35;
-      text-shadow: 1px 1px 3px #fff;
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-    input {
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      border: none;
-      margin-bottom: 1rem;
+    body { font-family: 'Arial', sans-serif; background: #f1f9e8; padding: 1rem; margin: 0; }
+    h1, h2 { text-align: center; color: #305030; margin: 1rem 0; }
+    #container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; }
+    #farmNameDisplay { font-size: 1.5rem; margin-bottom: 2rem; }
+    input[type="text"] {
+      padding: 0.5rem;
       font-size: 1rem;
+      width: 250px;
+      margin-bottom: 1rem;
     }
     button {
-      padding: 0.8rem 1.4rem;
-      font-size: 1rem;
-      background-color: #98c37b;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      padding: 0.6rem 1.2rem; font-size: 1rem;
+      background: #85b765; color: white; border: none;
+      border-radius: 5px; cursor: pointer;
     }
-    button:hover {
-      background-color: #6eaa5c;
-    }
+    button:hover { background-color: #739c54; }
   </style>
 </head>
 <body>
-  <h1>감자 농장에 오신 걸 환영합니다!</h1>
-  <input type="text" id="nicknameInput" placeholder="닉네임 입력">
-  <button onclick="startGame()">시작하기</button>
+  <div id="container">
+    <h1>GamjaX 감자 농장에 오신 것을 환영합니다!</h1>
+    <div id="farmNameDisplay">감자 농장을 시작하려면 <strong>농장명</strong>을 입력하세요</div>
+    <input type="text" id="farmNameInput" placeholder="예: 홍">
+    <button onclick="startFarm()">농장 시작하기</button>
+  </div>
 
   <script>
-    function startGame() {
-      const nickname = document.getElementById('nicknameInput').value.trim();
-      if (!nickname) {
-        alert('닉네임을 입력하세요.');
+    function startFarm() {
+      const input = document.getElementById("farmNameInput").value.trim();
+      if (!input) {
+        alert("농장명을 입력해주세요");
         return;
       }
-      localStorage.setItem('nickname', nickname);
-
-      // 기본 자원 지급
-      localStorage.setItem('gamja_tokens', '5');
-      localStorage.setItem('gamja_water', '10');
-      localStorage.setItem('gamja_fertilizer', '10');
-
-      // 추후 서버에 사용자 등록도 가능하도록 API 연동 준비
-      // 예: fetch('/api/user/register', { method: 'POST', body: JSON.stringify({ nickname }) })
-
-      window.location.href = 'gamja-factory.html';
+      const farmName = input + "감자농장";
+      localStorage.setItem("farmName", farmName); // 로컬에만 저장
+      window.location.href = "gamja-factory.html";
     }
+
+    // 기존 카카오 로그인에서 닉네임이 localStorage에 저장된 상태여야 함
+    const kakaoNickname = localStorage.getItem("nickname") || "방문자";
   </script>
 </body>
 </html>
