@@ -93,7 +93,7 @@
   <div id="newsTicker"><div id="newsText"></div></div>
 
   <script>
-    const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app'; // 유료 ngrok 고정 도메인
+    const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app';
 
     function updateNews(newsList) {
       const newsText = document.getElementById("newsText");
@@ -126,6 +126,7 @@
     }
 
     checkServerStatus();
+    setInterval(checkServerStatus, 5000); // 5초마다 반복 체크로 강제 기상
   </script>
 </body>
 </html>
