@@ -93,7 +93,7 @@
   <div id="newsTicker"><div id="newsText"></div></div>
 
   <script>
-    const serverUrl = 'https://orcax-farm-6000.onrender.com';
+    const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app';
     const nickname = localStorage.getItem('nickname') || '이름없는농장';
     document.getElementById('nickname').textContent = nickname;
 
@@ -101,7 +101,7 @@
 
     function updateNewsTicker() {
       const newsText = document.getElementById("newsText");
-      newsText.innerHTML = newsList.map(msg => `<span><신제품> ${msg}</span>`).join('');
+      newsText.innerHTML = newsList.map(msg => `<span>🆕 ${msg}</span>`).join('');
     }
 
     function showNews(message) {
@@ -167,5 +167,6 @@
   </script>
 </body>
 </html>
+
 
 
