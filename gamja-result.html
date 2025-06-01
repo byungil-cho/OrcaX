@@ -93,77 +93,20 @@
   <div id="newsTicker"><div id="newsText"></div></div>
 
   <script>
-    const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app';
-    const nickname = localStorage.getItem('nickname') || '이름없는농장';
-    document.getElementById('nickname').textContent = nickname;
+    const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app'; // 유료 ngrok 고정 도메인
 
-    const newsList = [];
-
-    function updateNewsTicker() {
+    // 안전한 뉴스 텍스트 업데이트
+    function updateNews(newsList) {
       const newsText = document.getElementById("newsText");
-      newsText.innerHTML = newsList.map(msg => `<span>🆕 ${msg}</span>`).join('');
-    }
-
-    function showNews(message) {
-      if (newsList.length >= 5) newsList.shift();
-      newsList.push(message);
-      updateNewsTicker();
-    }
-
-    async function loadData() {
-      try {
-        const res = await fetch(`${serverUrl}/api/gamja?nickname=${nickname}`);
-        const contentType = res.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) {
-          const text = await res.text();
-          throw new Error(`Invalid JSON response: ${text}`);
-        }
-        const data = await res.json();
-        document.getElementById('potatoCount').textContent = data.potatoCount;
-        document.getElementById('harvestCount').textContent = data.harvestCount;
-        document.getElementById('statusMsg').innerHTML = '<span class="green">✅ 전기가 공급되고있어요.</span>';
-
-        const inventoryList = document.getElementById('inventoryList');
-        inventoryList.innerHTML = '';
-        data.inventory.forEach(item => {
-          const name = item.type || item.name || '이름없음';
-          const count = item.count || 0;
-          const li = document.createElement('li');
-          li.textContent = `🔹 ${name} (${count}개)`;
-          inventoryList.appendChild(li);
-        });
-      } catch (err) {
-        document.getElementById('statusMsg').innerHTML = '<span class="red">❌ 서버 응답 실패</span>';
-        console.error('loadData error:', err);
+      while (newsText.firstChild) {
+        newsText.removeChild(newsText.firstChild);
       }
+      newsList.forEach(msg => {
+        const span = document.createElement("span");
+        span.textContent = `🆕 ${msg}`;
+        newsText.appendChild(span);
+      });
     }
-
-    async function createProduct() {
-      const product = document.getElementById('productName').value.trim();
-      if (!product) return alert('제품 이름을 입력해주세요.');
-
-      try {
-        const res = await fetch(`${serverUrl}/api/create-product`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nickname, type: product })
-        });
-        const contentType = res.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) {
-          const text = await res.text();
-          throw new Error(`Invalid JSON response: ${text}`);
-        }
-        const result = await res.json();
-        alert(result.message || '제품 생성 완료!');
-        showNews(`${result.type || product}이 출시되었습니다!`);
-        loadData();
-      } catch (err) {
-        alert('제품 생성 실패');
-        console.error('createProduct error:', err);
-      }
-    }
-
-    loadData();
   </script>
 </body>
 </html>
