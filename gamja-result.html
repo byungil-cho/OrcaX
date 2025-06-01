@@ -86,8 +86,10 @@
         const inventoryList = document.getElementById('inventoryList');
         inventoryList.innerHTML = '';
         data.inventory.forEach(item => {
+          const name = item.type || item.name || '이름없음';
+          const count = item.count || 0;
           const li = document.createElement('li');
-          li.textContent = `🔹 ${item.type} (${item.count}개)`; // ✅ 감자 중복 제거
+          li.textContent = `🔹 ${name} (${count}개)`;
           inventoryList.appendChild(li);
         });
       } catch (err) {
