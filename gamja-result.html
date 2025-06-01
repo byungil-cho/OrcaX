@@ -119,14 +119,42 @@
         document.getElementById("statusMsg").innerHTML = '🔌 <span class="green">전기 공급 정상!</span>';
 
         updateNews(data.news ?? []);
+        updateInventory(data.inventory ?? []);
       } catch (err) {
         document.getElementById("statusMsg").innerHTML = '❌ <span class="red">서버 연결 실패</span>';
         updateNews(['서버와 연결할 수 없습니다. 감자 전력 끊김 상태입니다.']);
       }
     }
 
+    function updateInventory(items) {
+      const list = document.getElementById("inventoryList");
+      list.innerHTML = '';
+      items.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name}: ${item.count}개`;
+        list.appendChild(li);
+      });
+    }
+
+    async function createProduct() {
+      const product = document.getElementById("productName").value.trim();
+      if (!product) return alert("제품 이름을 입력하세요");
+      try {
+        const res = await fetch(`${serverUrl}/make`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: product })
+        });
+        const result = await res.json();
+        alert(result.message || '생성됨');
+        checkServerStatus();
+      } catch (err) {
+        alert("제품 생성 실패: 서버 문제");
+      }
+    }
+
     checkServerStatus();
-    setInterval(checkServerStatus, 5000); // 5초마다 반복 체크로 강제 기상
+    setInterval(checkServerStatus, 5000);
   </script>
 </body>
 </html>
