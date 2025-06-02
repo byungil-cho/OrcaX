@@ -83,7 +83,7 @@
 
   <div class="nav-buttons">
     <button onclick="location.href='gamja-farm.html'">🌱 감자 농장 가기</button>
-    <button onclick="location.href='gamja-factory.html'">🏭 감자 가공 공장</button>
+    <button onclick="location.href='gamja-result.html'">🏭 감자 가공 공장</button>
     <button onclick="location.href='gamja-shop.html'">🛒 감자 상점</button>
   </div>
 
@@ -92,12 +92,15 @@
   </div>
 
   <script>
-    const kakaoId = localStorage.getItem("kakaoId") || "익명손님";
-    const nickname = kakaoId; // 🔄 nickname을 kakaoId로 통일
+    const nickname = localStorage.getItem("nickname") || "감자";
     const farmName = localStorage.getItem("farmName") || "이름없는";
 
+    if (!nickname || nickname === "감자") {
+      alert("⚠️ 닉네임이 저장되지 않았습니다. 닉네임을 먼저 설정해주세요.");
+    }
+
     document.getElementById("nickname").textContent = nickname;
-    document.getElementById("userFarmTitle").textContent = farmName + " 감자농장";
+    document.getElementById("userFarmTitle").textContent = nickname + " 감자농장";
 
     async function fetchMarketData() {
       try {
@@ -118,7 +121,7 @@
 
     async function fetchMyStorage() {
       try {
-        const res = await fetch(`/api/storage/${encodeURIComponent(kakaoId)}`);
+        const res = await fetch(`/api/storage/${encodeURIComponent(nickname)}`);
         const data = await res.json();
         const tbody = document.querySelector("#storageTable tbody");
         tbody.innerHTML = "";
@@ -138,7 +141,7 @@
 
     async function fetchTokenBalance() {
       try {
-        const res = await fetch(`/api/user/token/${encodeURIComponent(kakaoId)}`);
+        const res = await fetch(`/api/user/token/${encodeURIComponent(nickname)}`);
         const data = await res.json();
         document.getElementById("tokenBalance").textContent = data.token || 0;
       } catch (e) {
@@ -154,7 +157,7 @@
         await fetch("/api/market/sell", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname: kakaoId, type, count })
+          body: JSON.stringify({ nickname, type, count })
         });
       }
       await fetchMyStorage();
@@ -179,5 +182,6 @@
   </script>
 </body>
 </html>
+
 
 
