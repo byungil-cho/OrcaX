@@ -94,6 +94,11 @@
   <script>
     const nickname = localStorage.getItem("nickname") || "감자";
     const farmName = localStorage.getItem("farmName") || "이름없는";
+
+    if (!nickname || nickname === "감자") {
+      alert("⚠️ 닉네임이 저장되지 않았습니다. 닉네임을 먼저 설정해주세요.");
+    }
+
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("userFarmTitle").textContent = farmName + "감자농장";
 
@@ -116,7 +121,7 @@
 
     async function fetchMyStorage() {
       try {
-        const res = await fetch(`/api/storage/${nickname}`);
+        const res = await fetch(`/api/storage/${encodeURIComponent(nickname)}`);
         const data = await res.json();
         const tbody = document.querySelector("#storageTable tbody");
         tbody.innerHTML = "";
@@ -136,7 +141,7 @@
 
     async function fetchTokenBalance() {
       try {
-        const res = await fetch(`/api/user/token/${nickname}`);
+        const res = await fetch(`/api/user/token/${encodeURIComponent(nickname)}`);
         const data = await res.json();
         document.getElementById("tokenBalance").textContent = data.token || 0;
       } catch (e) {
@@ -152,7 +157,7 @@
         await fetch("/api/market/sell", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId: nickname, type, count })
+          body: JSON.stringify({ nickname, type, count })
         });
       }
       await fetchMyStorage();
@@ -177,4 +182,5 @@
   </script>
 </body>
 </html>
+
 
