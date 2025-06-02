@@ -93,7 +93,7 @@
   <div id="newsTicker"><div id="newsText"></div></div>
 
   <script>
-    const serverUrl = 'https://e52199b7c0f4.ngrok.app'; // 수정된 ngrok 주소
+    const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app'; // 수정된 ngrok 주소
     const nickname = localStorage.getItem('nickname') || '이름없는농장';
     document.getElementById('nickname').textContent = nickname;
 
@@ -101,7 +101,7 @@
 
     function updateNewsTicker() {
       const newsText = document.getElementById("newsText");
-      newsText.innerHTML = newsList.map(msg => `<span>🆕 ${msg}</span>`).join('');
+      newsText.innerHTML = newsList.map(msg => `<span><신제품> ${msg}</span>`).join('');
     }
 
     function showNews(message) {
