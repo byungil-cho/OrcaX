@@ -29,11 +29,22 @@
       th, td { font-size: 0.75rem; padding: 0.4rem; }
       button { font-size: 0.9rem; padding: 0.5rem 1rem; }
     }
+    #newsTicker {
+      width: 100%; overflow: hidden; white-space: nowrap; background: #406040;
+      color: #fff; padding: 0.5rem; font-size: 0.9rem; position: fixed; bottom: 0; left: 0;
+    }
+    #tickerText {
+      display: inline-block; padding-left: 100%; animation: scroll-left 15s linear infinite;
+    }
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
   </style>
 </head>
 <body>
   <div id="userInfo">
-    👤 <span id="nickname">닉네임</span> | 💰 <span id="tokenBalance">0</span> ORCAX
+    👤 <span id="nickname">닉네임</span> 감자 농장 | 💰 <span id="tokenBalance">0</span> ORCAX
   </div>
 
   <h1>🥔 GamjaX 감자 마켓</h1>
@@ -64,23 +75,15 @@
     <button onclick="sellSelectedItems()">✅ 선택한 감자 판매</button>
   </div>
 
-  <div id="newsTicker" style="width: 100%; overflow: hidden; white-space: nowrap; background: #406040; color: #fff; padding: 0.5rem; font-size: 0.9rem; position: fixed; bottom: 0; left: 0;">
-    <div id="tickerText" style="display: inline-block; padding-left: 100%; animation: scroll-left 15s linear infinite;">
-      🥔 감자 대란! 감자칩, 감자피자, 감자콘 등 새로운 제품이 입고되었습니다. 지금 바로 판매하거나 수확하세요!
-    </div>
+  <div id="newsTicker">
+    <div id="tickerText">🥔 뉴스 로딩 중...</div>
   </div>
 
-  <style>
-    @keyframes scroll-left {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
-  </style>
-
   <script>
-    const kakaoId = localStorage.getItem("kakaoId") || "익명손님";
-    const farmName = localStorage.getItem("farmName") || "내 감자밭";
-    const nickname = localStorage.getItem("nickname") || "사용자";
+    const nickname = localStorage.getItem("nickname") || "감자";
+    const farmName = localStorage.getItem("farmName") || "이름없는";
+    document.getElementById("nickname").textContent = nickname;
+    document.getElementById("userFarmTitle").textContent = farmName + "감자농장";
 
     async function fetchMarketData() {
       try {
@@ -88,26 +91,23 @@
         const data = await res.json();
         const tbody = document.querySelector("#priceTable tbody");
         tbody.innerHTML = "";
-
-        data.prices.forEach(item => {
+        data.prices.slice(0, 30).forEach(item => {
           const row = `<tr><td>${item.type}</td><td>${item.count}</td><td>${item.price}</td></tr>`;
           tbody.insertAdjacentHTML("beforeend", row);
         });
-
         document.getElementById("notice").textContent = data.notice;
+        updateNewsTicker(data.news);
       } catch (e) {
-        console.error("시세 불러오기 실패:", e);
-        document.getElementById("notice").textContent = "시세 정보를 불러오지 못했습니다.";
+        document.getElementById("notice").textContent = "❌ 시세 정보를 불러오지 못했습니다.";
       }
     }
 
     async function fetchMyStorage() {
       try {
-        const res = await fetch(`/api/storage/${kakaoId}`);
+        const res = await fetch(`/api/storage/${nickname}`);
         const data = await res.json();
         const tbody = document.querySelector("#storageTable tbody");
         tbody.innerHTML = "";
-
         data.forEach(item => {
           const row = `<tr>
             <td><input type='checkbox' name='product' value='${item.type}' data-count='${item.count}'></td>
@@ -117,15 +117,14 @@
           tbody.insertAdjacentHTML("beforeend", row);
         });
       } catch (e) {
-        console.error("보관소 불러오기 실패:", e);
         const tbody = document.querySelector("#storageTable tbody");
-        tbody.innerHTML = `<tr><td colspan='3'>불러오기 실패</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan='3'>❌ 보관소 불러오기 실패</td></tr>`;
       }
     }
 
     async function fetchTokenBalance() {
       try {
-        const res = await fetch(`/api/user/token/${kakaoId}`);
+        const res = await fetch(`/api/user/token/${nickname}`);
         const data = await res.json();
         document.getElementById("tokenBalance").textContent = data.token || 0;
       } catch (e) {
@@ -141,15 +140,22 @@
         await fetch("/api/market/sell", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId, type, count })
+          body: JSON.stringify({ kakaoId: nickname, type, count })
         });
       }
       await fetchMyStorage();
       await fetchTokenBalance();
     }
 
-    document.getElementById("userFarmTitle").textContent = farmName;
-    document.getElementById("nickname").textContent = nickname;
+    function updateNewsTicker(newsArray = []) {
+      const tickerText = document.getElementById("tickerText");
+      if (newsArray.length > 0) {
+        tickerText.innerHTML = newsArray.map(msg => `🆕 ${msg}`).join(' ▪ ');
+      } else {
+        tickerText.textContent = "🥔 새로운 소식이 없습니다.";
+      }
+    }
+
     fetchMarketData();
     fetchMyStorage();
     fetchTokenBalance();
