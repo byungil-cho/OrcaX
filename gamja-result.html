@@ -43,12 +43,8 @@
     button:hover {
       background-color: #8bc34a;
     }
-    .green {
-      color: green;
-    }
-    .red {
-      color: red;
-    }
+    .green { color: green; }
+    .red { color: red; }
     #newsTicker {
       position: fixed;
       bottom: 0;
@@ -69,6 +65,9 @@
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
+    .btn-box button {
+      margin: 0.3rem;
+    }
   </style>
 </head>
 <body>
@@ -78,6 +77,11 @@
     <div>보유 감자: <span id="potatoCount">-</span> 개</div>
     <div>오늘 수확: <span id="harvestCount">-</span> 개</div>
     <div id="statusMsg">⚙️ 전기 공급 상태 확인 중...</div>
+    <div class="btn-box" id="fallbackButtons" style="display:none;">
+      <button onclick="goToPage('gamja-farm.html')">🌱 감자 농장 가기</button>
+      <button onclick="goToPage('gamja-market.html')">💰 판매 시장 가기</button>
+      <button onclick="goToPage('gamja-shop.html')">🛒 씨감자 상점 가기</button>
+    </div>
   </div>
 
   <div class="info-box">
@@ -105,7 +109,7 @@
 
     function updateNewsTicker() {
       const newsText = document.getElementById("newsText");
-      newsText.innerHTML = newsList.map(msg => `<span>🆕 ${msg}</span>`).join('');
+      newsText.innerHTML = newsList.map(msg => `<span><신제품> ${msg}</span>`).join('');
     }
 
     function showNews(message) {
@@ -114,13 +118,37 @@
       updateNewsTicker();
     }
 
+    function goToPage(url) {
+      fetch(url, { method: 'HEAD' })
+        .then(res => {
+          if (res.ok) {
+            location.href = url;
+          } else {
+            alert(`⚠️ 페이지가 존재하지 않습니다: ${url}`);
+          }
+        })
+        .catch(() => {
+          alert(`⚠️ 페이지 이동 중 오류 발생: ${url}`);
+        });
+    }
+
     async function loadData() {
       try {
         const res = await fetch(`${serverUrl}/api/gamja?nickname=${nickname}`);
         const data = await res.json();
         document.getElementById('potatoCount').textContent = data.potatoCount;
         document.getElementById('harvestCount').textContent = data.harvestCount;
-        document.getElementById('statusMsg').innerHTML = '<span class="green">✅ 전기가 공급되고있어요.</span>';
+
+        const statusMsg = document.getElementById('statusMsg');
+        const btnBox = document.getElementById('fallbackButtons');
+
+        if (data.potatoCount <= 0) {
+          statusMsg.innerHTML = '<span class="red">❌ 감자가 없습니다! 생산이 불가능합니다.</span>';
+          btnBox.style.display = 'block';
+        } else {
+          statusMsg.innerHTML = '<span class="green">✅ 전기가 공급되고있어요.</span>';
+          btnBox.style.display = 'none';
+        }
 
         const inventoryList = document.getElementById('inventoryList');
         inventoryList.innerHTML = '';
@@ -131,6 +159,7 @@
           li.textContent = `🔹 ${name} (${count}개)`;
           inventoryList.appendChild(li);
         });
+
       } catch (err) {
         document.getElementById('statusMsg').innerHTML = '<span class="red">❌ 서버 응답 실패</span>';
       }
@@ -140,7 +169,7 @@
       const product = document.getElementById('productName').value.trim();
       if (!product) return alert('제품 이름을 입력해주세요.');
 
-      const fullName = `감자 ${product}`;  // ✅ 감자 접두사 자동 추가
+      const fullName = `감자 ${product}`;
 
       try {
         const res = await fetch(`${serverUrl}/api/create-product`, {
