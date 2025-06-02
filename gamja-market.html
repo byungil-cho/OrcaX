@@ -40,6 +40,12 @@
       0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
     }
+    .nav-buttons {
+      margin: 2rem auto; display: flex; justify-content: center; gap: 1rem;
+    }
+    .nav-buttons button {
+      background: #6d9e53;
+    }
   </style>
 </head>
 <body>
@@ -73,6 +79,12 @@
       <tbody></tbody>
     </table>
     <button onclick="sellSelectedItems()">✅ 선택한 감자 판매</button>
+  </div>
+
+  <div class="nav-buttons">
+    <button onclick="location.href='gamja-farm.html'">🌱 감자 농장 가기</button>
+    <button onclick="location.href='gamja-factory.html'">🏭 감자 가공 공장</button>
+    <button onclick="location.href='gamja-shop.html'">🛒 감자 상점</button>
   </div>
 
   <div id="newsTicker">
@@ -165,3 +177,4 @@
   </script>
 </body>
 </html>
+
