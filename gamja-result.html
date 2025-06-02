@@ -81,7 +81,7 @@
   </div>
 
   <div class="info-box">
-    <input type="text" id="productName" placeholder="제품 이름 (예: 칩, 전, 골뱅이)">
+    <input type="text" id="productName" placeholder="제품 이름 (예: 칩, 전, 국수)">
     <button onclick="createProduct()">제품 만들기</button>
   </div>
 
@@ -93,15 +93,19 @@
   <div id="newsTicker"><div id="newsText"></div></div>
 
   <script>
-    const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app'; // 수정된 ngrok 주소
-    const nickname = localStorage.getItem('nickname') || '이름없는농장';
+    const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app';
+    let nickname = localStorage.getItem('nickname');
+    if (!nickname) {
+      nickname = prompt("닉네임을 입력해주세요:");
+      localStorage.setItem('nickname', nickname);
+    }
     document.getElementById('nickname').textContent = nickname;
 
     const newsList = [];
 
     function updateNewsTicker() {
       const newsText = document.getElementById("newsText");
-      newsText.innerHTML = newsList.map(msg => `<span><신제품> ${msg}</span>`).join('');
+      newsText.innerHTML = newsList.map(msg => `<span>🆕 ${msg}</span>`).join('');
     }
 
     function showNews(message) {
@@ -136,11 +140,13 @@
       const product = document.getElementById('productName').value.trim();
       if (!product) return alert('제품 이름을 입력해주세요.');
 
+      const fullName = `감자 ${product}`;  // ✅ 감자 접두사 자동 추가
+
       try {
         const res = await fetch(`${serverUrl}/api/create-product`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nickname, type: product })
+          body: JSON.stringify({ nickname, type: fullName })
         });
         const result = await res.json();
         alert(result.message || '제품 생성 완료!');
@@ -155,3 +161,4 @@
   </script>
 </body>
 </html>
+
