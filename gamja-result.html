@@ -93,70 +93,65 @@
   <div id="newsTicker"><div id="newsText"></div></div>
 
   <script>
-    const serverUrl = 'https://climbing-wholly-grouper.ngrok-free.app';
+    const serverUrl = 'https://e52199b7c0f4.ngrok.app'; // 수정된 ngrok 주소
+    const nickname = localStorage.getItem('nickname') || '이름없는농장';
+    document.getElementById('nickname').textContent = nickname;
 
-    function updateNews(newsList) {
+    const newsList = [];
+
+    function updateNewsTicker() {
       const newsText = document.getElementById("newsText");
-      while (newsText.firstChild) {
-        newsText.removeChild(newsText.firstChild);
-      }
-      newsList.forEach(msg => {
-        const span = document.createElement("span");
-        span.textContent = `🆕 ${msg}`;
-        newsText.appendChild(span);
-      });
+      newsText.innerHTML = newsList.map(msg => `<span>🆕 ${msg}</span>`).join('');
     }
 
-    async function checkServerStatus() {
+    function showNews(message) {
+      if (newsList.length >= 5) newsList.shift();
+      newsList.push(message);
+      updateNewsTicker();
+    }
+
+    async function loadData() {
       try {
-        const res = await fetch(`${serverUrl}/status`);
-        if (!res.ok) throw new Error('응답 없음');
+        const res = await fetch(`${serverUrl}/api/gamja?nickname=${nickname}`);
         const data = await res.json();
+        document.getElementById('potatoCount').textContent = data.potatoCount;
+        document.getElementById('harvestCount').textContent = data.harvestCount;
+        document.getElementById('statusMsg').innerHTML = '<span class="green">✅ 전기가 공급되고있어요.</span>';
 
-        document.getElementById("nickname").textContent = data.nickname ?? '-';
-        document.getElementById("potatoCount").textContent = data.potatoes ?? '0';
-        document.getElementById("harvestCount").textContent = data.harvested ?? '0';
-        document.getElementById("statusMsg").innerHTML = '🔌 <span class="green">전기 공급 정상!</span>';
-
-        updateNews(data.news ?? []);
-        updateInventory(data.inventory ?? []);
+        const inventoryList = document.getElementById('inventoryList');
+        inventoryList.innerHTML = '';
+        data.inventory.forEach(item => {
+          const name = item.type || item.name || '이름없음';
+          const count = item.count || 0;
+          const li = document.createElement('li');
+          li.textContent = `🔹 ${name} (${count}개)`;
+          inventoryList.appendChild(li);
+        });
       } catch (err) {
-        document.getElementById("statusMsg").innerHTML = '❌ <span class="red">서버 연결 실패</span>';
-        updateNews(['서버와 연결할 수 없습니다. 감자 전력 끊김 상태입니다.']);
+        document.getElementById('statusMsg').innerHTML = '<span class="red">❌ 서버 응답 실패</span>';
       }
-    }
-
-    function updateInventory(items) {
-      const list = document.getElementById("inventoryList");
-      list.innerHTML = '';
-      items.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.name}: ${item.count}개`;
-        list.appendChild(li);
-      });
     }
 
     async function createProduct() {
-      const product = document.getElementById("productName").value.trim();
-      if (!product) return alert("제품 이름을 입력하세요");
+      const product = document.getElementById('productName').value.trim();
+      if (!product) return alert('제품 이름을 입력해주세요.');
+
       try {
-        const res = await fetch(`${serverUrl}/make`, {
+        const res = await fetch(`${serverUrl}/api/create-product`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: product })
+          body: JSON.stringify({ nickname, type: product })
         });
         const result = await res.json();
-        alert(result.message || '생성됨');
-        checkServerStatus();
+        alert(result.message || '제품 생성 완료!');
+        showNews(`${result.type}이 출시되었습니다!`);
+        loadData();
       } catch (err) {
-        alert("제품 생성 실패: 서버 문제");
+        alert('제품 생성 실패');
       }
     }
 
-    checkServerStatus();
-    setInterval(checkServerStatus, 5000);
+    loadData();
   </script>
 </body>
 </html>
-
-
