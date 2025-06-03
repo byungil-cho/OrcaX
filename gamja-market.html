@@ -111,8 +111,8 @@
     document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
     const statusBox = document.getElementById("statusBox");
 
-    let productPrices = {}; // 시세정보 저장용
-    let userData = { nickname, products: [], tokens: 0 };
+    let productPrices = {};
+    let userData = { nickname, inventory: [], token: 0 };
 
     function fetchMarketData() {
       fetch("https://climbing-wholly-grouper.ngrok-free.app/api/market")
@@ -147,7 +147,8 @@
           return res.json();
         })
         .then(data => {
-          if (data) userData = data;
+          userData.inventory = data.inventory ?? [];
+          userData.token = data.token ?? 0;
           renderInventory();
         })
         .catch(err => console.error("내 제품 불러오기 실패", err));
@@ -156,11 +157,11 @@
     function renderInventory() {
       const container = document.getElementById("inventoryItems");
       container.innerHTML = "";
-      userData.products.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.className = "inventory-item";
-        div.innerHTML = `<input type="checkbox" value="${index}"> ${item}`;
-        container.appendChild(div);
+      userData.inventory.forEach((item, index) => {
+        container.innerHTML += `
+          <div class="inventory-item">
+            <input type="checkbox" value="${index}"> ${item.type} × ${item.count}
+          </div>`;
       });
     }
 
@@ -169,19 +170,22 @@
       if (checkboxes.length === 0) return alert("판매할 제품을 선택하세요.");
 
       let total = 0;
-      const remainingProducts = [];
+      const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value));
+      indexes.sort((a, b) => b - a); // 역순 정리
 
-      userData.products.forEach((item, index) => {
-        if ([...checkboxes].some(cb => parseInt(cb.value) === index)) {
-          const price = productPrices[item] || 0;
-          total += price;
+      indexes.forEach(index => {
+        const item = userData.inventory[index];
+        const price = productPrices[item.type] || 0;
+        total += price;
+
+        if (item.count > 1) {
+          item.count--;
         } else {
-          remainingProducts.push(item);
+          userData.inventory.splice(index, 1);
         }
       });
 
-      userData.products = remainingProducts;
-      userData.tokens = (userData.tokens || 0) + total;
+      userData.token += total;
 
       fetch("https://climbing-wholly-grouper.ngrok-free.app/api/userdata", {
         method: "POST",
