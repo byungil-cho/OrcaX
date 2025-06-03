@@ -50,6 +50,7 @@
   <h1>💧 OrcaX 감자 농장</h1>
   <div id="connection">🔌 서버 연결 상태 확인 중...</div>
   <div class="status-box">
+    <div class="info">👤 카카오 닉네임: <span id="nickname">-</span></div>
     <div class="info">💧 물: <span id="water">-</span></div>
     <div class="info">🧴 거름: <span id="fertilizer">-</span></div>
     <div class="info">🥔 감자: <span id="potato">-</span></div>
@@ -67,11 +68,11 @@
   const nickname = localStorage.getItem("nickname");
   const farmName = localStorage.getItem("farmName") || "이름없는농장";
   document.getElementById("farm").innerText = farmName;
+  document.getElementById("nickname").innerText = nickname || "-";
 
-  // 닉네임 없으면 강제 퇴장
   if (!nickname) {
     alert("❌ 카카오 로그인 후 이용 가능합니다. 돌아갑니다.");
-    window.location.href = "index.html"; // 이 경로는 네 설정에 따라 바꿔
+    window.location.href = "index.html";
   }
 
   async function loadStatus() {
@@ -100,8 +101,23 @@
     }
   }
 
+  function giveWater() {
+    alert("💧 물 주기 기능은 아직 준비 중입니다!");
+  }
+
+  function giveFertilizer() {
+    alert("🧴 거름 주기 기능은 아직 준비 중입니다!");
+  }
+
+  function harvest() {
+    alert("🥔 감자 수확하기 기능은 아직 준비 중입니다!");
+  }
+
+  function goToFactory() {
+    alert("🏭 감자 가공공장 이동 기능은 아직 준비 중입니다!");
+  }
+
   loadStatus();
 </script>
 </body>
 </html>
-
