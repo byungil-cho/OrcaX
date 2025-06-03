@@ -83,33 +83,41 @@
   </div>
 
   <script>
-    // 닉네임 표시
-    const nickname = localStorage.getItem("nickname") || "방문자";
-    document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
-
-    // 입력 시 미리보기 표시
-    function previewFarmName() {
-      const input = document.getElementById("farmNameInput").value.trim();
-      const preview = document.getElementById("previewName");
-      if (input) {
-        preview.textContent = input + "감자농장";
-        preview.style.display = "block";
-      } else {
-        preview.style.display = "none";
-      }
+  async function loginAndStartFarm() {
+    const input = document.getElementById("farmNameInput").value.trim();
+    if (!input) {
+      alert("농장명을 입력해주세요!");
+      return;
     }
 
-    // 저장 후 다음 화면 이동
-    function startFarm() {
-      const input = document.getElementById("farmNameInput").value.trim();
-      if (!input) {
-        alert("농장명을 입력해주세요!");
-        return;
-      }
-      const farmName = input + "감자농장";
-      localStorage.setItem("farmName", farmName);
+    const nickname = prompt("카카오 닉네임을 입력하세요:");
+    if (!nickname) {
+      alert("닉네임이 필요합니다.");
+      return;
+    }
+
+    try {
+      // 1. 서버에 로그인 요청 (없으면 생성됨)
+      const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname })
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error("로그인 실패");
+
+      // 2. nickname과 농장명 localStorage 저장
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("farmName", input + "감자농장");
+
+      // 3. 다음 페이지로 이동
       window.location.href = "gamja-factory.html";
+    } catch (err) {
+      alert("❌ 로그인 실패: " + err.message);
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
