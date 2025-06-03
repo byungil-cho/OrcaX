@@ -131,7 +131,9 @@
         .then(data => {
           userData.water = data.water ?? 0;
           userData.fertilizer = data.fertilizer ?? 0;
-          userData.inventory = data.inventory ?? [];
+          userData.inventory = (data.inventory ?? []).filter(
+            item => typeof item.type === "string" && item.type !== "undefined" && item.count > 0
+          );
           updateDisplay();
         })
         .catch(err => console.error("불러오기 실패", err));
@@ -159,9 +161,7 @@
     function exchangeSelected(type) {
       const checkboxes = document.querySelectorAll(".inventory-item input[type='checkbox']:checked");
       if (checkboxes.length === 0) return alert("교환할 제품을 선택하세요.");
-      const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value));
-      indexes.sort((a, b) => b - a); // 역순 정렬 후 제거
-
+      const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a, b) => b - a);
       indexes.forEach(idx => {
         const item = userData.inventory[idx];
         if (item.count > 1) {
@@ -170,7 +170,6 @@
           userData.inventory.splice(idx, 1);
         }
       });
-
       if (type === 'water') userData.water += indexes.length;
       else if (type === 'fertilizer') userData.fertilizer += indexes.length;
 
@@ -191,4 +190,5 @@
   </script>
 </body>
 </html>
+
 
