@@ -64,49 +64,58 @@
   </div>
 
   <script>
-    const nickname = localStorage.getItem("nickname") || "";
-    const farmName = localStorage.getItem("farmName") || "이름없는농장";
-    document.getElementById("farm").innerText = farmName;
+  const nickname = localStorage.getItem("nickname") || "";
+  const farmName = localStorage.getItem("farmName") || "이름없는농장";
+  document.getElementById("farm").innerText = farmName;
 
-    async function loadStatus() {
-      const connection = document.getElementById("connection");
-      if (!nickname) {
-        connection.innerText = "❌ 닉네임 없음 (로그인 필요)";
-        return;
-      }
-
-      try {
-        const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`);
-        if (!res.ok) throw new Error("서버 응답 오류");
-
-        const data = await res.json();
-        connection.innerHTML = "✅ 전기 공급 중 (서버 연결됨)";
-        document.getElementById("water").innerText = data.water ?? 0;
-        document.getElementById("fertilizer").innerText = data.fertilizer ?? 0;
-        document.getElementById("potato").innerText = data.potatoCount ?? 0;
-        document.getElementById("token").innerText = data.token ?? 0;
-      } catch (err) {
-        connection.innerHTML = `❌ 서버 오류: ${err.message}`;
-      }
+  async function loadStatus() {
+    const connection = document.getElementById("connection");
+    if (!nickname) {
+      connection.innerText = "❌ 닉네임 없음 (로그인 필요)";
+      return;
     }
 
-    function giveWater() {
-      alert("물 주기 기능은 아직 구현되지 않았습니다.");
-    }
+    try {
+      const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`);
+      if (!res.ok) throw new Error("서버 응답 오류");
 
-    function giveFertilizer() {
-      alert("거름 주기 기능은 아직 구현되지 않았습니다.");
-    }
+      const data = await res.json();
+      if (!data.success || !data.user) throw new Error("유효하지 않은 응답");
 
-    function harvest() {
-      alert("감자 수확 기능은 아직 구현되지 않았습니다.");
-    }
+      const user = data.user;
 
-    function goToFactory() {
-      window.location.href = "gamja-result.html";
+      connection.innerHTML = "✅ 전기 공급 중 (서버 연결됨)";
+      document.getElementById("water").innerText = user.water ?? 0;
+      document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
+      document.getElementById("potato").innerText = user.potatoCount ?? 0;
+      document.getElementById("token").innerText = user.token ?? 0;
+    } catch (err) {
+      connection.innerHTML = `❌ 서버 오류: ${err.message}`;
+      document.getElementById("water").innerText = "-";
+      document.getElementById("fertilizer").innerText = "-";
+      document.getElementById("potato").innerText = "-";
+      document.getElementById("token").innerText = "-";
     }
+  }
 
-    loadStatus();
-  </script>
+  function giveWater() {
+    alert("물 주기 기능은 아직 구현되지 않았습니다.");
+  }
+
+  function giveFertilizer() {
+    alert("거름 주기 기능은 아직 구현되지 않았습니다.");
+  }
+
+  function harvest() {
+    alert("감자 수확 기능은 아직 구현되지 않았습니다.");
+  }
+
+  function goToFactory() {
+    window.location.href = "gamja-result.html";
+  }
+
+  loadStatus();
+</script>
+
 </body>
 </html>
