@@ -65,18 +65,40 @@
   </div>
 
 <script>
-  const nickname = localStorage.getItem("nickname");
   const farmName = localStorage.getItem("farmName") || "이름없는농장";
   document.getElementById("farm").innerText = farmName;
-  document.getElementById("nickname").innerText = nickname || "-";
 
-  if (!nickname) {
-    alert("❌ 카카오 로그인 후 이용 가능합니다. 돌아갑니다.");
-    window.location.href = "index.html";
+  async function ensureNickname() {
+    let nickname = localStorage.getItem("nickname");
+
+    if (!nickname) {
+      nickname = prompt("닉네임이 없습니다. 입력해주세요:");
+      if (!nickname) {
+        alert("❌ 닉네임 없이 접속 불가합니다.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      localStorage.setItem("nickname", nickname);
+      try {
+        await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname })
+        });
+      } catch (err) {
+        alert("❌ 서버 등록 실패: " + err.message);
+      }
+    }
+
+    document.getElementById("nickname").innerText = nickname;
+    return nickname;
   }
 
   async function loadStatus() {
     const connection = document.getElementById("connection");
+    const nickname = await ensureNickname();
+    if (!nickname) return;
 
     try {
       const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`);
