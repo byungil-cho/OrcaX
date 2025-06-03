@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 - 감자 농장 유저 리스트</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f9f9f9;
+      padding: 1rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #4d372d;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    th {
+      background-color: #ffde99;
+    }
+    tr:nth-child(even) {
+      background-color: #fff8e1;
+    }
+    .loading {
+      text-align: center;
+      margin-top: 2rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧑‍🌾 관리자 전용: 감자 농장 유저 목록</h1>
+  <div class="loading" id="loadingMsg">데이터 불러오는 중...</div>
+  <table id="userTable" style="display:none">
+    <thead>
+      <tr>
+        <th>닉네임</th>
+        <th>물</th>
+        <th>거름</th>
+        <th>토큰</th>
+        <th>감자 수</th>
+        <th>무료농사 가능 횟수</th>
+        <th>마지막 무료농사 시간</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
+
+  <script>
+    fetch("https://climbing-wholly-grouper.ngrok-free.app/api/users")
+      .then(res => res.json())
+      .then(data => {
+        const table = document.getElementById("userTable");
+        const body = document.getElementById("userTableBody");
+        const loadingMsg = document.getElementById("loadingMsg");
+
+        loadingMsg.style.display = "none";
+        table.style.display = "table";
+
+        if (!data.success || !data.users) {
+          body.innerHTML = '<tr><td colspan="7">유저 정보 없음</td></tr>';
+          return;
+        }
+
+        data.users.forEach(user => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${user.nickname}</td>
+            <td>${user.water}</td>
+            <td>${user.fertilizer}</td>
+            <td>${user.token}</td>
+            <td>${user.potatoCount ?? 0}</td>
+            <td>${user.freeFarmCount ?? "-"}</td>
+            <td>${user.lastFreeTime ? new Date(user.lastFreeTime).toLocaleString() : "-"}</td>
+          `;
+          body.appendChild(row);
+        });
+      })
+      .catch(err => {
+        document.getElementById("loadingMsg").textContent = "❌ 유저 불러오기 실패";
+        console.error("유저 데이터 요청 실패:", err);
+      });
+  </script>
+</body>
+</html>
