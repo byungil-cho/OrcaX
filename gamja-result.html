@@ -152,10 +152,10 @@
     const statusBox = document.getElementById("statusBox");
     let userData = {
       nickname,
-      potato: 0,
+      potatoCount: 0,
       water: 0,
       fertilizer: 0,
-      products: []
+      inventory: []
     };
 
     function fetchUserData() {
@@ -167,9 +167,10 @@
           return res.json();
         })
         .then(data => {
-          if (data && Object.keys(data).length > 0) {
-            userData = data;
-          }
+          userData.potatoCount = data.potatoCount ?? 0;
+          userData.water = data.water ?? 0;
+          userData.fertilizer = data.fertilizer ?? 0;
+          userData.inventory = data.inventory ?? [];
           updateDisplay();
         })
         .catch(err => {
@@ -179,16 +180,8 @@
         });
     }
 
-    function saveUserData() {
-      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/userdata", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-      }).catch(err => console.error("저장 실패", err));
-    }
-
     function updateDisplay() {
-      document.getElementById("potatoCount").textContent = userData.potato;
+      document.getElementById("potatoCount").textContent = userData.potatoCount;
       document.getElementById("waterCount").textContent = userData.water;
       document.getElementById("fertilizerCount").textContent = userData.fertilizer;
       renderInventory();
@@ -197,11 +190,11 @@
     function renderInventory() {
       const inventoryEl = document.getElementById("inventoryItems");
       inventoryEl.innerHTML = "";
-      userData.products.forEach((item, index) => {
+      userData.inventory.forEach((item, index) => {
         const div = document.createElement("div");
         div.className = "inventory-item";
         div.innerHTML = `
-          <input type="checkbox" value="${index}"> ${item}
+          <input type="checkbox" value="${index}"> ${item.type} × ${item.count}
           <button class="delete-btn" onclick="deleteProduct(${index})">폐기</button>
         `;
         inventoryEl.appendChild(div);
@@ -210,8 +203,7 @@
 
     function deleteProduct(index) {
       if (confirm("이 제품을 폐기하시겠습니까?")) {
-        userData.products.splice(index, 1);
-        saveUserData();
+        userData.inventory.splice(index, 1);
         updateDisplay();
       }
     }
@@ -219,31 +211,41 @@
     function makeProduct() {
       const name = document.getElementById("productName").value.trim();
       if (!name) return alert("제품 이름을 입력하세요.");
-      if (userData.potato <= 0) return alert("감자가 부족합니다.");
-      userData.potato--;
-      userData.products.push(name);
+      if (userData.potatoCount <= 0) return alert("감자가 부족합니다.");
+      userData.potatoCount--;
+      const existing = userData.inventory.find(i => i.type === name);
+      if (existing) {
+        existing.count++;
+      } else {
+        userData.inventory.push({ type: name, count: 1 });
+      }
       document.getElementById("productName").value = "";
       alert(`'${name}' 제품이 가공되었습니다!`);
       updateDisplay();
-      saveUserData();
     }
 
     function exchangeSelected(type) {
       const checkboxes = document.querySelectorAll(".inventory-item input[type='checkbox']:checked");
       if (checkboxes.length === 0) return alert("교환할 제품을 선택하세요.");
-      checkboxes.forEach(cb => {
-        const idx = parseInt(cb.value);
-        if (type === 'water') userData.water++;
-        else if (type === 'fertilizer') userData.fertilizer++;
+      const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+      indexes.forEach(idx => {
+        const item = userData.inventory[idx];
+        if (item.count > 1) {
+          item.count--;
+        } else {
+          userData.inventory.splice(idx, 1);
+        }
       });
-      userData.products = userData.products.filter((_, idx) => ![...checkboxes].some(cb => parseInt(cb.value) === idx));
+
+      if (type === 'water') userData.water += indexes.length;
+      else if (type === 'fertilizer') userData.fertilizer += indexes.length;
+
       alert(`선택한 제품이 ${type === 'water' ? '물' : '거름'}으로 교환되었습니다.`);
       updateDisplay();
-      saveUserData();
     }
 
     fetchUserData();
   </script>
 </body>
 </html>
-
