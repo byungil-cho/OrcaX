@@ -160,6 +160,7 @@
       const checkboxes = document.querySelectorAll(".inventory-item input[type='checkbox']:checked");
       if (checkboxes.length === 0) return alert("교환할 제품을 선택하세요.");
       const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value));
+      indexes.sort((a, b) => b - a); // 역순 정렬 후 제거
 
       indexes.forEach(idx => {
         const item = userData.inventory[idx];
@@ -173,11 +174,21 @@
       if (type === 'water') userData.water += indexes.length;
       else if (type === 'fertilizer') userData.fertilizer += indexes.length;
 
-      alert(`선택한 제품이 ${type === 'water' ? '물' : '거름'}으로 교환되었습니다.`);
-      updateDisplay();
+      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/update-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      })
+        .then(res => res.json())
+        .then(() => {
+          alert(`선택한 제품이 ${type === 'water' ? '물' : '거름'}으로 교환되었습니다.`);
+          updateDisplay();
+        })
+        .catch(() => alert("❌ 저장 실패: 서버 오류"));
     }
 
     fetchUserData();
   </script>
 </body>
 </html>
+
