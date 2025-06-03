@@ -22,6 +22,12 @@
       margin: 0.5rem 1rem 0.5rem 0;
       color: #5b4229;
     }
+    #statusBox {
+      text-align: center;
+      color: #cc0000;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
     #marketContainer {
       display: flex;
       flex-direction: column;
@@ -83,6 +89,7 @@
 <body>
   <div id="nicknameBox"></div>
   <h1>🥔 감자 제품 거래소</h1>
+  <div id="statusBox">🔌 서버 전원 상태 확인 중...</div>
   <div id="marketContainer">
     <div class="product-box" id="productList">
       <div>📈 실시간 전광판 시세</div>
@@ -102,13 +109,19 @@
   <script>
     const nickname = localStorage.getItem("nickname") || "방문자";
     document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
+    const statusBox = document.getElementById("statusBox");
 
     let productPrices = {}; // 시세정보 저장용
     let userData = { nickname, products: [], tokens: 0 };
 
     function fetchMarketData() {
       fetch("https://climbing-wholly-grouper.ngrok-free.app/api/market")
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error("시세 서버 응답 없음");
+          statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
+          statusBox.style.color = "green";
+          return res.json();
+        })
         .then(data => {
           const productList = document.getElementById("productList");
           productList.innerHTML = "<div>📈 실시간 전광판 시세</div>";
@@ -120,12 +133,19 @@
             productList.appendChild(div);
           });
         })
-        .catch(err => console.error("거래소 시세 불러오기 실패", err));
+        .catch(err => {
+          statusBox.textContent = "⚠️ 전기 공급이 끊겼습니다 (서버 응답 없음)";
+          statusBox.style.color = "red";
+          console.error("거래소 시세 불러오기 실패", err);
+        });
     }
 
     function fetchUserData() {
       fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error("유저 데이터 없음");
+          return res.json();
+        })
         .then(data => {
           if (data) userData = data;
           renderInventory();
