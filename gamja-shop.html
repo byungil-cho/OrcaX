@@ -80,7 +80,17 @@
 
   <script>
     const nickname = localStorage.getItem("nickname") || "사이메인";
-    document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
+    const box = document.getElementById("nicknameBox");
+    box.textContent = `👤 ${nickname} 님`;
+
+    // ORCX 토큰 정보 추가 표시
+    fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`)
+      .then(res => res.json())
+      .then(data => {
+        const tokenInfo = document.createElement('p');
+        tokenInfo.innerHTML = `💰 ORCX 토큰: <strong>${data.token ?? 0}</strong>개`;
+        box.appendChild(tokenInfo);
+      });
 
     function exchangeSeed() {
       fetch("https://climbing-wholly-grouper.ngrok-free.app/api/exchange-seed", {
@@ -90,16 +100,19 @@
       })
         .then(res => res.json())
         .then(data => {
+          const resultMsg = document.getElementById("resultMsg");
           if (data.success) {
-            document.getElementById("resultMsg").textContent = `🌾 씨감자 ${data.seedGained}개 획득했습니다.`;
+            resultMsg.textContent = `🌾 씨감자 ${data.seedGained}개 획득했습니다.`;
+            resultMsg.style.color = "green";
           } else {
-            document.getElementById("resultMsg").textContent = `⚠️ ${data.message}`;
-            document.getElementById("resultMsg").style.color = "red";
+            resultMsg.textContent = `⚠️ ${data.message}`;
+            resultMsg.style.color = "red";
           }
         })
         .catch(() => {
-          document.getElementById("resultMsg").textContent = `⚠️ 교환에 오류가 발생했습니다.`;
-          document.getElementById("resultMsg").style.color = "red";
+          const resultMsg = document.getElementById("resultMsg");
+          resultMsg.textContent = `⚠️ 교환에 오류가 발생했습니다.`;
+          resultMsg.style.color = "red";
         });
     }
   </script>
