@@ -22,6 +22,12 @@
       margin: 0.5rem 1rem 0.5rem 0;
       color: #503020;
     }
+    #statusBox {
+      text-align: center;
+      color: #cc0000;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
     #container {
       display: flex;
       flex-direction: column;
@@ -115,6 +121,7 @@
 <body>
   <div id="nicknameBox"></div>
   <h1>🏭 OrcaX 감자 가공공장</h1>
+  <div id="statusBox">🔌 서버 전원 상태 확인 중...</div>
   <div id="container">
     <div class="status-box">
       <div class="status-item">🥔 감자: <span id="potatoCount">0</span></div>
@@ -131,7 +138,7 @@
       <h3>📦 가공 제품 보관함</h3>
       <div id="inventoryItems"></div>
     </div>
-    <div class="navigation-links" id="navLinks" style="display:none;">
+    <div class="navigation-links">
       <a href="gamja-shop.html">🛒 씨감자 상점</a>
       <a href="gamja-exchange.html">🔄 자원 교환소</a>
       <a href="gamja-market.html">💰 거래소 이동</a>
@@ -142,6 +149,7 @@
     const nickname = localStorage.getItem("nickname") || "방문자";
     document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
 
+    const statusBox = document.getElementById("statusBox");
     let userData = {
       nickname,
       potato: 0,
@@ -152,14 +160,23 @@
 
     function fetchUserData() {
       fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error("서버 오류");
+          statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
+          statusBox.style.color = "green";
+          return res.json();
+        })
         .then(data => {
           if (data && Object.keys(data).length > 0) {
             userData = data;
           }
           updateDisplay();
         })
-        .catch(err => console.error("불러오기 실패", err));
+        .catch(err => {
+          statusBox.textContent = "⚠️ 전기 공급이 끊겼습니다 (서버 응답 없음)";
+          statusBox.style.color = "red";
+          console.error("불러오기 실패", err);
+        });
     }
 
     function saveUserData() {
@@ -175,8 +192,6 @@
       document.getElementById("waterCount").textContent = userData.water;
       document.getElementById("fertilizerCount").textContent = userData.fertilizer;
       renderInventory();
-      const nav = document.getElementById("navLinks");
-      nav.style.display = userData.potato <= 0 ? "block" : "none";
     }
 
     function renderInventory() {
@@ -218,7 +233,6 @@
       if (checkboxes.length === 0) return alert("교환할 제품을 선택하세요.");
       checkboxes.forEach(cb => {
         const idx = parseInt(cb.value);
-        const item = userData.products[idx];
         if (type === 'water') userData.water++;
         else if (type === 'fertilizer') userData.fertilizer++;
       });
@@ -232,3 +246,4 @@
   </script>
 </body>
 </html>
+
