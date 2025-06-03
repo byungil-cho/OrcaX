@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>⸺ 씨감자 상점 (2 ORCX 교환)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f4fff0;
+      padding: 1rem;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #3b4a2f;
+      margin: 1rem 0;
+    }
+    #nicknameBox {
+      text-align: right;
+      font-weight: bold;
+      margin: 0.5rem 1rem;
+      color: #333;
+    }
+    .shop-box {
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1.5rem;
+      max-width: 400px;
+      margin: 2rem auto;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .shop-box button {
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      background: #60b347;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .shop-box button:hover {
+      background-color: #4a9538;
+    }
+    .navigation-links {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .navigation-links a {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #4a74ba;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .navigation-links a:hover {
+      background: #365f9c;
+    }
+  </style>
+</head>
+<body>
+  <div id="nicknameBox"></div>
+  <h1>🌾 씨감자 교환 상점</h1>
+  <div class="shop-box">
+    <p>🔄 ORCX 2개로 씨감자 1개로 교환합니다.</p>
+    <button onclick="exchangeSeed()">✔️ 씨감자 교환</button>
+    <p id="resultMsg" style="margin-top:1rem; color:green;"></p>
+  </div>
+
+  <div class="navigation-links">
+    <a href="gamja-market.html">💰 거래소 이동</a>
+    <a href="gamja-exchange.html">🚰 감자 가공 구조 교환소</a>
+    <a href="gamja-result.html">🏠 감자 가공공장</a>
+  </div>
+
+  <script>
+    const nickname = localStorage.getItem("nickname") || "사이메인";
+    document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
+
+    function exchangeSeed() {
+      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/exchange-seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById("resultMsg").textContent = `🌾 씨감자 ${data.seedGained}개 획득했습니다.`;
+          } else {
+            document.getElementById("resultMsg").textContent = `⚠️ ${data.message}`;
+            document.getElementById("resultMsg").style.color = "red";
+          }
+        })
+        .catch(() => {
+          document.getElementById("resultMsg").textContent = `⚠️ 교환에 오류가 발생했습니다.`;
+          document.getElementById("resultMsg").style.color = "red";
+        });
+    }
+  </script>
+</body>
+</html>

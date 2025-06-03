@@ -45,12 +45,12 @@
     }
     .field {
       display: inline-block;
+      cursor: pointer;
     }
     .field img {
       width: 200px;
       height: auto;
       border-radius: 10px;
-      cursor: pointer;
       box-shadow: 0 0 10px black;
     }
     .field span {
@@ -101,14 +101,14 @@
     <div id="nicknameDisplay" class="nickname" style="display: none;"></div>
 
     <div class="field-section">
-      <a href="gamja-farm.html" class="field">
+      <div class="field" onclick="enterFarm('gamja-farm.html')">
         <img src="farm-101.png" alt="감자 밭">
         <span>🥔 감자 밭</span>
-      </a>
-      <a href="bori-farm.html" class="field">
+      </div>
+      <div class="field" onclick="enterFarm('bori-farm.html')">
         <img src="farm-201.png" alt="보리 밭">
         <span>🌾 보리 밭</span>
-      </a>
+      </div>
     </div>
 
     <div class="bottom-links">
@@ -139,7 +139,7 @@
     const nickname = localStorage.getItem("nickname");
     const lastLogin = localStorage.getItem("lastLogin");
     const now = Date.now();
-    const TWO_HOURS = 2 * 60 * 60 * 1000; // 2시간
+    const TWO_HOURS = 2 * 60 * 60 * 1000;
 
     if (nickname) {
       const nicknameEl = document.getElementById("nicknameDisplay");
@@ -151,9 +151,16 @@
       if (lastLogin && now - parseInt(lastLogin) < TWO_HOURS) {
         const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLogin))) / 60000);
         alert(`⏳ 농장 이용 대기 시간: ${remain}분 남음`);
-        // 여기에 버튼 disable 또는 이동 차단 처리 가능
       } else {
         localStorage.setItem("lastLogin", now.toString());
+      }
+    }
+
+    function enterFarm(url) {
+      if (!nickname) {
+        alert("로그인 후 입장하실 수 있습니다.");
+      } else {
+        window.location.href = url;
       }
     }
   </script>

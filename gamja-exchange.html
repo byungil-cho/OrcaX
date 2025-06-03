@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>OrcaX 감자 가공공장</title>
+  <title>OrcaX 자원 교환소</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -42,10 +42,6 @@
     .status-item {
       margin: 0.5rem 0;
     }
-    .action-buttons button {
-      margin: 0.3rem;
-      background: #705030;
-    }
     button {
       padding: 0.7rem 1.5rem;
       font-size: 1rem;
@@ -58,12 +54,6 @@
     }
     button:hover {
       background-color: #af934f;
-    }
-    @media (max-width: 480px) {
-      #nicknameBox {
-        font-size: 0.9rem;
-        margin-right: 0.5rem;
-      }
     }
     .inventory-box {
       margin-top: 1rem;
@@ -82,14 +72,8 @@
       align-items: center;
       padding: 0.3rem 0;
     }
-    .delete-btn {
-      background-color: #e57373;
-      padding: 0.3rem 0.6rem;
-      font-size: 0.8rem;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      color: white;
+    .inventory-item input[type="checkbox"] {
+      margin-right: 0.5rem;
     }
     .navigation-links {
       text-align: center;
@@ -107,44 +91,35 @@
     .navigation-links a:hover {
       background: #5c9e35;
     }
-    .inventory-item input[type="checkbox"] {
-      margin-right: 0.5rem;
-    }
   </style>
 </head>
 <body>
   <div id="nicknameBox"></div>
-  <h1>🏭 OrcaX 감자 가공공장</h1>
+  <h1>🔄 OrcaX 자원 교환소</h1>
   <div id="container">
     <div class="status-box">
-      <div class="status-item">🥔 감자: <span id="potatoCount">0</span></div>
       <div class="status-item">💧 물: <span id="waterCount">0</span></div>
       <div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
-      <input type="text" id="productName" placeholder="제품 이름 입력">
-      <button onclick="makeProduct()">제품 가공하기</button>
-      <div style="margin-top:1rem">
-        <button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
-        <button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
-      </div>
+      <div class="status-item">🥔 감자 가공 제품으로 교환 가능합니다.</div>
+      <button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
+      <button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
     </div>
     <div class="inventory-box">
       <h3>📦 가공 제품 보관함</h3>
       <div id="inventoryItems"></div>
     </div>
-    <div class="navigation-links" id="navLinks" style="display:none;">
-      <a href="gamja-shop.html">🛒 씨감자 상점</a>
-      <a href="gamja-exchange.html">🔄 자원 교환소</a>
+    <div class="navigation-links">
+      <a href="gamja-shop.html">🛒 씨감자 상점 (2 ORCX 교환)</a>
       <a href="gamja-market.html">💰 거래소 이동</a>
+      <a href="gamja-result.html">🏭 가공공장 이동</a>
     </div>
   </div>
-
   <script>
     const nickname = localStorage.getItem("nickname") || "방문자";
     document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
 
     let userData = {
       nickname,
-      potato: 0,
       water: 0,
       fertilizer: 0,
       products: []
@@ -171,12 +146,9 @@
     }
 
     function updateDisplay() {
-      document.getElementById("potatoCount").textContent = userData.potato;
       document.getElementById("waterCount").textContent = userData.water;
       document.getElementById("fertilizerCount").textContent = userData.fertilizer;
       renderInventory();
-      const nav = document.getElementById("navLinks");
-      nav.style.display = userData.potato <= 0 ? "block" : "none";
     }
 
     function renderInventory() {
@@ -187,30 +159,9 @@
         div.className = "inventory-item";
         div.innerHTML = `
           <input type="checkbox" value="${index}"> ${item}
-          <button class="delete-btn" onclick="deleteProduct(${index})">폐기</button>
         `;
         inventoryEl.appendChild(div);
       });
-    }
-
-    function deleteProduct(index) {
-      if (confirm("이 제품을 폐기하시겠습니까?")) {
-        userData.products.splice(index, 1);
-        saveUserData();
-        updateDisplay();
-      }
-    }
-
-    function makeProduct() {
-      const name = document.getElementById("productName").value.trim();
-      if (!name) return alert("제품 이름을 입력하세요.");
-      if (userData.potato <= 0) return alert("감자가 부족합니다.");
-      userData.potato--;
-      userData.products.push(name);
-      document.getElementById("productName").value = "";
-      alert(`'${name}' 제품이 가공되었습니다!`);
-      updateDisplay();
-      saveUserData();
     }
 
     function exchangeSelected(type) {
@@ -218,7 +169,6 @@
       if (checkboxes.length === 0) return alert("교환할 제품을 선택하세요.");
       checkboxes.forEach(cb => {
         const idx = parseInt(cb.value);
-        const item = userData.products[idx];
         if (type === 'water') userData.water++;
         else if (type === 'fertilizer') userData.fertilizer++;
       });

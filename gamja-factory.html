@@ -2,137 +2,190 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <title>OrcaX 감자 농장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>감자 농장 입장</title>
   <style>
     body {
+      font-family: 'Arial', sans-serif;
+      background: #f1f9e8;
+      padding: 1rem;
       margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      background-color: #111;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: #fff;
     }
     h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
+      text-align: center;
+      color: #305030;
+      margin: 1rem 0 0.5rem;
     }
-    input {
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      border: none;
-      margin-bottom: 1rem;
-      font-size: 1rem;
+    #nicknameBox {
+      text-align: right;
+      font-weight: bold;
+      margin: 0.5rem 1rem 0.5rem 0;
+      color: #305030;
     }
-    .button-row {
+    #container {
       display: flex;
-      gap: 1rem;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+    }
+    .status-box {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 1rem;
+      margin-top: 2rem;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    .status-item {
+      margin: 0.5rem 0;
+    }
+    .action-buttons button {
+      margin: 0.3rem;
+      background: #507040;
     }
     button {
-      padding: 0.8rem 2rem;
+      padding: 0.7rem 1.5rem;
       font-size: 1rem;
-      background-color: #f9a825;
+      background: #85b765;
+      color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 5px;
       cursor: pointer;
+      margin-top: 1rem;
     }
     button:hover {
-      background-color: #f57f17;
+      background-color: #739c54;
     }
-    .status {
-      margin: 1rem;
-      text-align: center;
-    }
-    .potato-img {
-      width: 160px;
-      height: 160px;
-      margin-top: 1rem;
-      border-radius: 50%;
-      overflow: hidden;
-      animation: wiggle 1s infinite alternate;
-    }
-    .potato-img img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    @keyframes wiggle {
-      0% { transform: rotate(-1deg); }
-      100% { transform: rotate(1deg); }
+    @media (max-width: 480px) {
+      #nicknameBox {
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>[이름없는농장] 감자가 자라고 있습니다</h1>
-  <div class="status">
-    <div>👤 <span id="nickname">-</span>님 어서오세요!</div>
-    <div>⏳ 농사 대기 시간: <span id="wait-time">--</span>분 남음</div>
-    <div>🕒 마지막 작업 이후 <span id="last-action">--</span>분 경과</div>
-    <p>물을 주거나 거름을 주세요!</p>
+  <div id="nicknameBox"></div>
+  <h1>🐳 OrcaX 감자 농장</h1>
+  <div id="container">
+    <div class="status-box">
+      <div class="status-item">💧 물: <span id="waterCount">0</span></div>
+      <div class="status-item">🧪 거름: <span id="fertilizerCount">0</span></div>
+      <div class="status-item">🥔 감자: <span id="potatoCount">0</span></div>
+      <div class="status-item">🪙 ORCX 토큰: <span id="orcxCount">0</span></div>
+      <div class="status-item">🏷 농장명: <span id="farmNameDisplay">불러오는 중...</span></div>
+      <div class="action-buttons">
+        <button onclick="useWater()">💧 물 주기</button>
+        <button onclick="useFertilizer()">🧪 거름 주기</button>
+        <button onclick="harvestPotato()">🥔 감자 수확하기</button>
+        <button onclick="goToFactory()">🏭 감자 가공공장 이동</button>
+      </div>
+    </div>
   </div>
-  <div class="button-row">
-    <button onclick="addWater()">💧 물 주기</button>
-    <button onclick="addFertilizer()">🌾 거름 주기</button>
-  </div>
-  <div class="status">
-    💧 물: <span id="water-count">0</span>번 | 🌾 거름: <span id="fertilizer-count">0</span>번
-  </div>
-  <button onclick="harvest()">🥔 수확하기</button>
-  <div class="potato-img"><img src="https://byungil-cho.github.io/OrcaX/farm-101_01.png" alt="감자 이미지"></div>
-  <div class="status" id="result"></div>
 
   <script>
-    const nickname = localStorage.getItem('nickname') || '이름없는농장';
-    document.getElementById('nickname').textContent = nickname;
+    const nickname = localStorage.getItem("nickname") || "방문자";
+    const farmName = localStorage.getItem("farmName") || "미등록 농장";
+    document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
+    document.getElementById("farmNameDisplay").textContent = farmName;
 
-    let water = 0;
-    let fertilizer = 0;
-    let startTime = Date.now();
+    let userData = {
+      nickname,
+      farmName,
+      water: 0,
+      fertilizer: 0,
+      potato: 0,
+      orcx: 0
+    };
 
-    function updateStatus() {
-      document.getElementById('water-count').textContent = water;
-      document.getElementById('fertilizer-count').textContent = fertilizer;
-      const minutesPassed = Math.floor((Date.now() - startTime) / 60000);
-      document.getElementById('last-action').textContent = minutesPassed;
-      document.getElementById('wait-time').textContent = Math.max(0, 120 - minutesPassed);
+    function fetchUserData() {
+      fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && Object.keys(data).length > 0) {
+            userData = data;
+          } else {
+            userData = {
+              nickname,
+              farmName,
+              water: 10,
+              fertilizer: 10,
+              potato: 0,
+              orcx: 5
+            };
+            saveUserData();
+          }
+          updateDisplay();
+        })
+        .catch(err => console.error("불러오기 실패", err));
     }
 
-    function addWater() {
-      water++;
-      startTime = Date.now();
-      updateStatus();
+    function saveUserData() {
+      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/userdata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      }).catch(err => console.error("저장 실패", err));
     }
 
-    function addFertilizer() {
-      fertilizer++;
-      startTime = Date.now();
-      updateStatus();
+    function updateDisplay() {
+      document.getElementById("waterCount").textContent = userData.water;
+      document.getElementById("fertilizerCount").textContent = userData.fertilizer;
+      document.getElementById("potatoCount").textContent = userData.potato;
+      document.getElementById("orcxCount").textContent = userData.orcx;
     }
 
-    function harvest() {
-      const total = water + fertilizer;
-      if (total >= 3) {
-        const harvested = Math.floor(Math.random() * 6) + 5; // 5~10개 수확
-        document.getElementById('result').innerText = `🎉 수확 완료! [${nickname}]에서 감자 ${harvested}개를 수확했습니다.`;
-        water = 0;
-        fertilizer = 0;
-        startTime = Date.now();
-        updateStatus();
+    let tempWater = false;
+    let tempFertilizer = false;
 
-        setTimeout(() => {
-          window.location.href = 'gamja-result.html';
-        }, 10000);
+    function useWater() {
+      if (userData.water > 0) {
+        userData.water--;
+        tempWater = true;
+        alert("물 1개 사용했습니다");
+        updateDisplay();
+        saveUserData();
       } else {
-        alert('물을 더 주거나 거름이 부족합니다!');
+        alert("물이 부족합니다");
       }
     }
 
-    updateStatus();
+    function useFertilizer() {
+      if (userData.fertilizer > 0) {
+        userData.fertilizer--;
+        tempFertilizer = true;
+        alert("거름 1개 사용했습니다");
+        updateDisplay();
+        saveUserData();
+      } else {
+        alert("거름이 부족합니다");
+      }
+    }
+
+    function harvestPotato() {
+      if (tempWater && tempFertilizer) {
+        userData.potato++;
+        tempWater = false;
+        tempFertilizer = false;
+        alert("감자 1개 수확 완료!");
+        updateDisplay();
+        saveUserData();
+      } else {
+        alert("물을 주고 거름을 준 후 수확하세요");
+      }
+    }
+
+    function goToFactory() {
+      localStorage.setItem("nickname", userData.nickname);
+      localStorage.setItem("farmName", userData.farmName);
+      localStorage.setItem("potato", userData.potato);
+      window.location.href = "gamja-result.html";
+    }
+
+    fetchUserData();
   </script>
 </body>
 </html>

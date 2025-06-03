@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gamja Farm Entrance</title>
+  <title>감자밭 입구</title>
   <style>
     body {
       margin: 0;
@@ -16,7 +16,7 @@
       position: relative;
       width: 100vw;
       height: 100vh;
-      background: url('farm-101.png') no-repeat center center/cover;
+      background: url('./farm-101.png') no-repeat center center/cover;
     }
     .overlay {
       position: absolute;
@@ -24,7 +24,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.2);
+      background-color: rgba(0, 0, 0, 0.25);
     }
     .label {
       position: absolute;
@@ -34,7 +34,18 @@
       background-color: #ffaa00cc;
       color: #000;
       font-weight: bold;
-      font-size: 1.25rem;
+      font-size: 1.3rem;
+      border-radius: 8px;
+    }
+    .nickname {
+      position: absolute;
+      top: 5%;
+      right: 5%;
+      padding: 0.75rem 1.5rem;
+      background-color: #fff2a0cc;
+      color: #000;
+      font-weight: bold;
+      font-size: 1.3rem;
       border-radius: 8px;
     }
     .entry-button {
@@ -58,12 +69,25 @@
 <body>
   <div class="container">
     <div class="overlay"></div>
-    <div class="label">Gamja Farm Entrance</div>
-    <button class="entry-button" onclick="enterGamjaFarm()">Enter the Field</button>
+    <div class="label">🥔 감자밭 입구</div>
+    <div class="nickname" id="nicknameBox" style="display: none;"></div>
+    <button class="entry-button" onclick="enterGamjaFarm()">감자밭 들어가기</button>
   </div>
+
   <script>
     function enterGamjaFarm() {
       window.location.href = 'gamja-main.html';
+    }
+
+    const nickname = localStorage.getItem("nickname");
+    const nicknameBox = document.getElementById("nicknameBox");
+
+    if (nickname) {
+      nicknameBox.textContent = `👤 ${nickname}님 환영합니다!`;
+      nicknameBox.style.display = "block";
+    } else {
+      nicknameBox.textContent = "⚠️ 로그인 정보 없음";
+      nicknameBox.style.display = "block";
     }
   </script>
 </body>
