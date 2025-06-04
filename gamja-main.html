@@ -17,58 +17,97 @@
       font-size: 1.8rem;
       color: #256029;
     }
-    .status-box {
+    .status-box, .input-box {
       background: #ffffff;
       border: 1px solid #c8e6c9;
       border-radius: 12px;
       padding: 1rem;
       margin-top: 1rem;
-      max-width: 400px;
+      max-width: 420px;
       margin-left: auto;
       margin-right: auto;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .info {
       font-size: 1rem;
-      margin: 0.5rem 0;
+      margin: 0.3rem 0;
+    }
+    input {
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 80%;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>🌱 감자 농장 메인 페이지</h1>
+  <h1>🌱 OrcaX 감자 농장</h1>
+
   <div class="status-box">
-    <div class="info"><strong>닉네임:</strong> <span id="nicknameBox"></span></div>
-    <div class="info">💧 물: <span id="waterCount">-</span></div>
-    <div class="info">🧴 거름: <span id="fertilizerCount">-</span></div>
-    <div class="info">💰 토큰: <span id="tokenCount">-</span></div>
-    <div class="info">🥔 감자 수: <span id="potatoCount">-</span></div>
+    <p class="info"><strong>닉네임:</strong> <span id="nicknameBox">-</span></p>
+    <p class="info"><strong>🌾 농장이름:</strong> <span id="farmNameBox">-</span></p>
+    <p class="info">💧 물: <span id="waterCount">-</span></p>
+    <p class="info">🧴 거름: <span id="fertilizerCount">-</span></p>
+    <p class="info">💰 토큰: <span id="tokenCount">-</span></p>
+    <p class="info">🥔 감자 수: <span id="potatoCount">-</span></p>
+  </div>
+
+  <div class="input-box">
+    <p>✍️ 농장이름 짓기:</p>
+    <input type="text" id="farmNameInput" placeholder="예: 범고래네 감자농장" />
+    <button onclick="saveFarmName()">입장하기</button>
   </div>
 
   <script>
     const nickname = new URLSearchParams(window.location.search).get("nickname");
     if (!nickname) {
-      alert("카카오 인증이 필요합니다. 농장 입장은 금지되어 있습니다.");
-      window.location.href = "gamja-farm.html";
+      alert("카카오 인증이 없거나 잘못된 접근입니다.");
+      window.location.href = "orcax-farm_000.html";
     }
-
     document.getElementById("nicknameBox").textContent = nickname;
 
     async function fetchUserData() {
       try {
         const response = await fetch(`https://orcax-farm-6000.onrender.com/api/userdata?nickname=${nickname}`);
         const data = await response.json();
-        if (data.success && data.user) {
-          const user = data.user;
-          document.getElementById("waterCount").textContent = user.water;
-          document.getElementById("fertilizerCount").textContent = user.fertilizer;
-          document.getElementById("tokenCount").textContent = user.token;
-          document.getElementById("potatoCount").textContent = user.potatoCount;
-        } else {
-          alert("서버에서 사용자 정보를 불러오지 못했습니다.");
+        if (!data.success || !data.user) {
+          alert("등록되지 않은 유저입니다.");
+          window.location.href = "orcax-farm_000.html";
+          return;
         }
+        const user = data.user;
+        document.getElementById("waterCount").textContent = user.water;
+        document.getElementById("fertilizerCount").textContent = user.fertilizer;
+        document.getElementById("tokenCount").textContent = user.token;
+        document.getElementById("potatoCount").textContent = user.potatoCount;
       } catch (error) {
-        alert("서버 연결 오류: " + error);
+        alert("서버 연결 실패. 입구로 돌아갑니다.");
+        window.location.href = "orcax-farm_000.html";
       }
+    }
+
+    function saveFarmName() {
+      const name = document.getElementById("farmNameInput").value.trim();
+      if (!name) return alert("농장이름을 입력하세요!");
+      localStorage.setItem("farmName", name);
+      document.getElementById("farmNameBox").textContent = name;
+      alert(`"${name}" 농장에 입장합니다!`);
+    }
+
+    const savedFarmName = localStorage.getItem("farmName");
+    if (savedFarmName) {
+      document.getElementById("farmNameBox").textContent = savedFarmName;
     }
 
     fetchUserData();
