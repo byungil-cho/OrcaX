@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>OrcaX 감자 농장 입장</title>
+  <title>OrcaX 감자 농장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -17,7 +17,7 @@
       font-size: 1.8rem;
       color: #256029;
     }
-    .status-box, .input-box {
+    .status-box {
       background: #ffffff;
       border: 1px solid #c8e6c9;
       border-radius: 12px;
@@ -30,78 +30,48 @@
     }
     .info {
       font-size: 1rem;
-      margin: 0.3rem 0;
-    }
-    input {
-      padding: 0.5rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      width: 90%;
-      font-size: 1rem;
-    }
-    button {
-      margin-top: 1rem;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+      margin: 0.5rem 0;
     }
   </style>
 </head>
 <body>
-  <h1>🐳 OrcaX 감자 농장 입장 완료!</h1>
-
+  <h1>🌱 감자 농장 메인 페이지</h1>
   <div class="status-box">
-    <p class="info">닉네임: <span id="nickname">-</span></p>
-    <p class="info">💧 물: <span id="water">-</span> 병</p>
-    <p class="info">🪱 거름: <span id="fertilizer">-</span> 개</p>
-    <p class="info">💰 토큰: <span id="token">-</span> 개</p>
-  </div>
-
-  <div class="input-box">
-    <p class="info">🌾 농장이름을 지어주세요:</p>
-    <input type="text" id="farmNameInput" placeholder="예: 해피감자농장">
-    <button onclick="saveFarmName()">입장하기</button>
+    <div class="info"><strong>닉네임:</strong> <span id="nicknameBox"></span></div>
+    <div class="info">💧 물: <span id="waterCount">-</span></div>
+    <div class="info">🧴 거름: <span id="fertilizerCount">-</span></div>
+    <div class="info">💰 토큰: <span id="tokenCount">-</span></div>
+    <div class="info">🥔 감자 수: <span id="potatoCount">-</span></div>
   </div>
 
   <script>
-    const nickname = localStorage.getItem('nickname');
-    document.getElementById('nickname').innerText = nickname || '없음';
-
-    if (nickname) {
-      fetch(`https://orcax-farm-6000.onrender.com/api/userdata?nickname=${nickname}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            document.getElementById('water').innerText = data.user.water;
-            document.getElementById('fertilizer').innerText = data.user.fertilizer;
-            document.getElementById('token').innerText = data.user.token;
-          } else {
-            alert('사용자 정보를 불러올 수 없습니다.');
-          }
-        })
-        .catch(error => {
-          console.error('서버 연결 실패:', error);
-          alert('서버 연결에 실패했습니다.');
-        });
-    } else {
-      alert('닉네임 정보가 없습니다. 다시 로그인 해주세요.');
+    const nickname = new URLSearchParams(window.location.search).get("nickname");
+    if (!nickname) {
+      alert("카카오 인증이 필요합니다. 농장 입장은 금지되어 있습니다.");
+      window.location.href = "gamja-farm.html";
     }
 
-    function saveFarmName() {
-      const farmName = document.getElementById('farmNameInput').value.trim();
-      if (!farmName) {
-        alert("농장이름을 입력해주세요!");
-        return;
+    document.getElementById("nicknameBox").textContent = nickname;
+
+    async function fetchUserData() {
+      try {
+        const response = await fetch(`https://orcax-farm-6000.onrender.com/api/userdata?nickname=${nickname}`);
+        const data = await response.json();
+        if (data.success && data.user) {
+          const user = data.user;
+          document.getElementById("waterCount").textContent = user.water;
+          document.getElementById("fertilizerCount").textContent = user.fertilizer;
+          document.getElementById("tokenCount").textContent = user.token;
+          document.getElementById("potatoCount").textContent = user.potatoCount;
+        } else {
+          alert("서버에서 사용자 정보를 불러오지 못했습니다.");
+        }
+      } catch (error) {
+        alert("서버 연결 오류: " + error);
       }
-      localStorage.setItem('farmName', farmName);
-      alert(`"${farmName}" 농장으로 입장합니다!`);
-      // 실제 농장 페이지로 이동 처리
-      window.location.href = "gamja-factory.html";
     }
+
+    fetchUserData();
   </script>
 </body>
 </html>
