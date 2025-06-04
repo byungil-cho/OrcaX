@@ -1,123 +1,107 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>OrcaX 감자 농장</title>
+  <title>OrcaX 감자 농장 입장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: #f1f9e8;
-      padding: 1rem;
+      background-color: #f0f9ec;
       margin: 0;
+      padding: 1rem;
+      text-align: center;
     }
     h1 {
-      text-align: center;
-      color: #305030;
-      margin: 1rem 0 0.5rem;
+      font-size: 1.8rem;
+      color: #256029;
     }
-    #nicknameBox {
-      text-align: right;
-      font-weight: bold;
-      margin: 0.5rem 1rem 0.5rem 0;
-      color: #305030;
+    .status-box, .input-box {
+      background: #ffffff;
+      border: 1px solid #c8e6c9;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    #container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 70vh;
-    }
-    #farmNameDisplay {
-      font-size: 1.2rem;
-      margin-bottom: 1.5rem;
-      color: #444;
-    }
-    #previewName {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #507040;
-      margin-bottom: 2rem;
-    }
-    input[type="text"] {
-      padding: 0.5rem;
+    .info {
       font-size: 1rem;
-      width: 250px;
-      margin-bottom: 1rem;
-      border-radius: 5px;
+      margin: 0.3rem 0;
+    }
+    input {
+      padding: 0.5rem;
+      border-radius: 8px;
       border: 1px solid #ccc;
+      width: 90%;
+      font-size: 1rem;
     }
     button {
-      padding: 0.7rem 1.5rem;
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
       font-size: 1rem;
-      background: #85b765;
+      background-color: #4caf50;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 10px;
       cursor: pointer;
-    }
-    button:hover {
-      background-color: #739c54;
-    }
-    @media (max-width: 480px) {
-      input[type="text"] {
-        width: 80%;
-      }
-      #nicknameBox {
-        font-size: 0.9rem;
-        margin-right: 0.5rem;
-      }
     }
   </style>
 </head>
 <body>
-  <div id="nicknameBox"></div>
+  <h1>🐳 OrcaX 감자 농장 입장 완료!</h1>
 
-  <h1>🐳 OrcaX 감자 농장에 오신 것을 환영합니다!</h1>
-  <div id="container">
-    <div id="farmNameDisplay">농장명을 입력해 주세요</div>
-    <input type="text" id="farmNameInput" placeholder="예: 아름다운" oninput="previewFarmName()">
-    <div id="previewName" style="display: none;"></div>
-    <button onclick="startFarm()">🌱 농장 시작하기</button>
+  <div class="status-box">
+    <p class="info">닉네임: <span id="nickname">-</span></p>
+    <p class="info">💧 물: <span id="water">-</span> 병</p>
+    <p class="info">🪱 거름: <span id="fertilizer">-</span> 개</p>
+    <p class="info">💰 토큰: <span id="token">-</span> 개</p>
+  </div>
+
+  <div class="input-box">
+    <p class="info">🌾 농장이름을 지어주세요:</p>
+    <input type="text" id="farmNameInput" placeholder="예: 해피감자농장">
+    <button onclick="saveFarmName()">입장하기</button>
   </div>
 
   <script>
-  async function loginAndStartFarm() {
-    const input = document.getElementById("farmNameInput").value.trim();
-    if (!input) {
-      alert("농장명을 입력해주세요!");
-      return;
+    const nickname = localStorage.getItem('nickname');
+    document.getElementById('nickname').innerText = nickname || '없음';
+
+    if (nickname) {
+      fetch(`https://orcax-farm-6000.onrender.com/api/userdata?nickname=${nickname}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('water').innerText = data.user.water;
+            document.getElementById('fertilizer').innerText = data.user.fertilizer;
+            document.getElementById('token').innerText = data.user.token;
+          } else {
+            alert('사용자 정보를 불러올 수 없습니다.');
+          }
+        })
+        .catch(error => {
+          console.error('서버 연결 실패:', error);
+          alert('서버 연결에 실패했습니다.');
+        });
+    } else {
+      alert('닉네임 정보가 없습니다. 다시 로그인 해주세요.');
     }
 
-    const nickname = prompt("카카오 닉네임을 입력하세요:");
-    if (!nickname) {
-      alert("닉네임이 필요합니다.");
-      return;
+    function saveFarmName() {
+      const farmName = document.getElementById('farmNameInput').value.trim();
+      if (!farmName) {
+        alert("농장이름을 입력해주세요!");
+        return;
+      }
+      localStorage.setItem('farmName', farmName);
+      alert(`"${farmName}" 농장으로 입장합니다!`);
+      // 실제 농장 페이지로 이동 처리
+      window.location.href = "gamja-field.html";
     }
-
-    try {
-      // 1. 서버에 로그인 요청 (없으면 생성됨)
-      const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname })
-      });
-
-      const data = await res.json();
-      if (!data.success) throw new Error("로그인 실패");
-
-      // 2. nickname과 농장명 localStorage 저장
-      localStorage.setItem("nickname", nickname);
-      localStorage.setItem("farmName", input + "감자농장");
-
-      // 3. 다음 페이지로 이동
-      window.location.href = "gamja-factory.html";
-    } catch (err) {
-      alert("❌ 로그인 실패: " + err.message);
-    }
-  }
-</script>
-
+  </script>
 </body>
 </html>
