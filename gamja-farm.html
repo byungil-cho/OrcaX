@@ -72,11 +72,11 @@
     <div class="overlay"></div>
     <div class="label">🥔 감자밭 입구</div>
     <div class="nickname" id="nicknameBox" style="display: none;"></div>
-    <button class="entry-button" onclick="goKakaoLogin()">감자밭 입장</button>
+    <button class="entry-button" onclick="loginWithKakao()">감자밭 입장</button>
   </div>
 
   <script>
-    Kakao.init('여기에_자바스크립트_키_입력'); // TODO: 본인 JavaScript 키로 교체
+    Kakao.init('여기에_자바스크립트_키_입력'); // 여기에 실제 JS 키 넣어라, 대감
 
     const nicknameBox = document.getElementById("nicknameBox");
 
@@ -87,7 +87,10 @@
             url: '/v2/user/me',
             success: function(res) {
               const nickname = res.kakao_account.profile.nickname;
+              const userId = res.id;
               localStorage.setItem("nickname", nickname);
+              localStorage.setItem("userId", userId);
+
               nicknameBox.textContent = `👤 ${nickname}님 환영합니다!`;
               nicknameBox.style.display = "block";
 
