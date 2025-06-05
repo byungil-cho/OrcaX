@@ -59,8 +59,8 @@
           console.warn("서버 저장 실패 (무시):", err);
         });
 
-        // 다음 페이지로 이동
-        window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-main.html?nickname=" + encodeURIComponent(nickname);
+        // 로그인 후 메인 페이지로 바로 이동
+        window.location.href = "https://byungil-cho.github.io/OrcaX/orcax-farm_000.html?nickname=" + encodeURIComponent(nickname);
       })
       .catch(err => {
         console.error("로그인 중 오류", err);
@@ -71,5 +71,6 @@
   </script>
 </body>
 </html>
+
 
 
