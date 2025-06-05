@@ -7,64 +7,37 @@
 <body>
   <script>
     const code = new URL(window.location.href).searchParams.get("code");
-    const from = new URL(window.location.href).searchParams.get("from") || "orcax-farm_000.html";
-
     if (!code) {
-      alert("인증 코드가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = `https://byungil-cho.github.io/OrcaX/${from}`;
+      alert("인증 코드가 없습니다.");
     } else {
-      const data = new URLSearchParams();
-      data.append("grant_type", "authorization_code");
-      data.append("client_id", "284b798a9d9be8202f9c2e129fa6f329");
-      data.append("redirect_uri", "https://byungil-cho.github.io/OrcaX/kakao-callback.html");
-      data.append("code", code);
-
-      fetch("https://kauth.kakao.com/oauth/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: data.toString()
+      fetch(`https://kauth.kakao.com/oauth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: '284b798a9d9be8202f9c2e129fa6f329',
+          redirect_uri: 'https://byungil-cho.github.io/OrcaX/kakao-callback.html',
+          code: code
+        })
       })
       .then(res => res.json())
       .then(data => {
         const accessToken = data.access_token;
-        if (!accessToken) {
-          alert("Access token 획득 실패: " + JSON.stringify(data));
-          window.location.href = `https://byungil-cho.github.io/OrcaX/${from}`;
-          return;
-        }
         return fetch("https://kapi.kakao.com/v2/user/me", {
           headers: { Authorization: `Bearer ${accessToken}` }
         });
       })
-      .then(res => res?.json())
+      .then(res => res.json())
       .then(profile => {
-        const nickname = profile?.properties?.nickname || "사용자";
-        const userId = profile?.id || "unknown";
-
+        const nickname = profile.properties?.nickname || "사용자";
+        const userId = profile.id;
         localStorage.setItem("nickname", nickname);
         localStorage.setItem("userId", userId);
-
-        fetch("https://orcax-farm-6000.onrender.com/api/saveUser", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            nickname: nickname,
-            userId: userId
-          })
-        })
-        .catch(err => {
-          console.warn("서버 저장 실패 (무시):", err);
-        });
-
-        // 로그인 후 원래 위치로 이동
-        window.location.href = `https://byungil-cho.github.io/OrcaX/${from}?nickname=` + encodeURIComponent(nickname);
+        window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
       })
       .catch(err => {
-        console.error("로그인 중 오류", err);
-        alert("로그인 오류 발생. 로그인 페이지로 이동합니다.\n" + err);
-        window.location.href = `https://byungil-cho.github.io/OrcaX/${from}`;
+        console.error("로그인 오류", err);
+        alert("로그인 중 오류가 발생했습니다.");
       });
     }
   </script>
