@@ -40,11 +40,7 @@
         const nickname = profile?.properties?.nickname || "사용자";
         const userId = profile?.id || "unknown";
 
-        // 저장
-        localStorage.setItem("nickname", nickname);
-        localStorage.setItem("userId", userId);
-
-        // 서버로 사용자 정보 전송
+        // 서버로 사용자 정보 전송 먼저 수행
         fetch("https://orcax-farm-6000.onrender.com/api/saveUser", {
           method: "POST",
           headers: {
@@ -59,9 +55,17 @@
           if (!response.ok) {
             throw new Error("DB 저장 실패");
           }
+
+          // 저장 성공 시 로컬에 저장
+          localStorage.setItem("nickname", nickname);
+          localStorage.setItem("userId", userId);
+
+          // 다음 페이지로 이동
           window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-main.html?nickname=" + encodeURIComponent(nickname);
         })
         .catch(err => {
+          localStorage.removeItem("nickname");
+          localStorage.removeItem("userId");
           alert("서버 저장 실패. 로그인 페이지로 이동합니다.\n" + err);
           window.location.href = "https://byungil-cho.github.io/OrcaX/orcax-farm_000.html";
         });
@@ -75,4 +79,5 @@
   </script>
 </body>
 </html>
+
 
