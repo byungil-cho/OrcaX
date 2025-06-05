@@ -23,6 +23,22 @@
       color: #000;
       margin-top: 2rem;
     }
+
+    .server-check {
+      margin-top: 2rem;
+      font-size: 0.95rem;
+      color: gray;
+    }
+
+    .online {
+      color: green;
+      font-weight: bold;
+    }
+
+    .offline {
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -30,14 +46,34 @@
   <p>계속하려면 카카오 계정으로 로그인하세요.</p>
   <button class="kakao-btn" onclick="kakaoLogin()">카카오로 로그인</button>
 
+  <div class="server-check" id="serverStatus">🔌 서버 상태 확인 중...</div>
+
   <script>
     function kakaoLogin() {
       const REST_API_KEY = "284b798a9d9be8202f9c2e129fa6f329";
-      const REDIRECT_URI = "https://byungil-cho.github.io/OrcaX/gamja-main.html";
+      const REDIRECT_URI = "https://byungil-cho.github.io/OrcaX/kakao-callback.html?from=gamja-main.html";
       const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code`;
 
       window.location.href = kakaoURL;
     }
+
+    async function checkServerPower() {
+      const statusBox = document.getElementById("serverStatus");
+      try {
+        const res = await fetch("https://orcax-farm-6000.onrender.com/api/ping");
+        if (res.ok) {
+          statusBox.textContent = "✅ 서버 전원 ON: 감자밭 연결 가능!";
+          statusBox.classList.add("online");
+        } else {
+          throw new Error();
+        }
+      } catch (e) {
+        statusBox.textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
+        statusBox.classList.add("offline");
+      }
+    }
+
+    checkServerPower();
   </script>
 </body>
 </html>
