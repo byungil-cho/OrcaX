@@ -9,7 +9,8 @@
     const code = new URL(window.location.href).searchParams.get("code");
 
     if (!code) {
-      alert("인증 코드가 없습니다. 파라미터 확인 실패.");
+      alert("인증 코드가 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "https://byungil-cho.github.io/OrcaX/orcax-farm_000.html";
     } else {
       const data = new URLSearchParams();
       data.append("grant_type", "authorization_code");
@@ -27,6 +28,7 @@
         const accessToken = data.access_token;
         if (!accessToken) {
           alert("Access token 획득 실패: " + JSON.stringify(data));
+          window.location.href = "https://byungil-cho.github.io/OrcaX/orcax-farm_000.html";
           return;
         }
         return fetch("https://kapi.kakao.com/v2/user/me", {
@@ -53,18 +55,24 @@
             userId: userId
           })
         })
-        .then(() => {
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("DB 저장 실패");
+          }
           window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-main.html?nickname=" + encodeURIComponent(nickname);
         })
         .catch(err => {
-          alert("서버 저장 실패: " + err);
+          alert("서버 저장 실패. 로그인 페이지로 이동합니다.\n" + err);
+          window.location.href = "https://byungil-cho.github.io/OrcaX/orcax-farm_000.html";
         });
       })
       .catch(err => {
         console.error("로그인 중 오류", err);
-        alert("로그인 오류 발생: " + err);
+        alert("로그인 오류 발생. 로그인 페이지로 이동합니다.\n" + err);
+        window.location.href = "https://byungil-cho.github.io/OrcaX/orcax-farm_000.html";
       });
     }
   </script>
 </body>
 </html>
+
