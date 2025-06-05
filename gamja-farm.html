@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>감자밭 입구</title>
-  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
     body {
       margin: 0;
@@ -72,47 +71,20 @@
     <div class="overlay"></div>
     <div class="label">🥔 감자밭 입구</div>
     <div class="nickname" id="nicknameBox" style="display: none;"></div>
-    <button class="entry-button" onclick="loginWithKakao()">감자밭 입장</button>
+    <button class="entry-button" onclick="goToLoginPage()">감자밭 입장</button>
   </div>
 
   <script>
-    Kakao.init('여기에_자바스크립트_키_입력'); // 여기에 실제 JS 키 넣어라, 대감
-
     const nicknameBox = document.getElementById("nicknameBox");
 
-    function loginWithKakao() {
-      Kakao.Auth.login({
-        success: function(authObj) {
-          Kakao.API.request({
-            url: '/v2/user/me',
-            success: function(res) {
-              const nickname = res.kakao_account.profile.nickname;
-              const userId = res.id;
-              localStorage.setItem("nickname", nickname);
-              localStorage.setItem("userId", userId);
-
-              nicknameBox.textContent = `👤 ${nickname}님 환영합니다!`;
-              nicknameBox.style.display = "block";
-
-              // 감자 메인으로 이동
-              window.location.href = `gamja-main.html?nickname=${encodeURIComponent(nickname)}`;
-            },
-            fail: function(error) {
-              alert("카카오 사용자 정보 요청 실패: " + JSON.stringify(error));
-            }
-          });
-        },
-        fail: function(err) {
-          alert("카카오 로그인 실패: " + JSON.stringify(err));
-        }
-      });
-    }
-
-    // 로그인 상태 유지 시에도 닉네임 표시
     const nickname = localStorage.getItem("nickname");
     if (nickname) {
       nicknameBox.textContent = `👤 ${nickname}님 환영합니다!`;
       nicknameBox.style.display = "block";
+    }
+
+    function goToLoginPage() {
+      window.location.href = "kakao-login.html";
     }
   </script>
 </body>
