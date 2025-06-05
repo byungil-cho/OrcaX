@@ -7,45 +7,39 @@
 <body>
   <script>
     const code = new URL(window.location.href).searchParams.get("code");
-
     if (!code) {
-      alert("인증 코드가 없습니다. 파라미터 확인 실패.");
+      alert("인증 코드가 없습니다.");
     } else {
-      fetch("https://kauth.kakao.com/oauth/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      fetch(`https://kauth.kakao.com/oauth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
-          grant_type: "authorization_code",
-          client_id: "284b798a9d9be8202f9c2e129fa6f329",
-          redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",
+          grant_type: 'authorization_code',
+          client_id: '284b798a9d9be8202f9c2e129fa6f329',
+          redirect_uri: 'https://byungil-cho.github.io/OrcaX/kakao-callback.html',
           code: code
         })
       })
       .then(res => res.json())
       .then(data => {
         const accessToken = data.access_token;
-        if (!accessToken) {
-          alert("Access token 획득 실패: " + JSON.stringify(data));
-          return;
-        }
         return fetch("https://kapi.kakao.com/v2/user/me", {
           headers: { Authorization: `Bearer ${accessToken}` }
         });
       })
-      .then(res => res?.json())
+      .then(res => res.json())
       .then(profile => {
-        const nickname = profile?.properties?.nickname || "사용자";
-        const userId = profile?.id || "unknown";
+        const nickname = profile.properties?.nickname || "사용자";
+        const userId = profile.id;
         localStorage.setItem("nickname", nickname);
         localStorage.setItem("userId", userId);
-        window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-main.html?nickname=" + encodeURIComponent(nickname);
+        window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
       })
       .catch(err => {
-        console.error("로그인 중 오류", err);
-        alert("로그인 오류 발생: " + err);
+        console.error("로그인 오류", err);
+        alert("로그인 중 오류가 발생했습니다.");
       });
     }
   </script>
 </body>
 </html>
-
