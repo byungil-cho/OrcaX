@@ -7,10 +7,11 @@
 <body>
   <script>
     const code = new URL(window.location.href).searchParams.get("code");
+    const from = new URL(window.location.href).searchParams.get("from") || "orcax-farm_000.html";
 
     if (!code) {
       alert("인증 코드가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+      window.location.href = `https://byungil-cho.github.io/OrcaX/${from}`;
     } else {
       const data = new URLSearchParams();
       data.append("grant_type", "authorization_code");
@@ -28,7 +29,7 @@
         const accessToken = data.access_token;
         if (!accessToken) {
           alert("Access token 획득 실패: " + JSON.stringify(data));
-          window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+          window.location.href = `https://byungil-cho.github.io/OrcaX/${from}`;
           return;
         }
         return fetch("https://kapi.kakao.com/v2/user/me", {
@@ -40,11 +41,9 @@
         const nickname = profile?.properties?.nickname || "사용자";
         const userId = profile?.id || "unknown";
 
-        // 저장 성공 여부와 상관없이 로컬에 저장 (원상복구)
         localStorage.setItem("nickname", nickname);
         localStorage.setItem("userId", userId);
 
-        // 서버로 사용자 정보 전송
         fetch("https://orcax-farm-6000.onrender.com/api/saveUser", {
           method: "POST",
           headers: {
@@ -59,18 +58,19 @@
           console.warn("서버 저장 실패 (무시):", err);
         });
 
-        // 로그인 후 index.html로 바로 이동
-        window.location.href = "https://byungil-cho.github.io/OrcaX/index.html?nickname=" + encodeURIComponent(nickname);
+        // 로그인 후 원래 위치로 이동
+        window.location.href = `https://byungil-cho.github.io/OrcaX/${from}?nickname=` + encodeURIComponent(nickname);
       })
       .catch(err => {
         console.error("로그인 중 오류", err);
         alert("로그인 오류 발생. 로그인 페이지로 이동합니다.\n" + err);
-        window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+        window.location.href = `https://byungil-cho.github.io/OrcaX/${from}`;
       });
     }
   </script>
 </body>
 </html>
+
 
 
 
