@@ -17,17 +17,18 @@
     }
     .container {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
       padding: 1rem;
       background-color: #fff;
-      max-width: 1000px;
+      max-width: 600px;
       margin: 0 auto;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .thumbnail {
-      width: 100px;
+      width: 100%;
+      max-width: 240px;
       height: auto;
       cursor: pointer;
       border-radius: 8px;
@@ -35,7 +36,7 @@
       transition: transform 0.2s;
     }
     .thumbnail:hover {
-      transform: scale(1.05);
+      transform: scale(1.02);
     }
     .lightbox {
       display: none;
@@ -55,7 +56,7 @@
     }
     .lightbox img {
       max-width: 90vw;
-      max-height: 80vh;
+      max-height: 70vh;
     }
     .caption {
       margin-top: 1rem;
@@ -63,8 +64,8 @@
       text-align: center;
     }
     .promo-text {
-      margin-top: 1rem;
-      font-size: 0.95rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
       text-align: center;
       color: #ccc;
       font-style: italic;
@@ -74,11 +75,6 @@
       text-align: center;
       font-size: 0.9rem;
       color: #666;
-    }
-    @media (max-width: 600px) {
-      .thumbnail {
-        width: 80px;
-      }
     }
   </style>
 </head>
