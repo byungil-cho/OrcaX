@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OrcaX 이벤트</title>
   <style>
+    html {
+      -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -12,15 +16,15 @@
       background-color: #f3f3f3;
     }
     .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
+      padding: 1rem;
+      background-color: #fff;
+      max-width: 1000px;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .thumbnail {
       width: 100px;
@@ -28,6 +32,10 @@
       cursor: pointer;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s;
+    }
+    .thumbnail:hover {
+      transform: scale(1.05);
     }
     .lightbox {
       display: none;
@@ -46,8 +54,8 @@
       box-sizing: border-box;
     }
     .lightbox img {
-      max-width: 90%;
-      max-height: 80%;
+      max-width: 90vw;
+      max-height: 80vh;
     }
     .caption {
       margin-top: 1rem;
@@ -67,21 +75,26 @@
       font-size: 0.9rem;
       color: #666;
     }
+    @media (max-width: 600px) {
+      .thumbnail {
+        width: 80px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="ORCAX.jpg" alt="OrcaX 로고" class="thumbnail">
-    <img src="OrcaX_T.png" alt="OrcaX 티셔츠" class="thumbnail">
-    <img src="OrcaX_25000_03.png" alt="OrcaX 25000 이미지" class="thumbnail">
-    <img src="holin_01.jpg" alt="홀인원 이미지" class="thumbnail">
-    <img src="OrcaX_ppster_02.jpg" alt="포스터 02" class="thumbnail">
-    <img src="OrcaX_pt_01.png" alt="PT 01 이미지" class="thumbnail">
-    <img src="OrcaX_poster_003.jpg" alt="포스터 003" class="thumbnail">
-    <img src="OrcaX_T_01.png" alt="OrcaX 티셔츠 실사" class="thumbnail">
-    <img src="poster.png" alt="포스터 이미지" class="thumbnail">
-    <img src="poster_04.png" alt="포스터 04" class="thumbnail">
-    <img src="OrcaX_poster_002.png" alt="포스터 002" class="thumbnail">
+    <img src="ORCAX.jpg" alt="OrcaX 로고" class="thumbnail" loading="lazy">
+    <img src="OrcaX_T.png" alt="OrcaX 티셔츠" class="thumbnail" loading="lazy">
+    <img src="OrcaX_25000_03.png" alt="OrcaX 25000 이미지" class="thumbnail" loading="lazy">
+    <img src="holin_01.jpg" alt="홀인원 이미지" class="thumbnail" loading="lazy">
+    <img src="OrcaX_ppster_02.jpg" alt="포스터 02" class="thumbnail" loading="lazy">
+    <img src="OrcaX_pt_01.png" alt="PT 01 이미지" class="thumbnail" loading="lazy">
+    <img src="OrcaX_poster_003.jpg" alt="포스터 003" class="thumbnail" loading="lazy">
+    <img src="OrcaX_T_01.png" alt="OrcaX 티셔츠 실사" class="thumbnail" loading="lazy">
+    <img src="poster.png" alt="포스터 이미지" class="thumbnail" loading="lazy">
+    <img src="poster_04.png" alt="포스터 04" class="thumbnail" loading="lazy">
+    <img src="OrcaX_poster_002.png" alt="포스터 002" class="thumbnail" loading="lazy">
   </div>
 
   <div id="lightbox" class="lightbox">
