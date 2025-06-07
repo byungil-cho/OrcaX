@@ -5,77 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OrcaX 이벤트</title>
   <style>
-    html {
-      -webkit-tap-highlight-color: transparent;
-      scroll-behavior: smooth;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-      background-color: #f3f3f3;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      padding: 1rem;
-      background-color: #fff;
-      max-width: 600px;
-      margin: 0 auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .thumbnail {
-      width: 100%;
-      max-width: 240px;
-      height: auto;
-      cursor: pointer;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      transition: transform 0.2s;
-    }
-    .thumbnail:hover {
-      transform: scale(1.02);
-    }
-    .lightbox {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.9);
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-    .lightbox img {
-      max-width: 90vw;
-      max-height: 70vh;
-    }
-    .caption {
-      margin-top: 1rem;
-      font-size: 1rem;
-      text-align: center;
-    }
-    .promo-text {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      text-align: center;
-      color: #ccc;
-      font-style: italic;
-    }
-    .footer {
-      padding: 1rem;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #666;
-    }
+    html {-webkit-tap-highlight-color: transparent; scroll-behavior: smooth;}
+    body {margin: 0; padding: 0; font-family: 'Arial', sans-serif; background-color: #f3f3f3;}
+    .container {display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 1rem;
+      background-color: #fff; max-width: 600px; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+    .thumbnail {width: 100%; max-width: 240px; height: auto; cursor: pointer; border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); transition: transform 0.2s;}
+    .thumbnail:hover {transform: scale(1.02);}
+    .lightbox {display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100vw; height: 100vh;
+      background-color: rgba(0, 0, 0, 0.9); flex-direction: column; justify-content: center; align-items: center;
+      color: #fff; padding: 1rem; box-sizing: border-box;}
+    .lightbox img {max-width: 90vw; max-height: 70vh;}
+    .caption {margin-top: 1rem; font-size: 1rem; text-align: center;}
+    .promo-text {margin-top: 0.5rem; font-size: 0.9rem; text-align: center; color: #ccc; font-style: italic;}
+    .footer {padding: 1rem; text-align: center; font-size: 0.9rem; color: #666;}
   </style>
 </head>
 <body>
@@ -98,7 +41,9 @@
     <img src="orcax_puzzle_map.png" alt="OrcaX Puzzle NFT, 전설의 완성 구조!" class="thumbnail" loading="lazy">
     <img src="lsg-01.jpg" alt="솔라나 기반 OrcaX 실물자산토큰 QR 코드 포스터" class="thumbnail" loading="lazy">
     <img src="lsg-02.jpg" alt="폴리곤 기반 OrcaX 실물자산토큰 QR 코드 포스터" class="thumbnail" loading="lazy">
-    <img src="lsg-03.png" alt="OrcaX 3D 심볼 로고 – Web3를 상징하는 X와 범고래의 조화" class="thumbnail" loading="lazy">
+    <a href="index.html">
+      <img src="lsg-03.png" alt="OrcaX 3D 심볼 로고 – Web3를 상징하는 X와 범고래의 조화" class="thumbnail" loading="lazy">
+    </a>
   </div>
 
   <div id="lightbox" class="lightbox">
@@ -130,8 +75,6 @@
     });
   </script>
 
-  <div class="footer">
-    © 2025 OrcaX. All rights reserved.
-  </div>
+  <div class="footer">© 2025 OrcaX Foundation</div>
 </body>
 </html>
