@@ -3,114 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 창고</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      margin: 0;
-      background-color: #fffbea;
-    }
-    h1 {
-      color: #6c4c1b;
-      font-size: 1.8em;
-      text-align: center;
-    }
-    #nickname-box {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    input[type="text"] {
-      padding: 6px;
-      width: 60%;
-      max-width: 300px;
-      font-size: 1em;
-    }
-    button {
-      padding: 6px 10px;
-      font-size: 1em;
-      margin-left: 6px;
-      cursor: pointer;
-    }
-    .product-list {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-    }
-    .product-item {
-      border: 1px solid #ccc;
-      padding: 12px;
-      border-radius: 10px;
-      background-color: #f8f4e3;
-      width: 100%;
-      max-width: 250px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .product-item button {
-      width: 100%;
-      margin-top: 8px;
-      background-color: #ffe18d;
-      border: none;
-      border-radius: 6px;
-    }
-  </style>
+  <title>OrcaX Storage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h1>🥔 감자 창고</h1>
-  <div id="nickname-box">
-    <label>닉네임: <input type="text" id="nickname" /></label>
-    <button onclick="loadProducts()">창고 불러오기</button>
+<body class="bg-stone-50 min-h-screen flex items-center justify-center px-4 py-6">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 space-y-6">
+
+    <div class="text-center">
+      <h1 class="text-2xl font-bold text-gray-700">📦 창고</h1>
+      <p class="text-sm text-gray-500">내 수확물과 가공품을 확인하고 경매장에 출고하세요.</p>
+    </div>
+
+    <div class="space-y-4 text-sm text-gray-800">
+
+      <div class="flex justify-between items-center">
+        <span>🥔 감자: <span id="potato-count">0</span></span>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <span>🌾 보리: <span id="barley-count">0</span></span>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <span>🍟 감자칩: <span id="chips-count">0</span></span>
+        <button onclick="listItem('chips')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs">출고</button>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <span>🍵 보리차: <span id="tea-count">0</span></span>
+        <button onclick="listItem('barley_tea')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs">출고</button>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <span>⛽ 연료: <span id="fuel-count">0</span></span>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <span>💰 토큰: <span id="token-count">0</span></span>
+      </div>
+
+    </div>
+
+    <div class="text-center text-xs text-gray-400 pt-4 border-t">
+      출고된 상품은 경매장에 등록됩니다.
+    </div>
+
   </div>
-  <div class="product-list" id="productList"></div>
 
   <script>
-    async function loadProducts() {
-      const nickname = document.getElementById('nickname').value.trim();
-      if (!nickname) return alert("닉네임을 입력하세요.");
+    const USER_ID = 'USER123';
 
-      const res = await fetch(`/api/factory/products/${nickname}`);
+    async function updateInventory() {
+      const res = await fetch(`/user/${USER_ID}`);
       const data = await res.json();
+      const inv = data.inventory || {};
 
-      const container = document.getElementById('productList');
-      container.innerHTML = '';
-
-      if (!data.success || data.products.length === 0) {
-        container.innerHTML = '<p style="text-align:center;">제품이 없습니다.</p>';
-        return;
-      }
-
-      data.products.forEach(product => {
-        const div = document.createElement('div');
-        div.className = 'product-item';
-        div.innerHTML = `
-          <strong>${product.productName}</strong><br/>
-          🧾 ID: ${product._id}<br/>
-          📅 ${new Date(product.createdAt).toLocaleString()}<br/>
-          <button onclick="sellProduct('${product._id}', '${nickname}')">💰 판매하기</button>
-        `;
-        container.appendChild(div);
-      });
+      document.getElementById("potato-count").innerText = inv.potato || 0;
+      document.getElementById("barley-count").innerText = inv.barley || 0;
+      document.getElementById("chips-count").innerText = inv.chips || 0;
+      document.getElementById("tea-count").innerText = inv.barley_tea || 0;
+      document.getElementById("fuel-count").innerText = inv.fuel || 0;
+      document.getElementById("token-count").innerText = data.token || 0;
     }
 
-    async function sellProduct(productId, nickname) {
-      const confirmSell = confirm("이 제품을 정말 판매하시겠습니까?");
-      if (!confirmSell) return;
-
-      const res = await fetch('/api/market/register', {
+    async function listItem(itemType) {
+      const res = await fetch(`/auction/list`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, nickname })
+        body: JSON.stringify({ user_id: USER_ID, item_type: itemType })
       });
-
       const data = await res.json();
-      if (data.success) {
-        alert(`판매 완료! +${data.tokenGain} 토큰`);
-        loadProducts();
-      } else {
-        alert("판매 실패: " + data.message);
-      }
+      alert(data.message || '출고 완료!');
+      updateInventory();
     }
+
+    updateInventory();
   </script>
 </body>
 </html>

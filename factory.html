@@ -1,0 +1,59 @@
+<!-- /public/factory.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX Factory</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-yellow-50 to-orange-100 min-h-screen flex items-center justify-center px-4 py-6">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 space-y-6">
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-yellow-600 mb-1">🏭 가공공장</h1>
+      <p class="text-sm text-gray-500">감자와 보리를 가공해서 제품을 만드세요!</p>
+    </div>
+    <div class="space-y-4">
+      <button onclick="processItem('potato')" class="w-full bg-orange-400 text-white py-3 rounded-xl hover:bg-orange-500 transition font-semibold text-lg">
+        🥔 감자 → 감자칩
+      </button>
+      <button onclick="processItem('barley')" class="w-full bg-amber-500 text-white py-3 rounded-xl hover:bg-amber-600 transition font-semibold text-lg">
+        🌾 보리 → 보리차
+      </button>
+    </div>
+    <div class="text-gray-700 text-sm bg-gray-50 p-4 rounded-xl mt-4">
+      <p id="fuel-status" class="mb-1">연료: 로딩중...</p>
+      <p id="inventory-status">인벤토리: 로딩중...</p>
+    </div>
+    <div class="text-center text-xs text-gray-400 mt-6">
+      ⛽ 연료 1개를 소비해 10초 후 가공됩니다.
+    </div>
+  </div>
+
+  <script>
+    const USER_ID = 'USER123';
+
+    async function processItem(type) {
+      const res = await fetch(`/factory/queue`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: USER_ID, item_type: type })
+      });
+      const data = await res.json();
+      alert(data.message || '가공 대기열 등록 완료');
+      updateStatus();
+    }
+
+    async function updateStatus() {
+      const res = await fetch(`/user/${USER_ID}`);
+      const data = await res.json();
+      const inv = data.inventory || {};
+      document.getElementById("fuel-status").innerText = `연료: ${inv.fuel || 0}`;
+      document.getElementById("inventory-status").innerText =
+        `감자: ${inv.potato || 0}, 감자칩: ${inv.chips || 0}, 보리: ${inv.barley || 0}, 보리차: ${inv.barley_tea || 0}`;
+    }
+
+    updateStatus();
+  </script>
+</body>
+</html>

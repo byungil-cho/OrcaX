@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrcaX 수익 계산기</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-b from-white to-green-50 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-xl bg-white rounded-2xl shadow-lg p-6 space-y-6">
+    <h1 class="text-2xl font-bold text-center text-green-700">📊 OrcaX 수익 계산기</h1>
+
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <label class="block font-medium text-gray-600">씨감자 가격</label>
+        <input id="seedPrice" type="number" value="10" class="w-full border rounded px-2 py-1" />
+      </div>
+      <div>
+        <label class="block font-medium text-gray-600">연료 단가</label>
+        <input id="fuelPrice" type="number" value="2" class="w-full border rounded px-2 py-1" />
+      </div>
+      <div>
+        <label class="block font-medium text-gray-600">수확 감자 수량</label>
+        <input id="potatoYield" type="number" value="3" class="w-full border rounded px-2 py-1" />
+      </div>
+      <div>
+        <label class="block font-medium text-gray-600">감자 시세</label>
+        <input id="potatoPrice" type="number" value="10" class="w-full border rounded px-2 py-1" />
+      </div>
+      <div>
+        <label class="block font-medium text-gray-600">가공 감자 필요 수</label>
+        <input id="chipsInput" type="number" value="3" class="w-full border rounded px-2 py-1" />
+      </div>
+      <div>
+        <label class="block font-medium text-gray-600">감자칩 시세</label>
+        <input id="chipsPrice" type="number" value="30" class="w-full border rounded px-2 py-1" />
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button onclick="calculateProfit()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">수익 계산</button>
+    </div>
+
+    <div id="result" class="bg-gray-50 border rounded p-4 text-gray-700"></div>
+  </div>
+
+  <script>
+    function calculateProfit() {
+      const seedPrice = parseFloat(document.getElementById("seedPrice").value);
+      const fuelPrice = parseFloat(document.getElementById("fuelPrice").value);
+      const potatoYield = parseInt(document.getElementById("potatoYield").value);
+      const potatoPrice = parseFloat(document.getElementById("potatoPrice").value);
+      const chipsInput = parseInt(document.getElementById("chipsInput").value);
+      const chipsPrice = parseFloat(document.getElementById("chipsPrice").value);
+
+      const farmingCost = seedPrice + fuelPrice;
+      const farmingRevenue = potatoYield * potatoPrice;
+      const farmingProfit = farmingRevenue - farmingCost;
+
+      const processCost = chipsInput * potatoPrice + fuelPrice;
+      const processRevenue = chipsPrice;
+      const processProfit = processRevenue - processCost;
+
+      document.getElementById("result").innerHTML = `
+        <div class="font-medium">농사 수익:</div>
+        씨감자 + 연료: ${farmingCost.toFixed(2)} ORX<br>
+        수확 판매 수익: ${farmingRevenue.toFixed(2)} ORX<br>
+        <strong>농사 순이익: ${farmingProfit.toFixed(2)} ORX</strong>
+        <hr class="my-2">
+        <div class="font-medium">가공 수익:</div>
+        재료(감자 ${chipsInput}개) + 연료: ${processCost.toFixed(2)} ORX<br>
+        감자칩 판매 수익: ${processRevenue.toFixed(2)} ORX<br>
+        <strong>가공 순이익: ${processProfit.toFixed(2)} ORX</strong>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보리밭 필드</title>
+  <link rel="stylesheet" href="/css/borifield.css" />
+</head>
+<body>
+  <div id="hud">
+    <div class="inventory">
+      🌾 씨보리: <span id="seed_count">0</span>
+      🛢 연료: <span id="fuel_count">0</span>
+      🌿 보리: <span id="barley_count">0</span>
+      💰 ORCX: <span id="orcx_count">0</span>
+    </div>
+  </div>
+
+  <h2 class="title">🐳 보리밭 작물 필드</h2>
+  <div class="field">
+    <div class="tile" data-index="0"></div>
+    <div class="tile" data-index="1"></div>
+    <div class="tile" data-index="2"></div>
+    <div class="tile" data-index="3"></div>
+    <div class="tile" data-index="4"></div>
+    <div class="tile" data-index="5"></div>
+    <div class="tile" data-index="6"></div>
+    <div class="tile" data-index="7"></div>
+    <div class="tile" data-index="8"></div>
+  </div>
+
+  <div class="actions">
+    <button onclick="goBack()">👈 농장 입구로</button>
+    <button onclick="refreshStatus()">🔄 수확 상태 확인</button>
+  </div>
+
+  <script src="/js/borifield.js"></script>
+</body>
+</html>

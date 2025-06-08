@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrcaX 경매장</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-b from-white to-yellow-50 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 space-y-6">
+
+    <h1 class="text-2xl font-bold text-center text-yellow-600">🏷️ 경매장 상품 목록</h1>
+
+    <div id="listing-container" class="space-y-3 text-sm text-gray-800">
+      <p>불러오는 중...</p>
+    </div>
+
+    <div class="text-center text-xs text-gray-400 pt-4 border-t">
+      출고된 상품은 이곳에 등록되며 입찰 대기 상태가 됩니다.
+    </div>
+
+  </div>
+
+  <script>
+    async function fetchListings() {
+      const res = await fetch('/auction/listings');
+      const listings = await res.json();
+      const container = document.getElementById('listing-container');
+      container.innerHTML = '';
+
+      if (!listings.length) {
+        container.innerHTML = '<p class="text-center text-gray-400">등록된 상품이 없습니다.</p>';
+        return;
+      }
+
+      listings.forEach(item => {
+        const date = new Date(item.created_at).toLocaleString();
+        const label = item.item_type === 'chips' ? '🍟 감자칩' : '🍵 보리차';
+        const status = item.status === 'listed' ? '입찰 대기' : item.status;
+
+        const html = `
+          <div class="border rounded-xl p-3 bg-gray-50">
+            <div class="flex justify-between">
+              <span class="font-medium">${label}</span>
+              <span class="text-xs text-gray-500">${status}</span>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">
+              판매자: ${item.user_id}<br />
+              등록일: ${date}
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+      });
+    }
+
+    fetchListings();
+  </script>
+</body>
+</html>

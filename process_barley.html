@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>보리 가공 공장</title>
+  <link rel="stylesheet" href="/css/process_barley.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: linear-gradient(to bottom, #e6f2d9, #fff7e6);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .title {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      margin: 1rem 0;
+      color: #4d883d;
+      text-shadow: 1px 1px 0 #fff;
+    }
+
+    .inventory {
+      background: #ffffffcc;
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      margin-bottom: 2rem;
+      text-align: left;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .actions button {
+      padding: 0.8rem 1.4rem;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      border: none;
+      border-radius: 10px;
+      background-color: #ffe8b3;
+      color: #3b2f00;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: background 0.3s ease;
+    }
+
+    .actions button:hover {
+      background-color: #fff3d1;
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      font-weight: bold;
+      color: #227700;
+    }
+  </style>
+</head>
+<body>
+  <h2 class="title">🏭 보리 가공 공장</h2>
+  <div class="inventory">
+    <p>🌾 <strong>보리:</strong> <span id="barley">0</span>개</p>
+    <p>🛢 <strong>연료:</strong> <span id="fuel">0</span>개</p>
+    <p>🍵 <strong>보리차:</strong> <span id="barley_tea">0</span>병</p>
+  </div>
+
+  <div class="actions">
+    <button onclick="processBarley()">🍵 보리차 가공 시작</button>
+    <button onclick="goBack()">🏡 농장으로</button>
+  </div>
+
+  <div id="result" class="result"></div>
+
+  <script src="/js/process_barley.js"></script>
+</body>
+</html>

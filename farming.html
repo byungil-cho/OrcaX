@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX Farm - 농장</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-lime-50 to-green-100 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 space-y-6">
+
+    <!-- 씨앗 상점 -->
+    <div>
+      <h2 class="text-2xl font-bold text-center text-green-700 mb-4">🌱 씨앗 상점</h2>
+      <div class="flex gap-3">
+        <button onclick="buySeed('potato')" class="flex-1 bg-green-500 text-white py-2 rounded-xl hover:bg-green-600 transition">🥔 씨감자 구매</button>
+        <button onclick="buySeed('barley')" class="flex-1 bg-yellow-500 text-white py-2 rounded-xl hover:bg-yellow-600 transition">🌾 보리씨 구매</button>
+      </div>
+      <div class="mt-3 text-sm text-gray-600">
+        <p id="user-tokens">보유 토큰: 로딩중...</p>
+        <p id="inventory-status">씨감자: -, 보리씨: -</p>
+      </div>
+    </div>
+
+    <!-- 내 밭 -->
+    <div class="border-t pt-4">
+      <h2 class="text-2xl font-bold text-center text-green-700 mb-4">🧑‍🌾 내 밭</h2>
+      <div class="flex gap-3">
+        <button onclick="plantCrop('potato')" class="flex-1 bg-green-400 text-white py-2 rounded-xl hover:bg-green-500 transition">🥔 씨감자 심기</button>
+        <button onclick="plantCrop('barley')" class="flex-1 bg-yellow-400 text-white py-2 rounded-xl hover:bg-yellow-500 transition">🌾 보리씨 심기</button>
+      </div>
+      <div class="mt-3 text-sm text-gray-600">
+        <p id="field-status">밭 상태: 로딩중...</p>
+      </div>
+      <div class="flex justify-center mt-4">
+        <button onclick="harvestCrop()" class="bg-orange-500 text-white px-4 py-2 rounded-xl hover:bg-orange-600 transition">
+          🌾 수확하기
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const USER_ID = 'USER123';
+
+    async function buySeed(type) {
+      const res = await fetch(`/farm/buy_seed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: USER_ID, seed_type: type })
+      });
+      const data = await res.json();
+      alert(data.message || '구매 완료!');
+      updateInventory();
+    }
+
+    async function plantCrop(type) {
+      const res = await fetch(`/farm/plant`, {
+        method: 'POST',
+        headers: { 'Content-type': 'application/json' },
+        body: JSON.stringify({ user_id: USER_ID, crop_type: type })
+      });
+      const data = await res.json();
+      alert(data.message || '심기 완료!');
+      updateInventory();
+      updateFieldStatus();
+    }
+
+    async function harvestCrop() {
+      const res = await fetch(`/farm/harvest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: USER_ID })
+      });
+      const data = await res.json();
+      alert(data.message || '수확 완료!');
+      updateInventory();
+      updateFieldStatus();
+    }
+
+    async function updateInventory() {
+      const res = await fetch(`/user/${USER_ID}`);
+      const data = await res.json();
+      document.getElementById("user-tokens").innerText = `보유 토큰: ${data.token}`;
+      document.getElementById("inventory-status").innerText =
+        `씨감자: ${data.inventory.potato_seed || 0}, 보리씨: ${data.inventory.barley_seed || 0}`;
+    }
+
+    async function updateFieldStatus() {
+      const res = await fetch(`/user/${USER_ID}`);
+      const data = await res.json();
+      const field = data.field || {};
+      if (field.crop) {
+        document.getElementById("field-status").innerText =
+          `심은 작물: ${field.crop} (시간: ${new Date(field.planted_at).toLocaleString()})`;
+      } else {
+        document.getElementById("field-status").innerText = "밭 상태: 비어 있음";
+      }
+    }
+
+    updateInventory();
+    updateFieldStatus();
+  </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>가공 공장 선택</title>
+  <link rel="stylesheet" href="/css/process_index.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: linear-gradient(to bottom, #fff7e6, #ffe4cc);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 1rem;
+    }
+
+    .title {
+      font-size: clamp(1.8rem, 5vw, 2.2rem);
+      margin-bottom: 2rem;
+      color: #aa5500;
+      text-shadow: 1px 1px 0 #fff;
+    }
+
+    .factory-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      width: 90%;
+      max-width: 350px;
+      align-items: center;
+    }
+
+    .factory-list button {
+      padding: 1rem 2rem;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      border: none;
+      border-radius: 15px;
+      background: #ffd699;
+      color: #4d2b00;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s, background 0.3s;
+    }
+
+    .factory-list button:hover {
+      background: #ffe6b3;
+      transform: translateY(-3px);
+    }
+
+    .info {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #855c00;
+      background: #fff8eb;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+
+    .storage-link {
+      margin-top: 2.5rem;
+      font-size: 1rem;
+      color: #003366;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .storage-link:hover {
+      color: #0055aa;
+    }
+  </style>
+</head>
+<body>
+  <h2 class="title">🏭 가공 공장 입구</h2>
+  <div class="factory-list">
+    <button onclick="goTo('process_potato.html')">🥔 감자 가공 공장</button>
+    <button onclick="goTo('process_barley.html')">🌾 보리 가공 공장</button>
+  </div>
+  <div class="info">
+    각 공장에서는 작물을 일정 수량 이상 모은 뒤<br>
+    연료와 함께 가공하여 상품화할 수 있습니다.<br>
+    안전하고 위생적인 환경에서 자동으로 가공되며<br>
+    결과물은 창고에 보관됩니다.
+  </div>
+  <div class="storage-link" onclick="goTo('/html/storage.html')">
+    🗄 창고로 이동하기
+  </div>
+
+  <script>
+    function goTo(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+</html>
