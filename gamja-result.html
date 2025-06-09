@@ -148,7 +148,7 @@
     };
 
     function fetchUserData() {
-      fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/userdata?nickname=${encodeURIComponent(nickname)}`)
         .then(res => {
           if (!res.ok) throw new Error("서버 오류");
           statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
@@ -172,7 +172,7 @@
     }
 
     function saveUserData(callback) {
-      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/update-user", {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/update-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData)
@@ -268,7 +268,7 @@
   let orcx = 0;
 
   async function loadData() {
-    const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=" + nickname);
+    const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/userdata?nickname=" + nickname);
     const data = await res.json();
     if (data.success) {
       potatoCount = data.user.potatoCount;
@@ -285,7 +285,7 @@
       return;
     }
     const exchangeAmount = potatoCount * 10;
-    const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/update-user", {
+    const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/update-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
