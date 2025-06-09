@@ -1,145 +1,152 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>🏭 OrcaX 감자 가공공장</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>OrcaX 감자 농장</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #fff9e6;
+      background-color: #f0f9ec;
+      margin: 0;
+      padding: 1rem;
       text-align: center;
-      padding: 2rem;
     }
     h1 {
       font-size: 1.8rem;
-      color: #5e3c00;
+      color: #256029;
     }
-    .status {
-      color: red;
-      margin-bottom: 1rem;
-      font-weight: bold;
-    }
-    .box {
-      background: #fff3cd;
-      border: 1px solid #ffeeba;
+    .status-box {
+      background: #ffffff;
+      border: 1px solid #c8e6c9;
       border-radius: 12px;
-      padding: 1.5rem;
-      max-width: 450px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 1rem;
+      margin-top: 1rem;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .info {
-      margin: 0.5rem 0;
-      font-size: 1.1rem;
-    }
-    input[type="text"] {
-      padding: 0.5rem;
       font-size: 1rem;
-      width: 60%;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      margin: 0.3rem 0;
     }
-    button {
-      margin: 0.5rem;
+    .btn {
+      margin: 1rem 0.4rem;
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
+      background-color: #388e3c;
+      color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-    .action-btn {
-      background-color: #d4a373;
-      color: #fff;
-    }
-    .action-btn:hover {
-      background-color: #bc8a5f;
-    }
-    .bottom-links {
-      margin-top: 2rem;
-    }
-    .bottom-links button {
-      background-color: #4caf50;
-      color: white;
-    }
-    .storage {
-      margin-top: 1rem;
-      font-weight: bold;
+    .btn:hover {
+      background-color: #2e7d32;
     }
   </style>
 </head>
 <body>
-  <h1>🏭 OrcaX 감자 가공공장</h1>
-  <div class="status" id="statusMsg">⚠ 전기 공급이 끊겼습니다 (서버 응답 없음)</div>
 
-  <div class="box">
-    <div class="info">🥔 감자: <span id="potato">0</span></div>
-    <div class="info">💧 물: <span id="water">0</span></div>
-    <div class="info">🌿 거름: <span id="fertilizer">0</span></div>
+<div id="nicknameBox" style="text-align:right; font-weight:bold; margin: 0.5rem 1rem; color: #503020;"></div>
+<div id="statusBox" style="text-align:center; margin-top:0.5rem; color: green;"></div>
 
-    <input type="text" id="productName" placeholder="제품 이름 입력" />
-    <button class="action-btn" onclick="processProduct()">제품 가공하기</button><br/>
-    <button class="action-btn" onclick="exchangeWater()">선택 제품 → 물 교환</button>
-    <button class="action-btn" onclick="exchangeFertilizer()">선택 제품 → 거름 교환</button>
-
-    <div class="storage">
-      <button onclick="loadStorage()" class="action-btn">📦 가공 제품 보관함 불러오기</button>
-      <div id="storageResult">보관함 미확인</div>
-    </div>
+  <h1>💧 OrcaX 감자 농장</h1>
+  <div id="connection">🔌 서버 연결 상태 확인 중...</div>
+  <div class="status-box">
+    <div class="info">💧 물: <span id="water">-</span></div>
+    <div class="info">🧴 거름: <span id="fertilizer">-</span></div>
+    <div class="info">🥔 감자: <span id="potato">-</span></div>
+    <div class="info">🪙 ORCX 토큰: <span id="token">-</span></div>
+    <div class="info">🎯 농장명: <span id="farm">-</span></div>
+  </div>
+  <div>
+    <button class="btn" onclick="giveWater()">💧 물 주기</button>
+    <button class="btn" onclick="giveFertilizer()">🧴 거름 주기</button>
+    <button class="btn" onclick="harvest()">🥔 감자 수확하기</button>
+    <button class="btn" onclick="goToFactory()">🏭 감자 가공공장 이동</button>
   </div>
 
-  <div class="bottom-links">
-    <button onclick="location.href='gamja-shop.html'">🛒 씨감자 상점</button>
-    <button onclick="location.href='gamja-exchange.html'">♻ 자원 교환소</button>
-    <button onclick="location.href='gamja-market.html'">💰 거래소 이동</button>
-  </div>
+<script>
+  const nickname = localStorage.getItem("nickname");
+  const farmName = localStorage.getItem("farmName") || "이름없는농장";
+  document.getElementById("farm").innerText = farmName;
 
-  <script>
-    const nickname = localStorage.getItem("nickname");
+  if (!nickname) {
+    alert("❌ 카카오 로그인 후 이용 가능합니다.");
+    window.location.href = "orcax-farm_000.html";
+  }
 
-    if (!nickname) {
-      alert("로그인 정보 없음: 로그인 페이지로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
+  document.getElementById("nicknameBox").innerText = "👤 닉네임: " + nickname;
+
+  let userData = {
+    nickname,
+    water: 0,
+    fertilizer: 0,
+    potatoCount: 0,
+    token: 0
+  };
+
+  async function loadStatus() {
+    const connection = document.getElementById("connection");
+    try {
+      const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`);
+      if (!res.ok) throw new Error("서버 응답 오류");
+      const data = await res.json();
+      const user = data.user;
+      userData.water = user.water ?? 0;
+      userData.fertilizer = user.fertilizer ?? 0;
+      userData.potatoCount = user.potatoCount ?? 0;
+      userData.token = user.token ?? 0;
+      updateDisplay();
+      connection.innerText = "✅ 서버 연결됨";
+    } catch (err) {
+      connection.innerText = `❌ 서버 오류: ${err.message}`;
     }
+  }
 
-    async function processProduct() {
-      const name = document.getElementById("productName").value.trim();
-      if (!name) return alert("제품 이름을 입력해주세요.");
-      try {
-        const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/harvest", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, productName: name })
-        });
-        const data = await res.json();
-        alert(data.message || "가공 완료!");
-      } catch (err) {
-        alert("서버 오류로 가공 실패: " + err.message);
-      }
-    }
+  function updateDisplay() {
+    document.getElementById("water").innerText = userData.water;
+    document.getElementById("fertilizer").innerText = userData.fertilizer;
+    document.getElementById("potato").innerText = userData.potatoCount;
+    document.getElementById("token").innerText = userData.token;
+  }
 
-    async function loadStorage() {
-      const result = document.getElementById("storageResult");
-      try {
-        const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/storage?nickname=${nickname}`);
-        const data = await res.json();
-        if (data.success) {
-          result.innerText = data.items.join(", ") || "보관된 제품이 없습니다.";
-        } else {
-          result.innerText = data.message || "불러오기 실패";
-        }
-      } catch (err) {
-        result.innerText = "❌ 서버 오류: " + err.message;
-      }
-    }
+  function giveWater() {
+    if (userData.water <= 0) return alert("💧 물이 부족합니다!");
+    userData.water--;
+    updateDisplay();
+  }
 
-    function exchangeWater() {
-      alert("물 교환 기능은 별도 구현 예정입니다.");
-    }
+  function giveFertilizer() {
+    if (userData.fertilizer <= 0) return alert("🧴 거름이 부족합니다!");
+    userData.fertilizer--;
+    updateDisplay();
+  }
 
-    function exchangeFertilizer() {
-      alert("거름 교환 기능은 별도 구현 예정입니다.");
+  async function harvest() {
+    userData.potatoCount++;
+    alert("🥔 감자를 수확했습니다!");
+
+    updateDisplay();
+
+    try {
+      await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/update-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      });
+    } catch (err) {
+      alert("❌ 수확한 감자 서버 저장 실패: " + err.message);
     }
-  </script>
+  }
+
+  function goToFactory() {
+    window.location.href = "gamja-result.html";
+  }
+
+  loadStatus();
+</script>
+
 </body>
 </html>
