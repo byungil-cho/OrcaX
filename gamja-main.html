@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>카카오 로그인</title>
+  <title>감자 농장 시작</title>
   <style>
     body {
       font-family: sans-serif;
@@ -12,16 +12,35 @@
       background: #f2f2f2;
     }
 
-    .kakao-btn {
-      background-color: #fee500;
-      border: none;
-      padding: 15px 30px;
+    h1 {
+      font-size: 2rem;
+      color: #256029;
+    }
+
+    input[type="text"] {
+      padding: 0.6rem;
+      font-size: 1rem;
+      width: 60%;
+      max-width: 300px;
+      border: 1px solid #ccc;
       border-radius: 6px;
-      font-weight: bold;
+      margin-top: 1rem;
+    }
+
+    .confirm-btn {
+      display: block;
+      margin: 2rem auto 1rem;
+      padding: 0.7rem 2rem;
       font-size: 1.2rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
-      color: #000;
-      margin-top: 2rem;
+    }
+
+    .confirm-btn:hover {
+      background-color: #45a049;
     }
 
     .server-check {
@@ -30,38 +49,33 @@
       color: gray;
     }
 
-    .online {
-      color: green;
-      font-weight: bold;
-    }
-
-    .offline {
-      color: red;
-      font-weight: bold;
-    }
+    .online { color: green; font-weight: bold; }
+    .offline { color: red; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>OrcaX 카카오 로그인</h1>
-  <p>계속하려면 카카오 계정으로 로그인하세요.</p>
-  <button class="kakao-btn" onclick="kakaoLogin()">카카오로 로그인</button>
+  <h1>🌱 나만의 감자 농장을 시작해보세요!</h1>
+  <p>원하는 농장 이름을 입력하고 입장하세요.</p>
+  <input type="text" id="farmNameInput" placeholder="예: 돌고래 농장" />
+  <button class="confirm-btn" onclick="startFarm()">농장 입장</button>
 
   <div class="server-check" id="serverStatus">🔌 서버 상태 확인 중...</div>
 
   <script>
-    // 로그인 상태 확인
     const nickname = localStorage.getItem("nickname");
     if (!nickname) {
       alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
     }
 
-    function kakaoLogin() {
-      const REST_API_KEY = "284b798a9d9be8202f9c2e129fa6f329";
-      const REDIRECT_URI = "https://byungil-cho.github.io/OrcaX/kakao-callback.html?from=gamja-main.html";
-      const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code`;
-
-      window.location.href = kakaoURL;
+    function startFarm() {
+      const farmName = document.getElementById("farmNameInput").value.trim();
+      if (!farmName) {
+        alert("농장 이름을 입력해주세요.");
+        return;
+      }
+      localStorage.setItem("farmName", farmName);
+      window.location.href = "gamja-factory.html";
     }
 
     async function checkServerPower() {
