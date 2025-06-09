@@ -2,124 +2,85 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>🌱 OrcaX 감자 농장</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>카카오 로그인</title>
   <style>
     body {
-      font-family: 'Nunito', sans-serif;
-      background: linear-gradient(to bottom right, #f0f9ec, #dcedc8);
-      margin: 0;
-      padding: 1rem;
+      font-family: sans-serif;
       text-align: center;
+      padding: 2rem;
+      background: #f2f2f2;
     }
 
-    h1 {
-      font-size: 1.8rem;
-      color: #2e7d32;
-      margin-bottom: 1rem;
-      word-break: keep-all;
+    .kakao-btn {
+      background-color: #fee500;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #000;
+      margin-top: 2rem;
     }
 
-    .status-box {
-      background: #ffffff;
-      border: 2px solid #a5d6a7;
-      border-radius: 16px;
-      padding: 1.2rem;
-      margin: 0 auto;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+    .server-check {
+      margin-top: 2rem;
+      font-size: 0.95rem;
+      color: gray;
     }
 
-    .info {
-      font-size: 1rem;
-      margin: 0.4rem 0;
-      color: #37474f;
-    }
-
-    #farmNameBox {
-      color: #43a047;
+    .online {
+      color: green;
       font-weight: bold;
     }
 
-    .potato-emoji {
-      font-size: 2.5rem;
-      margin-top: 1rem;
-    }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #789262;
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.4rem;
-      }
-
-      .status-box {
-        padding: 1rem;
-      }
-
-      .info {
-        font-size: 0.95rem;
-      }
-
-      .potato-emoji {
-        font-size: 2rem;
-      }
+    .offline {
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>🌱 OrcaX 감자 농장</h1>
+  <h1>OrcaX 카카오 로그인</h1>
+  <p>계속하려면 카카오 계정으로 로그인하세요.</p>
+  <button class="kakao-btn" onclick="kakaoLogin()">카카오로 로그인</button>
 
-  <div class="status-box">
-    <p class="info"><strong>👤 닉네임:</strong> <span id="nicknameBox">-</span></p>
-    <p class="info"><strong>🌾 농장이름:</strong> <span id="farmNameBox">-</span></p>
-    <p class="info">💧 물: <span id="waterCount">-</span></p>
-    <p class="info">🧴 거름: <span id="fertilizerCount">-</span></p>
-    <p class="info">💰 토큰: <span id="tokenCount">-</span></p>
-    <p class="info">🥔 감자 수: <span id="potatoCount">-</span></p>
-    <div class="potato-emoji">🥔</div>
-  </div>
-
-  <footer>© 2025 OrcaX 감자연합. 감자는 당신 편.</footer>
+  <div class="server-check" id="serverStatus">🔌 서버 상태 확인 중...</div>
 
   <script>
-    const nickname = new URLSearchParams(window.location.search).get("nickname");
+    // 로그인 상태 확인
+    const nickname = localStorage.getItem("nickname");
     if (!nickname) {
-      alert("카카오 인증이 없거나 잘못된 접근입니다.");
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
     }
 
-    document.getElementById("nicknameBox").textContent = nickname;
-    document.getElementById("farmNameBox").textContent = `${nickname}의 감자농장`;
+    function kakaoLogin() {
+      const REST_API_KEY = "284b798a9d9be8202f9c2e129fa6f329";
+      const REDIRECT_URI = "https://byungil-cho.github.io/OrcaX/kakao-callback.html?from=gamja-main.html";
+      const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code`;
 
-    async function fetchUserData() {
+      window.location.href = kakaoURL;
+    }
+
+    async function checkServerPower() {
+      const statusBox = document.getElementById("serverStatus");
       try {
-        const response = await fetch(`https://orcax-farm-6000.onrender.com/api/userdata?nickname=${nickname}`);
-        const data = await response.json();
-        if (!data.success || !data.user) {
-          alert("등록되지 않은 유저입니다.");
-          window.location.href = "orcax-farm_000.html";
-          return;
+        const res = await fetch("https://orcax-farm-6000.onrender.com/api/ping");
+        if (res.ok) {
+          statusBox.textContent = "✅ 서버 전원 ON: 감자밭 연결 가능!";
+          statusBox.classList.add("online");
+        } else {
+          throw new Error();
         }
-
-        const user = data.user;
-        document.getElementById("waterCount").textContent = user.water;
-        document.getElementById("fertilizerCount").textContent = user.fertilizer;
-        document.getElementById("tokenCount").textContent = user.token;
-        document.getElementById("potatoCount").textContent = user.potatoCount;
-      } catch (error) {
-        alert("서버 연결 실패. 입구로 돌아갑니다.");
-        window.location.href = "orcax-farm_000.html";
+      } catch (e) {
+        statusBox.textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
+        statusBox.classList.add("offline");
       }
     }
 
-    fetchUserData();
+    checkServerPower();
   </script>
 </body>
 </html>
