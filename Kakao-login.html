@@ -41,6 +41,7 @@
       font-weight: bold;
     }
   </style>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 </head>
 <body>
   <h1>OrcaX 카카오 로그인</h1>
@@ -50,18 +51,47 @@
   <div class="server-check" id="serverStatus">🔌 서버 상태 확인 중...</div>
 
   <script>
-    function kakaoLogin() {
-      const REST_API_KEY = "284b798a9d9be8202f9c2e129fa6f329";
-      const REDIRECT_URI = "https://byungil-cho.github.io/OrcaX/kakao-callback.html?from=gamja-main.html";
-      const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code`;
+    Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
 
-      window.location.href = kakaoURL;
+    function kakaoLogin() {
+      Kakao.Auth.login({
+        success: function(authObj) {
+          console.log("카카오 로그인 성공", authObj);
+          Kakao.API.request({
+            url: "/v2/user/me",
+            success: function(res) {
+              console.log("카카오 사용자 정보", res);
+              const nickname = res.kakao_account.profile.nickname;
+
+              // 서버에 유저 등록
+              fetch("https://climbing-wholly-grouper.ngrok-free.app/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nickname })
+              })
+              .then(r => r.json())
+              .then(data => {
+                console.log("서버 응답:", data);
+                localStorage.setItem("nickname", nickname);
+                alert(`${nickname}님 환영합니다!`);
+                window.location.href = "gamja-main.html";
+              });
+            },
+            fail: function(error) {
+              console.error("사용자 정보 요청 실패", error);
+            }
+          });
+        },
+        fail: function(err) {
+          console.error("카카오 로그인 실패", err);
+        }
+      });
     }
 
     async function checkServerPower() {
       const statusBox = document.getElementById("serverStatus");
       try {
-        const res = await fetch("https://orcax-survey-3060.onrender.com/api/ping");
+        const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/ping");
         if (res.ok) {
           statusBox.textContent = "✅ 서버 전원 ON: 감자밭 연결 가능!";
           statusBox.classList.add("online");
