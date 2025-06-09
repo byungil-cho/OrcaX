@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -93,8 +94,9 @@
     const connection = document.getElementById("connection");
     try {
       const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`);
-      if (!res.ok) throw new Error("서버 응답 오류");
       const data = await res.json();
+      if (!data || !data.user) throw new Error("유저 데이터가 없습니다.");
+
       const user = data.user;
       userData.water = user.water ?? 0;
       userData.fertilizer = user.fertilizer ?? 0;
@@ -133,14 +135,13 @@
 
   async function harvest() {
     if (growth < 2) {
-      alert("🌱 작물이 아직 자라지 않았습니다! 물과 거름을 모두 줘야 수확할 수 있어요.");
+      alert("🌱 작물이 아직 자라지 않았습니다!");
       return;
     }
     const reward = Math.floor(Math.random() * 3) + 2;
     userData.potatoCount += reward;
-    alert(`🥔 감자를 ${reward}개 수확했습니다!`);
     growth = 0;
-    alert("🥔 감자를 수확했습니다!");
+    alert(`🥔 감자를 ${reward}개 수확했습니다!`);
     updateDisplay();
     try {
       await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/update-user", {
