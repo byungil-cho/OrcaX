@@ -92,11 +92,18 @@
   </script>
 
 <script>
-  async function loadUserResources(nickname) {
+  const nickname = localStorage.getItem("nickname");
+  if (!nickname) {
+    alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+    location.href = "orcax-farm_000.html";
+  }
+
+  async function loadAndRedirect() {
     try {
       const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`);
       const data = await res.json();
       if (data.success && data.user) {
+        // 자원 표시
         document.getElementById("nickname").innerText = nickname + "님 환영합니다!";
         document.getElementById("resourceBox").innerHTML = `
           💧 물: ${data.user.water}개<br/>
@@ -105,20 +112,19 @@
           🥔 감자: ${data.user.potatoCount}개
         `;
       } else {
-        alert("자원 정보가 없습니다. 로그인 정보를 확인해주세요.");
+        alert("자원 정보가 없습니다.");
       }
     } catch (err) {
       alert("서버 오류로 자원 정보를 가져올 수 없습니다.");
     }
   }
 
-  const nickname = localStorage.getItem("nickname");
-  if (nickname) {
-    loadUserResources(nickname);
-  } else {
-    alert("닉네임 정보가 없습니다. 로그인 페이지로 이동합니다.");
-    location.href = "orcax-farm_000.html";
+  // 감자밭 입장 버튼 클릭 시 gamja-main.html로 이동
+  function goToMain() {
+    location.href = "gamja-main.html";
   }
+
+  loadAndRedirect();
 </script>
 
 </body>
