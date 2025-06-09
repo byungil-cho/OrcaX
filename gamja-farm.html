@@ -71,21 +71,25 @@
     <div class="overlay"></div>
     <div class="label">🥔 감자밭 입구</div>
     <div class="nickname" id="nicknameBox" style="display: none;"></div>
-    <button class="entry-button" onclick="goToLoginPage()">감자밭 입장</button>
+    <button class="entry-button" onclick="goToFarm()">감자밭 입장</button>
   </div>
 
   <script>
     const nicknameBox = document.getElementById("nicknameBox");
-
     const nickname = localStorage.getItem("nickname");
-    if (nickname) {
+
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    } else {
       nicknameBox.textContent = `👤 ${nickname}님 환영합니다!`;
       nicknameBox.style.display = "block";
     }
 
-    function goToLoginPage() {
-      window.location.href = "Kakao-login.html";
+    function goToFarm() {
+      window.location.href = "gamja-main.html";
     }
   </script>
 </body>
 </html>
+
