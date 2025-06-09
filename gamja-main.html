@@ -37,7 +37,7 @@
   </style>
 </head>
 <body>
-  <div id="nicknameBox">🧑‍🌾 범고래X 님</div>
+  <div id="nicknameBox" style="display:none;"></div>
   <h1>🌱 나만의 감자 농장을 시작해보세요!</h1>
   <p>원하는 농장 이름을 입력하고 입장하세요.</p>
   <input type="text" id="farmNameInput" placeholder="예: 돌고래 농장" />
@@ -73,7 +73,19 @@
       location.href = "gamja-factory.html";
     }
 
+    
+    const nickname = localStorage.getItem("nickname");
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    } else {
+      document.getElementById("nicknameBox").textContent = `🧑‍🌾 ${nickname} 님`;
+      document.getElementById("nicknameBox").style.display = "block";
+    }
+
     checkServerStatus();
+    
   </script>
 </body>
 </html>
+
