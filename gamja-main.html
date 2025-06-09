@@ -2,111 +2,78 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <title>OrcaX 감자밭 입장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 농장 시작</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Arial', sans-serif;
+      background: #f4f4f4;
       text-align: center;
       padding: 2rem;
-      background: #f2f2f2;
     }
-
-    h1 {
-      font-size: 2rem;
-      color: #256029;
-    }
-
     #nicknameBox {
       font-weight: bold;
-      text-align: right;
       margin-bottom: 1rem;
-      color: #333;
     }
-
-    input[type="text"] {
-      padding: 0.6rem;
-      font-size: 1rem;
-      width: 60%;
-      max-width: 300px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-top: 1rem;
-    }
-
     .confirm-btn {
-      display: block;
-      margin: 2rem auto 1rem;
-      padding: 0.7rem 2rem;
-      font-size: 1.2rem;
       background-color: #4CAF50;
       color: white;
+      padding: 10px 20px;
       border: none;
-      border-radius: 8px;
       cursor: pointer;
+      font-size: 1rem;
+      border-radius: 8px;
     }
-
-    .confirm-btn:hover {
-      background-color: #45a049;
-    }
-
     .server-check {
-      margin-top: 2rem;
-      font-size: 0.95rem;
-      color: gray;
+      margin-top: 1rem;
+      font-weight: bold;
     }
-
-    .online { color: green; font-weight: bold; }
-    .offline { color: red; font-weight: bold; }
+    .offline {
+      color: red;
+    }
+    .online {
+      color: green;
+    }
   </style>
 </head>
 <body>
-  <div id="nicknameBox"></div>
+  <div id="nicknameBox">🧑‍🌾 범고래X 님</div>
   <h1>🌱 나만의 감자 농장을 시작해보세요!</h1>
   <p>원하는 농장 이름을 입력하고 입장하세요.</p>
   <input type="text" id="farmNameInput" placeholder="예: 돌고래 농장" />
+  <br /><br />
   <button class="confirm-btn" onclick="startFarm()">농장 입장</button>
-
-  <div class="server-check" id="serverStatus">🔌 서버 상태 확인 중...</div>
+  <div class="server-check offline" id="serverStatus">❌ 서버 전원 OFF: 감자밭 연결 실패</div>
 
   <script>
-    const nickname = localStorage.getItem("nickname");
-    const nicknameBox = document.getElementById("nicknameBox");
+    const API_BASE_URL = "https://climbing-wholly-grouper.jp.ngrok.io"; // ✅ 서버 주소 교체
 
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
-    } else {
-      nicknameBox.textContent = `👤 ${nickname} 님`;
+    async function checkServerStatus() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/`);
+        if (res.ok) {
+          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
+          document.getElementById("serverStatus").classList.remove("offline");
+          document.getElementById("serverStatus").classList.add("online");
+        }
+      } catch (err) {
+        document.getElementById("serverStatus").textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
+        document.getElementById("serverStatus").classList.remove("online");
+        document.getElementById("serverStatus").classList.add("offline");
+      }
     }
 
     function startFarm() {
-      const farmName = document.getElementById("farmNameInput").value.trim();
-      if (!farmName) {
-        alert("농장 이름을 입력해주세요.");
+      const farmName = document.getElementById("farmNameInput").value;
+      if (!farmName.trim()) {
+        alert("농장 이름을 입력해주세요!");
         return;
       }
       localStorage.setItem("farmName", farmName);
-      window.location.href = "gamja-factory.html";
+      location.href = "gamja-factory.html";
     }
 
-    async function checkServerPower() {
-      const statusBox = document.getElementById("serverStatus");
-      try {
-        const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/ping");
-        if (res.ok) {
-          statusBox.textContent = "✅ 서버 전원 ON: 감자밭 연결 가능!";
-          statusBox.classList.add("online");
-        } else {
-          throw new Error();
-        }
-      } catch (e) {
-        statusBox.textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
-        statusBox.classList.add("offline");
-      }
-    }
-
-    checkServerPower();
+    checkServerStatus();
   </script>
 </body>
 </html>
