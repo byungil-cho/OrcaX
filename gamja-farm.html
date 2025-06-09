@@ -48,18 +48,6 @@
       font-size: 1.3rem;
       border-radius: 8px;
     }
-    .status-box {
-      position: absolute;
-      top: 20%;
-      right: 5%;
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #333;
-      padding: 1rem;
-      border-radius: 10px;
-      text-align: left;
-      font-size: 1rem;
-      line-height: 1.4;
-    }
     .entry-button {
       position: absolute;
       bottom: 10%;
@@ -83,12 +71,6 @@
     <div class="overlay"></div>
     <div class="label">🥔 감자밭 입구</div>
     <div class="nickname" id="nicknameBox" style="display: none;"></div>
-    <div class="status-box" id="resourceStatus" style="display: none;">
-      💧 물: <span id="water">-</span><br/>
-      🧴 거름: <span id="fertilizer">-</span><br/>
-      🪙 토큰: <span id="token">-</span><br/>
-      🥔 감자: <span id="potato">-</span>
-    </div>
     <button class="entry-button" onclick="goToFarm()">감자밭 입장</button>
   </div>
 
@@ -102,31 +84,42 @@
     } else {
       nicknameBox.textContent = `👤 ${nickname}님 환영합니다!`;
       nicknameBox.style.display = "block";
-      loadUserResources(nickname);
     }
 
     function goToFarm() {
       window.location.href = "gamja-factory.html";
     }
-
-    async function loadUserResources(nickname) {
-      try {
-        const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`);
-        const data = await res.json();
-        if (data.success) {
-          document.getElementById("water").textContent = data.user.water;
-          document.getElementById("fertilizer").textContent = data.user.fertilizer;
-          document.getElementById("token").textContent = data.user.token;
-          document.getElementById("potato").textContent = data.user.potatoCount;
-          document.getElementById("resourceStatus").style.display = "block";
-        } else {
-          alert("사용자 정보를 불러오지 못했습니다.");
-        }
-      } catch (err) {
-        console.error("자원 불러오기 실패:", err);
-        alert("서버 오류로 자원 정보를 가져올 수 없습니다.");
-      }
-    }
   </script>
+
+<script>
+  async function loadUserResources(nickname) {
+    try {
+      const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`);
+      const data = await res.json();
+      if (data.success && data.user) {
+        document.getElementById("nickname").innerText = nickname + "님 환영합니다!";
+        document.getElementById("resourceBox").innerHTML = `
+          💧 물: ${data.user.water}개<br/>
+          🧴 거름: ${data.user.fertilizer}개<br/>
+          🪙 토큰: ${data.user.token}개<br/>
+          🥔 감자: ${data.user.potatoCount}개
+        `;
+      } else {
+        alert("자원 정보가 없습니다. 로그인 정보를 확인해주세요.");
+      }
+    } catch (err) {
+      alert("서버 오류로 자원 정보를 가져올 수 없습니다.");
+    }
+  }
+
+  const nickname = localStorage.getItem("nickname");
+  if (nickname) {
+    loadUserResources(nickname);
+  } else {
+    alert("닉네임 정보가 없습니다. 로그인 페이지로 이동합니다.");
+    location.href = "orcax-farm_000.html";
+  }
+</script>
+
 </body>
 </html>
