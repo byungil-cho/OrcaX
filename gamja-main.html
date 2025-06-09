@@ -17,6 +17,13 @@
       color: #256029;
     }
 
+    #nicknameBox {
+      font-weight: bold;
+      text-align: right;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
     input[type="text"] {
       padding: 0.6rem;
       font-size: 1rem;
@@ -54,6 +61,7 @@
   </style>
 </head>
 <body>
+  <div id="nicknameBox"></div>
   <h1>🌱 나만의 감자 농장을 시작해보세요!</h1>
   <p>원하는 농장 이름을 입력하고 입장하세요.</p>
   <input type="text" id="farmNameInput" placeholder="예: 돌고래 농장" />
@@ -63,9 +71,13 @@
 
   <script>
     const nickname = localStorage.getItem("nickname");
+    const nicknameBox = document.getElementById("nicknameBox");
+
     if (!nickname) {
       alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
+    } else {
+      nicknameBox.textContent = `👤 ${nickname} 님`;
     }
 
     function startFarm() {
@@ -81,7 +93,7 @@
     async function checkServerPower() {
       const statusBox = document.getElementById("serverStatus");
       try {
-        const res = await fetch("https://orcax-farm-6000.onrender.com/api/ping");
+        const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/ping");
         if (res.ok) {
           statusBox.textContent = "✅ 서버 전원 ON: 감자밭 연결 가능!";
           statusBox.classList.add("online");
