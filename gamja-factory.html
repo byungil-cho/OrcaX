@@ -1,214 +1,128 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<title>OrcaX 감자 농장</title>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<style>
+  <meta charset="UTF-8" />
+  <title>OrcaX 감자밭</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f0f9ec;
-      margin: 0;
-      padding: 1rem;
       text-align: center;
+      padding: 1rem;
     }
     h1 {
       font-size: 1.8rem;
       color: #256029;
     }
     .status-box {
-      background: #ffffff;
+      background: #fff;
       border: 1px solid #c8e6c9;
       border-radius: 12px;
       padding: 1rem;
-      margin-top: 1rem;
+      margin: 1rem auto;
       max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .info {
       font-size: 1rem;
-      margin: 0.3rem 0;
+      margin: 0.4rem 0;
     }
     .btn {
-      margin: 1rem 0.4rem;
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
-      background-color: #388e3c;
-      color: white;
+      margin: 0.5rem;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
+      background: #4CAF50;
+      color: white;
       cursor: pointer;
-    }
-    .btn:hover {
-      background-color: #2e7d32;
     }
   </style>
 </head>
 <body>
-<div id="nicknameBox" style="text-align:right; font-weight:bold; margin: 0.5rem 1rem; color: #503020;"></div>
-<div id="statusBox" style="text-align:center; margin-top:0.5rem; color: green;"></div>
-<h1>💧 OrcaX 감자 농장</h1>
-<div id="connection">🔌 서버 연결 상태 확인 중...</div>
-<div class="status-box">
-<div class="info">💧 물: <span id="water">-</span></div>
-<div class="info">🧴 거름: <span id="fertilizer">-</span></div>
-<div class="info">🥔 감자: <span id="potato">-</span></div>
-<div class="info">🪙 ORCX 토큰: <span id="token">-</span></div>
-<div class="info">🎯 농장명: <span id="farm">-</span></div>
-</div>
-<div>
-<button class="btn" onclick="giveWater()">💧 물 주기</button>
-<button class="btn" onclick="giveFertilizer()">🧴 거름 주기</button>
-<button class="btn" onclick="harvest()">🥔 감자 수확하기</button>
-<button class="btn" onclick="goToFactory()">🏭 감자 가공공장 이동</button>
-</div>
-<script>
-  const nickname = localStorage.getItem("nickname");
-  const farmName = localStorage.getItem("farmName") || "이름없는농장";
-  document.getElementById("farm").innerText = farmName;
+  <div id="nicknameBox" style="text-align:right; font-weight:bold;"></div>
+  <h1>🌱 OrcaX 감자 농사터</h1>
+  <div class="status-box">
+    <div class="info">💧 물: <span id="waterCount">-</span></div>
+    <div class="info">🧴 거름: <span id="fertilizerCount">-</span></div>
+    <div class="info">🥔 감자: <span id="potatoCount">-</span></div>
+    <div class="info">🪙 토큰: <span id="tokenCount">-</span></div>
+    <div class="info">🌿 성장 포인트: <span id="growthPoint">0</span></div>
+  </div>
+  <div>
+    <button class="btn" id="waterBtn">💧 물 주기</button>
+    <button class="btn" id="fertilizerBtn">🧴 거름 주기</button>
+    <button class="btn" id="harvestBtn">🥔 수확하기</button>
+    <button class="btn" onclick="location.href='gamja-result.html'">🏭 가공공장</button>
+  </div>
 
-  // 닉네임 없으면 강제 퇴장
-  if (!nickname) {
-    alert("❌ 카카오 로그인 후 이용 가능합니다. 돌아갑니다.");
-    window.location.href = "index.html"; // 이 경로는 네 설정에 따라 바꿔
-  }
+  <script>
+    const API_BASE = "https://climbing-wholly-grouper.ngrok-free.app";
+    const nickname = localStorage.getItem("nickname");
+    document.getElementById("nicknameBox").innerText = `👤 ${nickname} 님`;
 
-  async function loadStatus() {
-    const connection = document.getElementById("connection");
+    const waterEl = document.getElementById("waterCount");
+    const fertEl = document.getElementById("fertilizerCount");
+    const potatoEl = document.getElementById("potatoCount");
+    const tokenEl = document.getElementById("tokenCount");
+    const growthEl = document.getElementById("growthPoint");
 
-    try {
-      const res = await fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`);
-      if (!res.ok) throw new Error("서버 응답 오류");
+    let growthPoint = 0;
 
-      const data = await res.json();
-      if (!data.success || !data.user) throw new Error(data.message || "유효하지 않은 응답");
-
-      const user = data.user;
-
-      connection.innerHTML = "✅ 전기 공급 중 (서버 연결됨)";
-      document.getElementById("water").innerText = user.water ?? 0;
-      document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
-      document.getElementById("potato").innerText = user.potatoCount ?? 0;
-      document.getElementById("token").innerText = user.token ?? 0;
-    } catch (err) {
-      connection.innerHTML = `❌ 서버 오류: ${err.message}`;
-      document.getElementById("water").innerText = "-";
-      document.getElementById("fertilizer").innerText = "-";
-      document.getElementById("potato").innerText = "-";
-      document.getElementById("token").innerText = "-";
-    }
-  }
-
-  loadStatus();
-</script>
-<script>
-  const nickname = localStorage.getItem("nickname");
-  if (!nickname) {
-    alert("닉네임 정보가 없습니다. 로그인 페이지로 이동합니다.");
-    window.location.href = "index.html";
-  } else {
-    document.getElementById("nicknameBox").innerText = "👤 닉네임: " + nickname;
-
-    fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`)
-      .then(res => res.json())
-      .then(data => {
-        const status = document.getElementById("statusBox");
-        if (data.success) {
-          status.innerText = "✅ 전기 공급 중 (서버 연결됨)";
-        } else {
-          status.innerText = "❌ " + data.message;
-        }
-      })
-      .catch(err => {
-        document.getElementById("statusBox").innerText = "❌ 서버 오류: " + err.message;
-      });
-  }
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const nickname = localStorage.getItem("nickname");
-  const nicknameBox = document.getElementById("nicknameBox");
-  const waterCount = document.getElementById("waterCount");
-  const fertCount = document.getElementById("fertilizerCount");
-  const potatoCount = document.getElementById("potatoCount");
-  const growth = document.getElementById("growthPoint");
-  const harvestBtn = document.getElementById("harvestBtn");
-
-  let growthPoint = 0;
-
-  if (!nickname) {
-    alert("카카오 로그인이 필요합니다.");
-    window.location.href = "orcax-farm_000.html";
-    return;
-  }
-
-  nicknameBox.textContent = `🧑‍🌾 ${nickname} 농장`;
-
-  async function fetchStatus() {
-    const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/status?nickname=" + nickname);
-    const data = await res.json();
-    if (data.success) {
-      waterCount.textContent = data.status.water;
-      fertCount.textContent = data.status.fertilizer;
-      potatoCount.textContent = data.status.potatoCount;
-    }
-  }
-
-  document.getElementById("waterBtn").onclick = async () => {
-    if (parseInt(waterCount.textContent) > 0) {
-      growthPoint++;
-      growth.textContent = growthPoint;
-      await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/use-resource", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, type: "water" })
-      });
-      await fetchStatus();
-    } else {
-      alert("물이 부족합니다.");
-    }
-  };
-
-  document.getElementById("fertilizerBtn").onclick = async () => {
-    if (parseInt(fertCount.textContent) > 0) {
-      growthPoint++;
-      growth.textContent = growthPoint;
-      await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/use-resource", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, type: "fertilizer" })
-      });
-      await fetchStatus();
-    } else {
-      alert("거름이 부족합니다.");
-    }
-  };
-
-  harvestBtn.onclick = async () => {
-    if (growthPoint >= 5) {
-      const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/harvest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname })
-      });
+    async function loadStatus() {
+      const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
       const data = await res.json();
       if (data.success) {
-        alert(`${data.harvested}개 감자 수확!`);
-        growthPoint = 0;
-        growth.textContent = growthPoint;
-        await fetchStatus();
-      } else {
-        alert("수확 실패!");
+        waterEl.textContent = data.user.water;
+        fertEl.textContent = data.user.fertilizer;
+        potatoEl.textContent = data.user.potatoCount;
+        tokenEl.textContent = data.user.token;
       }
-    } else {
-      alert("성장 포인트가 부족합니다.");
     }
-  };
 
-  fetchStatus();
-});
-</script></body>
+    async function useResource(type) {
+      const countEl = type === "water" ? waterEl : fertEl;
+      if (parseInt(countEl.textContent) > 0) {
+        growthPoint++;
+        growthEl.textContent = growthPoint;
+        await fetch(`${API_BASE}/api/use-resource`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, type })
+        });
+        await loadStatus();
+      } else {
+        alert(`${type === "water" ? "💧 물" : "🧴 거름"}이 부족합니다!`);
+      }
+    }
+
+    async function harvest() {
+      if (growthPoint >= 5) {
+        const res = await fetch(`${API_BASE}/api/harvest`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`🥔 감자 ${data.harvested}개 수확 성공!`);
+          growthPoint = 0;
+          growthEl.textContent = "0";
+          await loadStatus();
+        } else {
+          alert("수확 실패: " + data.message);
+        }
+      } else {
+        alert("🌿 성장 포인트가 부족합니다. 최소 5 필요!");
+      }
+    }
+
+    document.getElementById("waterBtn").onclick = () => useResource("water");
+    document.getElementById("fertilizerBtn").onclick = () => useResource("fertilizer");
+    document.getElementById("harvestBtn").onclick = harvest;
+
+    loadStatus();
+  </script>
+</body>
 </html>
