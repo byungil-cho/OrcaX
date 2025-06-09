@@ -248,6 +248,62 @@
 
     fetchUserData();
   </script>
+
+<div style="text-align:center; margin-top:20px;">
+  <div id="nicknameBox"></div>
+  <div id="potatoBox"></div>
+  <div id="orcxBox"></div>
+  <button onclick="exchangePotato()">감자 → ORCX 교환하기</button>
+</div>
+
+
+<script>
+  const nickname = localStorage.getItem("nickname");
+  if (!nickname) {
+    alert("로그인이 필요합니다.");
+    window.location.href = "orcax-farm_000.html";
+  }
+
+  let potatoCount = 0;
+  let orcx = 0;
+
+  async function loadData() {
+    const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=" + nickname);
+    const data = await res.json();
+    if (data.success) {
+      potatoCount = data.user.potatoCount;
+      orcx = data.user.token || 0;
+      document.getElementById("nicknameBox").innerText = "닉네임: " + nickname;
+      document.getElementById("potatoBox").innerText = "감자 보유량: " + potatoCount + "개";
+      document.getElementById("orcxBox").innerText = "ORCX 보유량: " + orcx + "개";
+    }
+  }
+
+  async function exchangePotato() {
+    if (potatoCount < 1) {
+      alert("교환할 감자가 없습니다.");
+      return;
+    }
+    const exchangeAmount = potatoCount * 10;
+    const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/update-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nickname,
+        potatoCount: 0,
+        token: orcx + exchangeAmount
+      })
+    });
+    if (res.ok) {
+      alert(exchangeAmount + " ORCX로 교환 완료!");
+      location.reload();
+    } else {
+      alert("교환 실패. 다시 시도해주세요.");
+    }
+  }
+
+  window.onload = loadData;
+</script>
+
 </body>
 </html>
-
