@@ -164,5 +164,30 @@
       }
     }
   </script>
+
+<script>
+  async function registerUser(nickname) {
+    try {
+      const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ nickname })
+      });
+      const data = await res.json();
+      console.log("서버 응답:", data);
+    } catch (err) {
+      console.error("서버 등록 오류:", err);
+    }
+  }
+
+  // localStorage에서 nickname 가져오기
+  const nickname = localStorage.getItem("nickname");
+  if (nickname) {
+    registerUser(nickname);
+  }
+</script>
+
 </body>
 </html>
