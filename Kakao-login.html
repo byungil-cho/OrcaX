@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -61,7 +62,7 @@
   </div>
 
   <script>
-    Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY'); // 여기에 본인 키 넣기
+    Kakao.init('284b798a9d9be8202f9c2e129fa6f329'); // 주인님 카카오 JS 키
 
     function loginWithKakao() {
       Kakao.Auth.login({
@@ -74,17 +75,18 @@
               const kakaoId = res.id;
               const nickname = res.kakao_account.profile.nickname;
 
-              fetch('https://orcax-backend.onrender.com/api/auth/me', {
+              // 서버 유저 등록 및 localStorage 저장
+              fetch('https://climbing-wholly-grouper.ngrok-free.app/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: `kakao_${kakaoId}` })
+                body: JSON.stringify({ nickname })
               })
               .then(r => r.json())
               .then(data => {
                 console.log('[백엔드 응답]', data);
-                localStorage.setItem('orcax_user', `kakao_${kakaoId}`);
+                localStorage.setItem('nickname', nickname);
                 alert(`${nickname}님 환영합니다!`);
-                window.location.href = 'roulette.html';
+                window.location.href = 'orcax-farm_000.html'; // 농장 입장
               });
             },
             fail: function(error) {
