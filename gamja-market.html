@@ -19,8 +19,14 @@
     #nicknameBox {
       text-align: right;
       font-weight: bold;
-      margin: 0.5rem 1rem 0.5rem 0;
+      margin: 0.5rem 1rem 0 0;
       color: #5b4229;
+    }
+    #tokenBox {
+      text-align: right;
+      font-weight: bold;
+      margin: 0 1rem 1rem 0;
+      color: #006400;
     }
     #statusBox {
       text-align: center;
@@ -88,6 +94,7 @@
 </head>
 <body>
   <div id="nicknameBox"></div>
+  <div id="tokenBox"></div>
   <h1>🥔 감자 제품 거래소</h1>
   <div id="statusBox">🔌 서버 전원 상태 확인 중...</div>
   <div id="marketContainer">
@@ -110,6 +117,7 @@
     const nickname = localStorage.getItem("nickname");
     const statusBox = document.getElementById("statusBox");
     const nicknameBox = document.getElementById("nicknameBox");
+    const tokenBox = document.getElementById("tokenBox");
 
     if (!nickname) {
       alert("로그인 정보가 없습니다. 입구로 이동합니다.");
@@ -120,7 +128,15 @@
     }
 
     let productPrices = {};
-    let userData = { nickname, inventory: [], token: 0 };
+    let userData = {
+      nickname,
+      inventory: [],
+      token: 0,
+      water: 0,
+      fertilizer: 0,
+      potatoCount: 0,
+      seedPotato: 0
+    };
 
     function fetchMarketData() {
       fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/market")
@@ -131,7 +147,6 @@
           return res.json();
         })
         .then(data => {
-          console.log("📈 시세 데이터:", data);
           const productList = document.getElementById("productList");
           productList.innerHTML = "<div>📈 실시간 전광판 시세</div>";
           data.forEach(item => {
@@ -156,7 +171,6 @@
           return res.json();
         })
         .then(data => {
-          console.log("📦 유저 데이터:", data);
           userData.inventory = data.inventory ?? [];
           userData.token = data.token ?? 0;
           userData.water = data.water ?? 0;
@@ -164,6 +178,7 @@
           userData.potatoCount = data.potatoCount ?? 0;
           userData.seedPotato = data.seedPotato ?? 0;
           renderInventory();
+          updateTokenDisplay();
         })
         .catch(err => {
           console.error("내 제품 불러오기 실패", err);
@@ -181,6 +196,10 @@
             <input type="checkbox" value="${index}"> ${item.type} × ${item.count}
           </div>`;
       });
+    }
+
+    function updateTokenDisplay() {
+      tokenBox.textContent = `💰 ORCX: ${userData.token} 개`;
     }
 
     function sellSelectedProducts() {
@@ -204,6 +223,7 @@
       });
 
       userData.token += total;
+      updateTokenDisplay();
 
       const payload = {
         nickname,
