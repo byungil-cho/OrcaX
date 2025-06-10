@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="utf-8"/>
@@ -86,11 +85,11 @@ const nickname = localStorage.getItem("nickname") || "사이메인";
 const box = document.getElementById("nicknameBox");
 box.textContent = `👤 ${nickname} 님`;
 
-// ORCX 토큰 정보 추가 표시
+// ✅ 수정된 부분: token 가져오기
 fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`)
   .then(res => res.json())
   .then(result => {
-    const token = result.user?.token ?? 0;
+    const token = result.token ?? 0;
     const tokenInfo = document.createElement('p');
     tokenInfo.innerHTML = `💰 ORCX 토큰: <strong>${token}</strong>개`;
     box.appendChild(tokenInfo);
