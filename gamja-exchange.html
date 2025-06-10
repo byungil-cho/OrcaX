@@ -126,7 +126,7 @@
     };
 
     function fetchUserData() {
-      fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${encodeURIComponent(nickname)}`)
         .then(res => res.json())
         .then(data => {
           userData.water = data.water ?? 0;
