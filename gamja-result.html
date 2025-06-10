@@ -1,275 +1,153 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8"/>
   <title>OrcaX 감자 가공공장</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #fef9e8;
-      padding: 1rem;
-      margin: 0;
-    }
-    h1 {
-      text-align: center;
-      color: #504030;
-      margin: 1rem 0 0.5rem;
-    }
-    #nicknameBox {
-      text-align: right;
-      font-weight: bold;
-      margin: 0.5rem 1rem 0.5rem 0;
-      color: #503020;
-    }
-    #statusBox {
-      text-align: center;
-      color: #cc0000;
-      font-weight: bold;
-      margin-bottom: 1rem;
-    }
-    #container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 70vh;
-    }
-    .status-box {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 1rem;
-      margin-top: 2rem;
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-    }
-    .status-item {
-      margin: 0.5rem 0;
-    }
-    .action-buttons button {
-      margin: 0.3rem;
-      background: #705030;
-    }
-    button {
-      padding: 0.7rem 1.5rem;
-      font-size: 1rem;
-      background: #cfa765;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-    button:hover {
-      background-color: #af934f;
-    }
-    .inventory-box {
-      margin-top: 1rem;
-      background: #fffaf0;
-      padding: 1rem;
-      border: 1px dashed #aaa;
-      border-radius: 5px;
-      max-width: 400px;
-    }
-    .inventory-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.3rem 0;
-    }
-    .delete-btn {
-      background-color: #e57373;
-      padding: 0.3rem 0.6rem;
-      font-size: 0.8rem;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      color: white;
-    }
-    .navigation-links {
-      text-align: center;
-      margin-top: 2rem;
-    }
-    .navigation-links a {
-      display: inline-block;
-      margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: #76b947;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-    .navigation-links a:hover {
-      background: #5c9e35;
-    }
-    .inventory-item input[type="checkbox"] {
-      margin-right: 0.5rem;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div id="nicknameBox"></div>
-  <h1>🏭 OrcaX 감자 가공공장</h1>
-  <div id="statusBox">🔌 서버 전원 상태 확인 중...</div>
-  <div id="container">
-    <div class="status-box">
-      <div class="status-item">🥔 감자: <span id="potatoCount">0</span></div>
-      <div class="status-item">💧 물: <span id="waterCount">0</span></div>
-      <div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
-      <div class="status-item">🪙 ORCX: <span id="tokenCount">0</span></div>
-      <input type="text" id="productName" placeholder="제품 이름 입력">
-      <button onclick="makeProduct()">제품 가공하기</button>
-      <div style="margin-top:1rem">
-        <button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
-        <button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
-      </div>
+  <div class="container">
+    <h1>🏭 OrcaX 감자 가공공장</h1>
+    <div id="statusBox" class="status-box">🔌 서버 연결 확인 중...</div>
+    <div id="nicknameBox"></div>
+    <div id="resourceBox">
+      <p>🥔 감자: <span id="potatoCount">0</span></p>
+      <p>💧 물: <span id="waterCount">0</span></p>
+      <p>🌿 거름: <span id="fertilizerCount">0</span></p>
+      <p>🪙 ORCX: <span id="tokenCount">0</span></p>
     </div>
-    <div class="inventory-box">
-      <h3>📦 가공 제품 보관함</h3>
-      <div id="inventoryItems"></div>
+    <div id="factoryBox">
+      <input type="text" id="productName" placeholder="제품 이름 입력"/>
+      <button onclick="processProduct()">제품 가공하기</button>
     </div>
-    <div class="navigation-links">
+    <div class="exchange-buttons">
+      <button onclick="exchange('water')">선택 제품 → 물 교환</button>
+      <button onclick="exchange('fertilizer')">선택 제품 → 거름 교환</button>
+    </div>
+    <h3>📦 가공 제품 보관함</h3>
+    <ul id="inventoryItems"></ul>
+
+    <div class="navigation-buttons">
       <a href="gamja-shop.html">🛒 씨감자 상점</a>
-      <a href="gamja-exchange.html">🔄 자원 교환소</a>
+      <a href="gamja-exchange.html">🔁 자원 교환소</a>
       <a href="gamja-market.html">💰 거래소 이동</a>
     </div>
-    <div style="text-align:center; margin-top:20px;">
-      <button onclick="exchangePotato()">감자 → ORCX 교환하기</button>
-    </div>
+    <button onclick="exchangeToToken()">감자 → ORCX 교환하기</button>
   </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname");
-    if (!nickname) {
-      alert("로그인이 필요합니다.");
-      window.location.href = "orcax-farm_000.html";
-    }
-
-    document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
+    const farmName = localStorage.getItem("farmName");
     const statusBox = document.getElementById("statusBox");
 
-    let userData = {
+    document.getElementById("nicknameBox").innerText = `👤 ${nickname} (${farmName}) 님`;
+
+    const userData = {
       nickname,
-      potatoCount: 0,
       water: 0,
       fertilizer: 0,
       token: 0,
+      potatoCount: 0,
       inventory: []
     };
 
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
-        if (!res.ok) throw new Error("서버 오류");
-        statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
-        statusBox.style.color = "green";
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
+        if (!res.ok) throw new Error("연결 실패");
         const data = await res.json();
-        if (data.success) {
-          userData.potatoCount = data.user.potatoCount ?? 0;
-          userData.water = data.user.water ?? 0;
-          userData.fertilizer = data.user.fertilizer ?? 0;
-          userData.token = data.user.token ?? 0;
-          userData.inventory = (data.user.inventory ?? []).filter(
+
+        // ✅ 조건문 변경: success → nickname 존재 여부 확인
+        if (data.nickname) {
+          userData.potatoCount = data.potatoCount ?? 0;
+          userData.water = data.water ?? 0;
+          userData.fertilizer = data.fertilizer ?? 0;
+          userData.token = data.token ?? 0;
+          userData.inventory = (data.inventory ?? []).filter(
             item => typeof item.type === "string" && item.type !== "undefined" && item.count > 0
           );
           updateDisplay();
+          statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
+          statusBox.style.color = "green";
+        } else {
+          throw new Error("데이터 없음");
         }
       } catch (err) {
-        statusBox.textContent = "⚠️ 전기 공급이 끊겼습니다 (서버 응답 없음)";
+        statusBox.innerText = "❌ 전기 공급 끊김 (서버 오류)";
         statusBox.style.color = "red";
-        console.error("불러오기 실패", err);
+        console.error(err);
       }
-    }
-
-    function saveUserData(callback) {
-      fetch(`${API_BASE}/api/update-user`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-      })
-      .then(res => res.json())
-      .then(() => {
-        if (callback) callback();
-      })
-      .catch(() => alert("❌ 서버 저장 실패"));
     }
 
     function updateDisplay() {
-      document.getElementById("potatoCount").textContent = userData.potatoCount;
-      document.getElementById("waterCount").textContent = userData.water;
-      document.getElementById("fertilizerCount").textContent = userData.fertilizer;
-      document.getElementById("tokenCount").textContent = userData.token;
-      renderInventory();
-    }
+      document.getElementById("potatoCount").innerText = userData.potatoCount;
+      document.getElementById("waterCount").innerText = userData.water;
+      document.getElementById("fertilizerCount").innerText = userData.fertilizer;
+      document.getElementById("tokenCount").innerText = userData.token;
 
-    function renderInventory() {
-      const inventoryEl = document.getElementById("inventoryItems");
-      inventoryEl.innerHTML = "";
-      userData.inventory.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.className = "inventory-item";
-        div.innerHTML = `
-          <input type="checkbox" value="${index}"> ${item.type} × ${item.count}
-          <button class="delete-btn" onclick="deleteProduct(${index})">폐기</button>
-        `;
-        inventoryEl.appendChild(div);
+      const list = document.getElementById("inventoryItems");
+      list.innerHTML = "";
+      userData.inventory.forEach((item, idx) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<input type="checkbox" value="${idx}"> ${item.type} × ${item.count}`;
+        list.appendChild(li);
       });
     }
 
-    function deleteProduct(index) {
-      if (confirm("이 제품을 폐기하시겠습니까?")) {
-        userData.inventory.splice(index, 1);
-        saveUserData(updateDisplay);
-      }
-    }
-
-    function makeProduct() {
+    async function processProduct() {
       const name = document.getElementById("productName").value.trim();
       if (!name) return alert("제품 이름을 입력하세요.");
       if (userData.potatoCount <= 0) return alert("감자가 부족합니다.");
-      userData.potatoCount--;
+
       const existing = userData.inventory.find(i => i.type === name);
-      if (existing) {
-        existing.count++;
-      } else {
-        userData.inventory.push({ type: name, count: 1 });
-      }
-      document.getElementById("productName").value = "";
-      alert(`'${name}' 제품이 가공되었습니다!`);
-      saveUserData(updateDisplay);
+      if (existing) existing.count++;
+      else userData.inventory.push({ type: name, count: 1 });
+
+      userData.potatoCount--;
+
+      await saveUserData();
     }
 
-    function exchangeSelected(type) {
-      const checkboxes = document.querySelectorAll(".inventory-item input[type='checkbox']:checked");
-      if (checkboxes.length === 0) return alert("교환할 제품을 선택하세요.");
-      const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a, b) => b - a);
-      indexes.forEach(idx => {
-        const item = userData.inventory[idx];
-        if (item.count > 1) {
-          item.count--;
-        } else {
-          userData.inventory.splice(idx, 1);
+    async function exchange(type) {
+      const selected = Array.from(document.querySelectorAll("#inventoryItems input[type='checkbox']:checked"));
+      if (selected.length === 0) return alert("교환할 제품을 선택하세요.");
+
+      const indexes = selected.map(cb => parseInt(cb.value)).sort((a, b) => b - a);
+      let successCount = 0;
+
+      indexes.forEach(i => {
+        if (userData.inventory[i]) {
+          if (userData.inventory[i].count > 1) {
+            userData.inventory[i].count--;
+          } else {
+            userData.inventory.splice(i, 1);
+          }
+          successCount++;
         }
       });
-      if (type === 'water') userData.water += indexes.length;
-      else if (type === 'fertilizer') userData.fertilizer += indexes.length;
-      alert(`선택한 제품이 ${type === 'water' ? '물' : '거름'}으로 교환되었습니다.`);
-      saveUserData(updateDisplay);
+
+      if (type === "water") userData.water += successCount;
+      if (type === "fertilizer") userData.fertilizer += successCount;
+
+      await saveUserData();
     }
 
-    function exchangePotato() {
-      if (userData.potatoCount < 1) {
-        alert("교환할 감자가 없습니다.");
-        return;
-      }
-      const exchangeAmount = userData.potatoCount * 10;
-      userData.token += exchangeAmount;
+    async function exchangeToToken() {
+      if (userData.potatoCount < 1) return alert("감자가 없습니다!");
+      userData.token += userData.potatoCount;
       userData.potatoCount = 0;
-      alert(`${exchangeAmount} ORCX로 교환 완료!`);
-      saveUserData(updateDisplay);
+      await saveUserData();
+    }
+
+    async function saveUserData() {
+      await fetch(`${API_BASE}/api/userdata`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      });
+      await fetchUserData();
     }
 
     fetchUserData();
