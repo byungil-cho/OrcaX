@@ -112,11 +112,9 @@
 <h1>🔄 OrcaX 자원 교환소</h1>
 <div id="container">
 <div class="status-box">
-<div class="status-item">💧 물: <span id="waterCount">0</span></div>
-<div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
-<div class="status-item">🥔 감자 가공 제품으로 교환 가능합니다.</div>
-<button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
-<button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
+<div>💧 물: <span id="waterCount">-</span></div>
+<div>💩 거름: <span id="fertilizerCount">-</span></div>
+<div>🥔 감자: <span id="potatoCount">-</span></div>
 </div>
 <div class="inventory-box">
 <h3>📦 가공 제품 보관함</h3>
@@ -129,140 +127,41 @@
 </div>
 </div>
 <script>
-const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-
-    const nickname = localStorage.getItem("nickname") || "방문자";
-    document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
-
-    let userData = {
-      nickname,
-      water: 0,
-      fertilizer: 0,
-      inventory: []
-    };
-
-    function fetchUserData() {
-      fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
-        .then(data => {
-          userData.water = data.water ?? 0;
-          userData.fertilizer = data.fertilizer ?? 0;
-          userData.inventory = (data.inventory ?? []).filter(
-            item => typeof item.type === "string" && item.type !== "undefined" && item.count > 0
-          );
-          updateDisplay();
-        })
-        .catch(err => console.error("불러오기 실패", err));
-    }
-
-    function updateDisplay() {
-      document.getElementById("waterCount").textContent = userData.water;
-      document.getElementById("fertilizerCount").textContent = userData.fertilizer;
-      renderInventory();
-    }
-
-    function renderInventory() {
-      const inventoryEl = document.getElementById("inventoryItems");
-      inventoryEl.innerHTML = "";
-      userData.inventory.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.className = "inventory-item";
-        div.innerHTML = `
-          <input type="checkbox" value="${index}"> ${item.type} × ${item.count}
-        `;
-        inventoryEl.appendChild(div);
-      });
-    }
-
-    function exchangeSelected(type) {
-      const checkboxes = document.querySelectorAll(".inventory-item input[type='checkbox']:checked");
-      if (checkboxes.length === 0) return alert("교환할 제품을 선택하세요.");
-      const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a, b) => b - a);
-      indexes.forEach(idx => {
-        const item = userData.inventory[idx];
-        if (item.count > 1) {
-          item.count--;
-        } else {
-          userData.inventory.splice(idx, 1);
-        }
-      });
-      if (type === 'water') userData.water += indexes.length;
-      else if (type === 'fertilizer') userData.fertilizer += indexes.length;
-
-      fetch(`${API_BASE}/api/update-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-      })
-        .then(res => res.json())
-        .then(() => {
-          alert(`선택한 제품이 ${type === 'water' ? '물' : '거름'}으로 교환되었습니다.`);
-          updateDisplay();
-        })
-        .catch(() => alert("❌ 저장 실패: 서버 오류"));
-    }
-
-    fetchUserData();
-  
-
-// 전원 상태 확인 로직 (예시로 항상 연결됨 처리)
-document.getElementById("powerStatus").textContent = "🔌 전원 상태: 연결됨";
-
-// 로컬 스토리지에서 농장명 불러오기
-const farmName = localStorage.getItem("farmName");
-if (farmName) {
-  document.getElementById("farmNameBox").textContent = `🌱 농장 이름: ${farmName}`;
-} else {
-  document.getElementById("farmNameBox").textContent = "🌱 농장 이름: 없음";
-}
-
-
-// 전원 상태 기본값
-document.getElementById("powerStatus").textContent = "🔌 전원 상태: 연결됨";
-
-// 농장 이름 불러오기
-const farmName = localStorage.getItem("farmName");
-if (farmName) {
-  document.getElementById("farmNameBox").textContent = `🌱 농장 이름: ${farmName}`;
-} else {
-  document.getElementById("farmNameBox").textContent = "🌱 농장 이름: 없음";
-}
-
-
-// 자원 및 보관소 불러오기
-async function fetchUserData() {
+document.addEventListener("DOMContentLoaded", () => {
   const nickname = localStorage.getItem("nickname");
   const farmName = localStorage.getItem("farmName") || "이름없음농장";
-  if (!nickname) return;
 
-  try {
-    const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=" + nickname);
-    const result = await res.json();
-    if (result.success) {
-      const { water, fertilizer, potatoCount, inventory, farmName: fn } = result.data;
-      document.getElementById("waterCount").textContent = water;
-      document.getElementById("fertilizerCount").textContent = fertilizer;
-      document.getElementById("potatoCount").textContent = potatoCount;
-
-      const farmBox = document.getElementById("farmNameBox");
-      if (farmBox) farmBox.textContent = `🌱 농장 이름: ${farmName || fn || "없음"}`;
-
-      const list = document.getElementById("inventoryItems");
-      list.innerHTML = "";
-      if (Array.isArray(inventory)) {
-        inventory.forEach(item => {
-          const li = document.createElement("li");
-          li.textContent = `${item.name} × ${item.count}`;
-          list.appendChild(li);
-        });
-      }
-    }
-  } catch (err) {
-    console.error("자원 불러오기 오류:", err);
+  if (!nickname) {
+    document.getElementById("farmNameBox").textContent = "🌱 농장 이름: 없음";
+    return;
   }
-}
 
-fetchUserData();
+  fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=" + nickname)
+    .then(res => res.json())
+    .then(result => {
+      if (result.success) {
+        const { water, fertilizer, potatoCount, farmName: fn, inventory } = result.data;
+        document.getElementById("waterCount").textContent = water;
+        document.getElementById("fertilizerCount").textContent = fertilizer;
+        document.getElementById("potatoCount").textContent = potatoCount;
+
+        const farmBox = document.getElementById("farmNameBox");
+        if (farmBox) farmBox.textContent = `🌱 농장 이름: ${farmName || fn || "없음"}`;
+
+        const list = document.getElementById("inventoryItems");
+        if (Array.isArray(inventory)) {
+          list.innerHTML = "";
+          inventory.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = `${item.name} × ${item.count}`;
+            list.appendChild(li);
+          });
+        }
+      }
+    }).catch(err => {
+      console.error("데이터 불러오기 실패:", err);
+    });
+});
 </script>
 </body>
 </html>
