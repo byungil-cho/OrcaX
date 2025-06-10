@@ -90,11 +90,13 @@
         const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
         if (!res.ok) throw new Error("연결 실패");
         const data = await res.json();
-        if (data.success) {
-          waterEl.textContent = data.user.water;
-          fertEl.textContent = data.user.fertilizer;
-          potatoEl.textContent = data.user.potatoCount;
-          tokenEl.textContent = data.user.token;
+
+        // ✅ 조건문 수정 → success 키 대신 nickname 확인
+        if (data.nickname) {
+          waterEl.textContent = data.water ?? 0;
+          fertEl.textContent = data.fertilizer ?? 0;
+          potatoEl.textContent = data.potatoCount ?? 0;
+          tokenEl.textContent = data.token ?? 0;
           statusEl.textContent = "✅ 전기 공급 중 (서버 연결됨)";
           statusEl.style.color = "green";
         } else {
