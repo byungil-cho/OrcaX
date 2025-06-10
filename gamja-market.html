@@ -159,6 +159,10 @@
           console.log("📦 유저 데이터:", data);
           userData.inventory = data.inventory ?? [];
           userData.token = data.token ?? 0;
+          userData.water = data.water ?? 0;
+          userData.fertilizer = data.fertilizer ?? 0;
+          userData.potatoCount = data.potatoCount ?? 0;
+          userData.seedPotato = data.seedPotato ?? 0;
           renderInventory();
         })
         .catch(err => {
@@ -185,7 +189,7 @@
 
       let total = 0;
       const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value));
-      indexes.sort((a, b) => b - a); // 역순 정리
+      indexes.sort((a, b) => b - a);
 
       indexes.forEach(index => {
         const item = userData.inventory[index];
@@ -201,10 +205,20 @@
 
       userData.token += total;
 
+      const payload = {
+        nickname,
+        token: userData.token,
+        inventory: userData.inventory,
+        water: userData.water,
+        fertilizer: userData.fertilizer,
+        potatoCount: userData.potatoCount,
+        seedPotato: userData.seedPotato
+      };
+
       fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(payload)
       }).then(() => {
         alert(`판매 완료! 총 ${total} ORCX 적립되었습니다.`);
         renderInventory();
