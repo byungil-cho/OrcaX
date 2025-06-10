@@ -128,13 +128,24 @@ if (!nickname) {
 
   fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`)
     .then(res => res.json())
-    .then(data => {
-      if (data.success) {
+    .then(result => {
+      if (result.success) {
+        const { water, fertilizer, token, potatoCount, inventory } = result.user;
         infoBox.innerHTML = `
-          💧 물: <strong>${data.water ?? 0}</strong> |
-          🌿 거름: <strong>${data.fertilizer ?? 0}</strong> |
-          💰 ORCX: <strong>${data.token ?? 0}</strong>
+          💧 물: <strong>${water ?? 0}</strong> |
+          🌿 거름: <strong>${fertilizer ?? 0}</strong> |
+          💰 ORCX: <strong>${token ?? 0}</strong>
         `;
+
+        const list = document.getElementById("inventoryItems");
+        if (Array.isArray(inventory)) {
+          list.innerHTML = "";
+          inventory.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = `${item.type} × ${item.count}`;
+            list.appendChild(li);
+          });
+        }
       } else {
         infoBox.textContent = "❌ 유저 정보 없음";
       }
