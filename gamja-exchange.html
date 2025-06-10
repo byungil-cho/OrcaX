@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>OrcaX 자원 교환소</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
+<meta charset="utf-8"/>
+<title>OrcaX 자원 교환소</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<style>
     body {
       font-family: 'Arial', sans-serif;
       background: #fef9e8;
@@ -91,30 +92,45 @@
     .navigation-links a:hover {
       background: #5c9e35;
     }
-  </style>
+  
+#statusWrapper {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.9rem;
+  color: #333;
+  text-align: right;
+  background: #fff8dc;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+</style>
 </head>
-<body>
-  <div id="nicknameBox"></div>
-  <h1>🔄 OrcaX 자원 교환소</h1>
-  <div id="container">
-    <div class="status-box">
-      <div class="status-item">💧 물: <span id="waterCount">0</span></div>
-      <div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
-      <div class="status-item">🥔 감자 가공 제품으로 교환 가능합니다.</div>
-      <button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
-      <button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
-    </div>
-    <div class="inventory-box">
-      <h3>📦 가공 제품 보관함</h3>
-      <div id="inventoryItems"></div>
-    </div>
-    <div class="navigation-links">
-      <a href="gamja-shop.html">🛒 씨감자 상점 (2 ORCX 교환)</a>
-      <a href="gamja-market.html">💰 거래소 이동</a>
-      <a href="gamja-result.html">🏭 가공공장 이동</a>
-    </div>
-  </div>
-  <script>
+<body><div id="statusWrapper"><div id="powerStatus">🔌 전원 상태: 연결됨</div><div id="farmNameBox">🌱 농장 이름: 불러오는 중...</div></div>
+<div id="nicknameBox"></div>
+<h1>🔄 OrcaX 자원 교환소</h1>
+<div id="container">
+<div class="status-box">
+<div class="status-item">💧 물: <span id="waterCount">0</span></div>
+<div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
+<div class="status-item">🥔 감자 가공 제품으로 교환 가능합니다.</div>
+<button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
+<button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
+</div>
+<div class="inventory-box">
+<h3>📦 가공 제품 보관함</h3>
+<div id="inventoryItems"></div>
+</div>
+<div class="navigation-links">
+<a href="gamja-shop.html">🛒 씨감자 상점 (2 ORCX 교환)</a>
+<a href="gamja-market.html">💰 거래소 이동</a>
+<a href="gamja-result.html">🏭 가공공장 이동</a>
+</div>
+</div>
+<script>
+const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
     const nickname = localStorage.getItem("nickname") || "방문자";
     document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
 
@@ -126,7 +142,7 @@
     };
 
     function fetchUserData() {
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+      fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${encodeURIComponent(nickname)}`)
         .then(res => res.json())
         .then(data => {
           userData.water = data.water ?? 0;
@@ -152,7 +168,7 @@
         const div = document.createElement("div");
         div.className = "inventory-item";
         div.innerHTML = `
-          <input type="checkbox" value="${index}" data-type="${item.type}" data-count="${item.count}"> ${item.type} × ${item.count}
+          <input type="checkbox" value="${index}"> ${item.type} × ${item.count}
         `;
         inventoryEl.appendChild(div);
       });
@@ -161,19 +177,8 @@
     function exchangeSelected(type) {
       const checkboxes = document.querySelectorAll(".inventory-item input[type='checkbox']:checked");
       if (checkboxes.length === 0) return alert("교환할 제품을 선택하세요.");
-
-      let validIndexes = [];
-      checkboxes.forEach(cb => {
-        const count = parseInt(cb.dataset.count);
-        const itemType = cb.dataset.type;
-        if (!itemType || itemType === "undefined" || count <= 0) return;
-        validIndexes.push(parseInt(cb.value));
-      });
-
-      if (validIndexes.length === 0) return alert("올바른 제품을 선택하세요.");
-
-      validIndexes.sort((a, b) => b - a);
-      validIndexes.forEach(idx => {
+      const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort((a, b) => b - a);
+      indexes.forEach(idx => {
         const item = userData.inventory[idx];
         if (item.count > 1) {
           item.count--;
@@ -181,11 +186,10 @@
           userData.inventory.splice(idx, 1);
         }
       });
+      if (type === 'water') userData.water += indexes.length;
+      else if (type === 'fertilizer') userData.fertilizer += indexes.length;
 
-      if (type === 'water') userData.water += validIndexes.length;
-      else if (type === 'fertilizer') userData.fertilizer += validIndexes.length;
-
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/update-user", {
+      fetch(`${API_BASE}/api/update-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData)
@@ -199,8 +203,33 @@
     }
 
     fetchUserData();
-  </script>
+  
+
+// 전원 상태 확인 로직 (예시로 항상 연결됨 처리)
+document.getElementById("powerStatus").textContent = "🔌 전원 상태: 연결됨";
+
+// 로컬 스토리지에서 농장명 불러오기
+const farmName = localStorage.getItem("farmName");
+if (farmName) {
+  document.getElementById("farmNameBox").textContent = `🌱 농장 이름: ${farmName}`;
+} else {
+  document.getElementById("farmNameBox").textContent = "🌱 농장 이름: 없음";
+}
+
+
+// 전원 상태 기본값
+document.getElementById("powerStatus").textContent = "🔌 전원 상태: 연결됨";
+
+// 농장 이름 불러오기
+const farmName = localStorage.getItem("farmName");
+if (farmName) {
+  document.getElementById("farmNameBox").textContent = `🌱 농장 이름: ${farmName}`;
+} else {
+  document.getElementById("farmNameBox").textContent = "🌱 농장 이름: 없음";
+}
+</script>
 </body>
+</html>
 </html>
 
 
