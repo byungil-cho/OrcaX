@@ -2,164 +2,147 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>관리자 - 감자 농장 유저 리스트</title>
+  <title>🌽 OrcaX 농장 제품 거래소</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #f9f9f9;
-      padding: 1rem;
-      color: #333;
+    body { font-family: 'Arial', sans-serif; background: #f7f7f7; padding: 1rem; margin: 0; }
+    h1, h2 { text-align: center; color: #2e2e2e; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; font-size: 0.9rem; }
+    th { background-color: #efefef; }
+    #notice { margin-top: 1rem; color: #555; text-align: center; }
+    #myStorage { margin-top: 2rem; }
+    #userInfo {
+      position: sticky; top: 0; z-index: 999;
+      background: #fff; padding: 0.5rem 1rem;
+      border-bottom: 2px solid #eee;
+      font-size: 0.95rem; text-align: right;
     }
-    h1 {
-      text-align: center;
-      color: #4d372d;
+    button {
+      margin: 1rem auto; display: block;
+      padding: 0.6rem 1.2rem; font-size: 1rem;
+      background: #4CAF50; color: white; border: none;
+      border-radius: 5px; cursor: pointer;
     }
-    .status {
-      text-align: center;
-      font-weight: bold;
-      margin-bottom: 1rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    th, td {
-      border: 1px solid #aaa;
-      padding: 0.5rem;
-      text-align: center;
-    }
-    th {
-      background-color: #ffde99;
-    }
-    tr:nth-child(even) {
-      background-color: #fff8e1;
-    }
-    .section {
-      margin-top: 3rem;
+    button:hover { background-color: #45a049; }
+    @media screen and (max-width: 600px) {
+      th, td { font-size: 0.75rem; padding: 0.4rem; }
+      button { font-size: 0.9rem; padding: 0.5rem 1rem; }
     }
   </style>
 </head>
 <body>
-  <h1>🧑‍🌾 관리자 전용: 감자 농장 유저 목록</h1>
-  <div class="status" id="serverStatus">🔌 서버 상태 확인 중...</div>
-
-  <div class="section">
-    <h2>📋 가입 유저 목록</h2>
-    <div class="loading" id="loadingMsg">데이터 불러오는 중...</div>
-    <table id="userTable" style="display:none">
-      <thead>
-        <tr>
-          <th>닉네임</th>
-          <th>물</th>
-          <th>거름</th>
-          <th>토큰</th>
-          <th>감자 수</th>
-          <th>접속 여부</th>
-        </tr>
-      </thead>
-      <tbody id="userTableBody"></tbody>
-    </table>
+  <div id="userInfo">
+    👤 <span id="nickname">닉네임</span> | 💰 <span id="tokenBalance">0</span> ORCAX
   </div>
 
-  <div class="section">
-    <h2>💸 출금 요청 목록</h2>
-    <table id="withdrawTable">
+  <h1>🌽 OrcaX 농장 제품 거래소</h1>
+  <table id="priceTable">
+    <thead>
+      <tr>
+        <th>제품명</th>
+        <th>판매량</th>
+        <th>시세 (토큰)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <p id="notice"></p>
+
+  <div id="myStorage">
+    <h2>🐋 <span id='userFarmTitle'></span> 보관 창고 <span style='font-size:0.9rem;'>(개인 전용 창고)</span></h2>
+    <table id="storageTable">
       <thead>
         <tr>
-          <th>이름</th>
-          <th>전화번호</th>
-          <th>지갑 주소</th>
-          <th>요청 시간</th>
+          <th>선택</th>
+          <th>제품명</th>
+          <th>보유 수량</th>
         </tr>
       </thead>
-      <tbody id="withdrawTableBody">
-        <tr><td colspan="4">출금 요청 데이터를 불러오는 중...</td></tr>
-      </tbody>
+      <tbody></tbody>
     </table>
+    <button onclick="sellSelectedItems()">✅ 선택한 제품 판매</button>
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const kakaoId = localStorage.getItem("kakaoId") || "익명손님";
+    const farmName = localStorage.getItem("farmName") || "내 농장";
+    const nickname = localStorage.getItem("nickname") || "사용자";
 
-    // ✅ 서버 연결 확인
-    fetch(`${API_BASE}/api/market`)
-      .then(res => {
-        if (!res.ok) throw new Error();
-        document.getElementById("serverStatus").textContent = "✅ 서버 연결됨 (전기 공급중)";
-        document.getElementById("serverStatus").style.color = "green";
-      })
-      .catch(() => {
-        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패 (전기 차단됨)";
-        document.getElementById("serverStatus").style.color = "red";
-      });
+    async function fetchMarketData() {
+      try {
+        const res = await fetch("/api/market/prices");
+        const data = await res.json();
+        const tbody = document.querySelector("#priceTable tbody");
+        tbody.innerHTML = "";
 
-    // ✅ 유저 목록 불러오기
-    fetch(`${API_BASE}/api/users`)
-      .then(res => res.json())
-      .then(data => {
-        const table = document.getElementById("userTable");
-        const body = document.getElementById("userTableBody");
-        const loadingMsg = document.getElementById("loadingMsg");
-
-        loadingMsg.style.display = "none";
-        table.style.display = "table";
-
-        if (!data.success || !data.users) {
-          body.innerHTML = '<tr><td colspan="6">유저 정보 없음</td></tr>';
-          return;
-        }
-
-        const connectedNicknames = JSON.parse(localStorage.getItem("connectedUsers") || "[]");
-
-        data.users.forEach(user => {
-          const row = document.createElement("tr");
-          const isOnline = connectedNicknames.includes(user.nickname);
-          row.innerHTML = `
-            <td>${user.nickname}</td>
-            <td>${user.water}</td>
-            <td>${user.fertilizer}</td>
-            <td>${user.token}</td>
-            <td>${user.potatoCount ?? 0}</td>
-            <td>${isOnline ? "🟢 접속중" : "⚪ 오프라인"}</td>
-          `;
-          body.appendChild(row);
+        data.prices.forEach(item => {
+          const row = `<tr><td>${item.type}</td><td>${item.count}</td><td>${item.price}</td></tr>`;
+          tbody.insertAdjacentHTML("beforeend", row);
         });
-      })
-      .catch(err => {
-        document.getElementById("loadingMsg").textContent = "❌ 유저 불러오기 실패";
-        console.error("유저 데이터 요청 실패:", err);
-      });
 
-    // ✅ 출금 요청 불러오기
-    fetch(`${API_BASE}/api/withdraw`)
-      .then(res => res.json())
-      .then(data => {
-        const body = document.getElementById("withdrawTableBody");
-        body.innerHTML = "";
+        document.getElementById("notice").textContent = data.notice;
+      } catch (e) {
+        console.error("시세 불러오기 실패:", e);
+        document.getElementById("notice").textContent = "시세 정보를 불러오지 못했습니다.";
+      }
+    }
 
-        if (!data.success || !data.requests || data.requests.length === 0) {
-          body.innerHTML = '<tr><td colspan="4">출금 요청 없음</td></tr>';
-          return;
-        }
+    async function fetchMyStorage() {
+      try {
+        const res = await fetch(`/api/storage/${kakaoId}`);
+        const data = await res.json();
+        const tbody = document.querySelector("#storageTable tbody");
+        tbody.innerHTML = "";
 
-        data.requests.forEach(req => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${req.name}</td>
-            <td>${req.phone}</td>
-            <td>${req.wallet}</td>
-            <td>${new Date(req.createdAt).toLocaleString()}</td>
-          `;
-          body.appendChild(row);
+        data.forEach(item => {
+          const row = `<tr>
+            <td><input type='checkbox' name='product' value='${item.type}' data-count='${item.count}'></td>
+            <td>${item.type}</td>
+            <td>${item.count}</td>
+          </tr>`;
+          tbody.insertAdjacentHTML("beforeend", row);
         });
-      })
-      .catch(err => {
-        const body = document.getElementById("withdrawTableBody");
-        body.innerHTML = '<tr><td colspan="4">출금 요청 불러오기 실패</td></tr>';
-        console.error("출금 요청 오류:", err);
-      });
+      } catch (e) {
+        console.error("보관소 불러오기 실패:", e);
+        const tbody = document.querySelector("#storageTable tbody");
+        tbody.innerHTML = `<tr><td colspan='3'>불러오기 실패</td></tr>`;
+      }
+    }
+
+    async function fetchTokenBalance() {
+      try {
+        const res = await fetch(`/api/user/token/${kakaoId}`);
+        const data = await res.json();
+        document.getElementById("tokenBalance").textContent = data.token || 0;
+      } catch (e) {
+        console.error("토큰 잔액 불러오기 실패:", e);
+      }
+    }
+
+    async function sellSelectedItems() {
+      const checkboxes = document.querySelectorAll("input[name='product']:checked");
+      for (const cb of checkboxes) {
+        const type = cb.value;
+        const count = parseInt(cb.dataset.count);
+        await fetch("/api/market/sell", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId, type, count })
+        });
+      }
+      await fetchMyStorage();
+      await fetchTokenBalance();
+    }
+
+    document.getElementById("userFarmTitle").textContent = farmName;
+    document.getElementById("nickname").textContent = nickname;
+    fetchMarketData();
+    fetchMyStorage();
+    fetchTokenBalance();
+    setInterval(fetchMarketData, 60000);
+    setInterval(fetchMyStorage, 60000);
+    setInterval(fetchTokenBalance, 60000);
   </script>
 </body>
 </html>
