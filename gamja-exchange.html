@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<title>OrcaX 자원 교환소</title>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<style>
+  <meta charset="utf-8"/>
+  <title>OrcaX 자원 교환소</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
     body {
       font-family: 'Arial', sans-serif;
       background: #fef9e8;
@@ -95,62 +94,67 @@
   </style>
 </head>
 <body>
-<div id="infoBox" style="text-align:center; margin: 0.5rem; font-weight: bold;"></div><div id="nicknameBox"></div>
-<h1>🔄 OrcaX 자원 교환소</h1>
-<div id="container">
-<div class="status-box">
-<div class="status-item">💧 물: <span id="waterCount">0</span></div>
-<div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
-<div class="status-item">🥔 감자 가공 제품으로 교환 가능합니다.</div>
-<button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
-<button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
-</div>
-<div class="inventory-box">
-<h3>📦 가공 제품 보관함</h3>
-<div id="inventoryItems"></div>
-</div>
-<div class="navigation-links">
-<a href="gamja-shop.html">🛒 씨감자 상점 (2 ORCX 교환)</a>
-<a href="gamja-market.html">💰 거래소 이동</a>
-<a href="gamja-result.html">🏭 가공공장 이동</a>
-</div>
-</div>
-<script>
-const nickname = localStorage.getItem("nickname");
-const nicknameBox = document.getElementById("nicknameBox");
-const infoBox = document.getElementById("infoBox");
+  <div id="infoBox" style="text-align:center; margin: 0.5rem; font-weight: bold;"></div>
+  <div id="nicknameBox"></div>
+  <h1>🔄 OrcaX 자원 교환소</h1>
+  <div id="container">
+    <div class="status-box">
+      <div class="status-item">💧 물: <span id="waterCount">0</span></div>
+      <div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
+      <div class="status-item">🥔 감자 가공 제품으로 교환 가능합니다.</div>
+      <button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
+      <button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
+    </div>
+    <div class="inventory-box">
+      <h3>📦 가공 제품 보관함</h3>
+      <div id="inventoryItems"></div>
+    </div>
+    <div class="navigation-links">
+      <a href="gamja-shop.html">🛒 씨감자 상점 (2 ORCX 교환)</a>
+      <a href="gamja-market.html">💰 거래소 이동</a>
+      <a href="gamja-result.html">🏭 가공공장 이동</a>
+    </div>
+  </div>
+  <script>
+    const nickname = localStorage.getItem("nickname");
+    const nicknameBox = document.getElementById("nicknameBox");
+    const infoBox = document.getElementById("infoBox");
 
-if (!nickname) {
-  alert("로그인 정보가 없습니다. 입구로 이동합니다.");
-  window.location.href = "orcax-farm_000.html";
-} else {
-  nicknameBox.textContent = `👤 ${nickname} 님`;
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    } else {
+      nicknameBox.textContent = `👤 ${nickname} 님`;
 
-  fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`)
-    .then(res => res.json())
-    .then(result => {
-      if (result.success) {
-        const { water, fertilizer, token, potatoCount, inventory } = result.user;
-        infoBox.innerHTML = `
-          💧 물: <strong>${water ?? 0}</strong> |
-          🌿 거름: <strong>${fertilizer ?? 0}</strong> |
-          💰 ORCX: <strong>${token ?? 0}</strong>
-        `;
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+        .then(res => {
+          if (!res.ok) throw new Error("유저 데이터 없음");
+          return res.json();
+        })
+        .then(user => {
+          const { water, fertilizer, token, inventory } = user;
 
-        const list = document.getElementById("inventoryItems");
-        if (Array.isArray(inventory)) {
-          list.innerHTML = "";
-          inventory.forEach(item => {
-            const li = document.createElement("li");
-            li.textContent = `${item.type} × ${item.count}`;
-            list.appendChild(li);
-          });
-        }
-      } else {
-        infoBox.textContent = "❌ 유저 정보 없음";
-      }
-    });
-}
-</script>
+          infoBox.innerHTML = `
+            💧 물: <strong>${water ?? 0}</strong> |
+            🌿 거름: <strong>${fertilizer ?? 0}</strong> |
+            💰 ORCX: <strong>${token ?? 0}</strong>
+          `;
+
+          const list = document.getElementById("inventoryItems");
+          if (Array.isArray(inventory)) {
+            list.innerHTML = "";
+            inventory.forEach(item => {
+              const li = document.createElement("li");
+              li.textContent = `${item.type} × ${item.count}`;
+              list.appendChild(li);
+            });
+          }
+        })
+        .catch(err => {
+          console.error("유저 정보 불러오기 실패", err);
+          infoBox.textContent = "❌ 유저 정보 없음";
+        });
+    }
+  </script>
 </body>
 </html>
