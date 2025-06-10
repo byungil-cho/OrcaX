@@ -136,43 +136,21 @@
       location.reload();
     }
 
-    const nickname = localStorage.getItem("nickname");
-    const lastLogin = localStorage.getItem("lastLogin");
-    const now = Date.now();
-    const TWO_HOURS = 2 * 60 * 60 * 1000;
-
-    if (nickname) {
-      const nicknameEl = document.getElementById("nicknameDisplay");
-      nicknameEl.textContent = "👤 " + nickname + "님, 환영합니다!";
-      nicknameEl.style.display = "inline-block";
-      document.getElementById("loginBtn").style.display = "none";
-      document.getElementById("logoutBtn").style.display = "inline-block";
-
-      if (lastLogin && now - parseInt(lastLogin) < TWO_HOURS) {
-        const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLogin))) / 60000);
-        alert(`⏳ 농장 이용 대기 시간: ${remain}분 남음`);
-      } else {
-        localStorage.setItem("lastLogin", now.toString());
-      }
-    }
-
     function enterFarm(url) {
+      const nickname = localStorage.getItem("nickname");
       if (!nickname) {
         alert("로그인 후 입장하실 수 있습니다.");
+        window.location.href = "orcax-farm_000.html";
       } else {
         window.location.href = url;
       }
     }
-  </script>
 
-  <script>
     async function registerUser(nickname) {
       try {
         const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname })
         });
         const data = await res.json();
@@ -182,12 +160,33 @@
       }
     }
 
-    // 닉네임이 있다면 서버에 등록 시도
-    if (nickname) {
-      registerUser(nickname);
-    }
-  </script>
+    function waitForNicknameAndRegister(retry = 0) {
+      const nickname = localStorage.getItem("nickname");
+      const lastLogin = localStorage.getItem("lastLogin");
+      const now = Date.now();
+      const TWO_HOURS = 2 * 60 * 60 * 1000;
 
+      if (nickname) {
+        const nicknameEl = document.getElementById("nicknameDisplay");
+        nicknameEl.textContent = "👤 " + nickname + "님, 환영합니다!";
+        nicknameEl.style.display = "inline-block";
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("logoutBtn").style.display = "inline-block";
+
+        if (lastLogin && now - parseInt(lastLogin) < TWO_HOURS) {
+          const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLogin))) / 60000);
+          alert(`⏳ 농장 이용 대기 시간: ${remain}분 남음`);
+        } else {
+          localStorage.setItem("lastLogin", now.toString());
+        }
+
+        registerUser(nickname);
+      } else if (retry < 5) {
+        setTimeout(() => waitForNicknameAndRegister(retry + 1), 500);
+      }
+    }
+
+    waitForNicknameAndRegister();
+  </script>
 </body>
 </html>
-
