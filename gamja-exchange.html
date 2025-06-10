@@ -116,78 +116,118 @@
     </div>
   </div>
   <script>
-    const nickname = localStorage.getItem("nickname");
-    const nicknameBox = document.getElementById("nicknameBox");
-    const infoBox = document.getElementById("infoBox");
+const nickname = localStorage.getItem("nickname");
+const nicknameBox = document.getElementById("nicknameBox");
+const infoBox = document.getElementById("infoBox");
 
-    const WATER_PER_ITEM = 5;
-    const FERTILIZER_PER_ITEM = 3;
+const WATER_PER_ITEM = 5;
+const FERTILIZER_PER_ITEM = 3;
 
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 입구로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
-    } else {
-      nicknameBox.textContent = `👤 ${nickname} 님`;
+const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-        .then(res => {
-          if (!res.ok) throw new Error("유저 데이터 없음");
-          return res.json();
-        })
-        .then(user => {
-          const { water, fertilizer, token, inventory } = user;
+const userData = {
+  nickname,
+  water: 0,
+  fertilizer: 0,
+  token: 0,
+  inventory: []
+};
 
-          infoBox.innerHTML = `
-            💧 물: <strong>${water ?? 0}</strong> |
-            🌿 거름: <strong>${fertilizer ?? 0}</strong> |
-            💰 ORCX: <strong>${token ?? 0}</strong>
-          `;
+if (!nickname) {
+  alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+  window.location.href = "orcax-farm_000.html";
+} else {
+  nicknameBox.textContent = `👤 ${nickname} 님`;
+  fetchUserData();
+}
 
-          const list = document.getElementById("inventoryItems");
-          if (Array.isArray(inventory)) {
-            list.innerHTML = "";
-            inventory.forEach((item, i) => {
-              const div = document.createElement("div");
-              div.className = "inventory-item";
-              div.innerHTML = `
-                <label>
-                  <input type="checkbox" data-type="${item.type}" value="${i}" />
-                  ${item.type} × ${item.count}
-                </label>
-              `;
-              list.appendChild(div);
-            });
-          }
-        })
-        .catch(err => {
-          console.error("유저 정보 불러오기 실패", err);
-          infoBox.textContent = "❌ 유저 정보 없음";
-        });
+function fetchUserData() {
+  fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+    .then(res => res.json())
+    .then(user => {
+      userData.water = user.water ?? 0;
+      userData.fertilizer = user.fertilizer ?? 0;
+      userData.token = user.token ?? 0;
+      userData.inventory = Array.isArray(user.inventory) ? user.inventory : [];
+
+      infoBox.innerHTML = `
+        💧 물: <strong>${userData.water}</strong> |
+        🌿 거름: <strong>${userData.fertilizer}</strong> |
+        💰 ORCX: <strong>${userData.token}</strong>
+      `;
+
+      const list = document.getElementById("inventoryItems");
+      list.innerHTML = "";
+      userData.inventory.forEach((item, i) => {
+        const div = document.createElement("div");
+        div.className = "inventory-item";
+        div.innerHTML = `
+          <label>
+            <input type="checkbox" data-idx="${i}" />
+            ${item.type} × ${item.count}
+          </label>
+        `;
+        list.appendChild(div);
+      });
+    })
+    .catch(err => {
+      console.error("유저 정보 불러오기 실패", err);
+      infoBox.textContent = "❌ 유저 정보 없음";
+    });
+}
+
+function exchangeSelected(type) {
+  const checkboxes = document.querySelectorAll("#inventoryItems input[type='checkbox']:checked");
+  if (checkboxes.length === 0) {
+    alert("교환할 제품을 선택하세요.");
+    return;
+  }
+
+  const indexes = Array.from(checkboxes).map(cb => parseInt(cb.dataset.idx));
+  const itemCount = indexes.length;
+
+  const waterAdd = itemCount * WATER_PER_ITEM;
+  const fertAdd = itemCount * FERTILIZER_PER_ITEM;
+
+  const message = type === "water"
+    ? `💧 물 ${waterAdd}개로 교환됩니다. 진행할까요?`
+    : `🌿 거름 ${fertAdd}개로 교환됩니다. 진행할까요?`;
+
+  if (!confirm(message)) return;
+
+  // 제품 차감
+  indexes.sort((a, b) => b - a).forEach(i => {
+    if (userData.inventory[i]) {
+      if (userData.inventory[i].count > 1) {
+        userData.inventory[i].count--;
+      } else {
+        userData.inventory.splice(i, 1);
+      }
     }
+  });
 
-    function exchangeSelected(type) {
-      const checkboxes = document.querySelectorAll("#inventoryItems input[type='checkbox']:checked");
-      if (checkboxes.length === 0) {
-        alert("교환할 제품을 선택하세요.");
-        return;
-      }
+  if (type === "water") userData.water += waterAdd;
+  if (type === "fertilizer") userData.fertilizer += fertAdd;
 
-      const itemCount = checkboxes.length;
-      const waterTotal = itemCount * WATER_PER_ITEM;
-      const fertilizerTotal = itemCount * FERTILIZER_PER_ITEM;
+  saveUserData();
+}
 
-      let message = "";
-      if (type === "water") {
-        message = `💧 물 ${waterTotal}개로 교환됩니다. 진행할까요?`;
-      } else if (type === "fertilizer") {
-        message = `🌿 거름 ${fertilizerTotal}개로 교환됩니다. 진행할까요?`;
-      }
+function saveUserData() {
+  fetch(`${API_BASE}/api/userdata`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData)
+  })
+    .then(() => {
+      alert("✅ 교환 완료!");
+      fetchUserData();
+    })
+    .catch(err => {
+      alert("❌ 서버 저장 실패");
+      console.error(err);
+    });
+}
+</script>
 
-      if (confirm(message)) {
-        alert("✅ 교환 완료!");
-        location.reload();
-      }
-    }
-  </script>
 </body>
 </html>
