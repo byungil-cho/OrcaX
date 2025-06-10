@@ -185,7 +185,7 @@
       if (type === 'water') userData.water += validIndexes.length;
       else if (type === 'fertilizer') userData.fertilizer += validIndexes.length;
 
-      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/update-user", {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/update-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData)
