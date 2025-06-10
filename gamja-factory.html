@@ -67,14 +67,15 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname");
+    const farmName = localStorage.getItem("farmName");
     const statusEl = document.getElementById("statusIndicator");
 
-    if (!nickname) {
-      alert("로그인이 필요합니다.");
+    if (!nickname || !farmName) {
+      alert("로그인 또는 농장이름 정보가 없습니다.");
       window.location.href = "orcax-farm_000.html";
     }
 
-    document.getElementById("nicknameBox").innerText = `👤 ${nickname} 님`;
+    document.getElementById("nicknameBox").innerText = `👤 ${nickname} (${farmName}) 님`;
 
     const waterEl = document.getElementById("waterCount");
     const fertEl = document.getElementById("fertilizerCount");
