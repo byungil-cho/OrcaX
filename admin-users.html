@@ -15,6 +15,11 @@
       text-align: center;
       color: #4d372d;
     }
+    .status {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -31,33 +36,67 @@
     tr:nth-child(even) {
       background-color: #fff8e1;
     }
-    .loading {
-      text-align: center;
-      margin-top: 2rem;
-      color: #888;
+    .section {
+      margin-top: 3rem;
     }
   </style>
 </head>
 <body>
   <h1>🧑‍🌾 관리자 전용: 감자 농장 유저 목록</h1>
-  <div class="loading" id="loadingMsg">데이터 불러오는 중...</div>
-  <table id="userTable" style="display:none">
-    <thead>
-      <tr>
-        <th>닉네임</th>
-        <th>물</th>
-        <th>거름</th>
-        <th>토큰</th>
-        <th>감자 수</th>
-        <th>무료농사 가능 횟수</th>
-        <th>마지막 무료농사 시간</th>
-      </tr>
-    </thead>
-    <tbody id="userTableBody"></tbody>
-  </table>
+  <div class="status" id="serverStatus">🔌 서버 상태 확인 중...</div>
+
+  <div class="section">
+    <h2>📋 가입 유저 목록</h2>
+    <div class="loading" id="loadingMsg">데이터 불러오는 중...</div>
+    <table id="userTable" style="display:none">
+      <thead>
+        <tr>
+          <th>닉네임</th>
+          <th>물</th>
+          <th>거름</th>
+          <th>토큰</th>
+          <th>감자 수</th>
+          <th>접속 여부</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>💸 출금 요청 목록</h2>
+    <table id="withdrawTable">
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>전화번호</th>
+          <th>지갑 주소</th>
+          <th>요청 시간</th>
+        </tr>
+      </thead>
+      <tbody id="withdrawTableBody">
+        <tr><td colspan="4">출금 요청 데이터를 불러오는 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <script>
-    fetch("https://climbing-wholly-grouper.ngrok-free.app/api/users")
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
+    // ✅ 서버 연결 확인
+    fetch(`${API_BASE}/api/market`)
+      .then(res => {
+        if (!res.ok) throw new Error();
+        document.getElementById("serverStatus").textContent = "✅ 서버 연결됨 (전기 공급중)";
+        document.getElementById("serverStatus").style.color = "green";
+      })
+      .catch(() => {
+        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패 (전기 차단됨)";
+        document.getElementById("serverStatus").style.color = "red";
+      });
+
+    // ✅ 유저 목록 불러오기
+    fetch(`${API_BASE}/api/users`)
       .then(res => res.json())
       .then(data => {
         const table = document.getElementById("userTable");
@@ -68,20 +107,22 @@
         table.style.display = "table";
 
         if (!data.success || !data.users) {
-          body.innerHTML = '<tr><td colspan="7">유저 정보 없음</td></tr>';
+          body.innerHTML = '<tr><td colspan="6">유저 정보 없음</td></tr>';
           return;
         }
 
+        const connectedNicknames = JSON.parse(localStorage.getItem("connectedUsers") || "[]");
+
         data.users.forEach(user => {
           const row = document.createElement("tr");
+          const isOnline = connectedNicknames.includes(user.nickname);
           row.innerHTML = `
             <td>${user.nickname}</td>
             <td>${user.water}</td>
             <td>${user.fertilizer}</td>
             <td>${user.token}</td>
             <td>${user.potatoCount ?? 0}</td>
-            <td>${user.freeFarmCount ?? "-"}</td>
-            <td>${user.lastFreeTime ? new Date(user.lastFreeTime).toLocaleString() : "-"}</td>
+            <td>${isOnline ? "🟢 접속중" : "⚪ 오프라인"}</td>
           `;
           body.appendChild(row);
         });
@@ -89,6 +130,35 @@
       .catch(err => {
         document.getElementById("loadingMsg").textContent = "❌ 유저 불러오기 실패";
         console.error("유저 데이터 요청 실패:", err);
+      });
+
+    // ✅ 출금 요청 불러오기
+    fetch(`${API_BASE}/api/withdraw`)
+      .then(res => res.json())
+      .then(data => {
+        const body = document.getElementById("withdrawTableBody");
+        body.innerHTML = "";
+
+        if (!data.success || !data.requests || data.requests.length === 0) {
+          body.innerHTML = '<tr><td colspan="4">출금 요청 없음</td></tr>';
+          return;
+        }
+
+        data.requests.forEach(req => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${req.name}</td>
+            <td>${req.phone}</td>
+            <td>${req.wallet}</td>
+            <td>${new Date(req.createdAt).toLocaleString()}</td>
+          `;
+          body.appendChild(row);
+        });
+      })
+      .catch(err => {
+        const body = document.getElementById("withdrawTableBody");
+        body.innerHTML = '<tr><td colspan="4">출금 요청 불러오기 실패</td></tr>';
+        console.error("출금 요청 오류:", err);
       });
   </script>
 </body>
