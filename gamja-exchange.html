@@ -142,7 +142,7 @@ const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     };
 
     function fetchUserData() {
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+      fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${encodeURIComponent(nickname)}`)
         .then(res => res.json())
         .then(data => {
           userData.water = data.water ?? 0;
@@ -229,34 +229,40 @@ if (farmName) {
 }
 
 
-// 자원, 농장명, 보관소 불러오기
-async function fetchFarmData() {
+// 자원 및 보관소 불러오기
+async function fetchUserData() {
   const nickname = localStorage.getItem("nickname");
   const farmName = localStorage.getItem("farmName") || "이름없음농장";
-  if (!nickname) {
-    document.getElementById("farmNameBox").textContent = "❌ 로그인 정보 없음";
-    return;
-  }
+  if (!nickname) return;
 
   try {
     const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=" + nickname);
     const result = await res.json();
     if (result.success) {
-      const { water, fertilizer, potatoCount } = result.data;
-      document.getElementById("statusWrapper").innerHTML =
-        `💧 물: ${water}개 | 💩 거름: ${fertilizer}개 | 🥔 감자: ${potatoCount}개`;
-      document.getElementById("farmNameBox").textContent = `🌱 농장 이름: ${farmName}`;
-    } else {
-      document.getElementById("statusWrapper").textContent = "❌ 자원 불러오기 실패";
+      const { water, fertilizer, potatoCount, inventory, farmName: fn } = result.data;
+      document.getElementById("waterCount").textContent = water;
+      document.getElementById("fertilizerCount").textContent = fertilizer;
+      document.getElementById("potatoCount").textContent = potatoCount;
+
+      const farmBox = document.getElementById("farmNameBox");
+      if (farmBox) farmBox.textContent = `🌱 농장 이름: ${farmName || fn || "없음"}`;
+
+      const list = document.getElementById("inventoryItems");
+      list.innerHTML = "";
+      if (Array.isArray(inventory)) {
+        inventory.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = `${item.name} × ${item.count}`;
+          list.appendChild(li);
+        });
+      }
     }
-  } catch (e) {
-    document.getElementById("statusWrapper").textContent = "⚠️ 서버 오류";
+  } catch (err) {
+    console.error("자원 불러오기 오류:", err);
   }
 }
 
-fetchFarmData();
+fetchUserData();
 </script>
 </body>
 </html>
-
-
