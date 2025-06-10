@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<title>감자 제품 거래소</title>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<style>
+  <meta charset="UTF-8">
+  <title>감자 제품 거래소</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
     body {
       font-family: 'Arial', sans-serif;
       background: #fff7e8;
@@ -88,25 +87,26 @@
   </style>
 </head>
 <body>
-<div id="nicknameBox"></div>
-<h1>🥔 감자 제품 거래소</h1>
-<div id="statusBox">🔌 서버 전원 상태 확인 중...</div>
-<div id="marketContainer">
-<div class="product-box" id="productList">
-<div>📈 실시간 전광판 시세</div>
-</div>
-<div class="inventory-box">
-<h3>📦 내 제품 보관함</h3>
-<div id="inventoryItems"></div>
-<button onclick="sellSelectedProducts()">선택 제품 판매하기</button>
-</div>
-</div>
-<div class="navigation-links">
-<a href="gamja-shop.html">🛒 씨감자 상점</a>
-<a href="gamja-exchange.html">🔁 자원 교환소</a>
-<a href="gamja-result.html">🏭 가공공장</a>
-</div>
-<script>
+  <div id="nicknameBox"></div>
+  <h1>🥔 감자 제품 거래소</h1>
+  <div id="statusBox">🔌 서버 전원 상태 확인 중...</div>
+  <div id="marketContainer">
+    <div class="product-box" id="productList">
+      <div>📈 실시간 전광판 시세</div>
+    </div>
+    <div class="inventory-box">
+      <h3>📦 내 제품 보관함</h3>
+      <div id="inventoryItems"></div>
+      <button onclick="sellSelectedProducts()">선택 제품 판매하기</button>
+    </div>
+  </div>
+  <div class="navigation-links">
+    <a href="gamja-shop.html">🛒 씨감자 상점</a>
+    <a href="gamja-exchange.html">🔁 자원 교환소</a>
+    <a href="gamja-result.html">🏭 가공공장</a>
+  </div>
+
+  <script>
     const nickname = localStorage.getItem("nickname") || "방문자";
     document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
     const statusBox = document.getElementById("statusBox");
@@ -115,7 +115,7 @@
     let userData = { nickname, inventory: [], token: 0 };
 
     function fetchMarketData() {
-      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/market")
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/market")
         .then(res => {
           if (!res.ok) throw new Error("시세 서버 응답 없음");
           statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
@@ -141,7 +141,7 @@
     }
 
     function fetchUserData() {
-      fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${encodeURIComponent(nickname)}`)
         .then(res => {
           if (!res.ok) throw new Error("유저 데이터 없음");
           return res.json();
@@ -187,7 +187,7 @@
 
       userData.token += total;
 
-      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/userdata", {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData)
@@ -200,38 +200,5 @@
     fetchMarketData();
     fetchUserData();
   </script>
-
-<script>
-const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-
-function loadUserData() {
-  const nickname = localStorage.getItem('nickname');
-  const farmName = localStorage.getItem('farmName');
-  if (!nickname) {
-    alert("로그인이 필요합니다. 입구로 이동합니다.");
-    window.location.href = "orcax-farm_000.html";
-    return;
-  }
-  document.getElementById("nicknameDisplay").textContent = nickname;
-  document.getElementById("farmNameDisplay").textContent = farmName || "-";
-
-  fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.success && data.user) {
-        document.getElementById("powerStatus").innerHTML = "🔌 전원 상태: <span style='color:limegreen;font-weight:bold;'>연결됨</span>";
-        // 향후 보관 물품, 시세 등 추가 연결 가능
-      } else {
-        document.getElementById("powerStatus").innerHTML = "🔌 전원 상태: <span style='color:red;font-weight:bold;'>불량</span>";
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      document.getElementById("powerStatus").innerHTML = "🔌 전원 상태: <span style='color:red;font-weight:bold;'>오류</span>";
-    });
-}
-
-window.onload = loadUserData;
-</script>
 </body>
 </html>
