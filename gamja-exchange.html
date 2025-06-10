@@ -227,10 +227,36 @@ if (farmName) {
 } else {
   document.getElementById("farmNameBox").textContent = "🌱 농장 이름: 없음";
 }
+
+
+// 자원, 농장명, 보관소 불러오기
+async function fetchFarmData() {
+  const nickname = localStorage.getItem("nickname");
+  const farmName = localStorage.getItem("farmName") || "이름없음농장";
+  if (!nickname) {
+    document.getElementById("farmNameBox").textContent = "❌ 로그인 정보 없음";
+    return;
+  }
+
+  try {
+    const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=" + nickname);
+    const result = await res.json();
+    if (result.success) {
+      const { water, fertilizer, potatoCount } = result.data;
+      document.getElementById("statusWrapper").innerHTML =
+        `💧 물: ${water}개 | 💩 거름: ${fertilizer}개 | 🥔 감자: ${potatoCount}개`;
+      document.getElementById("farmNameBox").textContent = `🌱 농장 이름: ${farmName}`;
+    } else {
+      document.getElementById("statusWrapper").textContent = "❌ 자원 불러오기 실패";
+    }
+  } catch (e) {
+    document.getElementById("statusWrapper").textContent = "⚠️ 서버 오류";
+  }
+}
+
+fetchFarmData();
 </script>
 </body>
 </html>
-</html>
-
 
 
