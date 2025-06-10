@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>⸺ 씨감자 상점 (2 ORCX 교환)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
+<meta charset="utf-8"/>
+<title>⸺ 씨감자 상점 (2 ORCX 교환)</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<style>
     body {
       font-family: 'Arial', sans-serif;
       background: #f4fff0;
@@ -64,57 +65,55 @@
   </style>
 </head>
 <body>
-  <div id="nicknameBox"></div>
-  <h1>🌾 씨감자 교환 상점</h1>
-  <div class="shop-box">
-    <p>🔄 ORCX 2개로 씨감자 1개로 교환합니다.</p>
-    <button onclick="exchangeSeed()">✔️ 씨감자 교환</button>
-    <p id="resultMsg" style="margin-top:1rem; color:green;"></p>
-  </div>
+<div id="infoBox" style="text-align:center; margin: 0.5rem; font-weight: bold;"></div>
+<div id="powerStatus" style="text-align:right; margin: 0.5rem 1rem; font-weight: bold; color: green;">
+  🔌 전원 ON - 연결 성공
+</div>
+<div id="nicknameBox"></div>
+<h1>🌾 씨감자 교환 상점</h1>
+<div class="shop-box">
+<p>🔄 ORCX 2개로 씨감자 1개로 교환합니다.</p>
+<button onclick="exchangeSeed()">✔️ 씨감자 교환</button>
+<p id="resultMsg" style="margin-top:1rem; color:green;"></p>
+</div>
+<div class="navigation-links">
+<a href="gamja-market.html">💰 거래소 이동</a>
+<a href="gamja-exchange.html">🚰 감자 가공 구조 교환소</a>
+<a href="gamja-result.html">🏠 감자 가공공장</a>
+</div>
+<script>
+const nickname = localStorage.getItem("nickname") || "사이메인";
+const box = document.getElementById("nicknameBox");
+box.textContent = `👤 ${nickname} 님`;
 
-  <div class="navigation-links">
-    <a href="gamja-market.html">💰 거래소 이동</a>
-    <a href="gamja-exchange.html">🚰 감자 가공 구조 교환소</a>
-    <a href="gamja-result.html">🏠 감자 가공공장</a>
-  </div>
+// ORCX 토큰 정보 추가 표시
+fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`)
+  .then(res => res.json())
+  .then(result => {
+    const token = result.user?.token ?? 0;
+    const tokenInfo = document.createElement('p');
+    tokenInfo.innerHTML = `💰 ORCX 토큰: <strong>${token}</strong>개`;
+    box.appendChild(tokenInfo);
+  });
 
-  <script>
-    const nickname = localStorage.getItem("nickname") || "사이메인";
-    const box = document.getElementById("nicknameBox");
-    box.textContent = `👤 ${nickname} 님`;
-
-    // ORCX 토큰 정보 추가 표시
-    fetch(`https://climbing-wholly-grouper.ngrok-free.app/api/userdata?nickname=${nickname}`)
-      .then(res => res.json())
-      .then(data => {
-        const tokenInfo = document.createElement('p');
-        tokenInfo.innerHTML = `💰 ORCX 토큰: <strong>${data.token ?? 0}</strong>개`;
-        box.appendChild(tokenInfo);
-      });
-
-    function exchangeSeed() {
-      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/exchange-seed", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname })
-      })
-        .then(res => res.json())
-        .then(data => {
-          const resultMsg = document.getElementById("resultMsg");
-          if (data.success) {
-            resultMsg.textContent = `🌾 씨감자 ${data.seedGained}개 획득했습니다.`;
-            resultMsg.style.color = "green";
-          } else {
-            resultMsg.textContent = `⚠️ ${data.message}`;
-            resultMsg.style.color = "red";
-          }
-        })
-        .catch(() => {
-          const resultMsg = document.getElementById("resultMsg");
-          resultMsg.textContent = `⚠️ 교환에 오류가 발생했습니다.`;
-          resultMsg.style.color = "red";
-        });
-    }
-  </script>
+function exchangeSeed() {
+  fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/exchange-seed", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nickname })
+  })
+    .then(res => res.json())
+    .then(data => {
+      const resultMsg = document.getElementById("resultMsg");
+      if (data.success) {
+        resultMsg.textContent = `🌾 씨감자 ${data.seedGained}개 획득했습니다.`;
+        resultMsg.style.color = "green";
+      } else {
+        resultMsg.textContent = "❌ 교환 실패: " + data.message;
+        resultMsg.style.color = "red";
+      }
+    });
+}
+</script>
 </body>
 </html>
