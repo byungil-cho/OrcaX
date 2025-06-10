@@ -24,6 +24,15 @@
       font-size: 1rem;
       border-radius: 8px;
     }
+    input[type="text"] {
+      padding: 12px;
+      font-size: 1.1rem;
+      width: 80%;
+      max-width: 400px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    }
     .server-check {
       margin-top: 1rem;
       font-weight: bold;
@@ -46,7 +55,7 @@
   <div class="server-check offline" id="serverStatus">❌ 서버 전원 OFF: 감자밭 연결 실패</div>
 
   <script>
-    const API_BASE_URL = "https://climbing-wholly-grouper.jp.ngrok.io"; // ✅ 서버 주소 교체
+    const API_BASE_URL = "https://climbing-wholly-grouper.jp.ngrok.io";
 
     async function checkServerStatus() {
       try {
@@ -73,7 +82,6 @@
       location.href = "gamja-factory.html";
     }
 
-    
     const nickname = localStorage.getItem("nickname");
     if (!nickname) {
       alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
@@ -84,8 +92,6 @@
     }
 
     checkServerStatus();
-    
   </script>
 </body>
 </html>
-
