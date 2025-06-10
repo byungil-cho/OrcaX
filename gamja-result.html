@@ -118,6 +118,7 @@
       <div class="status-item">🥔 감자: <span id="potatoCount">0</span></div>
       <div class="status-item">💧 물: <span id="waterCount">0</span></div>
       <div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
+      <div class="status-item">🪙 ORCX: <span id="tokenCount">0</span></div>
       <input type="text" id="productName" placeholder="제품 이름 입력">
       <button onclick="makeProduct()">제품 가공하기</button>
       <div style="margin-top:1rem">
@@ -134,60 +135,73 @@
       <a href="gamja-exchange.html">🔄 자원 교환소</a>
       <a href="gamja-market.html">💰 거래소 이동</a>
     </div>
+    <div style="text-align:center; margin-top:20px;">
+      <button onclick="exchangePotato()">감자 → ORCX 교환하기</button>
+    </div>
   </div>
+
   <script>
-    const nickname = localStorage.getItem("nickname") || "방문자";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const nickname = localStorage.getItem("nickname");
+    if (!nickname) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "orcax-farm_000.html";
+    }
+
     document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
     const statusBox = document.getElementById("statusBox");
+
     let userData = {
       nickname,
       potatoCount: 0,
       water: 0,
       fertilizer: 0,
+      token: 0,
       inventory: []
     };
 
-    function fetchUserData() {
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/userdata?nickname=${encodeURIComponent(nickname)}`)
-        .then(res => {
-          if (!res.ok) throw new Error("서버 오류");
-          statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
-          statusBox.style.color = "green";
-          return res.json();
-        })
-        .then(data => {
-          userData.potatoCount = data.potatoCount ?? 0;
-          userData.water = data.water ?? 0;
-          userData.fertilizer = data.fertilizer ?? 0;
-          userData.inventory = (data.inventory ?? []).filter(
+    async function fetchUserData() {
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
+        if (!res.ok) throw new Error("서버 오류");
+        statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
+        statusBox.style.color = "green";
+        const data = await res.json();
+        if (data.success) {
+          userData.potatoCount = data.user.potatoCount ?? 0;
+          userData.water = data.user.water ?? 0;
+          userData.fertilizer = data.user.fertilizer ?? 0;
+          userData.token = data.user.token ?? 0;
+          userData.inventory = (data.user.inventory ?? []).filter(
             item => typeof item.type === "string" && item.type !== "undefined" && item.count > 0
           );
           updateDisplay();
-        })
-        .catch(err => {
-          statusBox.textContent = "⚠️ 전기 공급이 끊겼습니다 (서버 응답 없음)";
-          statusBox.style.color = "red";
-          console.error("불러오기 실패", err);
-        });
+        }
+      } catch (err) {
+        statusBox.textContent = "⚠️ 전기 공급이 끊겼습니다 (서버 응답 없음)";
+        statusBox.style.color = "red";
+        console.error("불러오기 실패", err);
+      }
     }
 
     function saveUserData(callback) {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/update-user", {
+      fetch(`${API_BASE}/api/update-user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData)
       })
-        .then(res => res.json())
-        .then(() => {
-          if (callback) callback();
-        })
-        .catch(() => alert("❌ 서버 저장 실패"));
+      .then(res => res.json())
+      .then(() => {
+        if (callback) callback();
+      })
+      .catch(() => alert("❌ 서버 저장 실패"));
     }
 
     function updateDisplay() {
       document.getElementById("potatoCount").textContent = userData.potatoCount;
       document.getElementById("waterCount").textContent = userData.water;
       document.getElementById("fertilizerCount").textContent = userData.fertilizer;
+      document.getElementById("tokenCount").textContent = userData.token;
       renderInventory();
     }
 
@@ -246,64 +260,19 @@
       saveUserData(updateDisplay);
     }
 
+    function exchangePotato() {
+      if (userData.potatoCount < 1) {
+        alert("교환할 감자가 없습니다.");
+        return;
+      }
+      const exchangeAmount = userData.potatoCount * 10;
+      userData.token += exchangeAmount;
+      userData.potatoCount = 0;
+      alert(`${exchangeAmount} ORCX로 교환 완료!`);
+      saveUserData(updateDisplay);
+    }
+
     fetchUserData();
   </script>
-
-<div style="text-align:center; margin-top:20px;">
-  <div id="nicknameBox"></div>
-  <div id="potatoBox"></div>
-  <div id="orcxBox"></div>
-  <button onclick="exchangePotato()">감자 → ORCX 교환하기</button>
-</div>
-
-
-<script>
-  const nickname = localStorage.getItem("nickname");
-  if (!nickname) {
-    alert("로그인이 필요합니다.");
-    window.location.href = "orcax-farm_000.html";
-  }
-
-  let potatoCount = 0;
-  let orcx = 0;
-
-  async function loadData() {
-    const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/userdata?nickname=" + nickname);
-    const data = await res.json();
-    if (data.success) {
-      potatoCount = data.user.potatoCount;
-      orcx = data.user.token || 0;
-      document.getElementById("nicknameBox").innerText = "닉네임: " + nickname;
-      document.getElementById("potatoBox").innerText = "감자 보유량: " + potatoCount + "개";
-      document.getElementById("orcxBox").innerText = "ORCX 보유량: " + orcx + "개";
-    }
-  }
-
-  async function exchangePotato() {
-    if (potatoCount < 1) {
-      alert("교환할 감자가 없습니다.");
-      return;
-    }
-    const exchangeAmount = potatoCount * 10;
-    const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/update-user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nickname,
-        potatoCount: 0,
-        token: orcx + exchangeAmount
-      })
-    });
-    if (res.ok) {
-      alert(exchangeAmount + " ORCX로 교환 완료!");
-      location.reload();
-    } else {
-      alert("교환 실패. 다시 시도해주세요.");
-    }
-  }
-
-  window.onload = loadData;
-</script>
-
 </body>
 </html>
