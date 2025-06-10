@@ -65,13 +65,14 @@
   </div>
 
   <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const kakaoId = localStorage.getItem("kakaoId") || "익명손님";
     const farmName = localStorage.getItem("farmName") || "내 농장";
     const nickname = localStorage.getItem("nickname") || "사용자";
 
     async function fetchMarketData() {
       try {
-        const res = await fetch("/api/market/prices");
+        const res = await fetch(`${API_BASE}/api/market/prices`);
         const data = await res.json();
         const tbody = document.querySelector("#priceTable tbody");
         tbody.innerHTML = "";
@@ -90,7 +91,7 @@
 
     async function fetchMyStorage() {
       try {
-        const res = await fetch(`/api/storage/${kakaoId}`);
+        const res = await fetch(`${API_BASE}/api/storage/${kakaoId}`);
         const data = await res.json();
         const tbody = document.querySelector("#storageTable tbody");
         tbody.innerHTML = "";
@@ -112,7 +113,7 @@
 
     async function fetchTokenBalance() {
       try {
-        const res = await fetch(`/api/user/token/${kakaoId}`);
+        const res = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
         const data = await res.json();
         document.getElementById("tokenBalance").textContent = data.token || 0;
       } catch (e) {
@@ -125,7 +126,7 @@
       for (const cb of checkboxes) {
         const type = cb.value;
         const count = parseInt(cb.dataset.count);
-        await fetch("/api/market/sell", {
+        await fetch(`${API_BASE}/api/market/sell`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ kakaoId, type, count })
