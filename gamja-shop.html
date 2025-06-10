@@ -84,26 +84,27 @@
   </div>
 
   <script>
-    const nickname = localStorage.getItem("nickname") || "사이메인";
-    const box = document.getElementById("nicknameBox");
-    box.textContent = `👤 ${nickname} 님`;
+    const nickname = localStorage.getItem("nickname");
+    const nicknameBox = document.getElementById("nicknameBox");
+    nicknameBox.textContent = `👤 ${nickname} 님`;
 
-    // 토큰 및 씨감자 수량 표시
-    fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`)
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
+    // 최초 토큰 + 씨감자 불러오기
+    fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
       .then(res => res.json())
       .then(result => {
         const token = result.token ?? 0;
         const seed = result.seedPotato ?? 0;
-
         const tokenInfo = document.createElement('p');
         tokenInfo.innerHTML = `💰 ORCX 토큰: <strong>${token}</strong>개`;
-        box.appendChild(tokenInfo);
-
+        nicknameBox.appendChild(tokenInfo);
         document.getElementById("seedCount").innerText = `🌾 보유 씨감자: ${seed}개`;
       });
 
+    // 씨감자 교환
     function exchangeSeed() {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/exchange-seed", {
+      fetch(`${API_BASE}/api/exchange-seed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname })
@@ -115,8 +116,8 @@
             resultMsg.textContent = `🌾 씨감자 ${data.seedGained}개 획득했습니다.`;
             resultMsg.style.color = "green";
 
-            // 갱신
-            fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`)
+            // 씨감자 보유 수량 다시 불러오기
+            fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
               .then(res => res.json())
               .then(result => {
                 document.getElementById("seedCount").innerText = `🌾 보유 씨감자: ${result.seedPotato ?? 0}개`;
