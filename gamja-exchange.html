@@ -92,29 +92,18 @@
     .navigation-links a:hover {
       background: #5c9e35;
     }
-  
-#statusWrapper {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 0.9rem;
-  color: #333;
-  text-align: right;
-  background: #fff8dc;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.1);
-}
-</style>
+  </style>
 </head>
-<body><div id="statusWrapper"><div id="powerStatus">🔌 전원 상태: 연결됨</div><div id="farmNameBox">🌱 농장 이름: 불러오는 중...</div></div>
-<div id="nicknameBox"></div>
+<body>
+<div id="infoBox" style="text-align:center; margin: 0.5rem; font-weight: bold;"></div><div id="nicknameBox"></div>
 <h1>🔄 OrcaX 자원 교환소</h1>
 <div id="container">
 <div class="status-box">
-<div>💧 물: <span id="waterCount">-</span></div>
-<div>💩 거름: <span id="fertilizerCount">-</span></div>
-<div>🥔 감자: <span id="potatoCount">-</span></div>
+<div class="status-item">💧 물: <span id="waterCount">0</span></div>
+<div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
+<div class="status-item">🥔 감자 가공 제품으로 교환 가능합니다.</div>
+<button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
+<button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
 </div>
 <div class="inventory-box">
 <h3>📦 가공 제품 보관함</h3>
@@ -127,41 +116,30 @@
 </div>
 </div>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const nickname = localStorage.getItem("nickname");
-  const farmName = localStorage.getItem("farmName") || "이름없음농장";
+const nickname = localStorage.getItem("nickname");
+const nicknameBox = document.getElementById("nicknameBox");
+const infoBox = document.getElementById("infoBox");
 
-  if (!nickname) {
-    document.getElementById("farmNameBox").textContent = "🌱 농장 이름: 없음";
-    return;
-  }
+if (!nickname) {
+  alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+  window.location.href = "orcax-farm_000.html";
+} else {
+  nicknameBox.textContent = `👤 ${nickname} 님`;
 
-  fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=" + nickname)
+  fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`)
     .then(res => res.json())
-    .then(result => {
-      if (result.success) {
-        const { water, fertilizer, potatoCount, farmName: fn, inventory } = result.data;
-        document.getElementById("waterCount").textContent = water;
-        document.getElementById("fertilizerCount").textContent = fertilizer;
-        document.getElementById("potatoCount").textContent = potatoCount;
-
-        const farmBox = document.getElementById("farmNameBox");
-        if (farmBox) farmBox.textContent = `🌱 농장 이름: ${farmName || fn || "없음"}`;
-
-        const list = document.getElementById("inventoryItems");
-        if (Array.isArray(inventory)) {
-          list.innerHTML = "";
-          inventory.forEach(item => {
-            const li = document.createElement("li");
-            li.textContent = `${item.name} × ${item.count}`;
-            list.appendChild(li);
-          });
-        }
+    .then(data => {
+      if (data.success) {
+        infoBox.innerHTML = `
+          💧 물: <strong>${data.water ?? 0}</strong> |
+          🌿 거름: <strong>${data.fertilizer ?? 0}</strong> |
+          💰 ORCX: <strong>${data.token ?? 0}</strong>
+        `;
+      } else {
+        infoBox.textContent = "❌ 유저 정보 없음";
       }
-    }).catch(err => {
-      console.error("데이터 불러오기 실패:", err);
     });
-});
+}
 </script>
 </body>
 </html>
