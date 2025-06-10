@@ -38,11 +38,18 @@
       color: white;
       cursor: pointer;
     }
+    #statusIndicator {
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #cc0000;
+    }
   </style>
 </head>
 <body>
   <div id="nicknameBox" style="text-align:right; font-weight:bold;"></div>
   <h1>🌱 OrcaX 감자 농사터</h1>
+  <div id="statusIndicator">🔌 서버 연결 상태 확인 중...</div>
+
   <div class="status-box">
     <div class="info">💧 물: <span id="waterCount">-</span></div>
     <div class="info">🧴 거름: <span id="fertilizerCount">-</span></div>
@@ -60,6 +67,13 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname");
+    const statusEl = document.getElementById("statusIndicator");
+
+    if (!nickname) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "orcax-farm_000.html";
+    }
+
     document.getElementById("nicknameBox").innerText = `👤 ${nickname} 님`;
 
     const waterEl = document.getElementById("waterCount");
@@ -71,13 +85,24 @@
     let growthPoint = 0;
 
     async function loadStatus() {
-      const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
-      const data = await res.json();
-      if (data.success) {
-        waterEl.textContent = data.user.water;
-        fertEl.textContent = data.user.fertilizer;
-        potatoEl.textContent = data.user.potatoCount;
-        tokenEl.textContent = data.user.token;
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
+        if (!res.ok) throw new Error("연결 실패");
+        const data = await res.json();
+        if (data.success) {
+          waterEl.textContent = data.user.water;
+          fertEl.textContent = data.user.fertilizer;
+          potatoEl.textContent = data.user.potatoCount;
+          tokenEl.textContent = data.user.token;
+          statusEl.textContent = "✅ 전기 공급 중 (서버 연결됨)";
+          statusEl.style.color = "green";
+        } else {
+          throw new Error("데이터 없음");
+        }
+      } catch (err) {
+        statusEl.textContent = "❌ 전기 공급 끊김 (서버 응답 없음)";
+        statusEl.style.color = "red";
+        console.error("서버 오류:", err);
       }
     }
 
