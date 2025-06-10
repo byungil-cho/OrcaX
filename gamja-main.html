@@ -37,12 +37,8 @@
       margin-top: 1rem;
       font-weight: bold;
     }
-    .offline {
-      color: red;
-    }
-    .online {
-      color: green;
-    }
+    .offline { color: red; }
+    .online { color: green; }
   </style>
 </head>
 <body>
@@ -55,21 +51,24 @@
   <div class="server-check offline" id="serverStatus">❌ 서버 전원 OFF: 감자밭 연결 실패</div>
 
   <script>
-    const API_BASE_URL = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
-    async function checkServerStatus() {
-      try {
-        const res = await fetch(`${API_BASE_URL}/`);
-        if (res.ok) {
-          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
-          document.getElementById("serverStatus").classList.remove("offline");
-          document.getElementById("serverStatus").classList.add("online");
-        }
-      } catch (err) {
-        document.getElementById("serverStatus").textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
-        document.getElementById("serverStatus").classList.remove("online");
-        document.getElementById("serverStatus").classList.add("offline");
-      }
+    function checkServerStatus() {
+      fetch(`${API_BASE}/`)
+        .then(res => {
+          if (res.ok) {
+            document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
+            document.getElementById("serverStatus").classList.remove("offline");
+            document.getElementById("serverStatus").classList.add("online");
+          } else {
+            throw new Error("서버 응답 오류");
+          }
+        })
+        .catch(() => {
+          document.getElementById("serverStatus").textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
+          document.getElementById("serverStatus").classList.remove("online");
+          document.getElementById("serverStatus").classList.add("offline");
+        });
     }
 
     function startFarm() {
@@ -87,7 +86,7 @@
       alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
     } else {
-      document.getElementById("nicknameBox").textContent = `🧑‍🌾 ${nickname} 님`;
+      document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
       document.getElementById("nicknameBox").style.display = "block";
     }
 
