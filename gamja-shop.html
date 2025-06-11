@@ -2,58 +2,71 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>씨감자 상점</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: 'Arial', sans-serif;
       background: #fef9e8;
-      padding: 1rem;
       margin: 0;
+      padding: 1rem;
     }
     h1 {
       text-align: center;
-      color: #504030;
-      margin: 1rem 0 0.5rem;
-    }
-    #nicknameBox {
-      text-align: right;
-      font-weight: bold;
-      margin: 0.5rem 1rem 0.5rem 0;
-      color: #503020;
-    }
-    #container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 70vh;
+      margin-top: 1rem;
     }
     .status-box {
       background: #fff;
       border: 1px solid #ccc;
-      padding: 1rem;
       border-radius: 12px;
+      padding: 1rem;
+      max-width: 360px;
+      margin: 1rem auto;
       text-align: center;
-      margin-bottom: 1rem;
-      width: 90%;
-      max-width: 400px;
     }
-    .item {
-      margin-bottom: 1rem;
+    .purchase-box {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 1rem;
+      max-width: 360px;
+      margin: 1rem auto;
+      text-align: center;
+    }
+    #nicknameBox {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-weight: bold;
+      color: #503020;
+    }
+    input[type="number"] {
+      width: 60px;
+      padding: 0.3rem;
+      text-align: center;
+      margin-right: 0.5rem;
     }
     button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
+      padding: 0.4rem 1rem;
       background: #4CAF50;
       color: white;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 1rem;
     }
-    button:hover {
-      background: #45a049;
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .nav-buttons {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .nav-buttons button {
+      background: #39a7ff;
+      margin: 0.25rem;
     }
   </style>
 </head>
@@ -61,25 +74,38 @@
   <div id="nicknameBox"></div>
   <h1>🛒 씨감자 상점</h1>
 
-  <div id="container">
-    <div class="status-box">
-      ⚡ 서버 상태: <span id="serverStatus">확인 중...</span><br/>
-      💰 보유 토큰: <span id="tokenBalance">0</span> ORCAX
-    </div>
+  <div class="status-box">
+    ⚡ 서버 상태: <span id="serverStatus">확인 중...</span><br/>
+    💧 물: <span id="water">-</span> |
+    💩 거름: <span id="fertilizer">-</span> |
+    🥔 씨감자: <span id="seedPotato">-</span><br/>
+    💰 토큰: <span id="token">-</span> ORCAX
+  </div>
 
-    <div class="status-box item">
-      <h2>씨감자 구매</h2>
-      <input type="number" id="quantityInput" min="1" value="1" style="width:60px; text-align:center;">
-      <button onclick="buySeed()">구매</button>
-    </div>
+  <div class="purchase-box">
+    <h2>씨감자 구매</h2>
+    <input type="number" id="quantityInput" min="1" value="1" />
+    <button id="buyButton" disabled onclick="buySeed()">구매</button>
+  </div>
+
+  <div class="nav-buttons">
+    <button onclick="location.href='gamja-factory.html'">🌱 농장으로 가기</button>
+    <button onclick="location.href='gamja-result.html'">📦 내 저장소 보기</button>
+    <button onclick="location.href='auction-house.html'">📊 거래소 보기</button>
   </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const kakaoId = localStorage.getItem("kakaoId") || "익명";
-    const nickname = localStorage.getItem("nickname") || "사용자";
+    const nickname = localStorage.getItem("nickname");
+    const kakaoId = localStorage.getItem("kakaoId");
 
-    document.getElementById("nicknameBox").textContent = nickname;
+    document.getElementById("nicknameBox").textContent = nickname || "익명";
+
+    if (!nickname || !kakaoId) {
+      alert("로그인 정보가 없습니다. 입구에서 다시 로그인하세요.");
+    }
+
+    let userData = null;
 
     async function checkServerStatus() {
       try {
@@ -89,66 +115,74 @@
         } else {
           document.getElementById("serverStatus").textContent = "❌ 서버 응답 없음";
         }
-      } catch (err) {
+      } catch {
         document.getElementById("serverStatus").textContent = "❌ 연결 실패";
       }
     }
 
-    async function fetchToken() {
+    async function loadUserInfo() {
       try {
-        const res = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
+        const res = await fetch(`${API_BASE}/api/users`);
         const data = await res.json();
-        console.log("[🔍 토큰 응답]", data);  // ✅ 로그 삽입
-        document.getElementById("tokenBalance").textContent = data.token || 0;
-      } catch (e) {
-        console.error("❌ 토큰 불러오기 실패:", e);
-        document.getElementById("tokenBalance").textContent = "불러오기 실패";
+        const user = data.users.find(u => u.nickname === nickname);
+        if (!user) throw new Error("유저 없음");
+
+        userData = user;
+
+        document.getElementById("water").textContent = user.water ?? "-";
+        document.getElementById("fertilizer").textContent = user.fertilizer ?? "-";
+        document.getElementById("seedPotato").textContent = user.seedPotato ?? "-";
+        document.getElementById("token").textContent = user.token ?? "-";
+        document.getElementById("buyButton").disabled = false;
+      } catch (err) {
+        document.getElementById("token").textContent = "불러오기 실패";
+        document.getElementById("buyButton").disabled = true;
+        console.error("유저 정보 불러오기 실패:", err);
       }
     }
 
     async function buySeed() {
       const quantity = parseInt(document.getElementById("quantityInput").value);
       if (isNaN(quantity) || quantity < 1) {
-        alert("구매 수량을 1 이상으로 입력해주세요.");
+        alert("구매 수량을 입력하세요.");
         return;
       }
 
+      const token = userData.token;
+      let ratio = 0.05;
+      if (token >= 10000) ratio = 0.10;
+      else if (token <= 100) ratio = 0.01;
+
+      const unitPrice = Math.ceil(token * ratio / quantity);
+
       try {
-        const tokenRes = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
-        const tokenData = await tokenRes.json();
-        console.log("[🔍 구매용 토큰 응답]", tokenData);  // ✅ 구매용 로그 추가
-        const token = tokenData.token || 0;
-
-        let ratio = 0.05;
-        if (token >= 10000) ratio = 0.10;
-        else if (token <= 100) ratio = 0.01;
-
-        const unitPrice = Math.ceil(token * ratio / quantity);
-        const totalCost = unitPrice * quantity;
-
         const res = await fetch(`${API_BASE}/api/shop/buy`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId, quantity, price: unitPrice })
+          body: JSON.stringify({
+            nickname: userData.nickname,
+            kakaoId: kakaoId,
+            quantity: quantity,
+            price: unitPrice
+          })
         });
 
         const result = await res.json();
         if (result.success) {
-          alert(`구매 성공! 씨감자 ${quantity}개, 개당 ${unitPrice} ORCAX`);
-          fetchToken();
+          alert(`씨감자 ${quantity}개 구매 완료!`);
+          loadUserInfo();
         } else {
           alert(result.message || "구매 실패");
         }
-      } catch (e) {
-        console.error("구매 실패:", e);
-        alert("에러 발생");
+      } catch (err) {
+        alert("서버 오류 발생");
       }
     }
 
     checkServerStatus();
-    fetchToken();
+    loadUserInfo();
     setInterval(checkServerStatus, 60000);
-    setInterval(fetchToken, 60000);
+    setInterval(loadUserInfo, 60000);
   </script>
 </body>
 </html>
