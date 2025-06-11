@@ -51,9 +51,14 @@
       color: white;
       cursor: pointer;
       font-size: 1rem;
+      margin: 0.25rem;
     }
     button:hover {
       background: #45a049;
+    }
+    .nav-buttons {
+      text-align: center;
+      margin-top: 1rem;
     }
   </style>
 </head>
@@ -72,12 +77,23 @@
       <input type="number" id="quantityInput" min="1" value="1" style="width:60px; text-align:center;">
       <button onclick="buySeed()">구매</button>
     </div>
+
+    <div class="nav-buttons">
+      <button onclick="location.href='gamja-factory.html'">🌱 농장으로 가기</button>
+      <button onclick="location.href='gamja-result.html'">📦 내 저장소 보기</button>
+      <button onclick="location.href='auction-house.html'">📊 거래소 보기</button>
+    </div>
   </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const kakaoId = localStorage.getItem("kakaoId") || "익명";
+    const kakaoId = localStorage.getItem("kakaoId");
     const nickname = localStorage.getItem("nickname") || "사용자";
+
+    if (!kakaoId || kakaoId === "익명") {
+      alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    }
 
     document.getElementById("nicknameBox").textContent = nickname;
 
@@ -98,7 +114,7 @@
       try {
         const res = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
         const data = await res.json();
-        console.log("[🔍 토큰 응답]", data);  // ✅ 로그 삽입
+        console.log("[🔍 토큰 응답]", data);
         document.getElementById("tokenBalance").textContent = data.token || 0;
       } catch (e) {
         console.error("❌ 토큰 불러오기 실패:", e);
@@ -116,8 +132,8 @@
       try {
         const tokenRes = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
         const tokenData = await tokenRes.json();
-        console.log("[🔍 구매용 토큰 응답]", tokenData);  // ✅ 구매용 로그 추가
         const token = tokenData.token || 0;
+        console.log("[🔍 구매용 토큰 응답]", tokenData);
 
         let ratio = 0.05;
         if (token >= 10000) ratio = 0.10;
