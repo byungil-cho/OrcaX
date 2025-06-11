@@ -1,133 +1,129 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"/>
-  <title>⸺ 씨감자 상점 (5 ORCX 교환)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <title>씨감자 상점</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: #f4fff0;
+      background: #f0f0f0;
       padding: 1rem;
       margin: 0;
     }
     h1 {
       text-align: center;
-      color: #3b4a2f;
-      margin: 1rem 0;
+      color: #333;
+      margin-bottom: 1rem;
     }
     #nicknameBox {
       text-align: right;
       font-weight: bold;
-      margin: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
       color: #333;
     }
-    .shop-box {
-      background: #ffffff;
+    .store {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .item {
+      background: #fff;
       border: 1px solid #ccc;
       border-radius: 8px;
-      padding: 1.5rem;
+      padding: 1rem;
+      margin: 1rem;
+      width: 90%;
       max-width: 400px;
-      margin: 2rem auto;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    .shop-box button {
-      padding: 0.7rem 1.5rem;
-      font-size: 1rem;
-      background: #60b347;
-      color: white;
+    .item h2 {
+      margin-top: 0;
+    }
+    .item button {
+      background: #007bff;
+      color: #fff;
       border: none;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
       border-radius: 5px;
       cursor: pointer;
-      margin-top: 1rem;
     }
-    .shop-box button:hover {
-      background-color: #4a9538;
+    .item button:hover {
+      background: #0056b3;
     }
-    .navigation-links {
+    .balance {
       text-align: center;
-      margin-top: 2rem;
-    }
-    .navigation-links a {
-      display: inline-block;
-      margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: #4a74ba;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-    .navigation-links a:hover {
-      background: #365f9c;
+      margin-top: 1rem;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div id="infoBox" style="text-align:center; margin: 0.5rem; font-weight: bold;"></div>
-  <div id="powerStatus" style="text-align:right; margin: 0.5rem 1rem; font-weight: bold; color: green;">
-    🔌 전원 ON - 연결 성공
-  </div>
   <div id="nicknameBox"></div>
-  <h1>🌾 씨감자 교환 상점</h1>
-  <div class="shop-box">
-    <p>🔄 ORCX <strong>5개</strong>로 씨감자 1개로 교환합니다.</p>
-    <button onclick="exchangeSeed()">✔️ 씨감자 교환</button>
-    <p id="resultMsg" style="margin-top:1rem; color:green;"></p>
-    <p id="seedCount" style="margin-top:0.5rem; font-weight: bold;"></p>
+  <h1>🛒 씨감자 상점</h1>
+
+  <div class="balance">
+    보유 토큰: <span id="tokenBalance">0</span> ORCAX
   </div>
 
-  <div class="navigation-links">
-    <a href="gamja-factory.html">🌱 감자밭으로 가기</a>
-    <a href="gamja-result.html">🏭 감자 가공공장</a>
-    <a href="gamja-market.html">💰 거래소 이동</a>
+  <div class="store">
+    <div class="item">
+      <h2>씨감자 1개</h2>
+      <p>가격: 5 ORCAX</p>
+      <button onclick="buySeed(1)">구매</button>
+    </div>
+    <div class="item">
+      <h2>씨감자 3개</h2>
+      <p>가격: 14 ORCAX</p>
+      <button onclick="buySeed(3)">구매</button>
+    </div>
+    <div class="item">
+      <h2>씨감자 5개</h2>
+      <p>가격: 23 ORCAX</p>
+      <button onclick="buySeed(5)">구매</button>
+    </div>
   </div>
 
   <script>
-    const nickname = localStorage.getItem("nickname");
-    const nicknameBox = document.getElementById("nicknameBox");
-    nicknameBox.textContent = `👤 ${nickname} 님`;
-
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const kakaoId = localStorage.getItem("kakaoId") || "익명";
+    const nickname = localStorage.getItem("nickname") || "사용자";
+    document.getElementById("nicknameBox").textContent = nickname;
 
-    // 최초 토큰 + 씨감자 불러오기
-    fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
-      .then(res => res.json())
-      .then(result => {
-        const token = result.token ?? 0;
-        const seed = result.seedPotato ?? 0;
-        const tokenInfo = document.createElement('p');
-        tokenInfo.innerHTML = `💰 ORCX 토큰: <strong>${token}</strong>개`;
-        nicknameBox.appendChild(tokenInfo);
-        document.getElementById("seedCount").innerText = `🌾 보유 씨감자: ${seed}개`;
-      });
-
-    // 씨감자 교환
-    function exchangeSeed() {
-      fetch(`${API_BASE}/api/exchange-seed`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname })
-      })
-        .then(res => res.json())
-        .then(data => {
-          const resultMsg = document.getElementById("resultMsg");
-          if (data.success) {
-            resultMsg.textContent = `🌾 씨감자 ${data.seedGained}개 획득했습니다.`;
-            resultMsg.style.color = "green";
-
-            // 씨감자 보유 수량 다시 불러오기
-            fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
-              .then(res => res.json())
-              .then(result => {
-                document.getElementById("seedCount").innerText = `🌾 보유 씨감자: ${result.seedPotato ?? 0}개`;
-              });
-          } else {
-            resultMsg.textContent = "❌ 교환 실패: " + data.message;
-            resultMsg.style.color = "red";
-          }
-        });
+    async function fetchToken() {
+      try {
+        const res = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
+        const data = await res.json();
+        document.getElementById("tokenBalance").textContent = data.token || 0;
+        console.log("[✅ 토큰 갱신]", data.token);
+      } catch (e) {
+        console.error("❌ 토큰 불러오기 실패:", e);
+      }
     }
+
+    async function buySeed(quantity) {
+      try {
+        const res = await fetch(`${API_BASE}/api/shop/buy`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId, quantity })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("구매 성공!");
+          fetchToken(); // ✅ 구매 후 토큰 재조회
+        } else {
+          alert(result.message || "구매 실패");
+        }
+      } catch (e) {
+        console.error("구매 요청 실패:", e);
+        alert("에러 발생");
+      }
+    }
+
+    fetchToken();
+    setInterval(fetchToken, 60000); // 1분마다 갱신
   </script>
 </body>
 </html>
