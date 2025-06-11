@@ -1,125 +1,134 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>보리 가공 결과</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보리 제품 만들기</title>
   <style>
     body {
-      background-color: #121212;
+      background-color: #1b1b1b;
       color: white;
       font-family: 'Arial', sans-serif;
       text-align: center;
       padding: 2rem;
     }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-    }
-    .status-box {
-      display: inline-block;
-      padding: 1rem 2rem;
-      background: #333;
-      border-radius: 10px;
-      margin-bottom: 2rem;
-    }
-    .product {
-      margin: 0.5rem 0;
-      font-size: 1.2rem;
-    }
-    .button {
-      padding: 0.8rem 1.5rem;
-      background-color: #ffc107;
-      color: black;
+    .status {
+      color: #00ffc3;
       font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .highlight {
+      color: #ffcc00;
+    }
+    input {
+      padding: 10px;
+      font-size: 1em;
+      width: 200px;
       border: none;
-      border-radius: 8px;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #f1c40f;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
     }
-    #nicknameBox {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-weight: bold;
-      color: #fdd835;
-      font-size: 0.95rem;
+    .box {
+      background-color: #2f2f2f;
+      margin: 2rem auto;
+      padding: 1rem;
+      width: 300px;
+      border-radius: 10px;
+      text-align: left;
     }
-    #serverStatus {
-      font-size: 0.85rem;
-      margin-bottom: 5px;
-      color: #00ffcc;
+    ul {
+      text-align: left;
     }
   </style>
 </head>
 <body>
-  <div id="nicknameBox"></div>
-  <div id="serverStatus">🔌 서버 상태 확인 중...</div>
+  <div class="status" id="serverStatus">🛠️ 서버 상태 확인 중...</div>
   <h1>🌾 보리 가공 결과</h1>
-  <div class="status-box">
-    <div id="yieldInfo"></div>
-    <div id="productInfo"></div>
+
+  <div class="box">
+    <p class="highlight">🌾 들고온 보리 수확량: <span id="barleyAmount">0</span>말</p>
+    <input type="text" placeholder="제품 종류 (예: 밥, 차, 떡 등)" id="productInput" />
+    <button onclick="makeProduct()">제품 만들기</button>
   </div>
-  <button class="button" onclick="goToMarket()">🏪 거래소 가기</button>
+
+  <div class="box">
+    <strong>📦 보관함:</strong>
+    <ul id="inventoryList"></ul>
+  </div>
 
   <script>
     const nickname = localStorage.getItem("nickname");
-    const yieldAmount = localStorage.getItem("bori_yield") || 0;
-    const productList = JSON.parse(localStorage.getItem("bori_products") || "[]");
-
-    const nicknameBox = document.getElementById("nicknameBox");
-    const statusBox = document.getElementById("serverStatus");
-
     if (!nickname) {
-      alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
-    } else {
-      nicknameBox.textContent = `👤 ${nickname} 님`;
     }
 
-    document.getElementById("yieldInfo").textContent = `총 ${yieldAmount}말 수확했습니다`;
+    async function checkServer() {
+      try {
+        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status");
+        if (res.ok) {
+          document.getElementById("serverStatus").textContent = "✅ 서버 연결 완료";
+        } else {
+          document.getElementById("serverStatus").textContent = "❌ 전기 공급 끊김 (서버 오류)";
+        }
+      } catch (err) {
+        document.getElementById("serverStatus").textContent = "❌ 전기 공급 끊김 (네트워크 오류)";
+      }
+    }
 
-    const productInfo = document.getElementById("productInfo");
-    productList.forEach(product => {
-      const item = document.createElement("div");
-      item.className = "product";
-      item.textContent = `🥫 ${product}`;
-      productInfo.appendChild(item);
+    async function loadUserData() {
+      try {
+        const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`);
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("barleyAmount").textContent = data.user.barleyCount || 0;
+          const inventoryEl = document.getElementById("inventoryList");
+          inventoryEl.innerHTML = "";
+          (data.user.inventory || []).forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = `${item.type}: ${item.count}개`;
+            inventoryEl.appendChild(li);
+          });
+        }
+      } catch (err) {
+        console.error("유저 데이터 불러오기 실패:", err);
+      }
+    }
 
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/farm/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          nickname: nickname,
-          product: product,
-          quantity: 1
-        })
-      })
-      .then(res => res.json())
-      .then(data => console.log("✅ 저장 성공:", data))
-      .catch(err => console.error("❌ 저장 실패:", err));
-    });
-
-    function checkServerStatus() {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status")
-        .then(res => {
-          if (!res.ok) throw new Error();
-          statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
-          statusBox.style.color = "lime";
-        })
-        .catch(() => {
-          statusBox.textContent = "⚠️ 전기 공급 끊김 (서버 오류)";
-          statusBox.style.color = "red";
+    async function makeProduct() {
+      const input = document.getElementById("productInput").value.trim();
+      if (!input) return alert("제품명을 입력해주세요.");
+      try {
+        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/product/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ nickname, product: input })
         });
+        const result = await res.json();
+        if (result.success) {
+          alert(input + " 제품이 성공적으로 만들어졌습니다!");
+          loadUserData(); // 저장 후 보관함 새로고침
+        } else {
+          alert("서버 저장 실패: " + result.message);
+        }
+      } catch (err) {
+        console.error("제품 저장 오류:", err);
+        alert("제품 저장 중 오류 발생");
+      }
     }
 
-    function goToMarket() {
-      window.location.href = "borl-market.html";
-    }
-
-    checkServerStatus();
+    checkServer();
+    loadUserData();
   </script>
 </body>
 </html>
