@@ -91,7 +91,7 @@
 
     async function fetchMyStorage() {
       try {
-        const res = await fetch(`${API_BASE}/api/storage/${kakaoId}`);
+        const res = await fetch(`${API_BASE}/api/storage/${nickname}`);
         const data = await res.json();
         const tbody = document.querySelector("#storageTable tbody");
         tbody.innerHTML = "";
