@@ -63,66 +63,84 @@
 <button onclick="goToAdmin()">🔐 관리자 전용 페이지</button>
 </div>
 <script>
-const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-const nickname = localStorage.getItem("nickname") || "익명손님";
-document.getElementById("nickname").textContent = nickname;
+document.addEventListener("DOMContentLoaded", function () {
+  const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+  const nickname = localStorage.getItem("nickname");
 
-// ✅ 토큰
-fetch(`${API_BASE}/api/user/token/${nickname}`)
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("tokenBalance").textContent = data.token || 0;
-  })
-  .catch(() => {
-    document.getElementById("tokenBalance").textContent = 0;
-  });
-
-// ✅ 보관함
-fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
-  .then(res => res.json())
-  .then(user => {
-    const data = user.inventory || [];
-    const tbody = document.querySelector("#storageTable tbody");
-    tbody.innerHTML = "";
-    data.forEach(item => {
-      const row = `<tr>
-        <td><input type='checkbox' name='product' value='${item.type}' data-count='${item.count}'></td>
-        <td>${item.type}</td>
-        <td>${item.count}</td>
-      </tr>`;
-      tbody.insertAdjacentHTML("beforeend", row);
-    });
-  })
-  .catch(() => {
-    const tbody = document.querySelector("#storageTable tbody");
-    tbody.innerHTML = "<tr><td colspan='3'>❌ 보관함 불러오기 실패</td></tr>";
-  });
-
-// ✅ 시세
-fetch(`${API_BASE}/api/market/prices`)
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("notice").textContent = data.notice || "";
-    const tbody = document.querySelector("#priceTable tbody");
-    tbody.innerHTML = "";
-    data.prices.forEach(item => {
-      const row = `<tr><td>${item.type}</td><td>${item.count}</td><td>${item.price}</td></tr>`;
-      tbody.insertAdjacentHTML("beforeend", row);
-    });
-  })
-  .catch(() => {
-    document.getElementById("notice").textContent = "❌ 시세 정보를 불러오지 못했습니다.";
-  });
-
-// ✅ 관리자 진입
-function goToAdmin() {
-  const pw = prompt("관리자 비밀번호를 입력하세요:");
-  if (pw === "7788") {
-    location.href = "admin-users.html";
-  } else {
-    alert("비밀번호가 틀렸습니다.");
+  // ✅ 로그인 상태 확인
+  if (!nickname) {
+    alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+    window.location.href = "orcax-farm_000.html";
+    return;
   }
-}
+
+  console.log("💡 nickname 확인:", nickname);
+  document.getElementById("nickname").textContent = nickname;
+
+  // ✅ 자동 유저 등록 시도
+  fetch(`${API_BASE}/api/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nickname })
+  });
+
+  // ✅ 토큰
+  fetch(`${API_BASE}/api/user/token/${nickname}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("tokenBalance").textContent = data.token || 0;
+    })
+    .catch(() => {
+      document.getElementById("tokenBalance").textContent = 0;
+    });
+
+  // ✅ 보관함
+  fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
+    .then(res => res.json())
+    .then(user => {
+      const data = user.inventory || [];
+      const tbody = document.querySelector("#storageTable tbody");
+      tbody.innerHTML = "";
+      data.forEach(item => {
+        const row = `<tr>
+          <td><input type='checkbox' name='product' value='${item.type}' data-count='${item.count}'></td>
+          <td>${item.type}</td>
+          <td>${item.count}</td>
+        </tr>`;
+        tbody.insertAdjacentHTML("beforeend", row);
+      });
+    })
+    .catch(() => {
+      const tbody = document.querySelector("#storageTable tbody");
+      tbody.innerHTML = "<tr><td colspan='3'>❌ 보관함 불러오기 실패</td></tr>";
+    });
+
+  // ✅ 전광판
+  fetch(`${API_BASE}/api/market/prices`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("notice").textContent = data.notice || "";
+      const tbody = document.querySelector("#priceTable tbody");
+      tbody.innerHTML = "";
+      data.prices.forEach(item => {
+        const row = `<tr><td>${item.type}</td><td>${item.count}</td><td>${item.price}</td></tr>`;
+        tbody.insertAdjacentHTML("beforeend", row);
+      });
+    })
+    .catch(() => {
+      document.getElementById("notice").textContent = "❌ 시세 정보를 불러오지 못했습니다.";
+    });
+
+  // ✅ 관리자 진입
+  window.goToAdmin = function () {
+    const pw = prompt("관리자 비밀번호를 입력하세요:");
+    if (pw === "7788") {
+      location.href = "admin-users.html";
+    } else {
+      alert("비밀번호가 틀렸습니다.");
+    }
+  };
+});
 </script>
 </body>
 </html>
