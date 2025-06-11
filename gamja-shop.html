@@ -7,55 +7,52 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: #f0f0f0;
+      background: #fef9e8;
       padding: 1rem;
       margin: 0;
     }
     h1 {
       text-align: center;
-      color: #333;
-      margin-bottom: 1rem;
+      color: #504030;
+      margin: 1rem 0 0.5rem;
     }
     #nicknameBox {
       text-align: right;
       font-weight: bold;
-      margin-bottom: 0.5rem;
-      color: #333;
+      margin: 0.5rem 1rem 0.5rem 0;
+      color: #503020;
     }
-    .store {
+    #container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      min-height: 70vh;
     }
-    .item {
+    .status-box {
       background: #fff;
       border: 1px solid #ccc;
-      border-radius: 8px;
       padding: 1rem;
-      margin: 1rem;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 1rem;
       width: 90%;
       max-width: 400px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    .item h2 {
-      margin-top: 0;
+    .item {
+      margin-bottom: 1rem;
     }
-    .item button {
-      background: #007bff;
-      color: #fff;
-      border: none;
+    button {
       padding: 0.5rem 1rem;
-      font-size: 1rem;
-      border-radius: 5px;
+      border: none;
+      border-radius: 6px;
+      background: #4CAF50;
+      color: white;
       cursor: pointer;
+      font-size: 1rem;
     }
-    .item button:hover {
-      background: #0056b3;
-    }
-    .balance {
-      text-align: center;
-      margin-top: 1rem;
-      font-weight: bold;
+    button:hover {
+      background: #45a049;
     }
   </style>
 </head>
@@ -63,22 +60,25 @@
   <div id="nicknameBox"></div>
   <h1>🛒 씨감자 상점</h1>
 
-  <div class="balance">
-    보유 토큰: <span id="tokenBalance">0</span> ORCAX
-  </div>
+  <div id="container">
+    <div class="status-box">
+      ⚡ 서버 상태: <span id="serverStatus">확인 중...</span><br/>
+      💰 보유 토큰: <span id="tokenBalance">0</span> ORCAX
+    </div>
 
-  <div class="store">
-    <div class="item">
+    <div class="status-box item">
       <h2>씨감자 1개</h2>
       <p>가격: 5 ORCAX</p>
       <button onclick="buySeed(1)">구매</button>
     </div>
-    <div class="item">
+
+    <div class="status-box item">
       <h2>씨감자 3개</h2>
       <p>가격: 14 ORCAX</p>
       <button onclick="buySeed(3)">구매</button>
     </div>
-    <div class="item">
+
+    <div class="status-box item">
       <h2>씨감자 5개</h2>
       <p>가격: 23 ORCAX</p>
       <button onclick="buySeed(5)">구매</button>
@@ -89,7 +89,21 @@
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const kakaoId = localStorage.getItem("kakaoId") || "익명";
     const nickname = localStorage.getItem("nickname") || "사용자";
+
     document.getElementById("nicknameBox").textContent = nickname;
+
+    async function checkServerStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/`);
+        if (res.ok) {
+          document.getElementById("serverStatus").textContent = "✅ 전기 공급 중";
+        } else {
+          document.getElementById("serverStatus").textContent = "❌ 서버 응답 없음";
+        }
+      } catch (err) {
+        document.getElementById("serverStatus").textContent = "❌ 연결 실패";
+      }
+    }
 
     async function fetchToken() {
       try {
@@ -99,6 +113,7 @@
         console.log("[✅ 토큰 갱신]", data.token);
       } catch (e) {
         console.error("❌ 토큰 불러오기 실패:", e);
+        document.getElementById("tokenBalance").textContent = "불러오기 실패";
       }
     }
 
@@ -112,7 +127,7 @@
         const result = await res.json();
         if (result.success) {
           alert("구매 성공!");
-          fetchToken(); // ✅ 구매 후 토큰 재조회
+          fetchToken();
         } else {
           alert(result.message || "구매 실패");
         }
@@ -122,8 +137,10 @@
       }
     }
 
+    checkServerStatus();
     fetchToken();
-    setInterval(fetchToken, 60000); // 1분마다 갱신
+    setInterval(checkServerStatus, 60000);
+    setInterval(fetchToken, 60000);
   </script>
 </body>
 </html>
