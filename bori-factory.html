@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -62,10 +63,24 @@
       font-size: 1.3rem;
       color: #f0c741;
     }
+    #nicknameBox {
+      text-align: right;
+      margin-top: -1rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      color: #f5c842;
+    }
+    #serverStatus {
+      font-size: 1rem;
+      color: #00ffcc;
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <div id="nicknameBox"></div>
+    <div id="serverStatus">🔌 전기 공급 상태 확인 중...</div>
     <h1 id="barley-title">보리가 자라고 있습니다</h1>
     <p>물을 주거나 거름을 주세요!</p>
     <button class="button" onclick="water()">💧 물 주기</button>
@@ -87,6 +102,17 @@
     let waterCount = 0;
     let fertilizerCount = 0;
     let harvestReady = false;
+
+    const nickname = localStorage.getItem("nickname");
+    const nicknameBox = document.getElementById("nicknameBox");
+    const serverStatus = document.getElementById("serverStatus");
+
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 입구로 돌아갑니다.");
+      window.location.href = "orcax-farm_000.html";
+    } else {
+      nicknameBox.textContent = `👤 ${nickname} 님`;
+    }
 
     function updateStatus() {
       document.getElementById('status').textContent = `물: ${waterCount}번 / 거름: ${fertilizerCount}번`;
@@ -129,10 +155,40 @@
       localStorage.setItem('bori_yield', yieldAmount);
       document.getElementById('harvest-result').textContent = `🌾 ${yieldAmount}말의 보리를 수확했습니다!`;
 
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/farm/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nickname: nickname,
+          category: "barley",
+          yield: yieldAmount
+        })
+      })
+      .then(res => res.json())
+      .then(data => console.log("✅ 서버에 보리 수확 저장 완료:", data))
+      .catch(err => console.error("❌ 서버 저장 실패:", err));
+
       setTimeout(() => {
         window.location.href = 'bori-result.html';
       }, 10000);
     }
+
+    function checkServerStatus() {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status")
+        .then(res => {
+          if (!res.ok) throw new Error();
+          serverStatus.textContent = "✅ 전기 공급 중 (서버 연결됨)";
+          serverStatus.style.color = "lime";
+        })
+        .catch(() => {
+          serverStatus.textContent = "⚠️ 전기 공급 끊김 (서버 오류)";
+          serverStatus.style.color = "red";
+        });
+    }
+
+    checkServerStatus();
   </script>
 </body>
 </html>
