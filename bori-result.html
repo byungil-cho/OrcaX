@@ -4,50 +4,50 @@
 <head>
   <meta charset="UTF-8">
   <title>보리 가공 결과</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      background-color: #1a1a1a;
-      color: #f1f1f1;
-      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: white;
+      font-family: 'Arial', sans-serif;
       text-align: center;
-      padding: 30px;
+      padding: 2rem;
     }
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
     }
-    .result-box {
-      background-color: #333;
-      border-radius: 12px;
-      padding: 30px;
+    .status-box {
       display: inline-block;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      padding: 1rem 2rem;
+      background: #333;
+      border-radius: 10px;
+      margin-bottom: 2rem;
     }
     .product {
-      font-size: 1.4em;
-      margin: 10px 0;
-      color: #ffc107;
+      margin: 0.5rem 0;
+      font-size: 1.2rem;
     }
     .button {
-      margin-top: 30px;
-      padding: 12px 25px;
-      font-size: 1em;
+      padding: 0.8rem 1.5rem;
       background-color: #ffc107;
-      color: #000;
+      color: black;
+      font-weight: bold;
       border: none;
       border-radius: 8px;
       cursor: pointer;
     }
     #nicknameBox {
-      text-align: right;
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
       font-weight: bold;
-      color: #f5c842;
-      margin-bottom: 10px;
+      color: #fdd835;
     }
     #serverStatus {
-      font-size: 0.9em;
+      font-size: 0.9rem;
       color: #00ffcc;
-      margin-bottom: 10px;
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -55,7 +55,7 @@
   <div id="nicknameBox"></div>
   <div id="serverStatus">🔌 서버 상태 확인 중...</div>
   <h1>🌾 보리 가공 결과</h1>
-  <div class="result-box" id="resultBox">
+  <div class="status-box">
     <div id="yieldInfo"></div>
     <div id="productInfo"></div>
   </div>
@@ -68,16 +68,17 @@
 
     const nicknameBox = document.getElementById("nicknameBox");
     const statusBox = document.getElementById("serverStatus");
+
     if (!nickname) {
-      alert("로그인 정보가 없습니다. 입구로 돌아갑니다.");
+      alert("로그인 정보가 없습니다. 입구로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
     } else {
       nicknameBox.textContent = `👤 ${nickname} 님`;
     }
 
     document.getElementById("yieldInfo").textContent = `총 ${yieldAmount}말 수확했습니다`;
-    const productInfo = document.getElementById("productInfo");
 
+    const productInfo = document.getElementById("productInfo");
     productList.forEach(product => {
       const item = document.createElement("div");
       item.className = "product";
@@ -96,7 +97,7 @@
         })
       })
       .then(res => res.json())
-      .then(data => console.log("✅ 저장 완료:", data))
+      .then(data => console.log("✅ 저장 성공:", data))
       .catch(err => console.error("❌ 저장 실패:", err));
     });
 
