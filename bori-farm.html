@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bori Farm Entrance</title>
+  <title>Bori Farm Entrance (Login Check)</title>
   <style>
     body {
       margin: 0;
@@ -63,7 +64,13 @@
   </div>
   <script>
     function enterBoriFarm() {
-      window.location.href = 'bori-main.html';
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) {
+        alert("로그인 정보가 없습니다. 입구로 돌아갑니다.");
+        window.location.href = "orcax-farm_000.html";
+        return;
+      }
+      window.location.href = "bori-main.html";
     }
   </script>
 </body>
