@@ -98,6 +98,7 @@
       try {
         const res = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
         const data = await res.json();
+        console.log("[🔍 토큰 응답]", data);  // ✅ 로그 삽입
         document.getElementById("tokenBalance").textContent = data.token || 0;
       } catch (e) {
         console.error("❌ 토큰 불러오기 실패:", e);
@@ -115,9 +116,9 @@
       try {
         const tokenRes = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
         const tokenData = await tokenRes.json();
+        console.log("[🔍 구매용 토큰 응답]", tokenData);  // ✅ 구매용 로그 추가
         const token = tokenData.token || 0;
 
-        // 가격 비율: 토큰 보유량의 1%~10%, 기본 5%
         let ratio = 0.05;
         if (token >= 10000) ratio = 0.10;
         else if (token <= 100) ratio = 0.01;
