@@ -87,84 +87,88 @@
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const kakaoId = localStorage.getItem("kakaoId");
-    const nickname = localStorage.getItem("nickname") || "사용자";
 
-    if (!kakaoId || kakaoId === "익명") {
-      alert("로그인 정보가 없습니다. 입구로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
-    }
+    document.addEventListener("DOMContentLoaded", function () {
+      const kakaoId = localStorage.getItem("kakaoId");
+      const nickname = localStorage.getItem("nickname") || "사용자";
 
-    document.getElementById("nicknameBox").textContent = nickname;
-
-    async function checkServerStatus() {
-      try {
-        const res = await fetch(`${API_BASE}/`);
-        if (res.ok) {
-          document.getElementById("serverStatus").textContent = "✅ 전기 공급 중";
-        } else {
-          document.getElementById("serverStatus").textContent = "❌ 서버 응답 없음";
-        }
-      } catch (err) {
-        document.getElementById("serverStatus").textContent = "❌ 연결 실패";
-      }
-    }
-
-    async function fetchToken() {
-      try {
-        const res = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
-        const data = await res.json();
-        console.log("[🔍 토큰 응답]", data);
-        document.getElementById("tokenBalance").textContent = data.token || 0;
-      } catch (e) {
-        console.error("❌ 토큰 불러오기 실패:", e);
-        document.getElementById("tokenBalance").textContent = "불러오기 실패";
-      }
-    }
-
-    async function buySeed() {
-      const quantity = parseInt(document.getElementById("quantityInput").value);
-      if (isNaN(quantity) || quantity < 1) {
-        alert("구매 수량을 1 이상으로 입력해주세요.");
+      if (!kakaoId || kakaoId === "익명") {
+        alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+        window.location.href = "orcax-farm_000.html";
         return;
       }
 
-      try {
-        const tokenRes = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
-        const tokenData = await tokenRes.json();
-        const token = tokenData.token || 0;
-        console.log("[🔍 구매용 토큰 응답]", tokenData);
+      document.getElementById("nicknameBox").textContent = nickname;
 
-        let ratio = 0.05;
-        if (token >= 10000) ratio = 0.10;
-        else if (token <= 100) ratio = 0.01;
+      checkServerStatus();
+      fetchToken();
+      setInterval(checkServerStatus, 60000);
+      setInterval(fetchToken, 60000);
 
-        const unitPrice = Math.ceil(token * ratio / quantity);
-        const totalCost = unitPrice * quantity;
-
-        const res = await fetch(`${API_BASE}/api/shop/buy`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId, quantity, price: unitPrice })
-        });
-
-        const result = await res.json();
-        if (result.success) {
-          alert(`구매 성공! 씨감자 ${quantity}개, 개당 ${unitPrice} ORCAX`);
-          fetchToken();
-        } else {
-          alert(result.message || "구매 실패");
+      window.buySeed = async function () {
+        const quantity = parseInt(document.getElementById("quantityInput").value);
+        if (isNaN(quantity) || quantity < 1) {
+          alert("구매 수량을 1 이상으로 입력해주세요.");
+          return;
         }
-      } catch (e) {
-        console.error("구매 실패:", e);
-        alert("에러 발생");
-      }
-    }
 
-    checkServerStatus();
-    fetchToken();
-    setInterval(checkServerStatus, 60000);
-    setInterval(fetchToken, 60000);
+        try {
+          const tokenRes = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
+          const tokenData = await tokenRes.json();
+          const token = tokenData.token || 0;
+          console.log("[🔍 구매용 토큰 응답]", tokenData);
+
+          let ratio = 0.05;
+          if (token >= 10000) ratio = 0.10;
+          else if (token <= 100) ratio = 0.01;
+
+          const unitPrice = Math.ceil(token * ratio / quantity);
+          const totalCost = unitPrice * quantity;
+
+          const res = await fetch(`${API_BASE}/api/shop/buy`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ kakaoId, quantity, price: unitPrice })
+          });
+
+          const result = await res.json();
+          if (result.success) {
+            alert(`구매 성공! 씨감자 ${quantity}개, 개당 ${unitPrice} ORCAX`);
+            fetchToken();
+          } else {
+            alert(result.message || "구매 실패");
+          }
+        } catch (e) {
+          console.error("구매 실패:", e);
+          alert("에러 발생");
+        }
+      };
+
+      async function checkServerStatus() {
+        try {
+          const res = await fetch(`${API_BASE}/`);
+          if (res.ok) {
+            document.getElementById("serverStatus").textContent = "✅ 전기 공급 중";
+          } else {
+            document.getElementById("serverStatus").textContent = "❌ 서버 응답 없음";
+          }
+        } catch (err) {
+          document.getElementById("serverStatus").textContent = "❌ 연결 실패";
+        }
+      }
+
+      async function fetchToken() {
+        try {
+          const res = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
+          const data = await res.json();
+          console.log("[🔍 토큰 응답]", data);
+          document.getElementById("tokenBalance").textContent = data.token || 0;
+        } catch (e) {
+          console.error("❌ 토큰 불러오기 실패:", e);
+          document.getElementById("tokenBalance").textContent = "불러오기 실패";
+        }
+      }
+    });
   </script>
 </body>
 </html>
