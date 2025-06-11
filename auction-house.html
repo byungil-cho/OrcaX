@@ -60,7 +60,7 @@
 </thead>
 <tbody></tbody>
 </table>
-<button onclick="sellSelectedItems()">✅ 선택한 제품 판매</button>
+<button onclick="goToAdmin()">🔐 관리자 전용 페이지</button>
 </div>
 <script>
 const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
@@ -98,7 +98,7 @@ fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
     tbody.innerHTML = "<tr><td colspan='3'>❌ 보관함 불러오기 실패</td></tr>";
   });
 
-// ✅ 전광판
+// ✅ 시세
 fetch(`${API_BASE}/api/market/prices`)
   .then(res => res.json())
   .then(data => {
@@ -114,7 +114,7 @@ fetch(`${API_BASE}/api/market/prices`)
     document.getElementById("notice").textContent = "❌ 시세 정보를 불러오지 못했습니다.";
   });
 
-// 관리자 진입
+// ✅ 관리자 진입
 function goToAdmin() {
   const pw = prompt("관리자 비밀번호를 입력하세요:");
   if (pw === "7788") {
