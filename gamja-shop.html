@@ -35,8 +35,9 @@
   </div>
 
   <script>
-    let nickname = localStorage.getItem("nickname");
-    let kakaoId = localStorage.getItem("kakaoId");
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const nickname = localStorage.getItem("nickname");
+    const kakaoId = localStorage.getItem("kakaoId");
     const tokenEl = document.getElementById("token");
     const seedPotatoEl = document.getElementById("seedPotato");
     const nicknameBox = document.getElementById("nicknameBox");
@@ -48,22 +49,19 @@
     } else {
       nicknameBox.textContent = "🐳 닉네임: " + nickname;
       farmNameBox.textContent = "🌾 농장명: " + (localStorage.getItem("farmName") || "없음");
+      loadUserData();
+    }
 
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/users")
+    function loadUserData() {
+      fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
         .then(res => res.json())
-        .then(data => {
-          const user = data.users.find(u => u.nickname === nickname);
-          if (user) {
-            tokenEl.textContent = "🌕 토큰: " + (user.token ?? 0);
-            seedPotatoEl.textContent = "🥔 씨감자: " + (user.seedPotato ?? 0);
-            if (!kakaoId && user.kakaoId) {
-              localStorage.setItem("kakaoId", user.kakaoId);
-              kakaoId = user.kakaoId;
-            }
-          } else {
-            tokenEl.textContent = "토큰: 사용자 없음";
-            seedPotatoEl.textContent = "씨감자: 사용자 없음";
-          }
+        .then(user => {
+          tokenEl.textContent = "🌕 토큰: " + (user.token ?? 0);
+          seedPotatoEl.textContent = "🥔 씨감자: " + (user.seedPotato ?? 0);
+        })
+        .catch(() => {
+          tokenEl.textContent = "토큰: 불러오기 실패";
+          seedPotatoEl.textContent = "씨감자: 불러오기 실패";
         });
     }
 
@@ -71,7 +69,7 @@
       const amount = parseInt(document.getElementById("buyAmount").value);
       if (!amount || amount < 1) return alert("구매 수량을 입력하세요");
 
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/buy-seed", {
+      fetch(`${API_BASE}/api/buy-seed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname, kakaoId, amount })
@@ -79,22 +77,23 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          alert("구매 완료!");
-          location.reload();
+          alert("씨감자 구매 완료!");
+          loadUserData();
         } else {
-          alert("구매 실패: " + data.message);
+          alert("구매 실패: " + (data.message || "오류"));
         }
-      });
+      })
+      .catch(() => alert("서버 오류로 구매 실패"));
     }
 
     function goToFarm() {
-      window.location.href = "gamja-factory.html";
+      location.href = "gamja-factory.html";
     }
     function goToStorage() {
-      window.location.href = "gamja-result.html";
+      location.href = "gamja-result.html";
     }
     function goToMarket() {
-      window.location.href = "gamja-market.html";
+      location.href = "gamja-market.html";
     }
   </script>
 </body>
