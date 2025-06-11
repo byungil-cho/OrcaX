@@ -1,156 +1,90 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>보리 제품 만들기</title>
+  <title>보리 가공 결과</title>
   <style>
     body {
-      background-color: #222;
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 2rem;
+      background-color: #1a1a1a;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
+      padding: 30px;
     }
     h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
+      font-size: 2.5em;
+      margin-bottom: 20px;
     }
-    .initial-box {
-      background-color: #444;
-      padding: 1rem;
-      border-radius: 10px;
-      max-width: 500px;
-      margin: 0 auto 2rem auto;
+    .result-box {
+      background-color: #333;
+      border-radius: 12px;
+      padding: 30px;
+      display: inline-block;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
     }
-    #initial-yield {
-      font-size: 1.2rem;
-      color: #f0c741;
-      font-weight: bold;
-    }
-    .input-section {
-      margin-bottom: 2rem;
-    }
-    input[type="text"] {
-      padding: 0.75rem;
-      font-size: 1rem;
-      width: 250px;
-      border-radius: 8px;
-      border: none;
-      text-align: center;
+    .product {
+      font-size: 1.4em;
+      margin: 10px 0;
+      color: #ffc107;
     }
     .button {
-      padding: 0.7rem 1.4rem;
-      font-size: 1rem;
-      margin-left: 1rem;
+      margin-top: 30px;
+      padding: 12px 25px;
+      font-size: 1em;
+      background-color: #ffc107;
+      color: #000;
       border: none;
       border-radius: 8px;
-      background-color: #f5c842;
-      color: #000;
       cursor: pointer;
     }
-    .button:hover {
-      background-color: #e0b636;
+    #nicknameBox {
+      text-align: right;
+      font-weight: bold;
+      color: #f5c842;
+      margin-bottom: 10px;
     }
-    #log {
-      margin-top: 2rem;
-      background-color: #333;
-      padding: 1.5rem;
-      border-radius: 10px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .summary {
-      margin-top: 2rem;
-      background-color: #444;
-      padding: 1rem;
-      border-radius: 10px;
-      text-align: left;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .footer-nav {
-      margin-top: 2rem;
-    }
-    .footer-nav button {
-      background-color: #ffaa00;
-      border: none;
-      color: #000;
-      padding: 0.5rem 1rem;
-      margin: 0 0.5rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .footer-nav button:hover {
-      background-color: #e69a00;
+    #serverStatus {
+      font-size: 0.9em;
+      color: #00ffcc;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>보리 제품 만들기</h1>
-  <div class="initial-box">
-    <div id="initial-yield"></div>
+  <div id="nicknameBox"></div>
+  <div id="serverStatus">🔌 서버 상태 확인 중...</div>
+  <h1>🌾 보리 가공 결과</h1>
+  <div class="result-box" id="resultBox">
+    <div id="yieldInfo"></div>
+    <div id="productInfo"></div>
   </div>
-
-  <div class="input-section">
-    <input type="text" id="productInput" placeholder="제품 종류 (예: 밥, 차, 떡 등)" />
-    <button class="button" onclick="makeProduct()">제품 만들기</button>
-  </div>
-
-  <div id="log"></div>
-  <div class="summary" id="inventory"></div>
-
-  <div class="footer-nav" id="footerNav" style="display: none;">
-    <p>보리가 모두 소진되었습니다. 이제 어디로 가시겠습니까?</p>
-    <button onclick="location.href='orcax-farm_000.html'">농장 입구로 가기</button>
-    <button onclick="location.href='bori-main.html'">보리밭으로 가기</button>
-    <button onclick="location.href='index.html'">퇴근하기</button>
-  </div>
+  <button class="button" onclick="goToMarket()">🏪 거래소 가기</button>
 
   <script>
-    let yieldLeft = parseInt(localStorage.getItem('bori_yield')) || 0;
-    let logDiv = document.getElementById('log');
-    let yieldDisplay = document.getElementById('initial-yield');
-    let inventoryDiv = document.getElementById('inventory');
-    let productStorage = JSON.parse(localStorage.getItem('bori_products')) || {};
+    const nickname = localStorage.getItem("nickname");
+    const yieldAmount = localStorage.getItem("bori_yield") || 0;
+    const productList = JSON.parse(localStorage.getItem("bori_products") || "[]");
 
-    yieldDisplay.textContent = `🌾 들고온 보리 수확량: ${yieldLeft}말`;
+    const nicknameBox = document.getElementById("nicknameBox");
+    const statusBox = document.getElementById("serverStatus");
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 입구로 돌아갑니다.");
+      window.location.href = "orcax-farm_000.html";
+    } else {
+      nicknameBox.textContent = `👤 ${nickname} 님`;
+    }
 
-    function makeProduct() {
-      const input = document.getElementById('productInput');
-      let product = input.value.trim();
-      if (!product) return alert('제품 이름을 입력하세요.');
+    document.getElementById("yieldInfo").textContent = `총 ${yieldAmount}말 수확했습니다`;
+    const productInfo = document.getElementById("productInfo");
 
-      if (yieldLeft <= 0) {
-        logDiv.innerHTML += `<p>💀 보리가 부족합니다. 더 이상 만들 수 없습니다.</p>`;
-        document.getElementById('footerNav').style.display = 'block';
-        return;
-      }
+    productList.forEach(product => {
+      const item = document.createElement("div");
+      item.className = "product";
+      item.textContent = `🥫 ${product}`;
+      productInfo.appendChild(item);
 
-      if (!product.startsWith('보리')) {
-        product = '보리' + product;
-      }
-
-      yieldLeft--;
-      localStorage.setItem('bori_yield', yieldLeft);
-
-      if (!productStorage[product]) {
-        productStorage[product] = 0;
-      }
-      productStorage[product]++;
-      localStorage.setItem('bori_products', JSON.stringify(productStorage));
-
-      logDiv.innerHTML += `<p>✅ ${product} 1개 만들었어요!<br>남은 보리: ${yieldLeft}말</p>`;
-      input.value = '';
-
-      updateInventory();
-
-      // ✅ 서버 저장 추가
-      const nickname = localStorage.getItem("nickname") || "익명농부";
-      fetch("https://climbing-wholly-grouper.ngrok-free.app/api/farm/save", {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/farm/save", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -162,24 +96,28 @@
         })
       })
       .then(res => res.json())
-      .then(data => console.log("✅ 서버 저장 완료:", data))
-      .catch(err => console.error("❌ 서버 저장 실패:", err));
+      .then(data => console.log("✅ 저장 완료:", data))
+      .catch(err => console.error("❌ 저장 실패:", err));
+    });
 
-      if (yieldLeft === 0) {
-        document.getElementById('footerNav').style.display = 'block';
-      }
+    function checkServerStatus() {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status")
+        .then(res => {
+          if (!res.ok) throw new Error();
+          statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
+          statusBox.style.color = "lime";
+        })
+        .catch(() => {
+          statusBox.textContent = "⚠️ 전기 공급 끊김 (서버 오류)";
+          statusBox.style.color = "red";
+        });
     }
 
-    function updateInventory() {
-      let html = '<strong>📦 보관함:</strong><ul>';
-      for (let key in productStorage) {
-        html += `<li>${key}: ${productStorage[key]}개</li>`;
-      }
-      html += '</ul>';
-      inventoryDiv.innerHTML = html;
+    function goToMarket() {
+      window.location.href = "borl-market.html";
     }
 
-    updateInventory();
+    checkServerStatus();
   </script>
 </body>
 </html>
