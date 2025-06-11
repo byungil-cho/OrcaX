@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>🌽 OrcaX 농장 제품 거래소</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
+<meta charset="utf-8"/>
+<title>🌽 OrcaX 농장 제품 거래소</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<style>
     body { font-family: 'Arial', sans-serif; background: #f7f7f7; padding: 1rem; margin: 0; }
     h1, h2 { text-align: center; color: #2e2e2e; margin: 1rem 0; }
     table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
@@ -32,39 +33,36 @@
   </style>
 </head>
 <body>
-  <div id="userInfo">
+<div id="userInfo">
     👤 <span id="nickname">닉네임</span> | 💰 <span id="tokenBalance">0</span> ORCAX
   </div>
-
-  <h1>🌽 OrcaX 농장 제품 거래소</h1>
-  <table id="priceTable">
-    <thead>
-      <tr>
-        <th>제품명</th>
-        <th>판매량</th>
-        <th>시세 (토큰)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <p id="notice"></p>
-
-  <div id="myStorage">
-    <h2>🐋 <span id='userFarmTitle'></span> 보관 창고 <span style='font-size:0.9rem;'>(개인 전용 창고)</span></h2>
-    <table id="storageTable">
-      <thead>
-        <tr>
-          <th>선택</th>
-          <th>제품명</th>
-          <th>보유 수량</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button onclick="sellSelectedItems()">✅ 선택한 제품 판매</button>
-  </div>
-
-  <script>
+<h1>🌽 OrcaX 농장 제품 거래소</h1>
+<table id="priceTable">
+<thead>
+<tr>
+<th>제품명</th>
+<th>판매량</th>
+<th>시세 (토큰)</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<p id="notice"></p>
+<div id="myStorage">
+<h2>🐋 <span id="userFarmTitle"></span> 보관 창고 <span style="font-size:0.9rem;">(개인 전용 창고)</span></h2>
+<table id="storageTable">
+<thead>
+<tr>
+<th>선택</th>
+<th>제품명</th>
+<th>보유 수량</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<button onclick="sellSelectedItems()">✅ 선택한 제품 판매</button>
+</div>
+<script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const kakaoId = localStorage.getItem("kakaoId") || "익명손님";
     const farmName = localStorage.getItem("farmName") || "내 농장";
