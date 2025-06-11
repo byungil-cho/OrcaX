@@ -63,6 +63,11 @@
 <button onclick="goToAdmin()">🔐 관리자 전용 페이지</button>
 </div>
 <script>
+if (!nickname || nickname === "undefined") {
+  alert("닉네임 정보가 없습니다. 로그인 후 이용해주세요.");
+  location.href = "orcax-farm_000.html";
+}
+
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const kakaoId = localStorage.getItem("kakaoId") || "익명손님";
     const farmName = localStorage.getItem("farmName") || "내 농장";
