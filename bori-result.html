@@ -89,7 +89,7 @@
         const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`);
         const data = await res.json();
         if (data.success) {
-          document.getElementById("barleyAmount").textContent = data.user.barleyCount || 0;
+          document.getElementById("barleyAmount").textContent = data.user.barley || 0;
           const inventoryEl = document.getElementById("inventoryList");
           inventoryEl.innerHTML = "";
           (data.user.inventory || []).forEach(item => {
