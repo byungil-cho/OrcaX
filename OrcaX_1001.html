@@ -71,7 +71,6 @@
   </style>
 </head>
 <body>
-
   <div class="password-box" id="password-box">
     <h2>비밀번호를 입력하세요</h2>
     <input type="password" id="password" placeholder="비밀번호 입력" />
@@ -118,13 +117,20 @@
           <button onclick="copyToClipboard('0x202369662C92d73a20991BD2bdBf3B4BAF042030')">📋 폴리곤 복사</button>
         </div>
       </div>
-      <div class="card"><img src="2025_006.jpg" alt="OrcaX 로고"><h3>신휘철</h3><p>감사</p></div>
+      <div class="card">
+        <img src="2025_006.jpg" alt="OrcaX 로고">
+        <h3>신휘철</h3><p>감사</p>
+        <div style="margin-top: 10px;">
+          <button onclick="copyToClipboard('0x4D27Ca4B6C88aaf1Ab29B65667CF1b8e5AA0aF0c')">📋 폴리곤 복사</button><br><br>
+          <button onclick="copyToClipboard('E2DkodnA6AmGgeFGcCg1xijtzWqpErLGHrNtxdmb5oTp')">📋 솔라나 복사</button>
+        </div>
+      </div>
       <div class="card">
         <img src="2025_007.jpg" alt="OrcaX 로고">
         <h3>임동연</h3><p>감사</p>
         <div style="margin-top: 10px;">
           <button onclick="copyToClipboard('0x7ee6Cc22AFFe3DfbCf70B2488F3345ebd65EA2a9')">📋 폴리곤 복사</button><br><br>
-<button onclick="copyToClipboard('4QMDTJZnVim1LggkzxbTza77tFb1FMZ1GTRWY2WeTMce')">📋 솔라나 복사</button>
+          <button onclick="copyToClipboard('4QMDTJZnVim1LggkzxbTza77tFb1FMZ1GTRWY2WeTMce')">📋 솔라나 복사</button>
         </div>
       </div>
       <div class="card">
@@ -150,8 +156,7 @@
     </div>
 
     <p style="margin-top: 30px;">
-      🔗 <a href="https://solscan.io/token/EPVAGhZUiL5qZhUXcXw5vXcc8sYKGRp9ZXDyU26WJt2r#holders" 
-            target="_blank">지분보유현황</a>
+      🔗 <a href="https://solscan.io/token/EPVAGhZUiL5qZhUXcXw5vXcc8sYKGRp9ZXDyU26WJt2r#holders" target="_blank">지분보유현황</a>
     </p>
 
     <div class="footer">
@@ -175,8 +180,6 @@
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
         alert("지갑 주소가 복사되었습니다:\n" + text);
-      }, () => {
-        alert("복사에 실패했습니다. 수동으로 복사해주세요.");
       });
     }
   </script>
