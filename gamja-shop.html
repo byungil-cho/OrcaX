@@ -3,8 +3,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>씨감자 상점</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body { font-family: 'Arial', sans-serif; background-color: #fff8dc; padding: 1rem; margin: 0; }
     h1 { text-align: center; color: #333333; }
@@ -54,8 +54,8 @@
         .then(data => {
           const user = data.users.find(u => u.nickname === nickname);
           if (user) {
-            tokenEl.textContent = "🌕 토큰: " + user.token;
-            seedPotatoEl.textContent = "🥔 씨감자: " + user.seedPotato;
+            tokenEl.textContent = "🌕 토큰: " + (user.token ?? 0);
+            seedPotatoEl.textContent = "🥔 씨감자: " + (user.seedPotato ?? 0);
             if (!kakaoId && user.kakaoId) {
               localStorage.setItem("kakaoId", user.kakaoId);
               kakaoId = user.kakaoId;
@@ -88,7 +88,7 @@
     }
 
     function goToFarm() {
-      window.location.href = "gamja-farm.html";
+      window.location.href = "gamja-factory.html";
     }
     function goToStorage() {
       window.location.href = "gamja-result.html";
