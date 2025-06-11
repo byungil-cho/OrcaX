@@ -3,172 +3,99 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>씨감자 상점</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>씨감자 상점</title>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #fef9e8;
-      margin: 0;
-      padding: 1rem;
-    }
-    h1 {
-      text-align: center;
-      margin-top: 1rem;
-    }
-    .status-box, .purchase-box {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      padding: 1rem;
-      max-width: 360px;
-      margin: 1rem auto;
-      text-align: center;
-    }
-    #nicknameBox {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-weight: bold;
-      color: #503020;
-    }
-    input[type="number"] {
-      width: 60px;
-      padding: 0.3rem;
-      text-align: center;
-      margin-right: 0.5rem;
-    }
-    button {
-      padding: 0.4rem 1rem;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    .nav-buttons {
-      text-align: center;
-      margin-top: 2rem;
-    }
-    .nav-buttons button {
-      background: #39a7ff;
-      margin: 0.25rem;
-    }
+    body { font-family: 'Arial', sans-serif; background-color: #fff8dc; padding: 1rem; margin: 0; }
+    h1 { text-align: center; color: #333333; }
+    .status-box { margin: 1rem auto; padding: 1rem; border: 1px solid #ccc; max-width: 400px; background-color: #fff; border-radius: 12px; }
+    .resource { margin: 0.5rem 0; }
+    .buttons { text-align: center; margin-top: 1rem; }
+    button { margin: 0.5rem; padding: 0.5rem 1rem; }
+    .info-box { font-size: 1rem; color: #444; text-align: center; margin-top: 1rem; }
   </style>
 </head>
 <body>
-  <div id="nicknameBox"></div>
   <h1>🛒 씨감자 상점</h1>
+  <div id="nicknameBox" class="info-box">닉네임 불러오는 중...</div>
+  <div id="farmNameBox" class="info-box">농장명 불러오는 중...</div>
 
   <div class="status-box">
-    ⚡ 서버 상태: <span id="serverStatus">확인 중...</span><br/>
-    💧 물: <span id="water">-</span> |
-    💩 거름: <span id="fertilizer">-</span> |
-    🥔 씨감자: <span id="seedPotato">-</span><br/>
-    💰 토큰: <span id="token">-</span> ORCAX
+    <div class="resource" id="token">🌕 토큰: 불러오는 중...</div>
+    <div class="resource" id="seedPotato">🥔 씨감자: 불러오는 중...</div>
+
+    <input type="number" id="buyAmount" placeholder="구매 수량 입력" min="1" style="width: 100%; padding: 0.5rem; margin-top: 1rem;" />
+    <button onclick="buySeedPotato()">구매하기</button>
   </div>
 
-  <div class="purchase-box">
-    <h2>씨감자 구매</h2>
-    <input type="number" id="quantityInput" min="1" value="1" />
-    <button id="buyButton" disabled onclick="buySeed()">구매</button>
-  </div>
-
-  <div class="nav-buttons">
-    <button onclick="location.href='gamja-factory.html'">🌱 농장으로 가기</button>
-    <button onclick="location.href='gamja-result.html'">📦 내 저장소 보기</button>
-    <button onclick="location.href='auction-house.html'">📊 거래소 보기</button>
+  <div class="buttons">
+    <button onclick="goToFarm()">🌱 농장 가기</button>
+    <button onclick="goToStorage()">📦 저장소 가기</button>
+    <button onclick="goToMarket()">📈 거래소 가기</button>
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     let nickname = localStorage.getItem("nickname");
     let kakaoId = localStorage.getItem("kakaoId");
-    let userData = null;
+    const tokenEl = document.getElementById("token");
+    const seedPotatoEl = document.getElementById("seedPotato");
+    const nicknameBox = document.getElementById("nicknameBox");
+    const farmNameBox = document.getElementById("farmNameBox");
 
-    document.getElementById("nicknameBox").textContent = nickname || "익명";
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    } else {
+      nicknameBox.textContent = "🐳 닉네임: " + nickname;
+      farmNameBox.textContent = "🌾 농장명: " + (localStorage.getItem("farmName") || "없음");
 
-    async function checkServerStatus() {
-      try {
-        const res = await fetch(`${API_BASE}/`);
-        document.getElementById("serverStatus").textContent =
-          res.ok ? "✅ 전기 공급 중" : "❌ 서버 응답 없음";
-      } catch {
-        document.getElementById("serverStatus").textContent = "❌ 연결 실패";
-      }
-    }
-
-    async function loadUserInfo() {
-      try {
-        const res = await fetch(`${API_BASE}/api/users`);
-        const data = await res.json();
-        const user = data.users.find(u => u.nickname === nickname);
-
-        if (!user) throw new Error("유저 정보 없음");
-
-        userData = user;
-
-        // 보정 저장
-        if (!kakaoId || kakaoId === "익명") {
-          kakaoId = user.kakaoId;
-          localStorage.setItem("kakaoId", kakaoId);
-        }
-
-        document.getElementById("water").textContent = user.water ?? "-";
-        document.getElementById("fertilizer").textContent = user.fertilizer ?? "-";
-        document.getElementById("seedPotato").textContent = user.seedPotato ?? "-";
-        document.getElementById("token").textContent = user.token ?? "-";
-        document.getElementById("buyButton").disabled = false;
-      } catch (err) {
-        document.getElementById("token").textContent = "불러오기 실패";
-        document.getElementById("buyButton").disabled = true;
-        console.error(err);
-      }
-    }
-
-    async function buySeed() {
-      const quantity = parseInt(document.getElementById("quantityInput").value);
-      if (isNaN(quantity) || quantity < 1) return alert("구매 수량을 입력하세요.");
-
-      const token = userData.token;
-      let ratio = 0.05;
-      if (token >= 10000) ratio = 0.10;
-      else if (token <= 100) ratio = 0.01;
-
-      const unitPrice = Math.ceil(token * ratio / quantity);
-
-      try {
-        const res = await fetch(`${API_BASE}/api/shop/buy`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nickname: userData.nickname,
-            kakaoId: kakaoId,
-            quantity,
-            price: unitPrice
-          })
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/users")
+        .then(res => res.json())
+        .then(data => {
+          const user = data.users.find(u => u.nickname === nickname);
+          if (user) {
+            tokenEl.textContent = "🌕 토큰: " + user.token;
+            seedPotatoEl.textContent = "🥔 씨감자: " + user.seedPotato;
+            if (!kakaoId && user.kakaoId) {
+              localStorage.setItem("kakaoId", user.kakaoId);
+              kakaoId = user.kakaoId;
+            }
+          } else {
+            tokenEl.textContent = "토큰: 사용자 없음";
+            seedPotatoEl.textContent = "씨감자: 사용자 없음";
+          }
         });
-        const result = await res.json();
-        if (result.success) {
-          alert(`씨감자 ${quantity}개 구매 완료!`);
-          loadUserInfo();
-        } else {
-          alert(result.message || "구매 실패");
-        }
-      } catch (e) {
-        alert("서버 오류 발생");
-      }
     }
 
-    checkServerStatus();
-    loadUserInfo();
-    setInterval(checkServerStatus, 60000);
-    setInterval(loadUserInfo, 60000);
+    function buySeedPotato() {
+      const amount = parseInt(document.getElementById("buyAmount").value);
+      if (!amount || amount < 1) return alert("구매 수량을 입력하세요");
+
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/buy-seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, kakaoId, amount })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("구매 완료!");
+          location.reload();
+        } else {
+          alert("구매 실패: " + data.message);
+        }
+      });
+    }
+
+    function goToFarm() {
+      window.location.href = "gamja-farm.html";
+    }
+    function goToStorage() {
+      window.location.href = "gamja-result.html";
+    }
+    function goToMarket() {
+      window.location.href = "gamja-market.html";
+    }
   </script>
 </body>
 </html>
