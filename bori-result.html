@@ -50,6 +50,15 @@
   </style>
 </head>
 <body>
+  <script>
+    // ✅ 로그인 연동 체크 (감자 농장 영향 없음)
+    const nickname = localStorage.getItem("nickname");
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 농장 입구로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    }
+  </script>
+
   <div class="status" id="serverStatus">🛠️ 서버 상태 확인 중...</div>
   <h1>🌾 보리 가공 결과</h1>
 
@@ -65,12 +74,6 @@
   </div>
 
   <script>
-    const nickname = localStorage.getItem("nickname");
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
-    }
-
     async function checkServer() {
       try {
         const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status");
