@@ -16,16 +16,7 @@
       text-align: center;
       margin-top: 1rem;
     }
-    .status-box {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      padding: 1rem;
-      max-width: 360px;
-      margin: 1rem auto;
-      text-align: center;
-    }
-    .purchase-box {
+    .status-box, .purchase-box {
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 12px;
@@ -96,25 +87,17 @@
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname");
-    const kakaoId = localStorage.getItem("kakaoId");
+    let nickname = localStorage.getItem("nickname");
+    let kakaoId = localStorage.getItem("kakaoId");
+    let userData = null;
 
     document.getElementById("nicknameBox").textContent = nickname || "익명";
-
-    if (!nickname || !kakaoId) {
-      alert("로그인 정보가 없습니다. 입구에서 다시 로그인하세요.");
-    }
-
-    let userData = null;
 
     async function checkServerStatus() {
       try {
         const res = await fetch(`${API_BASE}/`);
-        if (res.ok) {
-          document.getElementById("serverStatus").textContent = "✅ 전기 공급 중";
-        } else {
-          document.getElementById("serverStatus").textContent = "❌ 서버 응답 없음";
-        }
+        document.getElementById("serverStatus").textContent =
+          res.ok ? "✅ 전기 공급 중" : "❌ 서버 응답 없음";
       } catch {
         document.getElementById("serverStatus").textContent = "❌ 연결 실패";
       }
@@ -125,9 +108,16 @@
         const res = await fetch(`${API_BASE}/api/users`);
         const data = await res.json();
         const user = data.users.find(u => u.nickname === nickname);
-        if (!user) throw new Error("유저 없음");
+
+        if (!user) throw new Error("유저 정보 없음");
 
         userData = user;
+
+        // 보정 저장
+        if (!kakaoId || kakaoId === "익명") {
+          kakaoId = user.kakaoId;
+          localStorage.setItem("kakaoId", kakaoId);
+        }
 
         document.getElementById("water").textContent = user.water ?? "-";
         document.getElementById("fertilizer").textContent = user.fertilizer ?? "-";
@@ -137,16 +127,13 @@
       } catch (err) {
         document.getElementById("token").textContent = "불러오기 실패";
         document.getElementById("buyButton").disabled = true;
-        console.error("유저 정보 불러오기 실패:", err);
+        console.error(err);
       }
     }
 
     async function buySeed() {
       const quantity = parseInt(document.getElementById("quantityInput").value);
-      if (isNaN(quantity) || quantity < 1) {
-        alert("구매 수량을 입력하세요.");
-        return;
-      }
+      if (isNaN(quantity) || quantity < 1) return alert("구매 수량을 입력하세요.");
 
       const token = userData.token;
       let ratio = 0.05;
@@ -162,11 +149,10 @@
           body: JSON.stringify({
             nickname: userData.nickname,
             kakaoId: kakaoId,
-            quantity: quantity,
+            quantity,
             price: unitPrice
           })
         });
-
         const result = await res.json();
         if (result.success) {
           alert(`씨감자 ${quantity}개 구매 완료!`);
@@ -174,7 +160,7 @@
         } else {
           alert(result.message || "구매 실패");
         }
-      } catch (err) {
+      } catch (e) {
         alert("서버 오류 발생");
       }
     }
