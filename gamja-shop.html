@@ -73,7 +73,10 @@
   <div id="container">
     <div class="status-box">
       ⚡ 서버 상태: <span id="serverStatus">확인 중...</span><br/>
-      💰 보유 토큰: <span id="tokenBalance">-</span> ORCAX
+      💧 물: <span id="water">-</span> |
+      💩 거름: <span id="fertilizer">-</span> |
+      🥔 씨감자: <span id="seedPotato">-</span><br/>
+      💰 토큰: <span id="token">-</span> ORCAX
     </div>
 
     <div class="status-box item">
@@ -93,22 +96,21 @@
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
     document.addEventListener("DOMContentLoaded", function () {
+      const nickname = localStorage.getItem("nickname") || "익명";
       const kakaoId = localStorage.getItem("kakaoId");
-      const nickname = localStorage.getItem("nickname") || "사용자";
-      const buyButton = document.getElementById("buyButton");
 
       document.getElementById("nicknameBox").textContent = nickname;
 
       if (!kakaoId || kakaoId === "익명") {
-        document.getElementById("tokenBalance").textContent = "로그인 정보 없음";
-        buyButton.disabled = true;
+        document.getElementById("token").textContent = "로그인 정보 없음";
+        document.getElementById("buyButton").disabled = true;
         return;
       }
 
       checkServerStatus();
-      fetchToken();
+      loadUserInfo();
       setInterval(checkServerStatus, 60000);
-      setInterval(fetchToken, 60000);
+      setInterval(loadUserInfo, 60000);
 
       window.buySeed = async function () {
         const quantity = parseInt(document.getElementById("quantityInput").value);
@@ -117,19 +119,15 @@
           return;
         }
 
+        const token = parseInt(document.getElementById("token").textContent);
+        let ratio = 0.05;
+        if (token >= 10000) ratio = 0.10;
+        else if (token <= 100) ratio = 0.01;
+
+        const unitPrice = Math.ceil(token * ratio / quantity);
+        const totalCost = unitPrice * quantity;
+
         try {
-          const tokenRes = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
-          const tokenData = await tokenRes.json();
-          const token = tokenData.token || 0;
-          console.log("[🔍 구매용 토큰 응답]", tokenData);
-
-          let ratio = 0.05;
-          if (token >= 10000) ratio = 0.10;
-          else if (token <= 100) ratio = 0.01;
-
-          const unitPrice = Math.ceil(token * ratio / quantity);
-          const totalCost = unitPrice * quantity;
-
           const res = await fetch(`${API_BASE}/api/shop/buy`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -139,13 +137,12 @@
           const result = await res.json();
           if (result.success) {
             alert(`구매 성공! 씨감자 ${quantity}개, 개당 ${unitPrice} ORCAX`);
-            fetchToken();
+            loadUserInfo();
           } else {
             alert(result.message || "구매 실패");
           }
         } catch (e) {
-          console.error("구매 실패:", e);
-          alert("에러 발생");
+          alert("에러 발생: " + e.message);
         }
       };
 
@@ -157,20 +154,25 @@
           } else {
             document.getElementById("serverStatus").textContent = "❌ 서버 응답 없음";
           }
-        } catch (err) {
+        } catch (e) {
           document.getElementById("serverStatus").textContent = "❌ 연결 실패";
         }
       }
 
-      async function fetchToken() {
+      async function loadUserInfo() {
         try {
-          const res = await fetch(`${API_BASE}/api/user/token/${kakaoId}`);
+          const res = await fetch(`${API_BASE}/api/users`);
           const data = await res.json();
-          console.log("[🔍 토큰 응답]", data);
-          document.getElementById("tokenBalance").textContent = data.token || 0;
+          const user = data.users.find(u => u.nickname === nickname);
+          if (!user) throw new Error("유저 정보 없음");
+
+          document.getElementById("water").textContent = user.water ?? "-";
+          document.getElementById("fertilizer").textContent = user.fertilizer ?? "-";
+          document.getElementById("token").textContent = user.token ?? "-";
+          document.getElementById("seedPotato").textContent = user.seedPotato ?? "-";
         } catch (e) {
-          console.error("❌ 토큰 불러오기 실패:", e);
-          document.getElementById("tokenBalance").textContent = "불러오기 실패";
+          document.getElementById("token").textContent = "불러오기 실패";
+          document.getElementById("buyButton").disabled = true;
         }
       }
     });
