@@ -65,6 +65,14 @@
       font-size: 1rem;
       color: #a7ffeb;
     }
+    input[type="text"] {
+      margin-top: 1rem;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      width: 80%;
+    }
   </style>
 </head>
 <body>
@@ -72,6 +80,7 @@
     <h1>🌾 보리 가공 공장</h1>
     <div id="nickname"></div>
     <div id="result"></div>
+    <input type="text" id="productName" placeholder="만들고 싶은 제품명을 입력하세요 (예: 보리막걸리)" />
     <button class="btn" onclick="convertBarley()">🔧 제품 만들기</button>
     <div id="convert-status"></div>
     <button class="btn" onclick="goBack()">농장으로 돌아가기</button>
@@ -90,6 +99,12 @@
     }
 
     function convertBarley() {
+      const productInput = document.getElementById("productName").value.trim();
+      if (!productInput) {
+        document.getElementById("convert-status").textContent = "❗ 제품명을 입력해주세요.";
+        return;
+      }
+
       fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/convert-barley", {
         method: "POST",
         headers: {
@@ -97,7 +112,8 @@
         },
         body: JSON.stringify({
           nickname: nickname,
-          amount: parseInt(yieldAmount)
+          amount: parseInt(yieldAmount),
+          product: productInput
         })
       })
       .then(res => res.json())
