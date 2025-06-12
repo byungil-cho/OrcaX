@@ -7,109 +7,121 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: #1e1e1e;
-      color: #fff;
+      background-color: #1e1e1e;
+      color: white;
       text-align: center;
-      padding: 2rem;
+      padding: 1rem;
     }
-    .btn {
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
+    h1 {
+      font-size: 2rem;
+      color: #fff;
+    }
+    .status {
+      color: #00ff66;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .actions button {
+      padding: 10px 20px;
       margin: 1rem;
+      font-size: 1.2rem;
       border: none;
       border-radius: 8px;
       cursor: pointer;
     }
-    .water { background: #00bfff; color: #000; }
-    .fertilizer { background: #ffcc00; color: #000; }
-    .harvest { background: #ffe066; color: #000; }
-    #nicknameBox {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-weight: bold;
-      color: gold;
+    .water-btn {
+      background-color: #03a9f4;
+      color: white;
     }
-    #status { margin-bottom: 1rem; color: lime; font-weight: bold; }
+    .fert-btn {
+      background-color: #ffca28;
+      color: black;
+    }
+    .harvest-btn {
+      margin-top: 1rem;
+      background-color: #ffeb3b;
+      color: black;
+      font-weight: bold;
+    }
+    .factory-image {
+      font-size: 6rem;
+      margin: 2rem 0 1rem;
+    }
+    .move-button {
+      margin-top: 1rem;
+      padding: 10px 16px;
+      font-size: 1rem;
+      background-color: #795548;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-
-  <div id="nicknameBox"></div>
-  <div id="status">✅ 전기 공급 중 (서버 연결됨)</div>
-
+  <p class="status">✅ 전기 공급 중 (서버 연결됨)</p>
   <h1>🌾 보리가 자라고 있습니다</h1>
   <p>물을 주거나 거름을 주세요!</p>
 
-  <button class="btn water" onclick="giveWater()">💧 물 주기</button>
-  <button class="btn fertilizer" onclick="giveFertilizer()">🌾 거름 주기</button>
-
-  <div style="margin: 2rem 0;">
-    <img src="https://cdn-icons-png.flaticon.com/512/860/860810.png" width="150" />
-    <div id="growState">물: 0번 / 거름: 0번</div>
+  <div class="actions">
+    <button class="water-btn" onclick="giveWater()">💧 물 주기</button>
+    <button class="fert-btn" onclick="giveFertilizer()">🌾 거름 주기</button>
   </div>
 
-  <button class="btn harvest" onclick="harvestBarley()">🌾 수확하기</button>
-  <div id="resultText" style="margin-top: 1rem;"></div>
+  <div class="factory-image">🏪</div>
+
+  <p id="statusText">물: 0번 / 거름: 0번</p>
+  <button class="harvest-btn" onclick="harvestBarley()">🌾 수확하기</button>
+
+  <p id="resultText"></p>
+
+  <!-- ✅ 이동 버튼 추가 -->
+  <div id="moveLink" style="display:none;">
+    <a href="bori-result.html">
+      <button class="move-button">📦 보리 가공공장으로 이동</button>
+    </a>
+  </div>
 
   <script>
     let waterCount = 0;
-    let fertilizerCount = 0;
+    let fertCount = 0;
 
-    const nickname = localStorage.getItem("nickname");
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 메인으로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
-    } else {
-      document.getElementById("nicknameBox").innerText = `${nickname} 님`;
+    function updateStatus() {
+      document.getElementById("statusText").innerText = `물: ${waterCount}번 / 거름: ${fertCount}번`;
     }
 
     function giveWater() {
       waterCount++;
-      updateGrowState();
+      updateStatus();
     }
 
     function giveFertilizer() {
-      fertilizerCount++;
-      updateGrowState();
-    }
-
-    function updateGrowState() {
-      document.getElementById("growState").innerText = `물: ${waterCount}번 / 거름: ${fertilizerCount}번`;
+      fertCount++;
+      updateStatus();
     }
 
     function harvestBarley() {
-      if (waterCount < 2 || fertilizerCount < 2) {
-        alert("아직 충분히 자라지 않았습니다. 물과 거름을 더 주세요.");
-        return;
-      }
+      const nickname = localStorage.getItem("nickname") || "범고래X";
+      const amount = 5;
 
       fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/harvest-barley", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, amount: 5 })
+        body: JSON.stringify({ nickname, amount }),
       })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          document.getElementById("resultText").innerText = `🌾 ${data.amount}말의 보리를 수확했습니다!`;
-<!-- 🌾 수확 메시지 아래에 추가 -->
-<a href="bori-result.html">
-  <button style="margin-top: 1rem; padding: 10px 16px; font-size: 1rem; background-color: #795548; color: white; border: none; border-radius: 6px; cursor: pointer;">
-    📦 보리 가공공장으로 이동
-  </button>
-</a>
-
-          // 수확 후 상태 초기화
-          waterCount = 0;
-          fertilizerCount = 0;
-          updateGrowState();
+          document.getElementById("resultText").innerText = `🌾 ${amount}말의 보리를 수확했습니다!`;
+          document.getElementById("moveLink").style.display = "block"; // ✅ 버튼 표시
         } else {
-          alert("❌ 수확 실패: " + data.message);
+          alert("수확 실패: " + data.message);
         }
       })
-      .catch(() => {
-        alert("❌ 서버 연결 실패");
+      .catch(err => {
+        console.error(err);
+        alert("서버 오류 발생");
       });
     }
   </script>
