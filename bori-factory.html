@@ -1,80 +1,8 @@
-<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bori Farm - My Barley</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #222;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff;
-      overflow-x: hidden;
-    }
-    .container {
-      padding: 2rem;
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-    .button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      margin: 0.5rem;
-      border: none;
-      border-radius: 8px;
-      background-color: #f5c842;
-      color: #000;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .button:hover {
-      background-color: #e0b636;
-    }
-    .plant-image {
-      margin-top: 2rem;
-    }
-    .plant-image img {
-      width: 200px;
-      border-radius: 90%;
-      animation: sway 2s infinite alternate;
-    }
-    @keyframes sway {
-      0% { transform: rotate(-2deg); }
-      100% { transform: rotate(2deg); }
-    }
-    #status {
-      margin-top: 1.5rem;
-      font-size: 1.2rem;
-    }
-    #harvest-section {
-      margin-top: 2rem;
-      display: none;
-    }
-    #harvest-result {
-      margin-top: 1rem;
-      font-size: 1.3rem;
-      color: #f0c741;
-    }
-    #nicknameBox {
-      text-align: right;
-      margin-top: -1rem;
-      margin-bottom: 1rem;
-      font-weight: bold;
-      color: #f5c842;
-    }
-    #serverStatus {
-      font-size: 1rem;
-      color: #00ffcc;
-      margin-bottom: 1rem;
-    }
-  </style>
 </head>
 <body>
   <div class="container">
@@ -82,8 +10,8 @@
     <div id="serverStatus">🔌 전기 공급 상태 확인 중...</div>
     <h1 id="barley-title">보리가 자라고 있습니다</h1>
     <p>물을 주거나 거름을 주세요!</p>
-    <button class="button" onclick="water()">💧 물 주기</button>
-    <button class="button" onclick="fertilize()">🌾 거름 주기</button>
+    <button onclick="water()">💧 물 주기</button>
+    <button onclick="fertilize()">🌾 거름 주기</button>
 
     <div class="plant-image">
       <img src="bori-201_01.png" alt="보리 싹">
@@ -91,8 +19,8 @@
 
     <div id="status"></div>
 
-    <div id="harvest-section">
-      <button class="button" onclick="harvest()">🌾 수확하기</button>
+    <div id="harvest-section" style="display:none">
+      <button onclick="harvest()">🌾 수확하기</button>
       <div id="harvest-result"></div>
     </div>
   </div>
@@ -107,7 +35,7 @@
     const serverStatus = document.getElementById("serverStatus");
 
     if (!nickname) {
-      alert("로그인 정보가 없습니다. 입구로 돌아갑니다.");
+      alert("로그인이 필요합니다.");
       window.location.href = "orcax-farm_000.html";
     } else {
       nicknameBox.textContent = `👤 ${nickname} 님`;
@@ -154,7 +82,6 @@
       localStorage.setItem('bori_yield', yieldAmount);
       document.getElementById('harvest-result').textContent = `🌾 ${yieldAmount}말의 보리를 수확했습니다!`;
 
-      // ✅ 정상 API 경로로 보리 수확량 저장
       fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/harvest-barley", {
         method: "POST",
         headers: {
