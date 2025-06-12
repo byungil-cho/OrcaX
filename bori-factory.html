@@ -40,6 +40,16 @@
       color: #ffd700;
       font-size: 14px;
     }
+    #purchaseLink {
+      margin-top: 20px;
+      color: #00bfff;
+      display: block;
+    }
+    #purchaseLink a {
+      color: #00bfff;
+      text-decoration: underline;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -59,6 +69,10 @@
   <button class="action-btn" onclick="giveWater()">💧 물 주기</button>
   <button class="action-btn" onclick="giveFertilizer()">🌿 거름 주기</button>
   <button class="action-btn" onclick="harvestBarley()">🌾 수확하기</button>
+
+  <div id="purchaseLink">
+    자재가 부족하신가요? 👉 <a href="gamja-exchange.html">자재 구매센터로 이동</a>
+  </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
