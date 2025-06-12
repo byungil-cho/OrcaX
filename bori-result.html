@@ -2,95 +2,64 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>보리 가공 공장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보리 가공 공장</title>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #e7f7e1;
-      padding: 1rem;
-      margin: 0;
-    }
-    h1 {
-      text-align: center;
-      color: #3a552c;
-    }
-    #nicknameBox {
-      text-align: right;
-      margin-right: 1rem;
-      font-weight: bold;
-      color: #2a3b1f;
-    }
-    .product-list {
-      margin-top: 1rem;
-      background: #fff;
-      border-radius: 12px;
-      padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .product {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #ddd;
-    }
-    .product:last-child {
-      border-bottom: none;
-    }
-    #factoryStatus {
-      text-align: center;
-      margin: 1rem 0;
-      font-weight: bold;
-    }
+    body { font-family: 'Arial'; background: #f1fbe8; margin: 0; padding: 2rem; }
+    h1 { text-align: center; color: #2f512e; }
+    .status { text-align: center; margin-bottom: 1rem; }
+    .error { color: red; }
+    .ok { color: green; }
+    .container { text-align: center; background: white; padding: 1.5rem; max-width: 500px; margin: auto; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .info { font-size: 1.2rem; margin: 1rem 0; }
+    .nav-btns { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; }
+    button { padding: 0.8rem 1.5rem; font-size: 1rem; border: none; border-radius: 8px; background: #836953; color: white; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>🌾 보리 가공 공장</h1>
-  <div id="nicknameBox"></div>
-  <div id="factoryStatus">🔌 전기 공급 상태: <span id="power">확인 중...</span></div>
-  <div class="product-list" id="productList">
-    <p>불러오는 중...</p>
+  <h1>보리 가공 공장</h1>
+  <div class="status">
+    <span id="powerStatus">⚡ 전기 건강: 정상</span>
+    <span id="serverStatus">>\u❌ 서버 오류</span>
+  </div>
+  <div class="container">
+    <div class="info" id="barleyInfo">보유 보리 정보를 불\u러오는 중...</div>
+  </div>
+  <div class="nav-btns">
+    <button onclick="location.href='bori-factory.html'">프로세스 가공</button>
+    <button onclick="location.href='gamja-result.html'">감자 가공</button>
+    <button onclick="location.href='orcax-farm_000.html'">농장 입구</button>
   </div>
 
   <script>
-    const nickname = localStorage.getItem('nickname');
-    document.getElementById('nicknameBox').innerText = `👤 ${nickname}`;
+    const power = document.getElementById("powerStatus");
+    const server = document.getElementById("serverStatus");
+    const barleyInfo = document.getElementById("barleyInfo");
 
-    async function checkPower() {
-      try {
-        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/power");
-        const data = await res.json();
-        document.getElementById("power").innerText = data.power ? "✅ 정상" : "❌ 차단됨";
-      } catch {
-        document.getElementById("power").innerText = "❌ 서버 오류";
-      }
+    const nickname = localStorage.getItem("nickname");
+    if (!nickname) {
+      power.textContent = "⚠️ 닉네임 없음 (로그인 필요)";
+      server.textContent = "❌ 서버 연결 실패";
+      barleyInfo.textContent = "닉네임 정보가 없습니다. 다시 로그인 해주세요.";
+    } else {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/barley-products/" + nickname)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            server.textContent = "✅ 서버 연결됨";
+            server.classList.add("ok");
+            barleyInfo.textContent = `🌾 농장 보유 보리: ${data.barley}개`;
+          } else {
+            throw new Error("서버 응답 오류");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          server.textContent = "❌ 서버 연결 실패";
+          server.classList.add("error");
+          barleyInfo.textContent = "서버에서 보리 정보를 가져오지 못했습니다.";
+        });
     }
-
-    async function loadProducts() {
-      try {
-        const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/barley-products/${nickname}`);
-        const data = await res.json();
-        const listEl = document.getElementById("productList");
-        listEl.innerHTML = '';
-
-        if (data.success && data.products.length > 0) {
-          data.products.forEach(p => {
-            const el = document.createElement('div');
-            el.className = 'product';
-            el.innerText = `${p.productName} - ${p.quantity}개`;
-            listEl.appendChild(el);
-          });
-        } else {
-          listEl.innerHTML = '<p>보관된 보리 제품이 없습니다.</p>';
-        }
-      } catch (err) {
-        document.getElementById("productList").innerHTML = '<p>❌ 서버 연결 실패</p>';
-      }
-    }
-
-    checkPower();
-    loadProducts();
   </script>
 </body>
 </html>
