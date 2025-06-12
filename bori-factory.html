@@ -35,6 +35,11 @@
     .action-btn:hover {
       background-color: #45a049;
     }
+    #requirementInfo {
+      margin-top: 10px;
+      color: #ffd700;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -48,6 +53,7 @@
     <p>💧 물: <span id="waterCount">0</span> / 사용: <span id="waterGiven">0</span></p>
     <p>🌿 거름: <span id="fertilizerCount">0</span> / 사용: <span id="fertilizerGiven">0</span></p>
     <p>🪙 ORCX: <span id="tokenCount">0</span></p>
+    <p id="requirementInfo">🌾 수확 조건: 💧 물 + 🌿 거름 ≥ 5</p>
   </div>
 
   <button class="action-btn" onclick="giveWater()">💧 물 주기</button>
@@ -123,8 +129,9 @@
     async function harvestBarley() {
       const waterPoints = parseInt(document.getElementById("waterGiven").innerText);
       const fertilizerPoints = parseInt(document.getElementById("fertilizerGiven").innerText);
+      const totalPoints = waterPoints + fertilizerPoints;
 
-      if (waterPoints >= 5 && fertilizerPoints >= 5) {
+      if (totalPoints >= 5) {
         await fetch(API_BASE + "/api/harvest-barley", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -133,7 +140,7 @@
         fetchUserData();
         window.location.href = "gamja-result.html";
       } else {
-        alert("🌾 수확 조건이 부족합니다! (물과 거름 각각 5 이상 필요)");
+        alert("🌾 수확 조건 부족! 물+거름 합계가 5 이상이어야 합니다.");
       }
     }
   </script>
