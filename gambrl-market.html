@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>감자+보리 통합 거래소</title>
+  <style>
+    body {
+      background-color: #212121;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      text-align: center;
+    }
+    h1 {
+      color: #fbc02d;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 0.75rem;
+    }
+    th {
+      background-color: #424242;
+    }
+    tr:nth-child(even) {
+      background-color: #2c2c2c;
+    }
+    .sell-btn {
+      background-color: #fbc02d;
+      color: #000;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .sell-btn:hover {
+      background-color: #f9a825;
+    }
+    #nicknameBox {
+      text-align: right;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="nicknameBox"></div>
+  <h1>🌾🥔 감자+보리 통합 거래소</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>제품명</th>
+        <th>종류</th>
+        <th>수량</th>
+        <th>판매</th>
+      </tr>
+    </thead>
+    <tbody id="productTable"></tbody>
+  </table>
+
+  <script>
+    const nickname = localStorage.getItem("nickname");
+    document.getElementById("nicknameBox").textContent = `👤 ${nickname}`;
+
+    fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/user-products?nickname=${nickname}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const table = document.getElementById("productTable");
+          data.products.forEach(item => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${item.product}</td>
+              <td>${item.type === 'barley' ? '🌾 보리' : '🥔 감자'}</td>
+              <td>${item.count}</td>
+              <td><button class="sell-btn" onclick="sell('${item._id}', '${item.product}', '${item.type}')">판매</button></td>
+            `;
+            table.appendChild(tr);
+          });
+        } else {
+          alert("제품 정보를 불러오지 못했습니다.");
+        }
+      });
+
+    function sell(id, product, type) {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/sell-product", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id, nickname, product, type })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert(`✅ ${product} 판매 완료! ORCX 적립됨.`);
+          window.location.reload();
+        } else {
+          alert("❌ 판매 실패: " + data.message);
+        }
+      })
+      .catch(() => alert("❌ 서버 오류로 판매 실패"));
+    }
+  </script>
+</body>
+</html>
