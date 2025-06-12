@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>보리 재배</title>
-  <style>
+<meta charset="utf-8"/>
+<title>보리 재배</title>
+<style>
     body {
       background-color: #1e1e1e;
       color: white;
@@ -39,25 +40,20 @@
   </style>
 </head>
 <body>
-  <h3>✅ 전기 공급 중 (서버 연결됨)</h3>
-  <h1>🌾 보리가 자라고 있습니다</h1>
-  <p>물을 주거나 거름을 주세요!</p>
-
-  <button id="water-btn">💧 물 주기</button>
-  <button id="fertilizer-btn">🌾 거름 주기</button>
-
-  <div style="margin: 30px 0;">
-    <img src="https://cdn-icons-png.flaticon.com/512/860/860797.png" width="120" alt="농장" />
-    <p id="status">물: 0번 / 거름: 0번</p>
-  </div>
-
-  <button id="harvest-btn">🌾 수확하기</button>
-
-  <div style="margin-top: 30px;">
-    <button id="next-btn" onclick="location.href='gamja-result.html'">🚛 감자 가공공장으로 이동</button>
-  </div>
-
-  <script>
+<h3>✅ 전기 공급 중 (서버 연결됨)</h3>
+<h1>🌾 보리가 자라고 있습니다</h1>
+<p>물을 주거나 거름을 주세요!</p>
+<button id="water-btn">💧 물 주기</button>
+<button id="fertilizer-btn">🌾 거름 주기</button>
+<div style="margin: 30px 0;">
+<img alt="농장" src="https://cdn-icons-png.flaticon.com/512/860/860797.png" width="120"/>
+<p id="status">물: 0번 / 거름: 0번</p>
+</div>
+<button id="harvest-btn">🌾 수확하기</button>
+<div style="margin-top: 30px;">
+<button id="next-btn" onclick="location.href='gamja-result.html'">🚛 감자 가공공장으로 이동</button>
+</div>
+<script>
     const nickname = localStorage.getItem("nickname") || "손님";
     let waterCount = 0;
     let fertilizerCount = 0;
@@ -103,6 +99,15 @@
     }
 
     updateStatus();
-  </script>
+  
+// 페이지 로드 시 nickname 확인 → 없으면 수확 버튼 숨김
+window.addEventListener("DOMContentLoaded", () => {
+  const nickname = localStorage.getItem("nickname");
+  if (!nickname) {
+    const harvestButton = document.getElementById("harvestButton");
+    if (harvestButton) harvestButton.style.display = "none";
+  }
+});
+</script>
 </body>
 </html>
