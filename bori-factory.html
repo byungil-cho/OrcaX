@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>감자 가공공장</title>
+  <title>보리 농장</title>
   <style>
     body {
       background-color: #1e1e1e;
@@ -22,11 +22,24 @@
       font-weight: bold;
       margin-bottom: 10px;
     }
+    .action-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .action-btn:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
   <div id="statusBox">🔌 서버 연결 확인 중...</div>
-  <h1>🥔 감자 가공공장</h1>
+  <h1>🌾 보리 농장</h1>
   <div id="nicknameBox"></div>
   <div id="resourceInfo">
     <p>👩‍🌾 농장명: <span id="farmName">-</span></p>
@@ -36,6 +49,10 @@
     <p>🌿 거름: <span id="fertilizerCount">0</span></p>
     <p>🪙 ORCX: <span id="tokenCount">0</span></p>
   </div>
+
+  <button class="action-btn" onclick="giveWater()">💧 물 주기</button>
+  <button class="action-btn" onclick="giveFertilizer()">🌿 거름 주기</button>
+  <button class="action-btn" onclick="harvestBarley()">🌾 수확하기</button>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
@@ -72,6 +89,43 @@
     }
 
     fetchUserData();
+
+    async function giveWater() {
+      const count = parseInt(document.getElementById("waterCount").innerText);
+      if (count > 0) {
+        await fetch(API_BASE + "/api/water-barley", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname })
+        });
+        fetchUserData();
+      } else {
+        alert("💧 물이 부족합니다!");
+      }
+    }
+
+    async function giveFertilizer() {
+      const count = parseInt(document.getElementById("fertilizerCount").innerText);
+      if (count > 0) {
+        await fetch(API_BASE + "/api/fertilize-barley", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname })
+        });
+        fetchUserData();
+      } else {
+        alert("🌿 거름이 부족합니다!");
+      }
+    }
+
+    async function harvestBarley() {
+      await fetch(API_BASE + "/api/harvest-barley", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname })
+      });
+      fetchUserData();
+    }
   </script>
 </body>
 </html>
