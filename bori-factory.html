@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -155,15 +154,15 @@
       localStorage.setItem('bori_yield', yieldAmount);
       document.getElementById('harvest-result').textContent = `🌾 ${yieldAmount}말의 보리를 수확했습니다!`;
 
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/farm/save", {
+      // ✅ 정상 API 경로로 보리 수확량 저장
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/harvest-barley", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           nickname: nickname,
-          category: "barley",
-          yield: yieldAmount
+          amount: yieldAmount
         })
       })
       .then(res => res.json())
