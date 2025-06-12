@@ -50,6 +50,10 @@
       text-decoration: underline;
       font-weight: bold;
     }
+    #harvestBtn:disabled {
+      background-color: gray;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -68,7 +72,7 @@
 
   <button class="action-btn" onclick="giveWater()">💧 물 주기</button>
   <button class="action-btn" onclick="giveFertilizer()">🌿 거름 주기</button>
-  <button class="action-btn" onclick="harvestBarley()">🌾 수확하기</button>
+  <button id="harvestBtn" class="action-btn" onclick="harvestBarley()" disabled>🌾 수확하기</button>
 
   <div id="purchaseLink">
     자재가 부족하신가요? 👉 <a href="gamja-exchange.html">자재 구매센터로 이동</a>
@@ -100,6 +104,9 @@
           document.getElementById("fertilizerGiven").innerText = data.fertilizerGiven ?? 0;
           document.getElementById("statusBox").innerText = "✅ 전기 공급 중 (서버 연결됨)";
           document.getElementById("statusBox").style.color = "lightgreen";
+
+          const totalPoints = (data.waterGiven ?? 0) + (data.fertilizerGiven ?? 0);
+          document.getElementById("harvestBtn").disabled = totalPoints < 5;
         } else {
           throw new Error("유저 정보 없음");
         }
