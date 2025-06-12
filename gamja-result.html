@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -112,15 +113,20 @@
       <a href="gamja-exchange.html">🔁 자원 교환소</a>
       <a href="gamja-market.html">💰 거래소 이동</a>
     </div>
-    <button class="exchange-to-token" onclick="exchangeToToken()">감자 → ORCX 교환하기</button>
+    <button class="exchange-to-token" onclick="exchangeToToken()">감자 + 보리 → ORCX 교환하기</button>
   </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname");
     const farmName = localStorage.getItem("farmName");
-    const statusBox = document.getElementById("statusBox");
 
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    }
+
+    const statusBox = document.getElementById("statusBox");
     document.getElementById("nicknameBox").innerText = `👤 ${nickname} (${farmName}) 님`;
 
     const userData = {
@@ -204,9 +210,16 @@
     }
 
     async function exchangeToToken() {
-      if (userData.potatoCount < 1) return alert("감자가 없습니다!");
-      userData.token += userData.potatoCount;
+      let exchangeCount = userData.potatoCount;
       userData.potatoCount = 0;
+      userData.inventory.forEach((item) => {
+        if (item.type.startsWith("barley")) {
+          exchangeCount += item.count;
+          item.count = 0;
+        }
+      });
+      userData.inventory = userData.inventory.filter(i => i.count > 0);
+      userData.token += exchangeCount;
       await saveUserData();
     }
 
