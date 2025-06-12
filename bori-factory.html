@@ -7,22 +7,35 @@
     body {
       background-color: #1e1e1e;
       color: white;
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
-      padding-top: 40px;
+      padding: 20px;
     }
     button {
-      padding: 12px 24px;
-      margin: 10px;
       font-size: 18px;
+      padding: 10px 20px;
+      margin: 10px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
     }
-    .water { background-color: #00bfff; color: white; }
-    .fertilizer { background-color: #ffc107; color: black; }
-    .harvest { background-color: #ffe066; color: black; }
-    .next { background-color: #00c853; color: white; margin-top: 20px; }
+    #water-btn {
+      background-color: #00aaff;
+      color: white;
+    }
+    #fertilizer-btn {
+      background-color: #ffc107;
+      color: black;
+    }
+    #harvest-btn {
+      background-color: #ffeb3b;
+      color: black;
+    }
+    #next-btn {
+      background-color: #66ff66;
+      color: black;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -30,67 +43,66 @@
   <h1>🌾 보리가 자라고 있습니다</h1>
   <p>물을 주거나 거름을 주세요!</p>
 
-  <button class="water" onclick="giveWater()">💧 물 주기</button>
-  <button class="fertilizer" onclick="giveFertilizer()">🌿 거름 주기</button>
+  <button id="water-btn">💧 물 주기</button>
+  <button id="fertilizer-btn">🌾 거름 주기</button>
 
-  <div style="margin: 20px;">
-    <img src="https://cdn-icons-png.flaticon.com/512/3208/3208720.png" width="120" />
+  <div style="margin: 30px 0;">
+    <img src="https://cdn-icons-png.flaticon.com/512/860/860797.png" width="120" alt="농장" />
+    <p id="status">물: 0번 / 거름: 0번</p>
   </div>
 
-  <p id="status">물: 0번 / 거름: 0번</p>
-  <button class="harvest" onclick="harvest()">🌾 수확하기</button>
+  <button id="harvest-btn">🌾 수확하기</button>
 
-  <p id="resultMsg"></p>
-  <div id="moveLink"></div>
+  <div style="margin-top: 30px;">
+    <button id="next-btn" onclick="location.href='gamja-result.html'">🚛 감자 가공공장으로 이동</button>
+  </div>
 
   <script>
-    let water = 0;
-    let fertilizer = 0;
+    const nickname = localStorage.getItem("nickname") || "손님";
+    let waterCount = 0;
+    let fertilizerCount = 0;
 
-    const nickname = localStorage.getItem("nickname");
-
-    function giveWater() {
-      water++;
+    document.getElementById("water-btn").onclick = async () => {
+      waterCount++;
       updateStatus();
-    }
+      await fetch("/api/water-barley", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname })
+      });
+    };
 
-    function giveFertilizer() {
-      fertilizer++;
+    document.getElementById("fertilizer-btn").onclick = async () => {
+      fertilizerCount++;
       updateStatus();
-    }
+      await fetch("/api/fertilize-barley", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname })
+      });
+    };
+
+    document.getElementById("harvest-btn").onclick = async () => {
+      const res = await fetch("/api/harvest-barley", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname })
+      });
+
+      if (res.ok) {
+        alert("🌾 보리를 수확했습니다!");
+        document.getElementById("next-btn").style.display = "inline-block";
+      } else {
+        alert("❌ 수확 중 오류가 발생했습니다.");
+      }
+    };
 
     function updateStatus() {
-      document.getElementById("status").innerText = `물: ${water}번 / 거름: ${fertilizer}번`;
+      document.getElementById("status").innerText =
+        `물: ${waterCount}번 / 거름: ${fertilizerCount}번`;
     }
 
-    async function harvest() {
-      try {
-        const response = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/harvest-barley", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, water, fertilizer })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          const amount = result.amount || 5;
-          localStorage.setItem("harvestedBarley", amount); // ✅ 수확한 보리 저장
-          document.getElementById("resultMsg").innerText = `🌾 ${amount}말의 보리를 수확했습니다!`;
-
-          // ✅ 이동 버튼 추가
-          document.getElementById("moveLink").innerHTML = `
-            <a href="gamja-result.html">
-              <button class="next">감자 가공공장으로 이동하기</button>
-            </a>
-          `;
-        } else {
-          alert("수확에 실패했습니다.");
-        }
-      } catch (error) {
-        alert("서버 오류 발생: " + error.message);
-      }
-    }
+    updateStatus();
   </script>
 </body>
 </html>
