@@ -83,7 +83,12 @@
   </div>
 
   <script>
-    const nickname = localStorage.getItem("nickname");
+    let nickname = localStorage.getItem("nickname");
+
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 농장 입구로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    }
 
     // 전기 상태 컨트롤
     fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status")
@@ -93,7 +98,7 @@
         document.getElementById("powerStatus").style.color = data.message.includes("정상") ? 'green' : 'red';
       })
       .catch(() => {
-        document.getElementById("powerStatus").textContent = "❌ 전기 공급 끼기까는 (서버 오류)";
+        document.getElementById("powerStatus").textContent = "❌ 전기 공급 끊김 (서버 오류)";
         document.getElementById("powerStatus").style.color = 'red';
       });
 
@@ -128,7 +133,7 @@
         list.innerHTML = "";
 
         // 농장에서 보유한 보리 수량
-        const farmBarley = userData.barleyCount || 0;
+        const farmBarley = userData?.user?.barley || 0;
         const liFarm = document.createElement("li");
         liFarm.textContent = `🌾 농장 보유 보리: ${farmBarley}개`;
         list.appendChild(liFarm);
@@ -139,6 +144,9 @@
           li.textContent = `${p.product} - ${p.quantity}개`;
           list.appendChild(li);
         });
+      })
+      .catch(err => {
+        console.error("보리 제품 로딩 실패:", err);
       });
     }
 
