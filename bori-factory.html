@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<title>보리 재배</title>
-<style>
+  <meta charset="UTF-8" />
+  <title>보리 공장</title>
+  <style>
     body {
       background-color: #1e1e1e;
       color: white;
@@ -19,6 +18,18 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+    }
+    #statusBox {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    #resourceInfo {
+      background: #333;
+      padding: 10px;
+      margin: 20px auto;
+      border-radius: 8px;
+      max-width: 400px;
+      display: none;
     }
     #water-btn {
       background-color: #00aaff;
@@ -40,46 +51,81 @@
   </style>
 </head>
 <body>
-<h3>✅ 전기 공급 중 (서버 연결됨)</h3>
-<h1>🌾 보리가 자라고 있습니다</h1>
-<p>물을 주거나 거름을 주세요!</p>
-<button id="water-btn">💧 물 주기</button>
-<button id="fertilizer-btn">🌾 거름 주기</button>
-<div style="margin: 30px 0;">
-<img alt="농장" src="https://cdn-icons-png.flaticon.com/512/860/860797.png" width="120"/>
-<p id="status">물: 0번 / 거름: 0번</p>
-</div>
-<button id="harvest-btn">🌾 수확하기</button>
-<div style="margin-top: 30px;">
-<button id="next-btn" onclick="location.href='gamja-result.html'">🚛 감자 가공공장으로 이동</button>
-</div>
-<script>
-    const nickname = localStorage.getItem("nickname") || "손님";
-    let waterCount = 0;
-    let fertilizerCount = 0;
+  <div id="statusBox">🔌 서버 연결 확인 중...</div>
+  <h1>🌾 보리가 자라고 있습니다</h1>
+  <div id="nicknameBox"></div>
+  <div id="resourceInfo">
+    <p>🥔 감자: <span id="potatoCount">0</span></p>
+    <p>🌾 보리: <span id="barleyCount">0</span></p>
+    <p>💧 물: <span id="waterCount">0</span> / 🌿 거름: <span id="fertilizerCount">0</span></p>
+    <p>🪙 ORCX: <span id="tokenCount">0</span></p>
+  </div>
+
+  <button id="water-btn">💧 물 주기</button>
+  <button id="fertilizer-btn">🌿 거름 주기</button>
+  <button id="harvest-btn">🌾 수확하기</button>
+
+  <div style="margin-top: 30px;">
+    <button id="next-btn" onclick="location.href='gamja-result.html'">🚛 감자 가공공장으로 이동</button>
+  </div>
+
+  <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const nickname = localStorage.getItem("nickname");
+
+    if (!nickname) {
+      alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    }
+
+    document.getElementById("nicknameBox").innerText = "👤 로그인 닉네임: " + nickname;
+
+    const statusBox = document.getElementById("statusBox");
+    const resourceBox = document.getElementById("resourceInfo");
+
+    async function fetchUserData() {
+      try {
+        const res = await fetch(API_BASE + "/api/userdata?nickname=" + nickname);
+        const data = await res.json();
+        if (data.nickname) {
+          document.getElementById("potatoCount").innerText = data.potatoCount ?? 0;
+          document.getElementById("barleyCount").innerText = data.barleyCount ?? 0;
+          document.getElementById("waterCount").innerText = data.water ?? 0;
+          document.getElementById("fertilizerCount").innerText = data.fertilizer ?? 0;
+          document.getElementById("tokenCount").innerText = data.token ?? 0;
+          statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
+          statusBox.style.color = "lightgreen";
+          resourceBox.style.display = "block";
+        } else {
+          throw new Error("유저 정보 없음");
+        }
+      } catch (err) {
+        statusBox.innerText = "❌ 서버 연결 실패 (전기 끊김)";
+        statusBox.style.color = "red";
+        console.error(err);
+      }
+    }
 
     document.getElementById("water-btn").onclick = async () => {
-      waterCount++;
-      updateStatus();
-      await fetch("/api/water-barley", {
+      await fetch(API_BASE + "/api/water-barley", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname })
       });
+      fetchUserData();
     };
 
     document.getElementById("fertilizer-btn").onclick = async () => {
-      fertilizerCount++;
-      updateStatus();
-      await fetch("/api/fertilize-barley", {
+      await fetch(API_BASE + "/api/fertilize-barley", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname })
       });
+      fetchUserData();
     };
 
     document.getElementById("harvest-btn").onclick = async () => {
-      const res = await fetch("/api/harvest-barley", {
+      const res = await fetch(API_BASE + "/api/harvest-barley", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname })
@@ -91,23 +137,10 @@
       } else {
         alert("❌ 수확 중 오류가 발생했습니다.");
       }
+      fetchUserData();
     };
 
-    function updateStatus() {
-      document.getElementById("status").innerText =
-        `물: ${waterCount}번 / 거름: ${fertilizerCount}번`;
-    }
-
-    updateStatus();
-  
-// 페이지 로드 시 nickname 확인 → 없으면 수확 버튼 숨김
-window.addEventListener("DOMContentLoaded", () => {
-  const nickname = localStorage.getItem("nickname");
-  if (!nickname) {
-    const harvestButton = document.getElementById("harvestButton");
-    if (harvestButton) harvestButton.style.display = "none";
-  }
-});
-</script>
+    fetchUserData();
+  </script>
 </body>
 </html>
