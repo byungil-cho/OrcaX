@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>보리 공장</title>
+  <meta charset="UTF-8">
+  <title>감자 가공공장</title>
   <style>
     body {
       background-color: #1e1e1e;
@@ -11,63 +11,30 @@
       text-align: center;
       padding: 20px;
     }
-    button {
-      font-size: 18px;
-      padding: 10px 20px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    #statusBox {
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
     #resourceInfo {
       background: #333;
       padding: 10px;
       margin: 20px auto;
       border-radius: 8px;
       max-width: 400px;
-      display: none;
     }
-    #water-btn {
-      background-color: #00aaff;
-      color: white;
-    }
-    #fertilizer-btn {
-      background-color: #ffc107;
-      color: black;
-    }
-    #harvest-btn {
-      background-color: #ffeb3b;
-      color: black;
-    }
-    #next-btn {
-      background-color: #66ff66;
-      color: black;
-      display: none;
-      margin-top: 20px;
+    #statusBox {
+      font-weight: bold;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
   <div id="statusBox">🔌 서버 연결 확인 중...</div>
-  <h1>🌾 보리가 자라고 있습니다</h1>
+  <h1>🥔 감자 가공공장</h1>
   <div id="nicknameBox"></div>
   <div id="resourceInfo">
+    <p>👩‍🌾 농장명: <span id="farmName">-</span></p>
     <p>🥔 감자: <span id="potatoCount">0</span></p>
     <p>🌾 보리: <span id="barleyCount">0</span></p>
-    <p>💧 물: <span id="waterCount">0</span> / 🌿 거름: <span id="fertilizerCount">0</span></p>
+    <p>💧 물: <span id="waterCount">0</span></p>
+    <p>🌿 거름: <span id="fertilizerCount">0</span></p>
     <p>🪙 ORCX: <span id="tokenCount">0</span></p>
-  </div>
-
-  <button id="water-btn">💧 물 주기</button>
-  <button id="fertilizer-btn">🌿 거름 주기</button>
-  <button id="harvest-btn">🌾 수확하기</button>
-
-  <div>
-    <button id="next-btn" onclick="location.href='gamja-result.html'">🚛 감자 가공공장으로 이동</button>
   </div>
 
   <script>
@@ -81,9 +48,6 @@
 
     document.getElementById("nicknameBox").innerText = "👤 로그인 닉네임: " + nickname;
 
-    const statusBox = document.getElementById("statusBox");
-    const resourceBox = document.getElementById("resourceInfo");
-
     async function fetchUserData() {
       try {
         const res = await fetch(API_BASE + "/api/userdata?nickname=" + nickname);
@@ -94,57 +58,18 @@
           document.getElementById("waterCount").innerText = data.water ?? 0;
           document.getElementById("fertilizerCount").innerText = data.fertilizer ?? 0;
           document.getElementById("tokenCount").innerText = data.token ?? 0;
-          statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
-          statusBox.style.color = "lightgreen";
-          resourceBox.style.display = "block";
+          document.getElementById("farmName").innerText = data.farmName ?? "무명농장";
+          document.getElementById("statusBox").innerText = "✅ 전기 공급 중 (서버 연결됨)";
+          document.getElementById("statusBox").style.color = "lightgreen";
         } else {
           throw new Error("유저 정보 없음");
         }
       } catch (err) {
-        statusBox.innerText = "❌ 서버 연결 실패 (전기 끊김)";
-        statusBox.style.color = "red";
-        console.error(err);
+        document.getElementById("statusBox").innerText = "❌ 서버 연결 실패 (전기 끊김)";
+        document.getElementById("statusBox").style.color = "red";
+        console.error("서버 연결 실패:", err);
       }
     }
-
-    document.getElementById("water-btn").onclick = async () => {
-      await fetch(API_BASE + "/api/water-barley", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname })
-      });
-      fetchUserData();
-    };
-
-    document.getElementById("fertilizer-btn").onclick = async () => {
-      await fetch(API_BASE + "/api/fertilize-barley", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname })
-      });
-      fetchUserData();
-    };
-
-    document.getElementById("harvest-btn").onclick = async () => {
-      try {
-        const res = await fetch(API_BASE + "/api/harvest-barley", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname })
-        });
-
-        if (res.ok) {
-          alert("🌾 보리를 수확했습니다!");
-          document.getElementById("next-btn").style.display = "inline-block";
-        } else {
-          alert("❌ 수확 중 오류가 발생했습니다.");
-        }
-      } catch (error) {
-        console.error("Harvest error:", error);
-        alert("❌ 수확 중 서버 오류가 발생했습니다.");
-      }
-      fetchUserData();
-    };
 
     fetchUserData();
   </script>
