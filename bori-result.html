@@ -6,41 +6,44 @@
   <title>🌾 보리 가공 공장</title>
   <style>
     body {
+      background-color: #f4f1e7;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f4f4;
       margin: 0;
-      padding: 2rem;
+      padding: 1rem;
       text-align: center;
     }
     h1 {
-      color: #6d4c41;
+      color: #4a352d;
     }
     #powerStatus {
-      margin-bottom: 1rem;
+      margin: 0.5rem 0;
       font-weight: bold;
+      color: green;
     }
-    #nicknameBox {
-      font-size: 1.1rem;
-      margin-bottom: 1.5rem;
+    .input-section {
+      margin: 1rem 0;
     }
-    input[type="text"] {
+    input[type="text"], input[type="number"] {
       padding: 0.5rem;
-      width: 200px;
-    }
-    input[type="number"] {
-      padding: 0.5rem;
-      width: 80px;
+      margin: 0.3rem;
+      font-size: 1rem;
     }
     button {
       padding: 0.5rem 1rem;
       background-color: #8d6e63;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #795548;
+      background-color: #6d4c41;
+    }
+    .storage-box {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: 2px solid #ccc;
+      background-color: #fffdf8;
     }
     .nav {
       margin-top: 2rem;
@@ -48,67 +51,98 @@
     .nav a {
       margin: 0 10px;
       padding: 8px 12px;
-      background: #ccc;
-      color: #333;
+      background: #6d4c41;
+      color: white;
       border-radius: 6px;
       text-decoration: none;
+    }
+    .nav a:hover {
+      background: #5d4037;
     }
   </style>
 </head>
 <body>
   <h1>🌾 보리 가공 공장</h1>
   <div id="powerStatus">⚡ 전기 상태 확인 중...</div>
-  <div id="nicknameBox"></div>
 
-  <input type="text" id="productName" placeholder="제품 이름 입력">
-  <input type="number" id="quantity" placeholder="수량" min="1">
-  <button onclick="convertBarley()">제품 만들기</button>
-  <div id="statusBox" style="margin-top: 1rem;"></div>
+  <div class="input-section">
+    <input type="text" id="productName" placeholder="제품 이름 입력">
+    <input type="number" id="quantity" placeholder="수량 입력">
+    <button onclick="convertBarley()">제품 만들기</button>
+  </div>
+
+  <div class="storage-box">
+    <h3>📦 현재 보관 중인 보리 제품</h3>
+    <ul id="productList"></ul>
+  </div>
 
   <div class="nav">
-    <a href="gambrl-market.html">📦 통합 거래소</a>
-    <a href="orcax-farm_000.html">🏠 농장 입구</a>
+    <a href="gambrl-market.html">💱 통합 거래소</a>
+    <a href="potato-result.html">🥔 감자 공장</a>
+    <a href="orcax-farm_000.html">🌱 농장 입구</a>
   </div>
 
   <script>
     const nickname = localStorage.getItem("nickname");
-    document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
 
+    // 전기 상태 컨트롤
     fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status")
       .then(res => res.json())
       .then(data => {
-        document.getElementById("powerStatus").textContent = data.message;
+        document.getElementById("powerStatus").textContent = `⚡ ${data.message}`;
+        document.getElementById("powerStatus").style.color = data.message.includes("정상") ? 'green' : 'red';
       })
       .catch(() => {
-        document.getElementById("powerStatus").textContent = "❌ 전기 공급 끊김 (서버 오류)";
+        document.getElementById("powerStatus").textContent = "❌ 전기 공급 끼기까는 (서버 오류)";
         document.getElementById("powerStatus").style.color = 'red';
       });
 
     function convertBarley() {
       const product = document.getElementById("productName").value;
-      const quantity = Number(document.getElementById("quantity").value);
-
-      if (!product || quantity <= 0) {
-        document.getElementById("statusBox").textContent = "❌ 제품명과 수량을 정확히 입력하세요.";
-        return;
-      }
+      const quantity = parseInt(document.getElementById("quantity").value);
+      if (!product || !quantity || quantity <= 0) return alert("제품명과 수량을 입력하세요");
 
       fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/convert-barley", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname, product, quantity })
       })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          document.getElementById("statusBox").textContent = `✅ ${product} ${quantity}개 가공 완료!`;
+          alert("✅ 가공 완료!");
+          loadStorage();
         } else {
-          document.getElementById("statusBox").textContent = `❌ 오류: ${data.message}`;
+          alert("❌ 가공 실패: " + data.message);
         }
       });
     }
+
+    function loadStorage() {
+      Promise.all([
+        fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/barley-products/${nickname}`).then(res => res.json()),
+        fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`).then(res => res.json())
+      ])
+      .then(([productsData, userData]) => {
+        const list = document.getElementById("productList");
+        list.innerHTML = "";
+
+        // 농장에서 보유한 보리 수량
+        const farmBarley = userData.barleyCount || 0;
+        const liFarm = document.createElement("li");
+        liFarm.textContent = `🌾 농장 보유 보리: ${farmBarley}개`;
+        list.appendChild(liFarm);
+
+        // 보관함에 있는 제품들
+        productsData.products.forEach(p => {
+          const li = document.createElement("li");
+          li.textContent = `${p.product} - ${p.quantity}개`;
+          list.appendChild(li);
+        });
+      });
+    }
+
+    loadStorage();
   </script>
 </body>
 </html>
