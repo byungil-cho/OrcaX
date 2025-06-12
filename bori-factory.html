@@ -93,6 +93,13 @@
       .then(data => {
         if (data.success) {
           document.getElementById("resultText").innerText = `🌾 ${data.amount}말의 보리를 수확했습니다!`;
+<!-- 🌾 수확 메시지 아래에 추가 -->
+<a href="bori-result.html">
+  <button style="margin-top: 1rem; padding: 10px 16px; font-size: 1rem; background-color: #795548; color: white; border: none; border-radius: 6px; cursor: pointer;">
+    📦 보리 가공공장으로 이동
+  </button>
+</a>
+
           // 수확 후 상태 초기화
           waterCount = 0;
           fertilizerCount = 0;
