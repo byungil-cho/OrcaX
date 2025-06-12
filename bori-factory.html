@@ -47,6 +47,7 @@
       background-color: #66ff66;
       color: black;
       display: none;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -65,7 +66,7 @@
   <button id="fertilizer-btn">🌿 거름 주기</button>
   <button id="harvest-btn">🌾 수확하기</button>
 
-  <div style="margin-top: 30px;">
+  <div>
     <button id="next-btn" onclick="location.href='gamja-result.html'">🚛 감자 가공공장으로 이동</button>
   </div>
 
@@ -125,17 +126,22 @@
     };
 
     document.getElementById("harvest-btn").onclick = async () => {
-      const res = await fetch(API_BASE + "/api/harvest-barley", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname })
-      });
+      try {
+        const res = await fetch(API_BASE + "/api/harvest-barley", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname })
+        });
 
-      if (res.ok) {
-        alert("🌾 보리를 수확했습니다!");
-        document.getElementById("next-btn").style.display = "inline-block";
-      } else {
-        alert("❌ 수확 중 오류가 발생했습니다.");
+        if (res.ok) {
+          alert("🌾 보리를 수확했습니다!");
+          document.getElementById("next-btn").style.display = "inline-block";
+        } else {
+          alert("❌ 수확 중 오류가 발생했습니다.");
+        }
+      } catch (error) {
+        console.error("Harvest error:", error);
+        alert("❌ 수확 중 서버 오류가 발생했습니다.");
       }
       fetchUserData();
     };
