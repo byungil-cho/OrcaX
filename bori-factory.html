@@ -45,8 +45,8 @@
     <p>👩‍🌾 농장명: <span id="farmName">-</span></p>
     <p>🥔 감자: <span id="potatoCount">0</span></p>
     <p>🌾 보리: <span id="barleyCount">0</span></p>
-    <p>💧 물: <span id="waterCount">0</span></p>
-    <p>🌿 거름: <span id="fertilizerCount">0</span></p>
+    <p>💧 물: <span id="waterCount">0</span> / 사용: <span id="waterGiven">0</span></p>
+    <p>🌿 거름: <span id="fertilizerCount">0</span> / 사용: <span id="fertilizerGiven">0</span></p>
     <p>🪙 ORCX: <span id="tokenCount">0</span></p>
   </div>
 
@@ -76,6 +76,8 @@
           document.getElementById("fertilizerCount").innerText = data.fertilizer ?? 0;
           document.getElementById("tokenCount").innerText = data.token ?? 0;
           document.getElementById("farmName").innerText = data.farmName ?? "무명농장";
+          document.getElementById("waterGiven").innerText = data.waterGiven ?? 0;
+          document.getElementById("fertilizerGiven").innerText = data.fertilizerGiven ?? 0;
           document.getElementById("statusBox").innerText = "✅ 전기 공급 중 (서버 연결됨)";
           document.getElementById("statusBox").style.color = "lightgreen";
         } else {
@@ -119,12 +121,20 @@
     }
 
     async function harvestBarley() {
-      await fetch(API_BASE + "/api/harvest-barley", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname })
-      });
-      fetchUserData();
+      const waterPoints = parseInt(document.getElementById("waterGiven").innerText);
+      const fertilizerPoints = parseInt(document.getElementById("fertilizerGiven").innerText);
+
+      if (waterPoints >= 5 && fertilizerPoints >= 5) {
+        await fetch(API_BASE + "/api/harvest-barley", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname })
+        });
+        fetchUserData();
+        window.location.href = "gamja-result.html";
+      } else {
+        alert("🌾 수확 조건이 부족합니다! (물과 거름 각각 5 이상 필요)");
+      }
     }
   </script>
 </body>
