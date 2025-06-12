@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>보리 수확 결과</title>
+  <title>보리 가공 공장</title>
   <style>
     body {
       margin: 0;
@@ -47,7 +47,7 @@
       to { transform: scale(1.1); }
     }
     .btn {
-      margin-top: 2rem;
+      margin-top: 1rem;
       padding: 0.8rem 2rem;
       background-color: #f5c842;
       color: #000;
@@ -60,13 +60,20 @@
     .btn:hover {
       background-color: #d8ae36;
     }
+    #convert-status {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #a7ffeb;
+    }
   </style>
 </head>
 <body>
   <div class="result-box">
-    <h1>🌾 보리 수확 결과</h1>
+    <h1>🌾 보리 가공 공장</h1>
     <div id="nickname"></div>
     <div id="result"></div>
+    <button class="btn" onclick="convertBarley()">🔧 제품 만들기</button>
+    <div id="convert-status"></div>
     <button class="btn" onclick="goBack()">농장으로 돌아가기</button>
   </div>
 
@@ -79,7 +86,32 @@
       window.location.href = "orcax-farm_000.html";
     } else {
       document.getElementById("nickname").textContent = `👤 ${nickname} 님`; 
-      document.getElementById("result").textContent = `🌾 ${yieldAmount} 말 수확하셨습니다!`;
+      document.getElementById("result").textContent = `🌾 ${yieldAmount} 말 수확`; 
+    }
+
+    function convertBarley() {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/convert-barley", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nickname: nickname,
+          amount: parseInt(yieldAmount)
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("convert-status").textContent = `✅ ${data.product} 가공 성공!`;
+        } else {
+          document.getElementById("convert-status").textContent = "❌ 가공 실패: " + data.message;
+        }
+      })
+      .catch(err => {
+        document.getElementById("convert-status").textContent = "❌ 서버 오류로 가공 실패";
+        console.error(err);
+      });
     }
 
     function goBack() {
