@@ -183,7 +183,8 @@
       if (!name) return alert("제품 이름을 입력하세요.");
       if (type === "감자" && userData.potatoCount <= 0) return alert("감자가 부족합니다.");
       if (type === "보리" && userData.barleyCount <= 0) return alert("보리가 부족합니다.");
-      await fetch(`${API_BASE}/api/products`, {
+
+      const res = await fetch(`${API_BASE}/api/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -193,6 +194,12 @@
           quantity: 1
         })
       });
+
+      if (!res.ok) {
+        alert("서버에 제품 저장 실패! 전기만 축내고 있어!");
+        return;
+      }
+
       if (type === "감자") userData.potatoCount--;
       if (type === "보리") userData.barleyCount--;
       const existing = userData.inventory.find(i => i.type === name);
