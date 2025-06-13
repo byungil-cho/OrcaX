@@ -40,9 +40,8 @@
       max-width: 400px;
       border-radius: 12px;
     }
-    #factoryBox input {
+    #factoryBox input, #factoryBox select {
       padding: 0.5rem;
-      width: 70%;
       margin-right: 0.5rem;
     }
     #factoryBox button, .exchange-buttons button, .navigation-buttons a, .exchange-to-token {
@@ -94,10 +93,13 @@
     <div id="resourceBox">
       <p>🥔 감자: <span id="potatoCount">0</span></p>
       <p>💧 물: <span id="waterCount">0</span></p>
+      <p>🌾 보리: <span id="barleyCount">0</span></p>
       <p>🌿 거름: <span id="fertilizerCount">0</span></p>
       <p>🪙 ORCX: <span id="tokenCount">0</span></p>
     </div>
     <div id="factoryBox">
+      <label><input type="radio" name="productType" value="감자" checked /> 감자</label>
+      <label><input type="radio" name="productType" value="보리" /> 보리</label>
       <input type="text" id="productName" placeholder="제품 이름 입력" />
       <button onclick="processProduct()">제품 가공하기</button>
     </div>
@@ -129,6 +131,7 @@
       fertilizer: 0,
       token: 0,
       potatoCount: 0,
+      barleyCount: 0,
       inventory: []
     };
 
@@ -142,6 +145,7 @@
           userData.water = data.water ?? 0;
           userData.fertilizer = data.fertilizer ?? 0;
           userData.token = data.token ?? 0;
+          userData.barleyCount = data.barleyCount ?? 0;
           userData.inventory = (data.inventory ?? []).filter(
             item => typeof item.type === "string" && item.type !== "undefined" && item.count > 0
           );
@@ -163,6 +167,7 @@
       document.getElementById("waterCount").innerText = userData.water;
       document.getElementById("fertilizerCount").innerText = userData.fertilizer;
       document.getElementById("tokenCount").innerText = userData.token;
+      document.getElementById("barleyCount").innerText = userData.barleyCount;
       const list = document.getElementById("inventoryItems");
       list.innerHTML = "";
       userData.inventory.forEach((item, idx) => {
@@ -174,25 +179,25 @@
 
     async function processProduct() {
       const name = document.getElementById("productName").value.trim();
+      const type = document.querySelector('input[name="productType"]:checked').value;
       if (!name) return alert("제품 이름을 입력하세요.");
-      if (userData.potatoCount <= 0) return alert("감자가 부족합니다.");
-      const existing = userData.inventory.find(i => i.type === name);
-      if (existing) existing.count++;
-      else userData.inventory.push({ type: name, count: 1 });
-      userData.potatoCount--;
-
-      // ✅ 추가된 서버 저장 요청
+      if (type === "감자" && userData.potatoCount <= 0) return alert("감자가 부족합니다.");
+      if (type === "보리" && userData.barleyCount <= 0) return alert("보리가 부족합니다.");
       await fetch(`${API_BASE}/api/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nickname,
           productName: name,
-          productType: "감자",
+          productType: type,
           quantity: 1
         })
       });
-
+      if (type === "감자") userData.potatoCount--;
+      if (type === "보리") userData.barleyCount--;
+      const existing = userData.inventory.find(i => i.type === name);
+      if (existing) existing.count++;
+      else userData.inventory.push({ type: name, count: 1 });
       await saveUserData();
     }
 
