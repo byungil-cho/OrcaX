@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -99,15 +98,17 @@
       <p>🪙 ORCX: <span id="tokenCount">0</span></p>
     </div>
     <div id="factoryBox">
-      <input type="text" id="productName" placeholder="제품 이름 입력" />
-      <button onclick="processProduct()">제품 가공하기</button>
+      <label><input type="radio" name="material" value="감자" checked> 감자</label>
+      <label><input type="radio" name="material" value="보리"> 보리</label>
+      <input type="text" id="productNameInput" placeholder="제품 이름 입력" style="margin-left:10px; padding:4px;" />
+      <button onclick="createProduct()">제품 만들기</button>
     </div>
     <div class="exchange-buttons">
       <button onclick="exchange('water')">선택 제품 → 물 교환</button>
       <button onclick="exchange('fertilizer')">선택 제품 → 거름 교환</button>
     </div>
-    <h3>📦 가공 제품 보관함</h3>
-    <ul id="inventoryItems"></ul>
+    <h3>🧺 제품 보관소</h3>
+    <ul id="productList" style="list-style:none; padding-left:0;"></ul>
     <div class="navigation-buttons">
       <a href="gamja-shop.html">🛒 씨감자 상점</a>
       <a href="gamja-exchange.html">🔁 자원 교환소</a>
@@ -119,120 +120,56 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname");
-    const farmName = localStorage.getItem("farmName");
 
     if (!nickname) {
       alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
     }
 
-    const statusBox = document.getElementById("statusBox");
-    document.getElementById("nicknameBox").innerText = `👤 ${nickname} (${farmName}) 님`;
+    document.getElementById("nicknameBox").innerText = `👤 ${nickname}`;
 
-    const userData = {
-      nickname,
-      water: 0,
-      fertilizer: 0,
-      token: 0,
-      potatoCount: 0,
-      inventory: []
-    };
+    async function createProduct() {
+      const productName = document.getElementById("productNameInput").value;
+      const productType = document.querySelector('input[name="material"]:checked').value;
+      if (!nickname || !productName) {
+        alert("닉네임 또는 제품명을 입력하세요.");
+        return;
+      }
 
-    async function fetchUserData() {
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
-        if (!res.ok) throw new Error("연결 실패");
-        const data = await res.json();
-        if (data.nickname) {
-          userData.potatoCount = data.potatoCount ?? 0;
-          userData.water = data.water ?? 0;
-          userData.fertilizer = data.fertilizer ?? 0;
-          userData.token = data.token ?? 0;
-          userData.inventory = (data.inventory ?? []).filter(
-            item => typeof item.type === "string" && item.type !== "undefined" && item.count > 0
-          );
-          updateDisplay();
-          statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
-          statusBox.style.color = "green";
-        } else {
-          throw new Error("데이터 없음");
-        }
-      } catch (err) {
-        statusBox.innerText = "❌ 전기 공급 끊김 (서버 오류)";
-        statusBox.style.color = "red";
-        console.error(err);
+      const res = await fetch(`${API_BASE}/api/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, productName, productType, quantity: 1 })
+      });
+
+      if (res.ok) {
+        alert("제품이 저장되었습니다!");
+        document.getElementById("productNameInput").value = "";
+        loadProducts();
+      } else {
+        alert("저장 실패!");
       }
     }
 
-    function updateDisplay() {
-      document.getElementById("potatoCount").innerText = userData.potatoCount;
-      document.getElementById("waterCount").innerText = userData.water;
-      document.getElementById("fertilizerCount").innerText = userData.fertilizer;
-      document.getElementById("tokenCount").innerText = userData.token;
-      const list = document.getElementById("inventoryItems");
+    async function loadProducts() {
+      const res = await fetch(`${API_BASE}/api/products/${nickname}`);
+      const data = await res.json();
+      const list = document.getElementById("productList");
       list.innerHTML = "";
-      userData.inventory.forEach((item, idx) => {
-        const li = document.createElement("li");
-        li.innerHTML = `<input type="checkbox" value="${idx}"> ${item.type} × ${item.count}`;
-        list.appendChild(li);
-      });
+      if (data.success && data.products.length > 0) {
+        data.products.forEach(p => {
+          const li = document.createElement("li");
+          li.textContent = `${p.productName} (${p.productType}) - ${p.quantity}개`;
+          list.appendChild(li);
+        });
+      } else {
+        list.innerHTML = "<li>등록된 제품이 없습니다.</li>";
+      }
     }
 
-    async function processProduct() {
-      const name = document.getElementById("productName").value.trim();
-      if (!name) return alert("제품 이름을 입력하세요.");
-      if (userData.potatoCount <= 0) return alert("감자가 부족합니다.");
-      const existing = userData.inventory.find(i => i.type === name);
-      if (existing) existing.count++;
-      else userData.inventory.push({ type: name, count: 1 });
-      userData.potatoCount--;
-      await saveUserData();
+    if (nickname) {
+      loadProducts();
     }
-
-    async function exchange(type) {
-      const selected = Array.from(document.querySelectorAll("#inventoryItems input[type='checkbox']:checked"));
-      if (selected.length === 0) return alert("교환할 제품을 선택하세요.");
-      const indexes = selected.map(cb => parseInt(cb.value)).sort((a, b) => b - a);
-      let successCount = 0;
-      indexes.forEach(i => {
-        if (userData.inventory[i]) {
-          if (userData.inventory[i].count > 1) {
-            userData.inventory[i].count--;
-          } else {
-            userData.inventory.splice(i, 1);
-          }
-          successCount++;
-        }
-      });
-      if (type === "water") userData.water += successCount;
-      if (type === "fertilizer") userData.fertilizer += successCount;
-      await saveUserData();
-    }
-
-    async function exchangeToToken() {
-      let exchangeCount = userData.potatoCount;
-      userData.potatoCount = 0;
-      userData.inventory.forEach((item) => {
-        if (item.type.startsWith("barley")) {
-          exchangeCount += item.count;
-          item.count = 0;
-        }
-      });
-      userData.inventory = userData.inventory.filter(i => i.count > 0);
-      userData.token += exchangeCount;
-      await saveUserData();
-    }
-
-    async function saveUserData() {
-      await fetch(`${API_BASE}/api/userdata`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-      });
-      await fetchUserData();
-    }
-
-    fetchUserData();
   </script>
 </body>
 </html>
