@@ -42,8 +42,8 @@
     }
     #factoryBox input[type="text"] {
       padding: 0.5rem;
-      width: 60%;
-      margin: 0.5rem 0;
+      width: 70%;
+      margin-right: 0.5rem;
     }
     #factoryBox label {
       margin-right: 1rem;
@@ -86,6 +86,7 @@
       display: block;
       margin: 1rem auto;
       background-color: #4d804d;
+      color: white;
     }
   </style>
 </head>
@@ -102,8 +103,10 @@
       <p>🪙 ORCX: <span id="tokenCount">0</span></p>
     </div>
     <div id="factoryBox">
-      <label><input type="radio" name="material" value="감자" checked> 감자</label>
-      <label><input type="radio" name="material" value="보리"> 보리</label><br />
+      <div style="margin-bottom: 0.5rem;">
+        <label><input type="radio" name="material" value="감자" checked> 감자</label>
+        <label><input type="radio" name="material" value="보리"> 보리</label>
+      </div>
       <input type="text" id="productNameInput" placeholder="제품 이름 입력" />
       <button onclick="createProduct()">제품 만들기</button>
     </div>
