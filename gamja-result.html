@@ -201,15 +201,16 @@ function createProduct() {
       productType,
       quantity: 1
     })
-  }).then(res => {
+  }).then(async res => {
     if (!res.ok) {
       alert("제품 저장 실패");
       return;
     }
+    const result = await res.json();
     alert("제품 저장 완료!");
-    if (productType === "감자") userData.potatoCount--;
-    if (productType === "보리") userData.barleyCount--;
-    fetchUserData();
+    await fetchUserData();
+    document.getElementById("productNameInput").value = "";
+  });
     document.getElementById("productNameInput").value = "";
   });
 }
