@@ -173,6 +173,46 @@ function updateDisplay() {
 }
 
 fetchUserData();
-  </script>
+  
+function createProduct() {
+  const productName = document.getElementById("productNameInput").value.trim();
+  const productType = document.querySelector('input[name="material"]:checked').value;
+  if (!productName) {
+    alert("제품 이름을 입력하세요.");
+    return;
+  }
+
+  if (productType === "감자" && userData.potatoCount <= 0) {
+    alert("감자가 부족합니다.");
+    return;
+  }
+
+  if (productType === "보리" && userData.barleyCount <= 0) {
+    alert("보리가 부족합니다.");
+    return;
+  }
+
+  fetch(`${API_BASE}/api/products`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nickname,
+      productName,
+      productType,
+      quantity: 1
+    })
+  }).then(res => {
+    if (!res.ok) {
+      alert("제품 저장 실패");
+      return;
+    }
+    alert("제품 저장 완료!");
+    if (productType === "감자") userData.potatoCount--;
+    if (productType === "보리") userData.barleyCount--;
+    fetchUserData();
+    document.getElementById("productNameInput").value = "";
+  });
+}
+</script>
 </body>
 </html>
