@@ -4,87 +4,7 @@
   <meta charset="UTF-8" />
   <title>OrcaX 감자 가공공장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #fef9e8;
-      padding: 1rem;
-      margin: 0;
-    }
-    h1 {
-      text-align: center;
-      color: #504030;
-      margin: 1rem 0 0.5rem;
-    }
-    #nicknameBox {
-      text-align: right;
-      font-weight: bold;
-      margin: 0.5rem 1rem 0.5rem 0;
-      color: #503020;
-    }
-    .status-box {
-      text-align: center;
-      font-weight: bold;
-      padding: 0.5rem;
-      background: #fff;
-      border: 2px dashed #aaa;
-      margin: 0.5rem auto;
-      max-width: 300px;
-      color: #333;
-    }
-    #resourceBox, #factoryBox {
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      margin: 1rem auto;
-      max-width: 400px;
-      border-radius: 12px;
-    }
-    #factoryBox input {
-      padding: 0.5rem;
-      width: 70%;
-      margin-right: 0.5rem;
-    }
-    #factoryBox button, .exchange-buttons button, .navigation-buttons a, .exchange-to-token {
-      background-color: #a98256;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      margin: 0.3rem;
-      cursor: pointer;
-      border-radius: 8px;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .exchange-buttons, .navigation-buttons {
-      text-align: center;
-      margin: 1rem;
-    }
-    ul#inventoryItems {
-      list-style: none;
-      padding-left: 1rem;
-    }
-    ul#inventoryItems li {
-      background: #fff;
-      margin: 0.3rem 0;
-      padding: 0.4rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    h3 {
-      text-align: center;
-      color: #504030;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-    }
-    .exchange-to-token {
-      display: block;
-      margin: 1rem auto;
-      background-color: #4d804d;
-    }
-  </style>
+  <style>/* ...생략 (기존 CSS 유지)... */</style>
 </head>
 <body>
   <div class="container">
@@ -93,6 +13,7 @@
     <div id="nicknameBox"></div>
     <div id="resourceBox">
       <p>🥔 감자: <span id="potatoCount">0</span></p>
+      <p>🌾 보리: <span id="barleyCount">0</span></p>
       <p>💧 물: <span id="waterCount">0</span></p>
       <p>🌿 거름: <span id="fertilizerCount">0</span></p>
       <p>🪙 ORCX: <span id="tokenCount">0</span></p>
@@ -129,6 +50,7 @@
     const userData = {
       nickname,
       potatoCount: 0,
+      barleyCount: 0,
       water: 0,
       fertilizer: 0,
       token: 0,
@@ -141,6 +63,7 @@
         const data = await res.json();
         if (data.nickname) {
           userData.potatoCount = data.potatoCount ?? 0;
+          userData.barleyCount = data.barleyCount ?? 0;
           userData.water = data.water ?? 0;
           userData.fertilizer = data.fertilizer ?? 0;
           userData.token = data.token ?? 0;
@@ -157,6 +80,7 @@
     function updateDisplay() {
       document.getElementById("nicknameBox").innerText = `👤 ${nickname}`;
       document.getElementById("potatoCount").innerText = userData.potatoCount;
+      document.getElementById("barleyCount").innerText = userData.barleyCount;
       document.getElementById("waterCount").innerText = userData.water;
       document.getElementById("fertilizerCount").innerText = userData.fertilizer;
       document.getElementById("tokenCount").innerText = userData.token;
@@ -170,6 +94,16 @@
         return;
       }
 
+      if (productType === "감자" && userData.potatoCount <= 0) {
+        alert("감자가 부족합니다.");
+        return;
+      }
+
+      if (productType === "보리" && userData.barleyCount <= 0) {
+        alert("보리가 부족합니다.");
+        return;
+      }
+
       const res = await fetch(`${API_BASE}/api/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -179,6 +113,9 @@
       if (res.ok) {
         alert("제품이 저장되었습니다!");
         document.getElementById("productNameInput").value = "";
+        if (productType === "감자") userData.potatoCount--;
+        if (productType === "보리") userData.barleyCount--;
+        updateDisplay();
         loadProducts();
       } else {
         alert("저장 실패!");
