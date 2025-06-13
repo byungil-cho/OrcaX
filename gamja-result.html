@@ -119,7 +119,7 @@
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname");
+    const nickname = (localStorage.getItem("nickname") || "").trim();
 
     if (!nickname) {
       alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
@@ -129,7 +129,7 @@
     document.getElementById("nicknameBox").innerText = `👤 ${nickname}`;
 
     async function createProduct() {
-      const productName = document.getElementById("productNameInput").value;
+      const productName = document.getElementById("productNameInput").value.trim();
       const productType = document.querySelector('input[name="material"]:checked').value;
       if (!nickname || !productName) {
         alert("닉네임 또는 제품명을 입력하세요.");
