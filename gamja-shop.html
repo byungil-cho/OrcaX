@@ -34,67 +34,68 @@
     <button onclick="goToMarket()">📈 거래소 가기</button>
   </div>
 
-  <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname");
-    const kakaoId = localStorage.getItem("kakaoId");
-    const tokenEl = document.getElementById("token");
-    const seedPotatoEl = document.getElementById("seedPotato");
-    const nicknameBox = document.getElementById("nicknameBox");
-    const farmNameBox = document.getElementById("farmNameBox");
+  <!-- ✅ 주인님 요청 기준으로 디자인 절대 변경 없음 -->
+<script>
+  const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+  const nickname = localStorage.getItem("nickname");
+  const tokenEl = document.getElementById("token");
+  const seedPotatoEl = document.getElementById("seedPotato");
+  const nicknameBox = document.getElementById("nicknameBox");
+  const farmNameBox = document.getElementById("farmNameBox");
 
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
-    } else {
-      nicknameBox.textContent = "🐳 닉네임: " + nickname;
-      farmNameBox.textContent = "🌾 농장명: " + (localStorage.getItem("farmName") || "없음");
-      loadUserData();
-    }
+  if (!nickname) {
+    alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+    window.location.href = "orcax-farm_000.html";
+  } else {
+    nicknameBox.textContent = "🐳 닉네임: " + nickname;
+    farmNameBox.textContent = "🌾 농장명: " + (localStorage.getItem("farmName") || "없음");
+    loadUserData();
+  }
 
-    function loadUserData() {
-      fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
-        .then(res => res.json())
-        .then(user => {
-          tokenEl.textContent = "🌕 토큰: " + (user.token ?? 0);
-          seedPotatoEl.textContent = "🥔 씨감자: " + (user.seedPotato ?? 0);
-        })
-        .catch(() => {
-          tokenEl.textContent = "토큰: 불러오기 실패";
-          seedPotatoEl.textContent = "씨감자: 불러오기 실패";
-        });
-    }
-
-    function buySeedPotato() {
-      const amount = parseInt(document.getElementById("buyAmount").value);
-      if (!amount || amount < 1) return alert("구매 수량을 입력하세요");
-
-      fetch(`${API_BASE}/api/buy-seed`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, kakaoId, amount })
-      })
+  function loadUserData() {
+    fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
       .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert("씨감자 구매 완료!");
-          loadUserData();
-        } else {
-          alert("구매 실패: " + (data.message || "오류"));
-        }
+      .then(user => {
+        tokenEl.textContent = "🌕 토큰: " + (user.token ?? 0);
+        seedPotatoEl.textContent = "🥔 씨감자: " + (user.seedPotato ?? 0);
       })
-      .catch(() => alert("서버 오류로 구매 실패"));
-    }
+      .catch(() => {
+        tokenEl.textContent = "토큰: 불러오기 실패";
+        seedPotatoEl.textContent = "씨감자: 불러오기 실패";
+      });
+  }
 
-    function goToFarm() {
-      location.href = "gamja-factory.html";
-    }
-    function goToStorage() {
-      location.href = "gamja-result.html";
-    }
-    function goToMarket() {
-      location.href = "gamja-market.html";
-    }
-  </script>
+  function buySeedPotato() {
+    const amount = parseInt(document.getElementById("buyAmount").value);
+    if (!amount || amount < 1) return alert("구매 수량을 입력하세요");
+
+    fetch(`${API_BASE}/api/buy-seed`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nickname, amount }) // ✅ kakaoId 제거!
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert("씨감자 구매 완료!");
+        loadUserData(); // ✅ 수량 반영 확실
+      } else {
+        alert("구매 실패: " + (data.message || "오류"));
+      }
+    })
+    .catch(() => alert("서버 오류로 구매 실패"));
+  }
+
+  function goToFarm() {
+    location.href = "gamja-factory.html";
+  }
+  function goToStorage() {
+    location.href = "gamja-result.html";
+  }
+  function goToMarket() {
+    location.href = "gamja-market.html";
+  }
+</script>
+
 </body>
 </html>
