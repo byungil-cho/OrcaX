@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaX 감자+보리 가공공장</title>
+  <title>OrcaX 감자+보리 가공공장 (최종)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body { font-family: 'Arial', sans-serif; background: #fef9e8; padding: 1rem; margin: 0; }
@@ -32,7 +32,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>🏭 OrcaX 감자 + 보리 가공공장</h1>
+    <h1>🏭 OrcaX 감자 + 보리 가공공장 (최종)</h1>
     <div id="statusBox" class="status-box">🔌 서버 연결 확인 중...</div>
     <div id="nicknameBox"></div>
     <div id="resourceBox">
@@ -98,7 +98,7 @@
           userData.water = data.water ?? 0;
           userData.fertilizer = data.fertilizer ?? 0;
           userData.token = data.token ?? 0;
-          userData.inventory = (data.inventory ?? []).filter(i => i.type && i.count > 0);
+          userData.inventory = data.inventory ?? [];
           updateDisplay();
           statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
           statusBox.style.color = "green";
