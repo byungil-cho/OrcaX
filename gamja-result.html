@@ -126,7 +126,41 @@
       window.location.href = "orcax-farm_000.html";
     }
 
-    document.getElementById("nicknameBox").innerText = `👤 ${nickname}`;
+    const userData = {
+      nickname,
+      potatoCount: 0,
+      water: 0,
+      fertilizer: 0,
+      token: 0,
+      inventory: []
+    };
+
+    async function fetchUserData() {
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
+        const data = await res.json();
+        if (data.nickname) {
+          userData.potatoCount = data.potatoCount ?? 0;
+          userData.water = data.water ?? 0;
+          userData.fertilizer = data.fertilizer ?? 0;
+          userData.token = data.token ?? 0;
+          updateDisplay();
+          document.getElementById("statusBox").innerText = "✅ 전기 공급 중 (서버 연결됨)";
+          document.getElementById("statusBox").style.color = "green";
+        }
+      } catch (err) {
+        document.getElementById("statusBox").innerText = "❌ 전기 공급 끊김 (서버 오류)";
+        document.getElementById("statusBox").style.color = "red";
+      }
+    }
+
+    function updateDisplay() {
+      document.getElementById("nicknameBox").innerText = `👤 ${nickname}`;
+      document.getElementById("potatoCount").innerText = userData.potatoCount;
+      document.getElementById("waterCount").innerText = userData.water;
+      document.getElementById("fertilizerCount").innerText = userData.fertilizer;
+      document.getElementById("tokenCount").innerText = userData.token;
+    }
 
     async function createProduct() {
       const productName = document.getElementById("productNameInput").value.trim();
@@ -167,9 +201,8 @@
       }
     }
 
-    if (nickname) {
-      loadProducts();
-    }
+    fetchUserData();
+    loadProducts();
   </script>
 </body>
 </html>
