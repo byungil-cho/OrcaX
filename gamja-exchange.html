@@ -102,7 +102,12 @@
   <header>
     <h1>🔄 OrcaX 자원 교환소</h1>
     <div id="nicknameBox"></div>
-  </header>
+  
+    <div class="info">
+      <strong>🌾 농장 이름:</strong> <span id="nicknameDisplay"></span>
+    </div>
+    </header>
+
 
   <div class="info" id="infoBox">정보 불러오는 중...</div>
 
@@ -277,6 +282,51 @@ if (!nickname) {
       });
     }
   </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const nickname = (localStorage.getItem("nickname") || "").trim();
+  if (!nickname) {
+    alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+    window.location.href = "orcax-farm_000.html";
+  }
+  document.getElementById("nicknameDisplay").innerText = nickname;
+
+  const productItems = document.querySelectorAll(".product-item");
+  productItems.forEach((item) => {
+    const exchangeBtn = item.querySelector(".exchange-btn");
+    exchangeBtn.addEventListener("click", () => {
+      const productName = item.getAttribute("data-product");
+      const productCountElem = item.querySelector(".product-count");
+      let count = parseInt(productCountElem.innerText);
+
+      if (count <= 0) {
+        alert("해당 제품이 부족합니다!");
+        return;
+      }
+
+      // 수량 감소
+      count -= 1;
+      productCountElem.innerText = count;
+
+      // 서버에 전송 (예시 endpoint)
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/exchange", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, product: productName })
+      }).then(res => res.json()).then(data => {
+        if (!data.success) {
+          alert("교환 실패: " + data.message);
+        }
+      }).catch(err => {
+        console.error(err);
+        alert("서버 오류로 교환 실패");
+      });
+    });
+  });
+});
+</script>
+
 </body>
 </html>
 
