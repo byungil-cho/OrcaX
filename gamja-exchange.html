@@ -126,6 +126,13 @@ const FERTILIZER_PER_ITEM = 3;
 const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
 let fullProductList = [];
+let userData = {
+  nickname: nickname,
+  water: 0,
+  fertilizer: 0,
+  token: 0,
+  inventory: []
+};
 
 if (!nickname) {
   alert("로그인 정보가 없습니다. 입구로 이동합니다.");
@@ -139,10 +146,11 @@ function fetchUserData() {
   fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
     .then(res => res.json())
     .then(user => {
+      userData = user;
       infoBox.innerHTML = `
-        💧 물: <strong>${user.water ?? 0}</strong> |
-        🌿 거름: <strong>${user.fertilizer ?? 0}</strong> |
-        💰 ORCX: <strong>${user.token ?? 0}</strong>
+        💧 물: <strong>${userData.water ?? 0}</strong> |
+        🌿 거름: <strong>${userData.fertilizer ?? 0}</strong> |
+        💰 ORCX: <strong>${userData.token ?? 0}</strong>
       `;
       loadProductStorage();
     })
@@ -203,33 +211,28 @@ function exchangeSelected(type) {
     return;
   }
 
-  let exchangeItems = [];
+  let waterAmount = 0;
+  let fertAmount = 0;
+  let totalCount = 0;
+
   checkboxes.forEach(cb => {
-    const itemType = cb.dataset.type;
-    const itemCategory = cb.dataset.category;
-    const itemCount = parseInt(cb.dataset.count);
-    exchangeItems.push({ type: itemType, category: itemCategory, count: itemCount });
-  });
-
-  let waterAmount = exchangeItems.length * WATER_PER_ITEM;
-  let fertAmount = exchangeItems.length * FERTILIZER_PER_ITEM;
-  if (!confirm(`${type === 'water' ? '물' : '거름'}로 ${type === 'water' ? waterAmount : fertAmount}개 교환합니다.`)) return;
-
-  // 감소
-  exchangeItems.forEach(selected => {
-    const found = fullProductList.find(i => i.type === selected.type && i.category === selected.category);
-    if (found && found.count > 0) {
-      found.count -= 1;
+    const key = cb.dataset.type;
+    const item = fullProductList.find(i => `${i.type} (${i.category})` === key);
+    if (item && item.count > 0) {
+      item.count -= 1;
+      totalCount++;
     }
   });
 
-  // 필터된 목록 저장
-  const filteredInventory = fullProductList.filter(i => i.count > 0);
+  if (type === "water") userData.water += totalCount * WATER_PER_ITEM;
+  if (type === "fertilizer") userData.fertilizer += totalCount * FERTILIZER_PER_ITEM;
+
+  userData.inventory = fullProductList.filter(i => i.count > 0);
 
   fetch(`${API_BASE}/api/userdata`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nickname, inventory: filteredInventory, water: type === 'water' ? filteredInventory.water + waterAmount : filteredInventory.water, fertilizer: type === 'fertilizer' ? filteredInventory.fertilizer + fertAmount : filteredInventory.fertilizer })
+    body: JSON.stringify(userData)
   })
     .then(() => {
       alert("✅ 교환 완료!");
@@ -240,8 +243,9 @@ function exchangeSelected(type) {
       console.error(err);
     });
 }
-</script>
+  </script>
 </body>
 </html>
+
 
 
