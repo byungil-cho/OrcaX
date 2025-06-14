@@ -135,6 +135,36 @@
       }
     }
 
+    async function processProduct() {
+      const name = document.getElementById("productName").value.trim();
+      const type = document.querySelector('input[name="productType"]:checked').value;
+      if (!name) return alert("제품 이름을 입력하세요.");
+      if (type === "감자" && parseInt(document.getElementById("potatoCount").innerText) <= 0)
+        return alert("감자가 부족합니다.");
+      if (type === "보리" && parseInt(document.getElementById("barleyCount").innerText) <= 0)
+        return alert("보리가 부족합니다.");
+
+      try {
+        const res = await fetch(`${API_BASE}/api/products`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nickname,
+            productName: name,
+            productType: type,
+            quantity: 1
+          })
+        });
+        if (!res.ok) throw new Error("저장 실패");
+
+        await fetchUserData();
+        await loadProductStorage(nickname);
+      } catch (err) {
+        alert("제품 가공 실패!");
+        console.error(err);
+      }
+    }
+
     async function loadProductStorage(nickname) {
       try {
         const res = await fetch(`${API_BASE}/api/products/${nickname}`);
