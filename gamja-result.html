@@ -146,6 +146,7 @@
           userData.barleyCount = data.barleyCount ?? 0;
           userData.inventory = [];
           await loadProductStorage(nickname);
+          updateDisplay();
           statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
           statusBox.style.color = "green";
         } else {
@@ -156,6 +157,14 @@
         statusBox.style.color = "red";
         console.error(err);
       }
+    }
+
+    function updateDisplay() {
+      document.getElementById("potatoCount").innerText = userData.potatoCount;
+      document.getElementById("waterCount").innerText = userData.water;
+      document.getElementById("fertilizerCount").innerText = userData.fertilizer;
+      document.getElementById("tokenCount").innerText = userData.token;
+      document.getElementById("barleyCount").innerText = userData.barleyCount;
     }
 
     async function loadProductStorage(nickname) {
@@ -173,7 +182,14 @@
             merged[item.type] = { type: item.type, count: item.count };
           }
         });
-        userData.inventory = Object.values(merged);
+        const mergedList = Object.values(merged);
+        if (mergedList.length === 0) {
+          const li = document.createElement("li");
+          li.textContent = "제품이 없습니다.";
+          list.appendChild(li);
+          return;
+        }
+        userData.inventory = mergedList;
         userData.inventory.forEach((item, idx) => {
           const li = document.createElement("li");
           li.innerHTML = `<input type="checkbox" value="${idx}"> ${item.type} × ${item.count}`;
@@ -225,6 +241,7 @@
   </script>
 </body>
 </html>
+
 
 
 
