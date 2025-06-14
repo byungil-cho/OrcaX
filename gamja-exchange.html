@@ -101,7 +101,7 @@
     <div class="status-box">
       <div class="status-item">💧 물: <span id="waterCount">0</span></div>
       <div class="status-item">🌿 거름: <span id="fertilizerCount">0</span></div>
-      <div class="status-item">🥔 감자 가공 제품으로 교환 가능합니다.</div>
+      <div class="status-item">🥔 감자 및 보리 가공 제품으로 교환 가능합니다.</div>
       <button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
       <button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
     </div>
@@ -148,7 +148,7 @@ function fetchUserData() {
       userData.water = user.water ?? 0;
       userData.fertilizer = user.fertilizer ?? 0;
       userData.token = user.token ?? 0;
-      userData.inventory = Array.isArray(user.inventory) ? user.inventory : [];
+      userData.inventory = Array.isArray(user.inventory) ? user.inventory.filter(item => item.category) : [];
 
       infoBox.innerHTML = `
         💧 물: <strong>${userData.water}</strong> |
@@ -156,24 +156,48 @@ function fetchUserData() {
         💰 ORCX: <strong>${userData.token}</strong>
       `;
 
-      const list = document.getElementById("inventoryItems");
-      list.innerHTML = "";
-      userData.inventory.forEach((item, i) => {
-        const div = document.createElement("div");
-        div.className = "inventory-item";
-        div.innerHTML = `
-          <label>
-            <input type="checkbox" data-idx="${i}" />
-            ${item.type} × ${item.count}
-          </label>
-        `;
-        list.appendChild(div);
-      });
+      loadProductStorage();
     })
     .catch(err => {
       console.error("유저 정보 불러오기 실패", err);
       infoBox.textContent = "❌ 유저 정보 없음";
     });
+}
+
+function loadProductStorage() {
+  const merged = {};
+  userData.inventory.forEach(item => {
+    if (!item.type || item.count < 1) return;
+    const key = `${item.type} (${item.category})`;
+    if (merged[key]) {
+      merged[key].count += item.count;
+    } else {
+      merged[key] = { ...item, type: key };
+    }
+  });
+
+  const mergedList = Object.values(merged);
+  const list = document.getElementById("inventoryItems");
+  list.innerHTML = "";
+
+  if (mergedList.length === 0) {
+    const div = document.createElement("div");
+    div.textContent = "제품이 없습니다.";
+    list.appendChild(div);
+    return;
+  }
+
+  mergedList.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.className = "inventory-item";
+    div.innerHTML = `
+      <label>
+        <input type="checkbox" data-idx="${i}" />
+        ${item.type} × ${item.count}
+      </label>
+    `;
+    list.appendChild(div);
+  });
 }
 
 function exchangeSelected(type) {
@@ -184,7 +208,18 @@ function exchangeSelected(type) {
   }
 
   const indexes = Array.from(checkboxes).map(cb => parseInt(cb.dataset.idx));
-  const itemCount = indexes.length;
+  let itemCount = 0;
+
+  const list = Object.values(userData.inventory.reduce((acc, item) => {
+    const key = `${item.type} (${item.category})`;
+    if (!acc[key]) acc[key] = { ...item };
+    else acc[key].count += item.count;
+    return acc;
+  }, {}));
+
+  indexes.forEach(i => {
+    itemCount += list[i].count;
+  });
 
   const waterAdd = itemCount * WATER_PER_ITEM;
   const fertAdd = itemCount * FERTILIZER_PER_ITEM;
@@ -195,13 +230,14 @@ function exchangeSelected(type) {
 
   if (!confirm(message)) return;
 
-  // 제품 차감
   indexes.sort((a, b) => b - a).forEach(i => {
-    if (userData.inventory[i]) {
-      if (userData.inventory[i].count > 1) {
-        userData.inventory[i].count--;
+    const key = list[i].type;
+    const idx = userData.inventory.findIndex(x => `${x.type} (${x.category})` === key);
+    if (idx !== -1) {
+      if (userData.inventory[idx].count > 1) {
+        userData.inventory[idx].count--;
       } else {
-        userData.inventory.splice(i, 1);
+        userData.inventory.splice(idx, 1);
       }
     }
   });
@@ -228,6 +264,5 @@ function saveUserData() {
     });
 }
 </script>
-
 </body>
 </html>
