@@ -110,78 +110,25 @@
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname");
-    const farmName = localStorage.getItem("farmName");
-    const statusBox = document.getElementById("statusBox");
-
-    if (!nickname || nickname.trim() === "") {
-      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
-    }
-
-    document.getElementById("nicknameBox").innerText = `👤 ${nickname} (${farmName}) 님`;
-
-    const userData = {
-      nickname,
-      water: 0,
-      fertilizer: 0,
-      token: 0,
-      potatoCount: 0,
-      barleyCount: 0,
-      inventory: []
-    };
-
-    async function fetchUserData() {
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
-        if (!res.ok) throw new Error("연결 실패");
-        const data = await res.json();
-        console.log("🔎 사용자 데이터:", data);
-        if (data.nickname) {
-          userData.potatoCount = data.potatoCount ?? 0;
-          userData.water = data.water ?? 0;
-          userData.fertilizer = data.fertilizer ?? 0;
-          userData.token = data.token ?? 0;
-          userData.barleyCount = data.barleyCount ?? 0;
-          userData.inventory = [];
-          await loadProductStorage(nickname);
-          updateDisplay();
-          statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
-          statusBox.style.color = "green";
-        } else {
-          throw new Error("데이터 없음");
-        }
-      } catch (err) {
-        statusBox.innerText = "❌ 전기 공급 끊김 (서버 오류)";
-        statusBox.style.color = "red";
-        console.error(err);
-      }
-    }
-
-    function updateDisplay() {
-      document.getElementById("potatoCount").innerText = userData.potatoCount;
-      document.getElementById("waterCount").innerText = userData.water;
-      document.getElementById("fertilizerCount").innerText = userData.fertilizer;
-      document.getElementById("tokenCount").innerText = userData.token;
-      document.getElementById("barleyCount").innerText = userData.barleyCount;
-    }
-
     async function loadProductStorage(nickname) {
+      const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
       try {
         const res = await fetch(`${API_BASE}/api/products/${nickname}`);
         const products = await res.json();
         const list = document.getElementById("inventoryItems");
         list.innerHTML = "";
+
         const merged = {};
-        products.forEach((item, idx) => {
+        products.forEach(item => {
           if (!item.type || item.count < 1) return;
-          if (merged[item.type]) {
-            merged[item.type].count += item.count;
+          const key = item.type + (item.category ? ` (${item.category})` : '');
+          if (merged[key]) {
+            merged[key].count += item.count;
           } else {
-            merged[item.type] = { type: item.type, count: item.count };
+            merged[key] = { ...item, type: key };
           }
         });
+
         const mergedList = Object.values(merged);
         if (mergedList.length === 0) {
           const li = document.createElement("li");
@@ -189,8 +136,8 @@
           list.appendChild(li);
           return;
         }
-        userData.inventory = mergedList;
-        userData.inventory.forEach((item, idx) => {
+
+        mergedList.forEach((item, idx) => {
           const li = document.createElement("li");
           li.innerHTML = `<input type="checkbox" value="${idx}"> ${item.type} × ${item.count}`;
           list.appendChild(li);
@@ -199,48 +146,10 @@
         console.error("📛 제품 보관소 불러오기 실패:", err);
       }
     }
-
-    async function processProduct() {
-      const name = document.getElementById("productName").value.trim();
-      const type = document.querySelector('input[name="productType"]:checked').value;
-      if (!name) return alert("제품 이름을 입력하세요.");
-      if (type === "감자" && userData.potatoCount <= 0) return alert("감자가 부족합니다.");
-      if (type === "보리" && userData.barleyCount <= 0) return alert("보리가 부족합니다.");
-
-      const res = await fetch(`${API_BASE}/api/products`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nickname,
-          productName: name,
-          productType: type,
-          quantity: 1
-        })
-      });
-
-      if (!res.ok) {
-        alert("서버에 제품 저장 실패!");
-        return;
-      }
-
-      if (type === "감자") userData.potatoCount--;
-      if (type === "보리") userData.barleyCount--;
-      await saveUserData();
-    }
-
-    async function saveUserData() {
-      await fetch(`${API_BASE}/api/userdata`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-      });
-      await fetchUserData();
-    }
-
-    fetchUserData();
   </script>
 </body>
 </html>
+
 
 
 
