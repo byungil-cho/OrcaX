@@ -115,12 +115,12 @@ function loadProductStorage() {
         return;
       }
 
-      mergedList.forEach(([key, item]) => {
+      mergedList.forEach(([key, item], idx) => {
         const div = document.createElement("div");
         div.className = "inventory-item";
         div.innerHTML = `
           <label>
-            <input type="checkbox" data-type="${item.type}" data-category="${item.category}" />
+            <input type="checkbox" data-type="${item.type}" data-category="${item.category}" data-key="${key}" />
             ${key} × ${item.count}
           </label>
         `;
@@ -141,11 +141,10 @@ function exchangeSelected(type) {
 
   let totalExchanged = 0;
   checkboxes.forEach(cb => {
-    const typeLabel = cb.dataset.type;
-    const categoryLabel = cb.dataset.category;
-    const itemIndex = fullProductList.findIndex(item => item.type === typeLabel && item.category === categoryLabel && item.count > 0);
-    if (itemIndex >= 0) {
-      fullProductList[itemIndex].count--;
+    const key = cb.dataset.key;
+    const found = fullProductList.find(item => `${item.type} (${item.category})` === key);
+    if (found && found.count > 0) {
+      found.count--;
       totalExchanged++;
     }
   });
@@ -179,6 +178,7 @@ function exchangeSelected(type) {
   </script>
 </body>
 </html>
+
 
 
 
