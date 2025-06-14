@@ -137,6 +137,7 @@
         const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
         if (!res.ok) throw new Error("연결 실패");
         const data = await res.json();
+        console.log("🔎 사용자 데이터:", data);
         if (data.nickname) {
           userData.potatoCount = data.potatoCount ?? 0;
           userData.water = data.water ?? 0;
@@ -224,6 +225,7 @@
   </script>
 </body>
 </html>
+
 
 
 
