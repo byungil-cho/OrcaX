@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -123,6 +124,11 @@
     const farmName = localStorage.getItem("farmName");
     const statusBox = document.getElementById("statusBox");
 
+    if (!nickname || nickname.trim() === "") {
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "orcax-farm_000.html";
+    }
+
     document.getElementById("nicknameBox").innerText = `👤 ${nickname} (${farmName}) 님`;
 
     const userData = {
@@ -196,7 +202,7 @@
       });
 
       if (!res.ok) {
-        alert("서버에 제품 저장 실패! 전기만 축내고 있어!");
+        alert("서버에 제품 저장 실패!");
         return;
       }
 
