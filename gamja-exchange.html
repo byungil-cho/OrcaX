@@ -125,13 +125,7 @@ const FERTILIZER_PER_ITEM = 3;
 
 const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
-const userData = {
-  nickname,
-  water: 0,
-  fertilizer: 0,
-  token: 0,
-  inventory: []
-};
+let fullProductList = [];
 
 if (!nickname) {
   alert("로그인 정보가 없습니다. 입구로 이동합니다.");
@@ -145,17 +139,11 @@ function fetchUserData() {
   fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
     .then(res => res.json())
     .then(user => {
-      userData.water = user.water ?? 0;
-      userData.fertilizer = user.fertilizer ?? 0;
-      userData.token = user.token ?? 0;
-      userData.inventory = Array.isArray(user.inventory) ? user.inventory : [];
-
       infoBox.innerHTML = `
-        💧 물: <strong>${userData.water}</strong> |
-        🌿 거름: <strong>${userData.fertilizer}</strong> |
-        💰 ORCX: <strong>${userData.token}</strong>
+        💧 물: <strong>${user.water ?? 0}</strong> |
+        🌿 거름: <strong>${user.fertilizer ?? 0}</strong> |
+        💰 ORCX: <strong>${user.token ?? 0}</strong>
       `;
-
       loadProductStorage();
     })
     .catch(err => {
@@ -168,6 +156,7 @@ function loadProductStorage() {
   fetch(`${API_BASE}/api/products/${encodeURIComponent(nickname)}`)
     .then(res => res.json())
     .then(products => {
+      fullProductList = products;
       const merged = {};
       products.forEach(item => {
         if (!item.type || item.count < 1) return;
@@ -195,7 +184,7 @@ function loadProductStorage() {
         div.className = "inventory-item";
         div.innerHTML = `
           <label>
-            <input type="checkbox" data-type="${key}" />
+            <input type="checkbox" data-type="${item.type}" data-category="${item.category}" data-count="${item.count}" />
             ${key} × ${item.count}
           </label>
         `;
@@ -214,33 +203,33 @@ function exchangeSelected(type) {
     return;
   }
 
-  let itemCount = 0;
-
+  let exchangeItems = [];
   checkboxes.forEach(cb => {
-    const key = cb.dataset.type;
-    userData.inventory = userData.inventory.reduce((acc, item) => {
-      const cat = item.category || '미분류';
-      const itemKey = `${item.type} (${cat})`;
-      if (itemKey === key && item.count > 0) {
-        item.count--;
-        itemCount++;
-      }
-      if (item.count > 0) acc.push(item);
-      return acc;
-    }, []);
+    const itemType = cb.dataset.type;
+    const itemCategory = cb.dataset.category;
+    const itemCount = parseInt(cb.dataset.count);
+    exchangeItems.push({ type: itemType, category: itemCategory, count: itemCount });
   });
 
-  if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
-  if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
+  let waterAmount = exchangeItems.length * WATER_PER_ITEM;
+  let fertAmount = exchangeItems.length * FERTILIZER_PER_ITEM;
+  if (!confirm(`${type === 'water' ? '물' : '거름'}로 ${type === 'water' ? waterAmount : fertAmount}개 교환합니다.`)) return;
 
-  saveUserData();
-}
+  // 감소
+  exchangeItems.forEach(selected => {
+    const found = fullProductList.find(i => i.type === selected.type && i.category === selected.category);
+    if (found && found.count > 0) {
+      found.count -= 1;
+    }
+  });
 
-function saveUserData() {
+  // 필터된 목록 저장
+  const filteredInventory = fullProductList.filter(i => i.count > 0);
+
   fetch(`${API_BASE}/api/userdata`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData)
+    body: JSON.stringify({ nickname, inventory: filteredInventory, water: type === 'water' ? filteredInventory.water + waterAmount : filteredInventory.water, fertilizer: type === 'fertilizer' ? filteredInventory.fertilizer + fertAmount : filteredInventory.fertilizer })
   })
     .then(() => {
       alert("✅ 교환 완료!");
@@ -254,4 +243,5 @@ function saveUserData() {
 </script>
 </body>
 </html>
+
 
