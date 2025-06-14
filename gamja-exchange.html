@@ -1,3 +1,4 @@
+<!-- gamja-exchange_final.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -212,11 +213,13 @@
       let itemCount = 0;
       checkboxes.forEach(cb => {
         const key = cb.dataset.type;
+        const [typeText, categoryRaw] = key.split(" (");
+        const category = categoryRaw.replace(")", "");
+
         userData.inventory.forEach(item => {
-          const cat = item.category || '미분류';
-          const itemKey = `${item.type} (${cat})`;
-          if (itemKey === key && item.count > 0) {
-            item.count--;
+          const itemCat = item.category || '미분류';
+          if (item.type === typeText && itemCat === category && item.count > 0) {
+            item.count = Math.max(0, item.count - 1);
             itemCount++;
           }
         });
@@ -273,6 +276,7 @@
   </script>
 </body>
 </html>
+
 
 
 
