@@ -173,6 +173,61 @@ function fetchUserData() {
     });
 }
 
+function saveUserData() {
+  fetch(`${API_BASE}/api/userdata`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nickname: userData.nickname,
+      water: userData.water,
+      fertilizer: userData.fertilizer,
+      token: userData.token
+    })
+  })
+    .then(() => {
+      return fetch(`${API_BASE}/api/products/${nickname}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData.inventory.filter(item => item.count >= 0))
+      });
+    })
+    .then(() => {
+      alert("✅ 교환 완료!");
+      fetchUserData();
+    })
+    .catch(err => {
+      alert("❌ 서버 저장 실패");
+      console.error(err);
+    });
+}
+
+function exchangeSelected(type) {
+  const checkboxes = document.querySelectorAll("#inventoryItems input[type='checkbox']:checked");
+  if (checkboxes.length === 0) {
+    alert("교환할 제품을 선택하세요.");
+    return;
+  }
+
+  let itemCount = 0;
+  checkboxes.forEach(cb => {
+    const key = cb.dataset.type;
+    userData.inventory.forEach(item => {
+      const cat = item.category || '미분류';
+      const itemKey = `${item.type} (${cat})`;
+      if (itemKey === key && item.count > 0) {
+        item.count--;
+        itemCount++;
+      }
+    });
+  });
+
+  if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
+  if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
+
+  saveUserData();
+  updateDisplay();
+}
+
 function updateDisplay() {
   infoBox.innerHTML = `💧 물: <strong>${userData.water}</strong> | 🌿 거름: <strong>${userData.fertilizer}</strong> | 💰 ORCX: <strong>${userData.token}</strong>`;
   loadProductStorage();
@@ -213,48 +268,6 @@ function loadProductStorage() {
     `;
     list.appendChild(div);
   });
-}
-
-function exchangeSelected(type) {
-  const checkboxes = document.querySelectorAll("#inventoryItems input[type='checkbox']:checked");
-  if (checkboxes.length === 0) {
-    alert("교환할 제품을 선택하세요.");
-    return;
-  }
-
-  let itemCount = 0;
-  checkboxes.forEach(cb => {
-    const key = cb.dataset.type;
-    userData.inventory.forEach(item => {
-      const cat = item.category || '미분류';
-      const itemKey = `${item.type} (${cat})`;
-      if (itemKey === key && item.count > 0) {
-        item.count--;
-        itemCount++;
-      }
-    });
-  });
-
-  if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
-  if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
-
-  saveUserData();
-  updateDisplay();
-}
-
-function saveUserData() {
-  fetch(`${API_BASE}/api/userdata`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData)
-  })
-    .then(() => {
-      alert("✅ 교환 완료!");
-    })
-    .catch(err => {
-      alert("❌ 서버 저장 실패");
-      console.error(err);
-    });
 }
 </script>
 </body>
