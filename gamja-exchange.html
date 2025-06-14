@@ -127,170 +127,56 @@
     <a href="gamja-result.html">🏭 가공공장 이동</a>
   </div>
 
-  <script>
+  
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
     const nickname = localStorage.getItem("nickname");
-    const nicknameBox = document.getElementById("nicknameBox");
-    const infoBox = document.getElementById("infoBox");
-
-    const WATER_PER_ITEM = 5;
-    const FERTILIZER_PER_ITEM = 3;
-
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-
-    const userData = {
-      nickname,
-      water: 0,
-      fertilizer: 0,
-      token: 0,
-      inventory: []
-    };
-
     if (!nickname) {
-      alert("로그인 정보가 없습니다. 입구로 이동합니다.");
-    } else {
-      fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
-        .then(user => {
-          userData.nickname = user.nickname;
-          nicknameBox.textContent = `👤 ${user.nickname} 님`;
-          fetchUserData();
-        });
-      return;
-
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
+      return;
+    }
+
+    document.getElementById("nicknameBox").textContent = "👤 " + nickname + " 님";
+
+    const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nickname })
+    });
+
+    const data = await res.json();
+    if (!data.success) {
+      alert("서버에 사용자 정보가 없습니다. 다시 로그인 해주세요.");
+      window.location.href = "orcax-farm_000.html";
+      return;
+    }
+
+    document.getElementById("productCount").textContent = data.user.productCount;
+    document.getElementById("waterCount").textContent = data.user.water;
+    document.getElementById("fertilizerCount").textContent = data.user.fertilizer;
+  });
+
+  async function exchange(resource) {
+    const nickname = localStorage.getItem("nickname");
+    const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/exchange", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nickname, resource })
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      alert(`${resource} 교환 성공!`);
+      location.reload();
     } else {
-      nicknameBox.textContent = `👤 ${nickname} 님`;
-      fetchUserData();
+      alert("교환 실패: " + result.message);
     }
+  }
+</script>
 
-    function fetchUserData() {
-      fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
-        .then(user => {
-          userData.nickname = user.nickname || nickname;
-          userData.water = user.water ?? 0;
-          userData.fertilizer = user.fertilizer ?? 0;
-          userData.token = user.token ?? 0;
-          return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`);
-        })
-        .then(res => res.json())
-        .then(products => {
-          userData.inventory = products;
-          updateDisplay();
-        })
-        .catch(err => {
-          console.error("유저 정보 불러오기 실패", err);
-          infoBox.textContent = "❌ 유저 정보 없음";
-        });
-    }
-
-    function saveUserData() {
-      fetch(`${API_BASE}/api/userdata`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nickname: userData.nickname,
-          water: userData.water,
-          fertilizer: userData.fertilizer,
-          token: userData.token
-        })
-      })
-        .then(() => {
-          return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            const payload = userData.inventory.map(item => ({
-          type: item.type,
-          category: item.category,
-          count: item.count
-        }));
-        body: JSON.stringify(payload)
-          });
-        })
-        .then(() => {
-          alert("✅ 교환 완료!");
-          fetchUserData();
-        })
-        .catch(err => {
-          alert("❌ 서버 저장 실패");
-          console.error(err);
-        });
-    }
-
-    function exchangeSelected(type) {
-      const checkboxes = document.querySelectorAll("#inventoryItems input[type='checkbox']:checked");
-      if (checkboxes.length === 0) {
-        alert("교환할 제품을 선택하세요.");
-        return;
-      }
-
-      let itemCount = 0;
-      checkboxes.forEach(cb => {
-        const key = cb.dataset.type;
-        const [type, categoryRaw] = key.split(" (");
-        const category = categoryRaw.replace(")", "");
-
-        userData.inventory.forEach(item => {
-          const itemCat = item.category || '미분류';
-          if (item.type === type && itemCat === category && item.count > 0) {
-            item.count--;
-            itemCount++;
-          }
-        });
-      });
-
-      if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
-      if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
-
-      saveUserData();
-      updateDisplay();
-    }
-
-    function updateDisplay() {
-      infoBox.innerHTML = `💧 물: <strong>${userData.water}</strong> | 🌿 거름: <strong>${userData.fertilizer}</strong> | 💰 ORCX: <strong>${userData.token}</strong>`;
-      loadProductStorage();
-    }
-
-    function loadProductStorage() {
-      const merged = {};
-      userData.inventory.forEach(item => {
-        if (!item.type) return;
-        const cat = item.category || '미분류';
-        const key = `${item.type} (${cat})`;
-        if (merged[key]) {
-          merged[key].count += Number(item.count);
-        } else {
-          merged[key] = { ...item, type: key, count: Number(item.count) };
-        }
-      });
-
-      const mergedList = Object.entries(merged);
-      const list = document.getElementById("inventoryItems");
-      list.innerHTML = "";
-
-      if (mergedList.length === 0) {
-        const div = document.createElement("div");
-        div.textContent = "제품이 없습니다.";
-        list.appendChild(div);
-        return;
-      }
-
-      mergedList.forEach(([key, item], i) => {
-        const div = document.createElement("div");
-        div.className = "inventory-item";
-        div.innerHTML = `
-          <label style="opacity: ${item.count === 0 ? 0.4 : 1}">
-            <input type="checkbox" data-type="${key}" ${item.count === 0 ? "disabled" : ""}/>
-            ${key} × ${item.count}
-          </label>
-        `;
-        list.appendChild(div);
-      });
-    }
-  </script>
 </body>
 </html>
-
 
 
 
