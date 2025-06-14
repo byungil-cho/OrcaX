@@ -5,92 +5,21 @@
   <title>OrcaX 자원 교환소</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #fef9e8;
-      padding: 1rem;
-      margin: 0;
-    }
-    h1 {
-      text-align: center;
-      color: #504030;
-      margin: 1rem 0 0.5rem;
-    }
-    #nicknameBox {
-      text-align: right;
-      font-weight: bold;
-      margin: 0.5rem 1rem 0.5rem 0;
-      color: #503020;
-    }
-    #container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 70vh;
-    }
-    .status-box {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 1rem;
-      margin-top: 2rem;
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-    }
-    .status-item {
-      margin: 0.5rem 0;
-    }
-    button {
-      padding: 0.7rem 1.5rem;
-      font-size: 1rem;
-      background: #cfa765;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-    button:hover {
-      background-color: #af934f;
-    }
-    .inventory-box {
-      margin-top: 1rem;
-      background: #fffaf0;
-      padding: 1rem;
-      border: 1px dashed #aaa;
-      border-radius: 5px;
-      max-width: 400px;
-    }
-    .inventory-box h3 {
-      margin-bottom: 0.5rem;
-    }
-    .inventory-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.3rem 0;
-    }
-    .inventory-item input[type="checkbox"] {
-      margin-right: 0.5rem;
-    }
-    .navigation-links {
-      text-align: center;
-      margin-top: 2rem;
-    }
-    .navigation-links a {
-      display: inline-block;
-      margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: #76b947;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-    .navigation-links a:hover {
-      background: #5c9e35;
-    }
+    body { font-family: 'Arial', sans-serif; background: #fef9e8; padding: 1rem; margin: 0; }
+    h1 { text-align: center; color: #504030; margin: 1rem 0 0.5rem; }
+    #nicknameBox { text-align: right; font-weight: bold; margin: 0.5rem 1rem 0.5rem 0; color: #503020; }
+    #container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; }
+    .status-box { background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 1rem; margin-top: 2rem; text-align: center; width: 90%; max-width: 400px; }
+    .status-item { margin: 0.5rem 0; }
+    button { padding: 0.7rem 1.5rem; font-size: 1rem; background: #cfa765; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 1rem; }
+    button:hover { background-color: #af934f; }
+    .inventory-box { margin-top: 1rem; background: #fffaf0; padding: 1rem; border: 1px dashed #aaa; border-radius: 5px; max-width: 400px; }
+    .inventory-box h3 { margin-bottom: 0.5rem; }
+    .inventory-item { display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; }
+    .inventory-item input[type="checkbox"] { margin-right: 0.5rem; }
+    .navigation-links { text-align: center; margin-top: 2rem; }
+    .navigation-links a { display: inline-block; margin: 0.5rem; padding: 0.5rem 1rem; background: #76b947; color: white; text-decoration: none; border-radius: 5px; }
+    .navigation-links a:hover { background: #5c9e35; }
   </style>
 </head>
 <body>
@@ -211,29 +140,38 @@ function exchangeSelected(type) {
     return;
   }
 
+  let totalExchanged = 0;
   const selectedKeys = Array.from(checkboxes).map(cb => cb.dataset.key);
-  const updatedInventory = [];
-  let totalCount = 0;
 
-  fullProductList = fullProductList.map(item => {
-    const key = `${item.type} (${item.category})`;
-    if (selectedKeys.includes(key) && item.count > 0) {
-      item.count--;
-      totalCount++;
+  selectedKeys.forEach(key => {
+    for (let i = 0; i < fullProductList.length; i++) {
+      const item = fullProductList[i];
+      const itemKey = `${item.type} (${item.category})`;
+      if (key === itemKey && item.count > 0) {
+        item.count--;
+        totalExchanged++;
+        break;
+      }
     }
-    if (item.count > 0) updatedInventory.push(item);
-    return item;
   });
 
-  userData.inventory = updatedInventory;
-  if (type === "water") userData.water += totalCount * WATER_PER_ITEM;
-  if (type === "fertilizer") userData.fertilizer += totalCount * FERTILIZER_PER_ITEM;
+  if (type === "water") userData.water += totalExchanged * WATER_PER_ITEM;
+  if (type === "fertilizer") userData.fertilizer += totalExchanged * FERTILIZER_PER_ITEM;
 
-  fetch(`${API_BASE}/api/userdata`, {
+  userData.inventory = fullProductList.filter(item => item.count > 0);
+
+  fetch(`${API_BASE}/api/products`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData)
+    body: JSON.stringify(fullProductList)
   })
+    .then(() => {
+      return fetch(`${API_BASE}/api/userdata`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      });
+    })
     .then(() => {
       alert("✅ 교환 완료!");
       fetchUserData();
