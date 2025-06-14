@@ -192,7 +192,7 @@ function loadProductStorage() {
         div.className = "inventory-item";
         div.innerHTML = `
           <label>
-            <input type="checkbox" data-type="${item.type}" data-category="${item.category}" data-key="${key}" />
+            <input type="checkbox" data-key="${key}" />
             ${key} × ${item.count}
           </label>
         `;
@@ -211,25 +211,23 @@ function exchangeSelected(type) {
     return;
   }
 
+  const selectedKeys = Array.from(checkboxes).map(cb => cb.dataset.key);
+  const updatedInventory = [];
   let totalCount = 0;
-  const selectedKeys = [];
-  checkboxes.forEach(cb => {
-    selectedKeys.push(cb.dataset.key);
-  });
 
   fullProductList = fullProductList.map(item => {
     const key = `${item.type} (${item.category})`;
     if (selectedKeys.includes(key) && item.count > 0) {
-      item.count -= 1;
+      item.count--;
       totalCount++;
     }
+    if (item.count > 0) updatedInventory.push(item);
     return item;
   });
 
+  userData.inventory = updatedInventory;
   if (type === "water") userData.water += totalCount * WATER_PER_ITEM;
   if (type === "fertilizer") userData.fertilizer += totalCount * FERTILIZER_PER_ITEM;
-
-  userData.inventory = fullProductList.filter(i => i.count > 0);
 
   fetch(`${API_BASE}/api/userdata`, {
     method: "POST",
@@ -248,6 +246,7 @@ function exchangeSelected(type) {
   </script>
 </body>
 </html>
+
 
 
 
