@@ -138,10 +138,13 @@
     async function processProduct() {
       const name = document.getElementById("productName").value.trim();
       const type = document.querySelector('input[name="productType"]:checked').value;
+      const potatoCount = parseInt(document.getElementById("potatoCount").innerText);
+      const barleyCount = parseInt(document.getElementById("barleyCount").innerText);
+
       if (!name) return alert("제품 이름을 입력하세요.");
-      if (type === "감자" && parseInt(document.getElementById("potatoCount").innerText) <= 0)
+      if (type === "감자" && potatoCount <= 0)
         return alert("감자가 부족합니다.");
-      if (type === "보리" && parseInt(document.getElementById("barleyCount").innerText) <= 0)
+      if (type === "보리" && barleyCount <= 0)
         return alert("보리가 부족합니다.");
 
       try {
@@ -157,7 +160,13 @@
         });
         if (!res.ok) throw new Error("저장 실패");
 
-        await fetchUserData();
+        // 업데이트: 수량 줄이기
+        if (type === "감자") {
+          document.getElementById("potatoCount").innerText = potatoCount - 1;
+        } else if (type === "보리") {
+          document.getElementById("barleyCount").innerText = barleyCount - 1;
+        }
+
         await loadProductStorage(nickname);
       } catch (err) {
         alert("제품 가공 실패!");
