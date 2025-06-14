@@ -165,7 +165,7 @@
         const list = document.getElementById("inventoryItems");
         list.innerHTML = "";
         const merged = {};
-        products.forEach(item => {
+        products.forEach((item, idx) => {
           if (!item.type || item.count < 1) return;
           if (merged[item.type]) {
             merged[item.type].count += item.count;
@@ -174,9 +174,9 @@
           }
         });
         userData.inventory = Object.values(merged);
-        userData.inventory.forEach(item => {
+        userData.inventory.forEach((item, idx) => {
           const li = document.createElement("li");
-          li.textContent = `${item.type} × ${item.count}`;
+          li.innerHTML = `<input type="checkbox" value="${idx}"> ${item.type} × ${item.count}`;
           list.appendChild(li);
         });
       } catch (err) {
