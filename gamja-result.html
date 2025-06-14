@@ -110,8 +110,32 @@
   </div>
 
   <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const nickname = localStorage.getItem("nickname");
+    const farmName = localStorage.getItem("farmName");
+    const statusBox = document.getElementById("statusBox");
+
+    async function fetchUserData() {
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
+        if (!res.ok) throw new Error("연결 실패");
+        const data = await res.json();
+        document.getElementById("nicknameBox").innerText = `👤 ${nickname} (${farmName}) 님`;
+        document.getElementById("potatoCount").innerText = data.potatoCount ?? 0;
+        document.getElementById("waterCount").innerText = data.water ?? 0;
+        document.getElementById("fertilizerCount").innerText = data.fertilizer ?? 0;
+        document.getElementById("tokenCount").innerText = data.token ?? 0;
+        document.getElementById("barleyCount").innerText = data.barleyCount ?? 0;
+        statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
+        statusBox.style.color = "green";
+      } catch (err) {
+        statusBox.innerText = "❌ 전기 공급 끊김 (서버 오류)";
+        statusBox.style.color = "red";
+        console.error(err);
+      }
+    }
+
     async function loadProductStorage(nickname) {
-      const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
       try {
         const res = await fetch(`${API_BASE}/api/products/${nickname}`);
         const products = await res.json();
@@ -146,9 +170,19 @@
         console.error("📛 제품 보관소 불러오기 실패:", err);
       }
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!nickname || nickname.trim() === "") {
+        alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+        window.location.href = "orcax-farm_000.html";
+      }
+      fetchUserData();
+      loadProductStorage(nickname);
+    });
   </script>
 </body>
 </html>
+
 
 
 
