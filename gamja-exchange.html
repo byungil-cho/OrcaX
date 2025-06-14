@@ -177,7 +177,7 @@ function loadProductStorage() {
     }
   });
 
-  const mergedList = Object.values(merged);
+  const mergedList = Object.entries(merged);
   const list = document.getElementById("inventoryItems");
   list.innerHTML = "";
 
@@ -188,13 +188,13 @@ function loadProductStorage() {
     return;
   }
 
-  mergedList.forEach((item, i) => {
+  mergedList.forEach(([key, item], i) => {
     const div = document.createElement("div");
     div.className = "inventory-item";
     div.innerHTML = `
       <label>
-        <input type="checkbox" data-idx="${i}" />
-        ${item.type} × ${item.count}
+        <input type="checkbox" data-type="${key}" />
+        ${key} × ${item.count}
       </label>
     `;
     list.appendChild(div);
@@ -208,44 +208,24 @@ function exchangeSelected(type) {
     return;
   }
 
-  const indexes = Array.from(checkboxes).map(cb => parseInt(cb.dataset.idx));
   let itemCount = 0;
 
-  const list = Object.values(userData.inventory.reduce((acc, item) => {
-    const cat = item.category || '미분류';
-    const key = `${item.type} (${cat})`;
-    if (!acc[key]) acc[key] = { ...item };
-    else acc[key].count += item.count;
-    return acc;
-  }, {}));
-
-  indexes.forEach(i => {
-    itemCount += list[i].count;
-  });
-
-  const waterAdd = itemCount * WATER_PER_ITEM;
-  const fertAdd = itemCount * FERTILIZER_PER_ITEM;
-
-  const message = type === "water"
-    ? `💧 물 ${waterAdd}개로 교환됩니다. 진행할까요?`
-    : `🌿 거름 ${fertAdd}개로 교환됩니다. 진행할까요?`;
-
-  if (!confirm(message)) return;
-
-  indexes.sort((a, b) => b - a).forEach(i => {
-    const key = list[i].type;
-    const idx = userData.inventory.findIndex(x => `${x.type} (${x.category || '미분류'})` === key);
-    if (idx !== -1) {
-      if (userData.inventory[idx].count > 1) {
-        userData.inventory[idx].count--;
-      } else {
-        userData.inventory.splice(idx, 1);
+  checkboxes.forEach(cb => {
+    const key = cb.dataset.type;
+    userData.inventory = userData.inventory.reduce((acc, item) => {
+      const cat = item.category || '미분류';
+      const itemKey = `${item.type} (${cat})`;
+      if (itemKey === key && item.count > 0) {
+        item.count--;
+        itemCount++;
       }
-    }
+      if (item.count > 0) acc.push(item);
+      return acc;
+    }, []);
   });
 
-  if (type === "water") userData.water += waterAdd;
-  if (type === "fertilizer") userData.fertilizer += fertAdd;
+  if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
+  if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
 
   saveUserData();
 }
