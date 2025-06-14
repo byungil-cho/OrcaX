@@ -192,7 +192,7 @@ function loadProductStorage() {
         div.className = "inventory-item";
         div.innerHTML = `
           <label>
-            <input type="checkbox" data-type="${item.type}" data-category="${item.category}" data-count="${item.count}" />
+            <input type="checkbox" data-type="${item.type}" data-category="${item.category}" data-key="${key}" />
             ${key} × ${item.count}
           </label>
         `;
@@ -211,17 +211,19 @@ function exchangeSelected(type) {
     return;
   }
 
-  let waterAmount = 0;
-  let fertAmount = 0;
   let totalCount = 0;
-
+  const selectedKeys = [];
   checkboxes.forEach(cb => {
-    const key = cb.dataset.type;
-    const item = fullProductList.find(i => `${i.type} (${i.category})` === key);
-    if (item && item.count > 0) {
+    selectedKeys.push(cb.dataset.key);
+  });
+
+  fullProductList = fullProductList.map(item => {
+    const key = `${item.type} (${item.category})`;
+    if (selectedKeys.includes(key) && item.count > 0) {
       item.count -= 1;
       totalCount++;
     }
+    return item;
   });
 
   if (type === "water") userData.water += totalCount * WATER_PER_ITEM;
