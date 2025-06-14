@@ -40,8 +40,8 @@
     </div>
     <div class="navigation-links">
       <a href="gamja-shop.html">🛒 씨감자 상점 (2 ORCX 교환)</a>
-      <a href="gamja-market.html">💰 거래소 이동</a>
-      <a href="gamja-result.html">🏭 가공공장 이동</a>
+      <a href="gamja-market.html">💰 거리소 이동</a>
+      <a href="gamja-result.html">🏠 가공공장 이동</a>
     </div>
   </div>
   <script>
@@ -54,9 +54,8 @@ const FERTILIZER_PER_ITEM = 3;
 
 const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
-let fullProductList = [];
-let userData = {
-  nickname: nickname,
+const userData = {
+  nickname,
   water: 0,
   fertilizer: 0,
   token: 0,
@@ -64,7 +63,7 @@ let userData = {
 };
 
 if (!nickname) {
-  alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+  alert("\ub85c\uadf8\uc778 \uc815\ubcf4\uac00 \uc5c6\uc2b5\ub2c8\ub2e4. \uc785\uad6c\ub85c \uc774\ub3d9\ud569\ub2c8\ub2e4.");
   window.location.href = "orcax-farm_000.html";
 } else {
   nicknameBox.textContent = `👤 ${nickname} 님`;
@@ -75,12 +74,17 @@ function fetchUserData() {
   fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
     .then(res => res.json())
     .then(user => {
-      userData = user;
+      userData.water = user.water ?? 0;
+      userData.fertilizer = user.fertilizer ?? 0;
+      userData.token = user.token ?? 0;
+      userData.inventory = Array.isArray(user.inventory) ? user.inventory : [];
+
       infoBox.innerHTML = `
-        💧 물: <strong>${userData.water ?? 0}</strong> |
-        🌿 거름: <strong>${userData.fertilizer ?? 0}</strong> |
-        💰 ORCX: <strong>${userData.token ?? 0}</strong>
+        💧 물: <strong>${userData.water}</strong> |
+        🌿 거름: <strong>${userData.fertilizer}</strong> |
+        💰 ORCX: <strong>${userData.token}</strong>
       `;
+
       loadProductStorage();
     })
     .catch(err => {
@@ -90,46 +94,40 @@ function fetchUserData() {
 }
 
 function loadProductStorage() {
-  fetch(`${API_BASE}/api/products/${encodeURIComponent(nickname)}`)
-    .then(res => res.json())
-    .then(products => {
-      fullProductList = products.filter(p => p.type && p.count > 0);
-      const merged = {};
-      fullProductList.forEach(item => {
-        const key = `${item.type} (${item.category})`;
-        if (merged[key]) {
-          merged[key].count += item.count;
-        } else {
-          merged[key] = { ...item, type: key };
-        }
-      });
+  const merged = {};
+  userData.inventory.forEach(item => {
+    if (!item.type || item.count < 1) return;
+    const cat = item.category || '미분류';
+    const key = `${item.type} (${cat})`;
+    if (merged[key]) {
+      merged[key].count += item.count;
+    } else {
+      merged[key] = { ...item, type: key };
+    }
+  });
 
-      const mergedList = Object.entries(merged);
-      const list = document.getElementById("inventoryItems");
-      list.innerHTML = "";
+  const mergedList = Object.entries(merged);
+  const list = document.getElementById("inventoryItems");
+  list.innerHTML = "";
 
-      if (mergedList.length === 0) {
-        const div = document.createElement("div");
-        div.textContent = "제품이 없습니다.";
-        list.appendChild(div);
-        return;
-      }
+  if (mergedList.length === 0) {
+    const div = document.createElement("div");
+    div.textContent = "제품이 없습니다.";
+    list.appendChild(div);
+    return;
+  }
 
-      mergedList.forEach(([key, item], idx) => {
-        const div = document.createElement("div");
-        div.className = "inventory-item";
-        div.innerHTML = `
-          <label>
-            <input type="checkbox" data-type="${item.type}" data-category="${item.category}" data-key="${key}" />
-            ${key} × ${item.count}
-          </label>
-        `;
-        list.appendChild(div);
-      });
-    })
-    .catch(err => {
-      console.error("제품 보관소 불러오기 실패", err);
-    });
+  mergedList.forEach(([key, item], i) => {
+    const div = document.createElement("div");
+    div.className = "inventory-item";
+    div.innerHTML = `
+      <label>
+        <input type="checkbox" data-type="${key}" />
+        ${key} × ${item.count}
+      </label>
+    `;
+    list.appendChild(div);
+  });
 }
 
 function exchangeSelected(type) {
@@ -139,33 +137,35 @@ function exchangeSelected(type) {
     return;
   }
 
-  let totalExchanged = 0;
+  let itemCount = 0;
+
   checkboxes.forEach(cb => {
-    const key = cb.dataset.key;
-    const found = fullProductList.find(item => `${item.type} (${item.category})` === key);
-    if (found && found.count > 0) {
-      found.count--;
-      totalExchanged++;
-    }
+    const key = cb.dataset.type;
+    userData.inventory = userData.inventory.reduce((acc, item) => {
+      const cat = item.category || '미분류';
+      const itemKey = `${item.type} (${cat})`;
+      if (itemKey === key && item.count > 0) {
+        item.count--;
+        itemCount++;
+      }
+      if (item.count > 0) acc.push(item);
+      return acc;
+    }, []);
   });
 
-  if (type === "water") userData.water += totalExchanged * WATER_PER_ITEM;
-  if (type === "fertilizer") userData.fertilizer += totalExchanged * FERTILIZER_PER_ITEM;
+  if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
+  if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
 
-  userData.inventory = fullProductList.filter(item => item.count > 0);
+  saveUserData();
+  loadProductStorage(); // 가장 중요한 코드 수정 드구기 규칙으로 추가
+}
 
-  fetch(`${API_BASE}/api/products`, {
+function saveUserData() {
+  fetch(`${API_BASE}/api/userdata`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(fullProductList)
+    body: JSON.stringify(userData)
   })
-    .then(() => {
-      return fetch(`${API_BASE}/api/userdata`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-      });
-    })
     .then(() => {
       alert("✅ 교환 완료!");
       fetchUserData();
@@ -175,7 +175,7 @@ function exchangeSelected(type) {
       console.error(err);
     });
 }
-  </script>
+</script>
 </body>
 </html>
 
