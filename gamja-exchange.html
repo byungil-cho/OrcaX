@@ -147,6 +147,16 @@
 
     if (!nickname) {
       alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+    } else {
+      fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+        .then(res => res.json())
+        .then(user => {
+          userData.nickname = user.nickname;
+          nicknameBox.textContent = `👤 ${user.nickname} 님`;
+          fetchUserData();
+        });
+      return;
+
       window.location.href = "orcax-farm_000.html";
     } else {
       nicknameBox.textContent = `👤 ${nickname} 님`;
@@ -189,7 +199,12 @@
           return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(userData.inventory.filter(item => item.count >= 0))
+            const payload = userData.inventory.map(item => ({
+          type: item.type,
+          category: item.category,
+          count: item.count
+        }));
+        body: JSON.stringify(payload)
           });
         })
         .then(() => {
