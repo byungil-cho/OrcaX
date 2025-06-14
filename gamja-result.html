@@ -154,6 +154,7 @@
           userData.inventory = (data.inventory ?? []).filter(
             item => typeof item.type === "string" && item.type !== "undefined" && item.count > 0
           );
+          mergeInventory(userData.inventory);
           updateDisplay();
           statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
           statusBox.style.color = "green";
@@ -165,6 +166,18 @@
         statusBox.style.color = "red";
         console.error(err);
       }
+    }
+
+    function mergeInventory(inventory) {
+      const merged = {};
+      inventory.forEach(item => {
+        if (merged[item.type]) {
+          merged[item.type].count += item.count;
+        } else {
+          merged[item.type] = { ...item };
+        }
+      });
+      userData.inventory = Object.values(merged);
     }
 
     function updateDisplay() {
@@ -251,7 +264,6 @@
 
     fetchUserData();
 
-    // 👇 가공 제품 보관소 렌더링 코드 추가됨
     function loadProductStorage(nickname) {
       fetch(`${API_BASE}/api/products/${nickname}`)
         .then(res => res.json())
@@ -262,16 +274,26 @@
             return;
           }
 
+          const merged = {};
+          products.forEach(p => {
+            if (merged[p.type]) {
+              merged[p.type].count += p.count;
+            } else {
+              merged[p.type] = { ...p };
+            }
+          });
+
+          const mergedProducts = Object.values(merged);
           container.innerHTML = '';
 
-          if (!products.length) {
+          if (!mergedProducts.length) {
             const li = document.createElement('li');
             li.textContent = '제품이 없습니다.';
             container.appendChild(li);
             return;
           }
 
-          products.forEach((p, idx) => {
+          mergedProducts.forEach((p, idx) => {
             const li = document.createElement('li');
             li.innerHTML = `<input type="checkbox" value="${idx}"> ${p.type} (${p.category}) x${p.count}`;
             container.appendChild(li);
