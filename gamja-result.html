@@ -178,7 +178,7 @@
       document.getElementById("barleyCount").innerText = userData.barleyCount;
       const list = document.getElementById("inventoryItems");
       list.innerHTML = "";
-      userData.inventory.forEach((item, idx) => {
+      userData.inventory.forEach((item) => {
         const li = document.createElement("li");
         li.textContent = `${item.type} × ${item.count}`;
         list.appendChild(li);
@@ -229,6 +229,7 @@
   </script>
 </body>
 </html>
+
 
 
 
