@@ -165,40 +165,46 @@ function fetchUserData() {
 }
 
 function loadProductStorage() {
-  const merged = {};
-  userData.inventory.forEach(item => {
-    if (!item.type || item.count < 1) return;
-    const cat = item.category || '미분류';
-    const key = `${item.type} (${cat})`;
-    if (merged[key]) {
-      merged[key].count += item.count;
-    } else {
-      merged[key] = { ...item, type: key };
-    }
-  });
+  fetch(`${API_BASE}/api/products/${encodeURIComponent(nickname)}`)
+    .then(res => res.json())
+    .then(products => {
+      const merged = {};
+      products.forEach(item => {
+        if (!item.type || item.count < 1) return;
+        const key = `${item.type} (${item.category})`;
+        if (merged[key]) {
+          merged[key].count += item.count;
+        } else {
+          merged[key] = { ...item, type: key };
+        }
+      });
 
-  const mergedList = Object.entries(merged);
-  const list = document.getElementById("inventoryItems");
-  list.innerHTML = "";
+      const mergedList = Object.entries(merged);
+      const list = document.getElementById("inventoryItems");
+      list.innerHTML = "";
 
-  if (mergedList.length === 0) {
-    const div = document.createElement("div");
-    div.textContent = "제품이 없습니다.";
-    list.appendChild(div);
-    return;
-  }
+      if (mergedList.length === 0) {
+        const div = document.createElement("div");
+        div.textContent = "제품이 없습니다.";
+        list.appendChild(div);
+        return;
+      }
 
-  mergedList.forEach(([key, item], i) => {
-    const div = document.createElement("div");
-    div.className = "inventory-item";
-    div.innerHTML = `
-      <label>
-        <input type="checkbox" data-type="${key}" />
-        ${key} × ${item.count}
-      </label>
-    `;
-    list.appendChild(div);
-  });
+      mergedList.forEach(([key, item], i) => {
+        const div = document.createElement("div");
+        div.className = "inventory-item";
+        div.innerHTML = `
+          <label>
+            <input type="checkbox" data-type="${key}" />
+            ${key} × ${item.count}
+          </label>
+        `;
+        list.appendChild(div);
+      });
+    })
+    .catch(err => {
+      console.error("제품 보관소 불러오기 실패", err);
+    });
 }
 
 function exchangeSelected(type) {
@@ -248,3 +254,4 @@ function saveUserData() {
 </script>
 </body>
 </html>
+
