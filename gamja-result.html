@@ -116,8 +116,8 @@
     </div>
     <button class="exchange-to-token" onclick="exchangeToToken()">감자 → ORCX 교환하기</button>
   </div>
-  <div id="inventoryBox"></div>
-   <script>
+
+  <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname");
     const farmName = localStorage.getItem("farmName");
@@ -250,43 +250,42 @@
     }
 
     fetchUserData();
- 
-  </script>
-  <script>
-  function loadProductStorage(nickname) {
-    fetch(`/api/products/${nickname}`)
-      .then(res => res.json())
-      .then(products => {
-        const container = document.getElementById('productStorage');
-        if (!container) {
-          console.error("❌ 보관소 DOM 요소 없음");
-          return;
-        }
 
-        container.innerHTML = ''; // 초기화
+    // 👇 가공 제품 보관소 렌더링 코드 추가됨
+    function loadProductStorage(nickname) {
+      fetch(`${API_BASE}/api/products/${nickname}`)
+        .then(res => res.json())
+        .then(products => {
+          const container = document.getElementById('inventoryItems');
+          if (!container) {
+            console.error("❌ 보관소 DOM 요소 없음");
+            return;
+          }
 
-        if (!products.length) {
-          container.textContent = '제품이 없습니다.';
-          return;
-        }
+          container.innerHTML = '';
 
-        products.forEach(p => {
-          const div = document.createElement('div');
-          div.textContent = `${p.type} (${p.category}) x${p.count}`;
-          container.appendChild(div);
+          if (!products.length) {
+            const li = document.createElement('li');
+            li.textContent = '제품이 없습니다.';
+            container.appendChild(li);
+            return;
+          }
+
+          products.forEach(p => {
+            const li = document.createElement('li');
+            li.textContent = `${p.type} (${p.category}) x${p.count}`;
+            container.appendChild(li);
+          });
+        })
+        .catch(err => {
+          console.error("📛 제품 불러오기 실패:", err);
         });
-      })
-      .catch(err => {
-        console.error("📛 제품 불러오기 실패:", err);
-      });
-  }
+    }
 
-  // 여기서 바로 강제 호출 (찢는 타이밍)
-  document.addEventListener('DOMContentLoaded', () => {
-    const nickname = localStorage.getItem('nickname') || '범고래X'; // 기본 닉네임
-    loadProductStorage(nickname); // 💥 여기서 입을 벌림
-  });
-</script>
-
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProductStorage(nickname);
+    });
+  </script>
 </body>
 </html>
+
