@@ -120,8 +120,8 @@
 
         const merged = {};
         products.forEach(item => {
-          if (!item.type || item.count < 1) return;
-          const key = item.type + (item.category ? ` (${item.category})` : '');
+          if (!item.type || item.count < 1 || typeof item.category !== 'string' || item.category.trim() === '') return;
+          const key = item.type + ` (${item.category})`;
           if (merged[key]) {
             merged[key].count += item.count;
           } else {
@@ -149,6 +149,7 @@
   </script>
 </body>
 </html>
+
 
 
 
