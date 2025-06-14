@@ -141,11 +141,8 @@
           userData.fertilizer = data.fertilizer ?? 0;
           userData.token = data.token ?? 0;
           userData.barleyCount = data.barleyCount ?? 0;
-          userData.inventory = (data.inventory ?? []).filter(
-            item => typeof item.type === "string" && item.type !== "undefined" && item.count > 0
-          );
-          mergeInventory(userData.inventory);
-          updateDisplay();
+          userData.inventory = [];
+          await loadProductStorage(nickname);
           statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
           statusBox.style.color = "green";
         } else {
@@ -158,31 +155,30 @@
       }
     }
 
-    function mergeInventory(inventory) {
-      const merged = {};
-      inventory.forEach(item => {
-        if (merged[item.type]) {
-          merged[item.type].count += item.count;
-        } else {
-          merged[item.type] = { ...item };
-        }
-      });
-      userData.inventory = Object.values(merged);
-    }
-
-    function updateDisplay() {
-      document.getElementById("potatoCount").innerText = userData.potatoCount;
-      document.getElementById("waterCount").innerText = userData.water;
-      document.getElementById("fertilizerCount").innerText = userData.fertilizer;
-      document.getElementById("tokenCount").innerText = userData.token;
-      document.getElementById("barleyCount").innerText = userData.barleyCount;
-      const list = document.getElementById("inventoryItems");
-      list.innerHTML = "";
-      userData.inventory.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = `${item.type} × ${item.count}`;
-        list.appendChild(li);
-      });
+    async function loadProductStorage(nickname) {
+      try {
+        const res = await fetch(`${API_BASE}/api/products/${nickname}`);
+        const products = await res.json();
+        const list = document.getElementById("inventoryItems");
+        list.innerHTML = "";
+        const merged = {};
+        products.forEach(item => {
+          if (!item.type || item.count < 1) return;
+          if (merged[item.type]) {
+            merged[item.type].count += item.count;
+          } else {
+            merged[item.type] = { type: item.type, count: item.count };
+          }
+        });
+        userData.inventory = Object.values(merged);
+        userData.inventory.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = `${item.type} × ${item.count}`;
+          list.appendChild(li);
+        });
+      } catch (err) {
+        console.error("📛 제품 보관소 불러오기 실패:", err);
+      }
     }
 
     async function processProduct() {
@@ -210,9 +206,6 @@
 
       if (type === "감자") userData.potatoCount--;
       if (type === "보리") userData.barleyCount--;
-      const existing = userData.inventory.find(i => i.type === name);
-      if (existing) existing.count++;
-      else userData.inventory.push({ type: name, count: 1 });
       await saveUserData();
     }
 
@@ -229,6 +222,7 @@
   </script>
 </body>
 </html>
+
 
 
 
