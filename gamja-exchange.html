@@ -148,7 +148,7 @@ function fetchUserData() {
       userData.water = user.water ?? 0;
       userData.fertilizer = user.fertilizer ?? 0;
       userData.token = user.token ?? 0;
-      userData.inventory = Array.isArray(user.inventory) ? user.inventory.filter(item => item.category) : [];
+      userData.inventory = Array.isArray(user.inventory) ? user.inventory : [];
 
       infoBox.innerHTML = `
         💧 물: <strong>${userData.water}</strong> |
@@ -168,7 +168,8 @@ function loadProductStorage() {
   const merged = {};
   userData.inventory.forEach(item => {
     if (!item.type || item.count < 1) return;
-    const key = `${item.type} (${item.category})`;
+    const cat = item.category || '미분류';
+    const key = `${item.type} (${cat})`;
     if (merged[key]) {
       merged[key].count += item.count;
     } else {
@@ -211,7 +212,8 @@ function exchangeSelected(type) {
   let itemCount = 0;
 
   const list = Object.values(userData.inventory.reduce((acc, item) => {
-    const key = `${item.type} (${item.category})`;
+    const cat = item.category || '미분류';
+    const key = `${item.type} (${cat})`;
     if (!acc[key]) acc[key] = { ...item };
     else acc[key].count += item.count;
     return acc;
@@ -232,7 +234,7 @@ function exchangeSelected(type) {
 
   indexes.sort((a, b) => b - a).forEach(i => {
     const key = list[i].type;
-    const idx = userData.inventory.findIndex(x => `${x.type} (${x.category})` === key);
+    const idx = userData.inventory.findIndex(x => `${x.type} (${x.category || '미분류'})` === key);
     if (idx !== -1) {
       if (userData.inventory[idx].count > 1) {
         userData.inventory[idx].count--;
