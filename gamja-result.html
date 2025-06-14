@@ -271,9 +271,9 @@
             return;
           }
 
-          products.forEach(p => {
+          products.forEach((p, idx) => {
             const li = document.createElement('li');
-            li.textContent = `${p.type} (${p.category}) x${p.count}`;
+            li.innerHTML = `<input type="checkbox" value="${idx}"> ${p.type} (${p.category}) x${p.count}`;
             container.appendChild(li);
           });
         })
