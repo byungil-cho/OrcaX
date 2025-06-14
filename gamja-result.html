@@ -252,5 +252,41 @@
     fetchUserData();
  
   </script>
+  <script>
+  function loadProductStorage(nickname) {
+    fetch(`/api/products/${nickname}`)
+      .then(res => res.json())
+      .then(products => {
+        const container = document.getElementById('productStorage');
+        if (!container) {
+          console.error("❌ 보관소 DOM 요소 없음");
+          return;
+        }
+
+        container.innerHTML = ''; // 초기화
+
+        if (!products.length) {
+          container.textContent = '제품이 없습니다.';
+          return;
+        }
+
+        products.forEach(p => {
+          const div = document.createElement('div');
+          div.textContent = `${p.type} (${p.category}) x${p.count}`;
+          container.appendChild(div);
+        });
+      })
+      .catch(err => {
+        console.error("📛 제품 불러오기 실패:", err);
+      });
+  }
+
+  // 여기서 바로 강제 호출 (찢는 타이밍)
+  document.addEventListener('DOMContentLoaded', () => {
+    const nickname = localStorage.getItem('nickname') || '범고래X'; // 기본 닉네임
+    loadProductStorage(nickname); // 💥 여기서 입을 벌림
+  });
+</script>
+
 </body>
 </html>
