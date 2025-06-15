@@ -17,6 +17,18 @@
       padding: 40px 16px 16px;
       color: #fff;
       text-align: center;
+      position: relative;
+    }
+    header::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.4);
+      z-index: 0;
+    }
+    header > * {
+      position: relative;
+      z-index: 1;
     }
     #statusBox, #nicknameBox, #farmBox, #infoBox {
       margin: 8px 0;
@@ -211,6 +223,7 @@
         return;
       }
 
+      const backup = JSON.parse(JSON.stringify(userData));
       let itemCount = 0;
       checkboxes.forEach(cb => {
         const key = cb.dataset.type;
@@ -227,11 +240,17 @@
       if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
       if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
 
-      saveUserData();
+      saveUserData()
+        .then(() => alert("✅ 교환 완료!"))
+        .catch(err => {
+          alert("❌ 서버 저장 실패");
+          Object.assign(userData, backup);
+          updateDisplay();
+        });
     }
 
     function saveUserData() {
-      fetch(`${API_BASE}/api/userdata`, {
+      return fetch(`${API_BASE}/api/userdata`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -257,12 +276,7 @@
           return res.json();
         })
         .then(() => {
-          alert("✅ 교환 완료!");
           fetchUserData();
-        })
-        .catch(err => {
-          alert("❌ 서버 저장 실패");
-          console.error(err);
         });
     }
 
@@ -270,7 +284,6 @@
   </script>
 </body>
 </html>
-
 
 
 
