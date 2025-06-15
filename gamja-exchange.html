@@ -112,6 +112,7 @@
         .then(products => {
           userData.inventory = products;
           updateDisplay();
+          document.getElementById("nicknameBox").textContent = `👤 ${userData.nickname} 님`;
         })
         .catch(err => {
           console.error("유저 정보 불러오기 실패", err);
@@ -231,6 +232,7 @@
   </script>
 </body>
 </html>
+
 
 
 
