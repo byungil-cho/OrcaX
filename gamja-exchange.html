@@ -12,7 +12,7 @@
       background: #f5f5f5;
     }
     header {
-      background: url('https://via.placeholder.com/1024x200/333333/FFFFFF?text=OrcaX+Resource+Exchange') no-repeat center center;
+      background: url('https://byungil-cho.github.io/OrcaX/assets/header.jpg') no-repeat center center;
       background-size: cover;
       padding: 40px 16px 16px;
       color: #fff;
@@ -241,7 +241,10 @@
           token: userData.token
         })
       })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error("유저 저장 실패");
+          return res.json();
+        })
         .then(() => {
           return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`, {
             method: "POST",
@@ -249,7 +252,10 @@
             body: JSON.stringify(userData.inventory)
           });
         })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error("제품 저장 실패");
+          return res.json();
+        })
         .then(() => {
           alert("✅ 교환 완료!");
           fetchUserData();
@@ -264,6 +270,7 @@
   </script>
 </body>
 </html>
+
 
 
 
