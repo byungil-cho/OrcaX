@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>OrcaX 자원 교환소</title>
-<style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX 자원 교환소</title>
+  <style>
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f9f5ec;
@@ -15,19 +14,17 @@
       flex-direction: column;
       align-items: center;
     }
+    header, .info, .status-box, .inventory-box, .buttons, .navigation {
+      width: 100%;
+      max-width: 600px;
+    }
     header {
       text-align: center;
       padding: 1rem 0;
-      width: 100%;
-      max-width: 600px;
     }
     header h1 {
       font-size: 1.8rem;
       color: #3f2f1f;
-    }
-    .info, .status-box, .inventory-box, .buttons, .navigation {
-      width: 100%;
-      max-width: 600px;
     }
     .info {
       background-color: #fff;
@@ -43,11 +40,6 @@
       padding: 1rem;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       margin-bottom: 1rem;
-    }
-    .inventory-box h3 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-      color: #333;
     }
     .inventory-item {
       display: flex;
@@ -100,37 +92,36 @@
   </style>
 </head>
 <body>
-<header>
-<h1>🔄 OrcaX 자원 교환소</h1>
-<div id="nicknameBox"></div>
-<div class="info"><strong>🌾 농장이름:</strong> <span id="nicknameDisplay"></span></div>
-</header>
-<div class="info" id="infoBox">정보 불러오는 중...</div>
-<div class="status-box">
-<div>💧 물: <span id="waterCount">0</span></div>
-<div>🌿 거름: <span id="fertilizerCount">0</span></div>
-</div>
-<div class="inventory-box">
-<h3>📦 가공 제품 보관함</h3>
-<div id="inventoryItems"></div>
-</div>
-<div class="buttons">
-<button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
-<button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
-</div>
-<div class="navigation">
-<a href="gamja-shop.html">🛒 씨감자 상점</a>
-<a href="gamja-market.html">💰 거래소 이동</a>
-<a href="gamja-result.html">🏭 가공공장 이동</a>
-</div>
-<script>
-    
-const nickname = (localStorage.getItem("nickname") || "").trim();
-if (!nickname) {
-    alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-    window.location.href = "orcax-farm_000.html";
-}
+  <header>
+    <h1>🔄 OrcaX 자원 교환소</h1>
+    <div id="nicknameBox"></div>
+  </header>
 
+  <div class="info" id="infoBox">정보 불러오는 중...</div>
+
+  <div class="status-box">
+    <div>💧 물: <span id="waterCount">0</span></div>
+    <div>🌿 거름: <span id="fertilizerCount">0</span></div>
+  </div>
+
+  <div class="inventory-box">
+    <h3>📦 가공 제품 보관함</h3>
+    <div id="inventoryItems"></div>
+  </div>
+
+  <div class="buttons">
+    <button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
+    <button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
+  </div>
+
+  <div class="navigation">
+    <a href="gamja-shop.html">🛒 씨감자 상점</a>
+    <a href="gamja-market.html">💰 거래소 이동</a>
+    <a href="gamja-result.html">🏭 가공공장 이동</a>
+  </div>
+
+  <script>
+    const nickname = localStorage.getItem("nickname");
     const nicknameBox = document.getElementById("nicknameBox");
     const infoBox = document.getElementById("infoBox");
 
@@ -156,6 +147,13 @@ if (!nickname) {
     }
 
     function fetchUserData() {
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) {
+        alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+        window.location.href = "orcax-farm_000.html";
+        return;
+      }
+      userData.nickname = nickname;
       fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
         .then(res => res.json())
         .then(user => {
@@ -191,7 +189,7 @@ if (!nickname) {
           return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(userData.inventory.filter(item => item.count >= 0))
+            body: JSON.stringify(userData.inventory)
           });
         })
         .then(() => {
@@ -203,119 +201,7 @@ if (!nickname) {
           console.error(err);
         });
     }
-
-    function exchangeSelected(type) {
-      const checkboxes = document.querySelectorAll("#inventoryItems input[type='checkbox']:checked");
-      if (checkboxes.length === 0) {
-        alert("교환할 제품을 선택하세요.");
-        return;
-      }
-
-      let itemCount = 0;
-      checkboxes.forEach(cb => {
-        const key = cb.dataset.type;
-        userData.inventory.forEach(item => {
-          const cat = item.category || '미분류';
-          const itemKey = `${item.type} (${cat})`;
-          if (itemKey === key && item.count > 0) {
-            item.count--;
-            itemCount++;
-          }
-        });
-      });
-
-      if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
-      if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
-
-      saveUserData();
-      updateDisplay();
-    }
-
-    function updateDisplay() {
-      infoBox.innerHTML = `💧 물: <strong>${userData.water}</strong> | 🌿 거름: <strong>${userData.fertilizer}</strong> | 💰 ORCX: <strong>${userData.token}</strong>`;
-      loadProductStorage();
-    }
-
-    function loadProductStorage() {
-      const merged = {};
-      userData.inventory.forEach(item => {
-        if (!item.type) return;
-        const cat = item.category || '미분류';
-        const key = `${item.type} (${cat})`;
-        if (merged[key]) {
-          merged[key].count += Number(item.count);
-        } else {
-          merged[key] = { ...item, type: key, count: Number(item.count) };
-        }
-      });
-
-      const mergedList = Object.entries(merged);
-      const list = document.getElementById("inventoryItems");
-      list.innerHTML = "";
-
-      if (mergedList.length === 0) {
-        const div = document.createElement("div");
-        div.textContent = "제품이 없습니다.";
-        list.appendChild(div);
-        return;
-      }
-
-      mergedList.forEach(([key, item], i) => {
-        const div = document.createElement("div");
-        div.className = "inventory-item";
-        div.innerHTML = `
-          <label style="opacity: ${item.count === 0 ? 0.4 : 1}">
-            <input type="checkbox" data-type="${key}" ${item.count === 0 ? "disabled" : ""}/>
-            ${key} × ${item.count}
-          </label>
-        `;
-        list.appendChild(div);
-      });
-    }
   </script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const nickname = (localStorage.getItem("nickname") || "").trim();
-  if (!nickname) {
-    alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-    window.location.href = "orcax-farm_000.html";
-  }
-  document.getElementById("nicknameDisplay").innerText = nickname;
-
-  const productItems = document.querySelectorAll(".product-item");
-  productItems.forEach((item) => {
-    const exchangeBtn = item.querySelector(".exchange-btn");
-    exchangeBtn.addEventListener("click", () => {
-      const productName = item.getAttribute("data-product");
-      const productCountElem = item.querySelector(".product-count");
-      let count = parseInt(productCountElem.innerText);
-
-      if (count <= 0) {
-        alert("해당 제품이 부족합니다!");
-        return;
-      }
-
-      // 수량 감소
-      count -= 1;
-      productCountElem.innerText = count;
-
-      // 서버에 전송 (예시 endpoint)
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/exchange", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, product: productName })
-      }).then(res => res.json()).then(data => {
-        if (!data.success) {
-          alert("교환 실패: " + data.message);
-        }
-      }).catch(err => {
-        console.error(err);
-        alert("서버 오류로 교환 실패");
-      });
-    });
-  });
-});
-</script>
 </body>
 </html>
 
