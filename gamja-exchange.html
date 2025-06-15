@@ -7,163 +7,108 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #f9f5ec;
+      padding: 16px;
       margin: 0;
-      padding: 1rem;
+      background: #f5f5f5;
+    }
+    header {
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 16px;
+      background: #333;
+      color: #fff;
     }
-    header, .info, .status-box, .inventory-box, .buttons, .navigation {
-      width: 100%;
-      max-width: 600px;
+    #infoBox, #nicknameBox {
+      margin: 8px 0;
+      font-size: 1.2em;
     }
-    header {
-      text-align: center;
-      padding: 1rem 0;
-    }
-    header h1 {
-      font-size: 1.8rem;
-      color: #3f2f1f;
-    }
-    .info {
-      background-color: #fff;
-      border-radius: 12px;
-      padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .inventory-box, .status-box {
-      background-color: #fff;
-      border-radius: 12px;
-      padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      margin-bottom: 1rem;
+    #inventoryItems {
+      margin: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     .inventory-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #eee;
-    }
-    .inventory-item:last-child {
-      border-bottom: none;
-    }
-    input[type="checkbox"] {
-      margin-right: 0.5rem;
-    }
-    .buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .buttons button {
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border: none;
+      background: #fff;
+      padding: 10px;
       border-radius: 8px;
-      background-color: #cfa765;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      padding: 12px 16px;
+      font-size: 1em;
+      margin: 8px 4px;
+      border: none;
+      border-radius: 6px;
+      background-color: #4CAF50;
       color: white;
       cursor: pointer;
     }
-    .buttons button:hover {
-      background-color: #a98445;
+    button:hover {
+      background-color: #45a049;
     }
-    .navigation {
-      text-align: center;
-      margin-top: 2rem;
-    }
-    .navigation a {
-      display: inline-block;
-      margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      background-color: #6ca244;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-    }
-    .navigation a:hover {
-      background-color: #568a36;
+
+    @media (max-width: 768px) {
+      header {
+        font-size: 1em;
+      }
+      #infoBox, #nicknameBox {
+        font-size: 1em;
+      }
+      button {
+        width: 100%;
+        margin: 6px 0;
+      }
+      .inventory-item label {
+        font-size: 0.9em;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>🔄 OrcaX 자원 교환소</h1>
     <div id="nicknameBox"></div>
+    <div id="infoBox"></div>
   </header>
-
-  <div class="info" id="infoBox">정보 불러오는 중...</div>
-
-  <div class="status-box">
-    <div>💧 물: <span id="waterCount">0</span></div>
-    <div>🌿 거름: <span id="fertilizerCount">0</span></div>
-  </div>
-
-  <div class="inventory-box">
-    <h3>📦 가공 제품 보관함</h3>
-    <div id="inventoryItems"></div>
-  </div>
-
-  <div class="buttons">
-    <button onclick="exchangeSelected('water')">선택 제품 → 물 교환</button>
-    <button onclick="exchangeSelected('fertilizer')">선택 제품 → 거름 교환</button>
-  </div>
-
-  <div class="navigation">
-    <a href="gamja-shop.html">🛒 씨감자 상점</a>
-    <a href="gamja-market.html">💰 거래소 이동</a>
-    <a href="gamja-result.html">🏭 가공공장 이동</a>
-  </div>
-
   <script>
-    const nickname = localStorage.getItem("nickname");
-    const nicknameBox = document.getElementById("nicknameBox");
+    
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const infoBox = document.getElementById("infoBox");
-
     const WATER_PER_ITEM = 5;
     const FERTILIZER_PER_ITEM = 3;
 
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-
     const userData = {
-      nickname,
+      nickname: "",
       water: 0,
       fertilizer: 0,
       token: 0,
       inventory: []
     };
 
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 입구로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
-    } else {
-      nicknameBox.textContent = `👤 ${nickname} 님`;
-      fetchUserData();
-    }
-
     function fetchUserData() {
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
+      userData.nickname = localStorage.getItem("nickname");
+      if (!userData.nickname) {
         alert("로그인 정보가 없습니다. 입구로 이동합니다.");
         window.location.href = "orcax-farm_000.html";
         return;
       }
-      userData.nickname = nickname;
-      fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
+      fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(userData.nickname)}`)
+        .then(res => {
+          if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
+          return res.json();
+        })
         .then(user => {
-          userData.nickname = user.nickname || nickname;
+          userData.nickname = user.nickname || userData.nickname;
           userData.water = user.water ?? 0;
           userData.fertilizer = user.fertilizer ?? 0;
           userData.token = user.token ?? 0;
           return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`);
         })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`제품 불러오기 실패: ${res.status}`);
+          return res.json();
+        })
         .then(products => {
           userData.inventory = products;
           updateDisplay();
@@ -185,22 +130,104 @@
           token: userData.token
         })
       })
+        .then(res => {
+          if (!res.ok) throw new Error(`유저 저장 실패: ${res.status}`);
+          return res.json();
+        })
         .then(() => {
           return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(userData.inventory)
-          });
+          })
+            .then(res => {
+              if (!res.ok) throw new Error(`제품 저장 실패: ${res.status}`);
+              return res.json();
+            });
         })
         .then(() => {
           alert("✅ 교환 완료!");
           fetchUserData();
+    document.getElementById("nicknameBox").textContent = `👤 ${userData.nickname} 님`;
         })
         .catch(err => {
           alert("❌ 서버 저장 실패");
           console.error(err);
         });
     }
+
+    // 교환 처리 함수: 체크된 제품 수량을 감소시키고 자원 증가
+    function exchangeSelected(type) {
+      const checkboxes = document.querySelectorAll("#inventoryItems input[type='checkbox']:checked");
+      if (checkboxes.length === 0) {
+        alert("교환할 제품을 선택하세요.");
+        return;
+      }
+
+      let itemCount = 0;
+      checkboxes.forEach(cb => {
+        const key = cb.dataset.type;
+        userData.inventory.forEach(item => {
+          const cat = item.category || '미분류';
+          const itemKey = `${item.type} (${cat})`;
+          if (itemKey === key && item.count > 0) {
+            item.count--;
+            itemCount++;
+          }
+        });
+      });
+
+      if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
+      if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
+
+      saveUserData();
+    }
+
+    // 화면 정보 갱신 함수: 물, 거름, ORCX 정보와 제품 목록 재표시
+    function updateDisplay() {
+      infoBox.innerHTML = `💧 물: <strong>${userData.water}</strong> | 🌿 거름: <strong>${userData.fertilizer}</strong> | 💰 ORCX: <strong>${userData.token}</strong>`;
+      loadProductStorage();
+    }
+
+    // 제품 목록을 화면에 표시하는 함수
+    function loadProductStorage() {
+      const merged = {};
+      userData.inventory.forEach(item => {
+        if (!item.type) return;
+        const cat = item.category || '미분류';
+        const key = `${item.type} (${cat})`;
+        if (merged[key]) {
+          merged[key].count += Number(item.count);
+        } else {
+          merged[key] = { ...item, type: key, count: Number(item.count) };
+        }
+      });
+
+      const mergedList = Object.entries(merged);
+      const list = document.getElementById("inventoryItems");
+      list.innerHTML = "";
+
+      if (mergedList.length === 0) {
+        const div = document.createElement("div");
+        div.textContent = "제품이 없습니다.";
+        list.appendChild(div);
+        return;
+      }
+
+      mergedList.forEach(([key, item]) => {
+        const div = document.createElement("div");
+        div.className = "inventory-item";
+        div.innerHTML = `
+          <label style="opacity: ${item.count === 0 ? 0.4 : 1}">
+            <input type="checkbox" data-type="${key}" ${item.count === 0 ? "disabled" : ""}/>
+            ${key} × ${item.count}
+          </label>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    fetchUserData();
   </script>
 </body>
 </html>
