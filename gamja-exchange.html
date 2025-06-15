@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrcaX 자원 교환소</title>
+  <title>OrcaX 자원 교환소 - 수정본</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -19,7 +19,7 @@
       background: #333;
       color: #fff;
     }
-    #infoBox, #nicknameBox {
+    #infoBox, #nicknameBox, #farmBox {
       margin: 8px 0;
       font-size: 1.2em;
     }
@@ -48,35 +48,34 @@
     button:hover {
       background-color: #45a049;
     }
-
-    @media (max-width: 768px) {
-      header {
-        font-size: 1em;
-      }
-      #infoBox, #nicknameBox {
-        font-size: 1em;
-      }
-      button {
-        width: 100%;
-        margin: 6px 0;
-      }
-      .inventory-item label {
-        font-size: 0.9em;
-      }
+    .error {
+      color: #ff4d4d;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 1.3em;
     }
   </style>
 </head>
 <body>
   <header>
+    <div id="statusBox">🔌 서버 상태 확인 중...</div>
     <div id="nicknameBox"></div>
+    <div id="farmBox"></div>
     <div id="infoBox"></div>
   </header>
+  <main>
+    <div id="inventoryItems"></div>
+    <div id="errorMessage" class="error" style="display: none;">❌ 유저 정보 없음</div>
+  </main>
+
   <script>
-    
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const infoBox = document.getElementById("infoBox");
-    const WATER_PER_ITEM = 5;
-    const FERTILIZER_PER_ITEM = 3;
+    const nicknameBox = document.getElementById("nicknameBox");
+    const farmBox = document.getElementById("farmBox");
+    const statusBox = document.getElementById("statusBox");
+    const errorMessage = document.getElementById("errorMessage");
 
     const userData = {
       nickname: "",
@@ -87,114 +86,46 @@
     };
 
     function fetchUserData() {
-      if (!localStorage.getItem("nickname")) {
-        localStorage.setItem("nickname", "범고래X");
+      let storedNick = localStorage.getItem("nickname");
+      if (!storedNick || storedNick.trim() === "") {
+        storedNick = "범고래X";
+        localStorage.setItem("nickname", storedNick);
       }
-      userData.nickname = localStorage.getItem("nickname");
-      if (!userData.nickname) {
-        alert("로그인 정보가 없습니다. 입구로 이동합니다.");
-        window.location.href = "orcax-farm_000.html";
-        return;
-      }
+      userData.nickname = storedNick;
+      const farmName = localStorage.getItem("farmName") || "(이름 없음)";
+
       fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(userData.nickname)}`)
         .then(res => {
           if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
           return res.json();
         })
         .then(user => {
-          userData.nickname = user.nickname || userData.nickname;
-          userData.water = user.water ?? 0;
-          userData.fertilizer = user.fertilizer ?? 0;
-          userData.token = user.token ?? 0;
+          Object.assign(userData, user);
+          nicknameBox.textContent = `👤 ${userData.nickname} 님`;
+          farmBox.textContent = `🌾 농장 이름: ${farmName}`;
+          statusBox.innerText = "✅ 서버 연결됨";
+          statusBox.style.color = "#00cc66";
           return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`);
         })
-        .then(res => {
-          if (!res.ok) throw new Error(`제품 불러오기 실패: ${res.status}`);
-          return res.json();
-        })
+        .then(res => res.json())
         .then(products => {
           userData.inventory = products;
           updateDisplay();
-          document.getElementById("nicknameBox").textContent = `👤 ${userData.nickname} 님`;
         })
         .catch(err => {
           console.error("유저 정보 불러오기 실패", err);
-          infoBox.textContent = "❌ 유저 정보 없음";
+          infoBox.style.display = "none";
+          nicknameBox.style.display = "none";
+          farmBox.style.display = "none";
+          statusBox.innerText = "❌ 서버 연결 실패";
+          statusBox.style.color = "red";
+          errorMessage.style.display = "block";
         });
     }
 
-    function saveUserData() {
-      fetch(`${API_BASE}/api/userdata`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nickname: userData.nickname,
-          water: userData.water,
-          fertilizer: userData.fertilizer,
-          token: userData.token
-        })
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`유저 저장 실패: ${res.status}`);
-          return res.json();
-        })
-        .then(() => {
-          return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(userData.inventory)
-          })
-            .then(res => {
-              if (!res.ok) throw new Error(`제품 저장 실패: ${res.status}`);
-              return res.json();
-            });
-        })
-        .then(() => {
-          alert("✅ 교환 완료!");
-          fetchUserData();
-    document.getElementById("nicknameBox").textContent = `👤 ${userData.nickname} 님`;
-        })
-        .catch(err => {
-          alert("❌ 서버 저장 실패");
-          console.error(err);
-        });
-    }
-
-    // 교환 처리 함수: 체크된 제품 수량을 감소시키고 자원 증가
-    function exchangeSelected(type) {
-      const checkboxes = document.querySelectorAll("#inventoryItems input[type='checkbox']:checked");
-      if (checkboxes.length === 0) {
-        alert("교환할 제품을 선택하세요.");
-        return;
-      }
-
-      let itemCount = 0;
-      checkboxes.forEach(cb => {
-        const key = cb.dataset.type;
-        userData.inventory.forEach(item => {
-          const cat = item.category || '미분류';
-          const itemKey = `${item.type} (${cat})`;
-          if (itemKey === key && item.count > 0) {
-            item.count--;
-            itemCount++;
-          }
-        });
-      });
-
-      if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
-      if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
-
-      saveUserData();
-    }
-
-    // 화면 정보 갱신 함수: 물, 거름, ORCX 정보와 제품 목록 재표시
     function updateDisplay() {
       infoBox.innerHTML = `💧 물: <strong>${userData.water}</strong> | 🌿 거름: <strong>${userData.fertilizer}</strong> | 💰 ORCX: <strong>${userData.token}</strong>`;
-      loadProductStorage();
-    }
 
-    // 제품 목록을 화면에 표시하는 함수
-    function loadProductStorage() {
       const merged = {};
       userData.inventory.forEach(item => {
         if (!item.type) return;
@@ -207,18 +138,17 @@
         }
       });
 
-      const mergedList = Object.entries(merged);
       const list = document.getElementById("inventoryItems");
       list.innerHTML = "";
 
-      if (mergedList.length === 0) {
+      if (Object.keys(merged).length === 0) {
         const div = document.createElement("div");
         div.textContent = "제품이 없습니다.";
         list.appendChild(div);
         return;
       }
 
-      mergedList.forEach(([key, item]) => {
+      Object.entries(merged).forEach(([key, item]) => {
         const div = document.createElement("div");
         div.className = "inventory-item";
         div.innerHTML = `
@@ -235,6 +165,7 @@
   </script>
 </body>
 </html>
+
 
 
 
