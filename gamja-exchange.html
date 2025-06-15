@@ -1,289 +1,152 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrcaX 자원 교환소 - 리뉴얼</title>
+  <meta charset="UTF-8">
+  <title>OrcaX 자원 교환소</title>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      padding: 16px;
-      margin: 0;
-      background: #f5f5f5;
-    }
-    header {
-      background: url('https://byungil-cho.github.io/OrcaX/assets/header.jpg') no-repeat center center;
-      background-size: cover;
-      padding: 40px 16px 16px;
-      color: #fff;
-      text-align: center;
-      position: relative;
-    }
-    header::after {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(0,0,0,0.4);
-      z-index: 0;
-    }
-    header > * {
-      position: relative;
-      z-index: 1;
-    }
-    #statusBox, #nicknameBox, #farmBox, #infoBox {
-      margin: 8px 0;
-      font-size: 1.2em;
-    }
-    #inventoryItems {
-      margin: 16px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .inventory-item {
-      background: #fff;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    button {
-      padding: 12px 16px;
-      font-size: 1em;
-      margin: 8px 4px;
-      border: none;
-      border-radius: 6px;
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    .error {
-      color: #ff4d4d;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 1rem;
-      font-size: 1.3em;
-    }
-    .button-group {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .navigation-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 20px;
-    }
-    .navigation-buttons a {
-      background-color: #333;
-      color: white;
-      padding: 8px 14px;
-      border-radius: 6px;
-      text-decoration: none;
-    }
-    @media (max-width: 768px) {
-      header {
-        background-size: contain;
-      }
-      .inventory-item label {
-        font-size: 0.9em;
-      }
-      button, .navigation-buttons a {
-        width: 100%;
-      }
-    }
+    body { font-family: 'Arial'; background: #f8f8f8; text-align: center; padding: 20px; }
+    .status { margin-top: 10px; font-weight: bold; }
+    .resource-block, .product-block, .actions { margin: 20px auto; max-width: 600px; }
+    .product-item { padding: 10px; background: #fff; border: 1px solid #ddd; margin-bottom: 5px; }
+    button { margin: 5px; padding: 10px 20px; font-weight: bold; }
+    .warn { color: red; }
   </style>
 </head>
 <body>
-  <header>
-    <div id="statusBox">🔌 서버 상태 확인 중...</div>
-    <div id="nicknameBox"></div>
-    <div id="farmBox"></div>
-    <div id="infoBox"></div>
-  </header>
-  <main>
-    <div id="inventoryItems"></div>
-    <div class="button-group">
-      <button onclick="exchangeSelected('water')">💧 물로 교환</button>
-      <button onclick="exchangeSelected('fertilizer')">🌿 거름으로 교환</button>
-    </div>
-    <div class="navigation-buttons">
-      <a href="gamja-shop.html">🛒 씨감자 상점</a>
-      <a href="gamja-result.html">🏭 가공 공장</a>
-      <a href="gamja-market.html">💰 거래소</a>
-    </div>
-    <div id="errorMessage" class="error" style="display: none;">❌ 유저 정보 없음</div>
-  </main>
+  <h1>OrcaX 자원 교환소</h1>
+  <div class="status" id="serverStatus">서버 연결 상태 확인 중...</div>
+  <div id="userInfo" class="status"></div>
+
+  <div class="resource-block">
+    <p>물: <span id="water">0</span> | 거름: <span id="fertilizer">0</span> | ORCX: <span id="token">0</span></p>
+  </div>
+
+  <div class="product-block">
+    <h3>보관 중인 가공 제품</h3>
+    <div id="productList">불러오는 중...</div>
+  </div>
+
+  <div class="actions">
+    <button onclick="exchangeSelected('water')">물로 교환</button>
+    <button onclick="exchangeSelected('fertilizer')">거름으로 교환</button>
+  </div>
+
+  <div class="actions">
+    <button onclick="location.href='gamja-shop.html'">씨감자 상점</button>
+    <button onclick="location.href='gamja-result.html'">가공 공장</button>
+    <button onclick="location.href='gamja-market.html'">거래소</button>
+  </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const infoBox = document.getElementById("infoBox");
-    const nicknameBox = document.getElementById("nicknameBox");
-    const farmBox = document.getElementById("farmBox");
-    const statusBox = document.getElementById("statusBox");
-    const errorMessage = document.getElementById("errorMessage");
+    const nickname = localStorage.getItem("nickname");
 
-    const WATER_PER_ITEM = 5;
-    const FERTILIZER_PER_ITEM = 3;
+    const serverStatus = document.getElementById("serverStatus");
+    const userInfo = document.getElementById("userInfo");
+    const waterEl = document.getElementById("water");
+    const fertilizerEl = document.getElementById("fertilizer");
+    const tokenEl = document.getElementById("token");
+    const productList = document.getElementById("productList");
 
-    const userData = {
-      nickname: "",
-      water: 0,
-      fertilizer: 0,
-      token: 0,
-      inventory: []
-    };
+    let userData = { water: 0, fertilizer: 0, token: 0, inventory: [] };
 
-    function fetchUserData() {
-      let storedNick = localStorage.getItem("nickname");
-      if (!storedNick || storedNick.trim() === "") {
-        storedNick = "범고래X";
-        localStorage.setItem("nickname", storedNick);
+    async function fetchUserData() {
+      if (!nickname) {
+        userInfo.innerHTML = '<span class="warn">닉네임 정보 없음</span>';
+        return;
       }
-      userData.nickname = storedNick;
-      const farmName = localStorage.getItem("farmName") || "(이름 없음)";
 
-      fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(userData.nickname)}`)
-        .then(res => {
-          if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
-          return res.json();
-        })
-        .then(user => {
-          Object.assign(userData, user);
-          nicknameBox.textContent = `👤 ${userData.nickname} 님`;
-          farmBox.textContent = `🌾 농장 이름: ${farmName}`;
-          statusBox.innerText = "✅ 서버 연결됨";
-          statusBox.style.color = "#00cc66";
-          return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`);
-        })
-        .then(res => res.json())
-        .then(products => {
-          userData.inventory = products;
-          updateDisplay();
-        })
-        .catch(err => {
-          console.error("유저 정보 불러오기 실패", err);
-          infoBox.style.display = "none";
-          nicknameBox.style.display = "none";
-          farmBox.style.display = "none";
-          statusBox.innerText = "❌ 서버 연결 실패";
-          statusBox.style.color = "red";
-          errorMessage.style.display = "block";
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nickname })
         });
+        const data = await res.json();
+        if (data.success) {
+          userData = data.user;
+          waterEl.textContent = userData.water;
+          fertilizerEl.textContent = userData.fertilizer;
+          tokenEl.textContent = userData.token;
+          userInfo.innerHTML = `${nickname} 님 | 농장 이름: ${userData.farmName}`;
+        } else {
+          userInfo.innerHTML = '<span class="warn">유저 정보 없음</span>';
+        }
+      } catch (err) {
+        serverStatus.innerHTML = '<span class="warn">서버 연결 실패</span>';
+      }
     }
 
-    function updateDisplay() {
-      infoBox.innerHTML = `💧 물: <strong>${userData.water}</strong> | 🌿 거름: <strong>${userData.fertilizer}</strong> | 💰 ORCX: <strong>${userData.token}</strong>`;
-
-      const merged = {};
-      userData.inventory.forEach(item => {
-        if (!item.type) return;
-        const cat = item.category || '미분류';
-        const key = `${item.type} (${cat})`;
-        if (merged[key]) {
-          merged[key].count += Number(item.count);
+    async function fetchProducts() {
+      try {
+        const res = await fetch(`${API_BASE}/api/products/${encodeURIComponent(nickname)}`);
+        const data = await res.json();
+        if (data.success) {
+          userData.inventory = data.products;
+          renderProductList();
         } else {
-          merged[key] = { ...item, type: key, count: Number(item.count) };
+          productList.innerHTML = '<span class="warn">제품 정보 없음</span>';
+        }
+      } catch (err) {
+        productList.innerHTML = '<span class="warn">제품 목록 불러오기 실패</span>';
+      }
+    }
+
+    function renderProductList() {
+      if (!userData.inventory || userData.inventory.length === 0) {
+        productList.innerHTML = '<p>보관 중인 제품이 없습니다.</p>';
+        return;
+      }
+      productList.innerHTML = "";
+      userData.inventory.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "product-item";
+        div.innerHTML = `<input type="checkbox" id="product${index}" data-index="${index}"> ${item.name} (${item.type}) × ${item.count}`;
+        productList.appendChild(div);
+      });
+    }
+
+    async function exchangeSelected(resourceType) {
+      const selected = [...document.querySelectorAll("input[type='checkbox']:checked")];
+      if (selected.length === 0) return alert("제품을 선택해주세요.");
+
+      selected.forEach(el => {
+        const i = parseInt(el.dataset.index);
+        if (userData.inventory[i].count > 0) {
+          userData.inventory[i].count--;
+          if (resourceType === "water") userData.water++;
+          if (resourceType === "fertilizer") userData.fertilizer++;
         }
       });
 
-      const list = document.getElementById("inventoryItems");
-      list.innerHTML = "";
+      await saveUserData();
+      alert("교환 완료!");
+      renderProductList();
+      waterEl.textContent = userData.water;
+      fertilizerEl.textContent = userData.fertilizer;
+    }
 
-      if (Object.keys(merged).length === 0) {
-        const div = document.createElement("div");
-        div.textContent = "제품이 없습니다.";
-        list.appendChild(div);
-        return;
-      }
-
-      Object.entries(merged).forEach(([key, item]) => {
-        const div = document.createElement("div");
-        div.className = "inventory-item";
-        div.innerHTML = `
-          <label style="opacity: ${item.count === 0 ? 0.4 : 1}">
-            <input type="checkbox" data-type="${key}" ${item.count === 0 ? "disabled" : ""}/>
-            ${key} × ${item.count}
-          </label>
-        `;
-        list.appendChild(div);
+    async function saveUserData() {
+      await fetch(`${API_BASE}/api/userdata`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+      await fetch(`${API_BASE}/api/products/${encodeURIComponent(nickname)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ products: userData.inventory })
       });
     }
 
-    function exchangeSelected(type) {
-      const checkboxes = document.querySelectorAll("#inventoryItems input[type='checkbox']:checked");
-      if (checkboxes.length === 0) {
-        alert("교환할 제품을 선택하세요.");
-        return;
-      }
-
-      const backup = JSON.parse(JSON.stringify(userData));
-      let itemCount = 0;
-      checkboxes.forEach(cb => {
-        const key = cb.dataset.type;
-        userData.inventory.forEach(item => {
-          const cat = item.category || '미분류';
-          const itemKey = `${item.type} (${cat})`;
-          if (itemKey === key && item.count > 0) {
-            item.count--;
-            itemCount++;
-          }
-        });
-      });
-
-      if (type === "water") userData.water += itemCount * WATER_PER_ITEM;
-      if (type === "fertilizer") userData.fertilizer += itemCount * FERTILIZER_PER_ITEM;
-
-      saveUserData()
-        .then(() => alert("✅ 교환 완료!"))
-        .catch(err => {
-          alert("❌ 서버 저장 실패");
-          Object.assign(userData, backup);
-          updateDisplay();
-        });
-    }
-
-    function saveUserData() {
-      return fetch(`${API_BASE}/api/userdata`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nickname: userData.nickname,
-          water: userData.water,
-          fertilizer: userData.fertilizer,
-          token: userData.token
-        })
-      })
-        .then(res => {
-          if (!res.ok) throw new Error("유저 저장 실패");
-          return res.json();
-        })
-        .then(() => {
-          return fetch(`${API_BASE}/api/products/${encodeURIComponent(userData.nickname)}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(userData.inventory)
-          });
-        })
-        .then(res => {
-          if (!res.ok) throw new Error("제품 저장 실패");
-          return res.json();
-        })
-        .then(() => {
-          fetchUserData();
-        });
-    }
-
+    serverStatus.textContent = "서버 연결됨";
     fetchUserData();
+    fetchProducts();
   </script>
 </body>
 </html>
+
 
 
 
