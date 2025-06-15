@@ -87,6 +87,9 @@
     };
 
     function fetchUserData() {
+      if (!localStorage.getItem("nickname")) {
+        localStorage.setItem("nickname", "범고래X");
+      }
       userData.nickname = localStorage.getItem("nickname");
       if (!userData.nickname) {
         alert("로그인 정보가 없습니다. 입구로 이동합니다.");
@@ -232,6 +235,7 @@
   </script>
 </body>
 </html>
+
 
 
 
