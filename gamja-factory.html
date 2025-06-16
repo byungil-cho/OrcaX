@@ -204,6 +204,34 @@
     }
 
     fetchData();
-  </script>
+  
+
+let growPoint = 0;
+
+function updateGrowPointDisplay() {
+  document.getElementById("growPointDisplay").innerText = growPoint;
+}
+
+// 물 주기
+document.getElementById("waterBtn").addEventListener("click", () => {
+  if (userData.water > 0) {
+    userData.water -= 1;
+    growPoint += 1;
+    document.getElementById("waterCount").innerText = userData.water;
+    updateGrowPointDisplay();
+  }
+});
+
+// 거름 주기
+document.getElementById("fertilizerBtn").addEventListener("click", () => {
+  if (userData.fertilizer > 0) {
+    userData.fertilizer -= 1;
+    growPoint += 1;
+    document.getElementById("fertilizerCount").innerText = userData.fertilizer;
+    updateGrowPointDisplay();
+  }
+});
+
+</script>
 </body>
 </html>
