@@ -90,12 +90,12 @@
   <div class="power-status" id="power">🔌 전기 상태 확인 중...</div>
 
   <div class="assets" id="assetsBox">
-    <div class="asset-row">🥔 감자 <span>-</span></div>
-    <div class="asset-row">💧 물 <span>-</span></div>
-    <div class="asset-row">🧪 거름 <span>-</span></div>
-    <div class="asset-row">🌱 씨감자 <span>-</span></div>
-    <div class="asset-row">🐳 ORCX <span>-</span></div>
-    <div class="asset-row">🌿 성장 포인트 <span id="grow">0</span></div>
+    <div class="asset-row">🥔 감자 <span id="potato">-</span></div>
+    <div class="asset-row">💧 물 <span id="water">-</span></div>
+    <div class="asset-row">🧪 거름 <span id="fertilizer">-</span></div>
+    <div class="asset-row">🌱 씨감자 <span id="seed">-</span></div>
+    <div class="asset-row">🐳 ORCX <span id="token">-</span></div>
+    <div class="asset-row">🌿 성장 포인트 <span id="grow">-</span></div>
   </div>
 
   <div class="farm-buttons">
@@ -139,6 +139,23 @@
       } catch (e) {
         document.getElementById("status").innerText = "🔴 서버 오류";
         document.getElementById("power").innerText = "❌ 전기 공급 안됨";
+      }
+
+      // 데이터 불러오기 추가
+      try {
+        const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`);
+        const user = await res.json();
+        if (user.success && user.data) {
+          const data = user.data;
+          document.getElementById("potato").innerText = data.potato ?? 0;
+          document.getElementById("water").innerText = data.water ?? 0;
+          document.getElementById("fertilizer").innerText = data.fertilizer ?? 0;
+          document.getElementById("seed").innerText = data.seed ?? 0;
+          document.getElementById("token").innerText = data.token ?? 0;
+          document.getElementById("grow").innerText = data.growPoint ?? 0;
+        }
+      } catch (e) {
+        console.error("자산 불러오기 실패", e);
       }
     };
   </script>
