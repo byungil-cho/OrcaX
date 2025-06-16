@@ -45,8 +45,10 @@
       background-color: #fff2a0cc;
       color: #000;
       font-weight: bold;
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       border-radius: 8px;
+      white-space: pre-line;
+      text-align: left;
     }
     .entry-button {
       position: absolute;
@@ -70,7 +72,7 @@
   <div class="container">
     <div class="overlay"></div>
     <div class="label">🥔 감자밭 입구</div>
-    <div class="nickname" id="nicknameBox" style="display: none;"></div>
+    <div class="nickname" id="nicknameBox">🔄 정보 불러오는 중...</div>
     <button class="entry-button" onclick="goToFarm()">감자밭 입장</button>
   </div>
 
@@ -82,20 +84,26 @@
       alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
     } else {
-      nicknameBox.textContent = `👤 ${nickname}님 환영합니다!`;
-      nicknameBox.style.display = "block";
-
-      // 서버에 접속자 정보 전송
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ nickname })
-      })
-      .then(res => res.json())
-      .then(data => console.log("서버 응답:", data))
-      .catch(err => console.error("서버 오류:", err));
+      // 서버에서 유저 정보 조회
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            const u = data.user;
+            nicknameBox.textContent =
+              `👤 ${u.nickname}님 환영합니다!\n\n` +
+              `💧 물: ${u.water} / 🌱 거름: ${u.fertilizer}\n` +
+              `🥔 씨감자: ${u.seed} / 🌾 씨보리: ${u.barleySeed}\n` +
+              `🪙 ORCX: ${u.token}`;
+          } else {
+            nicknameBox.textContent = "⚠️ 유저 정보를 찾을 수 없습니다.";
+            nicknameBox.style.backgroundColor = "#ff7777";
+          }
+        })
+        .catch(err => {
+          nicknameBox.textContent = "⚠️ 서버 연결 실패 (전기 차단)";
+          nicknameBox.style.backgroundColor = "#ff4444";
+        });
     }
 
     function goToFarm() {
