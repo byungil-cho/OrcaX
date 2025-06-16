@@ -1,83 +1,144 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrcaX Storage</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>📦 자재 보관소</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+    }
+    .header .info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      font-size: 14px;
+    }
+    h1 {
+      text-align: left;
+      font-size: 20px;
+    }
+    .container {
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+    button {
+      padding: 6px 12px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 18px; }
+      .header { flex-direction: column; align-items: flex-start; }
+      .info { align-items: flex-start; }
+    }
+  </style>
 </head>
-<body class="bg-stone-50 min-h-screen flex items-center justify-center px-4 py-6">
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 space-y-6">
-
-    <div class="text-center">
-      <h1 class="text-2xl font-bold text-gray-700">📦 창고</h1>
-      <p class="text-sm text-gray-500">내 수확물과 가공품을 확인하고 경매장에 출고하세요.</p>
+<body>
+  <div class="header">
+    <h1>감자 자재 보관소</h1>
+    <div class="info">
+      <div id="powerStatus">🔌 전원 상태: 확인 중...</div>
+      <div id="nickname">👤 닉네임: </div>
+      <div id="farmName">🏡 농장명: </div>
     </div>
+  </div>
 
-    <div class="space-y-4 text-sm text-gray-800">
-
-      <div class="flex justify-between items-center">
-        <span>🥔 감자: <span id="potato-count">0</span></span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span>🌾 보리: <span id="barley-count">0</span></span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span>🍟 감자칩: <span id="chips-count">0</span></span>
-        <button onclick="listItem('chips')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs">출고</button>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span>🍵 보리차: <span id="tea-count">0</span></span>
-        <button onclick="listItem('barley_tea')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs">출고</button>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span>⛽ 연료: <span id="fuel-count">0</span></span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span>💰 토큰: <span id="token-count">0</span></span>
-      </div>
-
-    </div>
-
-    <div class="text-center text-xs text-gray-400 pt-4 border-t">
-      출고된 상품은 경매장에 등록됩니다.
-    </div>
-
+  <div class="container">
+    <table>
+      <thead>
+        <tr>
+          <th>품명</th>
+          <th>수량</th>
+          <th>출고</th>
+        </tr>
+      </thead>
+      <tbody id="productTable">
+        <!-- 동적 렌더링 -->
+      </tbody>
+    </table>
   </div>
 
   <script>
-    const USER_ID = 'USER123';
+    const nickname = localStorage.getItem("nickname") || "unknown";
+    const farmName = localStorage.getItem("farmName") || "미지정";
+    document.getElementById("nickname").innerText = `👤 닉네임: ${nickname}`;
+    document.getElementById("farmName").innerText = `🏡 농장명: ${farmName}`;
 
-    async function updateInventory() {
-      const res = await fetch(`/user/${USER_ID}`);
-      const data = await res.json();
-      const inv = data.inventory || {};
-
-      document.getElementById("potato-count").innerText = inv.potato || 0;
-      document.getElementById("barley-count").innerText = inv.barley || 0;
-      document.getElementById("chips-count").innerText = inv.chips || 0;
-      document.getElementById("tea-count").innerText = inv.barley_tea || 0;
-      document.getElementById("fuel-count").innerText = inv.fuel || 0;
-      document.getElementById("token-count").innerText = data.token || 0;
-    }
-
-    async function listItem(itemType) {
-      const res = await fetch(`/auction/list`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: USER_ID, item_type: itemType })
+    // 전원 상태 확인
+    fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/power")
+      .then(res => res.json())
+      .then(data => {
+        const powerStatus = data?.power === true ? "🔌 전기 공급중" : "❌ 전원 차단";
+        document.getElementById("powerStatus").innerText = `🔌 전원 상태: ${powerStatus}`;
+      })
+      .catch(() => {
+        document.getElementById("powerStatus").innerText = "🔌 전원 상태: 오류";
       });
-      const data = await res.json();
-      alert(data.message || '출고 완료!');
-      updateInventory();
-    }
 
-    updateInventory();
+    // 제품명 매핑
+    const productNameMap = {
+      chip: "감자칩",
+      tea: "보리차",
+      bread: "보리빵",
+      snack: "감자스낵"
+    };
+
+    // 제품 불러오기
+    fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`)
+      .then(res => res.json())
+      .then(data => {
+        const productTable = document.getElementById("productTable");
+        const products = data.products || {};
+        for (const key in products) {
+          const name = productNameMap[key] || key;
+          const amount = products[key];
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${name}</td>
+            <td><span>${amount}</span></td>
+            <td><button onclick="shipItem('${key}')">출고</button></td>
+          `;
+          productTable.appendChild(row);
+        }
+      });
+
+    function shipItem(productKey) {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/auction/list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, product: productKey })
+      })
+      .then(res => res.json())
+      .then(result => {
+        alert(result.message || "출고 요청 완료");
+        location.reload();
+      })
+      .catch(() => alert("출고 실패"));
+    }
   </script>
 </body>
 </html>
