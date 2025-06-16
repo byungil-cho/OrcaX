@@ -23,6 +23,7 @@
       box-shadow: 0 6px 12px rgba(0,0,0,0.1);
       text-align: center;
       position: relative;
+      z-index: 1;
     }
     h1 {
       font-size: 1.8rem;
@@ -51,13 +52,13 @@
       background-color: #81c784;
     }
 
-    /* 🕊️ 새 - 오른쪽에서 왼쪽 */
     .bird {
       position: absolute;
       top: 20px;
       right: -60px;
       font-size: 2rem;
       animation: fly-left 12s linear infinite;
+      z-index: 2;
     }
 
     @keyframes fly-left {
@@ -66,27 +67,45 @@
       100% { right: 110%; top: 25px; }
     }
 
-    /* 🦆 오리 - 아래에서 물 위를 지그재그로 */
     .duck {
-      position: fixed;
-      bottom: 10px;
+      position: absolute;
+      top: 70%;
       left: -60px;
       font-size: 2rem;
-      animation: swim-zigzag 16s linear infinite;
+      animation: swim-over 18s linear infinite;
+      z-index: 2;
     }
 
-    @keyframes swim-zigzag {
-      0% { left: -60px; bottom: 10px; }
-      25% { left: 25%; bottom: 20px; }
-      50% { left: 50%; bottom: 10px; }
-      75% { left: 75%; bottom: 20px; }
-      100% { left: 110%; bottom: 10px; }
+    @keyframes swim-over {
+      0% { left: -60px; top: 70%; }
+      25% { left: 25%; top: 68%; }
+      50% { left: 50%; top: 72%; }
+      75% { left: 75%; top: 69%; }
+      100% { left: 110%; top: 70%; }
+    }
+
+    .link {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .link a {
+      color: #333;
+      background: #ffd54f;
+      padding: 6px 14px;
+      border-radius: 8px;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
   <div class="bird">🕊️</div>
   <div class="duck">🦆</div>
+
+  <div class="link">
+    <a href="gamja-farm.html">← 감자농장 입구로 돌아가기</a>
+  </div>
 
   <div class="container">
     <h1>🥔 감자 농장</h1>
@@ -149,7 +168,13 @@
         method: "POST",
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ nickname })
-      }).then(fetchData);
+      }).then(() => {
+        fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/farm/grow", {
+          method: "POST",
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ nickname, type: "water" })
+        }).then(fetchData);
+      });
     }
 
     function fertilize() {
@@ -157,7 +182,13 @@
         method: "POST",
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ nickname })
-      }).then(fetchData);
+      }).then(() => {
+        fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/farm/grow", {
+          method: "POST",
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ nickname, type: "fertilizer" })
+        }).then(fetchData);
+      });
     }
 
     function harvest() {
