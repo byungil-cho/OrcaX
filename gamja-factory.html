@@ -83,7 +83,7 @@
   </style>
 </head>
 <body>
-  <div class="bug">🐦</div>
+  <div class="bug">🪿</div>
 
   <h2 id="nicknameHeader">🐳 감자 농장</h2>
   <div class="status" id="status">서버 연결 확인 중...</div>
@@ -118,7 +118,7 @@
   <script>
     window.onload = async function() {
       const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
+      if (!nickname || nickname.trim() === "") {
         alert("닉네임 정보가 없습니다. 처음 화면으로 이동합니다.");
         location.href = "orcax-farm_000.html";
         return;
