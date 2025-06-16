@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>협자 농장</title>
+  <title>감자 농장</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -57,6 +57,24 @@
         font-size: clamp(0.85rem, 3.5vw, 1.15rem);
       }
     }
+    #audioUpload {
+      margin-top: 1.5rem;
+    }
+    .nav-links {
+      margin-top: 2rem;
+    }
+    .nav-links a {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #444;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+    .nav-links a:hover {
+      background-color: #222;
+    }
   </style>
 </head>
 <body>
@@ -76,8 +94,18 @@
     <button onclick="water()">💧 물 주기</button>
     <button onclick="fertilize()">🧪 거름 주기</button>
     <button onclick="plant()">🥔 씨감자 심기</button>
-    <button onclick="harvest()">🎉 수화하기</button>
+    <button onclick="harvest()">🎉 수확하기</button>
   </div>
+
+  <div class="nav-links">
+    <a href="gamja-result.html">가공공장</a>
+    <a href="gamja-shop.html">씨감자 상점</a>
+    <a href="gamja-exchange.html">교환소</a>
+    <a href="orcax-farm_000.html">농장 입구</a>
+  </div>
+
+  <input type="file" id="audioUpload" accept="audio/*">
+  <audio id="gamjaSound" controls></audio>
 
   <script>
     const nickname = localStorage.getItem("nickname");
@@ -124,7 +152,7 @@
         .then(data => {
           if (data.success) {
             alert(`✅ ${successMessage}`);
-            fetchUserData(); // reload 차이
+            fetchUserData();
           } else {
             alert(`❌ ${data.message}`);
           }
@@ -135,7 +163,23 @@
     function water() { farmAction("water", "물 주기 완료!"); }
     function fertilize() { farmAction("fertilize", "거름 주기 완료!"); }
     function plant() { farmAction("plant", "씨감자 심기 완료!"); }
-    function harvest() { farmAction("harvest", "감자 수화 완료!"); }
+    function harvest() {
+      const audio = document.getElementById("gamjaSound");
+      if (audio && audio.src) {
+        audio.play();
+      }
+      farmAction("harvest", "감자 수확 완료!");
+    }
+
+    document.getElementById("audioUpload").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const audioURL = URL.createObjectURL(file);
+        const audioElement = document.getElementById("gamjaSound");
+        audioElement.src = audioURL;
+        audioElement.load();
+      }
+    });
   </script>
 </body>
 </html>
