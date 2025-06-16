@@ -2,233 +2,128 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaX 감자 가공공장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX 감자 가공공장</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #fef9e8;
-      padding: 1rem;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-    }
-    h1 {
-      text-align: center;
-      color: #504030;
-      margin: 1rem 0 0.5rem;
-    }
-    #nicknameBox {
-      text-align: right;
-      font-weight: bold;
-      margin: 0.5rem 1rem 0.5rem 0;
-      color: #503020;
-    }
-    .status-box {
-      text-align: center;
-      font-weight: bold;
-      padding: 0.5rem;
-      background: #fff;
-      border: 2px dashed #aaa;
-      margin: 0.5rem auto;
-      max-width: 300px;
+      background-color: #fdf5e6;
       color: #333;
+      text-align: center;
     }
-    #resourceBox, #factoryBox {
-      background: #fff;
+    .status {
+      margin-top: 1rem;
+      color: green;
+      font-weight: bold;
+    }
+    .info-box {
+      margin: 2rem auto;
+      padding: 1.5rem;
+      width: 300px;
       border: 1px solid #ccc;
-      padding: 1rem;
-      margin: 1rem auto;
-      max-width: 400px;
-      border-radius: 12px;
+      border-radius: 10px;
+      background-color: #fff;
     }
-    #factoryBox input, #factoryBox select {
+    .product-box {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    .form-section {
+      margin: 2rem auto;
+    }
+    input[type="text"] {
       padding: 0.5rem;
-      margin-right: 0.5rem;
+      width: 180px;
     }
-    #factoryBox button, .navigation-buttons a {
-      background-color: #a98256;
-      color: white;
+    button {
       padding: 0.5rem 1rem;
+      margin: 0.5rem;
+      background-color: #a36b3e;
+      color: white;
       border: none;
-      margin: 0.3rem;
+      border-radius: 5px;
       cursor: pointer;
-      border-radius: 8px;
-      text-decoration: none;
-      display: inline-block;
     }
-    .navigation-buttons {
-      text-align: center;
-      margin: 1rem;
+    .nav {
+      margin-top: 2rem;
     }
-    ul#inventoryItems {
-      list-style: none;
-      padding-left: 1rem;
-      max-width: 300px;
-      margin: auto;
-    }
-    ul#inventoryItems li {
-      background: #fff;
-      margin: 0.3rem 0;
-      padding: 0.4rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    h3 {
-      text-align: center;
-      color: #504030;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
+    .nav button {
+      background-color: #b4885f;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🏭 OrcaX 감자 가공공장</h1>
-    <div id="statusBox" class="status-box">🔌 서버 연결 확인 중...</div>
-    <div id="nicknameBox"></div>
-    <div id="resourceBox">
-      <p>🥔 감자: <span id="potatoCount">0</span></p>
-      <p>💧 물: <span id="waterCount">0</span></p>
-      <p>🌾 보리: <span id="barleyCount">0</span></p>
-      <p>🌿 거름: <span id="fertilizerCount">0</span></p>
-      <p>🪙 ORCX: <span id="tokenCount">0</span></p>
-    </div>
-    <div id="factoryBox">
-      <label><input type="radio" name="productType" value="감자" checked /> 감자</label>
-      <label><input type="radio" name="productType" value="보리" /> 보리</label>
-      <input type="text" id="productName" placeholder="제품 이름 입력" />
-      <button onclick="processProduct()">제품 가공하기</button>
-    </div>
-    <h3>📦 가공 제품 보관함</h3>
-    <ul id="inventoryItems"></ul>
-    <div class="navigation-buttons">
-      <a href="gamja-shop.html">🛒 씨감자 상점</a>
-      <a href="gamja-exchange.html">🔁 자원 교환소</a>
-      <a href="gamja-market.html">💰 거래소 이동</a>
-    </div>
+  <h2>🏭 OrcaX 감자 가공공장</h2>
+  <div class="status">✅ 전기 공급 중 (서버 연결됨)</div>
+  <div style="position:absolute; top:20px; right:20px; font-weight:bold;">
+    <span id="nicknameBox">닉네임 로딩 중...</span>
+  </div>
+
+  <div class="info-box" id="assetBox">
+    감자: -<br>
+    물: -<br>
+    보리: -<br>
+    거름: -<br>
+    ORCX: -<br>
+  </div>
+
+  <div class="product-box" id="productBox">
+    🍟 감자칩: -개<br>
+    🍞 보리빵: -개
+  </div>
+
+  <div class="form-section">
+    <label><input type="radio" name="type" value="potato" checked> 감자</label>
+    <label><input type="radio" name="type" value="barley"> 보리</label>
+    <input type="text" id="productName" placeholder="제품 이름 입력" />
+    <button onclick="processProduct()">제품 가공하기</button>
+  </div>
+
+  <div class="nav">
+    <button onclick="location.href='gamja-shop.html'">🧺 씨감자 상점</button>
+    <button onclick="location.href='gamja-exchange.html'">🔁 자원 교환소</button>
+    <button onclick="location.href='gamja-market.html'">💰 거래소 이동</button>
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname");
-    const farmName = localStorage.getItem("farmName");
-    const statusBox = document.getElementById("statusBox");
+    const farmName = localStorage.getItem("farmName") || "농장";
+    const nicknameBox = document.getElementById("nicknameBox");
 
-    async function fetchUserData() {
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
-        if (!res.ok) throw new Error("연결 실패");
-        const data = await res.json();
-        document.getElementById("nicknameBox").innerText = `👤 ${nickname} (${farmName}) 님`;
-        document.getElementById("potatoCount").innerText = data.potatoCount ?? 0;
-        document.getElementById("waterCount").innerText = data.water ?? 0;
-        document.getElementById("fertilizerCount").innerText = data.fertilizer ?? 0;
-        document.getElementById("tokenCount").innerText = data.token ?? 0;
-        document.getElementById("barleyCount").innerText = data.barleyCount ?? 0;
-        statusBox.innerText = "✅ 전기 공급 중 (서버 연결됨)";
-        statusBox.style.color = "green";
-      } catch (err) {
-        statusBox.innerText = "❌ 전기 공급 끊김 (서버 오류)";
-        statusBox.style.color = "red";
-        console.error(err);
-      }
-    }
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 처음 페이지로 이동합니다.");
+      location.href = "orcax-farm_000.html";
+    } else {
+      nicknameBox.textContent = `${nickname} (${farmName}) 님`;
+      const encoded = encodeURIComponent(nickname);
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encoded}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            const u = data.user;
+            document.getElementById("assetBox").innerHTML =
+              `감자: ${u.potatoCount}<br>` +
+              `물: ${u.water}<br>` +
+              `보리: ${u.barleyCount}<br>` +
+              `거름: ${u.fertilizer}<br>` +
+              `ORCX: ${u.token}`;
 
-    async function processProduct() {
-      const name = document.getElementById("productName").value.trim();
-      const type = document.querySelector('input[name="productType"]:checked').value;
-      const potatoCount = parseInt(document.getElementById("potatoCount").innerText);
-      const barleyCount = parseInt(document.getElementById("barleyCount").innerText);
-
-      if (!name) return alert("제품 이름을 입력하세요.");
-      if (type === "감자" && potatoCount <= 0)
-        return alert("감자가 부족합니다.");
-      if (type === "보리" && barleyCount <= 0)
-        return alert("보리가 부족합니다.");
-
-      try {
-        const res = await fetch(`${API_BASE}/api/products`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nickname,
-            productName: name,
-            productType: type,
-            quantity: 1
-          })
-        });
-        if (!res.ok) throw new Error("저장 실패");
-
-        // 업데이트: 수량 줄이기
-        if (type === "감자") {
-          document.getElementById("potatoCount").innerText = potatoCount - 1;
-        } else if (type === "보리") {
-          document.getElementById("barleyCount").innerText = barleyCount - 1;
-        }
-
-        await loadProductStorage(nickname);
-      } catch (err) {
-        alert("제품 가공 실패!");
-        console.error(err);
-      }
-    }
-
-    async function loadProductStorage(nickname) {
-      try {
-        const res = await fetch(`${API_BASE}/api/products/${nickname}`);
-        const products = await res.json();
-        const list = document.getElementById("inventoryItems");
-        list.innerHTML = "";
-
-        const merged = {};
-        products.forEach(item => {
-          if (!item.type || item.count < 1 || typeof item.category !== 'string' || item.category.trim() === '') return;
-          const key = item.type + ` (${item.category})`;
-          if (merged[key]) {
-            merged[key].count += item.count;
-          } else {
-            merged[key] = { ...item, type: key };
+            document.getElementById("productBox").innerHTML =
+              `🍟 감자칩: ${u.potatoProduct || 0}개<br>` +
+              `🍞 보리빵: ${u.barleyProduct || 0}개`;
           }
         });
-
-        const mergedList = Object.values(merged);
-        if (mergedList.length === 0) {
-          const li = document.createElement("li");
-          li.textContent = "제품이 없습니다.";
-          list.appendChild(li);
-          return;
-        }
-
-        mergedList.forEach((item, idx) => {
-          const li = document.createElement("li");
-          li.innerHTML = `<input type="checkbox" value="${idx}"> ${item.type} × ${item.count}`;
-          list.appendChild(li);
-        });
-      } catch (err) {
-        console.error("📛 제품 보관소 불러오기 실패:", err);
-      }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      if (!nickname || nickname.trim() === "") {
-        alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-        window.location.href = "orcax-farm_000.html";
-      }
-      fetchUserData();
-      loadProductStorage(nickname);
-    });
+    function processProduct() {
+      const type = document.querySelector("input[name='type']:checked").value;
+      const name = document.getElementById("productName").value.trim();
+      if (!name) return alert("제품 이름을 입력하세요");
+
+      alert(`${type === 'potato' ? '감자' : '보리'} → ${name} 으로 가공됩니다. (연결 예정)`);
+      // 여기에 가공 처리 fetch POST 추가 예정
+    }
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
