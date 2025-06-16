@@ -141,7 +141,6 @@
         document.getElementById("power").innerText = "❌ 전기 공급 안됨";
       }
 
-      // 데이터 불러오기 추가
       try {
         const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`);
         const user = await res.json();
