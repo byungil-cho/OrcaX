@@ -71,6 +71,27 @@
   <script>
     const nickname = localStorage.getItem("nickname") || "";
 
+    async function fetchFarmData() {
+      try {
+        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nickname })
+        });
+        const result = await res.json();
+        if (result.success) {
+          document.getElementById("potato").innerText = result.potatoCount ?? 0;
+          document.getElementById("water").innerText = result.water ?? 0;
+          document.getElementById("fertilizer").innerText = result.fertilizer ?? 0;
+          document.getElementById("seed").innerText = result.seed ?? 0;
+          document.getElementById("token").innerText = result.token ?? 0;
+          document.getElementById("grow").innerText = result.growPoint ?? 0;
+        }
+      } catch (err) {
+        alert("초기 데이터 로딩 실패: " + err);
+      }
+    }
+
     async function updateAction(action) {
       try {
         const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/farm/${action}`, {
@@ -102,6 +123,8 @@
     document.getElementById("waterBtn").onclick = () => updateAction("water");
     document.getElementById("fertilizeBtn").onclick = () => updateAction("fertilize");
     document.getElementById("harvestBtn").onclick = () => updateAction("harvest");
+
+    window.onload = fetchFarmData;
   </script>
 </body>
 </html>
