@@ -21,24 +21,39 @@
       border: 2px solid #ccc;
       padding: 16px;
       margin: 16px auto;
-      max-width: 340px;
+      max-width: 360px;
       border-radius: 12px;
       transition: transform 0.3s ease;
       font-size: 1.1rem;
+      font-weight: bold;
     }
     .assets:hover {
       transform: scale(1.05);
     }
+    .asset-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      font-size: 1.2rem;
+    }
+    .farm-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 360px;
+      margin: 20px auto;
+    }
     .farm-buttons button {
-      display: block;
-      width: 80%;
-      margin: 10px auto;
-      padding: 12px;
+      padding: 14px;
       font-size: 1.1rem;
       border: none;
       border-radius: 10px;
       background: #90ee90;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
     .farm-buttons button:hover {
       background: #76c776;
@@ -65,33 +80,28 @@
       50% { right: 50%; top: 60px; }
       100% { right: 100%; top: 30px; }
     }
-    .icon {
-      width: 20px;
-      vertical-align: middle;
-      margin-right: 5px;
-    }
   </style>
 </head>
 <body>
   <img src="https://byungil-cho.github.io/OrcaX/bird-fly.gif" alt="새" class="bug" />
 
-  <h2>🌾 감자 농장</h2>
+  <h2>🐳 감자 농장</h2>
   <div class="status" id="status">서버 연결 확인 중...</div>
   <div class="power-status" id="power">🔌 전기 상태 확인 중...</div>
 
   <div class="assets" id="assetsBox">
-    <img src="https://byungil-cho.github.io/OrcaX/icon-potato.png" class="icon">감자: -<br>
-    <img src="https://byungil-cho.github.io/OrcaX/icon-water.png" class="icon">물: -<br>
-    <img src="https://byungil-cho.github.io/OrcaX/icon-fertilizer.png" class="icon">거름: -<br>
-    <img src="https://byungil-cho.github.io/OrcaX/icon-seed.png" class="icon">씨감자: -<br>
-    <img src="https://byungil-cho.github.io/OrcaX/icon-token.png" class="icon">ORCX: -<br>
-    🌱 성장 포인트: <span id="grow">0</span>
+    <div class="asset-row">🥔 감자 <span>-</span></div>
+    <div class="asset-row">💧 물 <span>-</span></div>
+    <div class="asset-row">🧪 거름 <span>-</span></div>
+    <div class="asset-row">🌱 씨감자 <span>-</span></div>
+    <div class="asset-row">🐳 ORCX <span>-</span></div>
+    <div class="asset-row">🌿 성장 포인트 <span id="grow">0</span></div>
   </div>
 
   <div class="farm-buttons">
     <button onclick="water()">💧 물 주기</button>
     <button onclick="fertilize()">🧪 거름 주기</button>
-    <button onclick="plant()">🥔 씨감자 심기</button>
+    <button onclick="plant()">🌱 씨감자 심기</button>
     <button onclick="harvest()">🎉 수확하기</button>
   </div>
 
@@ -104,111 +114,5 @@
 
   <input type="file" id="audioUpload" accept="audio/*" style="display:none">
   <audio id="gamjaSound" src="https://byungil-cho.github.io/OrcaX/sound-gamja.mp3" style="display:none"></audio>
-
-  <script>
-    const nickname = localStorage.getItem("nickname");
-    const farmName = localStorage.getItem("farmName") || "농장";
-
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 처음 화면으로 이동합니다.");
-      location.href = "orcax-farm_000.html";
-    } else {
-      document.getElementById("status").textContent = `✅ ${nickname} (${farmName})님 환영합니다!`;
-      fetchUserData();
-      fetchPowerStatus();
-    }
-
-    function fetchUserData() {
-      const encoded = encodeURIComponent(nickname);
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${encoded}`)
-        .then(res => res.json())
-        .then(user => {
-          if (user) {
-            document.getElementById("assetsBox").innerHTML =
-              `<img src="https://byungil-cho.github.io/OrcaX/icon-potato.png" class="icon">감자: ${user.potatoCount || 0}<br>` +
-              `<img src="https://byungil-cho.github.io/OrcaX/icon-water.png" class="icon">물: ${user.water || 0}<br>` +
-              `<img src="https://byungil-cho.github.io/OrcaX/icon-fertilizer.png" class="icon">거름: ${user.fertilizer || 0}<br>` +
-              `<img src="https://byungil-cho.github.io/OrcaX/icon-seed.png" class="icon">씨감자: ${user.seedPotato || 0}<br>` +
-              `<img src="https://byungil-cho.github.io/OrcaX/icon-token.png" class="icon">ORCX: ${user.token || 0}<br>` +
-              `🌱 성장 포인트: <span id="grow">${user.growPoint || 0}</span>`;
-          } else {
-            document.getElementById("status").textContent = "❌ 유저 정보를 불러오지 못했습니다.";
-          }
-        })
-        .catch(() => {
-          document.getElementById("status").textContent = "❌ 서버 오류 발생.";
-        });
-    }
-
-    function fetchPowerStatus() {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status")
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === "ok") {
-            document.getElementById("power").textContent = "🔌 전기 공급 중 (서버 정상 작동)";
-          } else {
-            document.getElementById("power").textContent = "⚠️ 전기 연결 안됨 (서버 응답 없음)";
-          }
-        })
-        .catch(() => {
-          document.getElementById("power").textContent = "❌ 서버 연결 실패 (전기 차단)";
-        });
-    }
-
-    function farmAction(endpoint, successMessage, callback) {
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/farm/${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            alert(`✅ ${successMessage}`);
-            if (typeof callback === "function") callback();
-            else setTimeout(fetchUserData, 300);
-          } else {
-            alert(`❌ ${data.message}`);
-          }
-        })
-        .catch(() => alert("❌ 서버 오류 발생"));
-    }
-
-    function water() {
-      farmAction("water", "물 주기 완료!", () => {
-        const grow = document.getElementById("grow");
-        grow.textContent = parseInt(grow.textContent) + 1;
-      });
-    }
-
-    function fertilize() {
-      farmAction("fertilize", "거름 주기 완료!", () => {
-        const grow = document.getElementById("grow");
-        grow.textContent = parseInt(grow.textContent) + 2;
-      });
-    }
-
-    function plant() {
-      farmAction("plant", "씨감자 심기 완료!", () => {
-        document.getElementById("grow").textContent = 0;
-      });
-    }
-
-    function harvest() {
-      const audio = document.getElementById("gamjaSound");
-      if (audio && audio.src) audio.play();
-      farmAction("harvest", "감자 수확 완료!");
-    }
-
-    document.getElementById("audioUpload").addEventListener("change", function(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const audioURL = URL.createObjectURL(file);
-        const audioElement = document.getElementById("gamjaSound");
-        audioElement.src = audioURL;
-        audioElement.load();
-      }
-    });
-  </script>
 </body>
 </html>
