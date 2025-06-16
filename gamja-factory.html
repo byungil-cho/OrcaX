@@ -85,7 +85,7 @@
 <body>
   <div class="bug">🐦</div>
 
-  <h2>🐳 감자 농장</h2>
+  <h2 id="nicknameHeader">🐳 감자 농장</h2>
   <div class="status" id="status">서버 연결 확인 중...</div>
   <div class="power-status" id="power">🔌 전기 상태 확인 중...</div>
 
@@ -117,10 +117,19 @@
 
   <script>
     window.onload = async function() {
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) {
+        alert("닉네임 정보가 없습니다. 처음 화면으로 이동합니다.");
+        location.href = "orcax-farm_000.html";
+        return;
+      }
+      const header = document.getElementById("nicknameHeader");
+      if (header) header.innerHTML += ` <span style="font-size: 1rem;">(${nickname})님 환영합니다!</span>`;
+
       try {
         const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status");
         const data = await res.json();
-        if (data.success) {
+        if (data.success || data.status === "ok") {
           document.getElementById("status").innerText = "🟢 서버 연결됨";
           document.getElementById("power").innerText = "⚡ 전기 공급 중!";
         } else {
