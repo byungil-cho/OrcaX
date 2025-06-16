@@ -3,178 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 농장</title>
+  <title>감자농장 공장</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #f0f8ff;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f8f8;
       margin: 0;
       padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
       text-align: center;
     }
-    .status, .power-status {
-      font-size: 1.1rem;
-      margin: 10px 0;
-    }
-    .assets {
-      background: #fffbe6;
-      border: 2px solid #ccc;
-      padding: 16px;
-      margin: 16px auto;
-      max-width: 360px;
-      border-radius: 12px;
-      transition: transform 0.3s ease;
-      font-size: 1.1rem;
-      font-weight: bold;
-    }
-    .assets:hover {
-      transform: scale(1.05);
-    }
-    .asset-row {
+    .row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin: 10px 0;
-      font-size: 1.2rem;
+      font-size: 1.2em;
     }
-    .farm-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-width: 360px;
-      margin: 20px auto;
-    }
-    .farm-buttons button {
-      padding: 14px;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 10px;
-      background: #90ee90;
-      cursor: pointer;
+    .row span:first-child {
+      width: 50%;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
+      gap: 6px;
     }
-    .farm-buttons button:hover {
-      background: #76c776;
-    }
-    .nav-links {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-    }
-    .nav-links a {
-      padding: 10px 16px;
-      background: #f5deb3;
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      font-size: 1em;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
       border-radius: 8px;
-      text-decoration: none;
-      color: #000;
-      font-weight: bold;
-      box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+      cursor: pointer;
     }
-    .bug {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 2rem;
-      animation: fly 5s infinite linear;
-    }
-    @keyframes fly {
-      0% { right: -50px; top: 30px; }
-      50% { right: 50%; top: 60px; }
-      100% { right: 100%; top: 30px; }
+    button:hover {
+      background-color: #2563eb;
     }
   </style>
 </head>
 <body>
-  <div class="bug">🪿</div>
-  <h2 id="nicknameHeader">🐳 감자 농장</h2>
-  <div class="status" id="status">서버 연결 확인 중...</div>
-  <div class="power-status" id="power">🔌 전기 상태 확인 중...</div>
-  <div class="status" id="farmStatus">🌾 농장명 불러오는 중...</div>
-
-  <div class="assets" id="assetsBox">
-    <div class="asset-row">🥔 감자 <span id="potato">-</span></div>
-    <div class="asset-row">💧 물 <span id="water">-</span></div>
-    <div class="asset-row">🧪 거름 <span id="fertilizer">-</span></div>
-    <div class="asset-row">🌱 씨감자 <span id="seed">-</span></div>
-    <div class="asset-row">🐳 ORCX <span id="token">-</span></div>
-    <div class="asset-row">🌿 성장 포인트 <span id="grow">-</span></div>
-  </div>
-
-  <div class="farm-buttons">
-    <button id="waterBtn">💧 물 주기</button>
-    <button id="fertilizeBtn">🧪 거름 주기</button>
+  <div class="container">
+    <h2>🌾 감자 가공 공장</h2>
+    <div class="row"><span>🥔 감자:</span> <span id="potato">0</span></div>
+    <div class="row"><span>💧 물:</span> <span id="water">0</span></div>
+    <div class="row"><span>💩 거름:</span> <span id="fertilizer">0</span></div>
+    <div class="row"><span>🌱 씨감자:</span> <span id="seed">0</span></div>
+    <div class="row"><span>🔥 성장포인트:</span> <span id="grow">0</span></div>
+    <div class="row"><span>🐳 ORCX:</span> <span id="token">0</span></div>
+    
     <button id="plantBtn">🌱 씨감자 심기</button>
-    <button id="harvestBtn">🎉 수확하기</button>
+    <button id="waterBtn">💧 물 주기</button>
+    <button id="fertilizeBtn">💩 거름 주기</button>
+    <button id="harvestBtn">🥔 수확하기</button>
   </div>
-
-  <div class="nav-links">
-    <a href="gamja-result.html">가공공장</a>
-    <a href="gamja-shop.html">씨감자 상점</a>
-    <a href="gamja-exchange.html">교환소</a>
-    <a href="orcax-farm_000.html">농장 입구</a>
-  </div>
-
-  <input type="file" id="audioUpload" accept="audio/*" style="display:none">
-  <audio id="gamjaSound" src="https://byungil-cho.github.io/OrcaX/sound-gamja.mp3" style="display:none"></audio>
+  <audio id="gamjaSound" src="/OrcaX/gamja.wav"></audio>
 
   <script>
-    window.onload = async function() {
-      const nickname = localStorage.getItem("nickname");
-      const farmName = localStorage.getItem("farmName");
+    const nickname = localStorage.getItem("nickname") || "";
 
-      if (!nickname || nickname.trim() === "") {
-        alert("닉네임 정보가 없습니다. 처음 화면으로 이동합니다.");
-        location.href = "orcax-farm_000.html";
-        return;
-      }
-
-      const header = document.getElementById("nicknameHeader");
-      if (header) header.innerHTML += ` <span style="font-size: 1rem;">(${nickname})님 환영합니다!`;
-
-      const farmStatus = document.getElementById("farmStatus");
-      if (farmName && farmStatus) farmStatus.innerText = `🌾 현재 농장명: ${farmName}`;
-
+    async function updateAction(action) {
       try {
-        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status");
-        const data = await res.json();
-        if (data.success || data.status === "ok") {
-          document.getElementById("status").innerText = "🟢 서버 연결됨";
-          document.getElementById("power").innerText = "⚡ 전기 공급 중!";
+        const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/farm/${action}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nickname })
+        });
+        const result = await res.json();
+        if (result.success) {
+          document.getElementById("potato").innerText = result.potatoCount ?? 0;
+          document.getElementById("water").innerText = result.water ?? 0;
+          document.getElementById("fertilizer").innerText = result.fertilizer ?? 0;
+          document.getElementById("seed").innerText = result.seed ?? 0;
+          document.getElementById("token").innerText = result.token ?? 0;
+          document.getElementById("grow").innerText = result.growPoint ?? 0;
+          if (action === 'harvest') {
+            document.getElementById("gamjaSound").play();
+            alert("수확 완료! 감자가 창고에 보관되었습니다.");
+          }
         } else {
-          document.getElementById("status").innerText = "🔴 서버 연결 실패";
-          document.getElementById("power").innerText = "❌ 전기 공급 안됨";
+          alert("작업 실패: " + result.message);
         }
-      } catch (e) {
-        document.getElementById("status").innerText = "🔴 서버 오류";
-        document.getElementById("power").innerText = "❌ 전기 공급 안됨";
+      } catch (err) {
+        alert("서버 통신 오류: " + err);
       }
+    }
 
-      try {
-        const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${nickname}`);
-        const user = await res.json();
-        if (user && user.nickname) {
-          document.getElementById("potato").innerText = user.potatoCount ?? 0;
-          document.getElementById("water").innerText = user.water ?? 0;
-          document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
-          document.getElementById("seed").innerText = user.seed ?? 0;
-          document.getElementById("token").innerText = user.token ?? 0;
-          document.getElementById("grow").innerText = user.growPoint ?? 0;
-        }
-      } catch (e) {
-        console.error("자산 불러오기 실패", e);
-      }
-
-      document.getElementById("waterBtn").onclick = () => alert("물 주기 기능은 아직 구현 중입니다.");
-      document.getElementById("fertilizeBtn").onclick = () => alert("거름 주기 기능은 아직 구현 중입니다.");
-      document.getElementById("plantBtn").onclick = () => alert("씨감자 심기 기능은 아직 구현 중입니다.");
-      document.getElementById("harvestBtn").onclick = () => alert("수확 기능은 아직 구현 중입니다.");
-    };
+    document.getElementById("plantBtn").onclick = () => updateAction("plant");
+    document.getElementById("waterBtn").onclick = () => updateAction("water");
+    document.getElementById("fertilizeBtn").onclick = () => updateAction("fertilize");
+    document.getElementById("harvestBtn").onclick = () => updateAction("harvest");
   </script>
 </body>
 </html>
+
 
 
