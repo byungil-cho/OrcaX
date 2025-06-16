@@ -114,5 +114,24 @@
 
   <input type="file" id="audioUpload" accept="audio/*" style="display:none">
   <audio id="gamjaSound" src="https://byungil-cho.github.io/OrcaX/sound-gamja.mp3" style="display:none"></audio>
+
+  <script>
+    window.onload = async function() {
+      try {
+        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status");
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("status").innerText = "🟢 서버 연결됨";
+          document.getElementById("power").innerText = "⚡ 전기 공급 중!";
+        } else {
+          document.getElementById("status").innerText = "🔴 서버 연결 실패";
+          document.getElementById("power").innerText = "❌ 전기 공급 안됨";
+        }
+      } catch (e) {
+        document.getElementById("status").innerText = "🔴 서버 오류";
+        document.getElementById("power").innerText = "❌ 전기 공급 안됨";
+      }
+    };
+  </script>
 </body>
 </html>
