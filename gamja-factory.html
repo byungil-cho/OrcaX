@@ -97,6 +97,7 @@
     <div class="asset-row">🌱 씨감자 <span id="seed">-</span></div>
     <div class="asset-row">🐳 ORCX <span id="token">-</span></div>
     <div class="asset-row">🌿 성장 포인트 <span id="grow">-</span></div>
+    <div class="asset-row">🍟 감자칩 <span id="chips">-</span></div>
   </div>
 
   <div class="farm-buttons">
@@ -159,6 +160,7 @@
           document.getElementById("seed").innerText = data.seed ?? 0;
           document.getElementById("token").innerText = data.token ?? 0;
           document.getElementById("grow").innerText = data.growPoint ?? 0;
+          document.getElementById("chips").innerText = data.product_chips ?? 0;
         }
       } catch (e) {
         console.error("자산 불러오기 실패", e);
