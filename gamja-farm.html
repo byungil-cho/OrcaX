@@ -84,8 +84,8 @@
       alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
       window.location.href = "orcax-farm_000.html";
     } else {
-      // 서버에서 유저 정보 조회
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`)
+      const encodedName = encodeURIComponent(nickname);
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodedName}`)
         .then(res => res.json())
         .then(data => {
           if (data.success) {
