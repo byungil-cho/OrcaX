@@ -70,7 +70,8 @@
 
   <div class="product-box" id="productBox">
     🍟 감자칩: -개<br>
-    🍞 보리빵: -개
+    🍞 보리빵: -개<br>
+    🧪 씨감자: -개
   </div>
 
   <div class="form-section">
@@ -111,7 +112,8 @@
 
             document.getElementById("productBox").innerHTML =
               `🍟 감자칩: ${u.potatoProduct || 0}개<br>` +
-              `🍞 보리빵: ${u.barleyProduct || 0}개`;
+              `🍞 보리빵: ${u.barleyProduct || 0}개<br>` +
+              `🧪 씨감자: ${u.seedPotato || 0}개`;
           }
         });
     }
