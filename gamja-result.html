@@ -121,8 +121,23 @@
       const name = document.getElementById("productName").value.trim();
       if (!name) return alert("제품 이름을 입력하세요");
 
-      alert(`${type === 'potato' ? '감자' : '보리'} → ${name} 으로 가공됩니다. (연결 예정)`);
-      // 여기에 가공 처리 fetch POST 추가 예정
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/process-product", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ nickname, type, name })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert(`✅ ${data.message}`);
+            location.reload();
+          } else {
+            alert(`❌ ${data.message}`);
+          }
+        })
+        .catch(() => alert("서버 오류로 가공에 실패했습니다."));
     }
   </script>
 </body>
