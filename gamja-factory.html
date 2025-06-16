@@ -9,7 +9,8 @@
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 1rem;
-      background-color: #fffbe6;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-bg.jpg') no-repeat center center fixed;
+      background-size: cover;
       color: #333;
       text-align: center;
     }
@@ -18,11 +19,17 @@
       color: green;
       margin-bottom: 1rem;
     }
+    .power-status {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #e64a19;
+      margin-bottom: 1rem;
+    }
     .assets {
       border: 1px solid #ccc;
       padding: 1rem;
       border-radius: 12px;
-      background: #ffffff;
+      background: rgba(255,255,255,0.85);
       display: inline-block;
       text-align: left;
       font-size: clamp(1rem, 2.5vw, 1.25rem);
@@ -48,18 +55,6 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    #growPoint {
-      font-weight: bold;
-      margin-top: 1rem;
-    }
-    @media (max-width: 600px) {
-      .assets {
-        font-size: clamp(0.85rem, 3.5vw, 1.15rem);
-      }
-    }
-    #audioUpload {
-      margin-top: 1.5rem;
-    }
     .nav-links {
       margin-top: 2rem;
     }
@@ -75,11 +70,33 @@
     .nav-links a:hover {
       background-color: #222;
     }
+    .bug {
+      position: absolute;
+      width: 40px;
+      animation: fly 12s linear infinite;
+      z-index: 1;
+    }
+    @keyframes fly {
+      0% { top: 5%; left: -50px; }
+      50% { top: 20%; left: 100%; }
+      100% { top: 5%; left: -50px; }
+    }
+    @media (max-width: 600px) {
+      .assets {
+        font-size: clamp(0.85rem, 3.5vw, 1.15rem);
+      }
+    }
+    #audioUpload {
+      margin-top: 1.5rem;
+    }
   </style>
 </head>
 <body>
+  <img src="https://byungil-cho.github.io/OrcaX/bird-fly.gif" alt="새" class="bug" />
+
   <h2>🌾 감자 농장</h2>
   <div class="status" id="status">서버 연결 확인 중...</div>
+  <div class="power-status" id="power">🔌 전기 상태 확인 중...</div>
 
   <div class="assets" id="assetsBox">
     감자: -<br>
@@ -117,28 +134,43 @@
     } else {
       document.getElementById("status").textContent = `✅ ${nickname} (${farmName})님 환영합니다!`;
       fetchUserData();
+      fetchPowerStatus();
     }
 
     function fetchUserData() {
       const encoded = encodeURIComponent(nickname);
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encoded}`)
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${encoded}`)
         .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            const u = data.user;
+        .then(user => {
+          if (user) {
             document.getElementById("assetsBox").innerHTML =
-              `감자: ${u.potatoCount || 0}<br>` +
-              `물: ${u.water || 0}<br>` +
-              `거름: ${u.fertilizer || 0}<br>` +
-              `씨감자: ${u.seedPotato || 0}<br>` +
-              `ORCX: ${u.token || 0}<br>` +
-              `🌱 성장 포인트: <span id="grow">${u.growPoint || 0}</span>`;
+              `감자: ${user.potatoCount || 0}<br>` +
+              `물: ${user.water || 0}<br>` +
+              `거름: ${user.fertilizer || 0}<br>` +
+              `씨감자: ${user.seedPotato || 0}<br>` +
+              `ORCX: ${user.token || 0}<br>` +
+              `🌱 성장 포인트: <span id="grow">${user.growPoint || 0}</span>`;
           } else {
             document.getElementById("status").textContent = "❌ 유저 정보를 불러오지 못했습니다.";
           }
         })
         .catch(() => {
           document.getElementById("status").textContent = "❌ 서버 오류 발생.";
+        });
+    }
+
+    function fetchPowerStatus() {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status")
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "ok") {
+            document.getElementById("power").textContent = "🔌 전기 공급 중 (서버 정상 작동)";
+          } else {
+            document.getElementById("power").textContent = "⚠️ 전기 연결 안됨 (서버 응답 없음)";
+          }
+        })
+        .catch(() => {
+          document.getElementById("power").textContent = "❌ 서버 연결 실패 (전기 차단)";
         });
     }
 
@@ -152,7 +184,7 @@
         .then(data => {
           if (data.success) {
             alert(`✅ ${successMessage}`);
-            fetchUserData();
+            setTimeout(fetchUserData, 300);
           } else {
             alert(`❌ ${data.message}`);
           }
