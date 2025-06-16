@@ -58,15 +58,21 @@
     .farm-buttons button:hover {
       background: #76c776;
     }
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
     .nav-links a {
-      display: inline-block;
-      margin: 10px;
-      padding: 8px 12px;
+      padding: 10px 16px;
       background: #f5deb3;
       border-radius: 8px;
       text-decoration: none;
       color: #000;
       font-weight: bold;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
     }
     .bug {
       position: absolute;
@@ -88,6 +94,7 @@
   <div class="status" id="status">서버 연결 확인 중...</div>
   <div class="power-status" id="power">🔌 전기 상태 확인 중...</div>
   <div class="status" id="farmStatus">🌾 농장명 불러오는 중...</div>
+
   <div class="assets" id="assetsBox">
     <div class="asset-row">🥔 감자 <span id="potato">-</span></div>
     <div class="asset-row">💧 물 <span id="water">-</span></div>
@@ -97,10 +104,24 @@
     <div class="asset-row">🌿 성장 포인트 <span id="grow">-</span></div>
     <div class="asset-row">🍟 감자칩 <span id="chips">-</span></div>
   </div>
-  <div class="farm-buttons"> ... 버튼 유지 ... </div>
-  <div class="nav-links"> ... 링크 유지 ... </div>
+
+  <div class="farm-buttons">
+    <button onclick="water()">💧 물 주기</button>
+    <button onclick="fertilize()">🧪 거름 주기</button>
+    <button onclick="plant()">🌱 씨감자 심기</button>
+    <button onclick="harvest()">🎉 수확하기</button>
+  </div>
+
+  <div class="nav-links">
+    <a href="gamja-result.html">가공공장</a>
+    <a href="gamja-shop.html">씨감자 상점</a>
+    <a href="gamja-exchange.html">교환소</a>
+    <a href="orcax-farm_000.html">농장 입구</a>
+  </div>
+
   <input type="file" id="audioUpload" accept="audio/*" style="display:none">
   <audio id="gamjaSound" src="https://byungil-cho.github.io/OrcaX/sound-gamja.mp3" style="display:none"></audio>
+
   <script>
     window.onload = async function() {
       const nickname = localStorage.getItem("nickname");
@@ -152,3 +173,4 @@
   </script>
 </body>
 </html>
+
