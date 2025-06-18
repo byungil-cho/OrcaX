@@ -96,7 +96,7 @@
       console.log("닉네임:", nickname);
       document.querySelectorAll(".nickname").forEach(el => el.innerText = nickname);
 
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`)
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`)
         .then(res => res.json())
         .then(data => {
           const user = data.users?.[0];
@@ -116,3 +116,4 @@
   </script>
 </body>
 </html>
+
