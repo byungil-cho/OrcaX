@@ -81,7 +81,11 @@
       })
       .then(data => {
         if (data && data.nickname) {
-          statusEl.textContent = `👤 ${data.nickname} | 🥔 감자: ${data.potatoCount} | 💧 물: ${data.water} | 🌾 비료: ${data.fertilizer} | 💰 토큰: ${data.token}`;
+          const potato = data.potatoCount ?? 0;
+          const water = data.water ?? 0;
+          const fertilizer = data.fertilizer ?? 0;
+          const token = data.token ?? 0;
+          statusEl.textContent = `👤 ${data.nickname} | 🥔 감자: ${potato} | 💧 물: ${water} | 🌾 비료: ${fertilizer} | 💰 토큰: ${token}`;
         } else {
           statusEl.textContent = `👤 ${nickname} (로컬)`;
         }
@@ -103,6 +107,7 @@
   </script>
 </body>
 </html>
+
 
 
 
