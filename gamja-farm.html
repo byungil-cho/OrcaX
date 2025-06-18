@@ -63,8 +63,8 @@
   </div>
 
   <script>
-    const nickname = localStorage.getItem("nickname")?.trim();
-    const farmName = localStorage.getItem("farmName")?.trim();
+    const nickname = localStorage.getItem("nickname")?.replace(/\s+/g, "");
+    const farmName = localStorage.getItem("farmName")?.replace(/\s+/g, "");
     const statusEl = document.getElementById("status");
     const powerEl = document.getElementById("power");
 
@@ -107,6 +107,7 @@
   </script>
 </body>
 </html>
+
 
 
 
