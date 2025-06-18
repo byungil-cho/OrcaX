@@ -8,30 +8,24 @@
     document.addEventListener("DOMContentLoaded", function () {
       const powerStatus = document.getElementById("power-status");
       const nicknameField = document.getElementById("nickname");
+      const statusField = document.getElementById("status");
 
       const serverUrl = "https://climbing-wholly-grouper.jp.ngrok.io";
 
-      // ✅ 전원 체크
+      // ✅ 서버 연결 상태 확인
       fetch(serverUrl)
         .then(res => res.text())
-        .then(data => {
+        .then(() => {
           powerStatus.textContent = "✅ 전원 연결됨";
           powerStatus.style.background = '#d6f5d6';
-          powerStatus.style.padding = '6px 12px';
-          powerStatus.style.borderRadius = '8px';
-          powerStatus.style.fontWeight = 'bold';
           powerStatus.style.color = '#080';
         })
-        .catch(err => {
+        .catch(() => {
           powerStatus.textContent = "⚡ 전원 차단";
           powerStatus.style.background = '#fdd';
-          powerStatus.style.padding = '6px 12px';
-          powerStatus.style.borderRadius = '8px';
-          powerStatus.style.fontWeight = 'bold';
           powerStatus.style.color = '#c00';
         });
 
-      // ✅ 닉네임 불러오기
       const nickname = localStorage.getItem("nickname");
       if (!nickname) {
         alert("로그인 정보가 없습니다. 감자 농장 입구로 이동합니다.");
@@ -39,45 +33,29 @@
         return;
       }
 
-      // ✅ 사용자 정보 불러오기 (정상 API 경로 사용)
+      // ✅ 사용자 정보 불러오기
       fetch(`${serverUrl}/api/userdata/${encodeURIComponent(nickname)}`)
-        .then((res) => res.json())
-        .then((data) => {
+        .then(res => res.json())
+        .then(data => {
           if (data.success && data.user) {
-            nicknameField.textContent = `👩‍🌾 ${data.user.nickname} 농장주님 반갑습니다!`;
-            nicknameField.style.background = '#dfd';
-            nicknameField.style.padding = '10px';
-            nicknameField.style.borderRadius = '8px';
-            nicknameField.style.color = '#080';
-            nicknameField.style.fontWeight = 'bold';
-            nicknameField.style.position = 'absolute';
-            nicknameField.style.top = '10px';
-            nicknameField.style.right = '10px';
-            nicknameField.style.zIndex = '100';
+            const u = data.user;
+            nicknameField.textContent = `👩‍🌾 ${u.nickname} 농장주님 반갑습니다!`;
+
+            statusField.innerHTML = `
+              💧 물: ${u.water ?? 0} |
+              💩 거름: ${u.fertilizer ?? 0} |
+              🪙 토큰: ${u.orcx ?? 0} |
+              🥔 씨감자: ${u.seedPotato ?? 0} |
+              🌾 씨보리: ${u.seedBarley ?? 0}
+            `;
           } else {
             nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
-            nicknameField.style.background = '#fdd';
-            nicknameField.style.padding = '10px';
-            nicknameField.style.borderRadius = '8px';
-            nicknameField.style.color = '#c00';
-            nicknameField.style.fontWeight = 'bold';
-            nicknameField.style.position = 'absolute';
-            nicknameField.style.top = '10px';
-            nicknameField.style.right = '10px';
-            nicknameField.style.zIndex = '100';
+            statusField.textContent = "";
           }
         })
-        .catch((err) => {
+        .catch(err => {
           nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
-          nicknameField.style.background = '#fdd';
-          nicknameField.style.padding = '10px';
-          nicknameField.style.borderRadius = '8px';
-          nicknameField.style.color = '#c00';
-          nicknameField.style.fontWeight = 'bold';
-          nicknameField.style.position = 'absolute';
-          nicknameField.style.top = '10px';
-          nicknameField.style.right = '10px';
-          nicknameField.style.zIndex = '100';
+          statusField.textContent = "";
         });
     });
   </script>
@@ -88,31 +66,24 @@
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
       color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: flex-start;
-      min-height: 100vh;
       padding: 20px;
-      box-sizing: border-box;
     }
-    #power-status {
+    #power-status, #nickname, #status {
       position: absolute;
-      top: 10px;
-      left: 10px;
       z-index: 100;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
     }
-    #nickname {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 100;
-    }
+    #power-status { top: 10px; left: 10px; }
+    #nickname { top: 10px; right: 10px; background: #dfd; color: #080; }
+    #status { top: 50px; right: 10px; background: #fffbe6; color: #333; }
   </style>
 </head>
 <body>
   <div id="power-status">전원 확인 중...</div>
   <div id="nickname">닉네임 불러오는 중...</div>
+  <div id="status">자원 정보 불러오는 중...</div>
 
   <a href="gamja-main.html" style="
     position: absolute;
