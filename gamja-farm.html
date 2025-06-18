@@ -13,7 +13,7 @@
 
       fetch(serverUrl)
         .then(res => res.text())
-        .then(data => {
+        .then(() => {
           powerStatus.textContent = "✅ 전원 연결됨";
           powerStatus.style.background = '#d6f5d6';
           powerStatus.style.padding = '6px 12px';
@@ -21,7 +21,7 @@
           powerStatus.style.fontWeight = 'bold';
           powerStatus.style.color = '#080';
         })
-        .catch(err => {
+        .catch(() => {
           powerStatus.textContent = "⚡ 전원 차단";
           powerStatus.style.background = '#fdd';
           powerStatus.style.padding = '6px 12px';
@@ -40,43 +40,28 @@
       const encodedNickname = encodeURIComponent(nickname);
 
       fetch(`${serverUrl}/api/userdata/${encodedNickname}`)
-        .then((res) => res.json())
-        .then((data) => {
+        .then(res => res.json())
+        .then(data => {
           if (data.success) {
             nicknameField.textContent = `👩‍🌾 ${data.user.nickname} 농장주님 반갑습니다!`;
             nicknameField.style.background = '#dfd';
-            nicknameField.style.padding = '10px';
-            nicknameField.style.borderRadius = '8px';
             nicknameField.style.color = '#080';
-            nicknameField.style.fontWeight = 'bold';
-            nicknameField.style.position = 'absolute';
-            nicknameField.style.top = '10px';
-            nicknameField.style.right = '10px';
-            nicknameField.style.zIndex = '100';
           } else {
             nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
             nicknameField.style.background = '#fdd';
-            nicknameField.style.padding = '10px';
-            nicknameField.style.borderRadius = '8px';
             nicknameField.style.color = '#c00';
-            nicknameField.style.fontWeight = 'bold';
-            nicknameField.style.position = 'absolute';
-            nicknameField.style.top = '10px';
-            nicknameField.style.right = '10px';
-            nicknameField.style.zIndex = '100';
           }
+          nicknameField.style.padding = '10px';
+          nicknameField.style.borderRadius = '8px';
+          nicknameField.style.fontWeight = 'bold';
         })
-        .catch((err) => {
+        .catch(() => {
           nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
           nicknameField.style.background = '#fdd';
           nicknameField.style.padding = '10px';
           nicknameField.style.borderRadius = '8px';
           nicknameField.style.color = '#c00';
           nicknameField.style.fontWeight = 'bold';
-          nicknameField.style.position = 'absolute';
-          nicknameField.style.top = '10px';
-          nicknameField.style.right = '10px';
-          nicknameField.style.zIndex = '100';
         });
     });
   </script>
@@ -129,6 +114,7 @@
   <a href="gamja-main.html" class="enter-link">감자밭 입장</a>
 </body>
 </html>
+
 
 
 
