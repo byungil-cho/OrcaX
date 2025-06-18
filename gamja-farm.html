@@ -63,8 +63,19 @@
   </div>
 
   <script>
-    const nickname = localStorage.getItem("nickname")?.replace(/\s+/g, "");
-    const farmName = localStorage.getItem("farmName")?.replace(/\s+/g, "");
+    const rawNickname = localStorage.getItem("nickname");
+    const rawFarmName = localStorage.getItem("farmName");
+    const nickname = rawNickname?.replace(/\s+/g, "") || "";
+    const farmName = rawFarmName?.replace(/\s+/g, "") || "";
+
+    // 공백 제거 후 재저장
+    if (nickname && rawNickname !== nickname) {
+      localStorage.setItem("nickname", nickname);
+    }
+    if (farmName && rawFarmName !== farmName) {
+      localStorage.setItem("farmName", farmName);
+    }
+
     const statusEl = document.getElementById("status");
     const powerEl = document.getElementById("power");
 
