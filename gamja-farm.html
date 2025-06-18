@@ -68,7 +68,6 @@
     const nickname = rawNickname?.replace(/\s+/g, "") || "";
     const farmName = rawFarmName?.replace(/\s+/g, "") || "";
 
-    // 공백 제거 후 재저장
     if (nickname && rawNickname !== nickname) {
       localStorage.setItem("nickname", nickname);
     }
@@ -86,11 +85,11 @@
         cache: "no-store"
       })
       .then(res => {
-        powerEl.textContent = "🔌 전원 정상";
         if (!res.ok) throw new Error("서버 응답 실패");
         return res.json();
       })
       .then(data => {
+        powerEl.textContent = "🔌 전원 정상";
         if (data && data.nickname) {
           const potato = data.potatoCount ?? 0;
           const water = data.water ?? 0;
@@ -98,12 +97,13 @@
           const token = data.token ?? 0;
           statusEl.textContent = `👤 ${data.nickname} | 🥔 감자: ${potato} | 💧 물: ${water} | 🌾 비료: ${fertilizer} | 💰 토큰: ${token}`;
         } else {
-          statusEl.textContent = `👤 ${nickname} (로컬)`;
+          powerEl.textContent = "⚠️ 전원 차단";
+          statusEl.textContent = `❗ 서버에 유저 정보 없음`;
         }
       })
       .catch(err => {
         powerEl.textContent = "⚠️ 전원 차단";
-        statusEl.textContent = `👤 ${nickname} (로컬)`;
+        statusEl.textContent = `❗ 서버 연결 실패`;
       });
     }
 
