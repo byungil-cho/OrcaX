@@ -78,37 +78,46 @@
     const statusEl = document.getElementById("status");
     const powerEl = document.getElementById("power");
 
+    function setPowerStatus(success, data = {}) {
+      if (success) {
+        powerEl.textContent = "🔌 전원 정상";
+        const potato = data.potatoCount ?? 0;
+        const water = data.water ?? 0;
+        const fertilizer = data.fertilizer ?? 0;
+        const token = data.token ?? 0;
+        statusEl.textContent = `👤 ${data.nickname} | 🥔 감자: ${potato} | 💧 물: ${water} | 🌾 비료: ${fertilizer} | 💰 토큰: ${token}`;
+      } else {
+        powerEl.textContent = "⚠️ 전원 차단";
+        statusEl.textContent = `❗ 사용자 없음 (${nickname})`;
+      }
+    }
+
     if (!nickname || !farmName) {
+      powerEl.textContent = "⚠️ 전원 차단";
       statusEl.textContent = "❗ 로그인 정보 없음";
     } else {
-      console.log("🔍 요청 닉네임:", nickname);
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`, {
-        cache: "no-store"
-      })
-      .then(res => {
-        console.log("✅ 응답 상태:", res.status);
-        return res.json();
-      })
-      .then(data => {
-        console.log("📦 응답 데이터:", data);
-        if (!data.success || !data.nickname) {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io")
+        .then(() => {
+          fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`, {
+            cache: "no-store"
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (!data.success || !data.nickname) {
+                setPowerStatus(false);
+              } else {
+                setPowerStatus(true, data);
+              }
+            })
+            .catch(() => {
+              powerEl.textContent = "⚠️ 전원 차단";
+              statusEl.textContent = `❗ 서버 오류`;
+            });
+        })
+        .catch(() => {
           powerEl.textContent = "⚠️ 전원 차단";
-          statusEl.textContent = `❗ 사용자 없음 (${nickname})`;
-        } else {
-          powerEl.textContent = "🔌 전원 정상";
-          const d = data;
-          const potato = d.potatoCount ?? 0;
-          const water = d.water ?? 0;
-          const fertilizer = d.fertilizer ?? 0;
-          const token = d.token ?? 0;
-          statusEl.textContent = `👤 ${d.nickname} | 🥔 감자: ${potato} | 💧 물: ${water} | 🌾 비료: ${fertilizer} | 💰 토큰: ${token}`;
-        }
-      })
-      .catch(err => {
-        console.error("❌ 서버 요청 실패:", err);
-        powerEl.textContent = "⚠️ 전원 차단";
-        statusEl.textContent = `❗ 서버 연결 실패`;
-      });
+          statusEl.textContent = `❗ 서버 연결 실패`;
+        });
     }
 
     function enterFarm() {
