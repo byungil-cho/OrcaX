@@ -91,7 +91,7 @@
           statusEl.textContent = `❗ 사용자 없음 (${nickname})`;
         } else {
           powerEl.textContent = "🔌 전원 정상";
-          const d = data.user || {};
+          const d = data; // ✅ user 객체 없음, 바로 사용
           const potato = d.potatoCount ?? 0;
           const water = d.water ?? 0;
           const fertilizer = d.fertilizer ?? 0;
