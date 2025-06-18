@@ -99,12 +99,15 @@
       fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`)
         .then(res => res.json())
         .then(data => {
-          console.log("서버 응답 데이터:", data);
-          document.getElementById("water").innerText = data.water ?? "0";
-          document.getElementById("fertilizer").innerText = data.fertilizer ?? "0";
-          document.getElementById("token").innerText = data.token ?? "0";
-          document.getElementById("potatoCount").innerText = data.potatoCount ?? "0";
-          document.getElementById("seed_barley").innerText = data.seed_barley ?? "0";
+          const user = data.users?.[0];
+          if (!user) throw new Error("유저 정보 없음");
+
+          console.log("서버 응답 유저 데이터:", user);
+          document.getElementById("water").innerText = user.water ?? "0";
+          document.getElementById("fertilizer").innerText = user.fertilizer ?? "0";
+          document.getElementById("token").innerText = user.token ?? "0";
+          document.getElementById("potatoCount").innerText = user.potatoCount ?? "0";
+          document.getElementById("seed_barley").innerText = user.seed_barley ?? "0";
         })
         .catch(err => {
           console.error("자원 불러오기 실패:", err);
@@ -113,4 +116,3 @@
   </script>
 </body>
 </html>
-
