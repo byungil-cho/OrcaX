@@ -74,7 +74,7 @@
   <div class="status-box">⚡ 전원 상태: 전원 연결됨</div>
 
   <div class="user-info">
-    <div><strong>👤 닉네임</strong><span id="nickname">불러오는 중...</span></div>
+    <div><strong>👤 닉네임</strong><span class="nickname">불러오는 중...</span></div>
     <div><strong>💧 물</strong><span id="water">0</span></div>
     <div><strong>🌿 거름</strong><span id="fertilizer">0</span></div>
     <div><strong>🪙 토큰</strong><span id="token">0</span></div>
@@ -94,7 +94,7 @@
       }
 
       console.log("닉네임:", nickname);
-      document.getElementById("nickname").innerText = nickname;
+      document.querySelectorAll(".nickname").forEach(el => el.innerText = nickname);
 
       fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`)
         .then(res => res.json())
