@@ -1,134 +1,129 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자밭 입구</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감자 농장</title>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const powerStatus = document.getElementById("power-status");
+      const nicknameField = document.getElementById("nickname");
+
+      const serverUrl = "https://climbing-wholly-grouper.jp.ngrok.io";
+
+      fetch(serverUrl)
+        .then(res => res.text())
+        .then(data => {
+          powerStatus.textContent = "✅ 전원 연결됨";
+          powerStatus.style.background = '#d6f5d6';
+          powerStatus.style.padding = '6px 12px';
+          powerStatus.style.borderRadius = '8px';
+          powerStatus.style.fontWeight = 'bold';
+          powerStatus.style.color = '#080';
+        })
+        .catch(err => {
+          powerStatus.textContent = "⚡ 전원 차단";
+          powerStatus.style.background = '#fdd';
+          powerStatus.style.padding = '6px 12px';
+          powerStatus.style.borderRadius = '8px';
+          powerStatus.style.fontWeight = 'bold';
+          powerStatus.style.color = '#c00';
+        });
+
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) {
+        alert("로그인 정보가 없습니다. 감자 농장 입구로 이동합니다.");
+        window.location.href = "감자농장입구.html";
+        return;
+      }
+
+      fetch(`${serverUrl}/api/userdata-new/${nickname}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            nicknameField.textContent = `👩‍🌾 ${data.user.nickname} 농장주님 반갑습니다!`;
+            nicknameField.style.background = '#dfd';
+            nicknameField.style.padding = '10px';
+            nicknameField.style.borderRadius = '8px';
+            nicknameField.style.color = '#080';
+            nicknameField.style.fontWeight = 'bold';
+            nicknameField.style.position = 'absolute';
+            nicknameField.style.top = '10px';
+            nicknameField.style.right = '10px';
+            nicknameField.style.zIndex = '100';
+          } else {
+            nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
+            nicknameField.style.background = '#fdd';
+            nicknameField.style.padding = '10px';
+            nicknameField.style.borderRadius = '8px';
+            nicknameField.style.color = '#c00';
+            nicknameField.style.fontWeight = 'bold';
+            nicknameField.style.position = 'absolute';
+            nicknameField.style.top = '10px';
+            nicknameField.style.right = '10px';
+            nicknameField.style.zIndex = '100';
+          }
+        })
+        .catch((err) => {
+          nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
+          nicknameField.style.background = '#fdd';
+          nicknameField.style.padding = '10px';
+          nicknameField.style.borderRadius = '8px';
+          nicknameField.style.color = '#c00';
+          nicknameField.style.fontWeight = 'bold';
+          nicknameField.style.position = 'absolute';
+          nicknameField.style.top = '10px';
+          nicknameField.style.right = '10px';
+          nicknameField.style.zIndex = '100';
+        });
+    });
+  </script>
   <style>
     body {
       margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      font-family: 'Segoe UI', sans-serif;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
     }
-    .enter-box {
+    #power-status {
       position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
     }
-    .enter-btn {
-      background-color: #ffb300;
-      color: #000;
-      border: none;
-      font-size: 1.4rem;
-      padding: 16px 32px;
-      border-radius: 12px;
-      cursor: pointer;
-      margin: 10px;
-    }
-    .enter-btn:hover {
-      background-color: #ffa000;
-    }
-    .nickname-display {
+    #nickname {
       position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #ffecb3;
-      color: #000;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: bold;
-      white-space: nowrap;
-    }
-    .power-status {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: #c8e6c9;
-      color: #000;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: bold;
+      top: 10px;
+      right: 10px;
+      z-index: 100;
     }
   </style>
 </head>
+<a href="gamja-main.html" style="
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 28px;
+  font-size: 18px;
+  background-color: #ffcc00;
+  color: #000;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: bold;
+  z-index: 100;
+">감자밭 입장</a>
 <body>
-  <div class="power-status" id="power">🔌 전원 확인 중...</div>
-  <div class="nickname-display" id="status">닉네임 불러오는 중...</div>
-  <div class="enter-box">
-    <button class="enter-btn" onclick="enterFarm()">감자밭 입장</button>
-  </div>
-
-  <script>
-    const rawNickname = localStorage.getItem("nickname");
-    const rawFarmName = localStorage.getItem("farmName");
-    const nickname = rawNickname?.replace(/\s+/g, "").trim() || "";
-    const farmName = rawFarmName?.replace(/\s+/g, "").trim() || "";
-
-    if (nickname && rawNickname !== nickname) {
-      localStorage.setItem("nickname", nickname);
-    }
-    if (farmName && rawFarmName !== farmName) {
-      localStorage.setItem("farmName", farmName);
-    }
-
-    const statusEl = document.getElementById("status");
-    const powerEl = document.getElementById("power");
-
-    function setPowerStatus(success, data = {}) {
-      if (success) {
-        powerEl.textContent = "🔌 전원 정상";
-        const potato = data.potatoCount ?? 0;
-        const water = data.water ?? 0;
-        const fertilizer = data.fertilizer ?? 0;
-        const token = data.token ?? 0;
-        statusEl.textContent = `👤 ${data.nickname} | 🥔 감자: ${potato} | 💧 물: ${water} | 🌾 비료: ${fertilizer} | 💰 토큰: ${token}`;
-      } else {
-        powerEl.textContent = "⚠️ 전원 차단";
-        statusEl.textContent = `❗ 사용자 없음 (${nickname})`;
-      }
-    }
-
-    if (!nickname || !farmName) {
-      powerEl.textContent = "⚠️ 전원 차단";
-      statusEl.textContent = "❗ 로그인 정보 없음";
-    } else {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io")
-        .then(() => {
-          fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`, {
-            cache: "no-store"
-          })
-            .then(res => res.json())
-            .then(data => {
-              if (!data.success || !data.nickname) {
-                setPowerStatus(false);
-              } else {
-                setPowerStatus(true, data);
-              }
-            })
-            .catch(() => {
-              powerEl.textContent = "⚠️ 전원 차단";
-              statusEl.textContent = `❗ 서버 오류`;
-            });
-        })
-        .catch(() => {
-          powerEl.textContent = "⚠️ 전원 차단";
-          statusEl.textContent = `❗ 서버 연결 실패`;
-        });
-    }
-
-    function enterFarm() {
-      if (!nickname || !farmName) {
-        alert("로그인 정보가 없습니다. 메인화면으로 이동합니다.");
-        window.location.href = "orcax-farm_000.html";
-        return;
-      }
-      window.location.href = "gamja-main.html";
-    }
-  </script>
+  <div id="power-status">전원 확인 중...</div>
+  <div id="nickname">닉네임 불러오는 중...</div>
 </body>
 </html>
 
