@@ -8,107 +8,82 @@
     body {
       margin: 0;
       padding: 0;
-      background-color: #000;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      overflow: hidden;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
     }
-    .container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: url('./farm-101.png') no-repeat center center/cover;
-    }
-    .overlay {
+    .enter-box {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.25);
-    }
-    .label {
-      position: absolute;
-      top: 5%;
-      left: 5%;
-      padding: 0.75rem 1.5rem;
-      background-color: #ffaa00cc;
-      color: #000;
-      font-weight: bold;
-      font-size: 1.3rem;
-      border-radius: 8px;
-    }
-    .nickname {
-      position: absolute;
-      top: 5%;
-      right: 5%;
-      padding: 0.75rem 1.5rem;
-      background-color: #fff2a0cc;
-      color: #000;
-      font-weight: bold;
-      font-size: 1.1rem;
-      border-radius: 8px;
-      white-space: pre-line;
-      text-align: left;
-    }
-    .entry-button {
-      position: absolute;
-      bottom: 10%;
+      bottom: 40px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 1rem 2rem;
-      background-color: #ffaa00;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+      text-align: center;
     }
-    .entry-button:hover {
-      background-color: #ff8800;
+    .enter-btn {
+      background-color: #ffb300;
+      color: #000;
+      border: none;
+      font-size: 1.4rem;
+      padding: 16px 32px;
+      border-radius: 12px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    .enter-btn:hover {
+      background-color: #ffa000;
+    }
+    .nickname-display {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #ffecb3;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="overlay"></div>
-    <div class="label">🥔 감자밭 입구</div>
-    <div class="nickname" id="nicknameBox">🔄 정보 불러오는 중...</div>
-    <button class="entry-button" onclick="goToFarm()">감자밭 입장</button>
+  <div class="nickname-display" id="status">닉네임 불러오는 중...</div>
+  <div class="enter-box">
+    <button class="enter-btn" onclick="enterFarm()">감자밭 입장</button>
   </div>
 
   <script>
-    const nicknameBox = document.getElementById("nicknameBox");
-    const nickname = localStorage.getItem("nickname");
+    const nickname = (localStorage.getItem("nickname") || "").replace(/\s+/g, "");
+    const farmName = (localStorage.getItem("farmName") || "").replace(/\s+/g, "");
 
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
+    const statusEl = document.getElementById("status");
+
+    if (!nickname || !farmName) {
+      statusEl.textContent = "❗ 로그인 정보 없음";
     } else {
-      const encodedName = encodeURIComponent(nickname);
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodedName}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            const u = data.user;
-            nicknameBox.textContent =
-              `👤 ${u.nickname}님 환영합니다!\n\n` +
-              `💧 물: ${u.water} / 🌱 거름: ${u.fertilizer}\n` +
-              `🥔 씨감자: ${u.seed} / 🌾 씨보리: ${u.barleySeed}\n` +
-              `🪙 ORCX: ${u.token}`;
-          } else {
-            nicknameBox.textContent = "⚠️ 유저 정보를 찾을 수 없습니다.";
-            nicknameBox.style.backgroundColor = "#ff7777";
-          }
-        })
-        .catch(err => {
-          nicknameBox.textContent = "⚠️ 서버 연결 실패 (전기 차단)";
-          nicknameBox.style.backgroundColor = "#ff4444";
-        });
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`, {
+        cache: "no-store"
+      })
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => {
+        if (!data.success || !data.nickname) {
+          statusEl.textContent = "❗ 닉네임 불러오기 실패";
+        } else {
+          statusEl.textContent = `👤 ${data.nickname}`;
+        }
+      })
+      .catch(() => {
+        statusEl.textContent = "❗ 서버 응답 실패";
+      });
     }
 
-    function goToFarm() {
+    function enterFarm() {
+      if (!nickname || !farmName) {
+        alert("로그인 정보가 없습니다. 메인화면으로 이동합니다.");
+        window.location.href = "orcax-farm_000.html";
+        return;
+      }
       window.location.href = "gamja-main.html";
     }
   </script>
 </body>
 </html>
+
