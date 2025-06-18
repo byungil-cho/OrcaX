@@ -87,12 +87,16 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const nickname = localStorage.getItem("nickname");
+      let nickname = localStorage.getItem("nickname");
       if (!nickname) {
         alert("로그인 정보가 없습니다. 입구로 이동합니다.");
         window.location.href = "orcax-farm_000.html";
         return;
       }
+
+      // 닉네임 전처리 (공백 제거)
+      nickname = nickname.replace(/\s/g, '').trim();
+      localStorage.setItem("nickname", nickname);
 
       console.log("닉네임:", nickname);
       document.querySelectorAll(".nickname").forEach(el => el.innerText = nickname);
@@ -118,4 +122,5 @@
   </script>
 </body>
 </html>
+
 
