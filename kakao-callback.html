@@ -3,32 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OrcaX 카카오 로그인</title>
+  <title>OrcaX 계약 완료</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <script>
     Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
-    console.log("✅ Kakao SDK 초기화 완료");
 
-    // 닉네임 정제 함수
     function sanitizeNickname(nickname) {
-      return nickname
-        .replace(/[^\uAC00-\uD7A3a-zA-Z0-9]/g, '')
-        .replace(/\s+/g, '')
-        .trim();
+      return nickname.replace(/[^\uAC00-\uD7A3a-zA-Z0-9]/g, '').replace(/\s+/g, '').trim();
     }
 
     function kakaoLogin() {
       Kakao.Auth.login({
         scope: "profile_nickname",
         success: function(authObj) {
-          console.log("✅ 로그인 성공", authObj);
           Kakao.API.request({
             url: '/v2/user/me',
             success: function(res) {
               const rawNickname = res.properties.nickname;
               const cleanedNickname = sanitizeNickname(rawNickname);
               localStorage.setItem("nickname", cleanedNickname);
-              alert(`🌱 ${cleanedNickname} 님 환영합니다!`);
+              alert(`🌱 ${cleanedNickname} 님 환영합니다! 감자농장으로 입장합니다.`);
               window.location.href = "orcax-farm_000.html";
             },
             fail: function(err) {
@@ -89,8 +83,14 @@
     }
 
     @media (max-width: 480px) {
-      h1 { font-size: 1.5rem; }
-      p { font-size: 1rem; }
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
       .login-btn {
         font-size: 1rem;
         padding: 12px;
