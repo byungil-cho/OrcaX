@@ -66,11 +66,11 @@
         if (data && data.nickname) {
           statusEl.textContent = `👤 ${data.nickname}`;
         } else {
-          statusEl.textContent = "❗ 닉네임 조회 실패";
+          statusEl.textContent = `👤 ${nickname} (로컬)`;
         }
       })
       .catch(err => {
-        statusEl.textContent = "❗ 서버 응답 실패";
+        statusEl.textContent = `👤 ${nickname} (로컬)`;
       });
     }
 
