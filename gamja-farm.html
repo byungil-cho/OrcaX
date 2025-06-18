@@ -41,6 +41,7 @@
       padding: 10px 20px;
       border-radius: 8px;
       font-weight: bold;
+      white-space: nowrap;
     }
     .power-status {
       position: absolute;
@@ -80,7 +81,7 @@
       })
       .then(data => {
         if (data && data.nickname) {
-          statusEl.textContent = `👤 ${data.nickname}`;
+          statusEl.textContent = `👤 ${data.nickname} | 🥔 감자: ${data.potatoCount} | 💧 물: ${data.water} | 🌾 비료: ${data.fertilizer} | 💰 토큰: ${data.token}`;
         } else {
           statusEl.textContent = `👤 ${nickname} (로컬)`;
         }
@@ -102,6 +103,7 @@
   </script>
 </body>
 </html>
+
 
 
 
