@@ -161,13 +161,7 @@
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nickname })
-      }).then(() => {
-        fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/farm/grow", {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nickname, type: "water" })
-        }).then(fetchData);
-      });
+      }).then(fetchData);
     }
 
     function fertilize() {
@@ -175,13 +169,7 @@
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nickname })
-      }).then(() => {
-        fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/farm/grow", {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nickname, type: "fertilizer" })
-        }).then(fetchData);
-      });
+      }).then(fetchData);
     }
 
     function harvest() {
