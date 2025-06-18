@@ -65,8 +65,8 @@
   <script>
     const rawNickname = localStorage.getItem("nickname");
     const rawFarmName = localStorage.getItem("farmName");
-    const nickname = rawNickname?.replace(/\s+/g, "") || "";
-    const farmName = rawFarmName?.replace(/\s+/g, "") || "";
+    const nickname = rawNickname?.replace(/\s+/g, "").trim() || "";
+    const farmName = rawFarmName?.replace(/\s+/g, "").trim() || "";
 
     if (nickname && rawNickname !== nickname) {
       localStorage.setItem("nickname", nickname);
@@ -81,11 +81,16 @@
     if (!nickname || !farmName) {
       statusEl.textContent = "❗ 로그인 정보 없음";
     } else {
+      console.log("🔍 요청 닉네임:", nickname);
       fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`, {
         cache: "no-store"
       })
-      .then(res => res.json())
+      .then(res => {
+        console.log("✅ 응답 상태:", res.status);
+        return res.json();
+      })
       .then(data => {
+        console.log("📦 응답 데이터:", data);
         if (!data.success || !data.nickname) {
           powerEl.textContent = "⚠️ 전원 차단";
           statusEl.textContent = `❗ 사용자 없음 (${nickname})`;
@@ -100,6 +105,7 @@
         }
       })
       .catch(err => {
+        console.error("❌ 서버 요청 실패:", err);
         powerEl.textContent = "⚠️ 전원 차단";
         statusEl.textContent = `❗ 서버 연결 실패`;
       });
