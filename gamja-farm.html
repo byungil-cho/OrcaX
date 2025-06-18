@@ -1,64 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>감자 농장</title>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const powerStatus = document.getElementById("power-status");
-      const nicknameField = document.getElementById("nickname");
-      const statusField = document.getElementById("status");
-
-      const serverUrl = "https://climbing-wholly-grouper.jp.ngrok.io";
-
-      // ✅ 서버 연결 상태 확인
-      fetch(serverUrl)
-        .then(res => res.text())
-        .then(() => {
-          powerStatus.textContent = "✅ 전원 연결됨";
-          powerStatus.style.background = '#d6f5d6';
-          powerStatus.style.color = '#080';
-        })
-        .catch(() => {
-          powerStatus.textContent = "⚡ 전원 차단";
-          powerStatus.style.background = '#fdd';
-          powerStatus.style.color = '#c00';
-        });
-
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
-        alert("로그인 정보가 없습니다. 감자 농장 입구로 이동합니다.");
-        window.location.href = "감자농장입구.html";
-        return;
-      }
-
-      // ✅ 사용자 정보 불러오기
-      fetch(`${serverUrl}/api/userdata/${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.user) {
-            const u = data.user;
-            nicknameField.textContent = `👩‍🌾 ${u.nickname} 농장주님 반갑습니다!`;
-
-            statusField.innerHTML = `
-              💧 물: ${u.water ?? 0} |
-              💩 거름: ${u.fertilizer ?? 0} |
-              🪙 토큰: ${u.orcx ?? 0} |
-              🥔 씨감자: ${u.seedPotato ?? 0} |
-              🌾 씨보리: ${u.seedBarley ?? 0}
-            `;
-          } else {
-            nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
-            statusField.textContent = "";
-          }
-        })
-        .catch(err => {
-          nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
-          statusField.textContent = "";
-        });
-    });
-  </script>
   <style>
     body {
       margin: 0;
@@ -66,48 +11,105 @@
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
       color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      min-height: 100vh;
       padding: 20px;
+      box-sizing: border-box;
     }
-    #power-status, #nickname, #status {
+    .status-box {
       position: absolute;
-      z-index: 100;
-      padding: 10px;
+      top: 20px;
+      left: 20px;
+      background-color: #e6ffe6;
+      padding: 10px 16px;
       border-radius: 8px;
+      font-size: 15px;
       font-weight: bold;
+      color: #0a4d0a;
+      font-family: sans-serif;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid #b3e6b3;
+      z-index: 100;
     }
-    #power-status { top: 10px; left: 10px; }
-    #nickname { top: 10px; right: 10px; background: #dfd; color: #080; }
-    #status { top: 50px; right: 10px; background: #fffbe6; color: #333; }
+    .user-info {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      width: 220px;
+      background-color: #fff;
+      padding: 18px;
+      border-radius: 10px;
+      font-size: 16px;
+      line-height: 1.8;
+      color: #111;
+      font-family: 'Segoe UI', sans-serif;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border: 1px solid #ccc;
+      z-index: 100;
+    }
+    .user-info div {
+      display: flex;
+      justify-content: space-between;
+    }
+    .enter-button {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 28px;
+      font-size: 18px;
+      background-color: #ffcc00;
+      color: #000;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: bold;
+      z-index: 100;
+    }
   </style>
 </head>
 <body>
-  <div id="power-status">전원 확인 중...</div>
-  <div id="nickname">닉네임 불러오는 중...</div>
-  <div id="status">자원 정보 불러오는 중...</div>
+  <div class="status-box">⚡ 전원 상태: 전원 연결됨</div>
 
-  <a href="gamja-main.html" style="
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 14px 28px;
-    font-size: 18px;
-    background-color: #ffcc00;
-    color: #000;
-    text-decoration: none;
-    border-radius: 12px;
-    font-weight: bold;
-    z-index: 100;
-  ">감자밭 입장</a>
+  <div class="user-info">
+    <div><strong>👤 닉네임</strong><span id="nickname">불러오는 중...</span></div>
+    <div><strong>💧 물</strong><span id="water">0</span></div>
+    <div><strong>🌿 거름</strong><span id="fertilizer">0</span></div>
+    <div><strong>🪙 토큰</strong><span id="token">0</span></div>
+    <div><strong>🥔 씨감자</strong><span id="seed_potato">0</span></div>
+    <div><strong>🌾 씨보리</strong><span id="seed_barley">0</span></div>
+  </div>
+
+  <a href="gamja-main.html" class="enter-button">감자밭 입장</a>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) {
+        alert("로그인 정보가 없습니다. 입구로 이동합니다.");
+        window.location.href = "orcax-farm_000.html";
+        return;
+      }
+
+      console.log("닉네임:", nickname);
+      document.getElementById("nickname").innerText = nickname;
+
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log("서버 응답 데이터:", data);
+          document.getElementById("water").innerText = data.water ?? "0";
+          document.getElementById("fertilizer").innerText = data.fertilizer ?? "0";
+          document.getElementById("token").innerText = data.token ?? "0";
+          document.getElementById("seed_potato").innerText = data.seed_potato ?? "0";
+          document.getElementById("seed_barley").innerText = data.seed_barley ?? "0";
+        })
+        .catch(err => {
+          console.error("자원 불러오기 실패:", err);
+        });
+    });
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
