@@ -86,19 +86,20 @@
       })
       .then(res => {
         if (!res.ok) throw new Error("서버 응답 실패");
-        return res.json();
+        powerEl.textContent = "⚠️ 전원 차단";
+        statusEl.textContent = `❗ 서버 연결 실패`;
       })
       .then(data => {
-        powerEl.textContent = "🔌 전원 정상";
-        if (data && data.nickname) {
+        if (!data || !data.nickname) {
+          powerEl.textContent = "⚠️ 전원 차단";
+          statusEl.textContent = `❗ 서버에 유저 정보 없음`;
+        } else {
+          powerEl.textContent = "🔌 전원 정상";
           const potato = data.potatoCount ?? 0;
           const water = data.water ?? 0;
           const fertilizer = data.fertilizer ?? 0;
           const token = data.token ?? 0;
           statusEl.textContent = `👤 ${data.nickname} | 🥔 감자: ${potato} | 💧 물: ${water} | 🌾 비료: ${fertilizer} | 💰 토큰: ${token}`;
-        } else {
-          powerEl.textContent = "⚠️ 전원 차단";
-          statusEl.textContent = `❗ 서버에 유저 정보 없음`;
         }
       })
       .catch(err => {
@@ -118,6 +119,7 @@
   </script>
 </body>
 </html>
+
 
 
 
