@@ -1,50 +1,106 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>카카오 로그인 콜백</title>
-</head>
-<body>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OrcaX 카카오 로그인</title>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <script>
-    const code = new URL(window.location.href).searchParams.get("code");
-    if (!code) {
-      alert("인증 코드가 없습니다.");
-    } else {
-      fetch(`https://kauth.kakao.com/oauth/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: '284b798a9d9be8202f9c2e129fa6f329',
-          redirect_uri: 'https://byungil-cho.github.io/OrcaX/kakao-callback.html',
-          code: code
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const accessToken = data.access_token;
-        return fetch("https://kapi.kakao.com/v2/user/me", {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
-      })
-      .then(res => res.json())
-      .then(profile => {
-        const nickname = profile.properties?.nickname || "사용자";
-        const userId = profile.id;
-        localStorage.setItem("nickname", nickname);
-        localStorage.setItem("userId", userId);
-        window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
-      })
-      .catch(err => {
-        console.error("로그인 오류", err);
-        alert("로그인 중 오류가 발생했습니다.");
+    Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
+    console.log("✅ Kakao SDK 초기화 완료");
+
+    // 닉네임 정제 함수
+    function sanitizeNickname(nickname) {
+      return nickname
+        .replace(/[^\uAC00-\uD7A3a-zA-Z0-9]/g, '')
+        .replace(/\s+/g, '')
+        .trim();
+    }
+
+    function kakaoLogin() {
+      Kakao.Auth.login({
+        scope: "profile_nickname",
+        success: function(authObj) {
+          console.log("✅ 로그인 성공", authObj);
+          Kakao.API.request({
+            url: '/v2/user/me',
+            success: function(res) {
+              const rawNickname = res.properties.nickname;
+              const cleanedNickname = sanitizeNickname(rawNickname);
+              localStorage.setItem("nickname", cleanedNickname);
+              alert(`🌱 ${cleanedNickname} 님 환영합니다!`);
+              window.location.href = "orcax-farm_000.html";
+            },
+            fail: function(err) {
+              alert("❌ 사용자 정보 불러오기 실패");
+              console.error(err);
+            }
+          });
+        },
+        fail: function(err) {
+          alert("❌ 카카오 로그인 실패");
+          console.error(err);
+        }
       });
     }
   </script>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fdfdfd;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .login-btn {
+      background-color: #fee500;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #191600;
+      cursor: pointer;
+      margin-top: 2rem;
+      width: 100%;
+      max-width: 320px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+
+    .login-btn:hover {
+      background-color: #ffeb3b;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.5rem; }
+      p { font-size: 1rem; }
+      .login-btn {
+        font-size: 1rem;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 OrcaX 계약 동의 완료</h1>
+  <p>이제 카카오톡 계정으로 로그인해주세요.</p>
+  <button class="login-btn" onclick="kakaoLogin()">카카오로 로그인</button>
 </body>
 </html>
-
-
-
-
-
