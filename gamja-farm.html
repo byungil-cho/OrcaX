@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>감자 농장</title>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -11,9 +11,10 @@
 
       const serverUrl = "https://climbing-wholly-grouper.jp.ngrok.io";
 
+      // ✅ 전원 체크
       fetch(serverUrl)
         .then(res => res.text())
-        .then(() => {
+        .then(data => {
           powerStatus.textContent = "✅ 전원 연결됨";
           powerStatus.style.background = '#d6f5d6';
           powerStatus.style.padding = '6px 12px';
@@ -21,7 +22,7 @@
           powerStatus.style.fontWeight = 'bold';
           powerStatus.style.color = '#080';
         })
-        .catch(() => {
+        .catch(err => {
           powerStatus.textContent = "⚡ 전원 차단";
           powerStatus.style.background = '#fdd';
           powerStatus.style.padding = '6px 12px';
@@ -30,6 +31,7 @@
           powerStatus.style.color = '#c00';
         });
 
+      // ✅ 닉네임 불러오기
       const nickname = localStorage.getItem("nickname");
       if (!nickname) {
         alert("로그인 정보가 없습니다. 감자 농장 입구로 이동합니다.");
@@ -37,31 +39,45 @@
         return;
       }
 
-      const encodedNickname = encodeURIComponent(nickname);
-
-      fetch(`${serverUrl}/api/userdata/${encodedNickname}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
+      // ✅ 사용자 정보 불러오기 (정상 API 경로 사용)
+      fetch(`${serverUrl}/api/userdata/${encodeURIComponent(nickname)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.user) {
             nicknameField.textContent = `👩‍🌾 ${data.user.nickname} 농장주님 반갑습니다!`;
             nicknameField.style.background = '#dfd';
+            nicknameField.style.padding = '10px';
+            nicknameField.style.borderRadius = '8px';
             nicknameField.style.color = '#080';
+            nicknameField.style.fontWeight = 'bold';
+            nicknameField.style.position = 'absolute';
+            nicknameField.style.top = '10px';
+            nicknameField.style.right = '10px';
+            nicknameField.style.zIndex = '100';
           } else {
             nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
             nicknameField.style.background = '#fdd';
+            nicknameField.style.padding = '10px';
+            nicknameField.style.borderRadius = '8px';
             nicknameField.style.color = '#c00';
+            nicknameField.style.fontWeight = 'bold';
+            nicknameField.style.position = 'absolute';
+            nicknameField.style.top = '10px';
+            nicknameField.style.right = '10px';
+            nicknameField.style.zIndex = '100';
           }
-          nicknameField.style.padding = '10px';
-          nicknameField.style.borderRadius = '8px';
-          nicknameField.style.fontWeight = 'bold';
         })
-        .catch(() => {
+        .catch((err) => {
           nicknameField.textContent = "❌ 사용자 정보 불러오기 실패";
           nicknameField.style.background = '#fdd';
           nicknameField.style.padding = '10px';
           nicknameField.style.borderRadius = '8px';
           nicknameField.style.color = '#c00';
           nicknameField.style.fontWeight = 'bold';
+          nicknameField.style.position = 'absolute';
+          nicknameField.style.top = '10px';
+          nicknameField.style.right = '10px';
+          nicknameField.style.zIndex = '100';
         });
     });
   </script>
@@ -92,26 +108,26 @@
       right: 10px;
       z-index: 100;
     }
-    .enter-link {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 14px 28px;
-      font-size: 18px;
-      background-color: #ffcc00;
-      color: #000;
-      text-decoration: none;
-      border-radius: 12px;
-      font-weight: bold;
-      z-index: 100;
-    }
   </style>
 </head>
 <body>
   <div id="power-status">전원 확인 중...</div>
   <div id="nickname">닉네임 불러오는 중...</div>
-  <a href="gamja-main.html" class="enter-link">감자밭 입장</a>
+
+  <a href="gamja-main.html" style="
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 28px;
+    font-size: 18px;
+    background-color: #ffcc00;
+    color: #000;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: bold;
+    z-index: 100;
+  ">감자밭 입장</a>
 </body>
 </html>
 
