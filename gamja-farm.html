@@ -51,9 +51,8 @@
   </div>
 
   <script>
-    const nickname = (localStorage.getItem("nickname") || "").replace(/\s+/g, "");
-    const farmName = (localStorage.getItem("farmName") || "").replace(/\s+/g, "");
-
+    const nickname = localStorage.getItem("nickname");
+    const farmName = localStorage.getItem("farmName");
     const statusEl = document.getElementById("status");
 
     if (!nickname || !farmName) {
@@ -62,15 +61,15 @@
       fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`, {
         cache: "no-store"
       })
-      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(res => res.ok ? res.json() : Promise.reject("서버 응답 실패"))
       .then(data => {
-        if (!data.success || !data.nickname) {
-          statusEl.textContent = "❗ 닉네임 불러오기 실패";
-        } else {
+        if (data && data.nickname) {
           statusEl.textContent = `👤 ${data.nickname}`;
+        } else {
+          statusEl.textContent = "❗ 닉네임 조회 실패";
         }
       })
-      .catch(() => {
+      .catch(err => {
         statusEl.textContent = "❗ 서버 응답 실패";
       });
     }
@@ -86,4 +85,5 @@
   </script>
 </body>
 </html>
+
 
