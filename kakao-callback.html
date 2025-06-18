@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <title>OrcaX 로그인 완료</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OrcaX 계약 완료</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <script>
     Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
@@ -12,95 +12,83 @@
       return nickname.replace(/[^\uAC00-\uD7A3a-zA-Z0-9]/g, '').replace(/\s+/g, '').trim();
     }
 
-    function kakaoLogin() {
+    function loginOnceAndStay() {
       Kakao.Auth.login({
         scope: "profile_nickname",
         success: function(authObj) {
           Kakao.API.request({
-            url: '/v2/user/me',
+            url: "/v2/user/me",
             success: function(res) {
-              const rawNickname = res.properties.nickname;
-              const cleanedNickname = sanitizeNickname(rawNickname);
-              localStorage.setItem("nickname", cleanedNickname);
-              alert(`🌱 ${cleanedNickname} 님 환영합니다! 감자농장으로 입장합니다.`);
-              window.location.href = "orcax-farm_000.html";
+              const nickname = sanitizeNickname(res.properties.nickname);
+              localStorage.setItem("nickname", nickname);
+              document.getElementById("nickname").innerText = `🌱 ${nickname}님 환영합니다!`;
+              document.getElementById("login-section").style.display = "none";
+              document.getElementById("nickname-section").style.display = "block";
             },
             fail: function(err) {
-              alert("❌ 사용자 정보 불러오기 실패");
+              alert("❌ 사용자 정보 요청 실패");
               console.error(err);
             }
           });
         },
         fail: function(err) {
-          alert("❌ 카카오 로그인 실패");
+          alert("❌ 로그인 실패");
           console.error(err);
         }
       });
     }
+
+    // 자동으로 로그인 중이면 바로 보여주기
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("nickname");
+      if (saved) {
+        document.getElementById("nickname").innerText = `🌱 ${saved}님 환영합니다!`;
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("nickname-section").style.display = "block";
+      }
+    });
   </script>
   <style>
     body {
-      margin: 0;
-      padding: 2rem;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #fdfdfd;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       text-align: center;
+      padding: 60px 20px;
+      background: #fdfdfd;
     }
-
     h1 {
-      font-size: 2rem;
+      font-size: 1.8rem;
       margin-bottom: 1rem;
     }
-
-    p {
-      font-size: 1.2rem;
-      color: #333;
-    }
-
     .login-btn {
       background-color: #fee500;
-      border: none;
-      padding: 15px 25px;
-      border-radius: 8px;
+      color: #191600;
       font-size: 1.1rem;
       font-weight: bold;
-      color: #191600;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       margin-top: 2rem;
-      width: 100%;
-      max-width: 320px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: background 0.3s;
     }
-
-    .login-btn:hover {
-      background-color: #ffeb3b;
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      p {
-        font-size: 1rem;
-      }
-
-      .login-btn {
-        font-size: 1rem;
-        padding: 12px;
-      }
+    #nickname-section {
+      display: none;
+      font-size: 1.2rem;
+      color: #333;
+      margin-top: 2rem;
     }
   </style>
 </head>
 <body>
   <h1>📋 OrcaX 계약 동의 완료</h1>
-  <p>이제 카카오톡 계정으로 로그인해주세요.</p>
-  <button class="login-btn" onclick="kakaoLogin()">카카오로 로그인</button>
+  <p>이제 카카오 계정으로 로그인하고 입장하세요.</p>
+
+  <div id="login-section">
+    <button class="login-btn" onclick="loginOnceAndStay()">카카오로 로그인</button>
+  </div>
+
+  <div id="nickname-section">
+    <div id="nickname">닉네임 불러오는 중...</div>
+  </div>
 </body>
 </html>
