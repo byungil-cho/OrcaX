@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 농장 (DEBUG)</title>
+  <title>감자 농장</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -101,7 +101,7 @@
   </div>
 
   <div class="container">
-    <h1>🥔 감자 농장 (Debug)</h1>
+    <h1>🥔 감자 농장</h1>
 
     <div class="status">
       <p>👤 닉네임: <span id="nickname">-</span></p>
@@ -135,11 +135,14 @@
     function fetchData() {
       console.log("📡 fetchData 호출됨 for", nickname);
 
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=" + nickname, {
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`, {
         method: "GET",
         cache: "no-store"
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(res.status + " " + res.statusText);
+        return res.json();
+      })
       .then(data => {
         console.log("📦 서버 응답:", data);
         document.getElementById("seed").textContent = data.potatoSeed;
