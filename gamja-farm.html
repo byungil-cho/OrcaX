@@ -96,12 +96,13 @@
 
       // 닉네임 전처리 (공백 제거)
       nickname = nickname.replace(/\s/g, '').trim();
+      const farmName = nickname + "농장";
       localStorage.setItem("nickname", nickname);
 
       console.log("닉네임:", nickname);
       document.querySelectorAll(".nickname").forEach(el => el.innerText = nickname);
 
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`)
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(farmName)}`)
         .then(res => res.json())
         .then(data => {
           const user = data.users?.[0];
