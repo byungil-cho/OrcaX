@@ -81,7 +81,7 @@
     if (!nickname || !farmName) {
       statusEl.textContent = "❗ 로그인 정보 없음";
     } else {
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`, {
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`, {
         cache: "no-store"
       })
       .then(res => res.json())
@@ -116,7 +116,6 @@
   </script>
 </body>
 </html>
-
 
 
 
