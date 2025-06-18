@@ -42,9 +42,20 @@
       border-radius: 8px;
       font-weight: bold;
     }
+    .power-status {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #c8e6c9;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
+  <div class="power-status" id="power">🔌 전원 확인 중...</div>
   <div class="nickname-display" id="status">닉네임 불러오는 중...</div>
   <div class="enter-box">
     <button class="enter-btn" onclick="enterFarm()">감자밭 입장</button>
@@ -54,6 +65,7 @@
     const nickname = localStorage.getItem("nickname");
     const farmName = localStorage.getItem("farmName");
     const statusEl = document.getElementById("status");
+    const powerEl = document.getElementById("power");
 
     if (!nickname || !farmName) {
       statusEl.textContent = "❗ 로그인 정보 없음";
@@ -61,7 +73,11 @@
       fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`, {
         cache: "no-store"
       })
-      .then(res => res.ok ? res.json() : Promise.reject("서버 응답 실패"))
+      .then(res => {
+        powerEl.textContent = "🔌 전원 정상";
+        if (!res.ok) throw new Error("서버 응답 실패");
+        return res.json();
+      })
       .then(data => {
         if (data && data.nickname) {
           statusEl.textContent = `👤 ${data.nickname}`;
@@ -70,6 +86,7 @@
         }
       })
       .catch(err => {
+        powerEl.textContent = "⚠️ 전원 차단";
         statusEl.textContent = `👤 ${nickname} (로컬)`;
       });
     }
