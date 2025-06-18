@@ -133,28 +133,20 @@
     document.getElementById("farmName").textContent = farmName || "미지정";
 
     function fetchData() {
-      console.log("📡 fetchData 호출됨 for", nickname);
-
       fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`, {
         method: "GET",
         cache: "no-store"
       })
-      .then(res => {
-        if (!res.ok) throw new Error(res.status + " " + res.statusText);
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
-        console.log("📦 서버 응답:", data);
         document.getElementById("seed").textContent = data.potatoSeed;
         document.getElementById("water").textContent = data.water;
         document.getElementById("fertilizer").textContent = data.fertilizer;
         document.getElementById("potato").textContent = data.potato;
         document.getElementById("growthPoint").textContent = data.growPoint;
-        console.log("🌱 성장포인트 반영됨 →", data.growPoint);
         document.getElementById("serverStatus").textContent = "전원 연결됨";
       })
-      .catch(err => {
-        console.error("❌ fetchData 실패:", err);
+      .catch(() => {
         document.getElementById("serverStatus").textContent = "전기 차단됨";
       });
     }
@@ -172,7 +164,15 @@
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nickname })
-      }).then(fetchData);
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) {
+          alert("❗ " + data.message);
+          return;
+        }
+        fetchData();
+      });
     }
 
     function fertilize() {
@@ -180,7 +180,15 @@
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nickname })
-      }).then(fetchData);
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) {
+          alert("❗ " + data.message);
+          return;
+        }
+        fetchData();
+      });
     }
 
     function harvest() {
