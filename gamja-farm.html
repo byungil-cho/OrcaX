@@ -84,22 +84,19 @@
       fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${nickname}`, {
         cache: "no-store"
       })
-      .then(res => {
-        if (!res.ok) throw new Error("서버 응답 실패");
-        powerEl.textContent = "⚠️ 전원 차단";
-        statusEl.textContent = `❗ 서버 연결 실패`;
-      })
+      .then(res => res.json())
       .then(data => {
-        if (!data || !data.nickname) {
+        if (!data.success) {
           powerEl.textContent = "⚠️ 전원 차단";
-          statusEl.textContent = `❗ 서버에 유저 정보 없음`;
+          statusEl.textContent = `❗ 사용자 없음 (${nickname})`;
         } else {
           powerEl.textContent = "🔌 전원 정상";
-          const potato = data.potatoCount ?? 0;
-          const water = data.water ?? 0;
-          const fertilizer = data.fertilizer ?? 0;
-          const token = data.token ?? 0;
-          statusEl.textContent = `👤 ${data.nickname} | 🥔 감자: ${potato} | 💧 물: ${water} | 🌾 비료: ${fertilizer} | 💰 토큰: ${token}`;
+          const d = data.user || {};
+          const potato = d.potatoCount ?? 0;
+          const water = d.water ?? 0;
+          const fertilizer = d.fertilizer ?? 0;
+          const token = d.token ?? 0;
+          statusEl.textContent = `👤 ${d.nickname} | 🥔 감자: ${potato} | 💧 물: ${water} | 🌾 비료: ${fertilizer} | 💰 토큰: ${token}`;
         }
       })
       .catch(err => {
@@ -119,6 +116,7 @@
   </script>
 </body>
 </html>
+
 
 
 
