@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 농장</title>
+  <title>감자 농장 (DEBUG)</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -101,7 +101,7 @@
   </div>
 
   <div class="container">
-    <h1>🥔 감자 농장</h1>
+    <h1>🥔 감자 농장 (Debug)</h1>
 
     <div class="status">
       <p>👤 닉네임: <span id="nickname">-</span></p>
@@ -133,19 +133,27 @@
     document.getElementById("farmName").textContent = farmName || "미지정";
 
     function fetchData() {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=" + nickname)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("seed").textContent = data.potatoSeed;
-          document.getElementById("water").textContent = data.water;
-          document.getElementById("fertilizer").textContent = data.fertilizer;
-          document.getElementById("potato").textContent = data.potato;
-          document.getElementById("growthPoint").textContent = data.growPoint;
-          document.getElementById("serverStatus").textContent = "전원 연결됨";
-        })
-        .catch(() => {
-          document.getElementById("serverStatus").textContent = "전기 차단됨";
-        });
+      console.log("📡 fetchData 호출됨 for", nickname);
+
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=" + nickname, {
+        method: "GET",
+        cache: "no-store"
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("📦 서버 응답:", data);
+        document.getElementById("seed").textContent = data.potatoSeed;
+        document.getElementById("water").textContent = data.water;
+        document.getElementById("fertilizer").textContent = data.fertilizer;
+        document.getElementById("potato").textContent = data.potato;
+        document.getElementById("growthPoint").textContent = data.growPoint;
+        console.log("🌱 성장포인트 반영됨 →", data.growPoint);
+        document.getElementById("serverStatus").textContent = "전원 연결됨";
+      })
+      .catch(err => {
+        console.error("❌ fetchData 실패:", err);
+        document.getElementById("serverStatus").textContent = "전기 차단됨";
+      });
     }
 
     function plant() {
