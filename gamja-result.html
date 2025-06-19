@@ -1,145 +1,142 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrcaX 감자 가공공장</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔁 감자·보리 통합거래소</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Do Hyeon', sans-serif;
+      background-color: #f6f9f4;
       margin: 0;
-      background-color: #fdf5e6;
-      color: #333;
+      color: #2e3b2e;
       text-align: center;
     }
-    .status {
-      margin-top: 1rem;
-      color: green;
-      font-weight: bold;
-    }
-    .info-box {
-      margin: 2rem auto;
+    header {
+      background-color: #a5d6a7;
       padding: 1.5rem;
-      width: 300px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      background-color: #fff;
-    }
-    .product-box {
-      margin-top: 1rem;
+      font-size: 2rem;
       font-weight: bold;
+      color: #fff;
+      position: relative;
     }
-    .form-section {
-      margin: 2rem auto;
+    .power-status {
+      position: absolute;
+      right: 1rem;
+      top: 1.5rem;
+      font-size: 0.9rem;
+      color: #ffffff;
     }
-    input[type="text"] {
-      padding: 0.5rem;
-      width: 180px;
+    .user-info {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      color: #4e944f;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      padding: 1rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    .box {
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #4e944f;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0.5rem 0;
+    }
+    li {
+      margin: 0.3rem 0;
     }
     button {
-      padding: 0.5rem 1rem;
-      margin: 0.5rem;
-      background-color: #a36b3e;
-      color: white;
+      background-color: #81c784;
       border: none;
-      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      margin-top: 0.5rem;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
       cursor: pointer;
     }
-    .nav {
-      margin-top: 2rem;
-    }
-    .nav button {
-      background-color: #b4885f;
+    button:hover {
+      background-color: #66bb6a;
     }
   </style>
 </head>
 <body>
-  <h2>🏭 OrcaX 감자 가공공장</h2>
-  <div class="status">✅ 전기 공급 중 (서버 연결됨)</div>
-  <div style="position:absolute; top:20px; right:20px; font-weight:bold;">
-    <span id="nicknameBox">닉네임 로딩 중...</span>
+  <header>
+    🔁 감자·보리 통합거래소
+    <div class="power-status" id="powerStatus">🔌 전기 공급 상태 확인 중...</div>
+  </header>
+  <div class="user-info">
+    🌾 사용자: <span id="nicknameDisplay">-</span> | 농장이름: <span id="farmNameDisplay">-</span>
   </div>
-
-  <div class="info-box" id="assetBox">
-    감자: -<br>
-    물: -<br>
-    보리: -<br>
-    거름: -<br>
-    ORCX: -<br>
+  <div class="container">
+    <div class="box">
+      <h2>📦 자재 보관소</h2>
+      <ul>
+        <li>씨감자: <strong id="seedPotato">-</strong></li>
+        <li>씨보리: <strong id="seedBarley">-</strong></li>
+        <li>물: <strong id="water">-</strong></li>
+        <li>거름: <strong id="fertilizer">-</strong></li>
+      </ul>
+      <button onclick="exchangeToProduct()">자재 → 제품 교환</button>
+    </div>
+    <div class="box">
+      <h2>🎁 제품 보관소</h2>
+      <ul>
+        <li>감자칩: <strong id="chips">-</strong></li>
+        <li>보리빵: <strong id="bread">-</strong></li>
+        <li>씨감자: <strong id="newSeed">-</strong></li>
+        <li>씨보리: <strong id="newBarley">-</strong></li>
+      </ul>
+      <button onclick="exchangeToSeed()">제품 → 자재 교환</button>
+    </div>
   </div>
-
-  <div class="product-box" id="productBox">
-    🍟 감자칩: -개<br>
-    🍞 보리빵: -개<br>
-    🧪 씨감자: -개
-  </div>
-
-  <div class="form-section">
-    <label><input type="radio" name="type" value="potato" checked> 감자</label>
-    <label><input type="radio" name="type" value="barley"> 보리</label>
-    <input type="text" id="productName" placeholder="제품 이름 입력" />
-    <button onclick="processProduct()">제품 가공하기</button>
-  </div>
-
-  <div class="nav">
-    <button onclick="location.href='gamja-shop.html'">🧺 씨감자 상점</button>
-    <button onclick="location.href='gamja-exchange.html'">🔁 자원 교환소</button>
-    <button onclick="location.href='gamja-market.html'">💰 거래소 이동</button>
-  </div>
-
   <script>
     const nickname = localStorage.getItem("nickname");
-    const farmName = localStorage.getItem("farmName") || "농장";
-    const nicknameBox = document.getElementById("nicknameBox");
+    const farmName = localStorage.getItem("farmname");
 
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 처음 페이지로 이동합니다.");
+    if (!nickname || !farmName) {
+      alert("로그인 또는 농장이름 정보가 없습니다. 처음 페이지로 이동합니다.");
       location.href = "orcax-farm_000.html";
     } else {
-      nicknameBox.textContent = `${nickname} (${farmName}) 님`;
-      const encoded = encodeURIComponent(nickname);
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encoded}`)
-        .then(res => res.json())
+      document.getElementById("nicknameDisplay").textContent = nickname;
+      document.getElementById("farmNameDisplay").textContent = farmName;
+      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`)
+        .then(res => {
+          document.getElementById("powerStatus").textContent = '🟢 전기 공급 중입니다.';
+          return res.json();
+        })
         .then(data => {
-          if (data.success) {
-            const u = data.user;
-            document.getElementById("assetBox").innerHTML =
-              `감자: ${u.potatoCount}<br>` +
-              `물: ${u.water}<br>` +
-              `보리: ${u.barleyCount}<br>` +
-              `거름: ${u.fertilizer}<br>` +
-              `ORCX: ${u.token}`;
-
-            document.getElementById("productBox").innerHTML =
-              `🍟 감자칩: ${u.potatoProduct || 0}개<br>` +
-              `🍞 보리빵: ${u.barleyProduct || 0}개<br>` +
-              `🧪 씨감자: ${u.seedPotato || 0}개`;
-          }
+          const u = data.user;
+          document.getElementById("seedPotato").textContent = u.seedPotato;
+          document.getElementById("seedBarley").textContent = u.seedBarley;
+          document.getElementById("water").textContent = u.water;
+          document.getElementById("fertilizer").textContent = u.fertilizer;
+          document.getElementById("chips").textContent = u.potatoProduct;
+          document.getElementById("bread").textContent = u.barleyProduct;
+          document.getElementById("newSeed").textContent = u.seedPotato;
+          document.getElementById("newBarley").textContent = u.seedBarley;
+        })
+        .catch(() => {
+          document.getElementById("powerStatus").textContent = '🔴 전기 공급이 끊겼습니다!';
         });
     }
-
-    function processProduct() {
-      const type = document.querySelector("input[name='type']:checked").value;
-      const name = document.getElementById("productName").value.trim();
-      if (!name) return alert("제품 이름을 입력하세요");
-
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/process-product", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ nickname, type, name })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            alert(`✅ ${data.message}`);
-            location.reload();
-          } else {
-            alert(`❌ ${data.message}`);
-          }
-        })
-        .catch(() => alert("서버 오류로 가공에 실패했습니다."));
+    function exchangeToProduct() {
+      alert("자재 → 제품 교환 처리 로직 필요");
+    }
+    function exchangeToSeed() {
+      alert("제품 → 자재 교환 처리 로직 필요");
     }
   </script>
 </body>
