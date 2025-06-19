@@ -32,6 +32,11 @@
       font-size: 1.1rem;
       color: #4e944f;
     }
+    .token-info {
+      font-size: 1rem;
+      color: #388e3c;
+      margin-bottom: 1rem;
+    }
     .container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -80,6 +85,9 @@
   <div class="user-info">
     🌾 사용자: <span id="nicknameDisplay">-</span> | 농장이름: <span id="farmNameDisplay">-</span>
   </div>
+  <div class="token-info">
+    💰 보유 토큰: <span id="tokenDisplay">-</span>
+  </div>
   <div class="container">
     <div class="box">
       <h2>📦 자재 보관소</h2>
@@ -127,6 +135,7 @@
           document.getElementById("bread").textContent = u.barleyProduct;
           document.getElementById("newSeed").textContent = u.seedPotato;
           document.getElementById("newBarley").textContent = u.seedBarley;
+          document.getElementById("tokenDisplay").textContent = u.token;
         })
         .catch(() => {
           document.getElementById("powerStatus").textContent = '🔴 전기 공급이 끊겼습니다!';
@@ -141,3 +150,4 @@
   </script>
 </body>
 </html>
+
