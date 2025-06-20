@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐳 OrcaX 농장 입구</title>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-000_01.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      color: white;
+    }
+    .container {
+      padding-top: 12vh;
+    }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      background-color: rgba(0,0,0,0.6);
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+    }
+    .nickname {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      border-radius: 10px;
+    }
+    .field-section {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .field {
+      display: inline-block;
+      cursor: pointer;
+    }
+    .field img {
+      width: 180px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px black;
+    }
+    .field span {
+      display: block;
+      margin-top: 0.5rem;
+      background: rgba(0,0,0,0.5);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .bottom-links {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+    }
+    .bottom-links a {
+      display: inline-block;
+      background: rgba(255,255,255,0.8);
+      padding: 0.4rem 0.8rem;
+      color: #222;
+      margin: 0 0.5rem;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .kakao-btn {
+      margin-top: 2.5rem;
+      background: #FEE500;
+      color: #000;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: bold;
+      position: relative;
+      z-index: 9999;
+      pointer-events: auto;
+    }
+    @media (max-width: 768px) {
+      .field img { width: 140px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🐳 OrcaX 농장 입구</h1>
+
+    <div id="nicknameDisplay" class="nickname" style="display: none;"></div>
+
+    <div class="field-section">
+      <div class="field" onclick="enterFarm('gamja/gamja-main.html')">
+        <img src="https://byungil-cho.github.io/OrcaX/farm-101.png" alt="감자 밭">
+        <span>🥔 감자 밭</span>
+      </div>
+      <div class="field" onclick="enterFarm('bori/bori-main.html')">
+        <img src="https://byungil-cho.github.io/OrcaX/farm-201.png" alt="보리 밭">
+        <span>🌾 보리 밭</span>
+      </div>
+    </div>
+
+    <div class="bottom-links">
+      <a href="index.html">⬅ 농장 밖으로</a>
+      <a href="auction-house.html">📊 경매장 입장</a>
+    </div>
+
+    <button id="loginBtn" class="kakao-btn" type="button" onclick="goKakaoLogin()">카카오 로그인</button>
+    <button id="logoutBtn" class="kakao-btn" style="display: none; background-color: #ff4d4d;" onclick="logout()">로그아웃</button>
+  </div>
+
+  <script>
+    function goKakaoLogin() {
+      const client_id = "284b798a9d9be8202f9c2e129fa6f329";
+      const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
+      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
+      window.location.href = url;
+    }
+
+    function logout() {
+      localStorage.removeItem("nickname");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("lastLogin");
+      alert("로그아웃 되었습니다.");
+      location.reload();
+    }
+
+    function enterFarm(url) {
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) {
+        alert("로그인 후 입장하실 수 있습니다.");
+        window.location.href = "index9.html";
+      } else {
+        window.location.href = url;
+      }
+    }
+
+    async function registerUser(nickname) {
+      try {
+        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname })
+        });
+        const data = await res.json();
+        console.log("서버 응답:", data);
+      } catch (err) {
+        console.error("서버 등록 오류:", err);
+      }
+    }
+
+    function waitForNicknameAndRegister(retry = 0) {
+      const nickname = localStorage.getItem("nickname");
+      const lastLogin = localStorage.getItem("lastLogin");
+      const now = Date.now();
+      const TWO_HOURS = 2 * 60 * 60 * 1000;
+
+      if (nickname) {
+        const nicknameEl = document.getElementById("nicknameDisplay");
+        nicknameEl.textContent = "👤 " + nickname + "님, 환영합니다!";
+        nicknameEl.style.display = "inline-block";
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("logoutBtn").style.display = "inline-block";
+
+        if (lastLogin && now - parseInt(lastLogin) < TWO_HOURS) {
+          const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLogin))) / 60000);
+          alert(`⏳ 농장 이용 대기 시간: ${remain}분 남음`);
+        } else {
+          localStorage.setItem("lastLogin", now.toString());
+        }
+
+        registerUser(nickname);
+      } else if (retry < 5) {
+        setTimeout(() => waitForNicknameAndRegister(retry + 1), 500);
+      }
+    }
+
+    waitForNicknameAndRegister();
+  </script>
+</body>
+</html>
