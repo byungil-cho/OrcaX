@@ -3,151 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔁 감자·보리 통합거래소</title>
+  <title>감자보리 가공공장</title>
   <style>
     body {
-      font-family: 'Do Hyeon', sans-serif;
-      background-color: #f6f9f4;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      font-family: Arial, sans-serif;
       margin: 0;
-      color: #2e3b2e;
-      text-align: center;
-    }
-    header {
-      background-color: #a5d6a7;
-      padding: 1.5rem;
-      font-size: 2rem;
-      font-weight: bold;
-      color: #fff;
-      position: relative;
-    }
-    .power-status {
-      position: absolute;
-      right: 1rem;
-      top: 1.5rem;
-      font-size: 0.9rem;
-      color: #ffffff;
-    }
-    .user-info {
-      margin-top: 1rem;
-      font-size: 1.1rem;
-      color: #4e944f;
-    }
-    .token-info {
-      font-size: 1rem;
-      color: #388e3c;
-      margin-bottom: 1rem;
-    }
-    .container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
       padding: 1rem;
-      max-width: 900px;
-      margin: auto;
     }
     .box {
-      background: white;
-      padding: 1rem;
+      background: rgba(0,0,0,0.6);
+      padding: 1rem 2rem;
       border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin: auto;
     }
-    h2 {
-      color: #4e944f;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0.5rem 0;
-    }
-    li {
-      margin: 0.3rem 0;
+    h2 { text-align: center; }
+    label, select, button {
+      display: block;
+      margin: 1rem auto;
+      font-size: 1rem;
     }
     button {
-      background-color: #81c784;
-      border: none;
       padding: 0.5rem 1rem;
-      margin-top: 0.5rem;
-      color: white;
-      font-size: 1rem;
       border-radius: 8px;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #66bb6a;
+    .status {
+      background: rgba(255,255,255,0.8);
+      color: black;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .links {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .links a {
+      color: #00e6e6;
+      margin: 0 1rem;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <header>
-    🔁 감자·보리 통합거래소
-    <div class="power-status" id="powerStatus">🔌 전기 공급 상태 확인 중...</div>
-  </header>
-  <div class="user-info">
-    🌾 사용자: <span id="nicknameDisplay">-</span> | 농장이름: <span id="farmNameDisplay">-</span>
-  </div>
-  <div class="token-info">
-    💰 보유 토큰: <span id="tokenDisplay">-</span>
-  </div>
-  <div class="container">
-    <div class="box">
-      <h2>📦 자재 보관소</h2>
-      <ul>
-        <li>씨감자: <strong id="seedPotato">-</strong></li>
-        <li>씨보리: <strong id="seedBarley">-</strong></li>
-        <li>물: <strong id="water">-</strong></li>
-        <li>거름: <strong id="fertilizer">-</strong></li>
-      </ul>
-      <button onclick="exchangeToProduct()">자재 → 제품 교환</button>
+  <div class="box">
+    <h2>🥔 감자/보리 가공공장</h2>
+    <div class="status">
+      <p>👤 닉네임: <span id="nickname">-</span></p>
+      <p>🏠 농장이름: <span id="farmName">-</span></p>
+      <p>⚡ 전원 상태: <span id="serverStatus">발견중...</span></p>
+      <p>💲 토큰: <span id="tokens">0</span></p>
+      <p>🌾 씨감자: <span id="potatoSeeds">0</span> / 씨보리: <span id="barleySeeds">0</span></p>
     </div>
-    <div class="box">
-      <h2>🎁 제품 보관소</h2>
-      <ul>
-        <li>감자칩: <strong id="chips">-</strong></li>
-        <li>보리빵: <strong id="bread">-</strong></li>
-        <li>씨감자: <strong id="newSeed">-</strong></li>
-        <li>씨보리: <strong id="newBarley">-</strong></li>
-      </ul>
-      <button onclick="exchangeToSeed()">제품 → 자재 교환</button>
-    </div>
-  </div>
-  <script>
-    const nickname = localStorage.getItem("nickname");
-    const farmName = localStorage.getItem("farmname");
 
-    if (!nickname || !farmName) {
-      alert("로그인 또는 농장이름 정보가 없습니다. 처음 페이지로 이동합니다.");
-      location.href = "orcax-farm_000.html";
-    } else {
-      document.getElementById("nicknameDisplay").textContent = nickname;
-      document.getElementById("farmNameDisplay").textContent = farmName;
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`)
-        .then(res => {
-          document.getElementById("powerStatus").textContent = '🟢 전기 공급 중입니다.';
-          return res.json();
-        })
-        .then(data => {
-          const u = data.user;
-          document.getElementById("seedPotato").textContent = u.seedPotato;
-          document.getElementById("seedBarley").textContent = u.seedBarley;
-          document.getElementById("water").textContent = u.water;
-          document.getElementById("fertilizer").textContent = u.fertilizer;
-          document.getElementById("chips").textContent = u.potatoProduct;
-          document.getElementById("bread").textContent = u.barleyProduct;
-          document.getElementById("newSeed").textContent = u.seedPotato;
-          document.getElementById("newBarley").textContent = u.seedBarley;
-          document.getElementById("tokenDisplay").textContent = u.token;
+    <label for="type">가공할 원재료를 선택하세요:</label>
+<select id="type">
+  <option value="감자">🥔 감자</option>
+  <option value="보리">🌾 보리</option>
+</select>
+
+<label for="product">가공할 품목을 입력하세요:</label>
+<input type="text" id="product" placeholder="예: 감자칩, 감자전, 보리케이크 등" />
+    <button onclick="processProduct()">가공하기</button>
+    <p id="message"></p>
+
+    <div class="links">
+      <a href="gamja-farm.html">🌱 감자농장으로</a>
+      <a href="gamja-shop.html">🛒 씨앗상점으로</a>
+      <a href="index9.html">🏠 메인페이지로</a>
+    </div>
+  </div>
+
+  <script>
+    function updateUserData() {
+      document.getElementById("nickname").textContent = localStorage.getItem("nickname") || "-";
+      document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "-";
+      document.getElementById("tokens").textContent = localStorage.getItem("tokens") || 0;
+      document.getElementById("potatoSeeds").textContent = localStorage.getItem("씨감자") || 0;
+      document.getElementById("barleySeeds").textContent = localStorage.getItem("씨보리") || 0;
+    }
+
+    function checkServer() {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/")
+        .then(() => {
+          document.getElementById("serverStatus").textContent = "🟢 연결되었음";
         })
         .catch(() => {
-          document.getElementById("powerStatus").textContent = '🔴 전기 공급이 끊겼습니다!';
+          document.getElementById("serverStatus").textContent = "🔴 거듭";
         });
     }
-    function exchangeToProduct() {
-      alert("자재 → 제품 교환 처리 로직 필요");
+
+    function processProduct() {
+  const product = document.getElementById("product").value;
+  const type = document.getElementById("type").value;
+  const resourceKey = type === "감자" ? "감자" : "보리";
+  let quantity = parseInt(localStorage.getItem(resourceKey) || 0);
+  if (quantity <= 0) {
+    document.getElementById("message").textContent = `${type}가 부족하여 가공할 수 없습니다.`;
+    return;
+  }
+  quantity -= 1;
+  localStorage.setItem(resourceKey, quantity);
+
+  const now = new Date();
+  const expire = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  let storage = JSON.parse(localStorage.getItem("processed") || '{}');
+  if (!storage[product]) {
+    storage[product] = [];
+  }
+  storage[product].push({ quantity: 1, expire: expire.toISOString() });
+  localStorage.setItem("processed", JSON.stringify(storage));
+
+  document.getElementById("message").textContent = `${product} 1개 가공 완료 (유통기한: ${expire.toLocaleDateString()})`;
+}');
+      if (!storage[product]) {
+        storage[product] = [];
+      }
+      storage[product].push({ quantity: 1, expire: expire.toISOString() });
+      localStorage.setItem("processed", JSON.stringify(storage));
+
+      document.getElementById("message").textContent = `${product} 1개 가공 완료 (유통기한: ${expire.toLocaleDateString()})`;
     }
-    function exchangeToSeed() {
-      alert("제품 → 자재 교환 처리 로직 필요");
-    }
+
+    updateUserData();
+    checkServer();
   </script>
 </body>
 </html>
-
