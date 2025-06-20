@@ -114,8 +114,8 @@
     </div>
 
     <div class="storage-section">
-      <div><strong>📦 자재 보관함</strong><br><div id="materials">-</div></div>
-      <div><strong>🛒 제품 보관함</strong><br><div id="products">-</div></div>
+      <div><strong>📦 자재 보관함</strong><br><div id="materials">자재 연동 예정</div></div>
+      <div><strong>🛒 제품 보관함</strong><br><div id="products">제품 연동 예정</div></div>
     </div>
 
     <div class="nav-buttons">
@@ -126,21 +126,29 @@
   </div>
 
   <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
     const nickname = localStorage.getItem("nickname") || "이렵농부";
     const farmName = localStorage.getItem("farmName") || "감자농장";
-    const token = localStorage.getItem("token") || 0;
-    const materials = localStorage.getItem("materials") || "자재 없음";
-    const products = localStorage.getItem("products") || "제품 없음";
     let growth = parseInt(localStorage.getItem("growth") || 0);
-    let potato = parseInt(localStorage.getItem("감자") || 0);
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farm-name").textContent = farmName;
-    document.getElementById("token").textContent = token;
-    document.getElementById("growth").textContent = growth;
     document.getElementById("power-status").textContent = "전기 공급중입니다.";
-    document.getElementById("materials").textContent = materials;
-    document.getElementById("products").textContent = products;
+    document.getElementById("growth").textContent = growth;
+
+    // ✅ 서버에서 자원 불러오기
+    async function fetchUserData() {
+      try {
+        const res = await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`);
+        const user = await res.json();
+        document.getElementById("token").textContent = user.token || 0;
+      } catch {
+        alert("유저 정보를 불러올 수 없습니다.");
+      }
+    }
+
+    fetchUserData();
 
     function applyWater() {
       growth += 1;
@@ -159,17 +167,28 @@
         const btn = document.createElement("button");
         btn.textContent = "🥔 수확하기";
         btn.id = "harvest-btn";
-        btn.onclick = function() {
-          const yieldAmount = [3, 5, 7][Math.floor(Math.random() * 3)];
-          potato += yieldAmount;
-          localStorage.setItem("감자", potato);
-          alert(`🎉 감자 ${yieldAmount}개를 수확했습니다!`);
-          growth = 0;
-          localStorage.setItem("growth", growth);
-          document.getElementById("growth").textContent = growth;
-          document.getElementById("harvest-container").innerHTML = "";
-        };
+        btn.onclick = handleHarvest;
         document.getElementById("harvest-container").appendChild(btn);
+      }
+    }
+
+    async function handleHarvest() {
+      const yieldAmount = [3, 5, 7][Math.floor(Math.random() * 3)];
+      growth = 0;
+      localStorage.setItem("growth", growth);
+      document.getElementById("growth").textContent = growth;
+      document.getElementById("harvest-container").innerHTML = "";
+
+      try {
+        // ✅ 서버에 수확 결과 전송
+        await fetch(`${API_BASE}/api/farm/harvest`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, harvested: yieldAmount }),
+        });
+        alert(`🎉 감자 ${yieldAmount}개를 수확했습니다!`);
+      } catch {
+        alert("❌ 수확 결과를 저장하지 못했습니다.");
       }
     }
   </script>
