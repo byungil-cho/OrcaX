@@ -143,10 +143,16 @@
         const user = await res.json();
         document.getElementById("token").textContent = user.token || 0;
 
-        const inventory = (user.inventory || []).join("<br>");
+        // ✅ 자재 보관함: 객체 처리
+        const inventory = (user.inventory || [])
+          .map(item => typeof item === "object" ? `${item.name}: ${item.count}` : item)
+          .join("<br>");
         document.getElementById("materials").innerHTML = inventory || "보관된 자재 없음";
 
-        const products = (user.exchangeLogs || []).join("<br>");
+        // ✅ 제품 보관함: 문자열 처리 또는 객체일 경우 변환
+        const products = (user.exchangeLogs || [])
+          .map(item => typeof item === "object" ? JSON.stringify(item) : item)
+          .join("<br>");
         document.getElementById("products").innerHTML = products || "보관된 제품 없음";
       } catch {
         alert("❌ 유저 정보 로딩 실패");
