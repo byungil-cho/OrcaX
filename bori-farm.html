@@ -37,6 +37,16 @@
       font-size: 1.25rem;
       border-radius: 8px;
     }
+    .status {
+      position: absolute;
+      top: 20%;
+      left: 5%;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 1rem;
+      border-radius: 10px;
+      color: #000;
+      max-width: 300px;
+    }
     .entry-button {
       position: absolute;
       bottom: 10%;
@@ -59,29 +69,50 @@
   <div class="container">
     <div class="overlay"></div>
     <div class="label">Bori Farm Entrance</div>
+    <div class="status">
+      <p>👤 닉네임: <span id="nickname">-</span></p>
+      <p>🏠 농장이름: <span id="farmName">-</span></p>
+      <p>⚡ 전원 상태: <span id="serverStatus">발견중...</span></p>
+      <p>💰 토큰: <span id="tokens">0</span></p>
+      <p>🌾 씨보리: <span id="barleySeeds">0</span></p>
+      <p>🥔 씨감자: <span id="potatoSeeds">0</span></p>
+      <p>💧 물: <span id="water">0</span> / 💩 거름: <span id="fertilizer">0</span></p>
+    </div>
     <button class="entry-button" onclick="enterBoriFarm()">Enter the Field</button>
   </div>
   <script>
+    function updateUserData() {
+      document.getElementById("nickname").textContent = localStorage.getItem("nickname") || "-";
+      document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "-";
+      document.getElementById("tokens").textContent = localStorage.getItem("tokens") || 0;
+      document.getElementById("barleySeeds").textContent = localStorage.getItem("씨보리") || 0;
+      document.getElementById("potatoSeeds").textContent = localStorage.getItem("씨감자") || 0;
+      document.getElementById("water").textContent = localStorage.getItem("물") || 0;
+      document.getElementById("fertilizer").textContent = localStorage.getItem("거름") || 0;
+    }
+
+    function checkServer() {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/")
+        .then(() => {
+          document.getElementById("serverStatus").textContent = "🟢 연결되었음";
+        })
+        .catch(() => {
+          document.getElementById("serverStatus").textContent = "🔴 끊김";
+        });
+    }
+
     function enterBoriFarm() {
       const nickname = localStorage.getItem("nickname");
       if (!nickname) {
-        alert("\uB85C\uADF8\uC778 \uC815\uBCF4\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4. \uC785\uAD6C\uB85C \uB3CC\uC544\uAC00\uB4DC\uB9B4\uAC8C\uC694.");
+        alert("로그인 정보가 없습니다. 입구로 돌아가주세요.");
         window.location.href = "orcax-farm_000.html";
         return;
       }
-
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
-        .then(data => {
-          const u = data.user;
-          console.log("[Bori Farm Access]", u);
-          window.location.href = "bori-main.html";
-        })
-        .catch(err => {
-          alert("\uC11C\uBC84 \uC5F0\uB3D9\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD574\uC8FC\uC138\uC694.");
-          console.error(err);
-        });
+      window.location.href = "bori-main.html";
     }
+
+    updateUserData();
+    checkServer();
   </script>
 </body>
 </html>
