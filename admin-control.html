@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 제어 패널</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    header {
+      background-color: #343a40;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    .container {
+      padding: 1rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-top: 0.8rem;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.4rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    @media (max-width: 600px) {
+      h2 {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>🛠 관리자 제어 패널</header>
+  <div class="container">
+
+    <div class="section">
+      <h2>🔧 유저 보너스 지급</h2>
+      <label>닉네임</label>
+      <input type="text" placeholder="닉네임 입력">
+      <label>ORCX 토큰</label>
+      <input type="number" placeholder="지급할 토큰 수">
+      <label>씨감자</label>
+      <input type="number" placeholder="지급할 씨감자 수">
+      <label>씨보리</label>
+      <input type="number" placeholder="지급할 씨보리 수">
+      <button>보너스 지급</button>
+    </div>
+
+    <div class="section">
+      <h2>📉 출금 승인 수동 처리</h2>
+      <label>닉네임</label>
+      <input type="text" placeholder="출금자 닉네임">
+      <label>차감할 토큰 수</label>
+      <input type="number" placeholder="예: -50000">
+      <button>토큰 수동 차감</button>
+    </div>
+
+    <div class="section">
+      <h2>📈 보너스 토큰 수동 추가</h2>
+      <label>닉네임</label>
+      <input type="text" placeholder="지급 대상 닉네임">
+      <label>추가할 토큰 수</label>
+      <input type="number" placeholder="예: +100">
+      <button>토큰 수동 추가</button>
+    </div>
+
+  </div>
+</body>
+</html>
