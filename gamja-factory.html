@@ -8,55 +8,44 @@
     body {
       margin: 0;
       font-family: 'Do Hyeon', sans-serif;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center top;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center top fixed;
       background-size: cover;
       color: #3e2723;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
       min-height: 100vh;
+      overflow-x: hidden;
     }
-    .container {
-      width: 95%;
+    .scroll-area {
+      width: 100%;
       max-width: 500px;
-      padding: 1rem;
-      background-color: rgba(255, 255, 255, 0.7);
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      margin-top: 2rem;
+      margin: 0 auto;
+      padding: 1rem 0;
     }
     header {
-      background-color: rgba(255, 235, 59, 0.85);
       padding: 1rem;
       font-size: 2rem;
-      color: #3e2723;
-      width: 100%;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px #000;
       text-align: center;
-      border-radius: 8px;
     }
-    .nickname {
+    .nickname, .info-bar {
       margin-top: 0.5rem;
-      font-size: 1.25rem;
-      color: #4e342e;
+      font-size: 1.1rem;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px #000;
+      text-align: center;
     }
     .info-bar {
-      margin-top: 1rem;
-      font-size: 1rem;
-      color: #5d4037;
+      font-size: 0.95rem;
     }
-    .potato-field {
+    .potato-field, .storage-section, .nav-buttons {
       margin-top: 2rem;
-      font-size: 1.5rem;
-      background-color: rgba(255,255,255,0.6);
-      padding: 1.5rem;
-      border-radius: 16px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
     }
     .status {
       font-size: 1.2rem;
       margin-top: 1rem;
-      color: #5d4037;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
     }
     .grow-buttons {
       margin-top: 1.5rem;
@@ -67,7 +56,7 @@
     }
     .grow-buttons button, #harvest-btn {
       padding: 0.75rem 1.25rem;
-      background-color: #81c784;
+      background-color: rgba(255,255,255,0.8);
       color: #1b5e20;
       border: none;
       border-radius: 8px;
@@ -76,52 +65,37 @@
       cursor: pointer;
       box-shadow: 0 0 6px rgba(0,0,0,0.3);
     }
-    .grow-buttons button:hover, #harvest-btn:hover {
-      background-color: #66bb6a;
-    }
-    .storage-section {
-      margin-top: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-    .storage-box {
-      background-color: #fff9c4;
-      padding: 1rem;
+    .storage-section > div {
+      margin: 0.5rem auto;
+      padding: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.85);
       border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.2);
-    }
-    .storage-box h3 {
-      margin-top: 0;
+      width: 80%;
       color: #3e2723;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
     .nav-buttons {
-      margin-top: 2rem;
       display: flex;
       justify-content: center;
-      gap: 1rem;
       flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
     }
     .nav-buttons a {
-      padding: 0.75rem 1.5rem;
-      background-color: #ffee58;
-      color: #3e2723;
+      background-color: rgba(255, 255, 255, 0.85);
+      padding: 0.5rem 1rem;
       border-radius: 10px;
       text-decoration: none;
+      color: #3e2723;
       font-weight: bold;
-      box-shadow: 0 0 6px rgba(0,0,0,0.3);
-    }
-    .nav-buttons a:hover {
-      background-color: #fff176;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
   </style>
 </head>
 <body>
-  <header>🥔 감자 농장 - Potato Farm</header>
-  <div class="container">
+  <div class="scroll-area">
+    <header>🥔 감자 농장 - Potato Farm</header>
+
     <div class="nickname">👤 농장주: <span id="nickname">-</span></div>
     <div class="info-bar">
       🌐 전원 상태: <span id="power-status">확인 중...</span> |
@@ -130,7 +104,7 @@
     </div>
 
     <div class="potato-field">
-      🌱 감자가 자로고 있습니다...
+      🌱 감자가 자라고 있습니다...
       <div class="status">성장 포인트: <span id="growth">0</span></div>
       <div class="grow-buttons">
         <button onclick="applyWater()">💧 물 주기</button>
@@ -140,14 +114,8 @@
     </div>
 
     <div class="storage-section">
-      <div class="storage-box">
-        <h3>📦 자재 보관함</h3>
-        <div id="materials">-</div>
-      </div>
-      <div class="storage-box">
-        <h3>🛒 제품 보관함</h3>
-        <div id="products">-</div>
-      </div>
+      <div><strong>📦 자재 보관함</strong><br><div id="materials">-</div></div>
+      <div><strong>🛒 제품 보관함</strong><br><div id="products">-</div></div>
     </div>
 
     <div class="nav-buttons">
@@ -158,7 +126,7 @@
   </div>
 
   <script>
-    const nickname = localStorage.getItem("nickname") || "이렁농부";
+    const nickname = localStorage.getItem("nickname") || "이렵농부";
     const farmName = localStorage.getItem("farmName") || "감자농장";
     const token = localStorage.getItem("token") || 0;
     const materials = localStorage.getItem("materials") || "자재 없음";
