@@ -98,20 +98,20 @@
       🌐 전원 상태: <span id="power-status">확인 중...</span> |
       🏧 농장이름: <span id="farm-name">-</span> |
       🐋 토큰: <span id="token">-</span><br>
-      🧀 씨감자: <span id="seed">-</span> | 💧 물: <span id="water">-</span> | 🌾 건름: <span id="fertilizer">-</span>
+      🧺 씨감자: <span id="seed">-</span> | 💧 물: <span id="water">-</span> | 🌾 거름: <span id="fertilizer">-</span>
     </div>
     <div class="potato-field">
-      🌿 감자가 자래고 있습니다...
+      🌱 감자가 자라고 있습니다...
       <div class="status">성장 포인트: <span id="growth">0</span></div>
       <div class="grow-buttons">
         <button onclick="applyWater()">💧 물 주기</button>
-        <button onclick="applyFertilizer()">💩 건름 주기</button>
+        <button onclick="applyFertilizer()">💩 거름 주기</button>
       </div>
       <div id="harvest-container" style="margin-top: 1.5rem;"></div>
     </div>
     <div class="storage-section">
-      <div><strong>🛋️ 자재 보관함</strong><br><div id="materials">자재 연동 예정</div></div>
-      <div><strong>🛒 제품 보관함</strong><br><div id="products">제품 연동 예정</div></div>
+      <div><strong>🧺 자재 보관소</strong><br><div id="materials">자재 연동 예정</div></div>
+      <div><strong>📦 제품 창고</strong><br><div id="products">제품 연동 예정</div></div>
     </div>
     <div class="nav-buttons">
       <a href="gamja-result.html">감자 보리 가공공장</a>
@@ -121,7 +121,7 @@
   </div>
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname") || "사이드농담";
+    const nickname = localStorage.getItem("nickname") || "농부X";
     const farmName = localStorage.getItem("farmName") || "감자농장";
     let growth = parseInt(localStorage.getItem("growth") || 0);
 
@@ -153,7 +153,7 @@
         const products = (user.exchangeLogs || []).map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : "")).join("<br>");
         document.getElementById("products").innerHTML = products || "보관된 제품 없음";
       } catch {
-        alert("파일 로드 실패!");
+        alert("❌ 유저 정보 로딩 실패");
       }
     }
 
@@ -161,8 +161,11 @@
 
     function applyWater() {
       if (seedCount < 1) return alert("건설이 없으면 농사는 불가능해요.");
-      if (water < 1 || fertilizer < 1) return alert("물 또는 건름이 누락되어서 농사가 안되요");
+      if (water < 1 || fertilizer < 1) return alert("물 또는 거름이 부족합니다.");
       seedCount -= 1; water -= 1; fertilizer -= 1; growth += 1;
+      document.getElementById("water").textContent = water;
+      document.getElementById("fertilizer").textContent = fertilizer;
+      document.getElementById("seed").textContent = seedCount;
       updateGrowth();
     }
 
