@@ -1,127 +1,88 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>감자 농장</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감자밭 준비 화면</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: flex-start;
-      min-height: 100vh;
+      margin: 0;
       padding: 20px;
-      box-sizing: border-box;
+      color: white;
     }
-    .status-box {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background-color: #e6ffe6;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: bold;
-      color: #0a4d0a;
-      font-family: sans-serif;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      border: 1px solid #b3e6b3;
-      z-index: 100;
-    }
-    .user-info {
-      position: absolute;
-      top: 30px;
-      right: 30px;
-      width: 220px;
-      background-color: #fff;
-      padding: 18px;
+    .container {
+      background: rgba(0,0,0,0.6);
+      padding: 20px;
       border-radius: 10px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    .resource-list p {
+      margin: 8px 0;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
       font-size: 16px;
-      line-height: 1.8;
-      color: #111;
-      font-family: 'Segoe UI', sans-serif;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      border: 1px solid #ccc;
-      z-index: 100;
-    }
-    .user-info div {
-      display: flex;
-      justify-content: space-between;
-    }
-    .enter-button {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 14px 28px;
-      font-size: 18px;
-      background-color: #ffcc00;
-      color: #000;
-      text-decoration: none;
-      border-radius: 12px;
-      font-weight: bold;
-      z-index: 100;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="status-box">⚡ 전원 상태: 전원 연결됨</div>
-
-  <div class="user-info">
-    <div><strong>👤 닉네임</strong><span class="nickname">불러오는 중...</span></div>
-    <div><strong>💧 물</strong><span id="water">0</span></div>
-    <div><strong>🌿 거름</strong><span id="fertilizer">0</span></div>
-    <div><strong>🪙 토큰</strong><span id="token">0</span></div>
-    <div><strong>🥔 씨감자</strong><span id="potatoSeed">0</span></div>
-    <div><strong>🍟 감자 수량</strong><span id="potatoCount">0</span></div>
-    <div><strong>🌾 씨보리</strong><span id="seed_barley">0</span></div>
+  <div class="container">
+    <h2>감자밭 입장 전 준비상태</h2>
+    <p id="serverStatus">🔄 서버 상태 확인 중...</p>
+    <p id="nickname">👤 사용자: </p>
+    <div class="resource-list">
+      <p>🪙 토큰: <span id="token">0</span></p>
+      <p>🥔 씨감자: <span id="potatoSeed">0</span></p>
+      <p>🌾 씨보리: <span id="barleySeed">0</span></p>
+      <p>💧 물: <span id="water">0</span></p>
+      <p>🌿 거름: <span id="fertilizer">0</span></p>
+    </div>
+    <button onclick="goToFarm()">감자농장 가기</button>
   </div>
 
-  <a href="gamja-main.html" class="enter-button">감자밭 입장</a>
-
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      let nickname = localStorage.getItem("nickname");
-      if (!nickname) {
-        alert("로그인 정보가 없습니다. 입구로 이동합니다.");
-        window.location.href = "orcax-farm_000.html";
-        return;
+    async function fetchData() {
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) return window.location.href = "index9.html";
+      document.getElementById("nickname").textContent = `👤 사용자: ${nickname}`;
+
+      try {
+        const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`);
+        const data = await res.json();
+        document.getElementById("token").textContent = data.token || 0;
+        document.getElementById("potatoSeed").textContent = data.potatoSeed || 0;
+        document.getElementById("barleySeed").textContent = data.barleySeed || 0;
+        document.getElementById("water").textContent = data.water || 0;
+        document.getElementById("fertilizer").textContent = data.fertilizer || 0;
+      } catch {
+        alert("서버에서 자원 불러오기 실패");
       }
+    }
 
-      // 닉네임 전처리 (공백 제거)
-      nickname = nickname.replace(/\s/g, '').trim();
-      localStorage.setItem("nickname", nickname);
+    async function checkServer() {
+      try {
+        await fetch("https://climbing-wholly-grouper.jp.ngrok.io/");
+        document.getElementById("serverStatus").textContent = "🟢 전기 연결됨";
+      } catch {
+        document.getElementById("serverStatus").textContent = "🔴 전기 꺼짐";
+      }
+    }
 
-      console.log("닉네임:", nickname);
-      document.querySelectorAll(".nickname").forEach(el => el.innerText = nickname);
+    function goToFarm() {
+      window.location.href = "gamja-main.html";
+    }
 
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/${encodeURIComponent(nickname)}`)
-        .then(res => res.json())
-        .then(data => {
-          const user = data.users?.[0];
-          if (!user) throw new Error("유저 정보 없음");
-
-          console.log("서버 응답 유저 데이터:", user);
-          document.getElementById("water").innerText = user.water ?? "0";
-          document.getElementById("fertilizer").innerText = user.fertilizer ?? "0";
-          document.getElementById("token").innerText = user.token ?? "0";
-          document.getElementById("potatoSeed").innerText = user.potatoSeed ?? user.potatoCount ?? "0";
-          document.getElementById("potatoCount").innerText = user.potatoCount ?? "0";
-          document.getElementById("seed_barley").innerText = user.seed_barley ?? "0";
-        })
-        .catch(err => {
-          console.error("자원 불러오기 실패:", err);
-        });
-    });
+    fetchData();
+    checkServer();
   </script>
 </body>
 </html>
-
-
-

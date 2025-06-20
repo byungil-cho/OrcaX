@@ -2,14 +2,16 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaX 감자밭 입장</title>
+  <title>OrcaX 농장 입장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: #f4f4f4;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-size: cover;
       text-align: center;
       padding: 2rem;
+      color: white;
     }
     #nicknameBox {
       font-weight: bold;
@@ -38,12 +40,12 @@
       font-weight: bold;
     }
     .offline { color: red; }
-    .online { color: green; }
+    .online { color: lime; }
   </style>
 </head>
 <body>
   <div id="nicknameBox" style="display:none;"></div>
-  <h1>🌱 나만의 감자 농장을 시작해보세요!</h1>
+  <h1>🌱 나만의  농장을 시작해보세요!</h1>
   <p>원하는 농장 이름을 입력하고 입장하세요.</p>
   <input type="text" id="farmNameInput" placeholder="예: 돌고래 농장" />
   <br /><br />

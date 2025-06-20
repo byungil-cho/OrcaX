@@ -2,256 +2,177 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>감자 제품 거래소</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감자-보리 통합 마켓</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #fff7e8;
-      padding: 1rem;
+      font-family: 'Do Hyeon', sans-serif;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
       margin: 0;
     }
-    h1 {
+    .scroll-area {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    header {
+      background-color: rgba(255, 235, 59, 0.85);
+      padding: 1rem;
       text-align: center;
-      color: #4a3d28;
-      margin: 1rem 0 0.5rem;
-    }
-    #nicknameBox {
-      text-align: right;
+      font-size: 2rem;
       font-weight: bold;
-      margin: 0.5rem 1rem 0 0;
-      color: #5b4229;
+      border-radius: 12px;
     }
-    #tokenBox {
-      text-align: right;
-      font-weight: bold;
-      margin: 0 1rem 1rem 0;
-      color: #006400;
-    }
-    #statusBox {
+    nav {
+      margin-top: 1rem;
       text-align: center;
-      color: #cc0000;
-      font-weight: bold;
-      margin-bottom: 1rem;
     }
-    #marketContainer {
+    nav a {
+      margin: 0 10px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.4rem 0.8rem;
+      border-radius: 10px;
+    }
+    .info-box, .market-box, .billboard {
+      background-color: rgba(255, 255, 255, 0.75);
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 10px;
+      color: #3e2723;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .market-section {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 70vh;
-    }
-    .product-box, .inventory-box {
-      background: #ffffff;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 1rem;
-      margin: 1rem 0;
-      text-align: center;
-      width: 90%;
-      max-width: 500px;
-    }
-    .product-item, .inventory-item {
-      padding: 0.5rem 0;
-      border-bottom: 1px dashed #ccc;
-    }
-    .product-item:last-child, .inventory-item:last-child {
-      border-bottom: none;
-    }
-    .inventory-item input[type="checkbox"] {
-      margin-right: 0.5rem;
-    }
-    .navigation-links {
-      text-align: center;
-      margin-top: 2rem;
-    }
-    .navigation-links a {
-      display: inline-block;
-      margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: #6baf3a;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-    .navigation-links a:hover {
-      background: #51952e;
-    }
-    button {
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      background: #cf7b2d;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
       margin-top: 1rem;
     }
-    button:hover {
-      background-color: #b36522;
+    .product-item {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .product-item button {
+      margin-top: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      background-color: #8bc34a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .product-item button:hover {
+      background-color: #7cb342;
+    }
+    @media (max-width: 768px) {
+      .info-box, .market-box, .billboard {
+        width: 90%;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="nicknameBox"></div>
-  <div id="tokenBox"></div>
-  <h1>🥔 감자 제품 거래소</h1>
-  <div id="statusBox">🔌 서버 전원 상태 확인 중...</div>
-  <div id="marketContainer">
-    <div class="product-box" id="productList">
-      <div>📈 실시간 전광판 시세</div>
+  <div class="scroll-area">
+    <header>감자-보리 통합 마켓</header>
+    <nav>
+      <a href="index.html">🏠 첫 메인 페이지</a>
+      <a href="mypage.html">📄 마이페이지</a>
+      <a href="gamja-farm.html">🌱 농장 가기</a>
+    </nav>
+
+    <div class="info-box">
+      <p>전원 상태: <strong>전기 공급중입니다.</strong></p>
+      <p>닉네임: <span id="nickname"></span></p>
+      <p>농장이름: <span id="farmName"></span></p>
+      <p>보유 토큰: <span id="tokenCount">0</span></p>
     </div>
-    <div class="inventory-box">
-      <h3>📦 내 제품 보관함</h3>
-      <div id="inventoryItems"></div>
-      <button onclick="sellSelectedProducts()">선택 제품 판매하기</button>
+
+    <div class="billboard">
+      <h2>📢 전광판 가격 고시</h2>
+      <p>감자즙: <span id="price-potato">불러오는 중...</span> 토큰</p>
+      <p>보리죽: <span id="price-barley">불러오는 중...</span> 토큰</p>
+    </div>
+
+    <div class="market-section">
+      <div class="market-box">
+        <h2>🛒 제품 판매</h2>
+        <div class="checkbox-list">
+          <label><input type="checkbox" name="sellItems" value="감자즙"> 감자즙</label><br>
+          <label><input type="checkbox" name="sellItems" value="보리죽"> 보리죽</label>
+        </div>
+        <button onclick="sellSelectedProducts()">선택한 제품 판매</button>
+      </div>
+
+      <div class="market-box">
+        <h2>📦 자재 보관</h2>
+        <div class="product-item">씨감자 수량: <span id="potatoSeed">0</span></div>
+        <div class="product-item">씨보리 수량: <span id="barleySeed">0</span></div>
+      </div>
     </div>
   </div>
-  <div class="navigation-links">
-  <a href="gamja-shop.html">🛒 씨감자 상점</a>
-  <a href="gamja-exchange.html">🔁 자원 교환소</a>
-  <a href="gamja-result.html">🏭 가공공장</a>
-  <a href="orcax-farm_000.html">🏠 메인으로 가기</a>
-</div>
-
 
   <script>
-    const nickname = localStorage.getItem("nickname");
-    const statusBox = document.getElementById("statusBox");
-    const nicknameBox = document.getElementById("nicknameBox");
-    const tokenBox = document.getElementById("tokenBox");
+    document.getElementById("potatoSeed").textContent = localStorage.getItem("씨감자") || 0;
+    document.getElementById("barleySeed").textContent = localStorage.getItem("씨보리") || 0;
+    document.getElementById("nickname").textContent = localStorage.getItem("nickname") || "-";
+    document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "-";
+    document.getElementById("tokenCount").textContent = localStorage.getItem("tokens") || 0;
 
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 입구로 이동합니다.");
-      window.location.href = "orcax-farm_000.html";
-    } else {
-      nicknameBox.textContent = `👤 ${nickname} 님`;
-      console.log("✅ 닉네임 확인:", nickname);
-    }
-
-    let productPrices = {};
-    let userData = {
-      nickname,
-      inventory: [],
-      token: 0,
-      water: 0,
-      fertilizer: 0,
-      potatoCount: 0,
-      seedPotato: 0
-    };
-
-    function fetchMarketData() {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/market")
-        .then(res => {
-          if (!res.ok) throw new Error("❌ 시세 서버 응답 없음");
-          statusBox.textContent = "✅ 전기 공급 중 (서버 연결됨)";
-          statusBox.style.color = "green";
-          return res.json();
-        })
-        .then(data => {
-          const productList = document.getElementById("productList");
-          productList.innerHTML = "<div>📈 실시간 전광판 시세</div>";
-          data.forEach(item => {
-            const div = document.createElement("div");
-            div.className = "product-item";
-            div.textContent = `${item.name} - ${item.price} ORCX`;
-            productPrices[item.name] = item.price;
-            productList.appendChild(div);
-          });
-        })
-        .catch(err => {
-          statusBox.textContent = "⚠️ 전기 공급 끊김 (서버 오류)";
-          statusBox.style.color = "red";
-          console.error("거래소 시세 불러오기 실패", err);
-        });
-    }
-
-    function fetchUserData() {
-      fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-        .then(res => {
-          if (!res.ok) throw new Error("❌ 유저 데이터 응답 없음");
-          return res.json();
-        })
-        .then(data => {
-          userData.inventory = data.inventory ?? [];
-          userData.token = data.token ?? 0;
-          userData.water = data.water ?? 0;
-          userData.fertilizer = data.fertilizer ?? 0;
-          userData.potatoCount = data.potatoCount ?? 0;
-          userData.seedPotato = data.seedPotato ?? 0;
-          renderInventory();
-          updateTokenDisplay();
-        })
-        .catch(err => {
-          console.error("내 제품 불러오기 실패", err);
-          statusBox.textContent = "⚠️ 유저 정보 불러오기 실패";
-          statusBox.style.color = "red";
-        });
-    }
-
-    function renderInventory() {
-      const container = document.getElementById("inventoryItems");
-      container.innerHTML = "";
-      userData.inventory.forEach((item, index) => {
-        container.innerHTML += `
-          <div class="inventory-item">
-            <input type="checkbox" value="${index}"> ${item.type} × ${item.count}
-          </div>`;
+    fetch("/market/prices")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("price-potato").textContent = data["감자즙"] || "미정";
+        document.getElementById("price-barley").textContent = data["보리죽"] || "미정";
+      })
+      .catch(() => {
+        document.getElementById("price-potato").textContent = "오류";
+        document.getElementById("price-barley").textContent = "오류";
       });
-    }
-
-    function updateTokenDisplay() {
-      tokenBox.textContent = `💰 ORCX: ${userData.token} 개`;
-    }
 
     function sellSelectedProducts() {
-      const checkboxes = document.querySelectorAll(".inventory-item input[type='checkbox']:checked");
-      if (checkboxes.length === 0) return alert("판매할 제품을 선택하세요.");
-
-      let total = 0;
-      const indexes = Array.from(checkboxes).map(cb => parseInt(cb.value));
-      indexes.sort((a, b) => b - a);
-
-      indexes.forEach(index => {
-        const item = userData.inventory[index];
-        const price = productPrices[item.type] || 0;
-        total += price;
-
-        if (item.count > 1) {
-          item.count--;
-        } else {
-          userData.inventory.splice(index, 1);
-        }
-      });
-
-      userData.token += total;
-      updateTokenDisplay();
-
-      const payload = {
-        nickname,
-        token: userData.token,
-        inventory: userData.inventory,
-        water: userData.water,
-        fertilizer: userData.fertilizer,
-        potatoCount: userData.potatoCount,
-        seedPotato: userData.seedPotato
-      };
-
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      }).then(() => {
-        alert(`판매 완료! 총 ${total} ORCX 적립되었습니다.`);
-        renderInventory();
-      }).catch(err => {
-        console.error("판매 후 저장 실패", err);
-        alert("❌ 판매 저장 실패!");
+      const selected = Array.from(document.querySelectorAll('input[name="sellItems"]:checked'));
+      if (selected.length === 0) {
+        alert("판매할 제품을 선택하세요.");
+        return;
+      }
+      selected.forEach(item => {
+        sellProduct(item.value);
       });
     }
 
-    fetchMarketData();
-    fetchUserData();
+    function sellProduct(productName) {
+      fetch("/market/sell", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ product: productName })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert(`판매 완료! 획득한 토큰: ${data.token}`);
+          let current = parseInt(localStorage.getItem("tokens") || 0);
+          localStorage.setItem("tokens", current + data.token);
+          document.getElementById("tokenCount").textContent = current + data.token;
+        } else {
+          alert(`판매 실패: ${data.message}`);
+        }
+      })
+      .catch(err => {
+        alert("서버 오류 발생");
+      });
+    }
   </script>
 </body>
 </html>

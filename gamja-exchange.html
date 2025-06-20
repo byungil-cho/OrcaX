@@ -1,205 +1,154 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>감자 자원 교환소</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>제품 교환소</title>
   <style>
     body {
-      background-color: #fefce8;
-      color: #333;
-      font-family: 'Noto Sans KR', sans-serif;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    h1 {
-      background-color: #facc15;
-      color: #1e293b;
       padding: 1rem;
-      margin: 0;
+      color: white;
+      overflow-y: auto;
     }
-    .status {
-      margin: 1rem;
-      font-weight: bold;
-    }
-    .warn {
-      color: red;
-    }
-    .resources {
+    .floating-box {
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 12px;
+      padding: 1rem;
       margin: 1rem auto;
-      padding: 0.5rem;
-      background: #fff8dc;
-      display: inline-block;
-      border-radius: 8px;
+      max-width: 300px;
+      color: #3e2723;
     }
-    .product-list {
-      margin-top: 1rem;
-    }
-    .product-item {
-      margin: 0.3rem auto;
-      background: #e0f2fe;
-      padding: 0.5rem;
-      border-radius: 6px;
-      max-width: 320px;
-    }
-    .buttons {
-      margin: 1rem;
+    h2 { text-align: center; color: #000; }
+    label, select, button {
+      display: block;
+      margin: 1rem auto;
+      font-size: 1rem;
     }
     button {
-      margin: 0.3rem;
       padding: 0.5rem 1rem;
-      font-weight: bold;
-      background-color: #4ade80;
+      border-radius: 8px;
+      background-color: #2196f3;
       border: none;
-      border-radius: 6px;
+      color: white;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #22c55e;
+    .status {
+      background: rgba(255,255,255,0.8);
+      color: black;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem auto;
+      max-width: 300px;
+    }
+    .links {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .links a {
+      color: #003366;
+      margin: 0 0.5rem;
+      text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>감자 자원 교환소</h1>
-  <div class="status" id="serverStatus">🔄 서버 연결 확인 중...</div>
-  <div class="status" id="userInfo">닉네임 불러오는 중...</div>
-
-  <div class="resources">
-    💧 물: <span id="water">0</span> |
-    🌿 거름: <span id="fertilizer">0</span> |
-    🪙 ORCX: <span id="token">0</span>
+  <h2 class="floating-box">🔄 제품 교환소</h2>
+  <div class="status">
+    <p>👤 닉네임: <span id="nickname">-</span></p>
+    <p>🏷️ 농장이름: <span id="farmName">-</span></p>
+    <p>⚡ 전원 상태: <span id="serverStatus">🔄 확인중...</span></p>
+    <p>🪙 토큰: <span id="tokens">0</span></p>
+    <p>💧 물: <span id="water">0</span> / 💩 거름: <span id="fertilizer">0</span></p>
   </div>
 
-  <div class="product-list" id="productList">제품 불러오는 중...</div>
-
-  <div class="buttons">
-    <button onclick="exchange('water')">💧 물로 교환</button>
-    <button onclick="exchange('fertilizer')">🌿 거름으로 교환</button>
+  <div class="floating-box">
+    <label for="product">🎁 가공제품 선택:</label>
+    <select id="product"></select>
+    <button onclick="exchangeProduct()">제품 교환하기</button>
+    <p id="message"></p>
   </div>
 
-  <div class="buttons">
-    <button onclick="location.href='gamja-shop.html'">씨감자 상점</button>
-    <button onclick="location.href='gamja-result.html'">가공 공장</button>
-    <button onclick="location.href='gamja-market.html'">거래소</button>
+  <div class="links">
+    <a href="gamja-farm.html">🌱 감자농장으로</a>
+    <a href="gamja-shop.html">🛒 씨감자 씨보리 상점</a>
+    <a href="index9.html">🏠 메인페이지로</a>
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname");
-    const userInfo = document.getElementById("userInfo");
-    const serverStatus = document.getElementById("serverStatus");
-    const water = document.getElementById("water");
-    const fertilizer = document.getElementById("fertilizer");
-    const token = document.getElementById("token");
-    const productList = document.getElementById("productList");
+    const shelfLife = 7 * 24 * 60 * 60 * 1000;
+    const stored = JSON.parse(localStorage.getItem("products") || "{}");
 
-    let userData = {};
-    let products = [];
-
-    if (!nickname) {
-      alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-      location.href = "orcax-farm_000.html";
+    function updateUserData() {
+      document.getElementById("nickname").textContent = localStorage.getItem("nickname") || "-";
+      document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "-";
+      document.getElementById("tokens").textContent = localStorage.getItem("tokens") || 0;
+      document.getElementById("water").textContent = localStorage.getItem("물") || 0;
+      document.getElementById("fertilizer").textContent = localStorage.getItem("거름") || 0;
     }
 
-    async function loadUserData() {
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname })
+    function checkServer() {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/")
+        .then(() => {
+          document.getElementById("serverStatus").textContent = "🟢 연결됨";
+        })
+        .catch(() => {
+          document.getElementById("serverStatus").textContent = "🔴 꺼짐";
         });
-        const data = await res.json();
-        if (data.success && data.user) {
-          userData = data.user;
-          water.textContent = userData.water ?? 0;
-          fertilizer.textContent = userData.fertilizer ?? 0;
-          token.textContent = userData.token ?? 0;
-          userInfo.textContent = `${nickname} 님 | 농장: ${userData.farmName || '❓ 미지정'}`;
-        } else {
-          userInfo.innerHTML = '<span class="warn">❌ 유저 정보 없음</span>';
-        }
-      } catch (e) {
-        serverStatus.innerHTML = '<span class="warn">❌ 서버 연결 실패</span>';
+    }
+
+    function populateSelect() {
+      const select = document.getElementById("product");
+      select.innerHTML = "";
+      for (const key in stored) {
+        const age = Date.now() - stored[key].timestamp;
+        const expired = age > shelfLife;
+        const status = expired ? " (묶임 - 해제 2토큰)" : "";
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = `${key} - ${stored[key].count}개${status}`;
+        select.appendChild(opt);
       }
     }
 
-    async function loadProducts() {
-      try {
-        const res = await fetch(`${API_BASE}/api/products/${encodeURIComponent(nickname)}`);
-        const data = await res.json();
-        if (data.success) {
-          products = data.products;
-          renderProducts();
-        } else {
-          productList.innerHTML = '<span class="warn">❌ 제품 없음</span>';
-        }
-      } catch (e) {
-        productList.innerHTML = '<span class="warn">❌ 불러오기 실패</span>';
+    function exchangeProduct() {
+      const product = document.getElementById("product").value;
+      const data = stored[product];
+      const expired = Date.now() - data.timestamp > shelfLife;
+      let tokens = parseInt(localStorage.getItem("tokens") || 0);
+
+      if (data.count <= 0) return alert("제품 수량 없음");
+
+      if (expired && tokens < 2) {
+        return alert("해제에 필요한 토큰 부족");
       }
-    }
 
-    function renderProducts() {
-      if (!products.length) {
-        productList.innerHTML = '<p>보관 중인 제품이 없습니다.</p>';
-        return;
+      if (expired) {
+        tokens -= 2;
+        localStorage.setItem("tokens", tokens);
       }
-      productList.innerHTML = "";
-      products.forEach((item, i) => {
-        const div = document.createElement("div");
-        div.className = "product-item";
-        div.innerHTML = `<input type="checkbox" data-idx="${i}"> ${item.name} (${item.type}) × ${item.count}`;
-        productList.appendChild(div);
-      });
+
+      const water = parseInt(localStorage.getItem("물") || 0);
+      const fert = parseInt(localStorage.getItem("거름") || 0);
+      localStorage.setItem("물", water + 3);
+      localStorage.setItem("거름", fert + 2);
+
+      data.count--;
+      stored[product] = data;
+      localStorage.setItem("products", JSON.stringify(stored));
+
+      document.getElementById("message").textContent = `${product} 1개 교환 완료 (💧물 3병, 💩거름 2봉지)` + (expired ? " (해제됨)" : "");
+      updateUserData();
+      populateSelect();
     }
 
-    async function exchange(type) {
-      const checked = [...document.querySelectorAll("input[type='checkbox']:checked")];
-      if (!checked.length) return alert("제품을 선택하세요.");
-      checked.forEach(box => {
-        const idx = box.dataset.idx;
-        if (products[idx].count > 0) {
-          products[idx].count--;
-          if (type === "water") userData.water++;
-          if (type === "fertilizer") userData.fertilizer++;
-        }
-      });
-      await saveAll();
-      renderProducts();
-      water.textContent = userData.water;
-      fertilizer.textContent = userData.fertilizer;
-    }
-
-    async function saveAll() {
-      await fetch(`${API_BASE}/api/userdata`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-      });
-      await fetch(`${API_BASE}/api/products/${encodeURIComponent(nickname)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ products })
-      });
-    }
-
-    serverStatus.textContent = "✅ 서버 연결됨";
-    loadUserData();
-    loadProducts();
+    updateUserData();
+    checkServer();
+    populateSelect();
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
