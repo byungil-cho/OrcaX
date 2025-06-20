@@ -34,9 +34,7 @@
       text-shadow: 1px 1px 2px #000;
       text-align: center;
     }
-    .info-bar {
-      font-size: 0.95rem;
-    }
+    .info-bar { font-size: 0.95rem; }
     .potato-field, .storage-section, .nav-buttons {
       margin-top: 2rem;
       text-align: center;
@@ -95,42 +93,41 @@
 <body>
   <div class="scroll-area">
     <header>🥔 감자 농장 - Potato Farm</header>
-
     <div class="nickname">👤 농장주: <span id="nickname">-</span></div>
     <div class="info-bar">
       🌐 전원 상태: <span id="power-status">확인 중...</span> |
       🏧 농장이름: <span id="farm-name">-</span> |
-      🐋 토큰: <span id="token">-</span>
+      🐋 토큰: <span id="token">-</span><br>
+      🧀 씨감자: <span id="seed">-</span> | 💧 물: <span id="water">-</span> | 🌾 건름: <span id="fertilizer">-</span>
     </div>
-
     <div class="potato-field">
-      🌱 감자가 자라고 있습니다...
+      🌿 감자가 자래고 있습니다...
       <div class="status">성장 포인트: <span id="growth">0</span></div>
       <div class="grow-buttons">
         <button onclick="applyWater()">💧 물 주기</button>
-        <button onclick="applyFertilizer()">💩 거름 주기</button>
+        <button onclick="applyFertilizer()">💩 건름 주기</button>
       </div>
       <div id="harvest-container" style="margin-top: 1.5rem;"></div>
     </div>
-
     <div class="storage-section">
-      <div><strong>🛒 제품 보관함</strong><br><div id="materials">자재 연동 예정</div></div>
-      <div><strong>📦 자재 보관함</strong><br><div id="products">제품 연동 예정</div></div>
+      <div><strong>🛋️ 자재 보관함</strong><br><div id="materials">자재 연동 예정</div></div>
+      <div><strong>🛒 제품 보관함</strong><br><div id="products">제품 연동 예정</div></div>
     </div>
-
     <div class="nav-buttons">
       <a href="gamja-result.html">감자 보리 가공공장</a>
       <a href="gamja-shop.html">씨감자 씨보리 구매</a>
       <a href="orcax-farm_000.html">메인 페이지</a>
     </div>
   </div>
-
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-
-    const nickname = localStorage.getItem("nickname") || "이렵농부";
+    const nickname = localStorage.getItem("nickname") || "사이드농담";
     const farmName = localStorage.getItem("farmName") || "감자농장";
     let growth = parseInt(localStorage.getItem("growth") || 0);
+
+    let seedCount = 0;
+    let water = 0;
+    let fertilizer = 0;
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farm-name").textContent = farmName;
@@ -142,37 +139,34 @@
         const res = await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`);
         const user = await res.json();
         document.getElementById("token").textContent = user.token || 0;
+        document.getElementById("seed").textContent = user.seed_potato || 0;
+        document.getElementById("water").textContent = user.water || 0;
+        document.getElementById("fertilizer").textContent = user.fertilizer || 0;
 
-        // ✅ 자재 보관함 필터링 + 표시
-        const inventory = (user.inventory || [])
-          .filter(item => item && item.name && item.count !== undefined)
-          .map(item => `${item.name}: ${item.count}`)
-          .join("<br>");
+        seedCount = user.seed_potato;
+        water = user.water;
+        fertilizer = user.fertilizer;
+
+        const inventory = (user.inventory || []).filter(item => item && item.name && item.count !== undefined).map(item => `${item.name}: ${item.count}`).join("<br>");
         document.getElementById("materials").innerHTML = inventory || "보관된 자재 없음";
 
-        // ✅ 제품 보관함 (문자열 또는 객체 처리)
-        const products = (user.exchangeLogs || [])
-          .map(item => typeof item === "object" && item.name
-            ? `${item.name}: ${item.count || 1}`
-            : (typeof item === "string" ? item : ""))
-          .join("<br>");
+        const products = (user.exchangeLogs || []).map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : "")).join("<br>");
         document.getElementById("products").innerHTML = products || "보관된 제품 없음";
       } catch {
-        alert("❌ 유저 정보 로딩 실패");
+        alert("파일 로드 실패!");
       }
     }
 
     fetchUserData();
 
     function applyWater() {
-      growth += 1;
+      if (seedCount < 1) return alert("건설이 없으면 농사는 불가능해요.");
+      if (water < 1 || fertilizer < 1) return alert("물 또는 건름이 누락되어서 농사가 안되요");
+      seedCount -= 1; water -= 1; fertilizer -= 1; growth += 1;
       updateGrowth();
     }
 
-    function applyFertilizer() {
-      growth += 1;
-      updateGrowth();
-    }
+    function applyFertilizer() { applyWater(); }
 
     function updateGrowth() {
       localStorage.setItem("growth", growth);
@@ -197,7 +191,7 @@
         await fetch(`${API_BASE}/api/farm/harvest`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, harvested: yieldAmount }),
+          body: JSON.stringify({ nickname, harvested: yieldAmount })
         });
         alert(`🎉 감자 ${yieldAmount}개 수확 완료!`);
         fetchUserData();
