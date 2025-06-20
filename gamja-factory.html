@@ -137,14 +137,19 @@
     document.getElementById("power-status").textContent = "전기 공급중입니다.";
     document.getElementById("growth").textContent = growth;
 
-    // ✅ 서버에서 자원 불러오기
     async function fetchUserData() {
       try {
         const res = await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`);
         const user = await res.json();
         document.getElementById("token").textContent = user.token || 0;
+
+        const inventory = (user.inventory || []).join("<br>");
+        document.getElementById("materials").innerHTML = inventory || "보관된 자재 없음";
+
+        const products = (user.exchangeLogs || []).join("<br>");
+        document.getElementById("products").innerHTML = products || "보관된 제품 없음";
       } catch {
-        alert("유저 정보를 불러올 수 없습니다.");
+        alert("❌ 유저 정보 로딩 실패");
       }
     }
 
@@ -180,15 +185,15 @@
       document.getElementById("harvest-container").innerHTML = "";
 
       try {
-        // ✅ 서버에 수확 결과 전송
         await fetch(`${API_BASE}/api/farm/harvest`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname, harvested: yieldAmount }),
         });
-        alert(`🎉 감자 ${yieldAmount}개를 수확했습니다!`);
+        alert(`🎉 감자 ${yieldAmount}개 수확 완료!`);
+        fetchUserData();
       } catch {
-        alert("❌ 수확 결과를 저장하지 못했습니다.");
+        alert("❌ 수확 결과 저장 실패");
       }
     }
   </script>
