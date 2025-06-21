@@ -250,6 +250,35 @@
 
     fetchUserData();
 </script>
+
+<div id="resourceStatus" style="margin-top: 1rem; font-weight: bold;"></div>
+<div id="potatoStorage" style="margin-top: 0.5rem; font-weight: bold;"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const nickname = localStorage.getItem("nickname");
+    if (!nickname) return;
+
+    try {
+      const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/user/${nickname}`);
+      const data = await res.json();
+
+      if (data) {
+        // 상단 자원 상태 표시
+        document.getElementById("resourceStatus").innerText =
+          `💰 토큰: ${data.token || 0}개 | 🌱 씨감자: ${data.seed_potato || 0}개 | 💧 물: ${data.water || 0}개 | 🌿 거름: ${data.fertilizer || 0}개`;
+
+        // 자재 보관소에 수확한 감자만 표시
+        const inventory = data.inventory || [];
+        const potatoCount = inventory.filter(item => item.name === "감자").reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById("potatoStorage").innerText = `🥔 감자 보유량: ${potatoCount}개`;
+      }
+    } catch (err) {
+      console.error("서버 연동 실패:", err);
+    }
+  });
+</script>
 </body>
 </html>
+
 
