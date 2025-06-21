@@ -111,8 +111,8 @@
 <div id="harvest-container" style="margin-top: 1.5rem;"></div>
 </div>
 <div class="storage-section">
-<div><strong>📦 제품 창고</strong><br/><div id="products">자재 연동 예정</div></div>
-<div><strong>🧺 자재 보관소</strong><br/><div id="materials">제품 연동 예정</div></div>
+<div><strong>🧺 자재 보관소</strong><br/><div id="materials">자재 연동 예정</div></div>
+<div><strong>📦 제품 창고</strong><br/><div id="products">제품 연동 예정</div></div>
 </div>
 <div class="nav-buttons">
 <a href="gamja-result.html">감자 보리 가공공장</a>
@@ -124,16 +124,15 @@
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname") || "농부X";
     const farmName = localStorage.getItem("farmName") || "감자농장";
-    let growth = parseInt(localStorage.getItem("growth") || 0);
 
     let seedCount = 0;
     let water = 0;
     let fertilizer = 0;
+    let growth = 0;
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farm-name").textContent = farmName;
     document.getElementById("power-status").textContent = "전기 공급중입니다.";
-    document.getElementById("growth").textContent = growth;
 
     async function fetchUserData() {
       try {
@@ -143,29 +142,46 @@
         document.getElementById("seed").textContent = user.seed_potato || 0;
         document.getElementById("water").textContent = user.water || 0;
         document.getElementById("fertilizer").textContent = user.fertilizer || 0;
+        document.getElementById("growth").textContent = user.growth || 0;
 
         seedCount = user.seed_potato;
         water = user.water;
         fertilizer = user.fertilizer;
+        growth = user.growth || 0;
 
-        // 자재 보관소: 감자 등 자재
         const materialItems = (user.inventory || [])
           .filter(item => item && item.name && item.count !== undefined && item.name.includes("감자"))
           .map(item => `${item.name}: ${item.count}`)
           .join("<br>");
         document.getElementById("materials").innerHTML = materialItems || "보관된 감자 없음";
 
-        // 제품 창고: 감자칩 등 가공 제품
         const productItems = (user.exchangeLogs || [])
           .map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : ""))
           .join("<br>");
         document.getElementById("products").innerHTML = productItems || "보관된 제품 없음";
+
+        checkHarvestReady();
       } catch {
         alert("❌ 유저 정보 로딩 실패");
       }
     }
 
-    fetchUserData();
+    async function updateServerResources() {
+      try {
+        await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            seed_potato: seedCount,
+            water,
+            fertilizer,
+            growth
+          })
+        });
+      } catch {
+        alert("❌ 서버에 자원 업데이트 실패");
+      }
+    }
 
     function applyWater() {
       if (seedCount < 1) return alert("씨감자가 없으면 농사가 불가능합니다.");
@@ -173,6 +189,7 @@
       growth += 1;
       water -= 1;
       updateStatus();
+      updateServerResources();
     }
 
     function applyFertilizer() {
@@ -181,13 +198,17 @@
       growth += 1;
       fertilizer -= 1;
       updateStatus();
+      updateServerResources();
     }
 
     function updateStatus() {
-      localStorage.setItem("growth", growth);
       document.getElementById("growth").textContent = growth;
       document.getElementById("water").textContent = water;
       document.getElementById("fertilizer").textContent = fertilizer;
+      checkHarvestReady();
+    }
+
+    function checkHarvestReady() {
       if (growth >= 5 && !document.getElementById("harvest-btn")) {
         const btn = document.createElement("button");
         btn.textContent = "🥔 수확하기";
@@ -202,7 +223,6 @@
       const yieldAmount = [3, 5, 7][Math.floor(Math.random() * 3)];
       growth = 0;
       seedCount -= 1;
-      localStorage.setItem("growth", growth);
       document.getElementById("growth").textContent = growth;
       document.getElementById("harvest-container").innerHTML = "";
       document.getElementById("seed").textContent = seedCount;
@@ -213,12 +233,15 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname, harvested: yieldAmount })
         });
+        await updateServerResources();
         alert(`🎉 감자 ${yieldAmount}개 수확 완료!`);
         fetchUserData();
       } catch {
         alert("❌ 수확 결과 저장 실패");
       }
     }
+
+    fetchUserData();
 </script>
 </body>
 </html>
