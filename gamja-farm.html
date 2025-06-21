@@ -56,14 +56,12 @@
       document.getElementById("nickname").textContent = `👤 사용자: ${nickname}`;
 
       try {
-        // ✅ 유저 자동 등록 (없으면 생성됨)
         await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/user/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname }),
         });
 
-        // ✅ 유저 정보 조회
         const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/user/${encodeURIComponent(nickname)}`);
         const data = await res.json();
 
