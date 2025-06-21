@@ -250,8 +250,6 @@
 
     fetchUserData();
 </script>
-
-
 <script>
   document.addEventListener("DOMContentLoaded", async () => {
     const nickname = localStorage.getItem("nickname");
@@ -286,6 +284,33 @@ fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/userdata')
     document.getElementById('tokenCountDisplay').textContent = data.token ?? 0;
     document.getElementById('potatoCountDisplay').textContent = data.potato ?? 0;
   });
+</script><script>
+function harvestAndSavePotatoes() {
+  const nickname = localStorage.getItem("nickname") || "default";
+  const harvested = Math.floor(Math.random() * 3) * 2 + 3; // 3, 5, 7 중 하나
+  fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/harvest', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nickname, harvested })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert(`감자 ${harvested}개 수확 성공!`);
+      refreshPotatoCount();
+    } else {
+      alert("수확 실패: " + data.message);
+    }
+  });
+}
+
+function refreshPotatoCount() {
+  fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/userdata')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('potatoCountDisplay').textContent = data.potato ?? 0;
+    });
+}
 </script></body>
 </html>
 
