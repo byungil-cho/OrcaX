@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🥔 감자 농장</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>🥔 감자 농장</title>
+<style>
     body {
       margin: 0;
       font-family: 'Do Hyeon', sans-serif;
@@ -91,35 +92,35 @@
   </style>
 </head>
 <body>
-  <div class="scroll-area">
-    <header>🥔 감자 농장 - Potato Farm</header>
-    <div class="nickname">👤 농장주: <span id="nickname">-</span></div>
-    <div class="info-bar">
+<div class="scroll-area">
+<header>🥔 감자 농장 - Potato Farm</header>
+<div class="nickname">👤 농장주: <span id="nickname">-</span></div>
+<div class="info-bar">
       🌐 전원 상태: <span id="power-status">확인 중...</span> |
       🏧 농장이름: <span id="farm-name">-</span> |
-      🐋 토큰: <span id="token">-</span><br>
+      🐋 토큰: <span id="token">-</span><br/>
       🧺 씨감자: <span id="seed">-</span> | 💧 물: <span id="water">-</span> | 🌾 거름: <span id="fertilizer">-</span>
-    </div>
-    <div class="potato-field">
+</div>
+<div class="potato-field">
       🌱 감자가 자라고 있습니다...
       <div class="status">성장 포인트: <span id="growth">0</span></div>
-      <div class="grow-buttons">
-        <button onclick="applyWater()">💧 물 주기</button>
-        <button onclick="applyFertilizer()">💩 거름 주기</button>
-      </div>
-      <div id="harvest-container" style="margin-top: 1.5rem;"></div>
-    </div>
-    <div class="storage-section">
-      <div><strong>🧺 자재 보관소</strong><br><div id="materials">자재 연동 예정</div></div>
-      <div><strong>📦 제품 창고</strong><br><div id="products">제품 연동 예정</div></div>
-    </div>
-    <div class="nav-buttons">
-      <a href="gamja-result.html">감자 보리 가공공장</a>
-      <a href="gamja-shop.html">씨감자 씨보리 구매</a>
-      <a href="orcax-farm_000.html">메인 페이지</a>
-    </div>
-  </div>
-  <script>
+<div class="grow-buttons">
+<button onclick="applyWater()">💧 물 주기</button>
+<button onclick="applyFertilizer()">💩 거름 주기</button>
+</div>
+<div id="harvest-container" style="margin-top: 1.5rem;"></div>
+</div>
+<div class="storage-section">
+<div><strong>📦 제품 창고</strong><br/><div id="products">자재 연동 예정</div></div>
+<div><strong>🧺 자재 보관소</strong><br/><div id="materials">제품 연동 예정</div></div>
+</div>
+<div class="nav-buttons">
+<a href="gamja-result.html">감자 보리 가공공장</a>
+<a href="gamja-shop.html">씨감자 씨보리 구매</a>
+<a href="orcax-farm_000.html">메인 페이지</a>
+</div>
+</div>
+<script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname") || "농부X";
     const farmName = localStorage.getItem("farmName") || "감자농장";
@@ -147,11 +148,18 @@
         water = user.water;
         fertilizer = user.fertilizer;
 
-        const inventory = (user.inventory || []).filter(item => item && item.name && item.count !== undefined).map(item => `${item.name}: ${item.count}`).join("<br>");
-        document.getElementById("materials").innerHTML = inventory || "보관된 자재 없음";
+        // 자재 보관소: 감자 등 자재
+        const materialItems = (user.inventory || [])
+          .filter(item => item && item.name && item.count !== undefined && item.name.includes("감자"))
+          .map(item => `${item.name}: ${item.count}`)
+          .join("<br>");
+        document.getElementById("materials").innerHTML = materialItems || "보관된 감자 없음";
 
-        const products = (user.exchangeLogs || []).map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : "")).join("<br>");
-        document.getElementById("products").innerHTML = products || "보관된 제품 없음";
+        // 제품 창고: 감자칩 등 가공 제품
+        const productItems = (user.exchangeLogs || [])
+          .map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : ""))
+          .join("<br>");
+        document.getElementById("products").innerHTML = productItems || "보관된 제품 없음";
       } catch {
         alert("❌ 유저 정보 로딩 실패");
       }
@@ -160,20 +168,26 @@
     fetchUserData();
 
     function applyWater() {
-      if (seedCount < 1) return alert("건설이 없으면 농사는 불가능해요.");
-      if (water < 1 || fertilizer < 1) return alert("물 또는 거름이 부족합니다.");
-      seedCount -= 1; water -= 1; fertilizer -= 1; growth += 1;
-      document.getElementById("water").textContent = water;
-      document.getElementById("fertilizer").textContent = fertilizer;
-      document.getElementById("seed").textContent = seedCount;
-      updateGrowth();
+      if (seedCount < 1) return alert("씨감자가 없으면 농사가 불가능합니다.");
+      if (water < 1) return alert("물이 부족합니다.");
+      growth += 1;
+      water -= 1;
+      updateStatus();
     }
 
-    function applyFertilizer() { applyWater(); }
+    function applyFertilizer() {
+      if (seedCount < 1) return alert("씨감자가 없으면 농사가 불가능합니다.");
+      if (fertilizer < 1) return alert("거름이 부족합니다.");
+      growth += 1;
+      fertilizer -= 1;
+      updateStatus();
+    }
 
-    function updateGrowth() {
+    function updateStatus() {
       localStorage.setItem("growth", growth);
       document.getElementById("growth").textContent = growth;
+      document.getElementById("water").textContent = water;
+      document.getElementById("fertilizer").textContent = fertilizer;
       if (growth >= 5 && !document.getElementById("harvest-btn")) {
         const btn = document.createElement("button");
         btn.textContent = "🥔 수확하기";
@@ -184,11 +198,14 @@
     }
 
     async function handleHarvest() {
+      if (seedCount < 1) return alert("씨감자가 없으면 수확할 수 없습니다.");
       const yieldAmount = [3, 5, 7][Math.floor(Math.random() * 3)];
       growth = 0;
+      seedCount -= 1;
       localStorage.setItem("growth", growth);
       document.getElementById("growth").textContent = growth;
       document.getElementById("harvest-container").innerHTML = "";
+      document.getElementById("seed").textContent = seedCount;
 
       try {
         await fetch(`${API_BASE}/api/farm/harvest`, {
@@ -202,6 +219,7 @@
         alert("❌ 수확 결과 저장 실패");
       }
     }
-  </script>
+</script>
 </body>
 </html>
+
