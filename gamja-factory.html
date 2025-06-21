@@ -149,7 +149,7 @@
         fertilizer = user.fertilizer;
         growth = user.growth || 0;
 
-        const materialItems = (user.inventory || [])
+        const materialItems = (user["목록"] || [])
           .filter(item => item && item.name && item.count !== undefined && item.name.includes("감자"))
           .map(item => `${item.name}: ${item.count}`)
           .join("<br>");
