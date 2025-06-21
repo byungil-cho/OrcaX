@@ -43,6 +43,23 @@
       font-weight: bold;
       color: #00ff66;
     }
+
+    .btn-next {
+      margin-top: 40px;
+    }
+
+    .btn-next button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #ffcc00;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-next button:hover {
+      background-color: #ffaa00;
+    }
   </style>
 </head>
 
@@ -58,6 +75,10 @@
     🪙 ORCX: <span id="token">-</span>개
   </div>
   <div class="server" id="serverStatus">서버 상태 확인 중...</div>
+
+  <div class="btn-next">
+    <button onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
+  </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
