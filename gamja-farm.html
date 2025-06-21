@@ -2,42 +2,22 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>감자밭 입장</title>
+  <title>감자 농장 입장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-image: url("https://byungil-cho.github.io/OrcaX/farm-101.png");
       background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      color: white;
       text-align: center;
       padding: 2rem;
-      color: white;
     }
-    #nicknameBox {
+    .info {
       font-size: 1.2rem;
-      margin-bottom: 1rem;
-      font-weight: bold;
-    }
-    .resource-box {
-      background: rgba(0,0,0,0.4);
-      padding: 1rem;
-      margin: 1rem auto;
-      width: 90%;
-      max-width: 400px;
-      border-radius: 12px;
-    }
-    .resource-box p {
       margin: 0.5rem 0;
-    }
-    .enter-btn {
-      background-color: #4CAF50;
-      color: white;
-      padding: 12px 24px;
-      border: none;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 1.5rem;
     }
     .server-check {
       margin-top: 1rem;
@@ -48,27 +28,15 @@
   </style>
 </head>
 <body>
-  <div id="nicknameBox" style="display:none;"></div>
-
-  <h1>🐳 감자밭에 입장합니다!</h1>
-  <p>당신의 농장을 시작할 준비가 되셨나요?</p>
-
-  <div class="resource-box">
-    <p>씨감자: <span id="seedCount">-</span> 개</p>
-    <p>물: <span id="waterCount">-</span> 개</p>
-    <p>거름: <span id="fertilizerCount">-</span> 개</p>
-    <p>ORCX 토큰: <span id="tokenCount">-</span> 개</p>
-  </div>
-
-  <button class="enter-btn" onclick="enterFarm()">농장 이름 짓기 →</button>
-
+  <h1>🌾 감자 농장에 오신 걸 환영합니다!</h1>
+  <div class="info" id="nicknameBox"></div>
+  <div class="info" id="farmNameBox"></div>
+  <div class="info" id="resourceBox"></div>
   <div class="server-check offline" id="serverStatus">❌ 서버 전원 OFF: 감자밭 연결 실패</div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname");
 
-    // 서버 상태 체크
     function checkServerStatus() {
       fetch(`${API_BASE}/`)
         .then(res => {
@@ -87,42 +55,39 @@
         });
     }
 
-    // 데이터 불러오기
-    function loadUserData() {
-      if (!nickname) {
-        alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-        window.location.href = "index9.html";
-        return;
-      }
+    // 유저 정보 불러오기
+    const nickname = localStorage.getItem("nickname");
+    const farmName = localStorage.getItem("farmName");
 
-      document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
-      document.getElementById("nicknameBox").style.display = "block";
-
-      fetch(`${API_BASE}/api/userdata`)
-        .then(res => res.json())
-        .then(data => {
-          const user = data.find(u => u.nickname === nickname);
-          if (user) {
-            document.getElementById("seedCount").textContent = user.seedCount ?? 0;
-            document.getElementById("waterCount").textContent = user.water ?? 0;
-            document.getElementById("fertilizerCount").textContent = user.fertilizer ?? 0;
-            document.getElementById("tokenCount").textContent = user.token ?? 0;
-          } else {
-            alert("유저 정보를 찾을 수 없습니다.");
-          }
-        })
-        .catch(err => {
-          alert("서버로부터 유저 정보를 가져오지 못했습니다.");
-          console.error(err);
-        });
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "index9.html";
+    } else {
+      document.getElementById("nicknameBox").textContent = `👤 닉네임: ${nickname}`;
     }
 
-    function enterFarm() {
-      window.location.href = "gamja-main.html";
+    if (farmName) {
+      document.getElementById("farmNameBox").textContent = `🏡 농장이름: ${farmName}`;
     }
+
+    // 서버에서 유저 자원 불러오기
+    fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const { potato, water, fertilizer, token } = data;
+          document.getElementById("resourceBox").textContent = `🥔 감자: ${potato}개 | 💧 물: ${water}개 | 🧪 거름: ${fertilizer}개 | 💰 ORCX: ${token}개`;
+        } else {
+          document.getElementById("resourceBox").textContent = "자원 정보를 불러올 수 없습니다.";
+        }
+      })
+      .catch(err => {
+        console.error("유저 자원 fetch 오류", err);
+        document.getElementById("resourceBox").textContent = "데이터를 불러오지 못했습니다.";
+      });
 
     checkServerStatus();
-    loadUserData();
   </script>
 </body>
 </html>
+
