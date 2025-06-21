@@ -55,6 +55,29 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
+    const nickname = localStorage.getItem("nickname");
+
+    if (!nickname) {
+      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "index9.html";
+    } else {
+      document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
+      document.getElementById("nicknameBox").style.display = "block";
+
+      // 유저 정보 콘솔에서 확인용
+      fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.users.length > 0) {
+            const user = data.users[0];
+            console.log("유저 상태 정보:", user);
+          } else {
+            console.warn("❌ 사용자 정보 없음");
+          }
+        })
+        .catch(err => console.error("❌ 유저 정보 불러오기 실패:", err));
+    }
+
     function checkServerStatus() {
       fetch(`${API_BASE}/`)
         .then(res => {
@@ -81,15 +104,6 @@
       }
       localStorage.setItem("farmName", farmName);
       location.href = "gamja-factory.html";
-    }
-
-    const nickname = localStorage.getItem("nickname");
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "https://byungil-cho.github.io/OrcaX/index9.html";
-    } else {
-      document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
-      document.getElementById("nicknameBox").style.display = "block";
     }
 
     checkServerStatus();
