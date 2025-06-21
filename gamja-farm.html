@@ -1,93 +1,104 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
-  <title>감자 농장 입장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>감자 농장 입장</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-image: url("https://byungil-cho.github.io/OrcaX/farm-101.png");
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', sans-serif;
+      background-image: url('https://byungil-cho.github.io/OrcaX/farm-101.png');
       background-size: cover;
-      background-repeat: no-repeat;
       background-position: center;
       color: white;
       text-align: center;
-      padding: 2rem;
     }
-    .info {
-      font-size: 1.2rem;
-      margin: 0.5rem 0;
-    }
-    .server-check {
-      margin-top: 1rem;
+
+    h1 {
+      margin-top: 80px;
+      font-size: 28px;
       font-weight: bold;
     }
-    .offline { color: red; }
-    .online { color: lime; }
+
+    .status {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+
+    .status span {
+      margin: 0 10px;
+    }
+
+    .nickname {
+      margin-top: 30px;
+      font-size: 18px;
+    }
+
+    .server {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #00ff66;
+    }
   </style>
 </head>
+
 <body>
-  <h1>🌾 감자 농장에 오신 걸 환영합니다!</h1>
-  <div class="info" id="nicknameBox"></div>
-  <div class="info" id="farmNameBox"></div>
-  <div class="info" id="resourceBox"></div>
-  <div class="server-check offline" id="serverStatus">❌ 서버 전원 OFF: 감자밭 연결 실패</div>
+  <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
+  <div class="nickname">
+    🧑‍🌾 닉네임: <span id="nickname">불러오는 중...</span>
+  </div>
+  <div class="status">
+    🥔 감자: <span id="potato">-</span>개 |
+    💧 물: <span id="water">-</span>개 |
+    🧪 거름: <span id="fertilizer">-</span>개 |
+    🪙 ORCX: <span id="token">-</span>개
+  </div>
+  <div class="server" id="serverStatus">서버 상태 확인 중...</div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
+    async function loadUserData() {
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata`);
+        const data = await res.json();
+        if (data.success && data.users.length > 0) {
+          const user = data.users[0];
+          document.getElementById("nickname").textContent = user.nickname;
+          document.getElementById("potato").textContent = user.potatoCount || 0;
+          document.getElementById("water").textContent = user.water || 0;
+          document.getElementById("fertilizer").textContent = user.fertilizer || 0;
+          document.getElementById("token").textContent = user.token || 0;
+        } else {
+          document.getElementById("nickname").textContent = "(불러오기 실패)";
+        }
+      } catch (err) {
+        document.getElementById("nickname").textContent = "(에러 발생)";
+      }
+    }
 
     function checkServerStatus() {
       fetch(`${API_BASE}/`)
         .then(res => {
           if (res.ok) {
             document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
-            document.getElementById("serverStatus").classList.remove("offline");
-            document.getElementById("serverStatus").classList.add("online");
           } else {
-            throw new Error("서버 응답 오류");
+            document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
           }
         })
         .catch(() => {
-          document.getElementById("serverStatus").textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
-          document.getElementById("serverStatus").classList.remove("online");
-          document.getElementById("serverStatus").classList.add("offline");
+          document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
         });
     }
 
-    // 유저 정보 불러오기
-    const nickname = localStorage.getItem("nickname");
-    const farmName = localStorage.getItem("farmName");
-
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "index9.html";
-    } else {
-      document.getElementById("nicknameBox").textContent = `👤 닉네임: ${nickname}`;
-    }
-
-    if (farmName) {
-      document.getElementById("farmNameBox").textContent = `🏡 농장이름: ${farmName}`;
-    }
-
-    // 서버에서 유저 자원 불러오기
-    fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          const { potato, water, fertilizer, token } = data;
-          document.getElementById("resourceBox").textContent = `🥔 감자: ${potato}개 | 💧 물: ${water}개 | 🧪 거름: ${fertilizer}개 | 💰 ORCX: ${token}개`;
-        } else {
-          document.getElementById("resourceBox").textContent = "자원 정보를 불러올 수 없습니다.";
-        }
-      })
-      .catch(err => {
-        console.error("유저 자원 fetch 오류", err);
-        document.getElementById("resourceBox").textContent = "데이터를 불러오지 못했습니다.";
-      });
-
+    loadUserData();
     checkServerStatus();
   </script>
 </body>
+
 </html>
 
