@@ -1,99 +1,128 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>감자밭 준비 화면</title>
+  <meta charset="UTF-8" />
+  <title>감자밭 입장</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      margin: 0;
-      padding: 20px;
+      text-align: center;
+      padding: 2rem;
       color: white;
     }
-    .container {
-      background: rgba(0,0,0,0.6);
-      padding: 20px;
-      border-radius: 10px;
+    #nicknameBox {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
     }
-    h2 {
-      margin-top: 0;
+    .resource-box {
+      background: rgba(0,0,0,0.4);
+      padding: 1rem;
+      margin: 1rem auto;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 12px;
     }
-    .resource-list p {
-      margin: 8px 0;
+    .resource-box p {
+      margin: 0.5rem 0;
     }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
+    .enter-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 24px;
       border: none;
+      font-size: 1rem;
       border-radius: 8px;
       cursor: pointer;
+      margin-top: 1.5rem;
     }
+    .server-check {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    .offline { color: red; }
+    .online { color: lime; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>감자밭 입장 전 준비상태</h2>
-    <p id="serverStatus">🔄 서버 상태 확인 중...</p>
-    <p id="nickname">👤 사용자: </p>
-    <div class="resource-list">
-      <p>🪙 토큰: <span id="token">0</span></p>
-      <p>🥔 씨감자: <span id="potatoSeed">0</span></p>
-      <p>🌾 씨보리: <span id="barleySeed">0</span></p>
-      <p>💧 물: <span id="water">0</span></p>
-      <p>🌿 거름: <span id="fertilizer">0</span></p>
-    </div>
-    <button onclick="goToFarm()">감자농장 가기</button>
+  <div id="nicknameBox" style="display:none;"></div>
+
+  <h1>🐳 감자밭에 입장합니다!</h1>
+  <p>당신의 농장을 시작할 준비가 되셨나요?</p>
+
+  <div class="resource-box">
+    <p>씨감자: <span id="seedCount">-</span> 개</p>
+    <p>물: <span id="waterCount">-</span> 개</p>
+    <p>거름: <span id="fertilizerCount">-</span> 개</p>
+    <p>ORCX 토큰: <span id="tokenCount">-</span> 개</p>
   </div>
 
+  <button class="enter-btn" onclick="enterFarm()">농장 이름 짓기 →</button>
+
+  <div class="server-check offline" id="serverStatus">❌ 서버 전원 OFF: 감자밭 연결 실패</div>
+
   <script>
-    async function fetchData() {
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) return window.location.href = "index9.html";
-      document.getElementById("nickname").textContent = `👤 사용자: ${nickname}`;
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const nickname = localStorage.getItem("nickname");
 
-      try {
-        await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/user/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname }),
+    // 서버 상태 체크
+    function checkServerStatus() {
+      fetch(`${API_BASE}/`)
+        .then(res => {
+          if (res.ok) {
+            document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
+            document.getElementById("serverStatus").classList.remove("offline");
+            document.getElementById("serverStatus").classList.add("online");
+          } else {
+            throw new Error("서버 응답 오류");
+          }
+        })
+        .catch(() => {
+          document.getElementById("serverStatus").textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
+          document.getElementById("serverStatus").classList.remove("online");
+          document.getElementById("serverStatus").classList.add("offline");
         });
-
-        const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/user/${encodeURIComponent(nickname)}`);
-        const data = await res.json();
-
-        if (data && data.nickname) {
-          document.getElementById("token").textContent = data.token || 0;
-          document.getElementById("potatoSeed").textContent = data.seed_potato || 0;
-          document.getElementById("barleySeed").textContent = data.seed_barley || 0;
-          document.getElementById("water").textContent = data.water || 0;
-          document.getElementById("fertilizer").textContent = data.fertilizer || 0;
-        } else {
-          alert("❌ 사용자 정보 없음");
-        }
-      } catch {
-        alert("서버에서 자원 불러오기 실패");
-      }
     }
 
-    async function checkServer() {
-      try {
-        await fetch("https://climbing-wholly-grouper.jp.ngrok.io/");
-        document.getElementById("serverStatus").textContent = "🟢 전기 연결됨";
-      } catch {
-        document.getElementById("serverStatus").textContent = "🔴 전기 꺼짐";
+    // 데이터 불러오기
+    function loadUserData() {
+      if (!nickname) {
+        alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
+        window.location.href = "index9.html";
+        return;
       }
+
+      document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
+      document.getElementById("nicknameBox").style.display = "block";
+
+      fetch(`${API_BASE}/api/userdata`)
+        .then(res => res.json())
+        .then(data => {
+          const user = data.find(u => u.nickname === nickname);
+          if (user) {
+            document.getElementById("seedCount").textContent = user.seedCount ?? 0;
+            document.getElementById("waterCount").textContent = user.water ?? 0;
+            document.getElementById("fertilizerCount").textContent = user.fertilizer ?? 0;
+            document.getElementById("tokenCount").textContent = user.token ?? 0;
+          } else {
+            alert("유저 정보를 찾을 수 없습니다.");
+          }
+        })
+        .catch(err => {
+          alert("서버로부터 유저 정보를 가져오지 못했습니다.");
+          console.error(err);
+        });
     }
 
-    function goToFarm() {
+    function enterFarm() {
       window.location.href = "gamja-main.html";
     }
 
-    fetchData();
-    checkServer();
+    checkServerStatus();
+    loadUserData();
   </script>
 </body>
 </html>
