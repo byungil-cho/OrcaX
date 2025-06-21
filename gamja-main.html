@@ -94,27 +94,5 @@
 
     checkServerStatus();
   </script>
-<div id="resourceStatus" style="margin-top: 1rem; font-weight: bold;"></div>
-
-<script>
-  document.addEventListener("DOMContentLoaded", async () => {
-    const nickname = localStorage.getItem("nickname");
-    if (!nickname) return;
-
-    try {
-      const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/user/${nickname}`);
-      const data = await res.json();
-
-      if (data) {
-        // 자원 표시 영역에 값 삽입
-        document.getElementById("resourceStatus").innerText =
-          `💰 토큰: ${data.token || 0}개 | 🥔 씨감자: ${data.seed_potato || 0}개 | 💧 물: ${data.water || 0}개 | 🌿 거름: ${data.fertilizer || 0}개`;
-      }
-    } catch (err) {
-      console.error("자원 불러오기 실패:", err);
-    }
-  });
-</script>
 </body>
 </html>
-
