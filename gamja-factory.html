@@ -233,6 +233,13 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname, harvested: yieldAmount })
         });
+
+        await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}/inventory`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ item: { name: "감자", count: yieldAmount } })
+        });
+
         await updateServerResources();
         alert(`🎉 감자 ${yieldAmount}개 수확 완료!`);
         fetchUserData();
