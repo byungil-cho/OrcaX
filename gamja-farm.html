@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>감자 농장 입장</title>
-<link href="style.css" rel="stylesheet"/>
-<style>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>감자 농장 입장</title>
+  <link href="style.css" rel="stylesheet"/>
+  <style>
     body {
       margin: 0;
       padding: 0;
@@ -18,36 +17,16 @@
       text-align: center;
     }
 
-    h1 {
-      margin-top: 80px;
-      font-size: 28px;
-      font-weight: bold;
-    }
+    h1 { margin-top: 80px; font-size: 28px; font-weight: bold; }
 
-    .status {
-      margin-top: 20px;
-      font-size: 20px;
-    }
+    .status { margin-top: 20px; font-size: 20px; }
+    .status span { margin: 0 10px; }
 
-    .status span {
-      margin: 0 10px;
-    }
+    .nickname { margin-top: 30px; font-size: 18px; }
 
-    .nickname {
-      margin-top: 30px;
-      font-size: 18px;
-    }
+    .server { margin-top: 20px; font-weight: bold; color: #00ff66; }
 
-    .server {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #00ff66;
-    }
-
-    .btn-next {
-      margin-top: 40px;
-    }
-
+    .btn-next { margin-top: 40px; }
     .btn-next button {
       padding: 12px 24px;
       font-size: 16px;
@@ -56,28 +35,45 @@
       border-radius: 8px;
       cursor: pointer;
     }
+    .btn-next button:hover { background-color: #ffaa00; }
 
-    .btn-next button:hover {
-      background-color: #ffaa00;
+    .inventory {
+      margin-top: 30px;
+      font-size: 18px;
+    }
+
+    .inventory span {
+      display: inline-block;
+      margin: 0 8px;
     }
   </style>
 </head>
 <body>
-<h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
-<div class="nickname">
+  <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
+
+  <div class="nickname">
     🧑‍🌾 닉네임: <span id="nickname">불러오는 중...</span>
-</div>
-<div class="status">
+  </div>
+
+  <div class="status">
     🥔 감자: <span id="potato">-</span>개 |
     💧 물: <span id="water">-</span>개 |
     🧪 거름: <span id="fertilizer">-</span>개 |
     🪙 ORCX: <span id="token">-</span>개
   </div>
-<div class="server" id="serverStatus">서버 상태 확인 중...</div>
-<div class="btn-next">
-<button onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
-</div>
-<script>
+
+  <div class="inventory">
+    🧺 씨감자: <span id="seedPotatoCount">-</span>개 |
+    🌾 씨보리: <span id="seedBarleyCount">-</span>개
+  </div>
+
+  <div class="server" id="serverStatus">서버 상태 확인 중...</div>
+
+  <div class="btn-next">
+    <button onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
+  </div>
+
+  <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
     async function loadUserData() {
@@ -91,11 +87,31 @@
           document.getElementById("water").textContent = user.water || 0;
           document.getElementById("fertilizer").textContent = user.fertilizer || 0;
           document.getElementById("token").textContent = user.token || 0;
+          localStorage.setItem("nickname", user.nickname);
         } else {
           document.getElementById("nickname").textContent = "(불러오기 실패)";
         }
       } catch (err) {
         document.getElementById("nickname").textContent = "(에러 발생)";
+      }
+    }
+
+    async function loadInventory() {
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/user/${nickname}`);
+        const data = await res.json();
+        if (data.success) {
+          const inventory = data.user.inventory || [];
+          const map = {};
+          inventory.forEach(item => map[item.name] = item.count);
+          document.getElementById("seedPotatoCount").textContent = map["씨감자"] || 0;
+          document.getElementById("seedBarleyCount").textContent = map["씨보리"] || 0;
+        }
+      } catch (err) {
+        console.error("자재 불러오기 실패:", err);
       }
     }
 
@@ -113,30 +129,10 @@
         });
     }
 
-    loadUserData();
+    loadUserData().then(() => {
+      loadInventory();
+    });
     checkServerStatus();
   </script>
-<div id="storage"><p>씨감자: <span id="seedPotatoCount">0</span></p><p>씨보리: <span id="seedBarleyCount">0</span></p><p>물: <span id="waterCount">0</span></p><p>거름: <span id="fertilizerCount">0</span></p></div><script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const nickname = localStorage.getItem("nickname");
-  if (!nickname) return;
-
-  try {
-    const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/user/${nickname}`);
-    const data = await res.json();
-    if (data.success) {
-      const inventory = data.user.inventory || [];
-      const map = {};
-      inventory.forEach(item => map[item.name] = item.count);
-
-      document.getElementById("seedPotatoCount").textContent = map["씨감자"] || 0;
-      document.getElementById("seedBarleyCount").textContent = map["씨보리"] || 0;
-      document.getElementById("waterCount").textContent = map["물"] || 0;
-      document.getElementById("fertilizerCount").textContent = map["거름"] || 0;
-    }
-  } catch (err) {
-    console.error("불러오기 실패:", err);
-  }
-});
-</script></body>
+</body>
 </html>
