@@ -1,0 +1,33 @@
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+
+  if (code) {
+    fetch("https://kauth.kakao.com/oauth/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `grant_type=authorization_code&client_id=284b798a9d9be8202f9c2e129fa6f329&redirect_uri=https://byungil-cho.github.io/OrcaX/kakao-callback.html&code=${code}`
+    })
+    .then(res => res.json())
+    .then(token => {
+      return fetch("https://kapi.kakao.com/v2/user/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token.access_token}`
+        }
+      });
+    })
+    .then(res => res.json())
+    .then(profile => {
+      const nickname = profile.kakao_account.profile.nickname;
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("lastLogin", Date.now().toString());
+      window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm.html";
+    })
+    .catch(err => {
+      console.error("카카오 로그인 오류:", err);
+    });
+  }
+</script>
