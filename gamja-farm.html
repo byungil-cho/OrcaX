@@ -1,63 +1,162 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>확인 가상 농장</title>
-  <link rel="stylesheet" href="style.css">
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        alert("로그인이 필요합니다.");
-        window.location.href = "kakao-login.html";
-        return;
-      }
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>감자 농장 입장</title>
+  <link href="style.css" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', sans-serif;
+      background-image: url('https://byungil-cho.github.io/OrcaX/farm-101.png');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+    }
 
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/user/me", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-        .then((res) => res.json())
-        .then((user) => {
-          document.getElementById("nickname").innerText = user.nickname;
-          document.getElementById("potatoCount").innerText = user.potatoCount;
-          document.getElementById("water").innerText = user.water;
-          document.getElementById("fertilizer").innerText = user.fertilizer;
-          document.getElementById("orcx").innerText = user.orcx;
-        })
-        .catch((err) => {
-          console.error("사용자 정보 로딩 실패", err);
-          alert("사용자 정보 로딩 실패");
-        });
+    h1 { margin-top: 80px; font-size: 28px; font-weight: bold; }
 
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/user/inventory", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-        .then((res) => res.json())
-        .then((inventory) => {
-          document.getElementById("seedPotato").innerText = inventory.seedPotato;
-          document.getElementById("seedBarley").innerText = inventory.seedBarley;
-        })
-        .catch((err) => {
-          console.error("인벤토리 로딩 실패", err);
-        });
+    .status { margin-top: 20px; font-size: 20px; }
+    .status span { margin: 0 10px; }
 
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/status")
-        .then((res) => res.json())
-        .then((data) => {
-          document.getElementById("serverStatus").innerText = data.status === "ok" ? "서버 전원 ON" : "서버 전원 OFF";
-        })
-        .catch(() => {
-          document.getElementById("serverStatus").innerText = "서버 전원 OFF";
-        });
-    });
-  </script>
+    .nickname { margin-top: 30px; font-size: 18px; }
+
+    .server { margin-top: 20px; font-weight: bold; color: #00ff66; }
+
+    .btn-next { margin-top: 40px; }
+    .btn-next button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #ffcc00;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-next button:hover { background-color: #ffaa00; }
+
+    .inventory {
+      margin-top: 30px;
+      font-size: 18px;
+    }
+
+    .inventory span {
+      display: inline-block;
+      margin: 0 8px;
+    }
+  </style>
 </head>
 <body>
-  <h1>🍟 감자 농장에 오시는 것을 환영합니다!</h1>
-  <p>🤵닉네임: <span id="nickname">-</span></p>
-  <p>🌾감자: <span id="potatoCount">-</span> 개 | 💧물: <span id="water">-</span> 개 | ✂기울: <span id="fertilizer">-</span> 개 | 🏋ORCX: <span id="orcx">-</span> 개</p>
-  <p>🥔씨감자: <span id="seedPotato">-</span> 개 | 🌱씨보리: <span id="seedBarley">-</span> 개</p>
-  <p>🔌서버 상태: <span id="serverStatus">확인 중...</span></p>
-  <button onclick="location.href='farm.html'">🌾 농장이를 지지 이동</button>
+  <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
+
+  <div class="nickname">
+    🧑‍🌾 닉네임: <span id="nickname">불러오는 중...</span>
+  </div>
+
+  <div class="status">
+    🥔 감자: <span id="potato">-</span>개 |
+    💧 물: <span id="water">-</span>개 |
+    🧪 거름: <span id="fertilizer">-</span>개 |
+    🪙 ORCX: <span id="token">-</span>개
+  </div>
+
+  <div class="inventory">
+    🧺 씨감자: <span id="seedPotatoCount">-</span>개 |
+    🌾 씨보리: <span id="seedBarleyCount">-</span>개
+  </div>
+
+  <div class="server" id="serverStatus">서버 상태 확인 중...</div>
+
+  <div class="btn-next">
+    <button onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
+  </div>
+
+ <script>
+  const API_BASE = "https://climbing-wholly-grouper.ngrok-free.app";
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const tokenFromURL = urlParams.get("accessToken");
+  if (tokenFromURL) {
+    localStorage.setItem("accessToken", tokenFromURL);
+  }
+
+  async function loadUserData() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "kakao-login.html";
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/user/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const user = data.user;
+        document.getElementById("nickname").textContent = user.nickname;
+        document.getElementById("potato").textContent = user.potatoCount || 0;
+        document.getElementById("water").textContent = user.water || 0;
+        document.getElementById("fertilizer").textContent = user.fertilizer || 0;
+        document.getElementById("token").textContent = user.token || 0;
+        localStorage.setItem("nickname", user.nickname);
+      } else {
+        document.getElementById("nickname").textContent = "(불러오기 실패)";
+      }
+    } catch (err) {
+      document.getElementById("nickname").textContent = "(에러 발생)";
+      console.error("유저 정보 불러오기 실패:", err);
+    }
+  }
+
+  async function loadInventory() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/user/inventory`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const inventory = data.inventory || [];
+        const map = {};
+        inventory.forEach(item => map[item.name] = item.count);
+        document.getElementById("seedPotatoCount").textContent = map["씨감자"] || 0;
+        document.getElementById("seedBarleyCount").textContent = map["씨보리"] || 0;
+      }
+    } catch (err) {
+      console.error("자재 불러오기 실패:", err);
+    }
+  }
+
+  function checkServerStatus() {
+    fetch(`${API_BASE}/`)
+      .then(res => {
+        if (res.ok) {
+          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
+        } else {
+          document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+        }
+      })
+      .catch(() => {
+        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+      });
+  }
+
+  loadUserData().then(() => {
+    loadInventory();
+  });
+  checkServerStatus();
+</script>
+
 </body>
 </html>
+
