@@ -156,14 +156,16 @@ async function fetchUserData() {
     growth = user.growth || 0;
     planted = false;
 
-    const materialItems = (user["목록"] || user["inventory"] || [])
+    // ✅ 자재 보관소 (inventory)
+    const materialItems = (user.inventory || [])
       .filter(item => item && item.name && item.count !== undefined && item.name.includes("감자"))
       .map(item => `${item.name}: ${item.count}`)
       .join("<br>");
     document.getElementById("materials").innerHTML = materialItems || "보관된 감자 없음";
 
-    const productItems = (user.exchangeLogs || user["products"] || [])
-      .map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : ""))
+    // ✅ 제품 창고 (products)
+    const productItems = (user.products || [])
+      .map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : "")
       .join("<br>");
     document.getElementById("products").innerHTML = productItems || "보관된 제품 없음";
 
