@@ -61,19 +61,24 @@
             success: function(res) {
               console.log("카카오 사용자 정보", res);
               const nickname = res.kakao_account.profile.nickname;
+              const userId = res.id;
 
               fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nickname })
+                body: JSON.stringify({ nickname, userId })
               })
               .then(r => r.json())
               .then(data => {
                 console.log("서버 응답:", data);
+                if (!data.accessToken) {
+                  alert("서버 응답에 accessToken이 없습니다. 로그인 실패.");
+                  return;
+                }
                 localStorage.setItem("nickname", nickname);
-                localStorage.setItem("accessToken", data.token);
+                localStorage.setItem("accessToken", data.accessToken);
                 alert(`${nickname}님 환영합니다!`);
-                window.location.href = `gamja-farm.html?accessToken=${data.token}`;
+                window.location.href = `gamja-farm.html?accessToken=${data.accessToken}`;
               });
             },
             fail: function(error) {
