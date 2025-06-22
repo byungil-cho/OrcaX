@@ -22,18 +22,33 @@
       })
       .then(res => res.json())
       .then(data => {
-        const accessToken = data.access_token;
+        const kakaoAccessToken = data.access_token;
         return fetch("https://kapi.kakao.com/v2/user/me", {
-          headers: { Authorization: `Bearer ${accessToken}` }
+          headers: { Authorization: `Bearer ${kakaoAccessToken}` }
         });
       })
       .then(res => res.json())
       .then(profile => {
         const nickname = profile.properties?.nickname || "사용자";
         const userId = profile.id;
-        localStorage.setItem("nickname", nickname);
-        localStorage.setItem("userId", userId);
-        window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+
+        // ⚠️ 서버에 유저 등록 or 로그인 요청
+        return fetch("https://climbing-wholly-grouper.ngrok-free.app/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, userId })
+        })
+        .then(res => res.json())
+        .then(serverRes => {
+          if (serverRes.success) {
+            localStorage.setItem("accessToken", serverRes.accessToken);
+            localStorage.setItem("nickname", nickname);
+            localStorage.setItem("userId", userId);
+            window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+          } else {
+            alert("서버 로그인 실패");
+          }
+        });
       })
       .catch(err => {
         console.error("로그인 오류", err);
