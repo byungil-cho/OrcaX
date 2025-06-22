@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🐳 OrcaX 농장 입구</title>
+  <title>🌳 OrcaX 농장 입구</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
     body {
@@ -15,9 +15,7 @@
       text-align: center;
       color: white;
     }
-    .container {
-      padding-top: 12vh;
-    }
+    .container { padding-top: 12vh; }
     h1 {
       font-size: 2.2rem;
       margin-bottom: 0.5rem;
@@ -102,12 +100,12 @@
 
     <div class="field-section">
       <div class="field" onclick="enterFarm('https://byungil-cho.github.io/OrcaX/gamja-farm.html')">
-        <img src="https://byungil-cho.github.io/OrcaX/farm-101.png" alt="감자 밭">
-        <span>🥔 감자 밭</span>
+        <img src="https://byungil-cho.github.io/OrcaX/farm-101.png" alt="감자 밥">
+        <span>🥔 감자 밥</span>
       </div>
       <div class="field" onclick="enterFarm('https://byungil-cho.github.io/OrcaX/bori-farm.html')">
-        <img src="https://byungil-cho.github.io/OrcaX/farm-201.png" alt="보리 밭">
-        <span>🌾 보리 밭</span>
+        <img src="https://byungil-cho.github.io/OrcaX/farm-201.png" alt="보리 밥">
+        <span>🌾 보리 밥</span>
       </div>
     </div>
 
@@ -132,6 +130,7 @@
       localStorage.removeItem("nickname");
       localStorage.removeItem("userId");
       localStorage.removeItem("lastLogin");
+      localStorage.removeItem("accessToken");
       alert("로그아웃 되었습니다.");
       location.reload();
     }
@@ -147,14 +146,19 @@
     }
 
     async function registerUser(nickname) {
+      const userId = localStorage.getItem("userId");
       try {
-        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
+        const res = await fetch("https://climbing-wholly-grouper.ngrok-free.app/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname })
+          body: JSON.stringify({ nickname, userId })
         });
         const data = await res.json();
         console.log("서버 응답:", data);
+
+        if (data.accessToken) {
+          localStorage.setItem("accessToken", data.accessToken);
+        }
       } catch (err) {
         console.error("서버 등록 오류:", err);
       }
