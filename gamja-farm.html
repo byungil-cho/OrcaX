@@ -137,5 +137,23 @@ fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata")
     }
   })
   .catch(err => console.error("자재 불러오기 실패:", err));
-</script></body>
+</script>
+<script>
+  const nickname = localStorage.getItem("nickname");
+  if (nickname) {
+    fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/user/${nickname}`)
+      .then(res => res.json())
+      .then(data => {
+        const inventory = data.user?.inventory || [];
+        const getItem = (name) => inventory.find(i => i.name === name)?.count || 0;
+        document.getElementById("seedPotatoCount").textContent = getItem("씨감자");
+        document.getElementById("seedBarleyCount").textContent = getItem("씨보리");
+        document.getElementById("waterCount").textContent = getItem("물");
+        document.getElementById("fertilizerCount").textContent = getItem("거름");
+      })
+      .catch(err => console.error("자재 불러오기 실패:", err));
+  }
+</script>
+
+</body>
 </html>
