@@ -63,7 +63,6 @@
               console.log("카카오 사용자 정보", res);
               const nickname = res.kakao_account.profile.nickname;
 
-              // 서버에 유저 등록
               fetch("https://climbing-wholly-grouper.ngrok-free.app/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -73,8 +72,9 @@
               .then(data => {
                 console.log("서버 응답:", data);
                 localStorage.setItem("nickname", nickname);
+                localStorage.setItem("accessToken", data.token);
                 alert(`${nickname}님 환영합니다!`);
-                window.location.href = "gamja-main.html";
+                window.location.href = `gamja-farm.html?accessToken=${data.token}`;
               });
             },
             fail: function(error) {
@@ -108,5 +108,6 @@
   </script>
 </body>
 </html>
+
 
 
