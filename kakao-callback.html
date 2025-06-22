@@ -1,114 +1,54 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>카카오 로그인</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2rem;
-      background: #f2f2f2;
-    }
-
-    .kakao-btn {
-      background-color: #fee500;
-      border: none;
-      padding: 15px 30px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: #000;
-      margin-top: 2rem;
-    }
-
-    .server-check {
-      margin-top: 2rem;
-      font-size: 0.95rem;
-      color: gray;
-    }
-
-    .online {
-      color: green;
-      font-weight: bold;
-    }
-
-    .offline {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>카카오 로그인 호출</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 </head>
 <body>
-  <h1>OrcaX 카카오 로그인</h1>
-  <p>계속하려면 카카오 계정으로 로그인하세요.</p>
-  <button class="kakao-btn" onclick="kakaoLogin()">카카오로 로그인</button>
-
-  <div class="server-check" id="serverStatus">🔌 서버 상태 확인 중...</div>
-
+  <h2>카카오 로그인 중...</h2>
   <script>
-    Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
+    const code = new URL(window.location.href).searchParams.get("code");
+    const client_id = "284b798a9d9be8202f9c2e129fa6f329";
+    const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
 
-    function kakaoLogin() {
-      Kakao.Auth.login({
-        success: function(authObj) {
-          console.log("카카오 로그인 성공", authObj);
-          Kakao.API.request({
-            url: "/v2/user/me",
-            success: function(res) {
-              console.log("카카오 사용자 정보", res);
-              const nickname = res.kakao_account.profile.nickname;
-              const userId = res.id;
-
-              fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nickname, userId })
-              })
-              .then(r => r.json())
-              .then(data => {
-                console.log("서버 응답:", data);
-                if (!data.accessToken) {
-                  alert("서버 응답에 accessToken이 없습니다. 로그인 실패.");
-                  return;
-                }
-                localStorage.setItem("nickname", nickname);
-                localStorage.setItem("accessToken", data.accessToken);
-                alert(`${nickname}님 환영합니다!`);
-                window.location.href = `gamja-farm.html?accessToken=${data.accessToken}`;
-              });
-            },
-            fail: function(error) {
-              console.error("사용자 정보 요청 실패", error);
-            }
-          });
-        },
-        fail: function(err) {
-          console.error("카카오 로그인 실패", err);
-        }
-      });
-    }
-
-    async function checkServerPower() {
-      const statusBox = document.getElementById("serverStatus");
-      try {
-        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/ping");
-        if (res.ok) {
-          statusBox.textContent = "✅ 서버 전원 ON: 감자밭 연결 가능!";
-          statusBox.classList.add("online");
-        } else {
-          throw new Error();
-        }
-      } catch (e) {
-        statusBox.textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
-        statusBox.classList.add("offline");
+    fetch("https://kauth.kakao.com/oauth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id,
+        redirect_uri,
+        code
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.access_token) {
+        console.error("카카오 access_token 없음", data);
+        alert("로그인 중 오류가 발생했습니다. (토큰 없음)");
+        throw new Error("access_token 실패");
       }
-    }
 
-    checkServerPower();
+      const kakaoAccessToken = data.access_token;
+      return fetch("https://kapi.kakao.com/v2/user/me", {
+        headers: { Authorization: `Bearer ${kakaoAccessToken}` }
+      });
+    })
+    .then(res => res.json())
+    .then(profile => {
+      const nickname = profile.kakao_account.profile.nickname;
+      const userId = profile.id;
+
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("userId", userId);
+
+      window.location.href = "index9.html";
+    })
+    .catch(err => {
+      console.error("로그인 실패:", err);
+      alert("로그인 중 오류가 발생했습니다.");
+    });
   </script>
 </body>
 </html>
