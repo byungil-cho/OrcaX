@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>🥔 감자 농장</title>
-<style>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>🥔 감자 농장</title>
+  <style>
     body {
       margin: 0;
       font-family: 'Do Hyeon', sans-serif;
@@ -92,34 +92,35 @@
 </head>
 <body>
 <div class="scroll-area">
-<header>🥔 감자 농장 - Potato Farm</header>
-<div class="nickname">👤 농장주: <span id="nickname">-</span></div>
-<div class="info-bar">
-      🌐 전원 상태: <span id="power-status">확인 중...</span> |
-      🏧 농장이름: <span id="farm-name">-</span> |
-      🐋 토큰: <span id="token">-</span><br/>
-      🧺 씨감자: <span id="seed">-</span> | 💧 물: <span id="water">-</span> | 🌾 거름: <span id="fertilizer">-</span>
+  <header>🥔 감자 농장 - Potato Farm</header>
+  <div class="nickname">👤 농장주: <span id="nickname">-</span></div>
+  <div class="info-bar">
+    🌐 전원 상태: <span id="power-status">확인 중...</span> |
+    🏧 농장이름: <span id="farm-name">-</span> |
+    🐋 토큰: <span id="token">-</span><br/>
+    🧺 씨감자: <span id="seed">-</span> | 💧 물: <span id="water">-</span> | 🌾 거름: <span id="fertilizer">-</span>
+  </div>
+  <div class="potato-field">
+    🌱 감자가 자라고 있습니다...
+    <div class="status">성장 포인트: <span id="growth">0</span></div>
+    <div class="grow-buttons">
+      <button id="plant-btn" onclick="plantSeed()">🥔 씨감자 심기</button>
+      <button onclick="applyWater()">💧 물 주기</button>
+      <button onclick="applyFertilizer()">💩 거름 주기</button>
+    </div>
+    <div id="harvest-container" style="margin-top: 1.5rem;"></div>
+  </div>
+  <div class="storage-section">
+    <div><strong>🧺 자재 보관소</strong><br/><div id="materials">자재 연동 예정</div></div>
+    <div><strong>📦 제품 창고</strong><br/><div id="products">제품 연동 예정</div></div>
+  </div>
+  <div class="nav-buttons">
+    <a href="gamja-result.html">감자 보리 가공공장</a>
+    <a href="gamja-shop.html">씨감자 씨보리 구매</a>
+    <a href="orcax-farm_000.html">메인 페이지</a>
+  </div>
 </div>
-<div class="potato-field">
-      🌱 감자가 자라고 있습니다...
-      <div class="status">성장 포인트: <span id="growth">0</span></div>
-<div class="grow-buttons">
-  <button id="plant-btn" onclick="plantSeed()">🥔 씨감자 심기</button>
-  <button onclick="applyWater()">💧 물 주기</button>
-  <button onclick="applyFertilizer()">💩 거름 주기</button>
-</div>
-<div id="harvest-container" style="margin-top: 1.5rem;"></div>
-</div>
-<div class="storage-section">
-<div><strong>🧺 자재 보관소</strong><br/><div id="materials">자재 연동 예정</div></div>
-<div><strong>📦 제품 창고</strong><br/><div id="products">제품 연동 예정</div></div>
-</div>
-<div class="nav-buttons">
-<a href="gamja-result.html">감자 보리 가공공장</a>
-<a href="gamja-shop.html">씨감자 씨보리 구매</a>
-<a href="orcax-farm_000.html">메인 페이지</a>
-</div>
-</div>
+
 <script>
 const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 const nickname = localStorage.getItem("nickname") || "농부X";
@@ -137,8 +138,12 @@ document.getElementById("power-status").textContent = "전기 공급중입니다
 
 async function fetchUserData() {
   try {
-    const res = await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`);
-    const user = await res.json();
+    const res = await fetch(`${API_BASE}/api/userdata`);
+    const data = await res.json();
+    const user = data.users.find(u => u.nickname === nickname);
+
+    if (!user) return alert("❌ 유저 정보 없음");
+
     document.getElementById("token").textContent = user.token || 0;
     document.getElementById("seed").textContent = user.seed_potato || 0;
     document.getElementById("water").textContent = user.water || 0;
@@ -151,29 +156,30 @@ async function fetchUserData() {
     growth = user.growth || 0;
     planted = false;
 
-    const materialItems = (user["목록"] || [])
+    const materialItems = (user["목록"] || user["inventory"] || [])
       .filter(item => item && item.name && item.count !== undefined && item.name.includes("감자"))
       .map(item => `${item.name}: ${item.count}`)
       .join("<br>");
     document.getElementById("materials").innerHTML = materialItems || "보관된 감자 없음";
 
-    const productItems = (user.exchangeLogs || [])
+    const productItems = (user.exchangeLogs || user["products"] || [])
       .map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : ""))
       .join("<br>");
     document.getElementById("products").innerHTML = productItems || "보관된 제품 없음";
 
     checkHarvestReady();
-  } catch {
+  } catch (err) {
     alert("❌ 유저 정보 로딩 실패");
   }
 }
 
 async function updateServerResources() {
   try {
-    await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`, {
-      method: "PATCH",
+    await fetch(`${API_BASE}/api/user-update`, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        nickname,
         seed_potato: seedCount,
         water,
         fertilizer,
@@ -247,10 +253,10 @@ async function handleHarvest() {
       body: JSON.stringify({ nickname, harvested: yieldAmount })
     });
 
-    await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}/inventory`, {
+    await fetch(`${API_BASE}/api/user/inventory-add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ item: { name: "감자", count: yieldAmount } })
+      body: JSON.stringify({ nickname, item: { name: "감자", count: yieldAmount } })
     });
 
     await updateServerResources();
@@ -265,3 +271,4 @@ fetchUserData();
 </script>
 </body>
 </html>
+
