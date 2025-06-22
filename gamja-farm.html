@@ -73,66 +73,83 @@
     <button onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
   </div>
 
-  <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+ <script>
+  const API_BASE = "https://climbing-wholly-grouper.ngrok-free.app"; // 서버 도메인 정확하게
 
-    async function loadUserData() {
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata`);
-        const data = await res.json();
-        if (data.success && data.users.length > 0) {
-          const user = data.users[0];
-          document.getElementById("nickname").textContent = user.nickname;
-          document.getElementById("potato").textContent = user.potatoCount || 0;
-          document.getElementById("water").textContent = user.water || 0;
-          document.getElementById("fertilizer").textContent = user.fertilizer || 0;
-          document.getElementById("token").textContent = user.token || 0;
-          localStorage.setItem("nickname", user.nickname);
+  async function loadUserData() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "kakao-login.html"; // 로그인 페이지 경로 맞춰서 수정
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/user/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const user = data.user;
+        document.getElementById("nickname").textContent = user.nickname;
+        document.getElementById("potato").textContent = user.potatoCount || 0;
+        document.getElementById("water").textContent = user.water || 0;
+        document.getElementById("fertilizer").textContent = user.fertilizer || 0;
+        document.getElementById("token").textContent = user.token || 0;
+        localStorage.setItem("nickname", user.nickname); // 이후 inventory용
+      } else {
+        document.getElementById("nickname").textContent = "(불러오기 실패)";
+      }
+    } catch (err) {
+      document.getElementById("nickname").textContent = "(에러 발생)";
+      console.error("유저 정보 불러오기 실패:", err);
+    }
+  }
+
+  async function loadInventory() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/user/inventory`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const inventory = data.inventory || [];
+        const map = {};
+        inventory.forEach(item => map[item.name] = item.count);
+        document.getElementById("seedPotatoCount").textContent = map["씨감자"] || 0;
+        document.getElementById("seedBarleyCount").textContent = map["씨보리"] || 0;
+      }
+    } catch (err) {
+      console.error("자재 불러오기 실패:", err);
+    }
+  }
+
+  function checkServerStatus() {
+    fetch(`${API_BASE}/`)
+      .then(res => {
+        if (res.ok) {
+          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
         } else {
-          document.getElementById("nickname").textContent = "(불러오기 실패)";
-        }
-      } catch (err) {
-        document.getElementById("nickname").textContent = "(에러 발생)";
-      }
-    }
-
-    async function loadInventory() {
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) return;
-
-      try {
-        const res = await fetch(`${API_BASE}/api/user/${nickname}`);
-        const data = await res.json();
-        if (data.success) {
-          const inventory = data.user.inventory || [];
-          const map = {};
-          inventory.forEach(item => map[item.name] = item.count);
-          document.getElementById("seedPotatoCount").textContent = map["씨감자"] || 0;
-          document.getElementById("seedBarleyCount").textContent = map["씨보리"] || 0;
-        }
-      } catch (err) {
-        console.error("자재 불러오기 실패:", err);
-      }
-    }
-
-    function checkServerStatus() {
-      fetch(`${API_BASE}/`)
-        .then(res => {
-          if (res.ok) {
-            document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
-          } else {
-            document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
-          }
-        })
-        .catch(() => {
           document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
-        });
-    }
+        }
+      })
+      .catch(() => {
+        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+      });
+  }
 
-    loadUserData().then(() => {
-      loadInventory();
-    });
-    checkServerStatus();
-  </script>
+  loadUserData().then(() => {
+    loadInventory();
+  });
+  checkServerStatus();
+</script>
+
 </body>
 </html>
