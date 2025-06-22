@@ -74,19 +74,13 @@
   </div>
 
  <script>
-  const API_BASE = "https://climbing-wholly-grouper.ngrok-free.app";
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const tokenFromURL = urlParams.get("accessToken");
-  if (tokenFromURL) {
-    localStorage.setItem("accessToken", tokenFromURL);
-  }
+  const API_BASE = "https://climbing-wholly-grouper.ngrok-free.app"; // 서버 도메인 정확하게
 
   async function loadUserData() {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       alert("로그인이 필요합니다.");
-      window.location.href = "kakao-login.html";
+      window.location.href = "kakao-login.html"; // 로그인 페이지 경로 맞춰서 수정
       return;
     }
 
@@ -104,7 +98,7 @@
         document.getElementById("water").textContent = user.water || 0;
         document.getElementById("fertilizer").textContent = user.fertilizer || 0;
         document.getElementById("token").textContent = user.token || 0;
-        localStorage.setItem("nickname", user.nickname);
+        localStorage.setItem("nickname", user.nickname); // 이후 inventory용
       } else {
         document.getElementById("nickname").textContent = "(불러오기 실패)";
       }
@@ -159,5 +153,3 @@
 
 </body>
 </html>
-
-
