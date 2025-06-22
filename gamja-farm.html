@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>감자 농장 입장</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
     body {
       margin: 0;
@@ -17,37 +15,17 @@
       color: white;
       text-align: center;
     }
-
     h1 {
       margin-top: 80px;
       font-size: 28px;
       font-weight: bold;
     }
-
-    .status {
+    .status, .nickname, .server, .storage {
       margin-top: 20px;
-      font-size: 20px;
-    }
-
-    .status span {
-      margin: 0 10px;
-    }
-
-    .nickname {
-      margin-top: 30px;
       font-size: 18px;
     }
-
-    .server {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #00ff66;
-    }
-
-    .btn-next {
-      margin-top: 40px;
-    }
-
+    .server { font-weight: bold; color: #00ff66; }
+    .btn-next { margin-top: 40px; }
     .btn-next button {
       padding: 12px 24px;
       font-size: 16px;
@@ -56,25 +34,54 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
-    .btn-next button:hover {
-      background-color: #ffaa00;
+    .btn-next button:hover { background-color: #ffaa00; }
+    .storage-box {
+      margin: 10px auto;
+      padding: 10px;
+      width: 90%;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    .storage-box strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 16px;
+      color: #ffff99;
     }
   </style>
 </head>
-
 <body>
   <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
+
   <div class="nickname">
     🧑‍🌾 닉네임: <span id="nickname">불러오는 중...</span>
   </div>
+
   <div class="status">
     🥔 감자: <span id="potato">-</span>개 |
     💧 물: <span id="water">-</span>개 |
     🧪 거름: <span id="fertilizer">-</span>개 |
     🪙 ORCX: <span id="token">-</span>개
   </div>
+
   <div class="server" id="serverStatus">서버 상태 확인 중...</div>
+
+  <!-- ✅ 3단 보관소 -->
+  <div class="storage">
+    <div class="storage-box">
+      <strong>🧺 농자재 보관소</strong>
+      <div id="materials-basic">-</div>
+    </div>
+    <div class="storage-box">
+      <strong>📦 농산물 보관소</strong>
+      <div id="materials-crop">-</div>
+    </div>
+    <div class="storage-box">
+      <strong>🍱 가공식품 보관소</strong>
+      <div id="materials-food">-</div>
+    </div>
+  </div>
 
   <div class="btn-next">
     <button onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
@@ -94,6 +101,28 @@
           document.getElementById("water").textContent = user.water || 0;
           document.getElementById("fertilizer").textContent = user.fertilizer || 0;
           document.getElementById("token").textContent = user.token || 0;
+
+          // ✅ 3단 분류 처리
+          const rawList = user.inventory || [];
+          const isBasic = name => ["씨감자", "씨보리", "물", "거름"].includes(name);
+          const isCrop = name => name === "감자" || name === "보리";
+
+          const basicItems = [];
+          const cropItems = [];
+          const foodItems = [];
+
+          rawList.forEach(item => {
+            const name = item.name || item.type;
+            const count = item.count || 1;
+            if (isBasic(name)) basicItems.push(`${name}: ${count}`);
+            else if (isCrop(name)) cropItems.push(`${name}: ${count}`);
+            else foodItems.push(`${name}: ${count}`);
+          });
+
+          document.getElementById("materials-basic").innerHTML = basicItems.join("<br>") || "보관된 농자재 없음";
+          document.getElementById("materials-crop").innerHTML = cropItems.join("<br>") || "보관된 농산물 없음";
+          document.getElementById("materials-food").innerHTML = foodItems.join("<br>") || "보관된 가공식품 없음";
+
         } else {
           document.getElementById("nickname").textContent = "(불러오기 실패)";
         }
@@ -120,6 +149,4 @@
     checkServerStatus();
   </script>
 </body>
-
 </html>
-
