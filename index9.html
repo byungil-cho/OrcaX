@@ -114,46 +114,11 @@
       <a href="auction-house.html">📊 경매장 입장</a>
     </div>
 
-    <button id="loginBtn" class="kakao-btn" type="button">카카오 로그인</button>
     <button id="logoutBtn" class="kakao-btn" style="display: none; background-color: #ff4d4d;" onclick="logout()">로그아웃</button>
   </div>
 
   <script>
     Kakao.init("284b798a9d9be8202f9c2e129fa6f329");
-
-    document.getElementById("loginBtn").onclick = function() {
-      Kakao.Auth.login({
-        success: function(authObj) {
-          Kakao.API.request({
-            url: '/v2/user/me',
-            success: function(res) {
-              const nickname = res.kakao_account.profile.nickname;
-              const userId = res.id.toString();
-              localStorage.setItem("nickname", nickname);
-              localStorage.setItem("userId", userId);
-              localStorage.setItem("lastLogin", Date.now().toString());
-              registerUser(nickname, userId);
-              location.reload();
-            }
-          });
-        }
-      });
-    };
-
-    function logout() {
-      localStorage.clear();
-      alert("로그아웃 되었습니다.");
-      location.reload();
-    }
-
-    function enterFarm(url) {
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
-        alert("로그인 후 입장하실 수 있습니다.");
-        return;
-      }
-      window.location.href = url;
-    }
 
     async function registerUser(nickname, userId) {
       try {
@@ -179,15 +144,48 @@
       }
     }
 
-    (function displayNickname() {
-      const nickname = localStorage.getItem("nickname");
-      if (nickname) {
-        document.getElementById("nicknameDisplay").textContent = "👤 " + nickname + "님, 환영합니다!";
-        document.getElementById("nicknameDisplay").style.display = "inline-block";
-        document.getElementById("loginBtn").style.display = "none";
-        document.getElementById("logoutBtn").style.display = "inline-block";
+    async function silentLogin() {
+      if (Kakao.Auth.getAccessToken()) {
+        try {
+          const res = await Kakao.API.request({ url: '/v2/user/me' });
+          const nickname = res.kakao_account.profile.nickname;
+          const userId = res.id.toString();
+          localStorage.setItem("nickname", nickname);
+          localStorage.setItem("userId", userId);
+          localStorage.setItem("lastLogin", Date.now().toString());
+          document.getElementById("nicknameDisplay").textContent = "👤 " + nickname + "님, 환영합니다!";
+          document.getElementById("nicknameDisplay").style.display = "inline-block";
+          document.getElementById("logoutBtn").style.display = "inline-block";
+          registerUser(nickname, userId);
+        } catch (err) {
+          console.error("자동 로그인 실패:", err);
+        }
+      } else {
+        // Redirect to authorize if no token
+        Kakao.Auth.authorize({
+          redirectUri: location.href
+        });
       }
-    })();
+    }
+
+    function logout() {
+      Kakao.Auth.logout(() => {
+        localStorage.clear();
+        alert("로그아웃 되었습니다.");
+        location.reload();
+      });
+    }
+
+    function enterFarm(url) {
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) {
+        alert("로그인 후 입장하실 수 있습니다.");
+        return;
+      }
+      window.location.href = url;
+    }
+
+    silentLogin();
   </script>
 </body>
 </html>
