@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="utf-8"/>
@@ -105,8 +104,9 @@
       🌱 감자가 자라고 있습니다...
       <div class="status">성장 포인트: <span id="growth">0</span></div>
 <div class="grow-buttons">
-<button onclick="applyWater()">💧 물 주기</button>
-<button onclick="applyFertilizer()">💩 거름 주기</button>
+  <button id="plant-btn" onclick="plantSeed()">🥔 씨감자 심기</button>
+  <button onclick="applyWater()">💧 물 주기</button>
+  <button onclick="applyFertilizer()">💩 거름 주기</button>
 </div>
 <div id="harvest-container" style="margin-top: 1.5rem;"></div>
 </div>
@@ -121,134 +121,147 @@
 </div>
 </div>
 <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname") || "농부X";
-    const farmName = localStorage.getItem("farmName") || "감자농장";
+const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+const nickname = localStorage.getItem("nickname") || "농부X";
+const farmName = localStorage.getItem("farmName") || "감자농장";
 
-    let seedCount = 0;
-    let water = 0;
-    let fertilizer = 0;
-    let growth = 0;
+let seedCount = 0;
+let water = 0;
+let fertilizer = 0;
+let growth = 0;
+let planted = false;
 
-    document.getElementById("nickname").textContent = nickname;
-    document.getElementById("farm-name").textContent = farmName;
-    document.getElementById("power-status").textContent = "전기 공급중입니다.";
+document.getElementById("nickname").textContent = nickname;
+document.getElementById("farm-name").textContent = farmName;
+document.getElementById("power-status").textContent = "전기 공급중입니다.";
 
-    async function fetchUserData() {
-      try {
-        const res = await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`);
-        const user = await res.json();
-        document.getElementById("token").textContent = user.token || 0;
-        document.getElementById("seed").textContent = user.seed_potato || 0;
-        document.getElementById("water").textContent = user.water || 0;
-        document.getElementById("fertilizer").textContent = user.fertilizer || 0;
-        document.getElementById("growth").textContent = user.growth || 0;
+async function fetchUserData() {
+  try {
+    const res = await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`);
+    const user = await res.json();
+    document.getElementById("token").textContent = user.token || 0;
+    document.getElementById("seed").textContent = user.seed_potato || 0;
+    document.getElementById("water").textContent = user.water || 0;
+    document.getElementById("fertilizer").textContent = user.fertilizer || 0;
+    document.getElementById("growth").textContent = user.growth || 0;
 
-        seedCount = user.seed_potato;
-        water = user.water;
-        fertilizer = user.fertilizer;
-        growth = user.growth || 0;
+    seedCount = user.seed_potato;
+    water = user.water;
+    fertilizer = user.fertilizer;
+    growth = user.growth || 0;
+    planted = false;
 
-        const materialItems = (user["목록"] || [])
-          .filter(item => item && item.name && item.count !== undefined && item.name.includes("감자"))
-          .map(item => `${item.name}: ${item.count}`)
-          .join("<br>");
-        document.getElementById("materials").innerHTML = materialItems || "보관된 감자 없음";
+    const materialItems = (user["목록"] || [])
+      .filter(item => item && item.name && item.count !== undefined && item.name.includes("감자"))
+      .map(item => `${item.name}: ${item.count}`)
+      .join("<br>");
+    document.getElementById("materials").innerHTML = materialItems || "보관된 감자 없음";
 
-        const productItems = (user.exchangeLogs || [])
-          .map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : ""))
-          .join("<br>");
-        document.getElementById("products").innerHTML = productItems || "보관된 제품 없음";
+    const productItems = (user.exchangeLogs || [])
+      .map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : ""))
+      .join("<br>");
+    document.getElementById("products").innerHTML = productItems || "보관된 제품 없음";
 
-        checkHarvestReady();
-      } catch {
-        alert("❌ 유저 정보 로딩 실패");
-      }
-    }
+    checkHarvestReady();
+  } catch {
+    alert("❌ 유저 정보 로딩 실패");
+  }
+}
 
-    async function updateServerResources() {
-      try {
-        await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            seed_potato: seedCount,
-            water,
-            fertilizer,
-            growth
-          })
-        });
-      } catch {
-        alert("❌ 서버에 자원 업데이트 실패");
-      }
-    }
+async function updateServerResources() {
+  try {
+    await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        seed_potato: seedCount,
+        water,
+        fertilizer,
+        growth
+      })
+    });
+  } catch {
+    alert("❌ 서버에 자원 업데이트 실패");
+  }
+}
 
-    function applyWater() {
-      if (seedCount < 1) return alert("씨감자가 없으면 농사가 불가능합니다.");
-      if (water < 1) return alert("물이 부족합니다.");
-      growth += 1;
-      water -= 1;
-      updateStatus();
-      updateServerResources();
-    }
+function plantSeed() {
+  if (planted) return alert("이미 심었습니다!");
+  if (seedCount < 1) return alert("씨감자가 부족합니다!");
+  seedCount -= 1;
+  planted = true;
+  document.getElementById("seed").textContent = seedCount;
+  const btn = document.getElementById("plant-btn");
+  btn.textContent = "✅ 심기 완료";
+  btn.disabled = true;
+  updateServerResources();
+}
 
-    function applyFertilizer() {
-      if (seedCount < 1) return alert("씨감자가 없으면 농사가 불가능합니다.");
-      if (fertilizer < 1) return alert("거름이 부족합니다.");
-      growth += 1;
-      fertilizer -= 1;
-      updateStatus();
-      updateServerResources();
-    }
+function applyWater() {
+  if (!planted) return alert("씨감자를 먼저 심으세요!");
+  if (water < 1) return alert("물이 부족합니다.");
+  growth += 1;
+  water -= 1;
+  updateStatus();
+  updateServerResources();
+}
 
-    function updateStatus() {
-      document.getElementById("growth").textContent = growth;
-      document.getElementById("water").textContent = water;
-      document.getElementById("fertilizer").textContent = fertilizer;
-      checkHarvestReady();
-    }
+function applyFertilizer() {
+  if (!planted) return alert("씨감자를 먼저 심으세요!");
+  if (fertilizer < 1) return alert("거름이 부족합니다.");
+  growth += 1;
+  fertilizer -= 1;
+  updateStatus();
+  updateServerResources();
+}
 
-    function checkHarvestReady() {
-      if (growth >= 5 && !document.getElementById("harvest-btn")) {
-        const btn = document.createElement("button");
-        btn.textContent = "🥔 수확하기";
-        btn.id = "harvest-btn";
-        btn.onclick = handleHarvest;
-        document.getElementById("harvest-container").appendChild(btn);
-      }
-    }
+function updateStatus() {
+  document.getElementById("growth").textContent = growth;
+  document.getElementById("water").textContent = water;
+  document.getElementById("fertilizer").textContent = fertilizer;
+  checkHarvestReady();
+}
 
-    async function handleHarvest() {
-      if (seedCount < 1) return alert("씨감자가 없으면 수확할 수 없습니다.");
-      const yieldAmount = [3, 5, 7][Math.floor(Math.random() * 3)];
-      growth = 0;
-      seedCount -= 1;
-      document.getElementById("growth").textContent = growth;
-      document.getElementById("harvest-container").innerHTML = "";
-      document.getElementById("seed").textContent = seedCount;
+function checkHarvestReady() {
+  if (growth >= 5 && !document.getElementById("harvest-btn")) {
+    const btn = document.createElement("button");
+    btn.textContent = "🥔 수확하기";
+    btn.id = "harvest-btn";
+    btn.onclick = handleHarvest;
+    document.getElementById("harvest-container").appendChild(btn);
+  }
+}
 
-      try {
-        await fetch(`${API_BASE}/api/farm/harvest`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, harvested: yieldAmount })
-        });
+async function handleHarvest() {
+  if (!planted) return alert("심지 않은 상태에서는 수확할 수 없습니다!");
+  const yieldAmount = [3, 5, 7][Math.floor(Math.random() * 3)];
+  growth = 0;
+  planted = false;
+  document.getElementById("growth").textContent = growth;
+  document.getElementById("harvest-container").innerHTML = "";
 
-        await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}/inventory`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ item: { name: "감자", count: yieldAmount } })
-        });
+  try {
+    await fetch(`${API_BASE}/api/farm/harvest`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nickname, harvested: yieldAmount })
+    });
 
-        await updateServerResources();
-        alert(`🎉 감자 ${yieldAmount}개 수확 완료!`);
-        fetchUserData();
-      } catch {
-        alert("❌ 수확 결과 저장 실패");
-      }
-    }
+    await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}/inventory`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ item: { name: "감자", count: yieldAmount } })
+    });
 
+    await updateServerResources();
+    alert(`🎉 감자 ${yieldAmount}개 수확 완료!`);
     fetchUserData();
+  } catch {
+    alert("❌ 수확 결과 저장 실패");
+  }
+}
+
+fetchUserData();
 </script>
 </body>
 </html>
