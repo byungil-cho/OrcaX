@@ -116,44 +116,27 @@
     loadUserData();
     checkServerStatus();
   </script>
-<div id="inventoryBox">
-<h2>🌱 농자재 보관소</h2>
-<p>씨감자: <span id="seedPotatoCount">0</span>개</p>
-<p>씨보리: <span id="seedBarleyCount">0</span>개</p>
-<p>물: <span id="waterCount">0</span>개</p>
-<p>거름: <span id="fertilizerCount">0</span>개</p>
-</div><script>
-const nickname = localStorage.getItem("nickname");
-fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata")
-  .then(res => res.json())
-  .then(data => {
-    const user = data.users.find(u => u.nickname === nickname);
-    if (user && user.inventory) {
-      const getItem = (name) => user.inventory.find(i => i.name === name)?.count || 0;
-      document.getElementById("seedPotatoCount").textContent = getItem("씨감자");
-      document.getElementById("seedBarleyCount").textContent = getItem("씨보리");
-      document.getElementById("waterCount").textContent = getItem("물");
-      document.getElementById("fertilizerCount").textContent = getItem("거름");
-    }
-  })
-  .catch(err => console.error("자재 불러오기 실패:", err));
-</script>
-<script>
+<div id="storage"><p>씨감자: <span id="seedPotatoCount">0</span></p><p>씨보리: <span id="seedBarleyCount">0</span></p><p>물: <span id="waterCount">0</span></p><p>거름: <span id="fertilizerCount">0</span></p></div><script>
+document.addEventListener("DOMContentLoaded", async () => {
   const nickname = localStorage.getItem("nickname");
-  if (nickname) {
-    fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/user/${nickname}`)
-      .then(res => res.json())
-      .then(data => {
-        const inventory = data.user?.inventory || [];
-        const getItem = (name) => inventory.find(i => i.name === name)?.count || 0;
-        document.getElementById("seedPotatoCount").textContent = getItem("씨감자");
-        document.getElementById("seedBarleyCount").textContent = getItem("씨보리");
-        document.getElementById("waterCount").textContent = getItem("물");
-        document.getElementById("fertilizerCount").textContent = getItem("거름");
-      })
-      .catch(err => console.error("자재 불러오기 실패:", err));
-  }
-</script>
+  if (!nickname) return;
 
-</body>
+  try {
+    const res = await fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/user/${nickname}`);
+    const data = await res.json();
+    if (data.success) {
+      const inventory = data.user.inventory || [];
+      const map = {};
+      inventory.forEach(item => map[item.name] = item.count);
+
+      document.getElementById("seedPotatoCount").textContent = map["씨감자"] || 0;
+      document.getElementById("seedBarleyCount").textContent = map["씨보리"] || 0;
+      document.getElementById("waterCount").textContent = map["물"] || 0;
+      document.getElementById("fertilizerCount").textContent = map["거름"] || 0;
+    }
+  } catch (err) {
+    console.error("불러오기 실패:", err);
+  }
+});
+</script></body>
 </html>
