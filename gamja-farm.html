@@ -1,97 +1,148 @@
-"<!DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>감자 농장 준비</title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>감자 농장 입장</title>
   <style>
     body {
-      background-color: #f9f9f9;
-      font-family: 'Arial';
-      text-align: center;
-      padding: 20px;
-    }
-    .container {
-      border: 2px solid #333;
-      border-radius: 10px;
-      padding: 20px;
-      max-width: 400px;
-      margin: 0 auto;
-      background-color: #fff;
-    }
-    .title {
-      font-size: 20px;
-      font-weight: bold;
-    }
-    .nickname {
-      font-size: 18px;
-      color: #007BFF;
-      margin-top: 10px;
-    }
-    .resources {
-      margin-top: 20px;
-      text-align: left;
-    }
-    .next-btn {
-      margin-top: 30px;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: #28a745;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', sans-serif;
+      background-image: url('https://byungil-cho.github.io/OrcaX/farm-101.png');
+      background-size: cover;
+      background-position: center;
       color: white;
+      text-align: center;
+    }
+
+    h1 { margin-top: 80px; font-size: 28px; font-weight: bold; }
+
+    .status { margin-top: 20px; font-size: 20px; }
+    .status span { margin: 0 10px; }
+
+    .nickname { margin-top: 30px; font-size: 18px; }
+
+    .server { margin-top: 20px; font-weight: bold; color: #00ff66; }
+
+    .btn-next { margin-top: 40px; }
+    .btn-next button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #ffcc00;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
+    }
+    .btn-next button:hover { background-color: #ffaa00; }
+
+    .inventory {
+      margin-top: 30px;
+      font-size: 18px;
+    }
+
+    .inventory span {
+      display: inline-block;
+      margin: 0 8px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="title">감자 농장 - 준비 완료</div>
-    <div id="nicknameDisplay" class="nickname"></div>
-    <div class="resources">
-      <p>씨감자: <span id="seedPotatoCount">-</span></p>
-      <p>씨보리: <span id="seedBarleyCount">-</span></p>
-      <p>물: <span id="waterCount">-</span></p>
-      <p>거름: <span id="fertilizerCount">-</span></p>
-      <p>토큰: <span id="tokenCount">-</span></p>
-    </div>
-    <button class="next-btn" onclick="goToNext()">다음 단계로</button>
+  <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
+
+  <div class="nickname">
+    🧑‍🌾 닉네임: <span id="nickname">불러오는 중...</span>
   </div>
 
-  <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+  <div class="status">
+    🥔 감자: <span id="potato">-</span>개 |
+    💧 물: <span id="water">-</span>개 |
+    🧪 거름: <span id="fertilizer">-</span>개 |
+    🪙 ORCX: <span id="token">-</span>개
+  </div>
 
-    async function fetchUserData(nickname) {
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
-        const data = await res.json();
-        if (data.success && data.user) {
-          document.getElementById("seedPotatoCount").textContent = data.user.seedPotato || 0;
-          document.getElementById("seedBarleyCount").textContent = data.user.seedBarley || 0;
-          document.getElementById("waterCount").textContent = data.user.water || 0;
-          document.getElementById("fertilizerCount").textContent = data.user.fertilizer || 0;
-          document.getElementById("tokenCount").textContent = data.user.token || 0;
+  <div class="inventory">
+    🧺 씨감자: <span id="seedPotatoCount">-</span>개 |
+    🌾 씨보리: <span id="seedBarleyCount">-</span>개
+  </div>
+
+  <div class="server" id="serverStatus">서버 상태 확인 중...</div>
+
+  <div class="btn-next">
+    <button onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
+  </div>
+
+<script>
+  const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io"; // 고정 도메인
+
+  async function loadUserData() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "kakao-login.html";
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/user/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const user = data.user;
+        document.getElementById("nickname").textContent = user.nickname;
+        document.getElementById("potato").textContent = user.potatoCount || 0;
+        document.getElementById("water").textContent = user.water || 0;
+        document.getElementById("fertilizer").textContent = user.fertilizer || 0;
+        document.getElementById("token").textContent = user.token || 0;
+        localStorage.setItem("nickname", user.nickname);
+      } else {
+        document.getElementById("nickname").textContent = "(불러오기 실패)";
+      }
+    } catch (err) {
+      document.getElementById("nickname").textContent = "(에러 발생)";
+      console.error("유저 정보 불러오기 실패:", err);
+    }
+  }
+
+  async function loadInventory() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/user/inventory`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const inventory = data.inventory || [];
+        const map = {};
+        inventory.forEach(item => map[item.name] = item.count);
+        document.getElementById("seedPotatoCount").textContent = map["씨감자"] || 0;
+        document.getElementById("seedBarleyCount").textContent = map["씨보리"] || 0;
+      }
+    } catch (err) {
+      console.error("자재 불러오기 실패:", err);
+    }
+  }
+
+  function checkServerStatus() {
+    fetch(`${API_BASE}/`)
+      .then(res => {
+        if (res.ok) {
+          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
+        } else {
+          document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
         }
-      } catch (err) {
-        console.error("자산 정보 불러오기 실패:", err);
-      }
-    }
+      })
+      .catch(() => {
+        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+      });
+  }
 
-    function initPage() {
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
-        alert("로그인이 필요합니다.");
-        window.location.href = "index9.html";
-        return;
-      }
-      document.getElementById("nicknameDisplay").textContent = "👤 " + nickname + "님 환영합니다!";
-      fetchUserData(nickname);
-    }
-
-    function goToNext() {
-      window.location.href = "gamja-main.html";
-    }
-
-    initPage();
-  </script>
+  loadUserData().then(loadInventory);
+  checkServerStatus();
+</script>
 </body>
 </html>
