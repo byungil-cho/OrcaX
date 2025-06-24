@@ -65,14 +65,12 @@
     document.addEventListener("DOMContentLoaded", () => {
       const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
       const nickname = localStorage.getItem("nickname");
-
       console.log("[DEBUG] 불러온 닉네임:", nickname);
-
       if (!nickname) {
-        document.getElementById("serverStatus").textContent = "❌ 닉네임 없음. 로그인 필요";
+        alert("⚠️ 로그인 정보 없음. 다시 로그인하세요.");
+        window.location.href = "index9.html";
         return;
       }
-
       fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
         .then(res => res.json())
         .then(data => {
