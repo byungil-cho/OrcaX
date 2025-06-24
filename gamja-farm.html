@@ -91,8 +91,8 @@
             div.textContent = `- ${label} (${item.count}개)`;
             inventoryBox.appendChild(div);
 
-            if (label === "씨감자") seedPotatoCount = item.count;
-            if (label === "씨보리") seedBarleyCount = item.count;
+            if (item.name === "씨감자" || item.type === "씨감자") seedPotatoCount = item.count;
+            if (item.name === "씨보리" || item.type === "씨보리") seedBarleyCount = item.count;
           });
 
           document.getElementById("seedPotato").textContent = seedPotatoCount;
