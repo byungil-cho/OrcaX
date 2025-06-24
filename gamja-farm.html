@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>감자 농장 입장</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>감자 농장 입장</title>
+<style>
     body {
       font-family: "Pretendard", sans-serif;
       margin: 0;
@@ -46,22 +47,21 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
-    <div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
-    <div class="info-box">🥔 감자: <span id="potato">0</span> 개</div>
-    <div class="info-box">💧 물: <span id="water">0</span> 개</div>
-    <div class="info-box">🌱 거름: <span id="fertilizer">0</span> 개</div>
-    <div class="info-box">🪙 ORCX: <span id="token">0</span> 개</div>
-    <div class="info-box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
-    <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
-    <div class="info-box">🧺 인벤토리:</div>
-    <div id="inventoryBox" class="info-box"></div>
-    <div class="status" id="serverStatus">⏳ 서버 상태 확인 중...</div>
-    <button class="btn" onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
-  </div>
-
-  <script>
+<div class="container">
+<h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
+<div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
+<div class="info-box">🥔 감자: <span id="potato">0</span> 개</div>
+<div class="info-box">💧 물: <span id="water">0</span> 개</div>
+<div class="info-box">🌱 거름: <span id="fertilizer">0</span> 개</div>
+<div class="info-box">🪙 ORCX: <span id="token">0</span> 개</div>
+<div class="info-box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
+<div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
+<div class="info-box">🧺 인벤토리:</div>
+<div class="info-box" id="inventoryBox"></div>
+<div class="status" id="serverStatus">⏳ 서버 상태 확인 중...</div>
+<button class="btn" onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
+</div>
+<script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
     async function fetchUserData() {
@@ -110,10 +110,5 @@
 
     fetchUserData();
   </script>
-
-<div style="margin-top: 10px; font-size: 16px;">
-  🌱 씨감자 개수: <span id="seedPotato">-</span><br/>
-  🌾 씨보리 개수: <span id="seedBarley">-</span>
-</div>
 </body>
 </html>
