@@ -71,6 +71,8 @@
 
         if (data.success) {
           const user = data.users[0];
+          console.log("🔥 USER DEBUG", user);
+
           document.getElementById("nickname").textContent = user.nickname || "-";
           document.getElementById("potato").textContent = user.potatoCount || 0;
           document.getElementById("water").textContent = user.water || 0;
