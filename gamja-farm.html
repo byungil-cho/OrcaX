@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -49,10 +48,10 @@
   </div>
 
   <div class="status">
-    🥔 감자: <span id="potato">-</span>개 |
-    💧 물: <span id="water">-</span>개 |
-    🧪 거름: <span id="fertilizer">-</span>개 |
-    🪙 ORCX: <span id="token">-</span>개
+    🥔 감자: <span id="potatoCount">-</span>개 |
+    💧 물: <span id="waterCount">-</span>개 |
+    🧪 거름: <span id="fertilizerCount">-</span>개 |
+    🪙 ORCX: <span id="tokenCount">-</span>개
   </div>
 
   <div class="inventory">
@@ -69,64 +68,64 @@
 <script>
   const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
+  // 서버 상태 체크
   function checkServerStatus() {
     fetch(`${API_BASE}/`)
       .then(res => {
+        const el = document.getElementById("serverStatus");
         if (res.ok) {
-          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
-        } else {
-          throw new Error();
-        }
+          el.textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
+          el.style.color = "lightgreen";
+        } else throw new Error();
       })
       .catch(() => {
-        document.getElementById("serverStatus").textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
-        document.getElementById("serverStatus").style.color = "red";
+        const el = document.getElementById("serverStatus");
+        el.textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
+        el.style.color = "red";
       });
   }
 
-  async function loadUserdata() {
+  // 사용자 데이터 로드
+  async function loadUserData() {
     const nickname = localStorage.getItem("nickname");
     if (!nickname || nickname === "사용자") {
       alert("로그인 정보가 없습니다. 다시 로그인 해주세요.");
       location.href = "kakao-login.html";
       return;
     }
-
     document.getElementById("nickname").textContent = nickname;
 
     try {
-      const res = await fetch(`${API_BASE}/api/userdata/${encodeURIComponent(nickname)}`);
+      const res = await fetch(`${API_BASE}/api/userdata`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname })
+      });
       const data = await res.json();
+      if (!data.success || !data.users || !data.users.length) {
+        console.error("유저 정보 없음:", data);
+        return;
+      }
       const user = data.users[0];
+      document.getElementById("potatoCount").textContent = user.potatoCount || 0;
+      document.getElementById("waterCount").textContent = user.water || 0;
+      document.getElementById("fertilizerCount").textContent = user.fertilizer || 0;
+      document.getElementById("tokenCount").textContent = user.orcx || 0;
 
-      document.getElementById("potato").textContent = user.potatoCount ?? 0;
-      document.getElementById("water").textContent = user.water ?? 0;
-      document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
-      document.getElementById("token").textContent = user.orcx ?? 0;
-
-      const inventory = user.inventory || [];
       const invMap = {};
-      inventory.forEach(item => {
+      (user.inventory || []).forEach(item => {
         const name = item.name || item.type;
         invMap[name] = item.count;
       });
-
-      document.getElementById("seedPotatoCount").textContent = invMap["씨감자"] ?? 0;
-      document.getElementById("seedBarleyCount").textContent = invMap["씨보리"] ?? 0;
-
-    } catch (err) {
-      console.error("자산 정보 로딩 실패:", err);
+      document.getElementById("seedPotatoCount").textContent = invMap["씨감자"] || 0;
+      document.getElementById("seedBarleyCount").textContent = invMap["씨보리"] || 0;
+    } catch (e) {
+      console.error("데이터 로딩 실패:", e);
     }
   }
 
-  loadUserdata();
+  loadUserData();
   checkServerStatus();
 </script>
-
-<script>
-  const nickname = localStorage.getItem("nickname") || "사용자";
-  document.getElementById("nickname").innerText = "닉네임: " + nickname;
-</script>
 </body>
-
 </html>
