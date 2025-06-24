@@ -86,13 +86,13 @@
           let seedBarleyCount = 0;
 
           user.inventory.forEach(item => {
-            const label = item.type || item.name || '이름없음';
+            const label = item.name || item.type || '이름없음';
             const div = document.createElement("div");
             div.textContent = `- ${label} (${item.count}개)`;
             inventoryBox.appendChild(div);
 
-            if (item.name === "씨감자") seedPotatoCount = item.count;
-            if (item.name === "씨보리") seedBarleyCount = item.count;
+            if (label === "씨감자") seedPotatoCount = item.count;
+            if (label === "씨보리") seedBarleyCount = item.count;
           });
 
           document.getElementById("seedPotato").textContent = seedPotatoCount;
