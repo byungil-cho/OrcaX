@@ -74,74 +74,60 @@
   </div>
 
 <script>
-  const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io"; // 고정 도메인
-
-  async function loadUserData() {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      window.location.href = "kakao-login.html";
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_BASE}/api/user/me`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) {
-        const user = data.user;
-        document.getElementById("nickname").textContent = user.nickname;
-        document.getElementById("potato").textContent = user.potatoCount || 0;
-        document.getElementById("water").textContent = user.water || 0;
-        document.getElementById("fertilizer").textContent = user.fertilizer || 0;
-        document.getElementById("token").textContent = user.token || 0;
-        localStorage.setItem("nickname", user.nickname);
-      } else {
-        document.getElementById("nickname").textContent = "(불러오기 실패)";
-      }
-    } catch (err) {
-      document.getElementById("nickname").textContent = "(에러 발생)";
-      console.error("유저 정보 불러오기 실패:", err);
-    }
-  }
-
-  async function loadInventory() {
-    const token = localStorage.getItem("accessToken");
-    if (!token) return;
-
-    try {
-      const res = await fetch(`${API_BASE}/api/user/inventory`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) {
-        const inventory = data.inventory || [];
-        const map = {};
-        inventory.forEach(item => map[item.name] = item.count);
-        document.getElementById("seedPotatoCount").textContent = map["씨감자"] || 0;
-        document.getElementById("seedBarleyCount").textContent = map["씨보리"] || 0;
-      }
-    } catch (err) {
-      console.error("자재 불러오기 실패:", err);
-    }
-  }
+  const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
   function checkServerStatus() {
     fetch(`${API_BASE}/`)
       .then(res => {
         if (res.ok) {
           document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
+          document.getElementById("serverStatus").style.color = "lightgreen";
         } else {
-          document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+          throw new Error();
         }
       })
       .catch(() => {
-        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+        document.getElementById("serverStatus").textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
+        document.getElementById("serverStatus").style.color = "red";
       });
   }
 
-  loadUserData().then(loadInventory);
+  async function loadUserdata() {
+    const nickname = localStorage.getItem("nickname");
+    if (!nickname) {
+      alert("닉네임 정보가 없습니다. 로그인부터 해주세요.");
+      location.href = "kakao-login.html";
+      return;
+    }
+
+    document.getElementById("nickname").textContent = nickname;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/userdata/${encodeURIComponent(nickname)}`);
+      const data = await res.json();
+      const user = data.users[0];
+
+      document.getElementById("potato").textContent = user.potatoCount ?? 0;
+      document.getElementById("water").textContent = user.water ?? 0;
+      document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
+      document.getElementById("token").textContent = user.orcx ?? 0;
+
+      const inventory = user.inventory || [];
+      const invMap = {};
+      inventory.forEach(item => {
+        const name = item.name || item.type;
+        invMap[name] = item.count;
+      });
+
+      document.getElementById("seedPotatoCount").textContent = invMap["씨감자"] ?? 0;
+      document.getElementById("seedBarleyCount").textContent = invMap["씨보리"] ?? 0;
+
+    } catch (err) {
+      console.error("자산 정보 로딩 실패:", err);
+    }
+  }
+
+  loadUserdata();
   checkServerStatus();
 </script>
 </body>
