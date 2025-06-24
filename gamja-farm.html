@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>감자 농장 입장</title>
   <style>
     body {
@@ -13,65 +13,40 @@
       text-align: center;
     }
     .status-box {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.7);
+      display: inline-block;
+      padding: 20px;
       border-radius: 10px;
-      padding: 15px;
-      margin: 20px auto;
-      width: 300px;
-    }
-    .label {
-      font-weight: bold;
+      margin-top: 60px;
     }
   </style>
 </head>
 <body>
-  <h2 id="welcomeMessage">닉네임 불러오는 중...</h2>
-
-  <div class="status-box">
-    <p><span class="label">씨감자:</span> <span id="seedPotato">-</span> 개</p>
-    <p><span class="label">씨보리:</span> <span id="seedBarley">-</span> 개</p>
-    <p><span class="label">물:</span> <span id="water">-</span> 개</p>
-    <p><span class="label">거름:</span> <span id="fertilizer">-</span> 개</p>
-    <p><span class="label">ORCX 토큰:</span> <span id="token">-</span> 개</p>
+  <h2 id="welcomeMessage">데이터 불러오기 실패</h2>
+  <div class="status-box" id="statusBox">
+    <p>닉네임: <span id="nickname">-</span></p>
+    <p>씨감자: <span id="seedPotato">-</span> 개</p>
+    <p>씨보리: <span id="seedBarley">-</span> 개</p>
+    <p>물: <span id="water">-</span> 개</p>
+    <p>거름: <span id="fertilizer">-</span> 개</p>
+    <p>ORCX 토큰: <span id="token">-</span></p>
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-
-    async function fetchUserData() {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        document.getElementById("welcomeMessage").innerText = "로그인이 필요합니다.";
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API_BASE}/api/user/inventory`, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        });
-
-        const data = await res.json();
-
-        if (data.success && data.data) {
-          const { nickname, inventory, token: tokenAmount } = data.data;
-
-          document.getElementById("welcomeMessage").innerText = `${nickname}님의 감자 농장`;
-          document.getElementById("seedPotato").innerText = inventory.seedPotato || 0;
-          document.getElementById("seedBarley").innerText = inventory.seedBarley || 0;
-          document.getElementById("water").innerText = inventory.water || 0;
-          document.getElementById("fertilizer").innerText = inventory.fertilizer || 0;
-          document.getElementById("token").innerText = tokenAmount || 0;
-        } else {
-          document.getElementById("welcomeMessage").innerText = "데이터 불러오기 실패";
-        }
-      } catch (err) {
-        document.getElementById("welcomeMessage").innerText = "서버 오류 발생";
-      }
-    }
-
-    fetchUserData();
+    fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata")
+      .then((res) => res.json())
+      .then((data) => {
+        document.getElementById("welcomeMessage").textContent = "어서오세요, " + data.nickname + "님!";
+        document.getElementById("nickname").textContent = data.nickname;
+        document.getElementById("seedPotato").textContent = data.seedPotato || 0;
+        document.getElementById("seedBarley").textContent = data.seedBarley || 0;
+        document.getElementById("water").textContent = data.water || 0;
+        document.getElementById("fertilizer").textContent = data.fertilizer || 0;
+        document.getElementById("token").textContent = data.token || 0;
+      })
+      .catch((err) => {
+        console.error("데이터 불러오기 실패:", err);
+      });
   </script>
 </body>
 </html>
