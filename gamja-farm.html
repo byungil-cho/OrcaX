@@ -53,6 +53,8 @@
     <div class="info-box">💧 물: <span id="water">0</span> 개</div>
     <div class="info-box">🌱 거름: <span id="fertilizer">0</span> 개</div>
     <div class="info-box">🪙 ORCX: <span id="token">0</span> 개</div>
+    <div class="info-box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
+    <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
     <div class="info-box">🧺 인벤토리:</div>
     <div id="inventoryBox" class="info-box"></div>
     <div class="status" id="serverStatus">⏳ 서버 상태 확인 중...</div>
@@ -74,12 +76,15 @@
           document.getElementById("water").textContent = user.water || 0;
           document.getElementById("fertilizer").textContent = user.fertilizer || 0;
           document.getElementById("token").textContent = user.orcx || 0;
+          document.getElementById("seedPotato").textContent = user.seedPotato || 0;
+          document.getElementById("seedBarley").textContent = user.seedBarley || 0;
 
           const inventoryBox = document.getElementById("inventoryBox");
           inventoryBox.innerHTML = "";
           user.inventory.forEach(item => {
+            const label = item.type || item.name || '이름없음';
             const div = document.createElement("div");
-            div.textContent = `- ${item.type} (${item.count}개)`;
+            div.textContent = `- ${label} (${item.count}개)`;
             inventoryBox.appendChild(div);
           });
 
