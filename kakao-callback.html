@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -25,15 +26,19 @@
         const accessToken = data.access_token;
         return fetch("https://kapi.kakao.com/v2/user/me", {
           headers: { Authorization: `Bearer ${accessToken}` }
-        });
-      })
-      .then(res => res.json())
-      .then(profile => {
-        const nickname = profile.properties?.nickname || "사용자";
-        const userId = profile.id;
-        localStorage.setItem("nickname", nickname);
-        localStorage.setItem("userId", userId);
-        window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+        }).then(res => res.json())
+          .then(profile => {
+            const nickname = profile.properties?.nickname;
+            const userId = profile.id;
+            if (!nickname || nickname === "사용자") {
+              alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
+              return;
+            }
+            localStorage.setItem("nickname", nickname);
+            localStorage.setItem("userId", userId);
+            localStorage.setItem("accessToken", accessToken);
+            window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+          });
       })
       .catch(err => {
         console.error("로그인 오류", err);

@@ -16,16 +16,11 @@
       color: white;
       text-align: center;
     }
-
     h1 { margin-top: 80px; font-size: 28px; font-weight: bold; }
-
     .status { margin-top: 20px; font-size: 20px; }
     .status span { margin: 0 10px; }
-
     .nickname { margin-top: 30px; font-size: 18px; }
-
     .server { margin-top: 20px; font-weight: bold; color: #00ff66; }
-
     .btn-next { margin-top: 40px; }
     .btn-next button {
       padding: 12px 24px;
@@ -36,12 +31,10 @@
       cursor: pointer;
     }
     .btn-next button:hover { background-color: #ffaa00; }
-
     .inventory {
       margin-top: 30px;
       font-size: 18px;
     }
-
     .inventory span {
       display: inline-block;
       margin: 0 8px;
@@ -81,7 +74,6 @@
       .then(res => {
         if (res.ok) {
           document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
-          document.getElementById("serverStatus").style.color = "lightgreen";
         } else {
           throw new Error();
         }
@@ -94,8 +86,8 @@
 
   async function loadUserdata() {
     const nickname = localStorage.getItem("nickname");
-    if (!nickname) {
-      alert("닉네임 정보가 없습니다. 로그인부터 해주세요.");
+    if (!nickname || nickname === "사용자") {
+      alert("로그인 정보가 없습니다. 다시 로그인 해주세요.");
       location.href = "kakao-login.html";
       return;
     }
@@ -130,5 +122,11 @@
   loadUserdata();
   checkServerStatus();
 </script>
+
+<script>
+  const nickname = localStorage.getItem("nickname") || "사용자";
+  document.getElementById("nickname").innerText = "닉네임: " + nickname;
+</script>
 </body>
+
 </html>
