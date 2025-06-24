@@ -36,8 +36,7 @@
             localStorage.setItem("nickname", nickname);
             localStorage.setItem("userId", userId);
             localStorage.setItem("accessToken", accessToken);
-            // ✅ 감자 농장으로 바로 이동
-            window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm.html";
+            window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm.html?refresh=" + Date.now();
           });
       })
       .catch(err => {
