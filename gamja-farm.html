@@ -14,90 +14,49 @@
       background-size: cover;
       color: white;
     }
-
     .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 30px 15px;
+      padding: 20px;
     }
-
-    .title {
-      font-size: 28px;
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: bold;
-    }
-
-    .status-box {
-      background-color: rgba(0, 0, 128, 0.7);
-      padding: 12px 20px;
+    .box {
+      background-color: rgba(0, 0, 128, 0.6);
+      padding: 10px 15px;
       border-radius: 10px;
-      margin-bottom: 12px;
-      font-size: 18px;
-    }
-
-    .inventory-list {
-      white-space: pre-line;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="title">🥔 감자 농장에 오시는 것을 환영합니다!</div>
-
-    <div class="status-box">🧑‍🌾 닉네임: <span id="nickname">-</span></div>
-    <div class="status-box">🥔 감자: <span id="potatoCount">0</span> 개</div>
-    <div class="status-box">💧 물: <span id="waterCount">0</span> 개</div>
-    <div class="status-box">🌱 거름: <span id="fertilizerCount">0</span> 개</div>
-    <div class="status-box">🪙 ORCX: <span id="orcx">0</span> 개</div>
-    <div class="status-box">🥔 씨감자: <span id="seedPotatoCount">0</span> 개</div>
-    <div class="status-box">🌾 씨보리: <span id="seedBarleyCount">0</span> 개</div>
-    <div class="status-box">🍱 인벤토리:<br>
-      <span class="inventory-list" id="inventory">-</span>
-    </div>
+    <div class="box">🥔 감자 농장에 오시는 것을 환영합니다!</div>
+    <div class="box">👤 닉네임: <span id="nickname">-</span></div>
+    <div class="box">🥔 감자: <span id="potato">0</span> 개</div>
+    <div class="box">💧 물: <span id="water">0</span> 개</div>
+    <div class="box">🌱 거름: <span id="fertilizer">0</span> 개</div>
+    <div class="box">🪙 ORCX: <span id="token">0</span> 개</div>
+    <div class="box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
+    <div class="box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
+    <div class="box">📦 인벤토리: <span id="inventory">-</span></div>
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/test/users";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const nickname = localStorage.getItem("nickname") || "범고래X";
 
-    fetch(`${API_BASE}/api/userdata?nickname=범고래X`)
+    document.getElementById("nickname").textContent = nickname;
+
+    fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
       .then(response => response.json())
       .then(data => {
-        document.getElementById("nickname").innerText = data.nickname || "-";
-        document.getElementById("potatoCount").innerText = data.감자_개수 || 0;
-        document.getElementById("waterCount").innerText = data.자원?.물 || 0;
-        document.getElementById("fertilizerCount").innerText = data.자원?.거름 || 0;
-        document.getElementById("orcx").innerText = data.토큰?.오크 || 0;
-
-        // 씨앗 항목 추출
-        let seedPotato = 0;
-        let seedBarley = 0;
-
-        if (Array.isArray(data.씨앗)) {
-          data.씨앗.forEach(item => {
-            if (item.includes("씨감자")) {
-              const m = item.match(/\d+/);
-              if (m) seedPotato = parseInt(m[0]);
-            }
-            if (item.includes("씨보리")) {
-              const m = item.match(/\d+/);
-              if (m) seedBarley = parseInt(m[0]);
-            }
-          });
-        }
-
-        document.getElementById("seedPotatoCount").innerText = seedPotato;
-        document.getElementById("seedBarleyCount").innerText = seedBarley;
-
-        // 인벤토리 (가공식품 등)
-        let inventoryText = "-";
-        if (Array.isArray(data.목록) && data.목록.length > 0) {
-          inventoryText = data.목록.map(item => `- ${item}`).join("\n");
-        }
-        document.getElementById("inventory").innerText = inventoryText;
+        document.getElementById("potato").textContent = data.potato ?? 0;
+        document.getElementById("water").textContent = data.water ?? 0;
+        document.getElementById("fertilizer").textContent = data.fertilizer ?? 0;
+        document.getElementById("token").textContent = data.token ?? 0;
+        document.getElementById("seedPotato").textContent = data.seedPotato ?? 0;
+        document.getElementById("seedBarley").textContent = data.seedBarley ?? 0;
+        document.getElementById("inventory").textContent = data.inventory ?? "-";
       })
-      .catch(error => {
-        console.error("데이터 불러오기 실패:", error);
+      .catch(err => {
+        console.error("데이터 불러오기 실패:", err);
       });
   </script>
 </body>
