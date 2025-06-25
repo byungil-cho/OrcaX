@@ -6,59 +6,61 @@
 </head>
 <body>
   <script>
-    const code = new URL(window.location.href).searchParams.get("code");
-    if (!code) {
-      alert("인증 코드가 없습니다.");
-    } else {
-      fetch(`https://kauth.kakao.com/oauth/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: '284b798a9d9be8202f9c2e129fa6f329',
-          redirect_uri: 'https://byungil-cho.github.io/OrcaX/kakao-callback.html',
-          code: code
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const accessToken = data.access_token;
-        return fetch("https://kapi.kakao.com/v2/user/me", {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        }).then(res => res.json())
-          .then(profile => {
-            const nickname = profile.properties?.nickname;
-            const userId = profile.id;
-            if (!nickname || nickname === "사용자") {
-              alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
-              return;
-            }
+    (async () => {
+      try {
+        const code = new URL(window.location.href).searchParams.get("code");
+        if (!code) throw new Error("카카오 인증 코드 없음");
 
-            localStorage.setItem("nickname", nickname);
-            localStorage.setItem("userId", userId);
-            localStorage.setItem("accessToken", accessToken);
-
-            // ✅ 백엔드 로그인 요청
-            return fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                kakaoId: userId,
-                nickname: nickname
-              })
-            });
+        // 1. Access Token 요청
+        const tokenRes = await fetch(`https://kauth.kakao.com/oauth/token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: '284b798a9d9be8202f9c2e129fa6f329',
+            redirect_uri: 'https://byungil-cho.github.io/OrcaX/kakao-callback.html',
+            code: code
           })
-          .then(() => {
-            window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
-          });
-      })
-      .catch(err => {
+        });
+
+        const tokenData = await tokenRes.json();
+        if (!tokenData.access_token) throw new Error("카카오 access_token 없음");
+
+        // 2. 사용자 정보 요청
+        const profileRes = await fetch("https://kapi.kakao.com/v2/user/me", {
+          headers: { Authorization: `Bearer ${tokenData.access_token}` }
+        });
+        const profile = await profileRes.json();
+
+        const nickname = profile.properties?.nickname;
+        const userId = profile.id;
+        if (!nickname || !userId) throw new Error("카카오 프로필 정보 오류");
+
+        // 3. 로컬 저장
+        localStorage.setItem("nickname", nickname);
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("accessToken", tokenData.access_token);
+
+        // 4. 백엔드에 로그인 정보 전송
+        const loginRes = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId: userId, nickname })
+        });
+
+        if (!loginRes.ok) {
+          const err = await loginRes.json();
+          throw new Error("서버 응답 오류: " + (err.error || loginRes.status));
+        }
+
+        // 5. 성공 시 다음 페이지로 이동
+        window.location.href = "https://byungil-cho.github.io/OrcaX/gamja-farm.html";
+
+      } catch (err) {
         console.error("로그인 오류", err);
-        alert("로그인 중 오류가 발생했습니다.");
-      });
-    }
+        alert("로그인 중 오류가 발생했습니다.\n" + err.message);
+      }
+    })();
   </script>
 </body>
 </html>
