@@ -201,18 +201,18 @@
         const nickname = localStorage.getItem("nickname") || " ";
         const encodedNickname = encodeURIComponent(nickname);
 
-        const res = await fetch(`${API_BASE}/api/farm/water`, {
+        const res = await fetch(`${API_BASE}/api/farm/grow`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname: encodedNickname })
+          body: JSON.stringify({ nickname: encodedNickname, cropType: "gamja" })
         });
 
         const result = await res.json();
         if (result.success) {
-          alert("💧 물을 주었습니다. 성장 포인트 +1!");
+          alert("💧 물과 거름을 주었습니다. 성장 포인트 +1!");
           fetchUserData();
         } else {
-          alert("❌ 물 주기 실패: " + result.message);
+          alert("❌ 물주기 실패: " + result.error);
         }
       } catch (err) {
         console.error(err);
@@ -225,18 +225,18 @@
         const nickname = localStorage.getItem("nickname") || " ";
         const encodedNickname = encodeURIComponent(nickname);
 
-        const res = await fetch(`${API_BASE}/api/farm/fertilizer`, {
+        const res = await fetch(`${API_BASE}/api/farm/grow`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname: encodedNickname })
+          body: JSON.stringify({ nickname: encodedNickname, cropType: "gamja" })
         });
 
         const result = await res.json();
         if (result.success) {
-          alert("🌿 거름을 주었습니다. 성장 포인트 +1!");
+          alert("🌿 거름과 물을 주었습니다. 성장 포인트 +1!");
           fetchUserData();
         } else {
-          alert("❌ 거름 주기 실패: " + result.message);
+          alert("❌ 거름 주기 실패: " + result.error);
         }
       } catch (err) {
         console.error(err);
