@@ -5,20 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🥔 감자 농장 - Potato Farm</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       font-family: 'Do Hyeon', sans-serif;
+      height: 100%;
+    }
+    body {
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center top fixed;
       background-size: cover;
-      color: #3e2723;
-      min-height: 100vh;
-      overflow-x: hidden;
+      overflow: auto;
     }
     .scroll-area {
       width: 100%;
       max-width: 500px;
       margin: 0 auto;
-      padding: 1rem 0;
+      padding-bottom: 3rem;
+      box-sizing: border-box;
     }
     header {
       padding: 1rem;
@@ -35,219 +38,199 @@
       text-align: center;
     }
     .info-bar { font-size: 0.95rem; }
-    .potato-field, .storage-section, .nav-buttons {
-      margin-top: 2rem;
-      text-align: center;
+    .potato-field, .storage-section, .product-section, .nav-buttons {
+      margin: 1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.8);
+      border-radius: 1rem;
     }
-    .status {
-      font-size: 1.2rem;
-      margin-top: 1rem;
-      color: #fff;
-      text-shadow: 1px 1px 2px #000;
-    }
-    .grow-buttons {
-      margin-top: 1.5rem;
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .grow-buttons button, #harvest-btn {
-      padding: 0.75rem 1.25rem;
-      background-color: rgba(255,255,255,0.8);
-      color: #1b5e20;
-      border: none;
-      border-radius: 8px;
+    .potato-btns button {
+      margin: 0.5rem;
+      padding: 0.75rem 1.5rem;
       font-size: 1rem;
-      font-weight: bold;
+      border: none;
+      border-radius: 0.75rem;
+      background: #a5d6a7;
       cursor: pointer;
-      box-shadow: 0 0 6px rgba(0,0,0,0.3);
     }
-    .storage-section > div {
-      margin: 0.5rem auto;
-      padding: 0.75rem;
-      background-color: rgba(255, 255, 255, 0.85);
-      border-radius: 10px;
-      width: 80%;
-      color: #3e2723;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    .storage-section ul, .product-section ul {
+      list-style: none;
+      padding: 0;
     }
-    .nav-buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 2rem;
+    .storage-section li, .product-section li {
+      margin-bottom: 0.5rem;
+      font-weight: bold;
     }
     .nav-buttons a {
-      background-color: rgba(255, 255, 255, 0.85);
-      padding: 0.5rem 1rem;
-      border-radius: 10px;
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: #4caf50;
+      color: white;
       text-decoration: none;
-      color: #3e2723;
+      border-radius: 0.5rem;
+    }
+    .server-status {
+      text-align: center;
+      margin-top: 1rem;
       font-weight: bold;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      color: #fff700;
     }
   </style>
 </head>
 <body>
   <div class="scroll-area">
-    <header>🥔 감자 농장 - Potato Farm</header>
-    <div class="nickname">👤 범고래X: <span id="nickname">-</span></div>
-    <div class="info-bar">
-      🌐 전원 상태: <span id="power-status">확인 중...</span> |
-      🏧 노장이름: <span id="farm-name">-</span> |
-      🐋 토큰: <span id="token">-</span><br/>
-      🧪 씨감자: <span id="seed">-</span> | 💧 물: <span id="water">-</span> | 🌾 거름: <span id="fertilizer">-</span>
-    </div>
+    <header>감자 농장</header>
+    <div class="nickname">농장주: <span id="nickname">로딩 중...</span></div>
+    <div class="info-bar">농장이름: <span id="farmName">로딩 중...</span></div>
+    <div class="server-status" id="serverStatus">🔌 서버 상태 확인 중...</div>
+
     <div class="potato-field">
-      🌱 감자가 자라고 있습니다...
-      <div class="status">성장 포인트: <span id="growth">0</span></div>
-      <div class="grow-buttons">
+      <h2>🌾 농사 목록</h2>
+      <div class="potato-btns">
+        <button onclick="startFarming()">🥔 수확하기</button>
         <button onclick="applyWater()">💧 물 주기</button>
-        <button onclick="applyFertilizer()">👎 거름 주기</button>
+        <button onclick="applyFertilizer()">🌿 거름 주기</button>
       </div>
-      <div id="harvest-container" style="margin-top: 1.5rem;"></div>
     </div>
+
     <div class="storage-section">
-      <div><strong>🧪 자재 보\uuac04소</strong><br/><div id="materials">자재 연동 예정</div></div>
-      <div><strong>📦 제품 창고</strong><br/><div id="products">제품 연동 예정</div></div>
+      <h2>📦 자재 보관함</h2>
+      <ul id="storage-list"></ul>
     </div>
+
+    <div class="product-section">
+      <h2>🍟 제품 보관함</h2>
+      <ul id="product-list"></ul>
+    </div>
+
     <div class="nav-buttons">
-      <a href="gamja-result.html">감자 보리 가공공장</a>
-      <a href="gamja-shop.html">씨감자 씨보리 구매</a>
-      <a href="orcax-farm_000.html">메인 페이지</a>
+      <a href="gamja-result.html">감자 가공공장</a>
+      <a href="gamja-main.html">복귀</a>
     </div>
   </div>
+
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nicknameRaw = localStorage.getItem("nickname") || "범고래X";
-    const nickname = encodeURIComponent(nicknameRaw);
-    const farmName = localStorage.getItem("farmName") || "농장주";
-
-    let seedCount = 0;
-    let water = 0;
-    let fertilizer = 0;
-    let growth = 0;
-
-    document.getElementById("nickname").textContent = nicknameRaw;
-    document.getElementById("farm-name").textContent = farmName;
-    document.getElementById("power-status").textContent = "전기 공급중입니다.";
 
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/api/user/${nickname}`);
-        const user = await res.json();
-        document.getElementById("token").textContent = user.token || 0;
-        document.getElementById("seed").textContent = user.seed_potato || 0;
-        document.getElementById("water").textContent = user.water || 0;
-        document.getElementById("fertilizer").textContent = user.fertilizer || 0;
-        document.getElementById("growth").textContent = user.growth || 0;
+        const nicknameRaw = localStorage.getItem("nickname") || " ";
+        const farmName = localStorage.getItem("farmName") || "농장주";
+        document.getElementById("nickname").textContent = nicknameRaw;
+        document.getElementById("farmName").textContent = farmName;
 
-        seedCount = user.seed_potato;
-        water = user.water;
-        fertilizer = user.fertilizer;
-        growth = user.growth || 0;
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nicknameRaw}`);
+        const data = await res.json();
+        const user = data.users[0];
+        const growthPoint = user.growthPoint || 0;
+        const growthInfo = document.createElement("div");
+        growthInfo.style.textAlign = "center";
+        growthInfo.style.marginTop = "0.5rem";
+        growthInfo.style.fontWeight = "bold";
+        growthInfo.innerText = `🌱 성장 포인트: ${growthPoint}`;
+        document.querySelector(".potato-field").appendChild(growthInfo);
 
-        const materialItems = (user["목록"] || [])
-          .filter(item => item && item.name && item.count !== undefined && item.name.includes("감자"))
-          .map(item => `${item.name}: ${item.count}`)
-          .join("<br>");
-        document.getElementById("materials").innerHTML = materialItems || "보관된 감자 없음";
+        const storageList = document.getElementById("storage-list");
+        storageList.innerHTML = "";
+        const 자재들 = [
+          { label: "씨감자", value: user.seedPotato },
+          { label: "씨보리", value: user.seedBarley },
+          { label: "물", value: user.water },
+          { label: "거름", value: user.fertilizer },
+          { label: "ORCX", value: user.orcx }
+        ];
+        자재들.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = `${item.label}: ${item.value}`;
+          storageList.appendChild(li);
+        });
 
-        const productItems = (user.exchangeLogs || [])
-          .map(item => typeof item === "object" && item.name ? `${item.name}: ${item.count || 1}` : (typeof item === "string" ? item : ""))
-          .join("<br>");
-        document.getElementById("products").innerHTML = productItems || "보관된 제품 없음";
-
-        checkHarvestReady();
-      } catch {
+        const productList = document.getElementById("product-list");
+        productList.innerHTML = "";
+        user.inventory.forEach(item => {
+          const type = item.type || item.name || "정의되지 않음";
+          const li = document.createElement("li");
+          li.textContent = `${type}: ${item.count}`;
+          productList.appendChild(li);
+        });
+      } catch (err) {
+        console.error(err);
         alert("❌ 유저 정보 로딩 실패");
       }
     }
 
-    async function updateServerResources() {
+    async function startFarming() {
       try {
-        await fetch(`${API_BASE}/api/user/${nickname}`, {
-          method: "PATCH",
+        const nickname = localStorage.getItem("nickname") || " ";
+
+        const resUser = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
+        const userData = await resUser.json();
+        const user = userData.users[0];
+        const growthPoint = user.growthPoint || 0;
+        const seedPotato = user.seedPotato || 0;
+
+        if (growthPoint < 5) {
+          alert("❌ 성장 포인트가 5 이상이어야 수확할 수 있습니다.");
+          return;
+        }
+
+        if (seedPotato < 1) {
+          alert("❌ 씨감자가 부족하여 농사를 지을 수 없습니다.");
+          return;
+        }
+
+        // 수확 가능할 때만 요청
+        // 수확 감자 개수 랜덤 생성 (3, 5, 7 중 하나)
+        const harvestCount = [3, 5, 7][Math.floor(Math.random() * 3)];
+
+        const res = await fetch(`${API_BASE}/api/farm/harvest`, {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            seed_potato: seedCount,
-            water,
-            fertilizer,
-            growth
-          })
+          body: JSON.stringify({ nickname, amount: harvestCount })
         });
-      } catch {
-        alert("❌ 서버에 자원 업데이트 실패");
+        const result = await res.json();
+        alert(`🥔 감자 ${harvestCount}개 수확 완료!`);
+        fetchUserData();
+      } catch (err) {
+        console.error(err);
+        alert("❌ 수확 실패");
+      }
+    }/api/farm/harvest`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname })
+        });
+        const result = await res.json();
+        alert(result.message);
+        fetchUserData();
+      } catch (err) {
+        console.error(err);
+        alert("❌ 수확 실패");
       }
     }
 
     function applyWater() {
-      if (seedCount < 1) return alert("씨감자가 없으면 농사가 불가능합니다.");
-      if (water < 1) return alert("물이 부족합니다.");
-      growth += 1;
-      water -= 1;
-      updateStatus();
-      updateServerResources();
+      alert("💧 물을 주었습니다.");
     }
-
     function applyFertilizer() {
-      if (seedCount < 1) return alert("씨감자가 없으면 농사가 불가능합니다.");
-      if (fertilizer < 1) return alert("거름이 부족합니다.");
-      growth += 1;
-      fertilizer -= 1;
-      updateStatus();
-      updateServerResources();
+      alert("🌿 거름을 주었습니다.");
     }
 
-    function updateStatus() {
-      document.getElementById("growth").textContent = growth;
-      document.getElementById("water").textContent = water;
-      document.getElementById("fertilizer").textContent = fertilizer;
-      checkHarvestReady();
-    }
-
-    function checkHarvestReady() {
-      if (growth >= 5 && !document.getElementById("harvest-btn")) {
-        const btn = document.createElement("button");
-        btn.textContent = "🥔 수환하기";
-        btn.id = "harvest-btn";
-        btn.onclick = handleHarvest;
-        document.getElementById("harvest-container").appendChild(btn);
-      }
-    }
-
-    async function handleHarvest() {
-      if (seedCount < 1) return alert("씨감자가 없으면 수확할 수 없습니다.");
-      const yieldAmount = [3, 5, 7][Math.floor(Math.random() * 3)];
-      growth = 0;
-      seedCount -= 1;
-      document.getElementById("growth").textContent = growth;
-      document.getElementById("harvest-container").innerHTML = "";
-      document.getElementById("seed").textContent = seedCount;
-
+    async function checkServerStatus() {
       try {
-        await fetch(`${API_BASE}/api/farm/harvest`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname: nicknameRaw, harvested: yieldAmount })
-        });
-
-        await fetch(`${API_BASE}/api/user/${nickname}/inventory`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ item: { name: "감자", count: yieldAmount } })
-        });
-
-        await updateServerResources();
-        alert(`🎉 감자 ${yieldAmount}개 수확 완료!`);
-        fetchUserData();
+        const res = await fetch(`${API_BASE}/`);
+        if (res.ok) {
+          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON";
+        } else {
+          throw new Error();
+        }
       } catch {
-        alert("❌ 수확 결과 저장 실패");
+        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
       }
     }
 
+    checkServerStatus();
     fetchUserData();
   </script>
 </body>
