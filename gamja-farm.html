@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12,52 +11,56 @@
       padding: 0;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
+      color: #fff;
     }
-    .container {
+    .info-box {
+      background: rgba(0,0,0,0.6);
       padding: 20px;
-    }
-    .box {
-      background-color: rgba(0, 0, 128, 0.6);
-      padding: 10px 15px;
+      margin: 20px;
       border-radius: 10px;
-      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="box">🥔 감자 농장에 오시는 것을 환영합니다!</div>
-    <div class="box">👤 닉네임: <span id="nickname">-</span></div>
-    <div class="box">🥔 감자: <span id="potato">0</span> 개</div>
-    <div class="box">💧 물: <span id="water">0</span> 개</div>
-    <div class="box">🌱 거름: <span id="fertilizer">0</span> 개</div>
-    <div class="box">🪙 ORCX: <span id="token">0</span> 개</div>
-    <div class="box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
-    <div class="box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
-    <div class="box">📦 인벤토리: <span id="inventory">-</span></div>
+  <div class="info-box">
+    <h2>🌱 감자 농장 입장</h2>
+    <p><strong>닉네임:</strong> <span id="nickname">불러오는 중...</span></p>
+    <p><strong>씨감자:</strong> <span id="seedPotato">-</span>개</p>
+    <p><strong>물:</strong> <span id="water">-</span>개</p>
+    <p><strong>거름:</strong> <span id="fertilizer">-</span>개</p>
+    <p><strong>ORCX:</strong> <span id="token">-</span>개</p>
+    <p id="serverStatus">서버 상태 확인 중...</p>
   </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname") || "범고래X";
 
-    document.getElementById("nickname").textContent = nickname;
+    async function fetchUserData() {
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata`, {
+          credentials: 'include' // 쿠키 포함
+        });
+        if (!res.ok) throw new Error("유저 데이터 요청 실패");
 
-    fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`)
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("potato").textContent = data.potato ?? 0;
-        document.getElementById("water").textContent = data.water ?? 0;
-        document.getElementById("fertilizer").textContent = data.fertilizer ?? 0;
-        document.getElementById("token").textContent = data.token ?? 0;
-        document.getElementById("seedPotato").textContent = data.seedPotato ?? 0;
-        document.getElementById("seedBarley").textContent = data.seedBarley ?? 0;
-        document.getElementById("inventory").textContent = data.inventory ?? "-";
-      })
-      .catch(err => {
-        console.error("데이터 불러오기 실패:", err);
-      });
+        const data = await res.json();
+
+        if (data && data.nickname) {
+          document.getElementById("nickname").textContent = data.nickname;
+          document.getElementById("seedPotato").textContent = data.seedPotato || 0;
+          document.getElementById("water").textContent = data.water || 0;
+          document.getElementById("fertilizer").textContent = data.fertilizer || 0;
+          document.getElementById("token").textContent = data.token || 0;
+          document.getElementById("serverStatus").textContent = "✅ 서버 연결 완료";
+        } else {
+          document.getElementById("serverStatus").textContent = "❌ 유저 정보 없음";
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+      }
+    }
+
+    fetchUserData();
   </script>
 </body>
 </html>
