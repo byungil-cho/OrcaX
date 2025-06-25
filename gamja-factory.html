@@ -120,7 +120,8 @@
         document.getElementById("nickname").textContent = nicknameRaw;
         document.getElementById("farmName").textContent = farmName;
 
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nicknameRaw}`);
+        const encodedNickname = encodeURIComponent(nicknameRaw);
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodedNickname}`);
         const data = await res.json();
         const user = data.users[0];
         const growthPoint = user.growthPoint || 0;
@@ -164,7 +165,8 @@
       try {
         const nickname = localStorage.getItem("nickname") || " ";
 
-        const resUser = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
+        const encodedNickname = encodeURIComponent(nickname);
+        const resUser = await fetch(`${API_BASE}/api/userdata?nickname=${encodedNickname}`);
         const userData = await resUser.json();
         const user = userData.users[0];
         const growthPoint = user.growthPoint || 0;
@@ -184,14 +186,7 @@
         // 수확 감자 개수 랜덤 생성 (3, 5, 7 중 하나)
         const harvestCount = [3, 5, 7][Math.floor(Math.random() * 3)];
 
-        const res = await fetch(`${API_BASE}/api/farm/harvest`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, amount: harvestCount })
-        });
-        const result = await res.json();
-        alert(`🥔 감자 ${harvestCount}개 수확 완료!`);
-        fetchUserData();
+        const res = await fetch(`${API_BASE
       } catch (err) {
         console.error(err);
         alert("❌ 수확 실패");
