@@ -100,7 +100,7 @@
     </div>
 
     <div class="product-section">
-      <h2>🍟 제품 보관함</h2>
+      <h2>🍟 농산물 보관함</h2>
       <ul id="product-list"></ul>
     </div>
 
@@ -164,7 +164,6 @@
     async function startFarming() {
       try {
         const nickname = localStorage.getItem("nickname") || " ";
-
         const encodedNickname = encodeURIComponent(nickname);
         const resUser = await fetch(`${API_BASE}/api/userdata?nickname=${encodedNickname}`);
         const userData = await resUser.json();
@@ -182,22 +181,14 @@
           return;
         }
 
-        // 수확 가능할 때만 요청
-        // 수확 감자 개수 랜덤 생성 (3, 5, 7 중 하나)
         const harvestCount = [3, 5, 7][Math.floor(Math.random() * 3)];
-
-        const res = await fetch(`${API_BASE
-      } catch (err) {
-        console.error(err);
-        alert("❌ 수확 실패");
-      }
-    }/api/farm/harvest`, {
+        const res = await fetch(`${API_BASE}/api/farm/harvest`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname })
+          body: JSON.stringify({ nickname: encodedNickname, amount: harvestCount })
         });
         const result = await res.json();
-        alert(result.message);
+        alert(`🥔 감자 ${harvestCount}개 수확 완료!`);
         fetchUserData();
       } catch (err) {
         console.error(err);
@@ -205,11 +196,52 @@
       }
     }
 
-    function applyWater() {
-      alert("💧 물을 주었습니다.");
+    async function applyWater() {
+      try {
+        const nickname = localStorage.getItem("nickname") || " ";
+        const encodedNickname = encodeURIComponent(nickname);
+
+        const res = await fetch(`${API_BASE}/api/farm/water`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname: encodedNickname })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          alert("💧 물을 주었습니다. 성장 포인트 +1!");
+          fetchUserData();
+        } else {
+          alert("❌ 물 주기 실패: " + result.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ 물 주기 중 오류 발생");
+      }
     }
-    function applyFertilizer() {
-      alert("🌿 거름을 주었습니다.");
+
+    async function applyFertilizer() {
+      try {
+        const nickname = localStorage.getItem("nickname") || " ";
+        const encodedNickname = encodeURIComponent(nickname);
+
+        const res = await fetch(`${API_BASE}/api/farm/fertilizer`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname: encodedNickname })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          alert("🌿 거름을 주었습니다. 성장 포인트 +1!");
+          fetchUserData();
+        } else {
+          alert("❌ 거름 주기 실패: " + result.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ 거름 주기 중 오류 발생");
+      }
     }
 
     async function checkServerStatus() {
