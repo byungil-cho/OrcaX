@@ -37,14 +37,15 @@
 
     async function fetchUserData() {
       const kakaoId = localStorage.getItem("userId");
+
       if (!kakaoId) {
         document.getElementById("serverStatus").textContent = "❌ 로그인 정보 없음";
         return;
       }
 
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`);
-        if (!res.ok) throw new Error("유저 데이터 요청 실패");
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`);
+        if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
 
         const data = await res.json();
 
