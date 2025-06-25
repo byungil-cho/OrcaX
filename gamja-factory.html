@@ -98,10 +98,10 @@
       🌐 전원 상태: <span id="power-status">확인 중...</span> |
       🏧 노장이름: <span id="farm-name">-</span> |
       🐋 토큰: <span id="token">-</span><br/>
-      🮡 씨감자: <span id="seed">-</span> | 💧 물: <span id="water">-</span> | 🌾 거름: <span id="fertilizer">-</span>
+      🫡 씨감자: <span id="seed">-</span> | 💧 물: <span id="water">-</span> | 🌾 거름: <span id="fertilizer">-</span>
     </div>
     <div class="potato-field">
-      🌱 감자가 자르고 있습니다...
+      🌱 감자가 자라고 있습니다...
       <div class="status">성장 포인트: <span id="growth">0</span></div>
       <div class="grow-buttons">
         <button onclick="applyWater()">💧 물 주기</button>
@@ -110,7 +110,7 @@
       <div id="harvest-container" style="margin-top: 1.5rem;"></div>
     </div>
     <div class="storage-section">
-      <div><strong>🮡 자재 보관소</strong><br/><div id="materials">자재 연동 예정</div></div>
+      <div><strong>🫡 자재 보관소</strong><br/><div id="materials">자재 연동 예정</div></div>
       <div><strong>📦 제품 창고</strong><br/><div id="products">제품 연동 예정</div></div>
     </div>
     <div class="nav-buttons">
@@ -121,7 +121,7 @@
   </div>
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname") || "노주X";
+    const nickname = encodeURIComponent(localStorage.getItem("nickname") || "노주X");
     const farmName = localStorage.getItem("farmName") || "감자노가";
 
     let seedCount = 0;
@@ -129,13 +129,13 @@
     let fertilizer = 0;
     let growth = 0;
 
-    document.getElementById("nickname").textContent = nickname;
+    document.getElementById("nickname").textContent = decodeURIComponent(nickname);
     document.getElementById("farm-name").textContent = farmName;
     document.getElementById("power-status").textContent = "전기 공급중입니다.";
 
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`);
+        const res = await fetch(`${API_BASE}/api/user/${nickname}`);
         const user = await res.json();
         document.getElementById("token").textContent = user.token || 0;
         document.getElementById("seed").textContent = user.seed_potato || 0;
@@ -167,7 +167,7 @@
 
     async function updateServerResources() {
       try {
-        await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}`, {
+        await fetch(`${API_BASE}/api/user/${nickname}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -230,10 +230,10 @@
         await fetch(`${API_BASE}/api/farm/harvest`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, harvested: yieldAmount })
+          body: JSON.stringify({ nickname: decodeURIComponent(nickname), harvested: yieldAmount })
         });
 
-        await fetch(`${API_BASE}/api/user/${encodeURIComponent(nickname)}/inventory`, {
+        await fetch(`${API_BASE}/api/user/${nickname}/inventory`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ item: { name: "감자", count: yieldAmount } })
