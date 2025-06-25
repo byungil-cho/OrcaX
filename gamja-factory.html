@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🥔 감자 노가 - Potato Farm</title>
+  <title>🥔 감자 농장 - Potato Farm</title>
   <style>
     body {
       margin: 0;
@@ -92,8 +92,8 @@
 </head>
 <body>
   <div class="scroll-area">
-    <header>🥔 감자 노가 - Potato Farm</header>
-    <div class="nickname">👤 노장주: <span id="nickname">-</span></div>
+    <header>🥔 감자 농장 - Potato Farm</header>
+    <div class="nickname">👤 범고래X: <span id="nickname">-</span></div>
     <div class="info-bar">
       🌐 전원 상태: <span id="power-status">확인 중...</span> |
       🏧 노장이름: <span id="farm-name">-</span> |
@@ -110,7 +110,7 @@
       <div id="harvest-container" style="margin-top: 1.5rem;"></div>
     </div>
     <div class="storage-section">
-      <div><strong>🧪 자재 보관소</strong><br/><div id="materials">자재 연동 예정</div></div>
+      <div><strong>🧪 자재 보\uuac04소</strong><br/><div id="materials">자재 연동 예정</div></div>
       <div><strong>📦 제품 창고</strong><br/><div id="products">제품 연동 예정</div></div>
     </div>
     <div class="nav-buttons">
@@ -121,9 +121,9 @@
   </div>
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nicknameRaw = localStorage.getItem("nickname") || "노주X";
+    const nicknameRaw = localStorage.getItem("nickname") || "범고래X";
     const nickname = encodeURIComponent(nicknameRaw);
-    const farmName = localStorage.getItem("farmName") || "감자노가";
+    const farmName = localStorage.getItem("farmName") || "농장주";
 
     let seedCount = 0;
     let water = 0;
@@ -211,7 +211,7 @@
     function checkHarvestReady() {
       if (growth >= 5 && !document.getElementById("harvest-btn")) {
         const btn = document.createElement("button");
-        btn.textContent = "🥔 수화하기";
+        btn.textContent = "🥔 수환하기";
         btn.id = "harvest-btn";
         btn.onclick = handleHarvest;
         document.getElementById("harvest-container").appendChild(btn);
