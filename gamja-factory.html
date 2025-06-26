@@ -105,14 +105,14 @@
       <div class="growth-bar">🌱 성장 포인트: <span id="growthPoint">로딩 중...</span></div>
     </div>
 
-    <div class="storage-section">
-      <h2>📦 자재 보관함</h2>
-      <ul id="storage-list"></ul>
-    </div>
-
     <div class="product-section">
       <h2>🍟 농산물 보관함</h2>
       <ul id="product-list"></ul>
+    </div>
+
+    <div class="storage-section">
+      <h2>📦 자재 보관함</h2>
+      <ul id="storage-list"></ul>
     </div>
 
     <div class="nav-buttons">
@@ -149,7 +149,7 @@
 
         for (const item of storage) {
           if (item.count > 0) {
-            const label = item.name && item.name !== "" ? item.name : (item.type || "기타");
+            const label = item.name && item.name.trim() !== "" ? item.name : (item.type || "기타");
             const li = document.createElement("li");
             li.textContent = `${label}: ${item.count}`;
             storageList.appendChild(li);
@@ -212,11 +212,11 @@
         const res = await fetch(`${API_BASE}/api/farm/grow`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, cropType: "수환" })
+          body: JSON.stringify({ nickname, cropType: "수확" })
         });
         if (res.ok) await fetchUserData();
       } catch (e) {
-        console.error("수환 오류:", e);
+        console.error("수확 오류:", e);
       }
     }
 
