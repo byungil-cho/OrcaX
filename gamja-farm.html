@@ -15,100 +15,67 @@
       text-align: center;
     }
     .container {
-      background-color: rgba(0, 0, 0, 0.5);
-      margin-top: 5%;
+      background: rgba(0, 0, 0, 0.5);
+      margin: 50px auto;
       padding: 20px;
-      display: inline-block;
-      border-radius: 12px;
-    }
-    .btn {
-      margin-top: 20px;
-      padding: 15px 30px;
-      background-color: #FFD700;
-      color: black;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .status {
-      margin-top: 20px;
-      color: #00FF00;
-      font-weight: bold;
+      max-width: 400px;
+      border-radius: 20px;
     }
     .info-box {
-      background-color: #2166d1;
-      padding: 8px;
-      margin: 6px;
-      border-radius: 6px;
+      background: #1976d2;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
-    <div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
+    <h2>🥔 감자 농장에 오신 걸 환영합니다!</h2>
+    <div class="info-box">👤 닉네임: <span id="nickname">로딩중...</span></div>
     <div class="info-box">🥔 감자: <span id="potato">0</span> 개</div>
     <div class="info-box">💧 물: <span id="water">0</span> 개</div>
     <div class="info-box">🌱 거름: <span id="fertilizer">0</span> 개</div>
-    <div class="info-box">🪙 ORCX: <span id="token">0</span> 개</div>
+    <div class="info-box">🪙 ORCX: <span id="orcx">0</span></div>
     <div class="info-box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
     <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
-    <div class="info-box">🧺 인벤토리:</div>
-    <div id="inventoryBox" class="info-box"></div>
-    <div class="status" id="serverStatus">⏳ 서버 상태 확인 중...</div>
-    <button class="btn" onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
+    <div class="info-box">
+      🧺 인벤토리:
+      <div id="inventoryBox"></div>
+    </div>
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata")
+      .then(res => res.json())
+      .then(data => {
+        const user = data.user;
+        document.getElementById("nickname").textContent = user.nickname;
+        document.getElementById("potato").textContent = user.potato;
+        document.getElementById("water").textContent = user.water;
+        document.getElementById("fertilizer").textContent = user.fertilizer;
+        document.getElementById("orcx").textContent = user.orcx;
+        document.getElementById("seedPotato").textContent = user.seedPotato || 0;
+        document.getElementById("seedBarley").textContent = user.seedBarley || 0;
 
-    async function fetchUserData() {
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata`);
-        const data = await res.json();
-
-        if (data.success) {
-          const user = data.users[0];
-          console.log("🔥 USER DEBUG", user);
-
-          document.getElementById("nickname").textContent = user.nickname || "-";
-          document.getElementById("potato").textContent = user.potatoCount || 0;
-          document.getElementById("water").textContent = user.water || 0;
-          document.getElementById("fertilizer").textContent = user.fertilizer || 0;
-          document.getElementById("token").textContent = user.orcx || 0;
-
-          const inventoryBox = document.getElementById("inventoryBox");
-          inventoryBox.innerHTML = "";
-
-          let seedPotatoCount = 0;
-          let seedBarleyCount = 0;
-
-          user.inventory.forEach(item => {
-            const label = item.name || item.type || '이름없음';
-            const div = document.createElement("div");
-            div.textContent = `- ${label} (${item.count}개)`;
-            inventoryBox.appendChild(div);
-
-            if (item.name === "씨감자" || item.type === "씨감자") seedPotatoCount = item.count;
-            if (item.name === "씨보리" || item.type === "씨보리") seedBarleyCount = item.count;
-          });
-
-          document.getElementById("seedPotato").textContent = seedPotatoCount;
-          document.getElementById("seedBarley").textContent = seedBarleyCount;
-
-          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
-        } else {
-          document.getElementById("serverStatus").textContent = "❌ 서버 응답 실패: 로그인 필요";
-        }
-      } catch (err) {
-        console.error("API 요청 에러:", err);
-        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
-      }
-    }
-
-    fetchUserData();
+        const inventoryBox = document.getElementById("inventoryBox");
+        user.inventory.forEach(item => {
+          const label = item.name || item.type || '이름없음';
+          const div = document.createElement("div");
+          div.textContent = `- ${label} (${item.count}개)`;
+          inventoryBox.appendChild(div);
+        });
+      })
+      .catch(err => {
+        console.error("불러오기 오류:", err);
+      });
   </script>
+
+<button onclick="goToNextPage()">다음 단계로 이동</button>
+<script>
+  function goToNextPage() {
+    window.location.href = 'gamja-main.html';
+  }
+</script>
 </body>
 </html>
