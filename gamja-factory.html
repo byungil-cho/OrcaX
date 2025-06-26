@@ -188,7 +188,9 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname, cropType: "물" })
         });
-        if (res.ok) await fetchUserData();
+        if (res.ok) {
+          await fetchUserData();
+        }
       } catch (e) {
         console.error("물 주기 오류:", e);
       }
@@ -201,7 +203,9 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname, cropType: "거름" })
         });
-        if (res.ok) await fetchUserData();
+        if (res.ok) {
+          await fetchUserData();
+        }
       } catch (e) {
         console.error("거름 주기 오류:", e);
       }
@@ -214,7 +218,9 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname, cropType: "수확" })
         });
-        if (res.ok) await fetchUserData();
+        if (res.ok) {
+          await fetchUserData();
+        }
       } catch (e) {
         console.error("수확 오류:", e);
       }
@@ -225,6 +231,7 @@
   </script>
 </body>
 </html>
+
 
 
 
