@@ -6,12 +6,16 @@
   <title>감자 농장</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.2/reset.min.css">
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
     body {
       background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center center fixed;
       background-size: cover;
       font-family: "Pretendard", sans-serif;
       color: white;
-      text-align: center;
+      overflow-y: auto;
     }
     .container {
       max-width: 600px;
@@ -60,7 +64,7 @@
 </head>
 <body>
   <div class="container">
-    <h1><span id="nickname"></span>님의 감자 농장</h1>
+    <h1 id="nicknameDisplay"></h1>
     <div class="farm-name">농장이름: <span id="farmName"></span></div>
     <div class="status" id="serverStatus">✅ 서버 전원 ON</div>
     <div class="actions">
@@ -94,6 +98,7 @@
           document.getElementById("orcx").textContent = data.user.orcx || 0;
           document.getElementById("growthPoint").textContent = data.user.growthPoint || 0;
           document.getElementById("farmName").textContent = data.user.farmName || "이름 없음";
+          document.getElementById("nicknameDisplay").textContent = `${nickname}님의 감자 농장`;
         }
       } catch (err) {
         alert("사용자 정보를 불러오는 중 오류 발생");
@@ -137,7 +142,6 @@
       }
     }
 
-    document.getElementById("nickname").textContent = nickname;
     fetchUserData();
   </script>
 </body>
