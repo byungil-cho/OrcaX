@@ -1,113 +1,93 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaX 농장 입장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>농장 이름 짓기</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', sans-serif;
+      background-color: #f3f3f3;
+      background-image: url('https://byungil-cho.github.io/OrcaX/farm-101.png');
       background-size: cover;
-      text-align: center;
-      padding: 2rem;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       color: white;
+      text-shadow: 1px 1px 3px black;
     }
-    #nicknameBox {
-      font-weight: bold;
-      margin-bottom: 1rem;
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
     }
-    .confirm-btn {
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      width: 250px;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
       background-color: #4CAF50;
       color: white;
-      padding: 10px 20px;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 1rem;
-      border-radius: 8px;
     }
-    input[type="text"] {
-      padding: 12px;
-      font-size: 1.1rem;
-      width: 80%;
-      max-width: 400px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+
+    button:hover {
+      background-color: #45a049;
     }
-    .server-check {
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    .offline { color: red; }
-    .online { color: lime; }
   </style>
 </head>
+
 <body>
-  <div id="nicknameBox" style="display:none;"></div>
-  <h1>🌱 나만의  농장을 시작해보세요!</h1>
-  <p>원하는 농장 이름을 입력하고 입장하세요.</p>
-  <input type="text" id="farmNameInput" placeholder="예: 돌고래 농장" />
-  <br /><br />
-  <button class="confirm-btn" onclick="startFarm()">농장 입장</button>
-  <div class="server-check offline" id="serverStatus">❌ 서버 전원 OFF: 감자밭 연결 실패</div>
+  <div style="margin-bottom: 10px; font-size: 18px;">👤 농장주: <span id="nickname">로딩 중...</span></div>
+<h1>🌱 당신의 감자 농장 이름은?</h1>
+  <input type="text" id="farmName" placeholder="농장이름을 입력하세요" />
+  <button onclick="saveFarmName()">시작하기</button>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    // 이전에 저장된 농장 이름이 있다면 미리 입력해두기
+    window.onload = function () {
 
-    const nickname = localStorage.getItem("nickname");
+      const nickname = localStorage.getItem("nickname") || "";
+      if (!nickname) {
+        alert("닉네임 정보가 없습니다. 로그인 후 다시 시도해주세요.");
+        window.location.href = "index9.html";
+      } else {
+        document.getElementById("nickname").textContent = nickname;
+      }
 
-    if (!nickname) {
-      alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "index9.html";
-    } else {
-      document.getElementById("nicknameBox").textContent = `👤 ${nickname} 님`;
-      document.getElementById("nicknameBox").style.display = "block";
+      const storedName = localStorage.getItem("farmName");
+      if (storedName) {
+        document.getElementById("farmName").value = storedName;
+      }
+    };
 
-      // 유저 정보 콘솔에서 확인용
-      fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.users.length > 0) {
-            const user = data.users[0];
-            console.log("유저 상태 정보:", user);
-          } else {
-            console.warn("❌ 사용자 정보 없음");
-          }
-        })
-        .catch(err => console.error("❌ 유저 정보 불러오기 실패:", err));
-    }
-
-    function checkServerStatus() {
-      fetch(`${API_BASE}/`)
-        .then(res => {
-          if (res.ok) {
-            document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
-            document.getElementById("serverStatus").classList.remove("offline");
-            document.getElementById("serverStatus").classList.add("online");
-          } else {
-            throw new Error("서버 응답 오류");
-          }
-        })
-        .catch(() => {
-          document.getElementById("serverStatus").textContent = "❌ 서버 전원 OFF: 감자밭 연결 실패";
-          document.getElementById("serverStatus").classList.remove("online");
-          document.getElementById("serverStatus").classList.add("offline");
-        });
-    }
-
-    function startFarm() {
-      const farmName = document.getElementById("farmNameInput").value;
-      if (!farmName.trim()) {
-        alert("농장 이름을 입력해주세요!");
+    function saveFarmName() {
+      const name = document.getElementById("farmName").value.trim();
+      if (name === "") {
+        alert("농장이름을 입력해주세요!");
         return;
       }
-      localStorage.setItem("farmName", farmName);
-      location.href = "gamja-factory.html";
+      localStorage.setItem("farmName", name);
+      window.location.href = "gamja-factory.html";
     }
-
-    checkServerStatus();
   </script>
 </body>
-</html>
 
+</html>
