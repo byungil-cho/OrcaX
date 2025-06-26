@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>감자 농장 입장</title>
   <style>
     body {
@@ -11,54 +11,54 @@
       padding: 0;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
-      text-align: center;
+      color: #333;
     }
     .container {
-      background-color: rgba(0, 0, 0, 0.5);
-      margin-top: 5%;
-      padding: 20px;
-      display: inline-block;
-      border-radius: 12px;
+      max-width: 600px;
+      margin: 100px auto;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    .btn {
-      margin-top: 20px;
-      padding: 15px 30px;
-      background-color: #FFD700;
-      color: black;
-      font-size: 1.2rem;
+    h1 {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .info {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    .nickname {
       font-weight: bold;
+      color: #5a4caf;
+    }
+    #refreshBtn {
+      margin-top: 20px;
+      padding: 8px 15px;
+      font-size: 16px;
       border: none;
       border-radius: 10px;
+      background-color: #5a4caf;
+      color: white;
       cursor: pointer;
-    }
-    .status {
-      margin-top: 20px;
-      color: #00FF00;
-      font-weight: bold;
-    }
-    .info-box {
-      background-color: #2166d1;
-      padding: 8px;
-      margin: 6px;
-      border-radius: 6px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
-    <div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
-    <div class="info-box">🥔 감자: <span id="potato">0</span> 개</div>
-    <div class="info-box">💧 물: <span id="water">0</span> 개</div>
-    <div class="info-box">🌱 거름: <span id="fertilizer">0</span> 개</div>
-    <div class="info-box">🪙 ORCX: <span id="token">0</span> 개</div>
-    <div class="info-box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
-    <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
-    <div class="info-box">🧺 인벤토리:</div>
-    <div id="inventoryBox" class="info-box"></div>
-    <div class="status" id="serverStatus">⏳ 서버 상태 확인 중...</div>
-    <button class="btn" onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
+    <h1>Welcome to 감자 농장!</h1>
+    <div class="info">닉네임: <span id="nickname" class="nickname"></span></div>
+    <div class="info">농장이름: <span id="farmName"></span></div>
+    <hr />
+    <div class="info">씨감자: <span id="seedPotato"></span>개</div>
+    <div class="info">씨보리: <span id="seedBarley"></span>개</div>
+    <div class="info">물: <span id="water"></span>개</div>
+    <div class="info">거름: <span id="fertilizer"></span>개</div>
+    <div class="info">ORCX: <span id="orcx"></span>개</div>
+    <div class="info">보유 감자: <span id="potato"></span>개</div>
+    <button id="refreshBtn">🔄 새로고침</button>
   </div>
 
   <script>
@@ -66,49 +66,27 @@
 
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata`);
+        const res = await fetch(`${API_BASE}/api/userdata`, {
+          credentials: 'include'
+        });
+        if (!res.ok) throw new Error("서버 응답 오류");
         const data = await res.json();
 
-        if (data.success) {
-          const user = data.users[0];
-          console.log("🔥 USER DEBUG", user);
-
-          document.getElementById("nickname").textContent = user.nickname || "-";
-          document.getElementById("potato").textContent = user.potatoCount || 0;
-          document.getElementById("water").textContent = user.water || 0;
-          document.getElementById("fertilizer").textContent = user.fertilizer || 0;
-          document.getElementById("token").textContent = user.orcx || 0;
-
-          const inventoryBox = document.getElementById("inventoryBox");
-          inventoryBox.innerHTML = "";
-
-          let seedPotatoCount = 0;
-          let seedBarleyCount = 0;
-
-          user.inventory.forEach(item => {
-            const label = item.name || item.type || '이름없음';
-            const div = document.createElement("div");
-            div.textContent = `- ${label} (${item.count}개)`;
-            inventoryBox.appendChild(div);
-
-            if (item.name === "씨감자" || item.type === "씨감자") seedPotatoCount = item.count;
-            if (item.name === "씨보리" || item.type === "씨보리") seedBarleyCount = item.count;
-          });
-
-          document.getElementById("seedPotato").textContent = seedPotatoCount;
-          document.getElementById("seedBarley").textContent = seedBarleyCount;
-
-          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
-        } else {
-          document.getElementById("serverStatus").textContent = "❌ 서버 응답 실패: 로그인 필요";
-        }
+        document.getElementById("nickname").textContent = data.nickname || '-';
+        document.getElementById("farmName").textContent = data.farmName || '-';
+        document.getElementById("seedPotato").textContent = data.seedPotato ?? '0';
+        document.getElementById("seedBarley").textContent = data.seedBarley ?? '0';
+        document.getElementById("water").textContent = data.water ?? '0';
+        document.getElementById("fertilizer").textContent = data.fertilizer ?? '0';
+        document.getElementById("orcx").textContent = data.ORCX ?? '0';
+        document.getElementById("potato").textContent = data.potato ?? '0';
       } catch (err) {
-        console.error("API 요청 에러:", err);
-        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+        alert("데이터 불러오기 실패: " + err.message);
       }
     }
 
-    fetchUserData();
+    document.getElementById("refreshBtn").addEventListener("click", fetchUserData);
+    window.onload = fetchUserData;
   </script>
 </body>
 </html>
