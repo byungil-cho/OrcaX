@@ -94,25 +94,25 @@
     <div class="info-bar">농장이름: <span id="farmName">로딩 중...</span></div>
     <div class="server-status" id="serverStatus">🔌 서버 상황 확인 중...</div>
 
-    <div class="growth-bar">🌱 성장 포인트: <span id="growthPoint">로딩 중...</span></div>
-
     <div class="potato-field">
       <h2>🌾 농사 목록</h2>
       <div class="potato-btns">
-        <button onclick="startFarming()">🥔 수화하기</button>
+        <button onclick="startFarming()">🥔 수확하기</button>
         <button onclick="applyWater()">💧 물 주기</button>
-        <button onclick="applyFertilizer()">🌿 거릉 주기</button>
+        <button onclick="applyFertilizer()">🌿 거름 주기</button>
       </div>
+    </div>
+
+    <div class="growth-bar">🌱 성장 포인트: <span id="growthPoint">로딩 중...</span></div>
+
+    <div class="product-section">
+      <h2>🍟 농산물 보관함</h2>
+      <ul id="product-list"></ul>
     </div>
 
     <div class="storage-section">
       <h2>📦 자재 보관함</h2>
       <ul id="storage-list"></ul>
-    </div>
-
-    <div class="product-section">
-      <h2>🍟 농산물 보관함</h2>
-      <ul id="product-list"></ul>
     </div>
 
     <div class="nav-buttons">
@@ -149,7 +149,7 @@
 
         for (const item of storage) {
           if (item.count > 0) {
-            const label = item.name || item.type || "기타";
+            const label = item.name || item.type;
             const li = document.createElement("li");
             li.textContent = `${label}: ${item.count}`;
             storageList.appendChild(li);
@@ -194,7 +194,7 @@
       await fetch(`${API_BASE}/api/farm/grow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, cropType: "거릉" })
+        body: JSON.stringify({ nickname, cropType: "거름" })
       });
       await fetchUserData();
     }
@@ -203,7 +203,7 @@
       await fetch(`${API_BASE}/api/farm/grow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, cropType: "수화" })
+        body: JSON.stringify({ nickname, cropType: "수확" })
       });
       await fetchUserData();
     }
@@ -213,5 +213,6 @@
   </script>
 </body>
 </html>
+
 
 
