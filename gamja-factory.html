@@ -69,8 +69,8 @@
     <div class="status" id="serverStatus">✅ 서버 전원 ON</div>
     <div class="actions">
       <button class="harvest-btn" onclick="harvest()">🥔 수확하기</button>
-      <button class="water-btn" onclick="grow('물')">💧 물 주기</button>
-      <button class="fertilizer-btn" onclick="grow('거름')">🌿 거름 주기</button>
+      <button class="water-btn" onclick="grow('water')">💧 물 주기</button>
+      <button class="fertilizer-btn" onclick="grow('fertilizer')">🌿 거름 주기</button>
     </div>
     <div>성장 포인트: <span id="growthPoint">0</span></div>
 
@@ -99,7 +99,7 @@
           document.getElementById("orcx").textContent = user.orcx || 0;
           document.getElementById("growthPoint").textContent = user.growthPoint || 0;
           document.getElementById("farmName").textContent = user.farmName || "이름 없음";
-          document.getElementById("nicknameDisplay").textContent = nickname;
+          document.getElementById("nicknameDisplay").textContent = user.nickname || nickname;
         }
       } catch (err) {
         alert("사용자 정보를 불러오는 중 오류 발생");
@@ -117,10 +117,10 @@
         if (data.success) {
           await fetchUserData();
         } else {
-          alert(type + " 주기 중 오류 발생: " + data.error);
+          alert(`${type} 주기 실패: ${data.error}`);
         }
       } catch (err) {
-        alert(type + " 주기 요청 실패");
+        alert(`${type} 주기 요청 실패`);
       }
     }
 
