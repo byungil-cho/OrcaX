@@ -111,8 +111,85 @@
   </div>
 
   <script>
-    // (기존 스크립트는 유지)
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const nickname = localStorage.getItem("nickname") || "고객";
+
+    async function fetchUserData() {
+      try {
+        const encodedNickname = encodeURIComponent(nickname);
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodedNickname}`, {
+          headers: { "Cache-Control": "no-cache" }
+        });
+        const data = await res.json();
+
+        document.getElementById("nickname").textContent = nickname;
+        document.getElementById("farmName").textContent = data.farmName || "감자농장";
+
+        const storage = data.storage || {};
+        const products = data.products || {};
+        const storageList = document.getElementById("storage-list");
+        const productList = document.getElementById("product-list");
+
+        storageList.innerHTML = '';
+        productList.innerHTML = '';
+
+        for (const key in storage) {
+          const li = document.createElement("li");
+          li.textContent = `${key}: ${storage[key]}`;
+          storageList.appendChild(li);
+        }
+        for (const key in products) {
+          const li = document.createElement("li");
+          li.textContent = `${key}: ${products[key]}`;
+          productList.appendChild(li);
+        }
+      } catch (err) {
+        console.error("유저 데이터 불러오기 실패:", err);
+      }
+    }
+
+    async function checkServerStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
+        if (res.ok) {
+          document.getElementById("serverStatus").textContent = "✅ 서버 작동 ON";
+        } else {
+          document.getElementById("serverStatus").textContent = "❌ 서버 오류";
+        }
+      } catch (e) {
+        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+      }
+    }
+
+    async function applyWater() {
+      await fetch(`${API_BASE}/api/farm/grow`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, type: "water" })
+      });
+      await fetchUserData();
+    }
+
+    async function applyFertilizer() {
+      await fetch(`${API_BASE}/api/farm/grow`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, type: "fertilizer" })
+      });
+      await fetchUserData();
+    }
+
+    async function startFarming() {
+      await fetch(`${API_BASE}/api/farm/grow`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, type: "harvest" })
+      });
+      await fetchUserData();
+    }
+
+    fetchUserData();
+    checkServerStatus();
   </script>
 </body>
 </html>
-
