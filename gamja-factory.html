@@ -109,12 +109,12 @@
           document.getElementById("water").textContent = user.water || 0;
           document.getElementById("fertilizer").textContent = user.fertilizer || 0;
           document.getElementById("orcx").textContent = user.orcx || 0;
-          document.getElementById("growthPoint").textContent = user.growthPoint || user.farmingCount || 0;
+          document.getElementById("growthPoint").textContent = user.growthPoint || 0;
           document.getElementById("farmName").textContent = user.farmName || "이름 없음";
           document.getElementById("nicknameDisplay").textContent = user.nickname || nickname;
         }
       } catch (err) {
-        alert("사용자 정보를 불러오는 중 오류 발생");
+        alert("❗ 사용자 정보를 서버에서 불러올 수 없습니다. 서버 상태나 닉네임 확인이 필요합니다.");
       }
     }
 
@@ -127,7 +127,13 @@
         });
         const data = await res.json();
         if (data.success) {
-          await fetchUserData();
+          await 
+    if (!nickname) {
+      alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
+      document.querySelectorAll("button").forEach(btn => btn.disabled = true);
+    }
+
+    fetchUserData();
         } else {
           alert(`${type} 주기 실패: ${data.error}`);
         }
@@ -146,13 +152,25 @@
         const data = await res.json();
         if (data.success) {
           alert("수확 완료: " + data.harvested);
-          await fetchUserData();
+          await 
+    if (!nickname) {
+      alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
+      document.querySelectorAll("button").forEach(btn => btn.disabled = true);
+    }
+
+    fetchUserData();
         } else {
           alert("수확 실패: " + data.error);
         }
       } catch (err) {
         alert("수확 요청 실패");
       }
+    }
+
+    
+    if (!nickname) {
+      alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
+      document.querySelectorAll("button").forEach(btn => btn.disabled = true);
     }
 
     fetchUserData();
