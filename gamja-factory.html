@@ -2,177 +2,262 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 농장</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.2/reset.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🥔 감자 농장 - Potato Farm</title>
   <style>
     html, body {
-      height: 100%;
       margin: 0;
+      padding: 0;
+      font-family: 'Do Hyeon', sans-serif;
+      height: 100%;
     }
     body {
-      background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center center fixed;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center top fixed;
       background-size: cover;
-      font-family: "Pretendard", sans-serif;
-      color: white;
-      overflow-y: auto;
+      overflow: auto;
     }
-    .container {
-      max-width: 600px;
+    .scroll-area {
+      width: 100%;
+      max-width: 500px;
       margin: 0 auto;
-      padding: 30px;
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 20px;
-      margin-top: 60px;
+      padding-bottom: 3rem;
+      box-sizing: border-box;
     }
-    h1 {
-      font-size: 1.6rem;
-      margin-bottom: 10px;
-    }
-    .farm-name {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-    }
-    .status {
-      color: #00ff00;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .actions button {
-      margin: 10px;
-      padding: 15px 25px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .harvest-btn { background: #91c788; }
-    .water-btn { background: #8ecae6; }
-    .fertilizer-btn { background: #f4a261; }
-    .storage {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 10px;
-      margin-top: 30px;
-    }
-    .storage-title {
-      font-weight: bold;
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
-    .nav {
-      margin-top: 30px;
+    header {
+      padding: 1rem;
+      font-size: 2rem;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px #000;
       text-align: center;
     }
-    .nav a {
-      color: #00ffff;
-      text-decoration: underline;
+    .nickname, .info-bar {
+      margin-top: 0.5rem;
+      font-size: 1.1rem;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px #000;
+      text-align: center;
+    }
+    .info-bar { font-size: 0.95rem; }
+    .potato-field, .storage-section, .product-section, .nav-buttons {
+      margin: 1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.8);
+      border-radius: 1rem;
+    }
+    .potato-btns button {
+      margin: 0.5rem;
+      padding: 0.75rem 1.5rem;
       font-size: 1rem;
+      border: none;
+      border-radius: 0.75rem;
+      background: #a5d6a7;
+      cursor: pointer;
+    }
+    .storage-section ul, .product-section ul {
+      list-style: none;
+      padding: 0;
+    }
+    .storage-section li, .product-section li {
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    .nav-buttons a {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: #4caf50;
+      color: white;
+      text-decoration: none;
+      border-radius: 0.5rem;
+    }
+    .server-status {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #fff700;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1><span id="nicknameDisplay"></span>님의 감자 농장</h1>
-    <div class="farm-name">농장이름: <span id="farmName"></span></div>
-    <div class="status" id="serverStatus">✅ 서버 전원 ON</div>
-    <div class="actions">
-      <button class="harvest-btn" onclick="harvest()">🥔 수확하기</button>
-      <button class="water-btn" onclick="grow('water')">💧 물 주기</button>
-      <button class="fertilizer-btn" onclick="grow('fertilizer')">🌿 거름 주기</button>
-    </div>
-    <div>성장 포인트: <span id="growthPoint">0</span></div>
+  <div class="scroll-area">
+    <header>감자 농장</header>
+    <div class="nickname">농장주: <span id="nickname">로딩 중...</span></div>
+    <div class="info-bar">농장이름: <span id="farmName">로딩 중...</span></div>
+    <div class="server-status" id="serverStatus">🔌 서버 상태 확인 중...</div>
 
-    <div class="storage">
-      <div class="storage-title">자재 보관함</div>
-      씨감자: <span id="seedPotato">0</span> | 씨보리: <span id="seedBarley">0</span><br>
-      물: <span id="water">0</span> | 거름: <span id="fertilizer">0</span><br>
-      ORCX: <span id="orcx">0</span>
+    <div class="potato-field">
+      <h2>🌾 농사 목록</h2>
+      <div class="potato-btns">
+        <button onclick="startFarming()">🥔 수확하기</button>
+        <button onclick="applyWater()">💧 물 주기</button>
+        <button onclick="applyFertilizer()">🌿 거름 주기</button>
+      </div>
     </div>
-    <div class="nav">
-      <a href="/OrcaX/gamja-main.html">← 농장으로 돌아가기</a>
+
+    <div class="storage-section">
+      <h2>📦 자재 보관함</h2>
+      <ul id="storage-list"></ul>
+    </div>
+
+    <div class="product-section">
+      <h2>🍟 농산물 보관함</h2>
+      <ul id="product-list"></ul>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="gamja-result.html">감자 가공공장</a>
+      <a href="gamja-main.html">복귀</a>
     </div>
   </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const nickname = localStorage.getItem("nickname") || "";
 
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
-        const data = await res.json();
-        if (data.success && data.users && data.users.length > 0) {
-          const user = data.users[0];
-          document.getElementById("seedPotato").textContent = user.seedPotato || 0;
-          document.getElementById("seedBarley").textContent = user.seedBarley || 0;
-          document.getElementById("water").textContent = user.water || 0;
-          document.getElementById("fertilizer").textContent = user.fertilizer || 0;
-          document.getElementById("orcx").textContent = user.orcx || 0;
-          document.getElementById("growthPoint").textContent = user.growthPoint || 0;
-          document.getElementById("farmName").textContent = user.farmName || "이름 없음";
-          document.getElementById("nicknameDisplay").textContent = user.nickname || nickname;
-        }
-      } catch (err) {
-        alert("❗ 사용자 정보를 서버에서 불러올 수 없습니다. 서버 상태나 닉네임 확인이 필요합니다.");
-      }
-    }
+        const nicknameRaw = localStorage.getItem("nickname") || " ";
+        const farmName = localStorage.getItem("farmName") || "농장주";
+        document.getElementById("nickname").textContent = nicknameRaw;
+        document.getElementById("farmName").textContent = farmName;
 
-    async function grow(type) {
-      try {
-        const res = await fetch(`${API_BASE}/api/farm/grow`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, cropType: type })
+        const encodedNickname = encodeURIComponent(nicknameRaw);
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodedNickname}`);
+        const data = await res.json();
+        const user = data.users[0];
+        const growthPoint = user.growthPoint || 0;
+        const growthInfo = document.createElement("div");
+        growthInfo.style.textAlign = "center";
+        growthInfo.style.marginTop = "0.5rem";
+        growthInfo.style.fontWeight = "bold";
+        growthInfo.innerText = `🌱 성장 포인트: ${growthPoint}`;
+        document.querySelector(".potato-field").appendChild(growthInfo);
+
+        const storageList = document.getElementById("storage-list");
+        storageList.innerHTML = "";
+        const 자재들 = [
+          { label: "씨감자", value: user.seedPotato },
+          { label: "씨보리", value: user.seedBarley },
+          { label: "물", value: user.water },
+          { label: "거름", value: user.fertilizer },
+          { label: "ORCX", value: user.orcx }
+        ];
+        자재들.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = `${item.label}: ${item.value}`;
+          storageList.appendChild(li);
         });
-        const data = await res.json();
-        if (data.success) {
-          await 
-    if (!nickname) {
-      alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
-      document.querySelectorAll("button").forEach(btn => btn.disabled = true);
-    }
 
-    fetchUserData();
-        } else {
-          alert(`${type} 주기 실패: ${data.error}`);
-        }
+        const productList = document.getElementById("product-list");
+        productList.innerHTML = "";
+        user.inventory.forEach(item => {
+          const type = item.type || item.name || "정의되지 않음";
+          const li = document.createElement("li");
+          li.textContent = `${type}: ${item.count}`;
+          productList.appendChild(li);
+        });
       } catch (err) {
-        alert(`${type} 주기 요청 실패`);
+        console.error(err);
+        alert("❌ 유저 정보 로딩 실패");
       }
     }
 
-    async function harvest() {
+    async function startFarming() {
       try {
+        const nickname = localStorage.getItem("nickname") || " ";
+        const encodedNickname = encodeURIComponent(nickname);
+        const resUser = await fetch(`${API_BASE}/api/userdata?nickname=${encodedNickname}`);
+        const userData = await resUser.json();
+        const user = userData.users[0];
+        const growthPoint = user.growthPoint || 0;
+        const seedPotato = user.seedPotato || 0;
+
+        if (growthPoint < 5) {
+          alert("❌ 성장 포인트가 5 이상이어야 수확할 수 있습니다.");
+          return;
+        }
+
+        if (seedPotato < 1) {
+          alert("❌ 씨감자가 부족하여 농사를 지을 수 없습니다.");
+          return;
+        }
+
+        const harvestCount = [3, 5, 7][Math.floor(Math.random() * 3)];
         const res = await fetch(`${API_BASE}/api/farm/harvest`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, amount: 1 })
+          body: JSON.stringify({ nickname: encodedNickname, amount: harvestCount })
         });
-        const data = await res.json();
-        if (data.success) {
-          alert("수확 완료: " + data.harvested);
-          await 
-    if (!nickname) {
-      alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
-      document.querySelectorAll("button").forEach(btn => btn.disabled = true);
-    }
-
-    fetchUserData();
-        } else {
-          alert("수확 실패: " + data.error);
-        }
+        const result = await res.json();
+        alert(`🥔 감자 ${harvestCount}개 수확 완료!`);
+        fetchUserData();
       } catch (err) {
-        alert("수확 요청 실패");
+        console.error(err);
+        alert("❌ 수확 실패");
       }
     }
 
-    
-    if (!nickname) {
-      alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
-      document.querySelectorAll("button").forEach(btn => btn.disabled = true);
+    async function applyWater() {
+      try {
+        const nickname = localStorage.getItem("nickname") || " ";
+        const encodedNickname = encodeURIComponent(nickname);
+
+        const res = await fetch(`${API_BASE}/api/farm/grow`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname: encodedNickname, cropType: "gamja" })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          alert("💧 물과 거름을 주었습니다. 성장 포인트 +1!");
+          fetchUserData();
+        } else {
+          alert("❌ 물주기 실패: " + result.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ 물 주기 중 오류 발생");
+      }
     }
 
+    async function applyFertilizer() {
+      try {
+        const nickname = localStorage.getItem("nickname") || " ";
+        const encodedNickname = encodeURIComponent(nickname);
+
+        const res = await fetch(`${API_BASE}/api/farm/grow`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname: encodedNickname, cropType: "gamja" })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          alert("🌿 거름과 물을 주었습니다. 성장 포인트 +1!");
+          fetchUserData();
+        } else {
+          alert("❌ 거름 주기 실패: " + result.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ 거름 주기 중 오류 발생");
+      }
+    }
+
+    async function checkServerStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/`);
+        if (res.ok) {
+          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON";
+        } else {
+          throw new Error();
+        }
+      } catch {
+        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+      }
+    }
+
+    checkServerStatus();
     fetchUserData();
   </script>
 </body>
