@@ -61,55 +61,64 @@
     <button class="btn" onclick="location.href='gamja-main.html'">🌱 농장이름 짓기 이동</button>
   </div>
 
-  <script>
-    const nickname = localStorage.getItem("nickname") || "";
-    if (!nickname) {
-      alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
-      window.location.href = "/OrcaX/index9.html";
-    }
+  
+<script>
+  const nickname = localStorage.getItem("nickname") || "";
+  if (!nickname) {
+    alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
+    window.location.href = "/OrcaX/index9.html";
+  }
 
-    // 씨감자와 씨보리를 로컬에서 불러오기
-    document.getElementById("seedPotato").textContent = localStorage.getItem("seedPotato") || 0;
-    document.getElementById("seedBarley").textContent = localStorage.getItem("seedBarley") || 0;
+  // ✅ 씨앗 정보는 localStorage에서만 가져옴
+  const seedPotatoCount = parseInt(localStorage.getItem("seedPotato")) || 0;
+  const seedBarleyCount = parseInt(localStorage.getItem("seedBarley")) || 0;
+  document.getElementById("seedPotato").textContent = seedPotatoCount;
+  document.getElementById("seedBarley").textContent = seedBarleyCount;
 
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+  // ✅ 페이지를 벗어날 때 씨앗 정보 삭제
+  window.addEventListener("beforeunload", () => {
+    localStorage.removeItem("seedPotato");
+    localStorage.removeItem("seedBarley");
+  });
 
-    async function fetchUserData() {
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
-        const data = await res.json();
+  const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
-        if (data.success) {
-          const user = data.users[0];
-          console.log("🔥 USER DEBUG", user);
+  async function fetchUserData() {
+    try {
+      const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
+      const data = await res.json();
 
-          document.getElementById("nickname").textContent = user.nickname || "-";
-          document.getElementById("potato").textContent = user.potatoCount || 0;
-          document.getElementById("water").textContent = user.water || 0;
-          document.getElementById("fertilizer").textContent = user.fertilizer || 0;
-          document.getElementById("token").textContent = user.orcx || 0;
+      if (data.success) {
+        const user = data.users[0];
 
-          const inventoryBox = document.getElementById("inventoryBox");
-          inventoryBox.innerHTML = "";
+        document.getElementById("nickname").textContent = user.nickname || "-";
+        document.getElementById("potato").textContent = user.potatoCount || 0;
+        document.getElementById("water").textContent = user.water || 0;
+        document.getElementById("fertilizer").textContent = user.fertilizer || 0;
+        document.getElementById("token").textContent = user.orcx || 0;
 
-          user.inventory.forEach(item => {
-            const label = item.name || item.type || '이름없음';
-            const div = document.createElement("div");
-            div.textContent = `- ${label} (${item.count}개)`;
-            inventoryBox.appendChild(div);
-          });
+        const inventoryBox = document.getElementById("inventoryBox");
+        inventoryBox.innerHTML = "";
 
-          document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
-        } else {
-          document.getElementById("serverStatus").textContent = "❌ 서버 응답 실패: 로그인 필요";
-        }
-      } catch (err) {
-        console.error("API 요청 에러:", err);
-        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+        user.inventory.forEach(item => {
+          const label = item.name || item.type || '이름없음';
+          const div = document.createElement("div");
+          div.textContent = `- ${label} (${item.count}개)`;
+          inventoryBox.appendChild(div);
+        });
+
+        document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
+      } else {
+        document.getElementById("serverStatus").textContent = "❌ 서버 응답 실패: 로그인 필요";
       }
+    } catch (err) {
+      console.error("API 요청 에러:", err);
+      document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
     }
+  }
 
-    fetchUserData();
-  </script>
+  fetchUserData();
+</script>
+
 </body>
 </html>
