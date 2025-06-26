@@ -102,8 +102,8 @@
             if ((item.name && item.name.includes("씨보리")) || (item.type && item.type.includes("씨보리"))) seedBarleyCount += item.count;
           });
 
-          document.getElementById("seedPotato").textContent = seedPotatoCount;
-          document.getElementById("seedBarley").textContent = seedBarleyCount;
+          document.getElementById("seedPotato").textContent = user.seedPotato || 0;
+          document.getElementById("seedBarley").textContent = user.seedBarley || 0;
 
           document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
         } else {
