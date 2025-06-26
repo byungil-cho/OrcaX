@@ -38,7 +38,7 @@
       text-align: center;
     }
     .info-bar { font-size: 0.95rem; }
-    .potato-field, .storage-section, .product-section, .nav-buttons {
+    .potato-field, .product-section, .storage-section, .nav-buttons {
       margin: 1rem;
       padding: 1rem;
       background: rgba(255,255,255,0.8);
@@ -76,6 +76,15 @@
       font-weight: bold;
       color: #fff700;
     }
+    .growth-bar {
+      text-align: center;
+      margin: 1rem 0;
+      font-weight: bold;
+      font-size: 1.1rem;
+      background: rgba(255,255,255,0.8);
+      padding: 0.5rem;
+      border-radius: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -85,12 +94,14 @@
     <div class="info-bar">농장이름: <span id="farmName">로딩 중...</span></div>
     <div class="server-status" id="serverStatus">🔌 서버 상황 확인 중...</div>
 
+    <div class="growth-bar">🌱 성장 포인트: <span id="growthPoint">로딩 중...</span></div>
+
     <div class="potato-field">
       <h2>🌾 농사 목록</h2>
       <div class="potato-btns">
-        <button onclick="startFarming()">🥔 수확하기</button>
+        <button onclick="startFarming()">🥔 수화하기</button>
         <button onclick="applyWater()">💧 물 주기</button>
-        <button onclick="applyFertilizer()">🌿 거름 주기</button>
+        <button onclick="applyFertilizer()">🌿 거릉 주기</button>
       </div>
     </div>
 
@@ -126,6 +137,7 @@
 
         document.getElementById("nickname").textContent = data.nickname || nickname;
         document.getElementById("farmName").textContent = farmName;
+        document.getElementById("growthPoint").textContent = data.growthPoint || 0;
 
         const storage = data.inventory || [];
         const products = data.products || {};
@@ -182,7 +194,7 @@
       await fetch(`${API_BASE}/api/farm/grow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, cropType: "거름" })
+        body: JSON.stringify({ nickname, cropType: "거릉" })
       });
       await fetchUserData();
     }
@@ -191,7 +203,7 @@
       await fetch(`${API_BASE}/api/farm/grow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, cropType: "수확" })
+        body: JSON.stringify({ nickname, cropType: "수화" })
       });
       await fetchUserData();
     }
@@ -201,4 +213,5 @@
   </script>
 </body>
 </html>
+
 
