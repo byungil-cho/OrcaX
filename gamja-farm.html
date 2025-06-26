@@ -64,9 +64,16 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
+    const nickname = localStorage.getItem("nickname") || "";
+    if (!nickname) {
+      alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
+      window.location.href = "/OrcaX/index9.html";
+    }
+
+
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata`);
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
         const data = await res.json();
 
         if (data.success) {
@@ -91,12 +98,12 @@
             div.textContent = `- ${label} (${item.count}개)`;
             inventoryBox.appendChild(div);
 
-            if (item.name === "씨감자" || item.type === "씨감자") seedPotatoCount = item.count;
-            if (item.name === "씨보리" || item.type === "씨보리") seedBarleyCount = item.count;
+            if ((item.name && item.name.includes("씨감자")) || (item.type && item.type.includes("씨감자"))) seedPotatoCount += item.count;
+            if ((item.name && item.name.includes("씨보리")) || (item.type && item.type.includes("씨보리"))) seedBarleyCount += item.count;
           });
 
-          document.getElementById("seedPotato").textContent = seedPotatoCount;
-          document.getElementById("seedBarley").textContent = seedBarleyCount;
+          document.getElementById("seedPotato").textContent = user.seedPotato || 0;
+          document.getElementById("seedBarley").textContent = user.seedBarley || 0;
 
           document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON: 감자밭 연결 완료";
         } else {
