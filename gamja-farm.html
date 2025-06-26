@@ -98,8 +98,8 @@
             div.textContent = `- ${label} (${item.count}개)`;
             inventoryBox.appendChild(div);
 
-            if (item.name === "씨감자" || item.type === "씨감자") seedPotatoCount = item.count;
-            if (item.name === "씨보리" || item.type === "씨보리") seedBarleyCount = item.count;
+            if ((item.name && item.name.includes("씨감자")) || (item.type && item.type.includes("씨감자"))) seedPotatoCount += item.count;
+            if ((item.name && item.name.includes("씨보리")) || (item.type && item.type.includes("씨보리"))) seedBarleyCount += item.count;
           });
 
           document.getElementById("seedPotato").textContent = seedPotatoCount;
