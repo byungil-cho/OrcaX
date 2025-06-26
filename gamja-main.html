@@ -55,13 +55,23 @@
 </head>
 
 <body>
-  <h1>🌱 당신의 감자 농장 이름은?</h1>
+  <div style="margin-bottom: 10px; font-size: 18px;">👤 농장주: <span id="nickname">로딩 중...</span></div>
+<h1>🌱 당신의 감자 농장 이름은?</h1>
   <input type="text" id="farmName" placeholder="농장이름을 입력하세요" />
   <button onclick="saveFarmName()">시작하기</button>
 
   <script>
     // 이전에 저장된 농장 이름이 있다면 미리 입력해두기
     window.onload = function () {
+
+      const nickname = localStorage.getItem("nickname") || "";
+      if (!nickname) {
+        alert("닉네임 정보가 없습니다. 로그인 후 다시 시도해주세요.");
+        window.location.href = "index9.html";
+      } else {
+        document.getElementById("nickname").textContent = nickname;
+      }
+
       const storedName = localStorage.getItem("farmName");
       if (storedName) {
         document.getElementById("farmName").value = storedName;
