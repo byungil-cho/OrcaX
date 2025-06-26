@@ -88,7 +88,7 @@
     <div class="potato-field">
       <h2>🌾 농사 목록</h2>
       <div class="potato-btns">
-        <button onclick="startFarming()">🥔 수활하기</button>
+        <button onclick="startFarming()">🥔 수확하기</button>
         <button onclick="applyWater()">💧 물 주기</button>
         <button onclick="applyFertilizer()">🌿 거름 주기</button>
       </div>
@@ -113,6 +113,7 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname") || "고객";
+    const farmName = localStorage.getItem("farmName") || "감자농장";
 
     async function fetchUserData() {
       try {
@@ -124,7 +125,7 @@
         const data = rawData.users[0];
 
         document.getElementById("nickname").textContent = data.nickname || nickname;
-        document.getElementById("farmName").textContent = data.farmName || "감자농장";
+        document.getElementById("farmName").textContent = farmName;
 
         const storage = data.inventory || [];
         const products = data.products || {};
@@ -190,7 +191,7 @@
       await fetch(`${API_BASE}/api/farm/grow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, cropType: "수활" })
+        body: JSON.stringify({ nickname, cropType: "수확" })
       });
       await fetchUserData();
     }
@@ -200,3 +201,4 @@
   </script>
 </body>
 </html>
+
