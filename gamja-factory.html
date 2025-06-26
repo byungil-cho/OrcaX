@@ -97,7 +97,7 @@
           document.getElementById("water").textContent = user.water || 0;
           document.getElementById("fertilizer").textContent = user.fertilizer || 0;
           document.getElementById("orcx").textContent = user.orcx || 0;
-          document.getElementById("growthPoint").textContent = user.farmingCount || 0;
+          document.getElementById("growthPoint").textContent = user.growthPoint || user.farmingCount || 0;
           document.getElementById("farmName").textContent = user.farmName || "이름 없음";
           document.getElementById("nicknameDisplay").textContent = user.nickname || nickname;
         }
@@ -111,7 +111,7 @@
         const res = await fetch(`${API_BASE}/api/farm/grow`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname: nickname, cropType: type })
+          body: JSON.stringify({ nickname, cropType: type })
         });
         const data = await res.json();
         if (data.success) {
