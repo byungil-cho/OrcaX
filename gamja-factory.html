@@ -204,12 +204,12 @@
         const res = await fetch(`${API_BASE}/api/farm/grow`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname: encodedNickname, cropType: "gamja" })
+          body: JSON.stringify({ nickname: encodedNickname, cropType: "물" })
         });
 
         const result = await res.json();
         if (result.success) {
-          alert("💧 물과 거름을 주었습니다. 성장 포인트 +1!");
+          alert("💧 물을 주었습니다. 성장 포인트 +1!");
           fetchUserData();
         } else {
           alert("❌ 물주기 실패: " + result.error);
@@ -228,12 +228,12 @@
         const res = await fetch(`${API_BASE}/api/farm/grow`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname: encodedNickname, cropType: "gamja" })
+          body: JSON.stringify({ nickname: encodedNickname, cropType: "거름" })
         });
 
         const result = await res.json();
         if (result.success) {
-          alert("🌿 거름과 물을 주었습니다. 성장 포인트 +1!");
+          alert("🌿 거름을 주었습니다. 성장 포인트 +1!");
           fetchUserData();
         } else {
           alert("❌ 거름 주기 실패: " + result.error);
