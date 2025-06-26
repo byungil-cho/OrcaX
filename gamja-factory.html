@@ -120,12 +120,13 @@
         const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodedNickname}`, {
           headers: { "Cache-Control": "no-cache" }
         });
-        const data = await res.json();
+        const rawData = await res.json();
+        const data = rawData.users[0];
 
-        document.getElementById("nickname").textContent = nickname;
+        document.getElementById("nickname").textContent = data.nickname || nickname;
         document.getElementById("farmName").textContent = data.farmName || "감자농장";
 
-        const storage = data.storage || {};
+        const storage = data.inventory || [];
         const products = data.products || {};
         const storageList = document.getElementById("storage-list");
         const productList = document.getElementById("product-list");
@@ -133,15 +134,21 @@
         storageList.innerHTML = '';
         productList.innerHTML = '';
 
-        for (const key in storage) {
-          const li = document.createElement("li");
-          li.textContent = `${key}: ${storage[key]}`;
-          storageList.appendChild(li);
+        for (const item of storage) {
+          if (item.count > 0) {
+            const label = item.name || item.type || "기타";
+            const li = document.createElement("li");
+            li.textContent = `${label}: ${item.count}`;
+            storageList.appendChild(li);
+          }
         }
+
         for (const key in products) {
-          const li = document.createElement("li");
-          li.textContent = `${key}: ${products[key]}`;
-          productList.appendChild(li);
+          if (products[key] > 0) {
+            const li = document.createElement("li");
+            li.textContent = `${key}: ${products[key]}`;
+            productList.appendChild(li);
+          }
         }
       } catch (err) {
         console.error("유저 데이터 불러오기 실패:", err);
@@ -165,7 +172,7 @@
       await fetch(`${API_BASE}/api/farm/grow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, type: "water" })
+        body: JSON.stringify({ nickname, cropType: "물" })
       });
       await fetchUserData();
     }
@@ -174,7 +181,7 @@
       await fetch(`${API_BASE}/api/farm/grow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, type: "fertilizer" })
+        body: JSON.stringify({ nickname, cropType: "거름" })
       });
       await fetchUserData();
     }
@@ -183,7 +190,7 @@
       await fetch(`${API_BASE}/api/farm/grow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, type: "harvest" })
+        body: JSON.stringify({ nickname, cropType: "수활" })
       });
       await fetchUserData();
     }
