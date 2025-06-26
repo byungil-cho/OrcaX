@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🥔 감자 농장 - Potato Farm</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>🥔 감자 농장 - Potato Farm</title>
+<style>
     html, body {
       margin: 0;
       padding: 0;
@@ -79,38 +80,33 @@
   </style>
 </head>
 <body>
-  <div class="scroll-area">
-    <header>감자 농장</header>
-    <div class="nickname">농장주: <span id="nickname">로딩 중...</span></div>
-    <div class="info-bar">농장이름: <span id="farmName">로딩 중...</span></div>
-    <div class="server-status" id="serverStatus">🔌 서버 상태 확인 중...</div>
-
-    <div class="potato-field">
-      <h2>🌾 감자가 자라고 있습니다.</h2>
-      <div class="potato-btns">
-        <button onclick="startFarming()">🥔 수확하기</button>
-        <button onclick="applyWater()">💧 물 주기</button>
-        <button onclick="applyFertilizer()">🌿 거름 주기</button>
-      </div>
-    </div>
-
-    <div class="storage-section">
-      <h2>📦 농자재 보관함</h2>
-      <ul id="storage-list"></ul>
-    </div>
-
-    <div class="product-section">
-      <h2>🍟 가공식품 보관함</h2>
-      <ul id="product-list"></ul>
-    </div>
-
-    <div class="nav-buttons">
-      <a href="gamja-result.html">감자 가공공장</a>
-      <a href="gamja-main.html">복귀</a>
-    </div>
-  </div>
-
-  <script>
+<div class="scroll-area">
+<header>감자 농장</header>
+<div class="nickname">농장주: <span id="nickname">로딩 중...</span></div>
+<div class="info-bar">농장이름: <span id="farmName">로딩 중...</span></div>
+<div class="server-status" id="serverStatus">🔌 서버 상태 확인 중...</div>
+<div class="potato-field">
+<h2>🌾 농사 목록</h2>
+<div class="potato-btns">
+<button onclick="startFarming()">🥔 수확하기</button>
+<button onclick="applyWater()">💧 물 주기</button>
+<button onclick="applyFertilizer()">🌿 거름 주기</button>
+</div>
+</div>
+<div class="storage-section">
+<h2>📦 자재 보관함</h2>
+<ul id="storage-list"></ul>
+</div>
+<div class="product-section">
+<h2>🍟 농산물 보관함</h2>
+<ul id="product-list"></ul>
+</div>
+<div class="nav-buttons">
+<a href="gamja-result.html">감자 가공공장</a>
+<a href="gamja-main.html">복귀</a>
+</div>
+</div>
+<script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
     async function fetchUserData() {
@@ -135,8 +131,8 @@
         const storageList = document.getElementById("storage-list");
         storageList.innerHTML = "";
         const 자재들 = [
-          { label: "씨감자", value: user.seedPotato },
-          { label: "씨보리", value: user.seedBarley },
+          { label: "씨감자", value: localStorage.getItem("seedPotato") || 0 },
+          { label: "씨보리", value: localStorage.getItem("seedBarley") || 0 },
           { label: "물", value: user.water },
           { label: "거름", value: user.fertilizer },
           { label: "ORCX", value: user.orcx }
@@ -204,12 +200,12 @@
         const res = await fetch(`${API_BASE}/api/farm/grow`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname: encodedNickname, cropType: "물" })
+          body: JSON.stringify({ nickname: encodedNickname, cropType: "gamja" })
         });
 
         const result = await res.json();
         if (result.success) {
-          alert("💧 물을 주었습니다. 성장 포인트 +1!");
+          alert("💧 물과 거름을 주었습니다. 성장 포인트 +1!");
           fetchUserData();
         } else {
           alert("❌ 물주기 실패: " + result.error);
@@ -228,12 +224,12 @@
         const res = await fetch(`${API_BASE}/api/farm/grow`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname: encodedNickname, cropType: "거름" })
+          body: JSON.stringify({ nickname: encodedNickname, cropType: "gamja" })
         });
 
         const result = await res.json();
         if (result.success) {
-          alert("🌿 거름을 주었습니다. 성장 포인트 +1!");
+          alert("🌿 거름과 물을 주었습니다. 성장 포인트 +1!");
           fetchUserData();
         } else {
           alert("❌ 거름 주기 실패: " + result.error);
