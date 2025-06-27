@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ㅋㅁㅅ 삼점</title>
+  <title>씨감자 상점</title>
   <style>
     body {
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
@@ -58,27 +58,29 @@
     <div class="status">
       <p>👤 닉네임: <span id="nickname">-</span></p>
       <p>🏠 농장이름: <span id="farmName">-</span></p>
-      <p>⚡ 전원 상태: <span id="serverStatus">발견중...</span></p>
-      <p>💲 토큰: <span id="tokens">0</span></p>
-      <p>🌾 씨감자: <span id="potatoSeeds">0</span> / 씨보리: <span id="barleySeeds">0</span></p>
+      <p>⚡ 전원 상태: <span id="serverStatus">확인 중...</span></p>
+      <p>🪙 토큰: <span id="tokens">0</span></p>
+      <p>🥔 씨감자: <span id="potatoSeeds">0</span> / 🌾 씨보리: <span id="barleySeeds">0</span></p>
     </div>
 
     <label for="item">구매 항목 선택:</label>
     <select id="item">
-      <option value="씨감자">🌾 씨감자 (5 ORCX)</option>
-      <option value="씨보리">🌾 씨보리 (5 ORCX)</option>
+      <option value="씨감자">🥔 씨감자 (2 ORCX)</option>
+      <option value="씨보리">🌾 씨보리 (2 ORCX)</option>
     </select>
     <button onclick="buySeed()">구매하기</button>
     <p id="message"></p>
 
     <div class="links">
-      <a href="gamja-farm.html">ㅋㅁㅅ농장으로</a>
-      <a href="gamja-exchange.html">자재 교환소</a>
-      <a href="index9.html">메인페이지로</a>
+      <a href="gamja-farm.html">🌱 농장으로</a>
+      <a href="gamja-exchange.html">💱 자재 교환소</a>
+      <a href="index9.html">🏠 메인페이지</a>
     </div>
   </div>
 
   <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
     function updateUserData() {
       document.getElementById("nickname").textContent = localStorage.getItem("nickname") || "-";
       document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "-";
@@ -88,29 +90,56 @@
     }
 
     function checkServer() {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/")
+      fetch(`${API_BASE}/`)
         .then(() => {
-          document.getElementById("serverStatus").textContent = "🟢 연결되었음";
+          document.getElementById("serverStatus").textContent = "🟢 연결됨";
         })
         .catch(() => {
-          document.getElementById("serverStatus").textContent = "🔴 거듭";
+          document.getElementById("serverStatus").textContent = "🔴 오프라인";
         });
     }
 
-    function buySeed() {
+    async function buySeed() {
       const item = document.getElementById("item").value;
-      let tokens = parseInt(localStorage.getItem("tokens") || 0);
-      if (tokens < 5) {
-        document.getElementById("message").textContent = "토큰이 다음";
+      const tokenName = item === "씨감자" ? "씨감자" : "씨보리";
+      const nickname = localStorage.getItem("nickname") || "";
+
+      let owned = parseInt(localStorage.getItem(tokenName) || 0);
+      if (owned >= 2) {
+        document.getElementById("message").textContent = `${tokenName}는 최대 2개까지만 보유할 수 있습니다.`;
         return;
       }
-      tokens -= 5;
-      localStorage.setItem("tokens", tokens);
 
-      let current = parseInt(localStorage.getItem(item) || 0);
-      localStorage.setItem(item, current + 1);
-      document.getElementById("message").textContent = `${item} 1개 구매 완료!`;
-      updateUserData();
+      let tokens = parseInt(localStorage.getItem("tokens") || 0);
+      if (tokens < 2) {
+        document.getElementById("message").textContent = "🪙 토큰이 부족합니다.";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/use-token`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, amount: 2 })
+        });
+        const result = await res.json();
+
+        if (!result.success) {
+          document.getElementById("message").textContent = "❌ 서버 토큰 차감 실패";
+          return;
+        }
+
+        // 토큰 차감 성공 → 로컬 저장
+        localStorage.setItem(tokenName, owned + 1);
+        const newTokenCount = tokens - 2;
+        localStorage.setItem("tokens", newTokenCount);
+
+        document.getElementById("message").textContent = `${tokenName} 1개 구매 완료!`;
+        updateUserData();
+      } catch (err) {
+        console.error("구매 실패:", err);
+        document.getElementById("message").textContent = "🚫 구매 중 오류 발생";
+      }
     }
 
     updateUserData();
