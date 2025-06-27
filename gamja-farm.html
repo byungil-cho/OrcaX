@@ -93,12 +93,12 @@
       async function initUser() {
         serverStatus.textContent = "유저 초기화 중...";
         try {
-          // 새 몽고 서버 초기화: 카카오 가입 시 기본 토큰까지 함께 전송
+          // 초기 가입 시 DB에 ORCX 필드로 저장
           await fetch(`${API_BASE}/api/init-user`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             cache: 'no-store',
-            body: JSON.stringify({ nickname: nicknameValue, token: INITIAL_TOKEN })
+            body: JSON.stringify({ nickname: nicknameValue, orcx: INITIAL_TOKEN })
           });
           await loadUserData();
         } catch (err) {
@@ -124,7 +124,8 @@
           potatoEl.textContent = user.potatoCount ?? user.potato ?? 0;
           waterEl.textContent = user.water ?? 0;
           fertilizerEl.textContent = user.fertilizer ?? 0;
-          tokenEl.textContent = user.token ?? user.orcx ?? INITIAL_TOKEN;
+          // DB에 저장된 orcx 필드 우선 표시
+          tokenEl.textContent = user.orcx ?? INITIAL_TOKEN;
           seedPotatoEl.textContent = user.seedPotato ?? 0;
           seedBarleyEl.textContent = user.seedBarley ?? 0;
 
