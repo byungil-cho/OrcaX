@@ -48,7 +48,7 @@
   <script>
     'use strict';
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const INITIAL_TOKEN = 10; // 카카오 가입 시 지급할 기본 토큰 수
+    const INITIAL_TOKEN = 10; // UI용 초기 토큰 수
   </script>
 </head>
 <body>
@@ -88,20 +88,6 @@
 
       startBtn.addEventListener("click", () => location.href = "gamja-main.html");
 
-      // 초기가입 시 POST init-user에 token 포함하여 DB 저장
-      async function initUser() {
-        try {
-          await fetch(`${API_BASE}/api/init-user`, {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nickname, token: INITIAL_TOKEN, orcx: INITIAL_TOKEN })
-          });
-        } catch (e) {
-          console.error('init-user error', e);
-        }
-      }
-
-      // 유저 데이터 조회 및 UI 업데이트
       async function loadData() {
         serverStatus.textContent = '데이터 로딩 중...';
         try {
@@ -116,7 +102,11 @@
           fertilizerEl.textContent = u.fertilizer ?? 0;
           seedPotatoEl.textContent = u.seedPotato ?? 0;
           seedBarleyEl.textContent = u.seedBarley ?? 0;
-          tokenEl.textContent = u.token ?? u.orcx ?? 0;
+
+          // UI 보정: DB에 orcx/token이 0이면 화면에만 INITIAL_TOKEN 표시
+          let displayed = u.token ?? u.orcx ?? 0;
+          if (displayed === 0) displayed = INITIAL_TOKEN;
+          tokenEl.textContent = displayed;
 
           inventoryBox.textContent = '';
           (u.inventory || []).forEach(i => {
@@ -133,12 +123,12 @@
         }
       }
 
-      await initUser();
       await loadData();
     })();
   </script>
 </body>
 </html>
+
 
 
 
