@@ -24,13 +24,15 @@
     .btn {
       margin-top: 20px;
       padding: 15px 30px;
-      background-color: #FFD700;
-      color: black;
+      background-color: #4caf50;
+      color: white;
       font-size: 1.2rem;
       font-weight: bold;
       border: none;
       border-radius: 10px;
       cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
     }
     .status {
       margin-top: 20px;
@@ -42,17 +44,11 @@
       padding: 8px;
       margin: 6px;
       border-radius: 6px;
-      text-align: left;
     }
   </style>
-  <script>
-    'use strict';
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const INITIAL_TOKEN = 10;
-  </script>
 </head>
 <body>
-  <div class="container" role="region" aria-label="감자 농장 대시보드">
+  <div class="container">
     <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
     <div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
     <div class="info-box">🥔 감자: <span id="potato">0</span> 개</div>
@@ -63,79 +59,72 @@
     <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
     <div class="info-box">🧺 인벤토리:</div>
     <div id="inventoryBox" class="info-box"></div>
-    <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
-    <button id="startBtn" class="btn" disabled>🌱 네 농장으로 이동</button>
+    <div class="status" id="serverStatus">⏳ 서버 상태 확인 중.</div>
+
+    <!-- 다음 단계로 이동하는 버튼: 농사 페이지로 -->
+    <a href="gamja-factory.html" class="btn">🌱 농사 시작하기</a>
   </div>
-  <script type="module">
-    (async () => {
-      const nickname = localStorage.getItem('nickname');
-      if (!nickname) {
-        alert('로그인이 필요합니다.');
-        location.href = 'gamja-login.html';
-        return;
+
+  <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
+    const nickname = localStorage.getItem("nickname") || "";
+    if (!nickname) {
+      alert("닉네임 정보가 없습니다. 다시 로그인 해주세요.");
+      window.location.href = "index.html";
+    }
+
+    async function initUserIfNew() {
+      try {
+        const res = await fetch(`${API_BASE}/api/init-user`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname })
+        });
+        await res.json();
+      } catch (err) {
+        console.error("최초 자산 지급 실패:", err);
+      } finally {
+        fetchUserData();
       }
-      document.getElementById('nickname').textContent = nickname;
+    }
 
-      const startBtn = document.getElementById('startBtn');
-      const serverStatus = document.getElementById('serverStatus');
-      const inventoryBox = document.getElementById('inventoryBox');
-      const potatoEl = document.getElementById('potato');
-      const waterEl = document.getElementById('water');
-      const fertilizerEl = document.getElementById('fertilizer');
-      const tokenEl = document.getElementById('token');
-      const seedPotatoEl = document.getElementById('seedPotato');
-      const seedBarleyEl = document.getElementById('seedBarley');
-
-      startBtn.addEventListener('click', () => location.href = 'gamja-main.html');
-
-      async function loadAndPatch() {
-        serverStatus.textContent = '데이터 로딩 중...';
-        try {
-          const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const json = await res.json();
-          const u = json.user || (Array.isArray(json.users) ? json.users[0] : null);
-          if (!u) throw new Error('User not found');
-
-          // 필드 업데이트 필요 시 PATCH
-          if ((u.token ?? u.orcx ?? 0) === 0) {
-            await fetch(`${API_BASE}/api/userdata`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ nickname, token: INITIAL_TOKEN, orcx: INITIAL_TOKEN })
-            });
-            u.token = INITIAL_TOKEN;
-            u.orcx = INITIAL_TOKEN;
-          }
-
-          // 데이터 바인딩
-          potatoEl.textContent = u.potatoCount ?? u.potato ?? 0;
-          waterEl.textContent = u.water ?? 0;
-          fertilizerEl.textContent = u.fertilizer ?? 0;
-          seedPotatoEl.textContent = u.seedPotato ?? 0;
-          seedBarleyEl.textContent = u.seedBarley ?? 0;
-          tokenEl.textContent = u.token ?? u.orcx;
-
-          inventoryBox.textContent = '';
-          (u.inventory || []).forEach(item => {
-            const div = document.createElement('div');
-            div.textContent = `- ${item.name || item.type} (${item.count || 1}개)`;
-            inventoryBox.appendChild(div);
-          });
-
-          serverStatus.textContent = '✅ 서버 연결 및 데이터 로드 완료';
-          startBtn.disabled = false;
-        } catch (err) {
-          console.error('Error loading or patching data:', err);
-          serverStatus.textContent = '❌ 데이터 로드 실패';
+    async function fetchUserData() {
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
+        const data = await res.json();
+        if (!data.success || !data.users.length) {
+          document.getElementById("serverStatus").textContent = "❌ 데이터 없음";
+          return;
         }
-      }
+        const user = data.users[0];
+        document.getElementById("nickname").textContent = user.nickname;
+        document.getElementById("potato").textContent = user.potatoCount || 0;
+        document.getElementById("water").textContent = user.water || 0;
+        document.getElementById("fertilizer").textContent = user.fertilizer || 0;
+        document.getElementById("token").textContent = user.orcx || 0;
 
-      await loadAndPatch();
-    })();
+        // inventory
+        const ib = document.getElementById("inventoryBox"); ib.innerHTML = '';
+        (user.inventory || []).forEach(item => {
+          const d = document.createElement('div');
+          d.textContent = `- ${item.name || item.type}: ${item.count}`;
+          ib.appendChild(d);
+        });
+
+        document.getElementById("status").textContent = "✅ 서버 연결 완료";
+      } catch (err) {
+        console.error("API 요청 에러:", err);
+        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+      }
+    }
+
+    // 진입 시 초기화 및 데이터 로드
+    initUserIfNew();
   </script>
 </body>
 </html>
+
 
 
 
