@@ -68,13 +68,13 @@
   </div>
   <script type="module">
     (async () => {
-      const nicknameValue = localStorage.getItem("nickname");
-      if (!nicknameValue) {
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) {
         alert("로그인이 필요합니다.");
-        window.location.href = 'gamja-login.html';
+        location.href = 'gamja-login.html';
         return;
       }
-      document.getElementById("nickname").textContent = nicknameValue;
+      document.getElementById("nickname").textContent = nickname;
 
       const startBtn = document.getElementById("startBtn");
       const serverStatus = document.getElementById("serverStatus");
@@ -86,68 +86,55 @@
       const seedPotatoEl = document.getElementById("seedPotato");
       const seedBarleyEl = document.getElementById("seedBarley");
 
-      startBtn.addEventListener("click", () => {
-        window.location.href = "gamja-main.html";
-      });
+      startBtn.addEventListener("click", () => location.href = "gamja-main.html");
 
+      // 초기가입 시 POST init-user에 token 포함하여 DB 저장
       async function initUser() {
-        serverStatus.textContent = "유저 초기화 중...";
         try {
-          // 신규 가입 및 기본 데이터 초기화
           await fetch(`${API_BASE}/api/init-user`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            cache: 'no-store',
-            body: JSON.stringify({ nickname: nicknameValue })
-          });
-          // 가입 시 DB에 토큰도 저장하도록 별도 PATCH 요청
-          await fetch(`${API_BASE}/api/userdata`, {
-            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nickname: nicknameValue, token: INITIAL_TOKEN, orcx: INITIAL_TOKEN })
+            body: JSON.stringify({ nickname, token: INITIAL_TOKEN, orcx: INITIAL_TOKEN })
           });
-
-          await loadUserData();
-        } catch (err) {
-          console.error("Initialization error:", err);
-          serverStatus.textContent = "❌ 초기화 실패: 네트워크를 확인하세요.";
+        } catch (e) {
+          console.error('init-user error', e);
         }
       }
 
-      async function loadUserData() {
-        serverStatus.textContent = "데이터 로딩 중...";
+      // 유저 데이터 조회 및 UI 업데이트
+      async function loadData() {
+        serverStatus.textContent = '데이터 로딩 중...';
         try {
-          const res = await fetch(`${API_BASE}/api/userdata`, { cache: 'no-store' });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
+          if (!res.ok) throw new Error(res.status);
+          const { user, users } = await res.json();
+          const u = user || (Array.isArray(users) && users[0]);
+          if (!u) throw new Error('No user');
 
-          const data = await res.json();
-          const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
-          if (!user) throw new Error('유저 데이터를 찾을 수 없습니다.');
+          potatoEl.textContent = u.potatoCount ?? u.potato ?? 0;
+          waterEl.textContent = u.water ?? 0;
+          fertilizerEl.textContent = u.fertilizer ?? 0;
+          seedPotatoEl.textContent = u.seedPotato ?? 0;
+          seedBarleyEl.textContent = u.seedBarley ?? 0;
+          tokenEl.textContent = u.token ?? u.orcx ?? 0;
 
-          // UI 바인딩
-          potatoEl.textContent = user.potatoCount ?? user.potato ?? 0;
-          waterEl.textContent = user.water ?? 0;
-          fertilizerEl.textContent = user.fertilizer ?? 0;
-          tokenEl.textContent = user.token ?? user.orcx ?? INITIAL_TOKEN;
-          seedPotatoEl.textContent = user.seedPotato ?? 0;
-          seedBarleyEl.textContent = user.seedBarley ?? 0;
-
-          inventoryBox.innerHTML = "";
-          (user.inventory || []).forEach(item => {
-            const count = item.count ?? 1;
-            const name = item.name || item.type || '알 수 없는 아이템';
-            inventoryBox.appendChild(Object.assign(document.createElement("div"), { textContent: `- ${name} (${count}개)` }));
+          inventoryBox.textContent = '';
+          (u.inventory || []).forEach(i => {
+            const div = document.createElement('div');
+            div.textContent = `- ${i.name||i.type} (${i.count||1}개)`;
+            inventoryBox.appendChild(div);
           });
 
-          serverStatus.textContent = "✅ 서버 연결 및 데이터 로드 완료";
+          serverStatus.textContent = '✅ 서버 연결 및 데이터 로드 완료';
           startBtn.disabled = false;
-        } catch (err) {
-          console.error("Data fetch error:", err);
-          serverStatus.textContent = "❌ 서버 연결 실패";
+        } catch (e) {
+          console.error('loadData error', e);
+          serverStatus.textContent = '❌ 데이터 로드 실패';
         }
       }
 
-      initUser();
+      await initUser();
+      await loadData();
     })();
   </script>
 </body>
