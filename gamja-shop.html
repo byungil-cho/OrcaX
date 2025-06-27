@@ -165,52 +165,44 @@
   </script>
 <script>
 
-const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
-console.log("⚙️ use-token router loaded");
+document.addEventListener("DOMContentLoaded", function () {
+    const nickname = localStorage.getItem("nickname") || "익명";
+    const token = parseInt(localStorage.getItem("token") || "0");
+    const seedPotato = parseInt(localStorage.getItem("seedPotato") || "0");
+    const seedBarley = parseInt(localStorage.getItem("seedBarley") || "0");
 
-router.post("/", async (req, res) => {
-  console.log("🐾 POST /api/use-token endpoint 호출됨, body:", req.body);
-  ...
+    document.getElementById("nickname").textContent = nickname;
+    document.getElementById("token").textContent = token;
+    document.getElementById("seedPotato").textContent = seedPotato;
+    document.getElementById("seedBarley").textContent = seedBarley;
+
+    const select = document.getElementById("item-select");
+    const buyBtn = document.getElementById("buy-button");
+    const message = document.getElementById("message");
+
+    buyBtn.addEventListener("click", () => {
+        const selected = select.value;
+
+        let userToken = parseInt(localStorage.getItem("token") || "0");
+        if (userToken < 2) {
+            message.textContent = "토큰이 부족합니다!";
+            return;
+        }
+
+        localStorage.setItem("token", userToken - 2);
+
+        if (selected === "씨감자") {
+            const current = parseInt(localStorage.getItem("seedPotato") || "0");
+            localStorage.setItem("seedPotato", current + 1);
+        } else if (selected === "씨보리") {
+            const current = parseInt(localStorage.getItem("seedBarley") || "0");
+            localStorage.setItem("seedBarley", current + 1);
+        }
+
+        message.textContent = `${selected} 구매 완료!`;
+        window.location.reload();
+    });
 });
-
-
-// POST /api/use-token
-router.post('/', async (req, res) => {
-  try {
-    const { nickname, amount } = req.body;
-
-    if (!nickname || !amount) {
-      return res.status(400).json({ success: false, message: '필수 값 누락' });
-    }
-
-    const user = await User.findOne({ kakaoId: nickname }); // nickname을 kakaoId로 사용
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: '유저 없음' });
-    }
-
-    user.orcx = user.orcx || 0;
-    user.seedPotato = user.seedPotato || 0;
-
-    if (user.orcx < amount) {
-      return res.status(400).json({ success: false, message: '토큰 부족' });
-    }
-
-    user.orcx -= amount;
-    user.seedPotato += 1;
-
-    await user.save();
-
-    return res.status(200).json({ success: true, orcx: user.orcx, seedPotato: user.seedPotato });
-  } catch (error) {
-    console.error('토큰 사용 오류:', error);
-    return res.status(500).json({ success: false, message: '서버 오류' });
-  }
-});
-
-module.exports = router;
 
 </script>
 </body>
