@@ -141,7 +141,7 @@
         const res = await fetch(`${API_BASE}/api/use-token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, amount: SEED_PRICE })
+          body: JSON.stringify({ nickname, amount: SEED_PRICE, item })
         });
 
         const result = await res.json();
