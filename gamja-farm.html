@@ -48,7 +48,7 @@
   <script>
     'use strict';
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const INITIAL_TOKEN = 10; // UI용 초기 토큰 수
+    const INITIAL_TOKEN = 10;
   </script>
 </head>
 <body>
@@ -64,66 +64,74 @@
     <div class="info-box">🧺 인벤토리:</div>
     <div id="inventoryBox" class="info-box"></div>
     <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
-    <button id="startBtn" class="btn" disabled>🌱 농장이름 짓기 이동</button>
+    <button id="startBtn" class="btn" disabled>🌱 네 농장으로 이동</button>
   </div>
   <script type="module">
     (async () => {
-      const nickname = localStorage.getItem("nickname");
+      const nickname = localStorage.getItem('nickname');
       if (!nickname) {
-        alert("로그인이 필요합니다.");
+        alert('로그인이 필요합니다.');
         location.href = 'gamja-login.html';
         return;
       }
-      document.getElementById("nickname").textContent = nickname;
+      document.getElementById('nickname').textContent = nickname;
 
-      const startBtn = document.getElementById("startBtn");
-      const serverStatus = document.getElementById("serverStatus");
-      const inventoryBox = document.getElementById("inventoryBox");
-      const potatoEl = document.getElementById("potato");
-      const waterEl = document.getElementById("water");
-      const fertilizerEl = document.getElementById("fertilizer");
-      const tokenEl = document.getElementById("token");
-      const seedPotatoEl = document.getElementById("seedPotato");
-      const seedBarleyEl = document.getElementById("seedBarley");
+      const startBtn = document.getElementById('startBtn');
+      const serverStatus = document.getElementById('serverStatus');
+      const inventoryBox = document.getElementById('inventoryBox');
+      const potatoEl = document.getElementById('potato');
+      const waterEl = document.getElementById('water');
+      const fertilizerEl = document.getElementById('fertilizer');
+      const tokenEl = document.getElementById('token');
+      const seedPotatoEl = document.getElementById('seedPotato');
+      const seedBarleyEl = document.getElementById('seedBarley');
 
-      startBtn.addEventListener("click", () => location.href = "gamja-main.html");
+      startBtn.addEventListener('click', () => location.href = 'gamja-main.html');
 
-      async function loadData() {
+      async function loadAndPatch() {
         serverStatus.textContent = '데이터 로딩 중...';
         try {
           const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
-          if (!res.ok) throw new Error(res.status);
-          const { user, users } = await res.json();
-          const u = user || (Array.isArray(users) && users[0]);
-          if (!u) throw new Error('No user');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const json = await res.json();
+          const u = json.user || (Array.isArray(json.users) ? json.users[0] : null);
+          if (!u) throw new Error('User not found');
 
+          // 필드 업데이트 필요 시 PATCH
+          if ((u.token ?? u.orcx ?? 0) === 0) {
+            await fetch(`${API_BASE}/api/userdata`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nickname, token: INITIAL_TOKEN, orcx: INITIAL_TOKEN })
+            });
+            u.token = INITIAL_TOKEN;
+            u.orcx = INITIAL_TOKEN;
+          }
+
+          // 데이터 바인딩
           potatoEl.textContent = u.potatoCount ?? u.potato ?? 0;
           waterEl.textContent = u.water ?? 0;
           fertilizerEl.textContent = u.fertilizer ?? 0;
           seedPotatoEl.textContent = u.seedPotato ?? 0;
           seedBarleyEl.textContent = u.seedBarley ?? 0;
-
-          // UI 보정: DB에 orcx/token이 0이면 화면에만 INITIAL_TOKEN 표시
-          let displayed = u.token ?? u.orcx ?? 0;
-          if (displayed === 0) displayed = INITIAL_TOKEN;
-          tokenEl.textContent = displayed;
+          tokenEl.textContent = u.token ?? u.orcx;
 
           inventoryBox.textContent = '';
-          (u.inventory || []).forEach(i => {
+          (u.inventory || []).forEach(item => {
             const div = document.createElement('div');
-            div.textContent = `- ${i.name||i.type} (${i.count||1}개)`;
+            div.textContent = `- ${item.name || item.type} (${item.count || 1}개)`;
             inventoryBox.appendChild(div);
           });
 
           serverStatus.textContent = '✅ 서버 연결 및 데이터 로드 완료';
           startBtn.disabled = false;
-        } catch (e) {
-          console.error('loadData error', e);
+        } catch (err) {
+          console.error('Error loading or patching data:', err);
           serverStatus.textContent = '❌ 데이터 로드 실패';
         }
       }
 
-      await loadData();
+      await loadAndPatch();
     })();
   </script>
 </body>
