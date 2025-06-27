@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🥔 감자 농장 - Potato Farm</title>
   <style>
     html, body {
@@ -38,6 +39,12 @@
       text-align: center;
     }
     .info-bar { font-size: 0.95rem; }
+    .server-status {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #fff700;
+    }
     .potato-field, .storage-section, .product-section, .nav-buttons {
       margin: 1rem;
       padding: 1rem;
@@ -70,11 +77,9 @@
       text-decoration: none;
       border-radius: 0.5rem;
     }
-    .server-status {
-      text-align: center;
-      margin-top: 1rem;
+    #harvestResult div {
+      margin-top: 0.5rem;
       font-weight: bold;
-      color: #fff700;
     }
   </style>
 </head>
@@ -88,10 +93,11 @@
   <div class="potato-field">
     <h2>🌾 감자가 자라고 있습니다.</h2>
     <div class="potato-btns">
-      <button onclick="startFarming()">🥔 수확하기</button>
-      <button onclick="applyWater()">💧 물 주기</button>
-      <button onclick="applyFertilizer()">🌿 거름 주기</button>
+      <button id="harvestBtn" disabled>🥔 수확하기</button>
+      <button id="waterBtn">💧 물 주기</button>
+      <button id="fertilizerBtn">🌿 거름 주기</button>
     </div>
+    <div class="growth-info" id="growthInfo"></div>
   </div>
 
   <div class="storage-section">
@@ -103,146 +109,120 @@
     <ul id="product-list"></ul>
   </div>
   <div class="nav-buttons">
-  <a href="gamja-result.html">감자 가공공장</a>
-  <a href="gamja-shop.html">씨감자 구매소</a>
-  <a href="gamja-main.html">뒤로가기</a>
-</div>
+    <a href="gamja-shop.html">씨감자 구매하기</a>
+    <a href="gamja-result.html">감자 가공공장</a>
+    <a href="gamja-main.html">뒤로가기</a>
+  </div>
 </div>
 
 <script>
-const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-
-function checkServerStatus() {
-  fetch(`${API_BASE}/`)
-    .then(res => {
-      if (res.ok) {
-        document.getElementById("serverStatus").textContent = "✅ 서버 전원 ON";
-      } else {
-        throw new Error();
-      }
-    })
-    .catch(() => {
-      document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
-    });
-}
-
-async function fetchUserData() {
-  const nickname = localStorage.getItem("nickname");
-  const farmName = localStorage.getItem("farmName") || "농장";
+(async () => {
+  const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
+  const nickname = localStorage.getItem('nickname');
+  const farmName = localStorage.getItem('farmName') || '농장';
   if (!nickname) {
-    alert("닉네임이 없습니다. 다시 로그인해주세요.");
-    window.location.href = "/OrcaX/index9.html";
+    alert('닉네임이 없습니다. 다시 로그인해주세요.');
+    location.href = 'gamja-login.html';
     return;
   }
+  document.getElementById('nickname').textContent = nickname;
+  document.getElementById('farmName').textContent = farmName;
 
-  document.getElementById("nickname").textContent = nickname;
-  document.getElementById("farmName").textContent = farmName;
+  async function checkServerStatus() {
+    try {
+      const res = await fetch(API_BASE);
+      document.getElementById('serverStatus').textContent = res.ok ? '✅ 서버 전원 ON' : '❌ 서버 오류';
+    } catch {
+      document.getElementById('serverStatus').textContent = '❌ 서버 연결 실패';
+    }
+  }
 
-  try {
-    const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
-    const data = await res.json();
-    const user = data.users[0];
+  async function fetchUserData() {
+    try {
+      const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`, {cache:'no-store'});
+      if (!res.ok) throw new Error(res.status);
+      const data = await res.json();
+      return data.user || (Array.isArray(data.users) ? data.users[0] : null);
+    } catch (e) {
+      console.error(e);
+      alert('유저 정보 불러오기 실패');
+      return null;
+    }
+  }
 
-    const growthInfo = document.createElement("div");
-    growthInfo.style.textAlign = "center";
-    growthInfo.style.marginTop = "0.5rem";
-    growthInfo.style.fontWeight = "bold";
-    growthInfo.innerText = `🌱 성장 포인트: ${user.growthPoint || 0}`;
-    document.querySelector(".potato-field").appendChild(growthInfo);
-
-    const storageList = document.getElementById("storage-list");
-    storageList.innerHTML = "";
-    const 자재 = [
-      { label: "씨감자", value: localStorage.getItem("씨감자") || 0 },
-      { label: "씨보리", value: localStorage.getItem("씨보리") || 0 },
-      { label: "물", value: user.water },
-      { label: "거름", value: user.fertilizer },
-      { label: "ORCX", value: user.orcx }
+  function updateStorage(user) {
+    const list = document.getElementById('storage-list'); list.innerHTML = '';
+    const items = [
+      {label:'씨감자', value:user.seedPotato||0},
+      {label:'씨보리', value:user.seedBarley||0},
+      {label:'물', value:user.water||0},
+      {label:'거름', value:user.fertilizer||0},
+      {label:'ORCX', value:user.orcx||user.token||0}
     ];
-    자재.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `${item.label}: ${item.value}`;
-      storageList.appendChild(li);
+    items.forEach(it=>{
+      const li=document.createElement('li'); li.textContent=`${it.label}: ${it.value}`; list.appendChild(li);
     });
-
-    const productList = document.getElementById("product-list");
-    productList.innerHTML = "";
-    user.inventory.forEach(item => {
-      const type = item.type || item.name || "정의되지 않음";
-      const li = document.createElement("li");
-      li.textContent = `${type}: ${item.count}`;
-      productList.appendChild(li);
-    });
-  } catch (err) {
-    console.error(err);
-    alert("❌ 유저 정보 불러오기 실패");
-  }
-}
-
-async function startFarming() {
-  const nickname = localStorage.getItem("nickname");
-  if (!nickname) return;
-
-  let seedCount = parseInt(localStorage.getItem("씨감자") || 0);
-  if (seedCount < 1) {
-    alert("❌ 씨감자가 없습니다.");
-    return;
   }
 
-  localStorage.setItem("씨감자", seedCount - 1);
-  const amount = [1, 2, 3][Math.floor(Math.random() * 3)];
-
-  try {
-    const res = await fetch(`${API_BASE}/api/farm/harvest`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nickname: encodeURIComponent(nickname), amount })
+  function updateProducts(user) {
+    const list = document.getElementById('product-list'); list.innerHTML='';
+    (user.inventory||[]).forEach(it=>{
+      const li=document.createElement('li'); li.textContent=`${it.name||it.type}: ${it.count}`; list.appendChild(li);
     });
-    const result = await res.json();
-    if (result.success) {
-      alert(`🥔 감자 ${amount}개 수확 완료!`);
-      fetchUserData();
-    } else {
-      alert("❌ 서버 수확 실패");
+  }
+
+  function updateGrowth(user) {
+    const info=document.getElementById('growthInfo');
+    const gp=user.growthPoint||0; info.textContent=`🌱 성장 포인트: ${gp}`;
+    document.getElementById('harvestBtn').disabled = gp<5;
+  }
+
+  async function patchData(changes) {
+    try {
+      await fetch(`${API_BASE}/api/userdata`,{
+        method:'PATCH', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({nickname, ...changes})
+      });
+    } catch(e){console.error('PATCH 오류',e);}  
+  }
+
+  async function loadAndRender() {
+    const user=await fetchUserData(); if(!user) return;
+    updateStorage(user); updateGrowth(user); updateProducts(user);
+  }
+
+  document.getElementById('waterBtn').addEventListener('click', async ()=>{
+    const user=await fetchUserData();
+    if(user.water>0) {
+      await patchData({water:user.water-1, growthPoint:(user.growthPoint||0)+1});
+      await loadAndRender();
     }
-  } catch (err) {
-    console.error(err);
-    alert("❌ 수확 중 오류 발생");
-  }
-}
+  });
 
-async function applyWater() {
-  const nickname = localStorage.getItem("nickname") || "";
-  try {
-    const res = await fetch(`${API_BASE}/api/farm/grow`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nickname: encodeURIComponent(nickname), cropType: "gamja" })
-    });
-    const result = await res.json();
-    if (result.success) {
-      alert("💧 물과 거름을 주었습니다. 성장 포인트 +1!");
-      fetchUserData();
-    } else {
-      alert("❌ 물주기 실패");
+  document.getElementById('fertilizerBtn').addEventListener('click', async ()=>{
+    const user=await fetchUserData();
+    if(user.fertilizer>0) {
+      await patchData({fertilizer:user.fertilizer-1, growthPoint:(user.growthPoint||0)+1});
+      await loadAndRender();
     }
-  } catch (err) {
-    console.error(err);
-    alert("❌ 물 주기 오류");
-  }
-}
+  });
 
-async function applyFertilizer() {
-  applyWater(); // 같은 grow API로 처리
-}
+  document.getElementById('harvestBtn').addEventListener('click', async ()=>{
+    const options=[3,5,7], num=options[Math.floor(Math.random()*options.length)];
+    const user=await fetchUserData();
+    await patchData({growthPoint:0, potatoCount:(user.potatoCount||0)+num});
+    const div=document.createElement('div'); div.textContent=`🥔 감자 ${num}개 수확 완료!`;
+    document.getElementById('harvestResult').appendChild(div);
+    await loadAndRender();
+  });
 
-window.addEventListener("DOMContentLoaded", () => {
-  checkServerStatus();
-  fetchUserData();
-});
+  await checkServerStatus();
+  await loadAndRender();
+})();
 </script>
 </body>
 </html>
+
 
 
 
