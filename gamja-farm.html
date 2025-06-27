@@ -48,6 +48,7 @@
   <script>
     'use strict';
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const INITIAL_TOKEN = 10;
   </script>
 </head>
 <body>
@@ -92,11 +93,12 @@
       async function initUser() {
         serverStatus.textContent = "유저 초기화 중...";
         try {
+          // 새 몽고 서버 초기화: 카카오 가입 시 기본 토큰까지 함께 전송
           await fetch(`${API_BASE}/api/init-user`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             cache: 'no-store',
-            body: JSON.stringify({ nickname: nicknameValue })
+            body: JSON.stringify({ nickname: nicknameValue, token: INITIAL_TOKEN })
           });
           await loadUserData();
         } catch (err) {
@@ -122,27 +124,7 @@
           potatoEl.textContent = user.potatoCount ?? user.potato ?? 0;
           waterEl.textContent = user.water ?? 0;
           fertilizerEl.textContent = user.fertilizer ?? 0;
-
-          // 최초 카카오 로그인 시 지급 누락 보완:
-          // 첫 로그인 때만 ORCX(토큰) 10개 지급 및 DB 저장, 이후 재지급 없음
-          const initKey = 'initialTokensGiven';
-          let orcxVal = user.orcx ?? user.token ?? 0;
-          const hasInit = localStorage.getItem(initKey) === 'true';
-          if (orcxVal === 0 && !hasInit) {
-            orcxVal = 10;
-            localStorage.setItem(initKey, 'true');
-            try {
-              await fetch(`${API_BASE}/api/userdata`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nickname: nicknameValue, orcx: orcxVal })
-              });
-            } catch (patchErr) {
-              console.error('Token update error:', patchErr);
-            }
-          }
-          tokenEl.textContent = orcxVal;
-
+          tokenEl.textContent = user.token ?? user.orcx ?? INITIAL_TOKEN;
           seedPotatoEl.textContent = user.seedPotato ?? 0;
           seedBarleyEl.textContent = user.seedBarley ?? 0;
 
