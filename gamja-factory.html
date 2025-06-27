@@ -16,6 +16,7 @@
     .potato-field, .storage-section, .product-section, .nav-buttons { margin:1rem; padding:1rem; background:rgba(255,255,255,0.8); border-radius:1rem; }
     .seed-select { margin-bottom:1rem; text-align:center; }
     .potato-btns button { margin:0.5rem; padding:0.75rem 1.5rem; font-size:1rem; border:none; border-radius:0.75rem; background:#a5d6a7; cursor:pointer; }
+    .potato-btns button:disabled { background:#ccc; cursor:not-allowed; }
     .storage-section ul, .product-section ul { list-style:none; padding:0; }
     .storage-section li, .product-section li { margin-bottom:0.5rem; font-weight:bold; }
     .nav-buttons a { display:inline-block; margin:0.5rem; padding:0.75rem 1.5rem; background:#4caf50; color:#fff; text-decoration:none; border-radius:0.5rem; }
@@ -36,11 +37,11 @@
         <label><input type="radio" name="seed" value="seedBarley"> 씨보리</label>
       </div>
       <div class="potato-btns">
-        <button id="harvestBtn" disabled>🥔 수확하기</button>
         <button id="waterBtn">💧 물 주기</button>
         <button id="fertilizerBtn">🌿 거름 주기</button>
+        <button id="harvestBtn" disabled>🥔 수확하기</button>
       </div>
-      <div class="growth-info" id="growthInfo"></div>
+      <div class="growth-info" id="growthInfo">🌱 성장포인트: 0</div>
       <div id="harvestResult"></div>
     </div>
 
@@ -63,62 +64,132 @@
     (async () => {
       const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
       const nickname = localStorage.getItem('nickname');
-      const farmName = localStorage.getItem('farmName')||'농장';
-      if(!nickname){ alert('닉네임을 확인해주세요.'); location.href='gamja-login.html'; return; }
-      document.getElementById('nickname').textContent=nickname;
-      document.getElementById('farmName').textContent=farmName;
+      const farmName = localStorage.getItem('farmName') || '농장';
+      if(!nickname) { alert('닉네임을 확인해주세요.'); location.href='gamja-login.html'; return; }
+      document.getElementById('nickname').textContent = nickname;
+      document.getElementById('farmName').textContent = farmName;
 
-      const statusEl=document.getElementById('serverStatus');
-      const storageEl=document.getElementById('storage-list');
-      const productEl=document.getElementById('product-list');
-      const growthEl=document.getElementById('growthInfo');
-      const harvestBtn=document.getElementById('harvestBtn');
-      const waterBtn=document.getElementById('waterBtn');
-      const fertBtn=document.getElementById('fertilizerBtn');
-      const harvestResult=document.getElementById('harvestResult');
+      const statusEl = document.getElementById('serverStatus');
+      const storageEl = document.getElementById('storage-list');
+      const productEl = document.getElementById('product-list');
+      const growthEl = document.getElementById('growthInfo');
+      const waterBtn = document.getElementById('waterBtn');
+      const fertBtn = document.getElementById('fertilizerBtn');
+      const harvestBtn = document.getElementById('harvestBtn');
+      const harvestResult = document.getElementById('harvestResult');
 
-      async function fetchUser(){
-        try{
-          const res=await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`,{cache:'no-store'});
-          if(!res.ok) throw res.status;
-          const data=await res.json(); return data.user||data.users[0];
-        }catch(e){ console.error(e); alert('유저정보 로드 실패'); return null; }
+      async function fetchUser() {
+        try {
+          const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
+          if(!res.ok) throw new Error(res.status);
+          const data = await res.json();
+          return data.user || (Array.isArray(data.users) ? data.users[0] : null);
+        } catch (e) {
+          console.error(e);
+          statusEl.textContent = '❌ 유저 정보 로드 실패';
+          return null;
+        }
       }
-      async function patchUser(changes){
-        try{ await fetch(`${API_BASE}/api/userdata`,{ method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nickname,...changes}) }); }catch(e){console.error('PATCH 오류',e);} }
 
-      function getSelectedSeed(){ return document.querySelector('input[name="seed"]:checked').value; }
-      function render(user){
+      async function patchUser(changes) {
+        try {
+          const res = await fetch(`${API_BASE}/api/update-user`, { // 변경된 엔드포인트
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nickname, ...changes })
+          });
+          if(!res.ok) throw new Error(res.status);
+        } catch (e) {
+          console.error('PATCH 오류', e);
+        }
+      }
+
+      function render(user) {
         // storage
-        storageEl.innerHTML=''; const items=[
-          {label:'씨감자',value:user.seedPotato||0}, {label:'씨보리',value:user.seedBarley||0},
-          {label:'물',value:user.water||0}, {label:'거름',value:user.fertilizer||0},
-          {label:'ORCX',value:user.orcx||user.token||0}
-        ]; items.forEach(it=>{const li=document.createElement('li'); li.textContent=`${it.label}: ${it.value}`; storageEl.appendChild(li);});
+        storageEl.innerHTML = '';
+        const items = [
+          { label: '씨감자', value: user.seedPotato || 0 },
+          { label: '씨보리', value: user.seedBarley || 0 },
+          { label: '물', value: user.water || 0 },
+          { label: '거름', value: user.fertilizer || 0 },
+          { label: 'ORCX', value: user.orcx || user.token || 0 }
+        ];
+        items.forEach(it => {
+          const li = document.createElement('li');
+          li.textContent = `${it.label}: ${it.value}`;
+          storageEl.appendChild(li);
+        });
         // products
-        productEl.innerHTML=''; (user.inventory||[]).forEach(it=>{const li=document.createElement('li'); li.textContent=`${it.name||it.type}: ${it.count}`; productEl.appendChild(li);});
+        productEl.innerHTML = '';
+        (user.inventory || []).forEach(it => {
+          const li = document.createElement('li');
+          li.textContent = `${it.name || it.type}: ${it.count}`;
+          productEl.appendChild(li);
+        });
         // growth
-        const gp=user.growthPoint||0; growthEl.textContent=`🌱 성장포인트: ${gp}`; harvestBtn.disabled=gp<5;
+        const gp = user.growthPoint || 0;
+        growthEl.textContent = `🌱 성장포인트: ${gp}`;
+        harvestBtn.disabled = gp < 5;
       }
 
-      waterBtn.addEventListener('click',async()=>{
-        const user=await fetchUser(); if(user.water>0){ const seed=getSelectedSeed(); await patchUser({water:user.water-1,growthPoint:(user.growthPoint||0)+1}); const u2=await fetchUser(); render(u2);} });
-      fertBtn.addEventListener('click',async()=>{
-        const user=await fetchUser(); if(user.fertilizer>0){ await patchUser({fertilizer:user.fertilizer-1,growthPoint:(user.growthPoint||0)+1}); const u2=await fetchUser(); render(u2);} });
-      harvestBtn.addEventListener('click',async()=>{
-        const count=[3,5,7][Math.floor(Math.random()*3)];
-        // consume one potato seed
-        const user=await fetchUser(); if((user.seedPotato||0)>0){ await patchUser({growthPoint:0,seedPotato:user.seedPotato-1,potatoCount:(user.potatoCount||0)+count}); const u2=await fetchUser(); render(u2);
-          const div=document.createElement('div'); div.textContent=`🥔 감자 ${count}개 수확!`; harvestResult.appendChild(div);
+      function getSelectedSeed() {
+        return document.querySelector('input[name="seed"]:checked').value;
+      }
+
+      waterBtn.addEventListener('click', async () => {
+        const user = await fetchUser();
+        const seed = getSelectedSeed();
+        if (user.water > 0 && user[seed] > 0) {
+          await patchUser({ water: user.water - 1, growthPoint: (user.growthPoint || 0) + 1 });
+          const updated = await fetchUser(); render(updated);
+        } else {
+          alert('물 또는 선택된 씨앗이 부족합니다.');
         }
       });
 
-      statusEl.textContent='✅ 서버 연결 성공';
-      const initialUser=await fetchUser(); if(initialUser) render(initialUser);
+      fertBtn.addEventListener('click', async () => {
+        const user = await fetchUser();
+        const seed = getSelectedSeed();
+        if (user.fertilizer > 0 && user[seed] > 0) {
+          await patchUser({ fertilizer: user.fertilizer - 1, growthPoint: (user.growthPoint || 0) + 1 });
+          const updated = await fetchUser(); render(updated);
+        } else {
+          alert('거름 또는 선택된 씨앗이 부족합니다.');
+        }
+      });
+
+      harvestBtn.addEventListener('click', async () => {
+        const user = await fetchUser();
+        const seed = getSelectedSeed();
+        if ((user.growthPoint || 0) >= 5 && user[seed] > 0) {
+          const options = [3, 5, 7];
+          const num = options[Math.floor(Math.random() * options.length)];
+          const newCount = (seed === 'seedPotato'
+            ? (user.potatoCount || 0) + num
+            : (user.barleyCount || 0) + num);
+          const change = {
+            growthPoint: 0,
+            [seed]: user[seed] - 1
+          };
+          if (seed === 'seedPotato') change.potatoCount = newCount;
+          else change.barleyCount = newCount;
+          await patchUser(change);
+          const div = document.createElement('div');
+          div.textContent = seed === 'seedPotato'
+            ? `🥔 감자 ${num}개 수확!` : `🌾 보리 ${num}개 수확!`;
+          harvestResult.appendChild(div);
+          const updated = await fetchUser(); render(updated);
+        }
+      });
+
+      // 초기 로드
+      statusEl.textContent = '✅ 서버 연결 성공';
+      const initial = await fetchUser(); if (initial) render(initial);
     })();
   </script>
 </body>
 </html>
+
 
 
 
