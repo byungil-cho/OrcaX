@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -127,7 +126,6 @@
     function logout() {
       localStorage.removeItem("nickname");
       localStorage.removeItem("userId");
-      localStorage.removeItem("lastLogin");
       alert("로그아웃 되었습니다.");
       location.reload();
     }
@@ -158,9 +156,6 @@
 
     function waitForNicknameAndRegister(retry = 0) {
       const nickname = localStorage.getItem("nickname");
-      const lastLogin = localStorage.getItem("lastLogin");
-      const now = Date.now();
-      const TWO_HOURS = 2 * 60 * 60 * 1000;
 
       if (nickname) {
         const nicknameEl = document.getElementById("nicknameDisplay");
@@ -173,7 +168,6 @@
           const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLogin))) / 60000);
           alert(`⏳ 농장 이용 대기 시간: ${remain}분 남음`);
         } else {
-          localStorage.setItem("lastLogin", now.toString());
         }
 
         registerUser(nickname);
@@ -186,4 +180,3 @@
   </script>
 </body>
 </html>
-
