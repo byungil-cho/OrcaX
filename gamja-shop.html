@@ -1,167 +1,174 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>씨감자씨보리 구매소</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>씨감자·씨보리 상점</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Pretendard', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 1rem;
+      color: #333;
     }
-    .box {
-      background: rgba(0,0,0,0.6);
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      max-width: 800px;
-      margin: auto;
+    /* 네비게이션 */
+    .nav-bar {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(255,255,255,0.8);
+      padding: 12px 0;
     }
-    h2 { text-align: center; }
-    label, select, button {
-      display: block;
-      margin: 1rem auto;
-      font-size: 1rem;
+    .nav-bar a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background .2s;
     }
-    button {
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      background-color: #4CAF50;
-      border: none;
-      color: white;
-      cursor: pointer;
+    .nav-bar a:hover {
+      background: rgba(0,0,0,0.1);
+    }
+
+    header {
+      text-align: center;
+      padding: 16px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: rgba(255,255,255,0.8);
     }
     .status {
-      background: rgba(255,255,255,0.8);
-      color: black;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-    .links {
       text-align: center;
-      margin-top: 2rem;
+      padding: 12px;
+      font-size: 1.1rem;
+      background: rgba(255,255,255,0.7);
     }
-    .links a {
-      color: #00e6e6;
-      margin: 0 1rem;
-      text-decoration: underline;
+    .shop-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 24px;
+    }
+    .item-card {
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      padding: 16px;
+      width: 260px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .item-card h2 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+    }
+    .item-card p {
+      margin: 4px 0;
+      flex-grow: 1;
+    }
+    .item-card button {
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .item-card button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    .item-card button:hover:not(:disabled) {
+      background: #45A049;
+    }
+    @media (max-width: 600px) {
+      .shop-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .item-card { width: 90%; }
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>🌾 씨감자씨보리 구매소</h2>
-    <div class="status">
-      <p>👤 닉네임: <span id="nickname">-</span></p>
-      <p>🏠 농장이름: <span id="farmName">-</span></p>
-      <p>⚡ 전원 상태: <span id="serverStatus">확인중...</span></p>
-      <p>💰 토큰: <span id="tokens">0</span></p>
-      <p>🥔 씨감자: <span id="potatoSeeds">0</span> / 🌾 씨보리: <span id="barleySeeds">0</span></p>
+  <nav class="nav-bar">
+    <a href="gamja-farm.html">🏡 농장으로</a>
+    <a href="gamja-factory.html">🏭 공장으로</a>
+    <a href="gamja-shop.html">🛒 상점</a>
+  </nav>
+  <header>씨감자·씨보리 상점</header>
+  <div class="status">보유 토큰: <span id="tokenCount">—</span> ORCX</div>
+  <div class="shop-container">
+    <div class="item-card">
+      <h2>씨감자 구매</h2>
+      <p>가격: 2 ORCX</p>
+      <button id="buyPotato">구매하기</button>
+      <p>보유 씨감자: <span id="potatoCount">—</span></p>
     </div>
-
-    <label for="item">구매 항목 선택:</label>
-    <select id="item">
-      <option value="씨감자">🥔 씨감자 (2 ORCX)</option>
-      <option value="씨보리">🌾 씨보리 (2 ORCX)</option>
-    </select>
-    <button onclick="buySeed()">구매하기</button>
-    <p id="message"></p>
-
-    <div class="links">
-      <a href="gamja-farm.html">🌱 농장으로</a>
-      <a href="gamja-exchange.html">🔁 자재 교환소</a>
-      <a href="index9.html">🏠 메인페이지로</a>
+    <div class="item-card">
+      <h2>씨보리 구매</h2>
+      <p>가격: 2 ORCX</p>
+      <button id="buyBarley">구매하기</button>
+      <p>보유 씨보리: <span id="barleyCount">—</span></p>
     </div>
   </div>
-
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const SEED_PRICE = 2;
+    const tokenEl   = document.getElementById('tokenCount');
+    const potatoEl  = document.getElementById('potatoCount');
+    const barleyEl  = document.getElementById('barleyCount');
+    const buyPotato = document.getElementById('buyPotato');
+    const buyBarley = document.getElementById('buyBarley');
 
-    async function loadUserData() {
-      const nickname = localStorage.getItem("nickname") || "-";
-      const farmName = localStorage.getItem("farmName") || "-";
-      document.getElementById("nickname").textContent = nickname;
-      document.getElementById("farmName").textContent = farmName;
-
+    async function loadAssets() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
-        const data = await res.json();
-        const user = data.users[0];
-        document.getElementById("tokens").textContent = user.orcx || 0;
-      } catch (err) {
-        console.error("ORCX 불러오기 실패", err);
+        const res = await fetch('/api/assets');
+        if (!res.ok) throw new Error('자산 로드 실패');
+        const { tokens, potatoes, barleys } = await res.json();
+        tokenEl.textContent  = tokens;
+        potatoEl.textContent = potatoes;
+        barleyEl.textContent = barleys;
+        buyPotato.disabled = tokens < 2;
+        buyBarley.disabled = tokens < 2;
+      } catch (e) {
+        console.error(e);
+        alert('자산 정보를 불러오는 중 오류가 발생했습니다.');
       }
-
-      document.getElementById("potatoSeeds").textContent = localStorage.getItem("씨감자") || 0;
-      document.getElementById("barleySeeds").textContent = localStorage.getItem("씨보리") || 0;
     }
 
-    function checkServer() {
-      fetch(API_BASE + "/")
-        .then(() => {
-          document.getElementById("serverStatus").textContent = "🟢 연결되었음";
-        })
-        .catch(() => {
-          document.getElementById("serverStatus").textContent = "🔴 서버 꺼짐";
+    async function purchase(item) {
+      try {
+        const res = await fetch('/api/purchase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item })
         });
-    }
-
-    async function buySeed() {
-      const item = document.getElementById("item").value;
-      const nickname = localStorage.getItem("nickname") || "-";
-
-      console.log("보낼 값 확인:", { nickname, amount: SEED_PRICE, item });
-
-      let tokens = 0;
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${nickname}`);
         const data = await res.json();
-        tokens = data.users[0].orcx || 0;
-      } catch (err) {
-        document.getElementById("message").textContent = "❌ 토큰 조회 실패";
-        return;
-      }
-
-      if (tokens < SEED_PRICE) {
-        document.getElementById("message").textContent = "❌ 토큰이 부족합니다.";
-        return;
-      }
-
-      let current = parseInt(localStorage.getItem(item) || 0);
-      if (current >= 2) {
-        document.getElementById("message").textContent = `${item}는 최대 2개까지만 보유할 수 있습니다.`;
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API_BASE}/api/use-token`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, amount: SEED_PRICE, item })
-        });
-
-        const result = await res.json();
-        if (!result.success) {
-          document.getElementById("message").textContent = "❌ 토큰 차감 실패";
-          return;
-        }
-
-        localStorage.setItem(item, current + 1);
-        document.getElementById("message").textContent = `${item} 1개 구매 완료!`;
-        loadUserData();
-      } catch (err) {
-        console.error("구매 실패", err);
-        document.getElementById("message").textContent = "❌ 서버 오류 발생";
+        if (!res.ok) return alert(data.message || '구매 실패');
+        tokenEl.textContent  = data.tokens;
+        potatoEl.textContent = data.potatoes;
+        barleyEl.textContent = data.barleys;
+        buyPotato.disabled = data.tokens < 2;
+        buyBarley.disabled = data.tokens < 2;
+        alert('구매가 완료되었습니다.');
+      } catch (e) {
+        console.error(e);
+        alert('구매 중 오류가 발생했습니다.');
       }
     }
 
-    loadUserData();
-    checkServer();
+    buyPotato.addEventListener('click', () => purchase('potato'));
+    buyBarley.addEventListener('click', () => purchase('barley'));
+
+    loadAssets();
   </script>
 </body>
 </html>
