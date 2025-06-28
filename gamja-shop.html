@@ -4,6 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>씨감자·씨보리 상점</title>
+  <!-- 모든 리소스 및 페이지를 OrcaX 경로에서 로드 -->
+  <base href="https://byungil-cho.github.io/OrcaX/" />
   <style>
     /* 전체 배경 및 기본 스타일 */
     html, body {
@@ -11,7 +13,7 @@
       padding: 0;
       height: 100%;
       font-family: 'Pretendard', sans-serif;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background: url('farm-101.png') no-repeat center center fixed;
       background-size: cover;
       color: #333;
       text-align: center;
@@ -168,7 +170,7 @@
     const nickname = localStorage.getItem('nickname');
     if (!nickname) {
       alert('로그인이 필요합니다.');
-      location.href = 'index9.html';
+      window.location.href = 'index9.html';
     }
     document.getElementById('userName').textContent = nickname + '님';
 
@@ -179,9 +181,7 @@
     const btnPotato = document.getElementById('buyPotato');
     const btnBarley = document.getElementById('buyBarley');
 
-    // 서버 연결 및 데이터 로드
     async function loadShopData() {
-      // 전원 상태 확인
       try {
         const res1 = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
         if (res1.ok) {
@@ -196,7 +196,6 @@
         return;
       }
 
-      // 자산 정보 로드
       try {
         const res2 = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
         if (!res2.ok) throw new Error(res2.status);
@@ -204,7 +203,6 @@
         const u = user || (Array.isArray(users) && users[0]);
         if (!u) throw new Error('No user data');
 
-        // 데이터 바인딩
         tokenEl.textContent  = u.orcx;
         potatoEl.textContent = u.seedPotato;
         barleyEl.textContent = u.seedBarley;
@@ -216,7 +214,6 @@
       }
     }
 
-    // 구매 처리
     async function purchase(item) {
       try {
         const res = await fetch(
