@@ -68,6 +68,7 @@
   </div>
   <script type="module">
     (async () => {
+      const kakaoId = localStorage.getItem("kakaoId");
       const nickname = localStorage.getItem("nickname");
       if (!nickname) {
         alert("로그인이 필요합니다.");
@@ -91,7 +92,7 @@
       async function loadData() {
         serverStatus.textContent = '데이터 로딩 중...';
         try {
-          const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
+          const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
           if (!res.ok) throw new Error(res.status);
           const { user, users } = await res.json();
           const u = user || (Array.isArray(users) && users[0]);
@@ -128,8 +129,6 @@
   </script>
 </body>
 </html>
-
-
 
 
 
