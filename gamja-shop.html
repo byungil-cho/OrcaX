@@ -7,6 +7,7 @@
   <!-- 모든 리소스 및 페이지를 OrcaX 경로에서 로드 -->
   <base href="https://byungil-cho.github.io/OrcaX/" />
   <style>
+    /* 전체 배경 및 기본 스타일 */
     html, body {
       margin: 0;
       padding: 0;
@@ -17,6 +18,7 @@
       color: #333;
       text-align: center;
     }
+    /* 네비게이션 바 */
     nav.nav-bar {
       display: flex;
       justify-content: center;
@@ -34,6 +36,7 @@
     }
     nav.nav-bar a:hover { background: rgba(0,0,0,0.1); }
 
+    /* 서버 상태 표시 */
     .power-status {
       margin: 0 auto;
       padding: 8px 0;
@@ -43,6 +46,7 @@
     .power-status.ok { color: green; }
     .power-status.err { color: red; }
 
+    /* 헤더 */
     header {
       position: relative;
       padding: 16px;
@@ -58,12 +62,14 @@
       font-size: 1rem;
     }
 
+    /* 자산 상태 영역 */
     .status {
       padding: 12px;
       background: rgba(255,255,255,0.7);
       font-size: 1.1rem;
     }
 
+    /* 상점 카드 */
     .shop-container {
       display: flex;
       flex-wrap: wrap;
@@ -81,14 +87,8 @@
       flex-direction: column;
       justify-content: space-between;
     }
-    .item-card h2 {
-      margin: 0 0 8px;
-      font-size: 1.2rem;
-    }
-    .item-card p {
-      margin: 4px 0;
-      flex-grow: 1;
-    }
+    .item-card h2 { margin: 0 0 8px; font-size: 1.2rem; }
+    .item-card p  { margin: 4px 0; flex-grow: 1; }
     .item-card button {
       background: #4CAF50;
       color: #fff;
@@ -99,13 +99,10 @@
       cursor: pointer;
       transition: background .2s;
     }
-    .item-card button:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
-    .item-card button:hover:not(:disabled) {
-      background: #45A049;
-    }
+    .item-card button:disabled { background: #aaa; cursor: not-allowed; }
+    .item-card button:hover:not(:disabled) { background: #45A049; }
+
+    /* 반응형 */
     @media (max-width: 600px) {
       .shop-container { flex-direction: column; align-items: center; }
       .item-card { width: 90%; }
@@ -113,6 +110,7 @@
   </style>
   <script>
     'use strict';
+    // API_BASE는 ngrok 도메인 사용
     const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
   </script>
 </head>
@@ -122,14 +120,18 @@
     <a href="gamja-factory.html">🏭 공장으로</a>
     <a href="gamja-shop.html">🛒 상점</a>
   </nav>
+
   <div id="powerStatus" class="power-status">⏳ 서버 상태 확인 중...</div>
+
   <header>
     씨감자·씨보리 상점
     <div id="userName" class="user-name">— 님</div>
   </header>
+
   <div class="status">
     보유 토큰: <span id="tokenCount">—</span> ORCX
   </div>
+
   <div class="shop-container">
     <div class="item-card">
       <h2>씨감자 구매</h2>
@@ -144,6 +146,7 @@
       <p>보유 씨보리: <span id="barleyCount">—</span></p>
     </div>
   </div>
+
   <script type="module">
     const nickname = localStorage.getItem('nickname');
     if (!nickname) {
@@ -159,35 +162,57 @@
     const btnPotato = document.getElementById('buyPotato');
     const btnBarley = document.getElementById('buyBarley');
 
+    // 서버 상태와 자산 로드
     async function loadShopData() {
+      // 서버 연결 확인
       try {
         const res1 = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
-        if (res1.ok) {
-          powerEl.textContent = '✅ 서버 연결 완료'; powerEl.classList.add('ok');
-        } else throw new Error();
+        if (res1.ok) { powerEl.textContent = '✅ 서버 연결 완료'; powerEl.classList.add('ok'); }
+        else throw new Error();
       } catch {
         powerEl.textContent = '❌ 서버 연결 실패'; powerEl.classList.add('err'); return;
       }
+      // 자산 정보 로드
       try {
         const res2 = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
+        if (!res2.ok) throw new Error();
         const { users } = await res2.json(); const u = users[0];
+        // 토큰, 씨감자, 씨보리 표시
         tokenEl.textContent  = u.orcx;
         potatoEl.textContent = u.seedPotato;
         barleyEl.textContent = u.seedBarley;
+        // 구매 버튼 활성/비활성
         btnPotato.disabled   = u.orcx < 2;
         btnBarley.disabled   = u.orcx < 2;
       } catch {
         alert('자산 정보를 불러오는 중 오류가 발생했습니다.');
       }
     }
+
+    // 구매 처리 함수
     async function purchase(item) {
-      const res = await fetch(`${API_BASE}/api/purchase?nickname=${encodeURIComponent(nickname)}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ item })
-      });
-      if (!res.ok) return alert('구매 실패'); await loadShopData(); alert('구매 완료');
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/purchase?nickname=${encodeURIComponent(nickname)}`,
+          {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item })
+          }
+        );
+        if (!res.ok) {
+          const { message } = await res.json();
+          return alert(message || '구매 실패');
+        }
+        await loadShopData();
+        alert('구매가 완료되었습니다.');
+      } catch {
+        alert('구매 중 오류가 발생했습니다.');
+      }
     }
+
     btnPotato.addEventListener('click', () => purchase('potato'));
     btnBarley.addEventListener('click', () => purchase('barley'));
+
     loadShopData();
   </script>
 </body>
