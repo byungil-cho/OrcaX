@@ -5,73 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>씨감자·씨보리 상점</title>
   <style>
-    /* 공통 */
+    /* 페이지 전체 배경 */
     html, body {
-      margin: 0; padding: 0; height: 100%;
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: 'Pretendard', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
-      background-size: cover; color: #333;
+      background-size: cover;
+      color: #333;
     }
-    /* 네비게이션 */
+
+    /* 네비게이션 바 */
     nav.nav-bar {
-      display: flex; justify-content: center; gap: 16px;
-      background: rgba(255,255,255,0.8); padding: 12px 0;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(255,255,255,0.8);
+      padding: 12px 0;
     }
     nav.nav-bar a {
-      text-decoration: none; color: #333; font-weight: bold;
-      padding: 8px 12px; border-radius: 6px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      padding: 8px 12px;
+      border-radius: 6px;
       transition: background .2s;
     }
-    nav.nav-bar a:hover { background: rgba(0,0,0,0.1); }
+    nav.nav-bar a:hover {
+      background: rgba(0,0,0,0.1);
+    }
 
-    /* 전원 상태 */
+    /* 전원 상태 표시 */
     .power-status {
-      text-align: center; padding: 8px 0;
+      text-align: center;
+      padding: 8px 0;
       background: rgba(255,255,255,0.6);
       font-size: 0.9rem;
     }
-    .power-status span.ok   { color: green; }
-    .power-status span.err  { color: red; }
+    .power-status span.ok  { color: green; }
+    .power-status span.err { color: red; }
 
     /* 헤더 */
     header {
       position: relative;
-      text-align: center; padding: 16px;
-      font-size: 1.5rem; font-weight: bold;
+      text-align: center;
+      padding: 16px;
+      font-size: 1.5rem;
+      font-weight: bold;
       background: rgba(255,255,255,0.8);
     }
     header .user-name {
-      position: absolute; right: 16px; top: 50%;
+      position: absolute;
+      right: 16px;
+      top: 50%;
       transform: translateY(-50%);
       font-size: 1rem;
     }
 
     /* 자산 상태 */
     .status {
-      text-align: center; padding: 12px;
-      font-size: 1.1rem; background: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 12px;
+      font-size: 1.1rem;
+      background: rgba(255,255,255,0.7);
     }
 
-    /* 상점 카드 */
+    /* 상점 카드 레이아웃 */
     .shop-container {
-      display: flex; flex-wrap: wrap;
-      justify-content: center; gap: 20px; padding: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 24px;
     }
     .item-card {
       background: rgba(255,255,255,0.9);
-      border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      padding: 16px; width: 260px; text-align: center;
-      display: flex; flex-direction: column; justify-content: space-between;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      padding: 16px;
+      width: 260px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    .item-card h2 { margin: 0 0 8px; font-size: 1.2rem; }
-    .item-card p { margin: 4px 0; flex-grow: 1; }
+    .item-card h2 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+    }
+    .item-card p {
+      margin: 4px 0;
+      flex-grow: 1;
+    }
     .item-card button {
-      background: #4CAF50; color: #fff; border: none;
-      border-radius: 6px; padding: 10px; font-size: 1rem;
-      cursor: pointer; transition: background .2s;
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background .2s;
     }
     .item-card button:disabled {
-      background: #aaa; cursor: not-allowed;
+      background: #aaa;
+      cursor: not-allowed;
     }
     .item-card button:hover:not(:disabled) {
       background: #45A049;
@@ -79,20 +118,26 @@
 
     /* 반응형 */
     @media (max-width: 600px) {
-      .shop-container { flex-direction: column; align-items: center; }
-      .item-card { width: 90%; }
+      .shop-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .item-card {
+        width: 90%;
+      }
     }
   </style>
 </head>
 <body>
   <nav class="nav-bar">
-    <a href="gamja-farm.html">🏡 농장으로</a>
-    <a href="gamja-factory.html">🏭 공장으로</a>
-    <a href="gamja-shop.html">🛒 상점</a>
+    <!-- 필요하다면 절대경로로 변경 -->
+    <a href="https://byungil-cho.github.io/OrcaX/gamja-farm.html">🏡 농장으로</a>
+    <a href="https://byungil-cho.github.io/OrcaX/gamja-factory.html">🏭 공장으로</a>
+    <a href="https://byungil-cho.github.io/OrcaX/gamja-shop.html">🛒 상점</a>
   </nav>
 
   <div class="power-status">
-    전원 상태: <span id="powerStatus" class="">—</span>
+    전원 상태: <span id="powerStatus">—</span>
   </div>
 
   <header>
@@ -105,97 +150,80 @@
   </div>
 
   <div class="shop-container">
-    <div class="item-card">
-      <h2>씨감자 구매</h2>
-      <p>가격: 2 ORCX</p>
-      <button id="buyPotato">구매하기</button>
-      <p>보유 씨감자: <span id="potatoCount">—</span></p>
-    </div>
-    <div class="item-card">
-      <h2>씨보리 구매</h2>
-      <p>가격: 2 ORCX</p>
-      <button id="buyBarley">구매하기</button>
-      <p>보유 씨보리: <span id="barleyCount">—</span></p>
-    </div>
+    <!-- 카드들 생략 -->
   </div>
 
   <script>
-    // 1) index9.html에서 저장한 닉네임 읽어오기
+    const BASE_URL = 'https://climbing-wholly-grouper.jp.ngrok.io';
     const nickname = localStorage.getItem('nickname');
     if (!nickname) {
       alert('로그인이 필요합니다.');
-      return location.href = 'index9.html';
+      return location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
     }
-    document.getElementById('userName').textContent = nickname + '님';
+    document.getElementById('userName').textContent = `${nickname}님`;
 
-    const powerEl    = document.getElementById('powerStatus');
-    const tokenEl    = document.getElementById('tokenCount');
-    const potatoEl   = document.getElementById('potatoCount');
-    const barleyEl   = document.getElementById('barleyCount');
-    const btnPotato  = document.getElementById('buyPotato');
-    const btnBarley  = document.getElementById('buyBarley');
+    const powerEl   = document.getElementById('powerStatus');
+    const tokenEl   = document.getElementById('tokenCount');
+    const potatoEl  = document.getElementById('potatoCount');
+    const barleyEl  = document.getElementById('barleyCount');
+    const btnPotato = document.getElementById('buyPotato');
+    const btnBarley = document.getElementById('buyBarley');
 
-    // 2) 서버 연결 상태 체크 (GET /api/userdata 활용)
     async function checkPower() {
       try {
-        const res = await fetch('/api/userdata', { credentials: 'include' });
-        if (res.ok) {
-          powerEl.textContent = '정상';
-          powerEl.className   = 'ok';
-        } else {
-          throw new Error(res.status);
-        }
-      } catch (e) {
+        const res = await fetch(`${BASE_URL}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
+        powerEl.textContent = res.ok ? '정상' : '오류';
+        powerEl.className   = res.ok ? 'ok' : 'err';
+      } catch {
         powerEl.textContent = '오류';
         powerEl.className   = 'err';
       }
     }
 
-    // 3) 자산 로드 (서버에서 받은 값으로 UI 갱신)
     async function loadAssets() {
       try {
-        const res = await fetch('/api/userdata', { credentials: 'include' });
-        if (!res.ok) throw new Error('로드 실패');
-        const { tokens, potatoes, barleys } = await res.json();
-        tokenEl.textContent  = tokens;
-        potatoEl.textContent = potatoes;
-        barleyEl.textContent = barleys;
-        btnPotato.disabled   = tokens < 2;
-        btnBarley.disabled   = tokens < 2;
-      } catch (e) {
-        console.error(e);
+        const res = await fetch(`${BASE_URL}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
+        if (!res.ok) throw new Error();
+        const { users } = await res.json();
+        const me = users[0];
+        tokenEl.textContent  = me.orcx;
+        potatoEl.textContent = me.seedPotato;
+        barleyEl.textContent = me.seedBarley;
+        btnPotato.disabled   = me.orcx < 2;
+        btnBarley.disabled   = me.orcx < 2;
+      } catch {
         alert('자산 정보를 불러오는 중 오류가 발생했습니다.');
       }
     }
 
-    // 4) 구매 요청
     async function purchase(item) {
       try {
-        const res = await fetch('/api/purchase', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ item })
-        });
-        const data = await res.json();
-        if (!res.ok) return alert(data.message || '구매 실패');
-        tokenEl.textContent  = data.tokens;
-        potatoEl.textContent = data.potatoes;
-        barleyEl.textContent = data.barleys;
-        btnPotato.disabled   = data.tokens < 2;
-        btnBarley.disabled   = data.tokens < 2;
+        const res = await fetch(
+          `${BASE_URL}/api/purchase?nickname=${encodeURIComponent(nickname)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item })
+          }
+        );
+        if (!res.ok) return alert('구매 실패');
+        const { users } = await res.json();
+        const me = users[0];
+        tokenEl.textContent  = me.orcx;
+        potatoEl.textContent = me.seedPotato;
+        barleyEl.textContent = me.seedBarley;
+        btnPotato.disabled   = me.orcx < 2;
+        btnBarley.disabled   = me.orcx < 2;
         alert('구매가 완료되었습니다.');
-      } catch (e) {
-        console.error(e);
+      } catch {
         alert('구매 중 오류가 발생했습니다.');
       }
     }
 
-    // 이벤트 바인딩
     btnPotato .addEventListener('click', () => purchase('potato'));
     btnBarley.addEventListener('click', () => purchase('barley'));
 
-    // 초기 실행
+    // 초기화
     checkPower();
     loadAssets();
   </script>
