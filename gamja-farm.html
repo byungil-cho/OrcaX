@@ -63,9 +63,10 @@
     <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
     <div class="info-box">🧺 인벤토리:</div>
     <div id="inventoryBox" class="info-box"></div>
-    <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
+    <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중.</div>
     <button id="startBtn" class="btn" disabled>🌱 농장이름 짓기 이동</button>
   </div>
+
   <script type="module">
     (async () => {
       const kakaoId = localStorage.getItem("kakaoId");
@@ -77,34 +78,43 @@
       }
       document.getElementById("nickname").textContent = nickname;
 
-      const startBtn = document.getElementById("startBtn");
-      const serverStatus = document.getElementById("serverStatus");
-      const inventoryBox = document.getElementById("inventoryBox");
-      const potatoEl = document.getElementById("potato");
-      const waterEl = document.getElementById("water");
-      const fertilizerEl = document.getElementById("fertilizer");
-      const tokenEl = document.getElementById("token");
-      const seedPotatoEl = document.getElementById("seedPotato");
-      const seedBarleyEl = document.getElementById("seedBarley");
+      const startBtn       = document.getElementById("startBtn");
+      const serverStatus   = document.getElementById("serverStatus");
+      const inventoryBox   = document.getElementById("inventoryBox");
+      const potatoEl       = document.getElementById("potato");
+      const waterEl        = document.getElementById("water");
+      const fertilizerEl   = document.getElementById("fertilizer");
+      const tokenEl        = document.getElementById("token");
+      const seedPotatoEl   = document.getElementById("seedPotato");
+      const seedBarleyEl   = document.getElementById("seedBarley");
 
-      startBtn.addEventListener("click", () => location.href = "gamja-main.html");
+      startBtn.addEventListener("click", () => {
+        location.href = "gamja-main.html";
+      });
 
       async function loadData() {
         serverStatus.textContent = '데이터 로딩 중...';
         try {
-          const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
-          if (!res.ok) throw new Error(res.status);
+          // 🛠 kakaoId 파라미터로 전송하도록 변경
+          const url = `${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`;
+          console.log('▶ fetching URL:', url);
+          const res = await fetch(url, { cache: 'no-store' });
+          if (!res.ok) {
+            console.error('fetch error:', res.status, await res.text());
+            throw new Error(res.status);
+          }
+
           const { user, users } = await res.json();
           const u = user || (Array.isArray(users) && users[0]);
           if (!u) throw new Error('No user');
 
-          potatoEl.textContent = u.potatoCount ?? u.potato ?? 0;
-          waterEl.textContent = u.water ?? 0;
+          potatoEl.textContent     = u.potatoCount ?? u.potato ?? 0;
+          waterEl.textContent      = u.water ?? 0;
           fertilizerEl.textContent = u.fertilizer ?? 0;
           seedPotatoEl.textContent = u.seedPotato ?? 0;
           seedBarleyEl.textContent = u.seedBarley ?? 0;
 
-          // UI 보정: DB에 orcx/token이 0이면 화면에만 INITIAL_TOKEN 표시
+          // DB에 token/orcx가 0이어도 화면에는 INITIAL_TOKEN 표시
           let displayed = u.token ?? u.orcx ?? 0;
           if (displayed === 0) displayed = INITIAL_TOKEN;
           tokenEl.textContent = displayed;
@@ -112,7 +122,7 @@
           inventoryBox.textContent = '';
           (u.inventory || []).forEach(i => {
             const div = document.createElement('div');
-            div.textContent = `- ${i.name||i.type} (${i.count||1}개)`;
+            div.textContent = `- ${i.name || i.type} (${i.count || 1}개)`;
             inventoryBox.appendChild(div);
           });
 
@@ -129,8 +139,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
