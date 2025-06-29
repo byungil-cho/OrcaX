@@ -5,7 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🌳 OrcaX 농장 입구</title>
-  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
     body {
       margin: 0;
@@ -29,7 +28,6 @@
       margin-top: 1.5rem;
       font-size: 1.2rem;
       font-weight: bold;
-      color: #fff;
       background-color: rgba(0, 0, 0, 0.6);
       display: inline-block;
       padding: 0.4rem 1rem;
@@ -116,72 +114,62 @@
   </div>
 
   <script>
+    const CLIENT_ID    = '284b798a9d9be8202f9c2e129fa6f329';
+    const REDIRECT_URI = 'https://byungil-cho.github.io/OrcaX/kakao-callback.html';
+    const API_BASE     = 'https://climbing-wholly-grouper.jp.ngrok.io';
+
+    // 로그인 상태 표시
+    function showLoginState() {
+      const nickname = localStorage.getItem('nickname');
+      if (nickname) {
+        const nicknameEl = document.getElementById('nicknameDisplay');
+        nicknameEl.textContent = '👤 ' + nickname + '님, 환영합니다!';
+        nicknameEl.style.display = 'inline-block';
+        document.getElementById('loginBtn').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'inline-block';
+      }
+    }
+
+    // 카카오 로그인 리디렉트
     function goKakaoLogin() {
-      const client_id = "284b798a9d9be8202f9c2e129fa6f329";
-      const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
-      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
+      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
       window.location.href = url;
     }
 
+    // 로그아웃
     function logout() {
-      localStorage.removeItem("nickname");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("lastLogin");
-      alert("로그아웃 되었습니다.");
+      localStorage.removeItem('kakaoId');
+      localStorage.removeItem('nickname');
+      localStorage.removeItem('lastLogin');
+      alert('로그아웃 되었습니다.');
       location.reload();
     }
 
+    // 농장 입장
     function enterFarm(url) {
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
-        alert("로그인 후 입장하실 수 있습니다.");
-        window.location.href = "orcax-farm_000.html";
+      if (!localStorage.getItem('nickname')) {
+        alert('로그인 후 입장하실 수 있습니다.');
       } else {
         window.location.href = url;
       }
     }
 
-    async function registerUser(nickname) {
+    // 서버에 유저 등록 (필요 시 호출)
+    async function registerUser() {
+      const kakaoId = localStorage.getItem('kakaoId');
+      const nickname = localStorage.getItem('nickname');
+      if (!kakaoId || !nickname) return;
       try {
-        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname })
+        await fetch(`${API_BASE}/api/login/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId, nickname })
         });
-        const data = await res.json();
-        console.log("서버 응답:", data);
-      } catch (err) {
-        console.error("서버 등록 오류:", err);
-      }
+      } catch {}
     }
 
-    function waitForNicknameAndRegister(retry = 0) {
-      const nickname = localStorage.getItem("nickname");
-      const lastLogin = localStorage.getItem("lastLogin");
-      const now = Date.now();
-      const TWO_HOURS = 2 * 60 * 60 * 1000;
-
-      if (nickname) {
-        const nicknameEl = document.getElementById("nicknameDisplay");
-        nicknameEl.textContent = "👤 " + nickname + "님, 환영합니다!";
-        nicknameEl.style.display = "inline-block";
-        document.getElementById("loginBtn").style.display = "none";
-        document.getElementById("logoutBtn").style.display = "inline-block";
-
-        if (lastLogin && now - parseInt(lastLogin) < TWO_HOURS) {
-          const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLogin))) / 60000);
-          alert(`⏳ 농장 이용 대기 시간: ${remain}분 남음`);
-        } else {
-          localStorage.setItem("lastLogin", now.toString());
-        }
-
-        registerUser(nickname);
-      } else if (retry < 5) {
-        setTimeout(() => waitForNicknameAndRegister(retry + 1), 500);
-      }
-    }
-
-    waitForNicknameAndRegister();
+    // 초기 로드
+    showLoginState();
   </script>
 </body>
 </html>
