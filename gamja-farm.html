@@ -69,8 +69,8 @@
 
   <script type="module">
     (async () => {
-      const kakaoId = localStorage.getItem("kakaoId");
       const nickname = localStorage.getItem("nickname");
+      const kakaoId = localStorage.getItem("kakaoId");
       if (!nickname || !kakaoId) {
         alert("로그인이 필요합니다.");
         location.href = 'kakao-callback.html';
