@@ -95,11 +95,11 @@
     <div id="nicknameDisplay" class="nickname" style="display: none;"></div>
 
     <div class="field-section">
-      <div class="field" onclick="enterFarm('https://byungil-cho.github.io/OrcaX/gamja-farm.html')">
+      <div class="field" onclick="enterFarm('gamja-farm.html')">
         <img src="https://byungil-cho.github.io/OrcaX/farm-101.png" alt="감자 밭">
         <span>🥔 감자 밭</span>
       </div>
-      <div class="field" onclick="enterFarm('https://byungil-cho.github.io/OrcaX/bori-farm.html')">
+      <div class="field" onclick="enterFarm('bori-farm.html')">
         <img src="https://byungil-cho.github.io/OrcaX/farm-201.png" alt="보리 밭">
         <span>🌾 보리 밭</span>
       </div>
@@ -123,9 +123,7 @@
     }
 
     function logout() {
-      localStorage.removeItem("nickname");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("lastLogin");
+      localStorage.clear();
       alert("로그아웃 되었습니다.");
       location.reload();
     }
