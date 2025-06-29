@@ -20,6 +20,7 @@
   <div class="container">
     <h1>🐳 OrcaX 농장 입구</h1>
     <div id="nicknameDisplay" class="nickname" style="display:none;"></div>
+
     <div class="field-section">
       <div class="field" onclick="enterFarm('gamja-farm.html')">
         <img src="https://byungil-cho.github.io/OrcaX/farm-101.png" alt="감자 밭">
@@ -30,15 +31,15 @@
         <span>🌾 보리 밭</span>
       </div>
     </div>
+
     <button id="loginBtn" class="kakao-btn" onclick="goKakaoLogin()">카카오 로그인</button>
     <button id="logoutBtn" class="kakao-btn" style="display:none;background:#ff4d4d;" onclick="logout()">로그아웃</button>
   </div>
 
   <script>
     const CLIENT_ID = '284b798a9d9be8202f9c2e129fa6f329';
-    const REDIRECT_URI = 'kakao-callback.html';
+    const REDIRECT_URI = 'https://byungil-cho.github.io/OrcaX/kakao-callback.html';
 
-    // 로그인 상태 표시
     function showLoginState() {
       const kakaoId = localStorage.getItem('kakaoId');
       const nickname = localStorage.getItem('nickname');
@@ -47,15 +48,17 @@
         el.textContent = `👤 ${nickname || ''}님`; el.style.display = 'inline-block';
         document.getElementById('loginBtn').style.display = 'none';
         document.getElementById('logoutBtn').style.display = 'inline-block';
+      } else {
+        document.getElementById('loginBtn').style.display = 'inline-block';
+        document.getElementById('logoutBtn').style.display = 'none';
       }
     }
 
-    // 카카오 OAuth 로그인
     function goKakaoLogin() {
-      location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+      const authUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+      window.location.href = authUrl;
     }
 
-    // 로그아웃 처리
     function logout() {
       localStorage.removeItem('kakaoId');
       localStorage.removeItem('nickname');
@@ -63,17 +66,16 @@
       location.reload();
     }
 
-    // 농장 입장 함수
     function enterFarm(page) {
       if (!localStorage.getItem('kakaoId')) {
         alert('로그인 후 입장 가능합니다.');
       } else {
-        location.href = page;
+        window.location.href = page;
       }
     }
 
-    // 초기 로드
-    showLoginState();
+    document.addEventListener('DOMContentLoaded', showLoginState);
   </script>
 </body>
 </html>
+
