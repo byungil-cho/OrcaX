@@ -33,6 +33,25 @@
               alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
               return;
             }
+
+            // ✅ 백엔드에 accessToken 보내기
+            fetch("http://localhost:3060/auth/kakao/callback", {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ accessToken })
+            })
+            .then(res => res.json())
+            .then(result => {
+              if (result.success) {
+                console.log("서버 저장 성공:", result.user);
+              } else {
+                console.warn("서버 응답 오류", result);
+              }
+            })
+            .catch(err => {
+              console.error("서버 통신 실패", err);
+            });
+
             localStorage.setItem("nickname", nickname);
             localStorage.setItem("userId", userId);
             localStorage.setItem("accessToken", accessToken);
