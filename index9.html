@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🌳 OrcaX 농장 입구</title>
-  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -28,7 +28,6 @@
       margin-top: 1.5rem;
       font-size: 1.2rem;
       font-weight: bold;
-      color: #fff;
       background-color: rgba(0, 0, 0, 0.6);
       display: inline-block;
       padding: 0.4rem 1rem;
@@ -110,38 +109,81 @@
       <a href="auction-house.html">📊 경매장 입장</a>
     </div>
 
-    <button id="loginBtn" class="kakao-btn" onclick="goKakaoLogin()">카카오 로그인</button>
-    <button id="logoutBtn" class="kakao-btn" style="display: none; background-color: #ff4d4d;" onclick="logout()">로그아웃</button>
+    <button id="loginBtn" class="kakao-btn">카카오 로그인</button>
+    <button id="logoutBtn" class="kakao-btn" style="display: none; background-color: #ff4d4d;">로그아웃</button>
   </div>
 
   <script>
-    const CLIENT_ID    = '284b798a9d9be8202f9c2e129fa6f329';
-    const REDIRECT_URI = 'https://byungil-cho.github.io/OrcaX/kakao-callback.html';
-    const API_BASE     = 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const CLIENT_ID = '284b798a9d9be8202f9c2e129fa6f329';
+    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
 
-    function goKakaoLogin() {
-      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-      location.href = url;
+    // SDK 초기화
+    Kakao.init(CLIENT_ID);
+
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const nicknameEl = document.getElementById('nicknameDisplay');
+
+    // 로그인 상태 표시
+    function showLoginState() {
+      const kakaoId = localStorage.getItem('kakaoId');
+      const nickname = localStorage.getItem('nickname');
+      if (kakaoId && nickname) {
+        nicknameEl.textContent = '👤 ' + nickname + '님, 환영합니다!';
+        nicknameEl.style.display = 'inline-block';
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+      }
     }
 
-    function logout() {
+    // 카카오 로그인 via JS SDK
+    loginBtn.addEventListener('click', () => {
+      Kakao.Auth.login({
+        success: authObj => {
+          Kakao.API.request({
+            url: '/v2/user/me',
+            success: res => {
+              const kakaoId = String(res.id);
+              const nickname = res.properties.nickname;
+              localStorage.setItem('kakaoId', kakaoId);
+              localStorage.setItem('nickname', nickname);
+              localStorage.setItem('lastLogin', Date.now().toString());
+              registerUser(kakaoId, nickname);
+              showLoginState();
+            },
+            fail: err => {
+              console.error('프로필 요청 실패', err);
+              alert('로그인 정보 취득에 실패했습니다.');
+            }
+          });
+        },
+        fail: err => {
+          console.error('카카오 로그인 실패', err);
+          alert('로그인에 실패했습니다.');
+        }
+      });
+    });
+
+    // 로그아웃
+    logoutBtn.addEventListener('click', () => {
       localStorage.removeItem('kakaoId');
       localStorage.removeItem('nickname');
       localStorage.removeItem('lastLogin');
       alert('로그아웃 되었습니다.');
       location.reload();
-    }
+    });
 
+    // 농장 입장
     function enterFarm(url) {
       const kakaoId = localStorage.getItem('kakaoId');
       if (!kakaoId) {
         alert('로그인 후 입장하실 수 있습니다.');
-        window.location.href = 'orcax-farm_000.html';
       } else {
         window.location.href = url;
       }
     }
 
+    // 서버에 유저 등록
     async function registerUser(kakaoId, nickname) {
       try {
         const res = await fetch(`${API_BASE}/api/login/login`, {
@@ -149,41 +191,14 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, nickname })
         });
-        const data = await res.json();
-        console.log('서버 응답:', data);
+        console.log('서버 응답:', await res.json());
       } catch (err) {
         console.error('서버 등록 오류:', err);
       }
     }
 
-    function waitForNicknameAndRegister(retry = 0) {
-      const kakaoId   = localStorage.getItem('kakaoId');
-      const nickname  = localStorage.getItem('nickname');
-      const lastLogin = localStorage.getItem('lastLogin');
-      const now       = Date.now();
-      const TWO_HOURS = 2 * 60 * 60 * 1000;
-
-      if (kakaoId && nickname) {
-        const nicknameEl = document.getElementById('nicknameDisplay');
-        nicknameEl.textContent = '👤 ' + nickname + '님, 환영합니다!';
-        nicknameEl.style.display = 'inline-block';
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('logoutBtn').style.display = 'inline-block';
-
-        if (lastLogin && now - parseInt(lastLogin) < TWO_HOURS) {
-          const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLogin))) / 60000);
-          alert(`⏳ 농장 이용 대기 시간: ${remain}분 남음`);
-        } else {
-          localStorage.setItem('lastLogin', now.toString());
-        }
-
-        registerUser(kakaoId, nickname);
-      } else if (retry < 5) {
-        setTimeout(() => waitForNicknameAndRegister(retry + 1), 500);
-      }
-    }
-
-    waitForNicknameAndRegister();
+    // 초기 로드 시 로그인 상태 확인
+    showLoginState();
   </script>
 </body>
 </html>
