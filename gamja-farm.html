@@ -96,12 +96,8 @@
         serverStatus.textContent = '데이터 로딩 중...';
         try {
           const url = `${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`;
-          console.log('▶ fetching URL:', url);
           const res = await fetch(url, { cache: 'no-store' });
-          if (!res.ok) {
-            console.error('fetch error:', res.status, await res.text());
-            throw new Error(res.status);
-          }
+          if (!res.ok) throw new Error(await res.text());
 
           const { user, users } = await res.json();
           const u = user || (Array.isArray(users) && users[0]);
