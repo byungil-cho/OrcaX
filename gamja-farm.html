@@ -5,50 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>감자 농장 입장</title>
   <style>
-    body {
-      font-family: "Pretendard", sans-serif;
-      margin: 0;
-      padding: 0;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
-      background-size: cover;
-      color: white;
-      text-align: center;
+    body { margin:0; padding:0; font-family:'Pretendard',sans-serif;
+      background:url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-size:cover; color:white; text-align:center;
     }
-    .container {
-      background-color: rgba(0, 0, 0, 0.5);
-      margin-top: 5%;
-      padding: 20px;
-      display: inline-block;
-      border-radius: 12px;
-    }
-    .btn {
-      margin-top: 20px;
-      padding: 15px 30px;
-      background-color: #FFD700;
-      color: black;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .status {
-      margin-top: 20px;
-      color: #00FF00;
-      font-weight: bold;
-    }
-    .info-box {
-      background-color: #2166d1;
-      padding: 8px;
-      margin: 6px;
-      border-radius: 6px;
-      text-align: left;
-    }
+    .container{ background:rgba(0,0,0,0.5); margin:5% auto; padding:20px; width:90%; max-width:400px; border-radius:12px; }
+    .btn{ margin-top:20px; padding:15px 30px; background:#FFD700; color:#000; font-size:1.2rem; font-weight:bold; border:none; border-radius:10px; cursor:pointer; }
+    .status{ margin-top:20px; font-weight:bold; }
+    .info-box{ background:#2166d1; padding:8px; margin:6px 0; border-radius:6px; text-align:left; }
   </style>
   <script>
     'use strict';
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const INITIAL_TOKEN = 10; // UI용 초기 토큰 수
+    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const INITIAL_TOKEN = 10;
   </script>
 </head>
 <body>
@@ -63,74 +32,71 @@
     <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
     <div class="info-box">🧺 인벤토리:</div>
     <div id="inventoryBox" class="info-box"></div>
-    <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중.</div>
+    <div id="serverStatus" class="status" aria-live="polite">⏳ 서버 상태 확인 중.</div>
     <button id="startBtn" class="btn" disabled>🌱 농장이름 짓기 이동</button>
   </div>
 
   <script type="module">
     (async () => {
-      const kakaoId = localStorage.getItem("kakaoId");
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
-        alert("로그인이 필요합니다.");
-        location.href = 'gamja-login.html';
-        return;
+      // 1) localStorage 체크
+      const kakaoId  = localStorage.getItem('kakaoId');
+      const nickname = localStorage.getItem('nickname');
+      if (!kakaoId || !nickname) {
+        alert('로그인이 필요합니다.');
+        return location.href = 'gamja-login.html';
       }
-      document.getElementById("nickname").textContent = nickname;
+      document.getElementById('nickname').textContent = nickname;
 
-      const startBtn       = document.getElementById("startBtn");
-      const serverStatus   = document.getElementById("serverStatus");
-      const inventoryBox   = document.getElementById("inventoryBox");
-      const potatoEl       = document.getElementById("potato");
-      const waterEl        = document.getElementById("water");
-      const fertilizerEl   = document.getElementById("fertilizer");
-      const tokenEl        = document.getElementById("token");
-      const seedPotatoEl   = document.getElementById("seedPotato");
-      const seedBarleyEl   = document.getElementById("seedBarley");
+      // 2) UI 요소 바인딩
+      const startBtn     = document.getElementById('startBtn');
+      const statusEl     = document.getElementById('serverStatus');
+      const invBox       = document.getElementById('inventoryBox');
+      const els = {
+        potato:     document.getElementById('potato'),
+        water:      document.getElementById('water'),
+        fertilizer: document.getElementById('fertilizer'),
+        token:      document.getElementById('token'),
+        seedPotato: document.getElementById('seedPotato'),
+        seedBarley: document.getElementById('seedBarley'),
+      };
 
-      startBtn.addEventListener("click", () => {
-        location.href = "gamja-main.html";
-      });
+      startBtn.addEventListener('click', () => location.href = 'gamja-main.html');
 
+      // 3) 데이터 로드
       async function loadData() {
-        serverStatus.textContent = '데이터 로딩 중...';
+        statusEl.textContent = '⏳ 데이터 로딩 중...';
         try {
-          // 🛠 kakaoId 파라미터로 전송하도록 변경
           const url = `${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`;
           console.log('▶ fetching URL:', url);
-          const res = await fetch(url, { cache: 'no-store' });
-          if (!res.ok) {
-            console.error('fetch error:', res.status, await res.text());
-            throw new Error(res.status);
-          }
+          const res = await fetch(url, { cache:'no-store' });
+          if (!res.ok) throw new Error(await res.text());
 
-          const { user, users } = await res.json();
-          const u = user || (Array.isArray(users) && users[0]);
-          if (!u) throw new Error('No user');
+          const { success, user } = await res.json();
+          if (!success || !user) throw new Error('유저 정보 없음');
 
-          potatoEl.textContent     = u.potatoCount ?? u.potato ?? 0;
-          waterEl.textContent      = u.water ?? 0;
-          fertilizerEl.textContent = u.fertilizer ?? 0;
-          seedPotatoEl.textContent = u.seedPotato ?? 0;
-          seedBarleyEl.textContent = u.seedBarley ?? 0;
+          // 값 표시
+          els.potato.textContent     = user.potato ?? 0;
+          els.water.textContent      = user.water ?? 0;
+          els.fertilizer.textContent = user.fertilizer ?? 0;
+          els.seedPotato.textContent = user.seedPotato ?? 0;
+          els.seedBarley.textContent = user.seedBarley ?? 0;
 
-          // DB에 token/orcx가 0이어도 화면에는 INITIAL_TOKEN 표시
-          let displayed = u.token ?? u.orcx ?? 0;
-          if (displayed === 0) displayed = INITIAL_TOKEN;
-          tokenEl.textContent = displayed;
+          let tk = user.orcx ?? 0;
+          if (tk === 0) tk = INITIAL_TOKEN;
+          els.token.textContent = tk;
 
-          inventoryBox.textContent = '';
-          (u.inventory || []).forEach(i => {
-            const div = document.createElement('div');
-            div.textContent = `- ${i.name || i.type} (${i.count || 1}개)`;
-            inventoryBox.appendChild(div);
+          invBox.textContent = '';
+          (user.inventory || []).forEach(item => {
+            const d = document.createElement('div');
+            d.textContent = `- ${item.name || item.type} (${item.count||1}개)`;
+            invBox.appendChild(d);
           });
 
-          serverStatus.textContent = '✅ 서버 연결 및 데이터 로드 완료';
+          statusEl.textContent = '✅ 서버 연결 및 데이터 로드 완료';
           startBtn.disabled = false;
-        } catch (e) {
-          console.error('loadData error', e);
-          serverStatus.textContent = '❌ 데이터 로드 실패';
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = '❌ 데이터 로드 실패';
         }
       }
 
@@ -139,3 +105,4 @@
   </script>
 </body>
 </html>
+
