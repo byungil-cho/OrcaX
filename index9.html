@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -116,15 +115,14 @@
   <script>
     const CLIENT_ID    = '284b798a9d9be8202f9c2e129fa6f329';
     const REDIRECT_URI = 'https://byungil-cho.github.io/OrcaX/kakao-callback.html';
-    const API_BASE     = 'https://climbing-wholly-grouper.jp.ngrok.io';
 
     // 로그인 상태 표시
     function showLoginState() {
       const nickname = localStorage.getItem('nickname');
       if (nickname) {
-        const nicknameEl = document.getElementById('nicknameDisplay');
-        nicknameEl.textContent = '👤 ' + nickname + '님, 환영합니다!';
-        nicknameEl.style.display = 'inline-block';
+        const el = document.getElementById('nicknameDisplay');
+        el.textContent = '👤 ' + nickname + '님, 환영합니다!';
+        el.style.display = 'inline-block';
         document.getElementById('loginBtn').style.display = 'none';
         document.getElementById('logoutBtn').style.display = 'inline-block';
       }
@@ -140,7 +138,6 @@
     function logout() {
       localStorage.removeItem('kakaoId');
       localStorage.removeItem('nickname');
-      localStorage.removeItem('lastLogin');
       alert('로그아웃 되었습니다.');
       location.reload();
     }
@@ -152,20 +149,6 @@
       } else {
         window.location.href = url;
       }
-    }
-
-    // 서버에 유저 등록 (필요 시 호출)
-    async function registerUser() {
-      const kakaoId = localStorage.getItem('kakaoId');
-      const nickname = localStorage.getItem('nickname');
-      if (!kakaoId || !nickname) return;
-      try {
-        await fetch(`${API_BASE}/api/login/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId, nickname })
-        });
-      } catch {}
     }
 
     // 초기 로드
