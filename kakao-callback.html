@@ -6,49 +6,44 @@
 </head>
 <body>
   <script>
-    (async () => {
-      const code = new URL(window.location.href).searchParams.get('code');
-      if (!code) {
-        alert('인증 코드가 없습니다.');
-        return;
-      }
-
-      try {
-        // 1) 토큰 교환
-        const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            grant_type: 'authorization_code',
-            client_id: '284b798a9d9be8202f9c2e129fa6f329',
-            redirect_uri: 'https://byungil-cho.github.io/OrcaX/kakao-callback.html',
-            code
-          })
-        });
-        const tokenData = await tokenRes.json();
-        if (!tokenData.access_token) throw new Error('토큰 발급 실패');
-
-        // 2) 프로필 조회
-        const profileRes = await fetch('https://kapi.kakao.com/v2/user/me', {
-          headers: { Authorization: `Bearer ${tokenData.access_token}` }
-        });
-        const profile = await profileRes.json();
-        const kakaoId  = String(profile.id);
-        const nickname = profile.properties?.nickname;
-        if (!nickname) throw new Error('닉네임 로드 실패');
-
-        // 3) localStorage에 로그인 정보 저장
-        localStorage.setItem('kakaoId', kakaoId);
-        localStorage.setItem('nickname', nickname);
-        localStorage.setItem('accessToken', tokenData.access_token);
-
-        // 4) farm 페이지로 이동
-        location.href = 'gamja-farm.html';
-      } catch (err) {
-        console.error(err);
-        alert('로그인 처리 중 오류가 발생했습니다.');
-      }
-    })();
+    const code = new URL(window.location.href).searchParams.get("code");
+    if (!code) {
+      alert("인증 코드가 없습니다.");
+    } else {
+      fetch(`https://kauth.kakao.com/oauth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: '284b798a9d9be8202f9c2e129fa6f329',
+          redirect_uri: 'https://byungil-cho.github.io/OrcaX/kakao-callback.html',
+          code: code
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const accessToken = data.access_token;
+        return fetch("https://kapi.kakao.com/v2/user/me", {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        }).then(res => res.json())
+          .then(profile => {
+            const nickname = profile.properties?.nickname;
+            const userId = profile.id;
+            if (!nickname || nickname === "사용자") {
+              alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
+              return;
+            }
+            localStorage.setItem("nickname", nickname);
+            localStorage.setItem("userId", userId);
+            localStorage.setItem("accessToken", accessToken);
+            window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+          });
+      })
+      .catch(err => {
+        console.error("로그인 오류", err);
+        alert("로그인 중 오류가 발생했습니다.");
+      });
+    }
   </script>
 </body>
 </html>
