@@ -34,16 +34,16 @@
               return;
             }
 
-            // ✅ 백엔드에 accessToken 보내기
-            fetch("http://localhost:3060/auth/kakao/callback", {
+            // ✅ 너 백엔드로 nickname + userId 전송
+            fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ accessToken })
+              body: JSON.stringify({ nickname, userId })
             })
             .then(res => res.json())
             .then(result => {
               if (result.success) {
-                console.log("서버 저장 성공:", result.user);
+                console.log("서버 저장 성공:", result);
               } else {
                 console.warn("서버 응답 오류", result);
               }
