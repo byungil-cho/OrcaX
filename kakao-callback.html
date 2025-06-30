@@ -34,8 +34,8 @@
               return;
             }
 
-            // ✅ 서버로 nickname + kakaoId 전송 (userId → kakaoId)
-            fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
+            // ✅ Render 서버로 요청 (이제 진짜 주소임)
+            fetch("https://orcax-survey-3060.onrender.com/api/login", {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ nickname, kakaoId })
@@ -53,7 +53,7 @@
             });
 
             localStorage.setItem("nickname", nickname);
-            localStorage.setItem("userId", kakaoId); // 여긴 굳이 안 바꿔도 됨
+            localStorage.setItem("userId", kakaoId);
             localStorage.setItem("accessToken", accessToken);
             window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
           });
