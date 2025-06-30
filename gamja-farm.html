@@ -1,7 +1,5 @@
-<!-- gamja-farm.html (최종 복원본: 로그인 연동 & 디자인 유지) -->
-
+<!-- gamja-farm.html (ngrok URL 적용 & 기능 복원) -->
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -24,10 +22,7 @@
       display: inline-block;
       margin-top: 10vh;
     }
-    .info-box p {
-      margin: 8px 0;
-      font-size: 1.1rem;
-    }
+    .info-box p { margin: 8px 0; font-size: 1.1rem; }
     .info-box a {
       display: inline-block;
       margin-top: 12px;
@@ -43,14 +38,15 @@
 <body>
   <div class="info-box">
     <h1>🌾 감자 농장에 오신 것을 환영합니다!</h1>
-    <p><strong>닉네임:</strong> <span id="nickname">로딩중...</span></p>
-    <p><strong>카카오 ID:</strong> <span id="kakaoId">로딩중...</span></p>
-    <p><strong>보유 ORCX:</strong> <span id="orcx">0</span></p>
-    <p>💧 물: <span id="water">0</span> / 🌱 거름: <span id="fertilizer">0</span></p>
+    <p><strong>닉네임:</strong> <span id="nickname">로컬 로딩...</span></p>
+    <p><strong>카카오 ID:</strong> <span id="kakaoId">로컬 로딩...</span></p>
+    <p><strong>보유 ORCX:</strong> <span id="orcx">로컬 로딩...</span></p>
+    <p>💧 물: <span id="water">로컬 로딩...</span> / 🌱 거름: <span id="fertilizer">로컬 로딩...</span></p>
     <a href="gamja-main.html" id="enterBtn">👉 농장이름 짓고 입장하기</a>
   </div>
 
   <script>
+    const ngrokUrl = 'https://climbing-wholly-grouper.jp.ngrok.io';
     // 로그인 체크
     const kakaoId = localStorage.getItem('kakaoId');
     if (!kakaoId) {
@@ -58,32 +54,34 @@
       window.location.href = 'index9.html';
     }
 
-    // 로컬 데이터 표시
-    document.getElementById('kakaoId').textContent = kakaoId;
+    // 로컬 표시
+    document.getElementById('nickname').textContent   = localStorage.getItem('nickname')   || '없음';
+    document.getElementById('kakaoId').textContent    = kakaoId;
+    document.getElementById('orcx').textContent       = localStorage.getItem('orcx')       || '0';
+    document.getElementById('water').textContent      = localStorage.getItem('water')      || '0';
+    document.getElementById('fertilizer').textContent = localStorage.getItem('fertilizer') || '0';
 
-    // 서버에서 상세 데이터 조회
-    fetch(`/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`)
+    // 서버 데이터 동기화
+    fetch(`${ngrokUrl}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`)
       .then(res => {
         if (!res.ok) throw new Error('데이터 조회 실패');
         return res.json();
       })
       .then(data => {
-        document.getElementById('nickname').textContent = data.nickname;
-        document.getElementById('orcx').textContent     = data.orcx;
-        document.getElementById('water').textContent    = data.water;
+        document.getElementById('nickname').textContent   = data.nickname;
+        document.getElementById('orcx').textContent       = data.orcx;
+        document.getElementById('water').textContent      = data.water;
         document.getElementById('fertilizer').textContent = data.fertilizer;
       })
-      .catch(() => {
-        // 서버 장애 시 로컬로 대체
-        document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '없음';
+      .catch(err => {
+        console.warn('서버 호출 실패, 로컬 데이터 사용:', err);
       });
 
-    // 입장 버튼 활성화 (추가 로직 필요 시)
+    // 입장 버튼 (추가 체크 필요 시 확장)
     document.getElementById('enterBtn').addEventListener('click', e => {
-      // 필요 시 추가 체크
+      // 예: planting check 등
     });
   </script>
-
 </body>
 </html>
 
