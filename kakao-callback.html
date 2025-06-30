@@ -1,78 +1,68 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>카카오 로그인 처리 중...</title>
-  <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+  <meta charset="UTF-8">
+  <title>카카오 로그인 콜백</title>
 </head>
-<body style="background-color:#111; color:#fff; text-align:center; padding-top:20vh; font-family:sans-serif;">
-  <h2>🐳 카카오 로그인 처리 중입니다...</h2>
-
+<body>
   <script>
-    Kakao.init('284b798a9d9be8202f9c2e129fa6f329');
-
     const code = new URL(window.location.href).searchParams.get("code");
     if (!code) {
-      alert("카카오 로그인 코드가 없습니다.");
-      window.location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
-    }
-
-    // 1. 카카오 토큰 요청
-    fetch("https://kauth.kakao.com/oauth/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        client_id: "284b798a9d9be8202f9c2e129fa6f329",
-        redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",
-        code: code
-      })
-    })
-    .then(res => res.json())
-    .then(tokenRes => {
-      if (tokenRes.access_token) {
-        Kakao.Auth.setAccessToken(tokenRes.access_token);
-
-        // 2. 사용자 정보 요청
-        return Kakao.API.request({ url: '/v2/user/me' });
-      } else {
-        throw new Error("Access Token 발급 실패");
-      }
-    })
-    .then(userRes => {
-      const kakaoId = userRes.id.toString();
-      const nickname = userRes.properties.nickname;
-
-      // 3. 서버에 유저 저장
-      return fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/saveUser', {
+      alert("인증 코드가 없습니다.");
+    } else {
+      fetch(`https://kauth.kakao.com/oauth/token`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          kakaoId,
-          nickname,
-          orcx: 10,
-          water: 10,
-          fertilizer: 10
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: '284b798a9d9be8202f9c2e129fa6f329',
+          redirect_uri: 'https://byungil-cho.github.io/OrcaX/kakao-callback.html',
+          code: code
         })
-      }).then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            // 4. localStorage 저장 후 이동
-            localStorage.setItem('userId', kakaoId);
-            localStorage.setItem('nickname', nickname);
-            window.location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
-          } else {
-            throw new Error("서버 저장 실패");
-          }
-        });
-    })
-    .catch(err => {
-      console.error("로그인 처리 실패:", err);
-      alert("카카오 로그인 실패: " + err.message);
-      window.location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
-    });
+      })
+      .then(res => res.json())
+      .then(data => {
+        const accessToken = data.access_token;
+        return fetch("https://kapi.kakao.com/v2/user/me", {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        }).then(res => res.json())
+          .then(profile => {
+            const nickname = profile.properties?.nickname;
+            const kakaoId = profile.id;
+            if (!nickname || nickname === "사용자") {
+              alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
+              return;
+            }
+
+            // ✅ Render 서버로 요청 (이제 진짜 주소임)
+            fetch("https://orcax-survey-3060.onrender.com/api/login", {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nickname, kakaoId })
+            })
+            .then(res => res.json())
+            .then(result => {
+              if (result.success) {
+                console.log("서버 저장 성공:", result);
+              } else {
+                console.warn("서버 응답 오류", result);
+              }
+            })
+            .catch(err => {
+              console.error("서버 통신 실패", err);
+            });
+
+            localStorage.setItem("nickname", nickname);
+            localStorage.setItem("userId", kakaoId);
+            localStorage.setItem("accessToken", accessToken);
+            window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+          });
+      })
+      .catch(err => {
+        console.error("로그인 오류", err);
+        alert("로그인 중 오류가 발생했습니다.");
+      });
+    }
   </script>
 </body>
 </html>
-
