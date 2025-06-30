@@ -129,8 +129,8 @@
     }
 
     function enterFarm(url) {
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
+      const kakaoId = localStorage.getItem("kakaoId");
+      if (!kakaoId) {
         alert("로그인 후 입장하실 수 있습니다.");
         window.location.href = "orcax-farm_000.html";
       } else {
@@ -138,47 +138,41 @@
       }
     }
 
-    async function registerUser(nickname) {
-      try {
-        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname })
-        });
-        const data = await res.json();
-        console.log("서버 응답:", data);
-      } catch (err) {
-        console.error("서버 등록 오류:", err);
-      }
-    }
+    // 카카오 로그인 후 리다이렉트에서 nickname과 id 세팅
+    function checkLoginData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const kakaoId = urlParams.get("id");
+      const nickname = urlParams.get("nickname");
 
-    function waitForNicknameAndRegister(retry = 0) {
-      const nickname = localStorage.getItem("nickname");
-      const lastLogin = localStorage.getItem("lastLogin");
-      const now = Date.now();
-      const TWO_HOURS = 2 * 60 * 60 * 1000;
+      if (kakaoId && nickname) {
+        localStorage.setItem("kakaoId", kakaoId);
+        localStorage.setItem("nickname", nickname);
+        localStorage.setItem("seedPotato", 0);
+        localStorage.setItem("seedBarley", 0);
+        localStorage.setItem("farmName", "");
 
-      if (nickname) {
-        const nicknameEl = document.getElementById("nicknameDisplay");
-        nicknameEl.textContent = "👤 " + nickname + "님, 환영합니다!";
-        nicknameEl.style.display = "inline-block";
+        document.getElementById("nicknameDisplay").textContent = "👤 " + nickname + "님, 환영합니다!";
+        document.getElementById("nicknameDisplay").style.display = "inline-block";
         document.getElementById("loginBtn").style.display = "none";
         document.getElementById("logoutBtn").style.display = "inline-block";
 
-        if (lastLogin && now - parseInt(lastLogin) < TWO_HOURS) {
-          const remain = Math.ceil((TWO_HOURS - (now - parseInt(lastLogin))) / 60000);
-          alert(`⏳ 농장 이용 대기 시간: ${remain}분 남음`);
-        } else {
-          localStorage.setItem("lastLogin", now.toString());
-        }
-
-        registerUser(nickname);
-      } else if (retry < 5) {
-        setTimeout(() => waitForNicknameAndRegister(retry + 1), 500);
+        // 서버에 id, nickname 전송
+        fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId: kakaoId, nickname: nickname })
+        }).then(res => res.json()).then(data => {
+          console.log("서버 응답:", data);
+        }).catch(err => console.error("서버 오류:", err));
       }
     }
 
-    waitForNicknameAndRegister();
+    checkLoginData();
+
+    // 페이지 이탈 시 로컬 삭제
+    window.addEventListener("beforeunload", () => {
+      localStorage.clear();
+    });
   </script>
 </body>
 </html>
