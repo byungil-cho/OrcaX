@@ -36,44 +36,39 @@
   </div>
 
   <script>
-    // 1) 로그인 체크
-    const kakaoId = localStorage.getItem('kakaoId');
+    const kakaoId = localStorage.getItem('userId');
     if (!kakaoId) {
       alert('로그인이 필요합니다.');
       location.href = 'index9.html';
       throw new Error('Not logged in');
     }
 
-    // 2) 로컬 데이터 표시
     document.getElementById('kakaoId').textContent    = kakaoId;
     document.getElementById('orcx').textContent       = localStorage.getItem('orcx')       || '0';
     document.getElementById('water').textContent      = localStorage.getItem('water')      || '0';
     document.getElementById('fertilizer').textContent = localStorage.getItem('fertilizer') || '0';
 
-    // 3) 서버 데이터 동기화 (ngrok API)
-    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const API_BASE = 'https://orcax-survey-3060.onrender.com';
     fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`)
       .then(res => {
         if (!res.ok) throw new Error('데이터 조회 실패');
         return res.json();
       })
       .then(data => {
-        document.getElementById('nickname').textContent   = data.nickname;
-        document.getElementById('orcx').textContent       = data.orcx;
-        document.getElementById('water').textContent      = data.water;
-        document.getElementById('fertilizer').textContent = data.fertilizer;
+        const user = data.user || {};
+        document.getElementById('nickname').textContent   = user.nickname || '이름없음';
+        document.getElementById('orcx').textContent       = user.orcx || '0';
+        document.getElementById('water').textContent      = user.water || '0';
+        document.getElementById('fertilizer').textContent = user.fertilizer || '0';
       })
       .catch(err => {
         console.warn('서버 호출 실패, 로컬 대체 사용:', err);
         document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '없음';
       });
 
-    // 4) 입장 버튼
     document.getElementById('enterBtn').onclick = () => {
       location.href = 'gamja-main.html';
     };
   </script>
 </body>
 </html>
-
-
