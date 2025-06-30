@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🥔 감자 농장 - Potato Farm</title>
+  <title>🥔 감자 농장 - Gamja Farm</title>
   <style>
     body {
       font-family: "Pretendard", sans-serif;
@@ -48,7 +48,7 @@
     document.getElementById('water').textContent      = localStorage.getItem('water')      || '0';
     document.getElementById('fertilizer').textContent = localStorage.getItem('fertilizer') || '0';
 
-    const API_BASE = 'https://orcax-survey-3060.onrender.com';
+    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
     fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`)
       .then(res => {
         if (!res.ok) throw new Error('데이터 조회 실패');
