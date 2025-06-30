@@ -1,4 +1,4 @@
-<!-- gamja-farm.html (기능 추가 및 디자인 유지) -->
+<!-- gamja-farm.html (카카오 ID 연동 및 기능 복원) -->
 
 <!DOCTYPE html>
 
@@ -12,88 +12,88 @@
       font-family: "Pretendard", sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      margin: 0;
-      padding: 0;
-      color: white;
       text-align: center;
+      margin: 0;
+      padding-top: 60px;
+      color: #fff;
     }
-    .container {
-      background: rgba(0, 0, 0, 0.6);
+    .info-box {
+      background: rgba(0,0,0,0.6);
       padding: 20px;
       border-radius: 12px;
       display: inline-block;
-      margin-top: 10vh;
+      min-width: 280px;
     }
-    .container h1 {
-      margin-top: 0;
-      font-size: 2rem;
-    }
-    .info {
-      text-align: left;
-      margin: 15px 0;
-    }
-    .info p {
-      margin: 5px 0;
-    }
-    .btn {
-      margin: 10px 5px;
-      padding: 8px 16px;
+    .info-box p {
+      margin: 8px 0;
       font-size: 1rem;
+    }
+    .buttons {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .buttons button {
+      padding: 8px 16px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 0.9rem;
     }
-    .btn-enter {
-      background-color: #4CAF50;
-      color: white;
-    }
-    .btn-logout {
-      background-color: #f44336;
-      color: white;
-    }
+    .enter-btn { background: #28a745; color: white; }
+    .logout-btn { background: #dc3545; color: white; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🌾 감자 농장</h1>
-    <div class="info">
-      <p><strong>닉네임:</strong> <span id="nickname">로딩중...</span></p>
-      <p><strong>카카오 ID:</strong> <span id="kakaoId">로딩중...</span></p>
-      <p><strong>ORCX:</strong> <span id="orcx">0</span></p>
-      <p>💧 물: <span id="water">0</span> / 🌱 거름: <span id="fertilizer">0</span></p>
+  <div class="info-box">
+    <h2>🌾 감자 농장</h2>
+    <p><strong>닉네임:</strong> <span id="nickname">로딩중...</span></p>
+    <p><strong>카카오 ID:</strong> <span id="kakaoId">로딩중...</span></p>
+    <p><strong>ORCX:</strong> <span id="orcx">0</span></p>
+    <p>💧 물: <span id="water">0</span> / 🌱 거름: <span id="fertilizer">0</span></p>
+    <div class="buttons">
+      <button class="enter-btn" onclick="location.href='gamja-main.html'">농장이름 짓고 입장하기</button>
+      <button class="logout-btn" onclick="logout()">로그아웃</button>
     </div>
-    <button class="btn btn-enter" onclick="goFarmMain()">농장이름 짓고 입장하기</button>
-    <button class="btn btn-logout" onclick="logout()">로그아웃</button>
   </div>
 
   <script>
+    // 초기 로그인 체크 및 카카오 ID 로드
+    const kakaoId = localStorage.getItem('kakaoId');
+    if (!kakaoId) {
+      alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+      location.href = 'index9.html';
+    }
+
+    // 로컬 바로 표시
+    document.getElementById('kakaoId').textContent = kakaoId;
+    document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '없음';
+
+    // 서버에서 최신 데이터 가져오기
+    fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?kakaoId=${kakaoId}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('nickname').textContent = data.nickname;
+        document.getElementById('orcx').textContent     = data.orcx;
+        document.getElementById('water').textContent    = data.water;
+        document.getElementById('fertilizer').textContent = data.fertilizer;
+      })
+      .catch(() => {
+        // 서버 호출 실패 시 로컬 데이터로 대체
+        document.getElementById('orcx').textContent     = localStorage.getItem('orcx')   || '0';
+        document.getElementById('water').textContent    = localStorage.getItem('water')  || '0';
+        document.getElementById('fertilizer').textContent = localStorage.getItem('fertilizer') || '0';
+      });
+
     // 로그아웃 함수
     function logout() {
       localStorage.clear();
       location.href = 'index9.html';
     }
-
-    // 입장 함수
-    function goFarmMain() {
-      window.location.href = 'gamja-main.html';
-    }
-
-    // 초기화: 로그인 상태 확인 및 데이터 로딩
-    (function init() {
-      const kakaoId = localStorage.getItem('kakaoId');
-      if (!kakaoId) {
-        alert('로그인이 필요합니다.');
-        location.href = 'index9.html';
-        return;
-      }
-      document.getElementById('kakaoId').textContent = kakaoId;
-      document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '없음';
-      document.getElementById('orcx').textContent = localStorage.getItem('orcx') || '0';
-      document.getElementById('water').textContent = localStorage.getItem('water') || '0';
-      document.getElementById('fertilizer').textContent = localStorage.getItem('fertilizer') || '0';
-    })();
   </script>
 
 </body>
 </html>
+
 
