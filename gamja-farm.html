@@ -71,11 +71,13 @@
     (async () => {
       const nickname = localStorage.getItem("nickname");
       const kakaoId = localStorage.getItem("kakaoId");
+
       if (!nickname || !kakaoId) {
         alert("로그인이 필요합니다.");
         location.href = 'kakao-callback.html';
         return;
       }
+
       document.getElementById("nickname").textContent = nickname;
 
       const startBtn       = document.getElementById("startBtn");
@@ -92,6 +94,10 @@
         location.href = "gamja-main.html";
       });
 
+      // 씨감자, 씨보리는 로컬에서 불러옴
+      seedPotatoEl.textContent = localStorage.getItem("seedPotato") || 0;
+      seedBarleyEl.textContent = localStorage.getItem("seedBarley") || 0;
+
       async function loadData() {
         serverStatus.textContent = '데이터 로딩 중...';
         try {
@@ -106,8 +112,6 @@
           potatoEl.textContent     = u.potatoCount ?? u.potato ?? 0;
           waterEl.textContent      = u.water ?? 0;
           fertilizerEl.textContent = u.fertilizer ?? 0;
-          seedPotatoEl.textContent = u.seedPotato ?? 0;
-          seedBarleyEl.textContent = u.seedBarley ?? 0;
 
           let displayed = u.token ?? u.orcx ?? 0;
           if (displayed === 0) displayed = INITIAL_TOKEN;
@@ -133,6 +137,3 @@
   </script>
 </body>
 </html>
-
-
-
