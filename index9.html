@@ -138,7 +138,7 @@
       }
     }
 
-    // 카카오 로그인 후 리다이렉트에서 nickname과 id 세팅
+    // 로그인 리다이렉트 처리
     function checkLoginData() {
       const urlParams = new URLSearchParams(window.location.search);
       const kakaoId = urlParams.get("id");
@@ -156,23 +156,26 @@
         document.getElementById("loginBtn").style.display = "none";
         document.getElementById("logoutBtn").style.display = "inline-block";
 
-        // 서버에 id, nickname 전송
         fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId: kakaoId, nickname: nickname })
+          body: JSON.stringify({ kakaoId, nickname })
         }).then(res => res.json()).then(data => {
           console.log("서버 응답:", data);
         }).catch(err => console.error("서버 오류:", err));
+      } else {
+        // 재진입 시 로그인 상태 표시
+        const savedNickname = localStorage.getItem("nickname");
+        if (savedNickname) {
+          document.getElementById("nicknameDisplay").textContent = "👤 " + savedNickname + "님, 환영합니다!";
+          document.getElementById("nicknameDisplay").style.display = "inline-block";
+          document.getElementById("loginBtn").style.display = "none";
+          document.getElementById("logoutBtn").style.display = "inline-block";
+        }
       }
     }
 
     checkLoginData();
-
-    // 페이지 이탈 시 로컬 삭제
-    window.addEventListener("beforeunload", () => {
-      localStorage.clear();
-    });
   </script>
 </body>
 </html>
