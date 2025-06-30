@@ -1,53 +1,45 @@
+<!-- gamja-farm.html (수정본) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>감자 농장 입장</title>
+  <title>🥔 감자 농장 - Potato Farm</title>
   <style>
     body {
       font-family: "Pretendard", sans-serif;
-      margin: 0;
-      padding: 0;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
+      margin: 0;
+      padding: 0;
       color: white;
       text-align: center;
-      padding-top: 50px;
     }
-    .container {
+    .info-box {
       background: rgba(0,0,0,0.6);
       padding: 20px;
-      border-radius: 10px;
+      border-radius: 20px;
       display: inline-block;
+      margin-top: 100px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🐳 감자 농장에 오신 것을 환영합니다!</h1>
-    <p><strong>닉네임:</strong> <span id="nickname">로딩 중...</span></p>
-    <p><strong>카카오 ID:</strong> <span id="kakaoId">로딩 중...</span></p>
-    <p><strong>보유 ORCX:</strong> <span id="orcx">-</span></p>
-    <p><strong>물:</strong> <span id="water">-</span> / <strong>거름:</strong> <span id="fertilizer">-</span></p>
-    
+  <div class="info-box">
+    <h1>🌾 감자 농장에 오신 것을 환영합니다!</h1>
+    <p><strong>닉네임:</strong> <span id="nickname"></span></p>
+    <p><strong>카카오 ID:</strong> <span id="kakaoId"></span></p>
+    <p><strong>보유 ORCX:</strong> <span id="orcx"></span></p>
+    <p>물: <span id="water"></span> / 거름: <span id="fertilizer"></span></p>
     <a href="gamja-main.html">👉 농장이름 짓고 입장하기</a>
   </div>
 
   <script>
-    // 로컬스토리지에서 정보 불러오기
-    const nickname = localStorage.getItem('nickname') || '없음';
-    const kakaoId = localStorage.getItem('kakaoId') || '없음';
-    const orcx = localStorage.getItem('orcx') || 0;
-    const water = localStorage.getItem('water') || 0;
-    const fertilizer = localStorage.getItem('fertilizer') || 0;
-
-    // 페이지에 출력
-    document.getElementById('nickname').textContent = nickname;
-    document.getElementById('kakaoId').textContent = kakaoId;
-    document.getElementById('orcx').textContent = orcx;
-    document.getElementById('water').textContent = water;
-    document.getElementById('fertilizer').textContent = fertilizer;
+    document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '없음';
+    document.getElementById('kakaoId').textContent = localStorage.getItem('kakaoId') || '없음';
+    document.getElementById('orcx').textContent = localStorage.getItem('orcx') || '0';
+    document.getElementById('water').textContent = localStorage.getItem('water') || '0';
+    document.getElementById('fertilizer').textContent = localStorage.getItem('fertilizer') || '0';
   </script>
 </body>
 </html>
