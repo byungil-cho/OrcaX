@@ -6,6 +6,7 @@
   <title>🌳 OrcaX 농장 입구</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
+    /* 스타일 생략 (기존 유지) */
     body {
       margin: 0;
       padding: 0;
@@ -113,21 +114,20 @@
   </div>
 
   <script>
-    // 카카오 로그인으로 이동
+    const BASE_URL = "https://orcax-survey-3060.onrender.com";
+
     function goKakaoLogin() {
       const client_id = "284b798a9d9be8202f9c2e129fa6f329";
       const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
       window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
     }
 
-    // 로그아웃
     function logout() {
       localStorage.clear();
       alert("로그아웃 되었습니다.");
       location.reload();
     }
 
-    // 농장 입장
     function enterFarm(url) {
       const nickname = localStorage.getItem("nickname");
       if (!nickname) {
@@ -138,21 +138,21 @@
       }
     }
 
-    // 초기화: 로그인 상태 확인
     (function init() {
       const nickname = localStorage.getItem("nickname");
-      if (nickname) {
+      const kakaoId = localStorage.getItem("userId");
+      if (nickname && kakaoId) {
         const el = document.getElementById("nicknameDisplay");
         el.textContent = `👤 ${nickname}님, 환영합니다!`;
         el.style.display = "inline-block";
         document.getElementById("loginBtn").style.display = "none";
         document.getElementById("logoutBtn").style.display = "inline-block";
 
-        // 서버에 회원 등록 (필요 시)
-        fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
+        // Render 서버에 로그인 등록 요청
+        fetch(`${BASE_URL}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname })
+          body: JSON.stringify({ nickname, kakaoId })
         }).catch(err => console.error("서버 등록 오류:", err));
       }
     })();
