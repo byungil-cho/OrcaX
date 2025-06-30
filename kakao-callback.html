@@ -7,6 +7,7 @@
 <body>
   <script>
     const code = new URL(window.location.href).searchParams.get("code");
+
     if (!code) {
       alert("인증 코드가 없습니다.");
     } else {
@@ -25,38 +26,43 @@
         const accessToken = data.access_token;
         return fetch("https://kapi.kakao.com/v2/user/me", {
           headers: { Authorization: `Bearer ${accessToken}` }
-        }).then(res => res.json())
-          .then(profile => {
-            const nickname = profile.properties?.nickname;
-            const kakaoId = profile.id;
-            if (!nickname || nickname === "사용자") {
-              alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
-              return;
+        })
+        .then(res => res.json())
+        .then(profile => {
+          const nickname = profile.properties?.nickname;
+          const kakaoId = profile.id;
+
+          if (!nickname || nickname === "사용자") {
+            alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
+            return;
+          }
+
+          // ✅ 서버로 nickname + kakaoId 전송
+          fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nickname, kakaoId })
+          })
+          .then(res => res.json())
+          .then(result => {
+            if (result.success) {
+              console.log("서버 저장 성공:", result);
+            } else {
+              console.warn("서버 응답 오류", result);
             }
-
-            // ✅ 서버로 nickname + kakaoId 전송 (userId → kakaoId)
-            fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/login", {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ nickname, kakaoId })
-            })
-            .then(res => res.json())
-            .then(result => {
-              if (result.success) {
-                console.log("서버 저장 성공:", result);
-              } else {
-                console.warn("서버 응답 오류", result);
-              }
-            })
-            .catch(err => {
-              console.error("서버 통신 실패", err);
-            });
-
-            localStorage.setItem("nickname", nickname);
-            localStorage.setItem("userId", kakaoId); // 여긴 굳이 안 바꿔도 됨
-            localStorage.setItem("accessToken", accessToken);
-            window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+          })
+          .catch(err => {
+            console.error("서버 통신 실패", err);
           });
+
+          // ✅ 로컬Storage에 올바르게 저장 (핵심 수정 부분)
+          localStorage.setItem("nickname", nickname);
+          localStorage.setItem("kakaoId", kakaoId); // ← 핵심 변경!
+          localStorage.setItem("accessToken", accessToken);
+
+          // ✅ 농장 입구로 이동
+          window.location.href = "https://byungil-cho.github.io/OrcaX/index9.html";
+        });
       })
       .catch(err => {
         console.error("로그인 오류", err);
