@@ -1,74 +1,79 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>감자 농장</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🥔 감자 농장 - Potato Farm</title>
   <style>
     body {
       font-family: "Pretendard", sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
-      text-align: center;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0; color: #fff; text-align: center;
     }
     .info-box {
-      margin-top: 100px;
-      background-color: rgba(0,0,0,0.6);
-      padding: 20px;
-      border-radius: 15px;
-      display: inline-block;
+      background: rgba(0,0,0,0.6); padding: 20px;
+      border-radius: 20px; display: inline-block;
+      margin-top: 10vh;
     }
-    .info-box p {
-      font-size: 18px;
-      margin: 10px 0;
+    .info-box p { margin: 8px 0; font-size: 1.1rem; }
+    .info-box a {
+      display: inline-block; margin-top: 12px;
+      padding: 8px 16px; background: #fee500;
+      color: #000; text-decoration: none;
+      border-radius: 8px; font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="info-box">
-    <h1>🥔 감자 농장에 오신 것을 환영합니다!</h1>
+    <h1>🌾 감자 농장에 오신 것을 환영합니다!</h1>
     <p><strong>닉네임:</strong> <span id="nickname">로딩 중...</span></p>
     <p><strong>카카오 ID:</strong> <span id="kakaoId">로딩 중...</span></p>
-    <p><strong>ORCX:</strong> <span id="orcx">0</span></p>
-    <p>💧 물: <span id="water">0</span> | 🌱 거름: <span id="fertilizer">0</span></p>
-    <p>🥔 씨감자: <span id="seedPotato">0</span></p>
+    <p><strong>보유 ORCX:</strong> <span id="orcx">0</span></p>
+    <p>💧 물: <span id="water">0</span> / 🌱 거름: <span id="fertilizer">0</span></p>
+    <a href="gamja-main.html" id="enterBtn">👉 농장이름 짓고 입장하기</a>
   </div>
 
   <script>
-    const kakaoId = localStorage.getItem('userId');
-    const nickname = localStorage.getItem('nickname');
-    if (!kakaoId) {
-      alert('로그인이 필요합니다.');
-      location.href = 'index9.html';
-    }
+  const nickname = localStorage.getItem('nickname');
+  const kakaoId = localStorage.getItem('userId');
 
-    document.getElementById('kakaoId').textContent = kakaoId;
-    document.getElementById('nickname').textContent = nickname;
+  if (!nickname || !kakaoId) {
+    alert('로그인이 필요합니다.');
+    location.href = 'index9.html';
+    throw new Error('로그인 정보 없음');
+  }
 
-    fetch(`https://climbing-wholly-grouper.jp.ngrok.io/api/userdata?kakaoId=${kakaoId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (!data.success || !data.user) {
-          alert("등록된 사용자 정보가 없습니다.");
-          localStorage.clear();
-          location.href = 'index9.html';
-          return;
-        }
+  document.getElementById('nickname').textContent    = nickname;
+  document.getElementById('kakaoId').textContent     = kakaoId;
+  document.getElementById('orcx').textContent        = localStorage.getItem('orcx')       || '0';
+  document.getElementById('water').textContent       = localStorage.getItem('water')      || '0';
+  document.getElementById('fertilizer').textContent  = localStorage.getItem('fertilizer') || '0';
 
-        const user = data.user;
-        document.getElementById('orcx').textContent = user.orcx;
-        document.getElementById('water').textContent = user.water;
-        document.getElementById('fertilizer').textContent = user.fertilizer;
-        document.getElementById('seedPotato').textContent = user.seedPotato;
-      })
-      .catch(err => {
-        console.error("API 호출 실패:", err);
-        alert("서버 오류가 발생했습니다.");
-      });
-  </script>
+  const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
+  fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`)
+    .then(res => {
+      if (!res.ok) throw new Error('데이터 조회 실패');
+      return res.json();
+    })
+    .then(data => {
+      const user = data.user || {};
+      document.getElementById('nickname').textContent   = user.nickname || nickname;
+      document.getElementById('orcx').textContent       = user.orcx || '0';
+      document.getElementById('water').textContent      = user.water || '0';
+      document.getElementById('fertilizer').textContent = user.fertilizer || '0';
+    })
+    .catch(err => {
+      console.warn('서버 호출 실패, 로컬 대체 사용:', err);
+    });
+
+  document.getElementById('enterBtn').onclick = () => {
+    location.href = 'gamja-main.html';
+  };
+</script>
+
 </body>
 </html>
+
 
