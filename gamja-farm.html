@@ -68,6 +68,7 @@
   <script type="module">
     (async () => {
       const nicknameValue = localStorage.getItem("nickname");
+      const kakaoId = localStorage.getItem("kakaoId");
       if (!nicknameValue) {
         alert("로그인이 필요합니다.");
         window.location.href = 'gamja-login.html';
@@ -108,10 +109,7 @@
       async function loadUserData() {
         serverStatus.textContent = "데이터 로딩 중...";
         try {
-          const res = await fetch(
-            `${API_BASE}/api/userdata`,
-            { cache: 'no-store' }
-          );
+          const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`, { cache: 'no-store' });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
           const data = await res.json();
