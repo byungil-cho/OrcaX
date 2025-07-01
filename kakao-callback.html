@@ -34,7 +34,6 @@
               return;
             }
 
-            // ✅ Render 서버로 요청 (이제 진짜 주소임)
             fetch("https://orcax-survey-3060.onrender.com/api/login", {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -55,7 +54,9 @@
             localStorage.setItem("nickname", nickname);
             localStorage.setItem("userId", kakaoId);
             localStorage.setItem("accessToken", accessToken);
-            window.location.href = "https://byungil-cho.github.io/OrcaX/index.html";
+
+            // ✅ 수정된 리디렉션 주소
+            window.location.href = "https://byungil-cho.github.io/OrcaX/index9.html";
           });
       })
       .catch(err => {
