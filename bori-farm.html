@@ -68,7 +68,8 @@
   <script type="module">
     (async () => {
       const nicknameValue = localStorage.getItem("nickname");
-      if (!nicknameValue) {
+      const kakaoIdValue = localStorage.getItem("kakaoId");
+      if (!nicknameValue || !kakaoIdValue) {
         alert("로그인이 필요합니다.");
         window.location.href = 'gamja-login.html';
         return;
@@ -86,7 +87,7 @@
       const seedPotatoEl = document.getElementById("seedPotato");
 
       startBtn.addEventListener("click", () => {
-        window.location.href = "bori-main.html";
+        window.location.href = "bori-factory.html";
       });
 
       async function initUser() {
@@ -96,7 +97,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             cache: 'no-store',
-            body: JSON.stringify({ nickname: nicknameValue })
+            body: JSON.stringify({ kakaoId: kakaoIdValue, nickname: nicknameValue })
           });
           await loadUserData();
         } catch (err) {
