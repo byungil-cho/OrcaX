@@ -95,7 +95,8 @@
           await fetch(`${API_BASE}/api/init-user`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nickname, kakaoId })
+            cache: 'no-store',
+            body: JSON.stringify({ nickname, nicknameValue  })
           });
           await loadUserData();
         } catch (err) {
