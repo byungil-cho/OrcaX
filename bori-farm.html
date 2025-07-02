@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>보리 농장 입장</title>
+  <title>보리 농장 입장 (감자 에뮬레이션)</title>
   <style>
     body {
       font-family: "Pretendard", sans-serif;
       margin: 0;
       padding: 0;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center center fixed;
       background-size: cover;
       color: white;
       text-align: center;
@@ -52,7 +52,7 @@
 </head>
 <body>
   <div class="container" role="region" aria-label="보리 농장 대시보드">
-    <h1>🌾 보리 농장에 오신 걸 환영합니다!</h1>
+    <h1>🌾 보리 농장 (감자 위장) 에 오신 걸 환영합니다!</h1>
     <div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
     <div class="info-box">🌾 보리: <span id="barley">0</span> 개</div>
     <div class="info-box">💧 물: <span id="water">0</span> 개</div>
@@ -63,7 +63,7 @@
     <div class="info-box">🧺 인벤토리:</div>
     <div id="inventoryBox" class="info-box"></div>
     <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
-    <button id="startBtn" class="btn" disabled>🌱 농장이름 짓기 이동</button>
+    <button id="startBtn" class="btn" disabled>🌱 보리 농사 짓기 이동</button>
   </div>
   <script type="module">
     (async () => {
@@ -86,7 +86,7 @@
       const seedPotatoEl = document.getElementById("seedPotato");
 
       startBtn.addEventListener("click", () => {
-        window.location.href = "bori-main.html";
+        window.location.href = "bori-factory.html";
       });
 
       async function initUser() {
@@ -108,17 +108,15 @@
       async function loadUserData() {
         serverStatus.textContent = "데이터 로딩 중...";
         try {
-          const res = await fetch(
-            `${API_BASE}/api/userdata`,
-            { cache: 'no-store' }
-          );
+          const res = await fetch(`${API_BASE}/api/userdata`, { cache: 'no-store' });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
           const data = await res.json();
           const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
           if (!user) throw new Error('유저 데이터를 찾을 수 없습니다.');
 
-          barleyEl.textContent = user.potatoCount ?? user.potato ?? 0;
+          // 감자 데이터 강제 매핑
+          barleyEl.textContent = user.potato ?? user.potatoCount ?? 0;
           waterEl.textContent = user.water ?? 0;
           fertilizerEl.textContent = user.fertilizer ?? 0;
 
@@ -131,7 +129,7 @@
           }
           tokenEl.textContent = orcxVal;
 
-          seedBarleyEl.textContent = user.seedBarley ?? 0;
+          seedBarleyEl.textContent = user.seedPotato ?? 0;
           seedPotatoEl.textContent = user.seedPotato ?? 0;
 
           inventoryBox.innerHTML = "";
