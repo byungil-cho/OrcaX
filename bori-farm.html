@@ -1,118 +1,76 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bori Farm Entrance (Login Check)</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌾 보리 농장 - Barley Farm</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      overflow: hidden;
+      font-family: "Pretendard", sans-serif;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0; padding: 0; color: #fff; text-align: center;
     }
-    .container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center center/cover;
+    .info-box {
+      background: rgba(0,0,0,0.6); padding: 20px;
+      border-radius: 20px; display: inline-block;
+      margin-top: 10vh;
     }
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.2);
-    }
-    .label {
-      position: absolute;
-      top: 5%;
-      left: 5%;
-      padding: 0.75rem 1.5rem;
-      background-color: #ffee55cc;
-      color: #222;
-      font-weight: bold;
-      font-size: 1.25rem;
-      border-radius: 8px;
-    }
-    .status {
-      position: absolute;
-      top: 20%;
-      left: 5%;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 1rem;
-      border-radius: 10px;
-      color: #000;
-      max-width: 300px;
-    }
-    .entry-button {
-      position: absolute;
-      bottom: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 1rem 2rem;
-      background-color: #ffee55;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: 0 0 12px rgba(0,0,0,0.5);
-    }
-    .entry-button:hover {
-      background-color: #ffcc00;
+    .info-box p { margin: 8px 0; font-size: 1.1rem; }
+    .info-box a {
+      display: inline-block; margin-top: 12px;
+      padding: 8px 16px; background: #fee500;
+      color: #000; text-decoration: none;
+      border-radius: 8px; font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="overlay"></div>
-    <div class="label">Bori Farm Entrance</div>
-    <div class="status">
-      <p>👤 닉네임: <span id="nickname">-</span></p>
-      <p>🏠 농장이름: <span id="farmName">-</span></p>
-      <p>⚡ 전원 상태: <span id="serverStatus">발견중...</span></p>
-      <p>💰 ORCX 토큰: <span id="tokens">0</span></p>
-      <p>🌱 씨앗 보유 - 감자: <span id="potatoSeeds">0</span> / 보리: <span id="barleySeeds">0</span></p>
-      <p>💧 물: <span id="water">0</span> / 💩 거름: <span id="fertilizer">0</span></p>
-    </div>
-    <button class="entry-button" onclick="enterBoriFarm()">Enter the Field</button>
+  <div class="info-box">
+    <h1>🌾 보리 농장에 오신 것을 환영합니다!</h1>
+    <p><strong>닉네임:</strong> <span id="nickname">로딩 중...</span></p>
+    <p><strong>카카오 ID:</strong> <span id="kakaoId">로딩 중...</span></p>
+    <p><strong>보유 ORCX:</strong> <span id="orcx">0</span></p>
+    <p>💧 물: <span id="water">0</span> / 🌱 거름: <span id="fertilizer">0</span></p>
+    <a href="bori-factory.html" id="enterBtn">👉 보리 농장 입장하기</a>
   </div>
 
   <script>
-    function updateUserData() {
-      document.getElementById("nickname").textContent = localStorage.getItem("nickname") || "-";
-      document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "-";
-      document.getElementById("tokens").textContent = localStorage.getItem("tokens") || 0;
-      document.getElementById("barleySeeds").textContent = localStorage.getItem("씨보리") || 0;
-      document.getElementById("potatoSeeds").textContent = localStorage.getItem("씨감자") || 0;
-      document.getElementById("water").textContent = localStorage.getItem("물") || 0;
-      document.getElementById("fertilizer").textContent = localStorage.getItem("거름") || 0;
-    }
+  const nickname = localStorage.getItem('nickname');
+  const kakaoId = localStorage.getItem('userId');
 
-    function checkServer() {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/")
-        .then(() => {
-          document.getElementById("serverStatus").textContent = "🟢 연결되었음";
-        })
-        .catch(() => {
-          document.getElementById("serverStatus").textContent = "🔴 끊김";
-        });
-    }
+  if (!nickname || !kakaoId) {
+    alert('로그인이 필요합니다.');
+    location.href = 'index9.html';
+    throw new Error('로그인 정보 없음');
+  }
 
-    function enterBoriFarm() {
-      const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
-        alert("로그인 정보가 없습니다. 입구로 돌아가주세요.");
-        window.location.href = "orcax-farm_000.html";
-        return;
-      }
-      window.location.href = "bori-factory.html"; // 또는 다른 페이지로 변경 가능
-    }
+  document.getElementById('nickname').textContent    = nickname;
+  document.getElementById('kakaoId').textContent     = kakaoId;
+  document.getElementById('orcx').textContent        = localStorage.getItem('orcx')       || '0';
+  document.getElementById('water').textContent       = localStorage.getItem('water')      || '0';
+  document.getElementById('fertilizer').textContent  = localStorage.getItem('fertilizer') || '0';
 
-    updateUserData();
-    checkServer();
+  const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
+  fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`)
+    .then(res => {
+      if (!res.ok) throw new Error('데이터 조회 실패');
+      return res.json();
+    })
+    .then(data => {
+      const user = data.user || {};
+      document.getElementById('nickname').textContent   = user.nickname || nickname;
+      document.getElementById('orcx').textContent       = user.orcx || '0';
+      document.getElementById('water').textContent      = user.water || '0';
+      document.getElementById('fertilizer').textContent = user.fertilizer || '0';
+    })
+    .catch(err => {
+      console.warn('서버 호출 실패, 로컬 대체 사용:', err);
+    });
+
+  document.getElementById('enterBtn').onclick = () => {
+    location.href = 'bori-factory.html';
+  };
   </script>
 </body>
 </html>
