@@ -52,7 +52,7 @@
 </head>
 <body>
   <div class="container" role="region" aria-label="보리 농장 대시보드">
-    <h1>🌾 보리 농장 (감자 위장) 에 오신 걸 환영합니다!</h1>
+    <h1>🌾 보리 농장 (감자 위장) 에 오시는 것을 환영합니다!</h1>
     <div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
     <div class="info-box">🌾 보리: <span id="barley">0</span> 개</div>
     <div class="info-box">💧 물: <span id="water">0</span> 개</div>
@@ -60,16 +60,16 @@
     <div class="info-box">🪙 ORCX: <span id="token">0</span> 개</div>
     <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
     <div class="info-box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
-    <div class="info-box">🧺 인벤토리:</div>
+    <div class="info-box">🩚 인벤토리:</div>
     <div id="inventoryBox" class="info-box"></div>
     <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
-    <button id="startBtn" class="btn" disabled>🌱 보리 농사 짓기 이동</button>
+    <button id="startBtn" class="btn" disabled>🌱 보리 농사 지짜 이동</button>
   </div>
   <script type="module">
-    import { getUserInfoOrRedirect } from " https://byungil-cho.github.io/OrcaX/login-check.js";
+    import { getUserInfoOrRedirect } from "https://byungil-cho.github.io/OrcaX/login-check.js";
 
     (async () => {
-      const { nickname, kakaoId } = getUserInfoOrRedirect();
+      const { nickname, kakaoId } = getUserInfoOrRedirect("signup.html");
       if (!nickname || !kakaoId) return;
 
       document.getElementById("nickname").textContent = nickname;
