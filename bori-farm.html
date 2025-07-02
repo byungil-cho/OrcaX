@@ -67,13 +67,15 @@
   </div>
   <script type="module">
     (async () => {
-      const nicknameValue = localStorage.getItem("nickname");
-      const kakaoIdValue = localStorage.getItem("kakaoId");
+      let nicknameValue = localStorage.getItem("nickname");
+      let kakaoIdValue = localStorage.getItem("kakaoId");
+
       if (!nicknameValue || !kakaoIdValue) {
         alert("로그인이 필요합니다.");
         window.location.href = 'gamja-login.html';
         return;
       }
+
       document.getElementById("nickname").textContent = nicknameValue;
 
       const startBtn = document.getElementById("startBtn");
