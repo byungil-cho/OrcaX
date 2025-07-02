@@ -66,17 +66,13 @@
     <button id="startBtn" class="btn" disabled>🌱 보리 농사 짓기 이동</button>
   </div>
   <script type="module">
+    import { getUserInfoOrRedirect } from "./login-check.js";
+
     (async () => {
-      let nicknameValue = localStorage.getItem("nickname");
-      let kakaoIdValue = localStorage.getItem("kakaoId");
+      const { nickname, kakaoId } = getUserInfoOrRedirect();
+      if (!nickname || !kakaoId) return;
 
-      if (!nicknameValue || !kakaoIdValue) {
-        alert("로그인이 필요합니다.");
-        window.location.href = 'https://byungil-cho.github.io/OrcaX/kakao-callback.html';
-        return;
-      }
-
-      document.getElementById("nickname").textContent = nicknameValue;
+      document.getElementById("nickname").textContent = nickname;
 
       const startBtn = document.getElementById("startBtn");
       const serverStatus = document.getElementById("serverStatus");
@@ -99,7 +95,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             cache: 'no-store',
-            body: JSON.stringify({ kakaoId: kakaoIdValue, nickname: nicknameValue })
+            body: JSON.stringify({ kakaoId, nickname })
           });
           await loadUserData();
         } catch (err) {
@@ -118,7 +114,6 @@
           const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
           if (!user) throw new Error('유저 데이터를 찾을 수 없습니다.');
 
-          // 감자 데이터 강제 매핑
           barleyEl.textContent = user.potato ?? user.potatoCount ?? 0;
           waterEl.textContent = user.water ?? 0;
           fertilizerEl.textContent = user.fertilizer ?? 0;
