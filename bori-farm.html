@@ -73,13 +73,13 @@
       <p>👤 닉네임: <span id="nickname">-</span></p>
       <p>🏠 농장이름: <span id="farmName">-</span></p>
       <p>⚡ 전원 상태: <span id="serverStatus">발견중...</span></p>
-      <p>💰 토큰: <span id="tokens">0</span></p>
-      <p>🌾 씨보리: <span id="barleySeeds">0</span></p>
-      <p>🥔 씨감자: <span id="potatoSeeds">0</span></p>
+      <p>💰 ORCX 토큰: <span id="tokens">0</span></p>
+      <p>🌱 씨앗 보유 - 감자: <span id="potatoSeeds">0</span> / 보리: <span id="barleySeeds">0</span></p>
       <p>💧 물: <span id="water">0</span> / 💩 거름: <span id="fertilizer">0</span></p>
     </div>
     <button class="entry-button" onclick="enterBoriFarm()">Enter the Field</button>
   </div>
+
   <script>
     function updateUserData() {
       document.getElementById("nickname").textContent = localStorage.getItem("nickname") || "-";
@@ -108,7 +108,7 @@
         window.location.href = "orcax-farm_000.html";
         return;
       }
-      window.location.href = "bori-main.html";
+      window.location.href = "bori-factory.html"; // 또는 다른 페이지로 변경 가능
     }
 
     updateUserData();
