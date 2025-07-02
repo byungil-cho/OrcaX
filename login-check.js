@@ -5,7 +5,7 @@ export function getUserInfoOrRedirect() {
 
   if (!nickname || !kakaoId) {
     alert("로그인이 필요합니다.");
-    window.location.href = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
+    window.location.href = "https://byungil-cho.github.io/OrcaX/signup.html";
     return {};
   }
 
