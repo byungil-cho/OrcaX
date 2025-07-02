@@ -118,7 +118,7 @@
           const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
           if (!user) throw new Error('유저 데이터를 찾을 수 없습니다.');
 
-          barleyEl.textContent = user.barleyCount ?? 0;
+          barleyEl.textContent = user.potatoCount ?? user.potato ?? 0;
           waterEl.textContent = user.water ?? 0;
           fertilizerEl.textContent = user.fertilizer ?? 0;
 
