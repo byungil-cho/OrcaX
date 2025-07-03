@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>피다보는 상점</title>
+  <title>씨감자·씨보리 상점</title>
   <style>
     body {
       margin: 0;
@@ -68,10 +68,9 @@
   <script>
     const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
     const nickname = localStorage.getItem('nickname');
-    let kakaoId = localStorage.getItem('userId');
+    const kakaoId = localStorage.getItem('userId');
 
     if (!nickname || !kakaoId) {
-      // 임시로 fallback - nickname만 있을 경우 로그인 페이지 리디렉션
       alert('로그인이 필요합니다.');
       location.href = 'gamja-login.html';
     }
@@ -83,16 +82,10 @@
 
     async function fetchUser() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`);
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`);
         if (!res.ok) throw new Error('서버 응답 오류');
         const data = await res.json();
-        const user = data.user || data.users?.[0];
-        if (!user) throw new Error('유저 없음');
-        if (!kakaoId) {
-          kakaoId = user.kakaoId;
-          localStorage.setItem('userId', kakaoId); // 저장
-        }
-        return user;
+        return data.user || data.users?.[0];
       } catch (e) {
         statusEl.textContent = '❌ 서버 연결 실패';
         return null;
@@ -108,6 +101,7 @@
         });
         return res.ok;
       } catch (e) {
+        console.error('업데이트 실패:', e);
         return false;
       }
     }
@@ -140,5 +134,6 @@
   </script>
 </body>
 </html>
+
 
 
