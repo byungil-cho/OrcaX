@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>감자 농장 입장</title>
   <style>
     body {
@@ -45,10 +45,6 @@
       text-align: left;
     }
   </style>
-  <script>
-    'use strict';
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-  </script>
 </head>
 <body>
   <div class="container" role="region" aria-label="감자 농장 대시보드">
@@ -65,10 +61,15 @@
     <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
     <button id="startBtn" class="btn" disabled>🌱 농장이름 짓기 이동</button>
   </div>
+
   <script type="module">
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
     (async () => {
       const nicknameValue = localStorage.getItem("nickname");
-      if (!nicknameValue) {
+      const kakaoIdValue = localStorage.getItem("userId");
+
+      if (!nicknameValue || !kakaoIdValue) {
         alert("로그인이 필요합니다.");
         window.location.href = 'gamja-login.html';
         return;
@@ -95,8 +96,7 @@
           await fetch(`${API_BASE}/api/init-user`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            cache: 'no-store',
-            body: JSON.stringify({ nickname: nicknameValue })
+            body: JSON.stringify({ kakaoId: kakaoIdValue, nickname: nicknameValue })
           });
           await loadUserData();
         } catch (err) {
@@ -108,8 +108,11 @@
       async function loadUserData() {
         serverStatus.textContent = "데이터 로딩 중...";
         try {
-          const res = await fetch(`${API_BASE}/api/userdata`, { cache: 'no-store' });
+          const res = await fetch(`${API_BASE}/api/userdata`, {
+            cache: 'no-store'
+          });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
           const data = await res.json();
           const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
           if (!user) throw new Error('유저 데이터를 찾을 수 없습니다.');
