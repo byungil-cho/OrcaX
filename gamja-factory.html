@@ -28,10 +28,10 @@
     <header>감자 농장</header>
     <div class="nickname">농장주: <span id="nickname">로딩 중...</span></div>
     <div class="info-bar">농장이름: <span id="farmName">로딩 중...</span></div>
-    <div class="server-status" id="serverStatus">🔌 서버 상태 확인 중...</div>
+    <div class="server-status" id="serverStatus">🔌 서버 상황 확인 중...</div>
 
     <div class="potato-field">
-      <h2>🌱 농사 관리</h2>
+      <h2>🌱 농장 관리</h2>
       <div class="seed-select">
         <label><input type="radio" name="seed" value="seedPotato" checked> 씨감자</label>
         <label><input type="radio" name="seed" value="seedBarley"> 씨보리</label>
@@ -64,8 +64,13 @@
     (async () => {
       const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
       const nickname = localStorage.getItem('nickname');
+      const kakaoId = localStorage.getItem('userId');
       const farmName = localStorage.getItem('farmName') || '농장';
-      if(!nickname) { alert('닉네임을 확인해주세요.'); location.href='gamja-login.html'; return; }
+      if (!nickname || !kakaoId) {
+        alert('로그인이 필요합니다.');
+        location.href = 'gamja-login.html';
+        return;
+      }
       document.getElementById('nickname').textContent = nickname;
       document.getElementById('farmName').textContent = farmName;
 
@@ -80,8 +85,8 @@
 
       async function fetchUser() {
         try {
-          const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`, { cache: 'no-store' });
-          if(!res.ok) throw new Error(res.status);
+          const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`, { cache: 'no-store' });
+          if (!res.ok) throw new Error(res.status);
           const data = await res.json();
           return data.user || (Array.isArray(data.users) ? data.users[0] : null);
         } catch (e) {
@@ -93,19 +98,18 @@
 
       async function patchUser(changes) {
         try {
-          const res = await fetch(`${API_BASE}/api/update-user`, { // 변경된 엔드포인트
+          const res = await fetch(`${API_BASE}/api/update-user`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nickname, ...changes })
+            body: JSON.stringify({ kakaoId, nickname, ...changes })
           });
-          if(!res.ok) throw new Error(res.status);
+          if (!res.ok) throw new Error(res.status);
         } catch (e) {
           console.error('PATCH 오류', e);
         }
       }
 
       function render(user) {
-        // storage
         storageEl.innerHTML = '';
         const items = [
           { label: '씨감자', value: user.seedPotato || 0 },
@@ -119,14 +123,14 @@
           li.textContent = `${it.label}: ${it.value}`;
           storageEl.appendChild(li);
         });
-        // products
+
         productEl.innerHTML = '';
         (user.inventory || []).forEach(it => {
           const li = document.createElement('li');
           li.textContent = `${it.name || it.type}: ${it.count}`;
           productEl.appendChild(li);
         });
-        // growth
+
         const gp = user.growthPoint || 0;
         growthEl.textContent = `🌱 성장포인트: ${gp}`;
         harvestBtn.disabled = gp < 5;
@@ -182,7 +186,6 @@
         }
       });
 
-      // 초기 로드
       statusEl.textContent = '✅ 서버 연결 성공';
       const initial = await fetchUser(); if (initial) render(initial);
     })();
