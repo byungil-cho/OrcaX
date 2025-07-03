@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>씨감자·씨보리 상점</title>
+  <title>피다보는 상점</title>
   <style>
     body {
       margin: 0;
@@ -66,7 +66,7 @@
   </div>
 
   <script>
-    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 절대주소!
     const nickname = localStorage.getItem('nickname');
     const kakaoId = localStorage.getItem('userId');
 
@@ -82,7 +82,7 @@
 
     async function fetchUser() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`);
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`);
         if (!res.ok) throw new Error('서버 응답 오류');
         const data = await res.json();
         return data.user || data.users?.[0];
@@ -94,14 +94,13 @@
 
     async function patchUser(changes) {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata/update-user`, { ... });
+        const res = await fetch(`${API_BASE}/api/update-user`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, nickname, ...changes })
         });
         return res.ok;
       } catch (e) {
-        console.error('업데이트 실패:', e);
         return false;
       }
     }
@@ -134,6 +133,7 @@
   </script>
 </body>
 </html>
+
 
 
 
