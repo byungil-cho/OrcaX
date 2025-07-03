@@ -6,7 +6,6 @@
   <title>🌳 OrcaX 농장 입구</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
-    /* 스타일 생략 (기존 유지) */
     body {
       margin: 0;
       padding: 0;
@@ -114,7 +113,7 @@
   </div>
 
   <script>
-    const BASE_URL = "https://orcax-survey-3060.onrender.com";
+    const BASE_URL = "https://climbing-wholly-grouper.jp.ngrok.io";
 
     function goKakaoLogin() {
       const client_id = "284b798a9d9be8202f9c2e129fa6f329";
@@ -148,12 +147,28 @@
         document.getElementById("loginBtn").style.display = "none";
         document.getElementById("logoutBtn").style.display = "inline-block";
 
-        // Render 서버에 로그인 등록 요청
+        // 로그인 기록 (선택적 API)
         fetch(`${BASE_URL}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname, kakaoId })
         }).catch(err => console.error("서버 등록 오류:", err));
+
+        // ✅ 초기 자산 지급 API 요청
+        fetch(`${BASE_URL}/api/init-user`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, kakaoId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            console.log("✅ 초기 자산 지급 완료:", data.message);
+          } else {
+            console.warn("⚠️ 초기화 실패 또는 이미 존재:", data.message || data.error);
+          }
+        })
+        .catch(err => console.error("❌ init-user 오류:", err));
       }
     })();
   </script>
