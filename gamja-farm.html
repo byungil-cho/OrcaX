@@ -108,7 +108,7 @@
       async function loadUserData() {
         serverStatus.textContent = "데이터 로딩 중...";
         try {
-          const res = await fetch(`${API_BASE}/api/userdata`, {
+          const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoIdValue}`, {
             cache: 'no-store'
           });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
