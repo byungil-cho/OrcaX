@@ -1,98 +1,137 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&#127813; 씨감자•씨보리 상점</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>씨앗 상점</title>
   <style>
-    body { margin: 0; font-family: 'Do Hyeon', sans-serif; background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center top fixed; background-size: cover; }
-    .shop-container { max-width: 500px; margin: 0 auto; padding: 2rem; background: rgba(255, 255, 255, 0.85); border-radius: 1rem; }
-    h1 { text-align: center; margin-bottom: 1rem; }
-    .server-status { text-align: center; font-weight: bold; margin-bottom: 1rem; color: #ff4444; }
-    .balance { text-align: center; font-size: 1.2rem; margin-bottom: 1rem; }
-    .item { display: flex; flex-direction: column; align-items: center; margin-bottom: 2rem; padding: 1rem; background: #f0f0f0; border-radius: 1rem; }
-    .item h2 { margin: 0.5rem 0; }
-    .item button { background: #4caf50; color: white; border: none; padding: 0.75rem 2rem; border-radius: 0.5rem; font-size: 1rem; cursor: pointer; }
-    .item button:hover { background: #43a047; }
-    .nav { text-align: center; margin-top: 2rem; }
-    .nav a { margin: 0 0.5rem; color: #333; text-decoration: none; font-weight: bold; }
+    body {
+      margin: 0;
+      font-family: 'Do Hyeon', sans-serif;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-size: cover;
+      text-align: center;
+    }
+    .container {
+      background-color: rgba(255, 255, 255, 0.85);
+      margin: 2rem auto;
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 500px;
+    }
+    h1 {
+      font-size: 1.8rem;
+    }
+    .status {
+      font-weight: bold;
+      margin: 1rem 0;
+    }
+    .item {
+      margin-bottom: 2rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
-  <div class="shop-container">
-    <h1>&#127813; 씨감자•씨보리 상점</h1>
-    <div class="server-status" id="serverStatus">❌ 서버 연결 실패</div>
-    <div class="balance">보유 토큰: <span id="orcx">-</span> ORCX</div>
+  <div class="container">
+    <h1>🍅 씨감자·씨보리 상점</h1>
+    <div id="serverStatus" class="status">🔌 서버에 연결 중...</div>
+    <div id="orcx">보유 토큰: - ORCX</div>
 
     <div class="item">
       <h2>씨감자 구매</h2>
       <p>가격: 2 ORCX</p>
-      <button onclick="buySeed('seedPotato')">구매하기</button>
-      <p>보유 씨감자: <span id="seedPotato">-</span></p>
+      <button id="buySeedPotato">구매하기</button>
+      <div>보유 씨감자: <span id="havePotato">-</span></div>
     </div>
 
     <div class="item">
       <h2>씨보리 구매</h2>
       <p>가격: 2 ORCX</p>
-      <button onclick="buySeed('seedBarley')">구매하기</button>
-      <p>보유 씨보리: <span id="seedBarley">-</span></p>
-    </div>
-
-    <div class="nav">
-      <a href="gamja-main.html">머리로</a>
-      <a href="gamja-factory.html">공장으로</a>
-      <a href="gamja-farm.html">농장으로</a>
+      <button id="buySeedBarley">구매하기</button>
+      <div>보유 씨보리: <span id="haveBarley">-</span></div>
     </div>
   </div>
 
   <script>
     const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
-    const kakaoId = localStorage.getItem('userId');
     const nickname = localStorage.getItem('nickname');
+    const kakaoId = localStorage.getItem('userId');
 
-    if (!kakaoId || !nickname) {
+    if (!nickname || !kakaoId) {
       alert('로그인이 필요합니다.');
       location.href = 'gamja-login.html';
     }
 
     const statusEl = document.getElementById('serverStatus');
     const orcxEl = document.getElementById('orcx');
+    const havePotatoEl = document.getElementById('havePotato');
+    const haveBarleyEl = document.getElementById('haveBarley');
 
     async function fetchUser() {
       try {
         const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`);
-        if (!res.ok) throw new Error();
+        if (!res.ok) throw new Error('서버 응답 오류');
         const data = await res.json();
-        const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
-        if (user) {
-          statusEl.textContent = '✅ 서버 연결 성공';
-          orcxEl.textContent = user.orcx || user.token || 0;
-          document.getElementById('seedPotato').textContent = user.seedPotato || 0;
-          document.getElementById('seedBarley').textContent = user.seedBarley || 0;
-        }
+        return data.user || data.users?.[0];
       } catch (e) {
         statusEl.textContent = '❌ 서버 연결 실패';
-        console.error(e);
+        return null;
       }
     }
 
-    async function buySeed(type) {
+    async function patchUser(changes) {
       try {
         const res = await fetch(`${API_BASE}/api/update-user`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId, nickname, type })
+          body: JSON.stringify({ kakaoId, nickname, ...changes })
         });
-        if (!res.ok) throw new Error();
-        await fetchUser();
+        return res.ok;
       } catch (e) {
-        alert('구매 실패');
-        console.error(e);
+        return false;
       }
     }
 
-    fetchUser();
+    async function updateUI() {
+      const user = await fetchUser();
+      if (!user) return;
+      statusEl.textContent = '✅ 서버 연결 성공';
+      orcxEl.textContent = `보유 토큰: ${user.orcx || 0} ORCX`;
+      havePotatoEl.textContent = user.seedPotato || 0;
+      haveBarleyEl.textContent = user.seedBarley || 0;
+    }
+
+    async function purchase(seedType) {
+      const user = await fetchUser();
+      if (!user || (user.orcx || 0) < 2) return alert('토큰 부족');
+      const changes = {
+        orcx: user.orcx - 2,
+        [seedType]: (user[seedType] || 0) + 1
+      };
+      const success = await patchUser(changes);
+      if (success) updateUI();
+      else alert('구매 실패');
+    }
+
+    document.getElementById('buySeedPotato').onclick = () => purchase('seedPotato');
+    document.getElementById('buySeedBarley').onclick = () => purchase('seedBarley');
+
+    updateUI();
   </script>
 </body>
 </html>
+
 
