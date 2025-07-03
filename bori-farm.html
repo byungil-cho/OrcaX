@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>보리 농장 입장</title>
   <style>
@@ -45,14 +45,10 @@
       text-align: left;
     }
   </style>
-  <script>
-    'use strict';
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-  </script>
 </head>
 <body>
-  <div class="container" role="region" aria-label="보리 농장 대시보드">
-    <h1>🌾 보리 농장 (감자 위장) 에 오시는 것을 환영합니다!</h1>
+  <div class="container" role="region" aria-label="보리 농장 대시부드">
+    <h1>🌾 보리 농장에 오신 것을 환영합니다!</h1>
     <div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
     <div class="info-box">🌾 보리: <span id="barley">0</span> 개</div>
     <div class="info-box">💧 물: <span id="water">0</span> 개</div>
@@ -63,15 +59,20 @@
     <div class="info-box">🩚 인벤토리:</div>
     <div id="inventoryBox" class="info-box"></div>
     <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
-    <button id="startBtn" class="btn" disabled>🌱 보리 농사 지짜 이동</button>
+    <button id="startBtn" class="btn" disabled>🌱 보리 농사 지짱 이동</button>
   </div>
   <script type="module">
-    import { getUserInfoOrRedirect } from "https://byungil-cho.github.io/OrcaX/login-check.js";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
 
     (async () => {
-      const { nickname, kakaoId } = getUserInfoOrRedirect("signup.html");
-      if (!nickname || !kakaoId) return;
+      const nickname = localStorage.getItem("nickname");
+      const kakaoId = localStorage.getItem("userId");
 
+      if (!nickname || !kakaoId) {
+        alert("로그인이 필요합니다.");
+        window.location.href = 'gamja-login.html';
+        return;
+      }
       document.getElementById("nickname").textContent = nickname;
 
       const startBtn = document.getElementById("startBtn");
@@ -107,7 +108,7 @@
       async function loadUserData() {
         serverStatus.textContent = "데이터 로딩 중...";
         try {
-          const res = await fetch(`${API_BASE}/api/userdata`, { cache: 'no-store' });
+          const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`, { cache: 'no-store' });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
           const data = await res.json();
