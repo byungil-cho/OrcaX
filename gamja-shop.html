@@ -94,7 +94,7 @@
 
     async function patchUser(changes) {
       try {
-        const res = await fetch(`${API_BASE}/api/update-user`, {
+        const res = await fetch(`${API_BASE}/api/userdata/update-user`, { ... });
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, nickname, ...changes })
