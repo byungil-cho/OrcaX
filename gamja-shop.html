@@ -3,153 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>씨감자·씨보리 상점</title>
-  <base href="https://byungil-cho.github.io/OrcaX/" />
+  <title>&#127813; 씨감자•씨보리 상점</title>
   <style>
-    html, body {
-      margin: 0; padding: 0; height: 100%;
-      font-family: 'Pretendard', sans-serif;
-      background: url('farm-101.png') no-repeat center center fixed;
-      background-size: cover; text-align: center;
-    }
-    nav.nav-bar {
-      display: flex; justify-content: center; gap: 16px;
-      background: rgba(255,255,255,0.8); padding: 12px 0;
-    }
-    nav.nav-bar a {
-      text-decoration: none; color: #333; font-weight: bold;
-      padding: 8px 12px; border-radius: 6px;
-    }
-    nav.nav-bar a:hover { background: rgba(0,0,0,0.1); }
-    .power-status {
-      padding: 8px 0; background: rgba(255,255,255,0.6);
-      font-size: 0.9rem;
-    }
-    .power-status.ok { color: green; }
-    .power-status.err { color: red; }
-    header {
-      position: relative; padding: 16px;
-      font-size: 1.5rem; font-weight: bold;
-      background: rgba(255,255,255,0.8);
-    }
-    header .user-name {
-      position: absolute; right: 16px; top: 50%;
-      transform: translateY(-50%); font-size: 1rem;
-    }
-    .status {
-      padding: 12px; background: rgba(255,255,255,0.7); font-size: 1.1rem;
-    }
-    .shop-container {
-      display: flex; flex-wrap: wrap; justify-content: center;
-      gap: 20px; padding: 24px;
-    }
-    .item-card {
-      background: rgba(255,255,255,0.9); border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      padding: 16px; width: 260px;
-      display: flex; flex-direction: column;
-    }
-    .item-card h2 { margin-bottom: 8px; font-size: 1.2rem; }
-    .item-card button {
-      background: #4CAF50; color: #fff; border: none;
-      border-radius: 6px; padding: 10px; font-size: 1rem; cursor: pointer;
-    }
-    .item-card button:disabled { background: #aaa; cursor: not-allowed; }
-    .item-card button:hover:not(:disabled) { background: #45A049; }
-    @media (max-width: 600px) {
-      .shop-container { flex-direction: column; align-items: center; }
-      .item-card { width: 90%; }
-    }
+    body { margin: 0; font-family: 'Do Hyeon', sans-serif; background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center top fixed; background-size: cover; }
+    .shop-container { max-width: 500px; margin: 0 auto; padding: 2rem; background: rgba(255, 255, 255, 0.85); border-radius: 1rem; }
+    h1 { text-align: center; margin-bottom: 1rem; }
+    .server-status { text-align: center; font-weight: bold; margin-bottom: 1rem; color: #ff4444; }
+    .balance { text-align: center; font-size: 1.2rem; margin-bottom: 1rem; }
+    .item { display: flex; flex-direction: column; align-items: center; margin-bottom: 2rem; padding: 1rem; background: #f0f0f0; border-radius: 1rem; }
+    .item h2 { margin: 0.5rem 0; }
+    .item button { background: #4caf50; color: white; border: none; padding: 0.75rem 2rem; border-radius: 0.5rem; font-size: 1rem; cursor: pointer; }
+    .item button:hover { background: #43a047; }
+    .nav { text-align: center; margin-top: 2rem; }
+    .nav a { margin: 0 0.5rem; color: #333; text-decoration: none; font-weight: bold; }
   </style>
-  <script>
-    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
-  </script>
 </head>
 <body>
-  <nav class="nav-bar">
-    <a href="gamja-farm.html">🏡 농장으로</a>
-    <a href="gamja-factory.html">🏭 공장으로</a>
-    <a href="gamja-shop.html">🛒 상점</a>
-  </nav>
-
-  <div id="powerStatus" class="power-status">⏳ 서버 상태 확인 중...</div>
-
-  <header>
-    씨감자·씨보리 상점
-    <div id="userName" class="user-name">— 님</div>
-  </header>
-
-  <div class="status">
-    보유 토큰: <span id="tokenCount">—</span> ORCX
-  </div>
-
   <div class="shop-container">
-    <div class="item-card">
+    <h1>&#127813; 씨감자•씨보리 상점</h1>
+    <div class="server-status" id="serverStatus">❌ 서버 연결 실패</div>
+    <div class="balance">보유 토큰: <span id="orcx">-</span> ORCX</div>
+
+    <div class="item">
       <h2>씨감자 구매</h2>
       <p>가격: 2 ORCX</p>
-      <button id="buyPotato">구매하기</button>
-      <p>보유 씨감자: <span id="potatoCount">—</span></p>
+      <button onclick="buySeed('seedPotato')">구매하기</button>
+      <p>보유 씨감자: <span id="seedPotato">-</span></p>
     </div>
-    <div class="item-card">
+
+    <div class="item">
       <h2>씨보리 구매</h2>
       <p>가격: 2 ORCX</p>
-      <button id="buyBarley">구매하기</button>
-      <p>보유 씨보리: <span id="barleyCount">—</span></p>
+      <button onclick="buySeed('seedBarley')">구매하기</button>
+      <p>보유 씨보리: <span id="seedBarley">-</span></p>
+    </div>
+
+    <div class="nav">
+      <a href="gamja-main.html">머리로</a>
+      <a href="gamja-factory.html">공장으로</a>
+      <a href="gamja-farm.html">농장으로</a>
     </div>
   </div>
 
-  <script type="module">
+  <script>
+    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const kakaoId = localStorage.getItem('userId');
     const nickname = localStorage.getItem('nickname');
-    if (!nickname) {
+
+    if (!kakaoId || !nickname) {
       alert('로그인이 필요합니다.');
-      window.location.href = 'gamja-login.html';
+      location.href = 'gamja-login.html';
     }
-    document.getElementById('userName').textContent = nickname + '님';
 
-    const powerEl   = document.getElementById('powerStatus');
-    const tokenEl   = document.getElementById('tokenCount');
-    const potatoEl  = document.getElementById('potatoCount');
-    const barleyEl  = document.getElementById('barleyCount');
-    const btnPotato = document.getElementById('buyPotato');
-    const btnBarley = document.getElementById('buyBarley');
+    const statusEl = document.getElementById('serverStatus');
+    const orcxEl = document.getElementById('orcx');
 
-    async function loadShopData() {
+    async function fetchUser() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?nickname=${encodeURIComponent(nickname)}`);
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`);
         if (!res.ok) throw new Error();
-        const { users } = await res.json();
-        const u = users[0];
-        powerEl.textContent = '✅ 서버 연결 완료'; powerEl.classList.add('ok');
-        tokenEl.textContent  = u.orcx ?? 0;
-        potatoEl.textContent = u.seedPotato ?? 0;
-        barleyEl.textContent = u.seedBarley ?? 0;
-        btnPotato.disabled = u.orcx < 2;
-        btnBarley.disabled = u.orcx < 2;
-      } catch {
-        powerEl.textContent = '❌ 서버 연결 실패'; powerEl.classList.add('err');
+        const data = await res.json();
+        const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
+        if (user) {
+          statusEl.textContent = '✅ 서버 연결 성공';
+          orcxEl.textContent = user.orcx || user.token || 0;
+          document.getElementById('seedPotato').textContent = user.seedPotato || 0;
+          document.getElementById('seedBarley').textContent = user.seedBarley || 0;
+        }
+      } catch (e) {
+        statusEl.textContent = '❌ 서버 연결 실패';
+        console.error(e);
       }
     }
 
-    async function purchase(item) {
+    async function buySeed(type) {
       try {
-        const res = await fetch(`${API_BASE}/api/purchase?nickname=${encodeURIComponent(nickname)}`, {
+        const res = await fetch(`${API_BASE}/api/update-user`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ item })
+          body: JSON.stringify({ kakaoId, nickname, type })
         });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.message || '구매 실패');
-        await loadShopData();
-        alert('구매가 완료되었습니다.');
+        if (!res.ok) throw new Error();
+        await fetchUser();
       } catch (e) {
-        alert(e.message);
+        alert('구매 실패');
+        console.error(e);
       }
     }
 
-    btnPotato.addEventListener('click', () => purchase('potato'));
-    btnBarley.addEventListener('click', () => purchase('barley'));
-
-    loadShopData();
+    fetchUser();
   </script>
 </body>
 </html>
+
