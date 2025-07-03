@@ -68,14 +68,11 @@
   <script type="module">
     (async () => {
       const nicknameValue = localStorage.getItem("nickname");
-      const kakaoId = localStorage.getItem("userId");
-
-      if (!nicknameValue || !kakaoId) {
+      if (!nicknameValue) {
         alert("로그인이 필요합니다.");
         window.location.href = 'gamja-login.html';
         return;
       }
-
       document.getElementById("nickname").textContent = nicknameValue;
 
       const startBtn = document.getElementById("startBtn");
@@ -99,10 +96,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             cache: 'no-store',
-            body: JSON.stringify({
-              kakaoId,
-              nickname: nicknameValue
-            })
+            body: JSON.stringify({ nickname: nicknameValue })
           });
           await loadUserData();
         } catch (err) {
@@ -114,17 +108,23 @@
       async function loadUserData() {
         serverStatus.textContent = "데이터 로딩 중...";
         try {
-          const res = await fetch(`${API_BASE}/api/userdata`, { cache: 'no-store' });
+          const res = await fetch(
+            `${API_BASE}/api/userdata`,
+            { cache: 'no-store' }
+          );
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
           const data = await res.json();
           const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
           if (!user) throw new Error('유저 데이터를 찾을 수 없습니다.');
 
+          // 기본 자원 및 통계 출력
           potatoEl.textContent = user.potatoCount ?? user.potato ?? 0;
           waterEl.textContent = user.water ?? 0;
           fertilizerEl.textContent = user.fertilizer ?? 0;
 
+          // 최초 카카오 로그인 시 지급 누락 보완:
+          // 첫 로그인 때만 ORCX(토큰) 10개 지급, 이후 0이 되어도 재지급하지 않음
           const initKey = 'initialTokensGiven';
           let orcxVal = user.orcx ?? user.token ?? 0;
           const hasInit = localStorage.getItem(initKey) === 'true';
@@ -137,6 +137,7 @@
           seedPotatoEl.textContent = user.seedPotato ?? 0;
           seedBarleyEl.textContent = user.seedBarley ?? 0;
 
+          // 인벤토리 아이템 표시
           inventoryBox.innerHTML = "";
           (user.inventory || []).forEach(item => {
             const count = item.count ?? 1;
