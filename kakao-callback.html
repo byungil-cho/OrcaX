@@ -30,43 +30,67 @@
           .then(profile => {
             const nickname = profile.properties?.nickname;
             const kakaoId = profile.id;
-            const email = profile.kakao_account?.email;  // 👈 이메일 추출 추가
+            const email = profile.kakao_account?.email;
 
             if (!nickname || nickname === "사용자") {
               alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
               return;
             }
 
-            // ✅ 서버에 이메일 포함 전송
+            // 1. 로그인 시도
             fetch("https://orcax-survey-3060.onrender.com/api/login", {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ nickname, kakaoId, email }) // 👈 email 추가
+              body: JSON.stringify({ kakaoId })
             })
             .then(res => res.json())
             .then(result => {
               if (result.success) {
-                console.log("서버 저장 성공:", result);
+                console.log("✅ 기존 유저 로그인 성공");
+                proceedToApp(nickname, kakaoId, accessToken);
               } else {
-                console.warn("서버 응답 오류", result);
+                // 2. 신규 유저 저장
+                fetch("https://orcax-survey-3060.onrender.com/api/saveUser", {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    nickname,
+                    kakaoId,
+                    email,
+                    orcx: 0,
+                    water: 0,
+                    fertilizer: 0
+                  })
+                })
+                .then(res => res.json())
+                .then(saveRes => {
+                  if (saveRes.success) {
+                    console.log("✅ 신규 유저 저장 완료");
+                    proceedToApp(nickname, kakaoId, accessToken);
+                  } else {
+                    console.error("❌ 유저 저장 실패", saveRes);
+                    alert("서버에 유저 정보를 저장하지 못했습니다.");
+                  }
+                });
               }
             })
             .catch(err => {
-              console.error("서버 통신 실패", err);
+              console.error("❌ 서버 통신 오류:", err);
+              alert("서버와 통신 중 오류가 발생했습니다.");
             });
-
-            localStorage.setItem("nickname", nickname);
-            localStorage.setItem("userId", kakaoId);
-            localStorage.setItem("accessToken", accessToken);
-
-            // ✅ 리디렉션 주소
-            window.location.href = "https://byungil-cho.github.io/OrcaX/index9.html";
           });
       })
       .catch(err => {
         console.error("로그인 오류", err);
         alert("로그인 중 오류가 발생했습니다.");
       });
+    }
+
+    function proceedToApp(nickname, kakaoId, accessToken) {
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("userId", kakaoId);
+      localStorage.setItem("accessToken", accessToken);
+      window.location.href = "https://byungil-cho.github.io/OrcaX/index9.html";
     }
   </script>
 </body>
