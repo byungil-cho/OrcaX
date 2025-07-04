@@ -19,10 +19,9 @@
       },
       body: new URLSearchParams({
         grant_type: "authorization_code",
-        client_id: "카카오REST_API_KEY", // ← 실제 앱 키로 교체
-        redirect_uri: "https://byungil-cho.github.io/kakao-callback.html",
+        client_id: "284b798a9d9be8202f9c2e129fa6f329",  // ✅ 입력하신 REST API 키
+        redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",  // ✅ 반드시 카카오 콘솔과 일치해야 함
         code,
-        client_secret: "클라이언트_시크릿_있다면" // 없으면 이 줄 제거
       }),
     })
     .then((res) => res.json())
@@ -48,7 +47,6 @@
       const nickname = profile.properties?.nickname || "닉네임없음";
       const email = profile.kakao_account?.email || "";
 
-      // 로그인 요청
       return fetch("https://orcax-survey-3060.onrender.com/api/login", {
         method: "POST",
         headers: {
