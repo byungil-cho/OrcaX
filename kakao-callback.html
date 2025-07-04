@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Kakao Login Callback</title>
+  <meta charset="utf-8">
+  <title>카카오 로그인 콜백</title>
 </head>
 <body>
   <p>로그인 처리 중입니다...</p>
@@ -10,65 +10,57 @@
   <script>
     const code = new URL(window.location.href).searchParams.get("code");
 
-    console.log("🔶 받은 code:", code);
+    if (!code) {
+      alert("로그인 코드가 없습니다.");
+      throw new Error("No code found");
+    }
 
     fetch("https://kauth.kakao.com/oauth/token", {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
         grant_type: "authorization_code",
-        client_id: "284b798a9d9be8202f9c2e129fa6f329",  // ✅ 입력하신 REST API 키
-        redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",  // ✅ 반드시 카카오 콘솔과 일치해야 함
-        code,
+        client_id: "284b798a9d9be8202f9c2e129fa6f329", // REST API 키
+        redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",
+        code: code,
       }),
     })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("🟡 Kakao token response:", data);
-
-      const accessToken = data.access_token;
-      if (!accessToken) {
-        throw new Error("access_token 없음");
+    .then(res => res.json())
+    .then(tokenData => {
+      if (!tokenData.access_token) {
+        alert("로그인 중 문제가 발생했습니다: access_token 없음");
+        throw new Error("No access_token");
       }
 
       return fetch("https://kapi.kakao.com/v2/user/me", {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${tokenData.access_token}`,
         },
       });
     })
-    .then((res) => res.json())
-    .then((profile) => {
-      console.log("🟢 Kakao profile:", profile);
+    .then(res => res.json())
+    .then(userData => {
+      const kakaoId = userData.id;
+      const nickname = userData.properties?.nickname || "닉네임 없음";
 
-      const kakaoId = profile.id;
-      const nickname = profile.properties?.nickname || "닉네임없음";
-      const email = profile.kakao_account?.email || "";
-
-      return fetch("https://orcax-survey-3060.onrender.com/api/login", {
+      // 로그인 정보를 서버로 전송
+      fetch("https://YOUR_SERVER_URL/api/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ kakaoId }),
-      }).then((res) => {
-        if (!res.ok) {
-          throw new Error("❗ 로그인 실패 또는 유저 없음");
-        }
-        return res.json();
-      }).then((result) => {
-        console.log("🔵 Login result:", result);
-        localStorage.setItem("userId", kakaoId);
-        localStorage.setItem("nickname", nickname);
-        localStorage.setItem("email", email);
-        window.location.href = "/index9.html";
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kakaoId, nickname }),
+      })
+      .then(res => res.json())
+      .then(response => {
+        alert("로그인 성공! 닉네임: " + nickname);
+        // 리디렉션 처리
+        window.location.href = "/main.html";
       });
     })
-    .catch((err) => {
-      console.error("❌ 에러 발생:", err);
-      alert("로그인 중 문제가 발생했습니다: " + err.message);
+    .catch(err => {
+      console.error("로그인 오류:", err);
+      alert("로그인 처리 중 문제가 발생했습니다.");
     });
   </script>
 </body>
