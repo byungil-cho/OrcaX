@@ -7,6 +7,7 @@
 <body>
   <script>
     const code = new URL(window.location.href).searchParams.get("code");
+
     if (!code) {
       alert("인증 코드가 없습니다.");
     } else {
@@ -29,15 +30,18 @@
           .then(profile => {
             const nickname = profile.properties?.nickname;
             const kakaoId = profile.id;
+            const email = profile.kakao_account?.email;  // 👈 이메일 추출 추가
+
             if (!nickname || nickname === "사용자") {
               alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
               return;
             }
 
+            // ✅ 서버에 이메일 포함 전송
             fetch("https://orcax-survey-3060.onrender.com/api/login", {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ nickname, kakaoId })
+              body: JSON.stringify({ nickname, kakaoId, email }) // 👈 email 추가
             })
             .then(res => res.json())
             .then(result => {
@@ -55,7 +59,7 @@
             localStorage.setItem("userId", kakaoId);
             localStorage.setItem("accessToken", accessToken);
 
-            // ✅ 수정된 리디렉션 주소
+            // ✅ 리디렉션 주소
             window.location.href = "https://byungil-cho.github.io/OrcaX/index9.html";
           });
       })
