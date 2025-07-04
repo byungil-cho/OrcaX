@@ -34,7 +34,7 @@
 
                 if (data.access_token) {
                     localStorage.setItem("kakao_access_token", data.access_token);
-                    window.location.href = "/OrcaX/signup.html ";
+                    window.location.href = "/OrcaX/kakao-callback.html ";
                 } else {
                     alert("access_token 없음: " + JSON.stringify(data));
                 }
