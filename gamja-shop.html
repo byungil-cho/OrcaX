@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>피다보는 상점</title>
+  <title>씨감자·씨보리 상점</title>
   <style>
     body {
       margin: 0;
@@ -66,7 +66,7 @@
   </div>
 
   <script>
-    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 절대주소!
+    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
     const nickname = localStorage.getItem('nickname');
     const kakaoId = localStorage.getItem('userId');
 
@@ -82,11 +82,12 @@
 
     async function fetchUser() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`);
-        if (!res.ok) throw new Error('서버 응답 오류');
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`);
+        if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
         const data = await res.json();
         return data.user || data.users?.[0];
       } catch (e) {
+        console.error('fetchUser 오류:', e);
         statusEl.textContent = '❌ 서버 연결 실패';
         return null;
       }
@@ -99,8 +100,10 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, nickname, ...changes })
         });
-        return res.ok;
+        if (!res.ok) throw new Error(`업데이트 실패: ${res.status}`);
+        return true;
       } catch (e) {
+        console.error('patchUser 오류:', e);
         return false;
       }
     }
@@ -116,7 +119,10 @@
 
     async function purchase(seedType) {
       const user = await fetchUser();
-      if (!user || (user.orcx || 0) < 2) return alert('토큰 부족');
+      if (!user || (user.orcx || 0) < 2) {
+        alert('토큰 부족');
+        return;
+      }
       const changes = {
         orcx: user.orcx - 2,
         [seedType]: (user[seedType] || 0) + 1
@@ -133,6 +139,7 @@
   </script>
 </body>
 </html>
+
 
 
 
