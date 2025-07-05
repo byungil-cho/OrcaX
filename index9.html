@@ -1,138 +1,176 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>로그인 성공 - OrcaX 농장</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌳 OrcaX 농장 입구</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
-    html, body {
+    body {
       margin: 0;
       padding: 0;
-      height: 100%;
       background: url('https://byungil-cho.github.io/OrcaX/farm-000_01.png') no-repeat center center fixed;
       background-size: cover;
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      color: #fff;
+      color: white;
     }
-    .container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      padding: 1rem;
-    }
+    .container { padding-top: 12vh; }
     h1 {
       font-size: 2.2rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       background-color: rgba(0,0,0,0.6);
-      display: inline-block;
-      padding: 0.7rem 1.2rem;
-      border-radius: 12px;
-    }
-    p {
-      font-size: 1rem;
-      background-color: rgba(0,0,0,0.5);
       display: inline-block;
       padding: 0.5rem 1rem;
       border-radius: 10px;
     }
-    a.button {
+    .nickname {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background-color: rgba(0, 0, 0, 0.6);
       display: inline-block;
+      padding: 0.4rem 1rem;
+      border-radius: 10px;
+    }
+    .field-section {
       margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .field {
+      cursor: pointer;
+    }
+    .field img {
+      width: 180px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px black;
+    }
+    .field span {
+      display: block;
+      margin-top: 0.5rem;
+      background: rgba(0,0,0,0.5);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .bottom-links {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+    }
+    .bottom-links a {
+      display: inline-block;
+      background: rgba(255,255,255,0.8);
+      padding: 0.4rem 0.8rem;
+      color: #222;
+      margin: 0 0.5rem;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .kakao-btn {
+      margin-top: 2.5rem;
       background: #FEE500;
       color: #000;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
       font-weight: bold;
-      padding: 1rem 2.2rem;
-      border-radius: 10px;
-      text-decoration: none;
-      font-size: 1.2rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
-    @media (max-width: 480px) {
-      h1 { font-size: 1.6rem; padding: 0.5rem 1rem; }
-      p { font-size: 0.9rem; }
-      a.button { font-size: 1rem; padding: 0.8rem 1.5rem; }
+    @media (max-width: 768px) {
+      .field img { width: 140px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎉 OrcaX 농장에 오신 것을 환영합니다!</h1>
-    <p>로그인에 성공하셨습니다. 자원 지급 중...</p><br/>
-    <a href="index9.html" class="button">🌾 메인 농장으로 이동</a>
+    <h1>🐳 OrcaX 농장 입구</h1>
+    <div id="nicknameDisplay" class="nickname" style="display: none;"></div>
+
+    <div class="field-section">
+      <div class="field" onclick="enterFarm('gamja-farm.html')">
+        <img src="https://byungil-cho.github.io/OrcaX/farm-101.png" alt="감자 밭">
+        <span>🥔 감자 밭</span>
+      </div>
+      <div class="field" onclick="enterFarm('bori-farm.html')">
+        <img src="https://byungil-cho.github.io/OrcaX/farm-201.png" alt="보리 밭">
+        <span>🌾 보리 밭</span>
+      </div>
+    </div>
+
+    <div class="bottom-links">
+      <a href="index.html">⬅ 농장 밖으로</a>
+      <a href="auction-house.html">📊 경매장 입장</a>
+    </div>
+
+    <button id="loginBtn" class="kakao-btn" onclick="goKakaoLogin()">카카오 로그인</button>
+    <button id="logoutBtn" class="kakao-btn" style="display: none; background-color: #ff4d4d;" onclick="logout()">로그아웃</button>
   </div>
 
   <script>
-    Kakao.init('da9d920093d6529c8474650b3f13d1c2');
     const BASE_URL = "https://climbing-wholly-grouper.jp.ngrok.io";
 
-    const params = new URLSearchParams(window.location.hash.replace("#", "?"));
-    const accessToken = params.get("access_token");
-    if (accessToken) {
-      Kakao.Auth.setAccessToken(accessToken);
+    function goKakaoLogin() {
+      const client_id = "284b798a9d9be8202f9c2e129fa6f329";
+      const redirect_uri = "https://byungil-cho.github.io/OrcaX/kakao-callback.html";
+      window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
     }
 
-    Kakao.Auth.getStatusInfo(({ status }) => {
-      if (status === 'connected') {
-        Kakao.API.request({
-          url: '/v2/user/me',
-          success: function(response) {
-            const kakaoId = response.id;
-            const nickname = response.properties.nickname;
-            localStorage.setItem("kakaoId", kakaoId);
-            localStorage.setItem("nickname", nickname);
+    function logout() {
+      localStorage.clear();
+      alert("로그아웃 되었습니다.");
+      location.reload();
+    }
 
-            fetch(`${BASE_URL}/api/login`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ kakaoId, nickname })
-            })
-            .then(res => res.json())
-            .then(data => {
-              if (data.success) {
-                const { orcx, water, fertilizer } = data.user;
-                localStorage.setItem("orcx", orcx);
-                localStorage.setItem("water", water);
-                localStorage.setItem("fertilizer", fertilizer);
-
-                fetch(`${BASE_URL}/api/userdata`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ kakaoId, nickname, orcx, water, fertilizer })
-                })
-                .then(res => res.json())
-                .then(saveResp => {
-                  if (!saveResp.success) {
-                    alert("서버 저장 실패: " + saveResp.message);
-                  } else {
-                    console.log("서버 저장 완료:", saveResp);
-                  }
-                })
-                .catch(err => {
-                  alert("서버 저장 요청 실패: " + err.message);
-                });
-              } else {
-                alert("사용자 정보가 없습니다. 회원가입 후 이용해주세요.");
-                window.location.href = "index9.html";
-              }
-            })
-            .catch(err => {
-              alert("서버 연결 실패: " + err.message);
-            });
-          },
-          fail: function(error) {
-            alert("사용자 정보 요청 실패: " + JSON.stringify(error));
-            window.location.href = "index9.html";
-          }
-        });
+    function enterFarm(url) {
+      const nickname = localStorage.getItem("nickname");
+      if (!nickname) {
+        alert("로그인 후 입장하실 수 있습니다.");
+        goKakaoLogin();
       } else {
-        alert("카카오 로그인 상태가 아닙니다.");
-        window.location.href = "index9.html";
+        window.location.href = url;
       }
-    });
+    }
+
+    (function init() {
+      const nickname = localStorage.getItem("nickname");
+      const kakaoId = localStorage.getItem("userId");
+      if (nickname && kakaoId) {
+        const el = document.getElementById("nicknameDisplay");
+        el.textContent = `👤 ${nickname}님, 환영합니다!`;
+        el.style.display = "inline-block";
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("logoutBtn").style.display = "inline-block";
+
+        // 로그인 기록 (선택적 API)
+        fetch(`${BASE_URL}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, kakaoId })
+        }).catch(err => console.error("서버 등록 오류:", err));
+
+        // ✅ 초기 자산 지급 API 요청
+        fetch(`${BASE_URL}/api/init-user`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, kakaoId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            console.log("✅ 초기 자산 지급 완료:", data.message);
+          } else {
+            console.warn("⚠️ 초기화 실패 또는 이미 존재:", data.message || data.error);
+          }
+        })
+        .catch(err => console.error("❌ init-user 오류:", err));
+      }
+    })();
   </script>
 </body>
 </html>
