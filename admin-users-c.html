@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 - 씨앗 재고 및 가격 관리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #fffde7;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #4d372d;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    th {
+      background-color: #dcedc8;
+    }
+    input[type="number"] {
+      width: 80px;
+      padding: 0.2rem;
+    }
+    button {
+      padding: 0.4rem 0.8rem;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌱 관리자 - 씨감자 · 씨보리 재고 및 가격 관리</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>씨앗 종류</th>
+        <th>재고량</th>
+        <th>현재 가격</th>
+        <th>새 가격 설정</th>
+        <th>작업</th>
+      </tr>
+    </thead>
+    <tbody id="seedTableBody">
+      <tr>
+        <td>씨감자</td>
+        <td id="qty-potato">-</td>
+        <td id="price-potato">-</td>
+        <td><input type="number" id="input-potato" /></td>
+        <td><button onclick="updatePrice('seedPotato')">변경</button></td>
+      </tr>
+      <tr>
+        <td>씨보리</td>
+        <td id="qty-barley">-</td>
+        <td id="price-barley">-</td>
+        <td><input type="number" id="input-barley" /></td>
+        <td><button onclick="updatePrice('seedBarley')">변경</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    const API_BASE = "/api/seed";
+
+    async function fetchSeedStatus() {
+      const res = await fetch(`${API_BASE}/status`);
+      const data = await res.json();
+      document.getElementById('qty-potato').textContent = data.seedPotato.quantity;
+      document.getElementById('price-potato').textContent = data.seedPotato.price;
+      document.getElementById('qty-barley').textContent = data.seedBarley.quantity;
+      document.getElementById('price-barley').textContent = data.seedBarley.price;
+    }
+
+    async function updatePrice(type) {
+      const inputId = type === 'seedPotato' ? 'input-potato' : 'input-barley';
+      const price = parseInt(document.getElementById(inputId).value);
+      if (isNaN(price)) {
+        alert("유효한 가격을 입력하세요.");
+        return;
+      }
+      const res = await fetch(`${API_BASE}/admin/set-price`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, price })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        alert(`가격 변경 완료: ${result.newPrice}`);
+        fetchSeedStatus();
+      } else {
+        alert(result.message || '가격 변경 실패');
+      }
+    }
+
+    fetchSeedStatus();
+  </script>
+</body>
+</html>
