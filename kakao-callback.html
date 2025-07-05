@@ -67,6 +67,7 @@
 
   <script>
     Kakao.init('da9d920093d6529c8474650b3f13d1c2');
+    const BASE_URL = "https://your-fixed-api-domain.com"; // 너의 고정 도메인으로 바꿔라
 
     const params = new URLSearchParams(window.location.hash.replace("#", "?"));
     const accessToken = params.get("access_token");
@@ -81,14 +82,12 @@
           success: function(response) {
             const kakaoId = response.id;
             const nickname = response.properties.nickname;
-            localStorage.setItem("userId", kakaoId);
+            localStorage.setItem("kakaoId", kakaoId);
             localStorage.setItem("nickname", nickname);
 
-            fetch("/api/login", {
+            fetch(`${BASE_URL}/api/login`, {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ kakaoId, nickname })
             })
             .then(res => res.json())
@@ -99,23 +98,21 @@
                 localStorage.setItem("water", water);
                 localStorage.setItem("fertilizer", fertilizer);
 
-                fetch("/api/userdata", {
+                fetch(`${BASE_URL}/api/userdata`, {
                   method: "POST",
-                  headers: {
-                    "Content-Type": "application/json"
-                  },
+                  headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ kakaoId, nickname, orcx, water, fertilizer })
                 })
                 .then(res => res.json())
                 .then(saveResp => {
                   if (!saveResp.success) {
-                    console.error("서버 저장 실패:", saveResp.message);
+                    alert("서버 저장 실패: " + saveResp.message);
                   } else {
                     console.log("서버 저장 완료:", saveResp);
                   }
                 })
                 .catch(err => {
-                  console.error("서버 저장 요청 실패:", err);
+                  alert("서버 저장 요청 실패: " + err.message);
                 });
               } else {
                 alert("사용자 정보가 없습니다. 회원가입 후 이용해주세요.");
