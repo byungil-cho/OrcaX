@@ -1,58 +1,110 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>Kakao Login Callback</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인 성공 - OrcaX 농장</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-000_01.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      color: #fff;
+    }
+    .container {
+      padding-top: 20vh;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background-color: rgba(0,0,0,0.6);
+      display: inline-block;
+      padding: 0.7rem 1.5rem;
+      border-radius: 12px;
+    }
+    p {
+      font-size: 1.2rem;
+      background-color: rgba(0,0,0,0.5);
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+    }
+    a.button {
+      display: inline-block;
+      margin-top: 2rem;
+      background: #FEE500;
+      color: #000;
+      font-weight: bold;
+      padding: 0.8rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      p { font-size: 1rem; }
+    }
+  </style>
 </head>
 <body>
-  <p>로그인 처리 중입니다...</p>
+  <div class="container">
+    <h1>🎉 OrcaX 농장에 오신 것을 환영합니다!</h1>
+    <p>로그인에 성공하셨습니다. 자원 지급 중...</p><br/>
+    <a href="index9.html" class="button">🌾 메인 농장으로 이동</a>
+  </div>
 
   <script>
-    const code = new URLSearchParams(window.location.search).get('code');
+    const nickname = localStorage.getItem("nickname");
+    const kakaoId = localStorage.getItem("userId");
 
-    if (!code) {
-      alert("로그인 코드가 없습니다.");
-      window.location.href = 'signup.html';
+    if (!kakaoId) {
+      alert("로그인 정보가 없습니다. 다시 로그인 해주세요.");
+      window.location.href = "index9.html";
     } else {
-      fetch("https://kauth.kakao.com/oauth/token", {
+      fetch("/api/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
+          "Content-Type": "application/json"
         },
-        body: new URLSearchParams({
-          grant_type: "authorization_code",
-          client_id: "da9d920093d6529c8474650b3f13d1c2",
-          redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",
-          code: code
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.access_token) {
-          return fetch("https://kapi.kakao.com/v2/user/me", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${data.access_token}`
-            }
-          });
-        } else {
-          throw new Error("access_token 없음: " + JSON.stringify(data));
-        }
+        body: JSON.stringify({ kakaoId })
       })
       .then(res => res.json())
-      .then(userData => {
-        console.log("Kakao User:", userData);
+      .then(data => {
+        if (data.success) {
+          const { orcx, water, fertilizer } = data.user;
+          localStorage.setItem("orcx", orcx);
+          localStorage.setItem("water", water);
+          localStorage.setItem("fertilizer", fertilizer);
 
-        // 사용자 정보 localStorage 저장
-        localStorage.setItem("nickname", userData.properties.nickname);
-        localStorage.setItem("userId", userData.id);
-
-        // 로그인 성공 페이지 이동
-        window.location.href = 'login-success.html';
+          fetch("/api/userdata", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ kakaoId, orcx, water, fertilizer })
+          })
+          .then(res => res.json())
+          .then(saveResp => {
+            if (!saveResp.success) {
+              console.error("서버 저장 실패:", saveResp.message);
+            } else {
+              console.log("서버 저장 완료:", saveResp);
+            }
+          })
+          .catch(err => {
+            console.error("서버 저장 요청 실패:", err);
+          });
+        } else {
+          alert("사용자 정보가 없습니다. 회원가입 후 이용해주세요.");
+          window.location.href = "index9.html";
+        }
       })
       .catch(err => {
-        alert("로그인 실패: " + err.message);
-        window.location.href = 'signup.html';
+        alert("서버 연결 실패: " + err.message);
       });
     }
   </script>
