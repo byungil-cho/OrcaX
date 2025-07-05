@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>로그인 성공 - OrcaX 농장</title>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
     body {
       margin: 0;
@@ -58,55 +59,70 @@
   </div>
 
   <script>
-    const nickname = localStorage.getItem("nickname");
-    const kakaoId = localStorage.getItem("userId");
+    Kakao.init('284b798a9d9be8202f9c2e129fa6f329');
 
-    if (!kakaoId || !nickname) {
-      alert("로그인 정보가 없습니다. 다시 로그인 해주세요.");
-      window.location.href = "index9.html";
-    } else {
-      fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ kakaoId, nickname })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          const { orcx, water, fertilizer } = data.user;
-          localStorage.setItem("orcx", orcx);
-          localStorage.setItem("water", water);
-          localStorage.setItem("fertilizer", fertilizer);
+    Kakao.Auth.getStatusInfo(({ status }) => {
+      if (status === 'connected') {
+        Kakao.API.request({
+          url: '/v2/user/me',
+          success: function(response) {
+            const kakaoId = response.id;
+            const nickname = response.properties.nickname;
+            localStorage.setItem("userId", kakaoId);
+            localStorage.setItem("nickname", nickname);
 
-          fetch("/api/userdata", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ kakaoId, nickname, orcx, water, fertilizer })
-          })
-          .then(res => res.json())
-          .then(saveResp => {
-            if (!saveResp.success) {
-              console.error("서버 저장 실패:", saveResp.message);
-            } else {
-              console.log("서버 저장 완료:", saveResp);
-            }
-          })
-          .catch(err => {
-            console.error("서버 저장 요청 실패:", err);
-          });
-        } else {
-          alert("사용자 정보가 없습니다. 회원가입 후 이용해주세요.");
-          window.location.href = "index9.html";
-        }
-      })
-      .catch(err => {
-        alert("서버 연결 실패: " + err.message);
-      });
-    }
+            fetch("/api/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ kakaoId, nickname })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                const { orcx, water, fertilizer } = data.user;
+                localStorage.setItem("orcx", orcx);
+                localStorage.setItem("water", water);
+                localStorage.setItem("fertilizer", fertilizer);
+
+                fetch("/api/userdata", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({ kakaoId, nickname, orcx, water, fertilizer })
+                })
+                .then(res => res.json())
+                .then(saveResp => {
+                  if (!saveResp.success) {
+                    console.error("서버 저장 실패:", saveResp.message);
+                  } else {
+                    console.log("서버 저장 완료:", saveResp);
+                  }
+                })
+                .catch(err => {
+                  console.error("서버 저장 요청 실패:", err);
+                });
+              } else {
+                alert("사용자 정보가 없습니다. 회원가입 후 이용해주세요.");
+                window.location.href = "index9.html";
+              }
+            })
+            .catch(err => {
+              alert("서버 연결 실패: " + err.message);
+            });
+          },
+          fail: function(error) {
+            alert("사용자 정보 요청 실패: " + JSON.stringify(error));
+            window.location.href = "index9.html";
+          }
+        });
+      } else {
+        alert("카카오 로그인 상태가 아닙니다.");
+        window.location.href = "index9.html";
+      }
+    });
   </script>
 </body>
 </html>
