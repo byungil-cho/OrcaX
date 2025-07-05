@@ -93,10 +93,10 @@
         <div>🔌 전원: <strong id="serverStatus">확인 중...</strong></div>
       </div>
       <div class="nav-links">
-        <a href="/index9.html">🏠 메인으로</a>
-        <a href="/farm.html">🌱 감자 농장</a>
+        <a href="https://byungil-cho.github.io/OrcaX/index9.html">🏠 메인으로</a>
+        <a href="https://byungil-cho.github.io/OrcaX/farm.html">🌱 감자 농장</a>
         <a href="#" onclick="goToSeedManagement()">📦 씨앗 관리</a>
-        <a href="/admin-users.html">👤 유저 목록</a>
+        <a href="https://byungil-cho.github.io/OrcaX/admin-users.html">👤 유저 목록</a>
       </div>
     </header>
 
@@ -115,7 +115,7 @@
   </main>
 
   <script>
-    const API_BASE = "http://localhost:3060/api/seed";
+    const API_BASE = "https://byungil-cho.github.io/OrcaX/api/seed";
 
     async function fetchInventory() {
       const res = await fetch(`${API_BASE}/status`);
@@ -167,7 +167,7 @@
     function goToSeedManagement() {
       const pwd = prompt("관리자 비밀번호를 입력하세요:");
       if (pwd === "7788") {
-        window.location.href = "/admin-seeds.html";
+        window.location.href = "https://byungil-cho.github.io/OrcaX/admin-seeds.html";
       } else {
         alert("비밀번호가 틀렸습니다.");
       }
