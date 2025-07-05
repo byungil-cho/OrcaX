@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>씨감자·씨보리 상점</title>
+  <meta charset="UTF-8">
+  <title>감자 상점</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
@@ -11,136 +11,171 @@
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
       text-align: center;
+      color: #333;
     }
-    .container {
-      background-color: rgba(255, 255, 255, 0.85);
-      margin: 2rem auto;
-      padding: 2rem;
+    main {
+      padding: 1rem;
+      min-height: 100vh;
+    }
+    header {
+      background-color: rgba(255, 248, 220, 0.8);
+      padding: 1rem;
       border-radius: 1rem;
-      max-width: 500px;
+      margin-bottom: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    h1 {
+    header h1 {
       font-size: 1.8rem;
+      color: #5d4037;
     }
-    .status {
+    .info {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .nav-links {
+      margin-top: 0.5rem;
+    }
+    .nav-links a {
+      margin: 0 0.5rem;
+      color: #00796b;
       font-weight: bold;
-      margin: 1rem 0;
+      text-decoration: none;
     }
-    .item {
-      margin-bottom: 2rem;
+    .inventory {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .item-card {
+      background: rgba(255, 255, 255, 0.65);
+      border-radius: 0.75rem;
+      padding: 0.8rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 120px;
+    }
+    .item-card h2 {
+      font-size: 1.1rem;
+      color: #6d4c41;
+      margin-bottom: 0.4rem;
+    }
+    .stock {
+      font-size: 0.9rem;
+      margin: 0.2rem 0 0.4rem;
     }
     button {
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.85rem;
+      background-color: #8bc34a;
+      color: white;
       border: none;
       border-radius: 0.5rem;
-      background-color: #4caf50;
-      color: white;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
-    button:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
+    button:hover {
+      background-color: #7cb342;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🍅 씨감자·씨보리 상점</h1>
-    <div id="serverStatus" class="status">🔌 서버에 연결 중...</div>
-    <div id="orcx">보유 토큰: - ORCX</div>
+  <main>
+    <header>
+      <h1>🌾 감자 농장 상점</h1>
+      <div class="info">
+        <div>🧑‍🌾 닉네임: <strong id="nickname">알 수 없음</strong></div>
+        <div>💰 보유 토큰: <strong id="tokens">-</strong></div>
+        <div>🔌 전원: <strong id="serverStatus">확인 중...</strong></div>
+      </div>
+      <div class="nav-links">
+        <a href="/index.html">🏠 메인으로</a>
+        <a href="/farm.html">🌱 감자 농장</a>
+        <a href="#" onclick="goToSeedManagement()">📦 씨앗 관리</a>
+        <a href="/admin-users.html">👤 유저 목록</a>
+      </div>
+    </header>
 
-    <div class="item">
-      <h2>씨감자 구매</h2>
-      <p>가격: 2 ORCX</p>
-      <button id="buySeedPotato">구매하기</button>
-      <div>보유 씨감자: <span id="havePotato">-</span></div>
+    <div class="inventory">
+      <div class="item-card">
+        <h2>🥔 씨감자</h2>
+        <div class="stock">남은 수량: <span id="potato-stock">-</span>개</div>
+        <button onclick="purchaseSeed('seedPotato')">구매하기</button>
+      </div>
+      <div class="item-card">
+        <h2>🌾 씨보리</h2>
+        <div class="stock">남은 수량: <span id="barley-stock">-</span>개</div>
+        <button onclick="purchaseSeed('seedBarley')">구매하기</button>
+      </div>
     </div>
-
-    <div class="item">
-      <h2>씨보리 구매</h2>
-      <p>가격: 2 ORCX</p>
-      <button id="buySeedBarley">구매하기</button>
-      <div>보유 씨보리: <span id="haveBarley">-</span></div>
-    </div>
-  </div>
+  </main>
 
   <script>
-    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
-    const nickname = localStorage.getItem('nickname');
-    const kakaoId = localStorage.getItem('userId');
+    const API_BASE = "/api/seed";
 
-    if (!nickname || !kakaoId) {
-      alert('로그인이 필요합니다.');
-      location.href = 'gamja-login.html';
+    async function fetchInventory() {
+      const res = await fetch(`${API_BASE}/status`);
+      const data = await res.json();
+      document.getElementById('potato-stock').textContent = data.seedPotato.quantity;
+      document.getElementById('barley-stock').textContent = data.seedBarley.quantity;
     }
 
-    const statusEl = document.getElementById('serverStatus');
-    const orcxEl = document.getElementById('orcx');
-    const havePotatoEl = document.getElementById('havePotato');
-    const haveBarleyEl = document.getElementById('haveBarley');
+    async function purchaseSeed(type) {
+      const confirmBuy = confirm("정말 구매하시겠습니까?");
+      if (!confirmBuy) return;
 
-    async function fetchUser() {
+      const res = await fetch(`${API_BASE}/purchase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        alert(`구매 성공: ${result.message}`);
+        fetchInventory();
+      } else {
+        alert(result.message || '구매 실패');
+      }
+    }
+
+    async function fetchUserInfo() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`);
-        if (!res.ok) throw new Error(`서버 응답 오류: ${res.status}`);
+        const res = await fetch("/api/users/me");
         const data = await res.json();
-        return data.user || data.users?.[0];
+        document.getElementById("nickname").textContent = data.nickname;
+        document.getElementById("tokens").textContent = data.token;
       } catch (e) {
-        console.error('fetchUser 오류:', e);
-        statusEl.textContent = '❌ 서버 연결 실패';
-        return null;
+        document.getElementById("nickname").textContent = "알 수 없음";
+        document.getElementById("tokens").textContent = "-";
       }
     }
 
-    async function patchUser(changes) {
+    async function checkServerStatus() {
       try {
-        const res = await fetch(`${API_BASE}/api/update-user`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId, nickname, ...changes })
-        });
-        if (!res.ok) throw new Error(`업데이트 실패: ${res.status}`);
-        return true;
-      } catch (e) {
-        console.error('patchUser 오류:', e);
-        return false;
+        const res = await fetch("/api/market");
+        if (!res.ok) throw new Error();
+        document.getElementById("serverStatus").textContent = "정상";
+      } catch {
+        document.getElementById("serverStatus").textContent = "오류";
       }
     }
 
-    async function updateUI() {
-      const user = await fetchUser();
-      if (!user) return;
-      statusEl.textContent = '✅ 서버 연결 성공';
-      orcxEl.textContent = `보유 토큰: ${user.orcx || 0} ORCX`;
-      havePotatoEl.textContent = user.seedPotato || 0;
-      haveBarleyEl.textContent = user.seedBarley || 0;
-    }
-
-    async function purchase(seedType) {
-      const user = await fetchUser();
-      if (!user || (user.orcx || 0) < 2) {
-        alert('토큰 부족');
-        return;
+    function goToSeedManagement() {
+      const pwd = prompt("관리자 비밀번호를 입력하세요:");
+      if (pwd === "7788") {
+        window.location.href = "/admin-seeds.html";
+      } else {
+        alert("비밀번호가 틀렸습니다.");
       }
-      const changes = {
-        orcx: user.orcx - 2,
-        [seedType]: (user[seedType] || 0) + 1
-      };
-      const success = await patchUser(changes);
-      if (success) updateUI();
-      else alert('구매 실패');
     }
 
-    document.getElementById('buySeedPotato').onclick = () => purchase('seedPotato');
-    document.getElementById('buySeedBarley').onclick = () => purchase('seedBarley');
-
-    updateUI();
+    fetchInventory();
+    fetchUserInfo();
+    checkServerStatus();
   </script>
 </body>
 </html>
-
-
-
-
-
