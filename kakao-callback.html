@@ -2,13 +2,14 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>로그인 성공 - OrcaX 농장</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
+      height: 100%;
       background: url('https://byungil-cho.github.io/OrcaX/farm-000_01.png') no-repeat center center fixed;
       background-size: cover;
       font-family: 'Segoe UI', sans-serif;
@@ -16,18 +17,23 @@
       color: #fff;
     }
     .container {
-      padding-top: 20vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      padding: 1rem;
     }
     h1 {
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       margin-bottom: 1rem;
       background-color: rgba(0,0,0,0.6);
       display: inline-block;
-      padding: 0.7rem 1.5rem;
+      padding: 0.7rem 1.2rem;
       border-radius: 12px;
     }
     p {
-      font-size: 1.2rem;
+      font-size: 1rem;
       background-color: rgba(0,0,0,0.5);
       display: inline-block;
       padding: 0.5rem 1rem;
@@ -39,15 +45,16 @@
       background: #FEE500;
       color: #000;
       font-weight: bold;
-      padding: 0.8rem 2rem;
-      border-radius: 8px;
+      padding: 1rem 2.2rem;
+      border-radius: 10px;
       text-decoration: none;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      font-size: 1.2rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
-    @media (max-width: 768px) {
-      h1 { font-size: 2rem; }
-      p { font-size: 1rem; }
+    @media (max-width: 480px) {
+      h1 { font-size: 1.6rem; padding: 0.5rem 1rem; }
+      p { font-size: 0.9rem; }
+      a.button { font-size: 1rem; padding: 0.8rem 1.5rem; }
     }
   </style>
 </head>
@@ -59,7 +66,13 @@
   </div>
 
   <script>
-    Kakao.init('284b798a9d9be8202f9c2e129fa6f329');
+    Kakao.init('da9d920093d6529c8474650b3f13d1c2');
+
+    const params = new URLSearchParams(window.location.hash.replace("#", "?"));
+    const accessToken = params.get("access_token");
+    if (accessToken) {
+      Kakao.Auth.setAccessToken(accessToken);
+    }
 
     Kakao.Auth.getStatusInfo(({ status }) => {
       if (status === 'connected') {
