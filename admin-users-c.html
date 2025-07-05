@@ -39,10 +39,24 @@
       border: none;
       cursor: pointer;
     }
+    .link {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .link a {
+      color: #00796b;
+      font-weight: bold;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
   <h1>🌱 관리자 - 씨감자 · 씨보리 재고 및 가격 관리</h1>
+
+  <div class="link">
+    <a href="admin-users.html" target="_blank">👤 유저 목록 및 출금 관리 페이지로 이동</a>
+  </div>
+
   <table>
     <thead>
       <tr>
@@ -101,6 +115,25 @@
         fetchSeedStatus();
       } else {
         alert(result.message || '가격 변경 실패');
+      }
+    }
+
+    // ✅ 초기 씨앗 재고 설정용 함수 (관리자만 사용)
+    async function initializeSeedInventory() {
+      const res = await fetch(`${API_BASE}/admin/init`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seedPotato: { quantity: 500, price: 2 },
+          seedBarley: { quantity: 500, price: 2 }
+        })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        alert('초기 재고 설정 완료');
+        fetchSeedStatus();
+      } else {
+        alert('초기화 실패: ' + (result.message || '알 수 없음'));
       }
     }
 
