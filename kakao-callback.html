@@ -14,7 +14,6 @@
       alert("로그인 코드가 없습니다.");
       window.location.href = 'signup.html';
     } else {
-      // 카카오 서버에 access_token 요청
       fetch("https://kauth.kakao.com/oauth/token", {
         method: "POST",
         headers: {
@@ -22,7 +21,7 @@
         },
         body: new URLSearchParams({
           grant_type: "authorization_code",
-          client_id: "da9d920093d6529c8474650b3f13d1c2", // 자바스크립트 키
+          client_id: "da9d920093d6529c8474650b3f13d1c2",
           redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",
           code: code
         })
@@ -30,7 +29,6 @@
       .then(response => response.json())
       .then(data => {
         if (data.access_token) {
-          // 사용자 정보 요청
           return fetch("https://kapi.kakao.com/v2/user/me", {
             method: "GET",
             headers: {
@@ -45,7 +43,11 @@
       .then(userData => {
         console.log("Kakao User:", userData);
 
-        // 로그인 성공 → 로그인 성공 페이지로 이동
+        // 사용자 정보 localStorage 저장
+        localStorage.setItem("nickname", userData.properties.nickname);
+        localStorage.setItem("userId", userData.id);
+
+        // 로그인 성공 페이지 이동
         window.location.href = 'login-success.html';
       })
       .catch(err => {
