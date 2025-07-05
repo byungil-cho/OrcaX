@@ -115,10 +115,10 @@
   </main>
 
   <script>
-    const API_BASE = "https://byungil-cho.github.io/OrcaX/api/seed";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 
     async function fetchInventory() {
-      const res = await fetch(`${API_BASE}/status`);
+      const res = await fetch(`${API_BASE}/seed/status`);
       const data = await res.json();
       document.getElementById('potato-stock').textContent = data.seedPotato.quantity;
       document.getElementById('barley-stock').textContent = data.seedBarley.quantity;
@@ -128,7 +128,7 @@
       const confirmBuy = confirm("정말 구매하시겠습니까?");
       if (!confirmBuy) return;
 
-      const res = await fetch(`${API_BASE}/purchase`, {
+      const res = await fetch(`${API_BASE}/seed/purchase`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type })
@@ -144,7 +144,7 @@
 
     async function fetchUserInfo() {
       try {
-        const res = await fetch("/api/users/me");
+        const res = await fetch(`${API_BASE}/users/me`);
         const data = await res.json();
         document.getElementById("nickname").textContent = data.nickname;
         document.getElementById("tokens").textContent = data.token;
@@ -156,7 +156,7 @@
 
     async function checkServerStatus() {
       try {
-        const res = await fetch("/api/market");
+        const res = await fetch(`${API_BASE}/market`);
         if (!res.ok) throw new Error();
         document.getElementById("serverStatus").textContent = "정상";
       } catch {
