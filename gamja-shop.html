@@ -86,7 +86,7 @@
 <body>
   <main>
     <header>
-      <h1>🌾 씨앗 상점</h1>
+      <h1>🌾 씨아스 상점</h1>
       <div class="info">
         <div>🧑‍🌾 닉네임: <strong id="nickname">알 수 없음</strong></div>
         <div>💰 보유 토큰: <strong id="tokens">-</strong></div>
@@ -95,7 +95,7 @@
       <div class="nav-links">
         <a href="https://byungil-cho.github.io/OrcaX/index9.html">🏠 메인으로</a>
         <a href="https://byungil-cho.github.io/OrcaX/gamja-farm.html">🌱 감자 농장</a>
-        <a href="#" onclick="goToSeedManagement()">📦 씨앗 관리</a>
+        <a href="#" onclick="goToSeedManagement()">📦 씨아스 관리</a>
         <a href="https://byungil-cho.github.io/OrcaX/admin-users.html">👤 유저 목록</a>
       </div>
     </header>
@@ -118,7 +118,9 @@
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 
     async function fetchInventory() {
-      const res = await fetch(`${API_BASE}/seed/status`);
+      const res = await fetch(`${API_BASE}/seed/status`, {
+        credentials: 'include'
+      });
       const data = await res.json();
       document.getElementById('potato-stock').textContent = data.seedPotato.quantity;
       document.getElementById('barley-stock').textContent = data.seedBarley.quantity;
@@ -128,21 +130,12 @@
       const confirmBuy = confirm("정말 구매하시겠습니까?");
       if (!confirmBuy) return;
 
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("로그인이 필요합니다.");
-        return;
-      }
-
       const res = await fetch(`${API_BASE}/seed/purchase`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type })
       });
-
       const result = await res.json();
       if (res.ok) {
         alert(`구매 성공: ${result.message}`);
@@ -153,31 +146,24 @@
     }
 
     async function fetchUserInfo() {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        document.getElementById("nickname").textContent = "로그인 필요";
-        document.getElementById("tokens").textContent = "-";
-        return;
-      }
-
       try {
         const res = await fetch(`${API_BASE}/users/me`, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
+          credentials: 'include'
         });
         const data = await res.json();
         document.getElementById("nickname").textContent = data.nickname;
         document.getElementById("tokens").textContent = data.token;
       } catch (e) {
-        document.getElementById("nickname").textContent = "오류";
+        document.getElementById("nickname").textContent = "알 수 없음";
         document.getElementById("tokens").textContent = "-";
       }
     }
 
     async function checkServerStatus() {
       try {
-        const res = await fetch(`${API_BASE}/market`);
+        const res = await fetch(`${API_BASE}/market`, {
+          credentials: 'include'
+        });
         if (!res.ok) throw new Error();
         document.getElementById("serverStatus").textContent = "정상";
       } catch {
@@ -190,7 +176,7 @@
       if (pwd === "7788") {
         window.location.href = "https://byungil-cho.github.io/OrcaX/admin-seeds.html";
       } else {
-        alert("비밀번호가 틀렸습니다.");
+        alert("비밀번호가 틀린 상황입니다.");
       }
     }
 
