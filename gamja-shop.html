@@ -116,12 +116,17 @@
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const kakaoIdValue = localStorage.getItem("userId");
+    const nicknameValue = localStorage.getItem("nickname");
+
+    if (!kakaoIdValue || !nicknameValue) {
+      alert("로그인이 필요합니다.");
+      window.location.href = 'gamja-login.html';
+    }
 
     async function fetchInventory() {
       try {
-        const res = await fetch(`${API_BASE}/seed/status`, {
-          credentials: "include"
-        });
+        const res = await fetch(`${API_BASE}/seed/status?kakaoId=${kakaoIdValue}`);
         if (!res.ok) throw new Error("Failed to fetch inventory");
         const data = await res.json();
         document.getElementById('potato-stock').textContent = data.seedPotato.quantity;
@@ -137,8 +142,7 @@
         const res = await fetch(`${API_BASE}/seed/purchase`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          credentials: "include",
-          body: JSON.stringify({ type })
+          body: JSON.stringify({ type, kakaoId: kakaoIdValue })
         });
         const result = await res.json();
         if (res.ok) {
@@ -155,9 +159,7 @@
 
     async function fetchUserInfo() {
       try {
-        const res = await fetch(`${API_BASE}/users/me`, {
-          credentials: "include"
-        });
+        const res = await fetch(`${API_BASE}/users/me?kakaoId=${kakaoIdValue}`);
         if (!res.ok) throw new Error("Not logged in");
         const data = await res.json();
         document.getElementById("nickname").textContent = data.nickname;
@@ -170,9 +172,7 @@
 
     async function checkServerStatus() {
       try {
-        const res = await fetch(`${API_BASE}/market`, {
-          credentials: "include"
-        });
+        const res = await fetch(`${API_BASE}/market`);
         if (!res.ok) throw new Error();
         document.getElementById("serverStatus").textContent = "정상";
       } catch {
@@ -189,10 +189,10 @@
       }
     }
 
-    fetchInventory();
     fetchUserInfo();
+    fetchInventory();
     checkServerStatus();
   </script>
-<script src="https://byungil-cho.github.io/OrcaX/js/market.js"></script>
+  <script src="https://byungil-cho.github.io/OrcaX/js/market.js"></script>
 </body>
 </html>
