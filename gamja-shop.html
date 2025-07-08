@@ -86,7 +86,7 @@
 <body>
   <main>
     <header>
-      <h1>🌾 씨앗 상점</h1>
+      <h1>🌾 씨아시 상점</h1>
       <div class="info">
         <div>🧑‍🌾 닉네임: <strong id="nickname">알 수 없음</strong></div>
         <div>💰 보유 토큰: <strong id="tokens">-</strong></div>
@@ -95,7 +95,7 @@
       <div class="nav-links">
         <a href="https://byungil-cho.github.io/OrcaX/index9.html">🏠 메인으로</a>
         <a href="https://byungil-cho.github.io/OrcaX/gamja-farm.html">🌱 감자 농장</a>
-        <a href="#" onclick="goToSeedManagement()">📦 씨앗 관리</a>
+        <a href="#" onclick="goToSeedManagement()">📦 씨아시 관리</a>
         <a href="https://byungil-cho.github.io/OrcaX/admin-users.html">👤 유저 목록</a>
       </div>
     </header>
@@ -108,7 +108,7 @@
       </div>
       <div class="item-card">
         <h2>🌾 씨보리</h2>
-        <div class="stock">남은 수량: <span id="barley-stock">-</span>개</div>
+        <div class="stock">남은수량: <span id="barley-stock">-</span>개</div>
         <button onclick="purchaseSeed('seedBarley')">구매하기</button>
       </div>
     </div>
@@ -121,33 +121,18 @@
 
     if (!kakaoIdValue || !nicknameValue) {
       alert("로그인이 필요합니다.");
-      window.location.href = 'index9.html';
+      window.location.href = 'gamja-login.html';
     }
-
-    document.getElementById("nickname").textContent = nicknameValue;
 
     async function fetchInventory() {
       try {
         const res = await fetch(`${API_BASE}/seed/status?kakaoId=${kakaoIdValue}`);
+        if (!res.ok) throw new Error("Failed to fetch inventory");
         const data = await res.json();
-        document.getElementById('potato-stock').textContent = data.seedPotato?.quantity ?? 0;
-        document.getElementById('barley-stock').textContent = data.seedBarley?.quantity ?? 0;
+        document.getElementById('potato-stock').textContent = data.seedPotato.quantity;
+        document.getElementById('barley-stock').textContent = data.seedBarley.quantity;
       } catch (err) {
-        console.error("재고 불러오기 실패:", err);
-      }
-    }
-
-    async function fetchUserInfo() {
-      try {
-        const res = await fetch(`${API_BASE}/users/me?kakaoId=${kakaoIdValue}`);
-        const data = await res.json();
-        if (res.ok) {
-          document.getElementById("tokens").textContent = data.token ?? 0;
-        } else {
-          document.getElementById("tokens").textContent = "-";
-        }
-      } catch (err) {
-        document.getElementById("tokens").textContent = "-";
+        console.error("Inventory fetch error:", err);
       }
     }
 
@@ -157,23 +142,31 @@
         const res = await fetch(`${API_BASE}/seed/purchase`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            kakaoId: kakaoIdValue,
-            type,
-            quantity: 1
-          })
+          body: JSON.stringify({ type, kakaoId: kakaoIdValue })
         });
         const result = await res.json();
         if (res.ok) {
-          alert(`✅ 구매 성공: ${result.message}`);
+          alert(`구매 성공: ${result.message}`);
           fetchInventory();
-          fetchUserInfo();
         } else {
-          alert(result.error || result.message || "구매 실패");
+          alert(result.message || '구매 실패');
         }
       } catch (err) {
-        alert("❌ 서버 오류로 구매 실패");
-        console.error(err);
+        console.error("Purchase error:", err);
+        alert("API 오류로 실패했습니다.");
+      }
+    }
+
+    async function fetchUserInfo() {
+      try {
+        const res = await fetch(`${API_BASE}/users/me?kakaoId=${kakaoIdValue}`);
+        if (!res.ok) throw new Error("Not logged in");
+        const data = await res.json();
+        document.getElementById("nickname").textContent = data.nickname;
+        document.getElementById("tokens").textContent = data.token;
+      } catch (err) {
+        document.getElementById("nickname").textContent = "알 수 없음";
+        document.getElementById("tokens").textContent = "-";
       }
     }
 
@@ -200,5 +193,6 @@
     fetchInventory();
     checkServerStatus();
   </script>
+  <script src="https://byungil-cho.github.io/OrcaX/js/market.js"></script>
 </body>
 </html>
