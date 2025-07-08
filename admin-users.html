@@ -1,71 +1,120 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>관리자 - 유저 현황</title>
+  <title>관리자 - 유저 관리</title>
   <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 8px;
-      text-align: center;
-      border: 1px solid #ccc;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    .online {
-      background-color: #d4edda;
-    }
+    body { font-family: sans-serif; padding: 20px; background: #f8f9fa; }
+    h2 { margin-top: 40px; }
+    .status { font-weight: bold; }
+    .green { color: green; }
+    .red { color: red; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #eee; }
   </style>
 </head>
 <body>
-  <h2>유저 현황 (관리자 페이지)</h2>
+  <h1>🛠 관리자 - 유저 관리 페이지</h1>
+  <p>서버 전원 상태: <span id="powerStatus" class="status">확인 중...</span></p>
+
+  <h2>👤 가입된 유저 목록</h2>
   <table id="userTable">
     <thead>
       <tr>
         <th>닉네임</th>
+        <th>카카오ID</th>
+        <th>접속 상태</th>
+        <th>ORCX</th>
         <th>물</th>
         <th>거름</th>
-        <th>ORCX 토큰</th>
-        <th>감자 수</th>
-        <th>접속 상태</th>
+        <th>감자</th>
+        <th>보리</th>
+        <th>씨감자</th>
+        <th>씨보리</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>💸 출금 요청 목록</h2>
+  <table id="withdrawTable">
+    <thead>
+      <tr>
+        <th>이름</th>
+        <th>전화번호</th>
+        <th>지갑 주소</th>
+        <th>요청 시간</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
   <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
+    async function fetchPowerStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/api/power-status`);
+        const data = await res.json();
+        const statusEl = document.getElementById('powerStatus');
+        if (data.mongo) {
+          statusEl.textContent = data.status;
+          statusEl.classList.add('green');
+        } else {
+          statusEl.textContent = data.status;
+          statusEl.classList.add('red');
+        }
+      } catch (err) {
+        document.getElementById('powerStatus').textContent = '🔴 오류 발생';
+        document.getElementById('powerStatus').classList.add('red');
+      }
+    }
+
     async function fetchUsers() {
-      const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata/all");
+      const res = await fetch(`${API_BASE}/api/userdata/all`);
       const users = await res.json();
-      const connected = JSON.parse(localStorage.getItem("connectedUsers") || "[]");
-
-      const tbody = document.querySelector("#userTable tbody");
-      tbody.innerHTML = "";
-
+      const tbody = document.querySelector('#userTable tbody');
+      tbody.innerHTML = '';
       users.forEach(user => {
-        const tr = document.createElement("tr");
-        if (connected.includes(user.kakaoId)) tr.classList.add("online");
-
-        tr.innerHTML = `
+        const row = document.createElement('tr');
+        row.innerHTML = `
           <td>${user.nickname}</td>
+          <td>${user.kakaoId}</td>
+          <td>${user.isConnected ? '🟢' : '🔴'}</td>
+          <td>${user.orcx}</td>
           <td>${user.water}</td>
           <td>${user.fertilizer}</td>
-          <td>${user.orcx ?? 0}</td>
           <td>${user.potatoCount}</td>
-          <td>${connected.includes(user.kakaoId) ? "온라인" : "오프라인"}</td>
+          <td>${user.barleyCount}</td>
+          <td>${user.seedPotato}</td>
+          <td>${user.seedBarley}</td>
         `;
-        tbody.appendChild(tr);
+        tbody.appendChild(row);
       });
     }
 
+    async function fetchWithdrawals() {
+      const res = await fetch(`${API_BASE}/api/withdraw`);
+      const data = await res.json();
+      const tbody = document.querySelector('#withdrawTable tbody');
+      tbody.innerHTML = '';
+      data.forEach(w => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${w.name}</td>
+          <td>${w.phone}</td>
+          <td>${w.wallet}</td>
+          <td>${new Date(w.createdAt).toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    fetchPowerStatus();
     fetchUsers();
+    fetchWithdrawals();
   </script>
 </body>
 </html>
