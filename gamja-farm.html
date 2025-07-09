@@ -96,15 +96,15 @@
         if (!res.ok) throw new Error("서버 응답 실패");
         const data = await res.json();
 
-        const userData = data.user || {};
+        const userData = data?.data || {}; // 바뀐 포맷 반영
 
-        document.getElementById("water").textContent = userData.water ?? "-";
-        document.getElementById("fertilizer").textContent = userData.fertilizer ?? "-";
-        document.getElementById("orcx").textContent = userData.token ?? "-";
-        document.getElementById("potato").textContent = userData.potato ?? "-";
-        document.getElementById("barley").textContent = userData.barley ?? "-";
+        document.getElementById("water").textContent = userData.물 ?? "-";
+        document.getElementById("fertilizer").textContent = userData.거름 ?? "-";
+        document.getElementById("orcx").textContent = userData.ORCX ?? "-";
+        document.getElementById("potato").textContent = userData.감자 ?? "-";
+        document.getElementById("barley").textContent = userData.보리 ?? "-";
 
-        const harvestCount = userData.harvestCount ?? 0;
+        const harvestCount = userData.총수확 ?? 0;
         const level = Math.floor(harvestCount / 5) + 1;
         document.getElementById("harvestCount").textContent = harvestCount;
         document.getElementById("level").textContent = "LV." + level;
