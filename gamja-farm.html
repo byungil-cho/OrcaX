@@ -57,59 +57,46 @@
     </div>
 
     <div class="section">
-      <h2>🌱 씨앗 보유 (로컬 임대 중)</h2>
+      <h2>🌱 씨앗 보유 (로컬 기준)</h2>
       씨감자: <span id="seedPotato">-</span><br>
       씨보리: <span id="seedBarley">-</span>
     </div>
 
-    <div class="section">
-      <h2>📊 농장 활동</h2>
-      농사 횟수: <span id="farmingCount">-</span><br>
-      레벨: <span id="farmingLevel">-</span>
-    </div>
-
     <div class="footer">
-      <a href="gamja-main.html">📛 농장 작명소</a>
+      <a href="gamja-main.html">🌾 농장 작명소</a>
       <a href="gamja-shop.html">🛒 씨앗 상점</a>
     </div>
   </div>
 
   <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io"; // ✅ 고정 도메인
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
-    const kakaoId = localStorage.getItem("kakaoId") || "unknown";
-    const localSeedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
+    const kakaoId = localStorage.getItem("kakaoId");
+
+    const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
-
-    function getLevelFromFarmingCount(count) {
-      if (count >= 50) return "레전드 농부";
-      if (count >= 30) return "숙련 농부";
-      if (count >= 10) return "초보 농부";
-      return "씨앗 뿌리는 중";
-    }
+    document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
+    document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
 
     async function fetchDashboardData() {
-      try {
-        const res = await fetch(`/users/me?kakaoId=${kakaoId}`);
-        const data = await res.json();
+      if (!kakaoId) {
+        console.warn("❌ kakaoId 없음 - 서버 호출 중단");
+        return;
+      }
 
+      try {
+        const res = await fetch(`${API_BASE}/users/me?kakaoId=${kakaoId}`);
+        const data = await res.json();
         document.getElementById("water").textContent = data.water ?? "-";
         document.getElementById("fertilizer").textContent = data.fertilizer ?? "-";
         document.getElementById("orcx").textContent = data.token ?? "-";
         document.getElementById("potato").textContent = data.potato ?? "-";
         document.getElementById("barley").textContent = data.barley ?? "-";
-
-        document.getElementById("seedPotato").textContent = localSeedInventory.seedPotato || 0;
-        document.getElementById("seedBarley").textContent = localSeedInventory.seedBarley || 0;
-
-        const farmingCount = data.farmingCount ?? 0;
-        document.getElementById("farmingCount").textContent = farmingCount;
-        document.getElementById("farmingLevel").textContent = getLevelFromFarmingCount(farmingCount);
-
       } catch (err) {
-        console.error("서버 데이터 로딩 실패", err);
+        console.error("서버 데이터 로딩 실패 ❌", err);
       }
     }
 
@@ -117,6 +104,7 @@
   </script>
 </body>
 </html>
+
 
 
 
