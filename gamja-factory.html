@@ -62,7 +62,7 @@
       <br>
       <button class="water" onclick="giveWater()">💧 물 주기</button>
       <button class="fertilizer" onclick="giveFertilizer()">🌿 거름 주기</button>
-      <button class="harvest" disabled id="harvestBtn">🥔 수확하기</button>
+      <button class="harvest" id="harvestBtn" onclick="harvestCrop()" disabled>🥔 수확하기</button>
       <div>🌟 성장포인트: <span id="growth">0</span></div>
     </div>
 
@@ -73,6 +73,12 @@
       물: <span id="water">0</span><br>
       거름: <span id="fertilizer">0</span><br>
       ORCX: <span id="orcx">0</span>
+    </div>
+
+    <div class="section">
+      <h2>🌾 작물 보관소</h2>
+      감자: <span id="potato">0</span><br>
+      보리: <span id="barley">0</span>
     </div>
 
     <div class="nav">
@@ -87,6 +93,7 @@
     const farmName = localStorage.getItem("farmName") || "-";
     const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
     const resources = JSON.parse(localStorage.getItem("resources") || "{}");
+    const crops = JSON.parse(localStorage.getItem("crops") || "{}");
 
     let growthPoint = 0;
 
@@ -95,18 +102,23 @@
     if (!resources.orcx) resources.orcx = 0;
     if (!seedInventory.seedPotato) seedInventory.seedPotato = 0;
     if (!seedInventory.seedBarley) seedInventory.seedBarley = 0;
+    if (!crops.potato) crops.potato = 0;
+    if (!crops.barley) crops.barley = 0;
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
     document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
 
     function updateDisplay() {
-      document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
-      document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
-      document.getElementById("water").textContent = resources.water || 0;
-      document.getElementById("fertilizer").textContent = resources.fertilizer || 0;
-      document.getElementById("orcx").textContent = resources.orcx || 0;
+      document.getElementById("seedPotato").textContent = seedInventory.seedPotato;
+      document.getElementById("seedBarley").textContent = seedInventory.seedBarley;
+      document.getElementById("water").textContent = resources.water;
+      document.getElementById("fertilizer").textContent = resources.fertilizer;
+      document.getElementById("orcx").textContent = resources.orcx;
       document.getElementById("growth").textContent = growthPoint;
+      document.getElementById("potato").textContent = crops.potato;
+      document.getElementById("barley").textContent = crops.barley;
+      document.getElementById("harvestBtn").disabled = growthPoint < 5;
     }
 
     function giveWater() {
@@ -131,9 +143,30 @@
       }
     }
 
+    function harvestCrop() {
+      if (growthPoint >= 5) {
+        const cropType = document.querySelector('input[name="cropType"]:checked').value;
+        const yieldOptions = [3, 5, 7];
+        const reward = yieldOptions[Math.floor(Math.random() * yieldOptions.length)];
+
+        if (seedInventory[cropType] > 0) {
+          seedInventory[cropType]--;
+          if (cropType === "seedPotato") crops.potato += reward;
+          else if (cropType === "seedBarley") crops.barley += reward;
+          growthPoint = 0;
+          updateDisplay();
+          save();
+          alert(`🎉 수확 성공! ${reward}개를 얻었습니다.`);
+        } else {
+          alert("씨앗이 부족합니다!");
+        }
+      }
+    }
+
     function save() {
       localStorage.setItem("resources", JSON.stringify(resources));
       localStorage.setItem("seedInventory", JSON.stringify(seedInventory));
+      localStorage.setItem("crops", JSON.stringify(crops));
     }
 
     updateDisplay();
