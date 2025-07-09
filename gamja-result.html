@@ -1,140 +1,123 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <title>감자/보리 가공 공장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>감자보리 가공공장</title>
   <style>
     body {
+      margin: 0;
+      font-family: 'Pretendard', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
-      font-family: Arial, sans-serif;
-      margin: 0;
+      text-align: center;
+      color: #fff;
+    }
+    header {
+      background-color: rgba(0,0,0,0.5);
       padding: 1rem;
     }
-    .box {
-      background: rgba(0,0,0,0.6);
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      max-width: 800px;
-      margin: auto;
+    main {
+      padding: 1rem;
     }
-    h2 { text-align: center; }
-    label, select, button {
-      display: block;
-      margin: 1rem auto;
+    .status-box {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+    input, select, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
       font-size: 1rem;
     }
-    button {
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      background-color: #4CAF50;
-      border: none;
-      color: white;
-      cursor: pointer;
+    nav {
+      margin-top: 20px;
     }
-    .status {
-      background: rgba(255,255,255,0.8);
-      color: black;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-    .links {
-      text-align: center;
-      margin-top: 2rem;
-    }
-    .links a {
-      color: #00e6e6;
-      margin: 0 1rem;
-      text-decoration: underline;
+    nav button {
+      margin: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>🥔 감자/보리 가공공장</h2>
-    <div class="status">
-      <p>👤 닉네임: <span id="nickname">-</span></p>
-      <p>🏠 농장이름: <span id="farmName">-</span></p>
-      <p>⚡ 전원 상태: <span id="serverStatus">발견중...</span></p>
-      <p>💲 토큰: <span id="tokens">0</span></p>
-      <p>🌾 씨감자: <span id="potatoSeeds">0</span> / 씨보리: <span id="barleySeeds">0</span></p>
+  <header>
+    <h2>🛠 감자/보리 가공 공장</h2>
+    <div id="nickname">닉네임: </div>
+    <div id="status">전원 상태: 🟢 정상</div>
+  </header>
+
+  <main>
+    <div class="status-box">
+      <strong>보유 자원</strong><br>
+      감자: <span id="potatoCount">0</span>개 |
+      보리: <span id="barleyCount">0</span>말
     </div>
 
-    <label for="type">가공할 원재료를 선택하세요:</label>
-<select id="type">
-  <option value="감자">🥔 감자</option>
-  <option value="보리">🌾 보리</option>
-</select>
-
-<label for="product">가공할 품목을 입력하세요:</label>
-<input type="text" id="product" placeholder="예: 감자칩, 감자전, 보리케이크 등" />
-    <button onclick="processProduct()">가공하기</button>
-    <p id="message"></p>
-
-    <div class="links">
-      <a href="gamja-farm.html">🌱 감자농장으로</a>
-      <a href="gamja-shop.html">🛒 씨앗상점으로</a>
-      <a href="index9.html">🏠 메인페이지로</a>
+    <div class="status-box">
+      <select id="materialType">
+        <option value="감자">감자</option>
+        <option value="보리">보리</option>
+      </select>
+      <input type="text" id="productName" placeholder="가공품 이름 입력 (예: 떡)">
+      <button onclick="makeProduct()">가공하기</button>
     </div>
-  </div>
+
+    <div class="status-box">
+      <h4>📦 내 인벤토리</h4>
+      <div id="inventoryDisplay">아직 가공한 제품이 없습니다.</div>
+    </div>
+
+    <nav>
+      <button onclick="goTo('gamja-market.html')">판매소</button>
+      <button onclick="goTo('gamja-farm.html')">농장가기</button>
+      <button onclick="goTo('gamja-shop.html')">씨앗 상점</button>
+      <button onclick="goTo('index.html')">메인으로</button>
+    </nav>
+  </main>
 
   <script>
-    function updateUserData() {
-      document.getElementById("nickname").textContent = localStorage.getItem("nickname") || "-";
-      document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "-";
-      document.getElementById("tokens").textContent = localStorage.getItem("tokens") || 0;
-      document.getElementById("potatoSeeds").textContent = localStorage.getItem("씨감자") || 0;
-      document.getElementById("barleySeeds").textContent = localStorage.getItem("씨보리") || 0;
-    }
+    const nickname = localStorage.getItem("nickname") || "로그인 필요";
+    const potatoCount = parseInt(localStorage.getItem("potatoCount") || "0");
+    const barleyCount = parseInt(localStorage.getItem("barleyCount") || "0");
+    document.getElementById("nickname").innerText += nickname;
+    document.getElementById("potatoCount").innerText = potatoCount;
+    document.getElementById("barleyCount").innerText = barleyCount;
 
-    function checkServer() {
-      fetch("https://climbing-wholly-grouper.jp.ngrok.io/")
-        .then(() => {
-          document.getElementById("serverStatus").textContent = "🟢 연결되었음";
-        })
-        .catch(() => {
-          document.getElementById("serverStatus").textContent = "🔴 거듭";
-        });
-    }
+    function makeProduct() {
+      const material = document.getElementById("materialType").value;
+      const name = document.getElementById("productName").value.trim();
+      if (!name) return alert("가공품 이름을 입력하세요");
 
-    function processProduct() {
-  const product = document.getElementById("product").value;
-  const type = document.getElementById("type").value;
-  const resourceKey = type === "감자" ? "감자" : "보리";
-  let quantity = parseInt(localStorage.getItem(resourceKey) || 0);
-  if (quantity <= 0) {
-    document.getElementById("message").textContent = `${type}가 부족하여 가공할 수 없습니다.`;
-    return;
-  }
-  quantity -= 1;
-  localStorage.setItem(resourceKey, quantity);
+      const inventory = JSON.parse(localStorage.getItem("inventory") || "{}");
+      const itemName = material + name;
 
-  const now = new Date();
-  const expire = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-  let storage = JSON.parse(localStorage.getItem("processed") || '{}');
-  if (!storage[product]) {
-    storage[product] = [];
-  }
-  storage[product].push({ quantity: 1, expire: expire.toISOString() });
-  localStorage.setItem("processed", JSON.stringify(storage));
-
-  document.getElementById("message").textContent = `${product} 1개 가공 완료 (유통기한: ${expire.toLocaleDateString()})`;
-}');
-      if (!storage[product]) {
-        storage[product] = [];
+      if (material === "감자") {
+        if (potatoCount < 1) return alert("감자가 부족합니다.");
+        localStorage.setItem("potatoCount", potatoCount - 1);
+      } else {
+        if (barleyCount < 1) return alert("보리가 부족합니다.");
+        localStorage.setItem("barleyCount", barleyCount - 1);
       }
-      storage[product].push({ quantity: 1, expire: expire.toISOString() });
-      localStorage.setItem("processed", JSON.stringify(storage));
 
-      document.getElementById("message").textContent = `${product} 1개 가공 완료 (유통기한: ${expire.toLocaleDateString()})`;
+      inventory[itemName] = (inventory[itemName] || 0) + 1;
+      localStorage.setItem("inventory", JSON.stringify(inventory));
+      alert(itemName + " 1개가 가공되었습니다.");
+      location.reload();
     }
 
-    updateUserData();
-    checkServer();
+    function goTo(page) {
+      window.location.href = page;
+    }
+
+    // 인벤토리 표시
+    const inventory = JSON.parse(localStorage.getItem("inventory") || "{}");
+    const invBox = document.getElementById("inventoryDisplay");
+    if (Object.keys(inventory).length > 0) {
+      invBox.innerHTML = Object.entries(inventory).map(([k,v]) => `${k}: ${v}개`).join("<br>");
+    }
   </script>
 </body>
 </html>
