@@ -104,21 +104,21 @@
         document.getElementById("power").textContent = "에러";
       });
 
-    fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`)
-      .then(res => res.json())
-      .then(data => {
-        const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
-        if (user) {
-          document.getElementById("orcx").textContent = user.orcx ?? user.token ?? 0;
-        }
-      });
+    async function refreshUserData() {
+      const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`);
+      const data = await res.json();
+      const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
+      if (user) {
+        document.getElementById("orcx").textContent = user.orcx ?? user.token ?? 0;
+      }
+    }
 
-    fetch(`${API_BASE}/api/seed/status`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("potato-stock").textContent = `${data.seedPotato.quantity} 개`;
-        document.getElementById("barley-stock").textContent = `${data.seedBarley.quantity} 개`;
-      });
+    async function refreshSeedStock() {
+      const res = await fetch(`${API_BASE}/api/seed/status`);
+      const data = await res.json();
+      document.getElementById("potato-stock").textContent = `${data.seedPotato.quantity} 개`;
+      document.getElementById("barley-stock").textContent = `${data.seedBarley.quantity} 개`;
+    }
 
     async function buySeed(type) {
       if (!kakaoId) {
@@ -141,6 +141,8 @@
         inventory[type] = (inventory[type] || 0) + quantity;
         localStorage.setItem("seedInventory", JSON.stringify(inventory));
 
+        await refreshUserData();
+        await refreshSeedStock();
         updateInventoryUI();
       } catch (err) {
         alert(err.message);
@@ -154,6 +156,8 @@
       document.getElementById("mySeeds").textContent = `내 씨감자: ${potato}개 | 씨보리: ${barley}개`;
     }
 
+    refreshUserData();
+    refreshSeedStock();
     updateInventoryUI();
   </script>
 </body>
