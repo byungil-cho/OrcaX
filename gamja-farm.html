@@ -67,7 +67,7 @@
 
     (async () => {
       const nicknameValue = localStorage.getItem("nickname");
-      const kakaoIdValue = localStorage.getItem("kakaoId"); // ✅ 수정됨
+      const kakaoIdValue = localStorage.getItem("kakaoId");
 
       if (!nicknameValue || !kakaoIdValue) {
         alert("로그인이 필요합니다.");
@@ -130,8 +130,10 @@
           }
           tokenEl.textContent = orcxVal;
 
-          seedPotatoEl.textContent = user.seedPotato ?? 0;
-          seedBarleyEl.textContent = user.seedBarley ?? 0;
+          // 씨감자, 씨보리: localStorage에서 불러오기
+          const inventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
+          seedPotatoEl.textContent = inventory.seedPotato || 0;
+          seedBarleyEl.textContent = inventory.seedBarley || 0;
 
           inventoryBox.innerHTML = "";
           (user.inventory || []).forEach(item => {
