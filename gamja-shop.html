@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>씨앗 상점</title>
+  <title>  <title>\u씨앗 상점</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -59,14 +59,14 @@
 </head>
 <body>
   <header>
-    <h1>🌱 씨앗 상점</h1>
+    <h1>🌱 씨아시 상점</h1>
     <p>👤 닉네임: <span id="nickname">로딩 중...</span></p>
     <p>🔌 전원: <span id="power">확인 중...</span></p>
     <p>🍀 보유 토큰: <span id="orcx">0</span></p>
     <nav>
       <a href="index9.html">🏡 메인으로</a> |
       <a href="gamja-farm.html">🥔 감자 농장</a> |
-      <a href="gamja-exchange.html">🧪 씨앗 관리</a> |
+      <a href="gamja-exchange.html">🧪 씨아시 관리</a> |
       <a href="admin-users.html">📜 유저 목록</a>
     </nav>
   </header>
@@ -86,11 +86,15 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 
-    // 닉네임 표시
     const nickname = localStorage.getItem("nickname") || "알 수 없음";
     document.getElementById("nickname").textContent = nickname;
 
-    // 전원 상태
+    const kakaoId = localStorage.getItem("kakaoId");
+    if (!kakaoId) {
+      alert('로그인이 필요합니다.');
+      location.href = 'gamja-login.html';
+    }
+
     fetch(`${API_BASE}/power-status`)
       .then(res => res.json())
       .then(data => {
@@ -100,19 +104,18 @@
         document.getElementById("power").textContent = "에러";
       });
 
-    // ORCX 토큰
-    const kakaoId = localStorage.getItem("kakaoId");
-    if (kakaoId) {
-      fetch(`${API_BASE}/userdata?kakaoId=${kakaoId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            document.getElementById("orcx").textContent = data.user.orcx || 0;
-          }
-        });
-    }
+    fetch(`${API_BASE}/userdata?kakaoId=${encodeURIComponent(kakaoId)}`)
+      .then(res => res.json())
+      .then(data => {
+        const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
+        if (user) {
+          document.getElementById("orcx").textContent = user.orcx ?? user.token ?? 0;
+        }
+      })
+      .catch(() => {
+        document.getElementById("orcx").textContent = "에러";
+      });
 
-    // 씨앗 재고
     fetch(`${API_BASE}/seed/status`)
       .then(res => res.json())
       .then(data => {
@@ -124,7 +127,6 @@
         document.getElementById("barley-stock").textContent = "에러";
       });
 
-    // 구매 버튼 (테스트용)
     function buySeed(type) {
       alert(`구매 기능(${type})은 아직 연결되지 않았습니다.`);
     }
