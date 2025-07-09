@@ -91,11 +91,24 @@
   <script>
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
+    const kakaoId = localStorage.getItem("kakaoId") || "unknown";
+
     const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
     const resources = JSON.parse(localStorage.getItem("resources") || "{}");
     const crops = JSON.parse(localStorage.getItem("crops") || "{}");
 
     let growthPoint = 0;
+
+    async function fetchUserState() {
+      try {
+        const res = await fetch(`/users/me?kakaoId=${kakaoId}`);
+        const data = await res.json();
+        if (data.token !== undefined) resources.orcx = data.token;
+        updateDisplay();
+      } catch (err) {
+        console.error("서버 상태 로딩 실패", err);
+      }
+    }
 
     if (!resources.water) resources.water = 10;
     if (!resources.fertilizer) resources.fertilizer = 10;
@@ -165,7 +178,6 @@
 
         if (seedInventory[cropType] > 0) {
           seedInventory[cropType]--;
-          // 수확 작물 보관소 증가 + 사용한 씨앗 1개 환원
           if (cropType === "seedPotato") {
             crops.potato += reward;
             seedInventory.seedPotato++;
@@ -189,9 +201,11 @@
       localStorage.setItem("crops", JSON.stringify(crops));
     }
 
+    fetchUserState();
     updateDisplay();
     save();
   </script>
 </body>
 </html>
+
 
