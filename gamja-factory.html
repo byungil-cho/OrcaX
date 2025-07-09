@@ -40,6 +40,13 @@
     .fertilizer { background-color: #AED581; }
     .harvest { background-color: #FF8A65; }
     .status { margin-top: 10px; font-weight: bold; color: #00FF00; }
+    .nav a {
+      display: inline-block;
+      margin: 10px 15px;
+      color: #FFD700;
+      font-weight: bold;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -67,18 +74,14 @@
       거름: <span id="fertilizer">0</span><br>
       ORCX: <span id="orcx">0</span>
     </div>
-  </div>
-<div class="container">
-  ...
-  <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
 
-  <!-- 요 버튼 있으면 그 아래에 추가 -->
-  <div style="margin-top: 30px;">
-    <a href="gamja-shop.html" style="display:inline-block; margin: 5px 10px; color:#FFD700; font-weight:bold;">🌱 씨앗 상점</a>
-    <a href="gamja-farm.html" style="display:inline-block; margin: 5px 10px; color:#FFD700; font-weight:bold;">🏠 메인 농장</a>
-    <span style="display:inline-block; margin: 5px 10px; color:gray; font-weight:bold;">⚙️ 농사 작업 중</span>
+    <div class="nav">
+      <a href="gamja-farm.html">🏠 메인 농장</a>
+      <a href="gamja-shop.html">🌱 씨앗 상점</a>
+      <span style="color:gray;">⚙️ 농사 작업 중</span>
+    </div>
   </div>
-</div>
+
   <script>
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
@@ -87,18 +90,15 @@
 
     let growthPoint = 0;
 
+    if (!resources.water) resources.water = 10;
+    if (!resources.fertilizer) resources.fertilizer = 10;
+    if (!resources.orcx) resources.orcx = 0;
+    if (!seedInventory.seedPotato) seedInventory.seedPotato = 0;
+    if (!seedInventory.seedBarley) seedInventory.seedBarley = 0;
+
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
-    document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
-    document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
-    document.getElementById("water").textContent = resources.water || 10;
-    document.getElementById("fertilizer").textContent = resources.fertilizer || 10;
-    document.getElementById("orcx").textContent = resources.orcx || 0;
     document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
-
-    function getSelectedCrop() {
-      return document.querySelector('input[name="cropType"]:checked').value;
-    }
 
     function updateDisplay() {
       document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
@@ -112,7 +112,7 @@
     function giveWater() {
       if (resources.water > 0) {
         resources.water--;
-        growthPoint += 1;
+        growthPoint++;
         updateDisplay();
         save();
       } else {
@@ -135,6 +135,10 @@
       localStorage.setItem("resources", JSON.stringify(resources));
       localStorage.setItem("seedInventory", JSON.stringify(seedInventory));
     }
+
+    updateDisplay();
+    save();
   </script>
 </body>
 </html>
+
