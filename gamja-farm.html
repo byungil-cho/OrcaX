@@ -41,7 +41,16 @@
 <body>
   <div class="container">
     <h1>감자 농장 대시보드</h1>
-    <div id="userInfo">농장주: <span id="nickname">-</span><br>농장이름: <span id="farmName">-</span></div>
+    <div id="userInfo">
+      농장주: <span id="nickname">-</span><br>
+      농장이름: <span id="farmName">-</span>
+    </div>
+
+    <div class="section">
+      <h2>🏅 농장주 레벨</h2>
+      현재 레벨: <span id="level">-</span><br>
+      총 농사 횟수: <span id="harvestCount">-</span>
+    </div>
 
     <div class="section">
       <h2>📦 농자재 보관함</h2>
@@ -69,7 +78,7 @@
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io"; // ✅ 고정 도메인
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
     const kakaoId = localStorage.getItem("kakaoId");
@@ -82,21 +91,27 @@
     document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
 
     async function fetchDashboardData() {
-      if (!kakaoId) {
-        console.warn("❌ kakaoId 없음 - 서버 호출 중단");
+      if (!kakaoId || kakaoId === "unknown") {
+        console.warn("❌ kakaoId 누락 - 서버 요청 중단");
         return;
       }
 
       try {
         const res = await fetch(`${API_BASE}/users/me?kakaoId=${kakaoId}`);
         const data = await res.json();
+
         document.getElementById("water").textContent = data.water ?? "-";
         document.getElementById("fertilizer").textContent = data.fertilizer ?? "-";
         document.getElementById("orcx").textContent = data.token ?? "-";
         document.getElementById("potato").textContent = data.potato ?? "-";
         document.getElementById("barley").textContent = data.barley ?? "-";
+
+        const harvestCount = data.harvestCount ?? 0;
+        const level = Math.floor(harvestCount / 5) + 1;
+        document.getElementById("harvestCount").textContent = harvestCount;
+        document.getElementById("level").textContent = "LV." + level;
       } catch (err) {
-        console.error("서버 데이터 로딩 실패 ❌", err);
+        console.error("❌ 서버 데이터 로딩 실패", err);
       }
     }
 
@@ -104,6 +119,7 @@
   </script>
 </body>
 </html>
+
 
 
 
