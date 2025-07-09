@@ -94,9 +94,8 @@
         });
 
         if (!res.ok) throw new Error("서버 응답 실패");
-        const data = await res.json();
-
-        const userData = data?.data || {}; // 바뀐 포맷 반영
+        const result = await res.json();
+        const userData = result?.data?.[0] || {};
 
         document.getElementById("water").textContent = userData.물 ?? "-";
         document.getElementById("fertilizer").textContent = userData.거름 ?? "-";
