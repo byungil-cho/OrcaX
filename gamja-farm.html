@@ -67,7 +67,7 @@
 
     (async () => {
       const nicknameValue = localStorage.getItem("nickname");
-      const kakaoIdValue = localStorage.getItem("userId");
+      const kakaoIdValue = localStorage.getItem("kakaoId"); // ✅ 수정됨
 
       if (!nicknameValue || !kakaoIdValue) {
         alert("로그인이 필요합니다.");
