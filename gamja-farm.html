@@ -88,16 +88,13 @@
 
     async function fetchDashboardData() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata`, {
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`, {
           method: "GET",
           cache: "no-store"
         });
 
         if (!res.ok) throw new Error("서버 응답 실패");
-        const result = await res.json();
-
-        const matchedUser = result?.data?.find(u => u.카카오ID?.trim() === kakaoId);
-        const userData = matchedUser || {};
+        const userData = await res.json();
 
         document.getElementById("water").textContent = userData.물 ?? "-";
         document.getElementById("fertilizer").textContent = userData.거름 ?? "-";
