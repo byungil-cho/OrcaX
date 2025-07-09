@@ -86,9 +86,11 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 
+    // 닉네임 표시
     const nickname = localStorage.getItem("nickname") || "알 수 없음";
     document.getElementById("nickname").textContent = nickname;
 
+    // 전원 상태
     fetch(`${API_BASE}/power-status`)
       .then(res => res.json())
       .then(data => {
@@ -98,6 +100,7 @@
         document.getElementById("power").textContent = "에러";
       });
 
+    // ORCX 토큰
     const kakaoId = localStorage.getItem("kakaoId");
     if (kakaoId) {
       fetch(`${API_BASE}/userdata?kakaoId=${kakaoId}`)
@@ -109,17 +112,19 @@
         });
     }
 
+    // 씨앗 재고
     fetch(`${API_BASE}/seed/status`)
       .then(res => res.json())
       .then(data => {
-        document.getElementById("potato-stock").textContent = `${data.seedPotato} 개`;
-        document.getElementById("barley-stock").textContent = `${data.seedBarley} 개`;
+        document.getElementById("potato-stock").textContent = `${data.seedPotato.quantity} 개`;
+        document.getElementById("barley-stock").textContent = `${data.seedBarley.quantity} 개`;
       })
       .catch(() => {
         document.getElementById("potato-stock").textContent = "에러";
         document.getElementById("barley-stock").textContent = "에러";
       });
 
+    // 구매 버튼 (테스트용)
     function buySeed(type) {
       alert(`구매 기능(${type})은 아직 연결되지 않았습니다.`);
     }
