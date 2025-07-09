@@ -78,7 +78,7 @@
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
-    const kakaoId = localStorage.getItem("kakaoId") || "unknown";
+    const kakaoId = (localStorage.getItem("kakaoId") || "unknown").trim();
     const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
 
     document.getElementById("nickname").textContent = nickname;
@@ -96,7 +96,7 @@
         if (!res.ok) throw new Error("서버 응답 실패");
         const result = await res.json();
 
-        const matchedUser = result?.data?.find(u => u.카카오ID === kakaoId);
+        const matchedUser = result?.data?.find(u => u.카카오ID?.trim() === kakaoId);
         const userData = matchedUser || {};
 
         document.getElementById("water").textContent = userData.물 ?? "-";
