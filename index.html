@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>OrcaX NFT Puzzle Series</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
   <style>
     body { background: #111; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
     .container { max-width: 1100px; margin: 0 auto; padding: 20px; text-align: center; }
@@ -15,11 +17,9 @@
     .grid a.active { background: #222; color: #fff; pointer-events: auto; }
     .grid a.active img { border-color: #00ccff; }
     .grid a:hover.active { background: #00cc99; }
-
     footer { text-align: center; margin-top: 40px; color: #888; font-size: 0.9rem; }
     footer a { color: #00e0ff; margin: 0 5px; text-decoration: none; }
     footer a:hover { text-decoration: underline; }
-
     @media (max-width: 768px) {
       h1 { font-size: 1.5em; }
       h2 { font-size: 1em; }
@@ -32,42 +32,35 @@
       .grid a { width: 90px; padding: 6px; }
       .grid a img { width: 80px; }
     }
+    .login-btn { margin-top: 10px; padding: 10px 15px; background: #00ccff; border: none; color: #000; font-weight: bold; border-radius: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>
-      <a href="#" onclick="checkPassword()" style="text-decoration:none; color:#00e0ff;">👫 OrcaX Puzzle</a>
-    </h1>
-
+    <h1><a href="#" onclick="checkPassword()" style="text-decoration:none; color:#00e0ff;">👫 OrcaX Puzzle</a></h1>
     <div id="user-info" style="margin-top: 10px; font-size: 1.1rem; color: #00e0ff;"></div>
+    <button id="kakao-login-btn" class="login-btn">카카오 로그인</button>
+    <button id="logout-btn" class="login-btn" style="display:none; background:#ff6600;">로그아웃</button>
 
     <h2>Select the First Puzzle to Begin</h2>
-
     <div class="grid">
-      <a class="active" href="nft_series_01.html"><img src="nft1_01.jpg" alt="Puzzle 1"><strong>퍼즐 게임</strong></a>
-      <a class="active" href="shop.html"><img src="nft2_01.jpg" alt="Puzzle 2"><strong>NFT SHOP</strong></a>
-      <a class="active" href="about-orcax.html"><img src="nft3_01.jpg" alt="Puzzle 3"><strong>OrcaX 소개</strong></a>
-      <a class="active" href="franchise.html"><img src="nft4_01.jpg" alt="Puzzle 4"><strong>가맹점 현황</strong></a>
-      <a class="active" href="index-10.html"><img src="nft2_02.jpg" alt="Puzzle 5"><strong>메시지 전송</strong></a>
-      <a class="active" href="Foundation.html"><img src="nft3_02.jpg" alt="Puzzle 6"><strong>OrcaX 정책</strong></a>
-      <a class="active" href="NEXT2/log-0.html"><img src="nft4_02.jpg" alt="Puzzle 7"><strong>항해 일지</strong></a>
-      <a class="active" href="orcax_lsg.html"><img src="nft1_02.jpg" alt="Puzzle 8"><strong>가맹점 모집</strong></a>
-      <a class="active" href="index9.html"><img src="nft3_03.jpg" alt="Puzzle 9"><strong>OrcaX 농장</strong></a>
-      <a class="active" href="orcax_1000.html"><img src="nft4_03.jpg" alt="Puzzle 10"><strong>OrcaX포스터</strong></a>
-      <a class="active" href="#"><img src="nft1_03.jpg" alt="Puzzle 11"><strong>Puzzle 11</strong></a>
-      <a class="active" href="#"><img src="nft2_03.jpg" alt="Puzzle 12"><strong>Puzzle 12</strong></a>
-      <a class="active" href="#"><img src="nft4_04.jpg" alt="Puzzle 13"><strong>Puzzle 13</strong></a>
-      <a class="active" href="#"><img src="nft1_04.jpg" alt="Puzzle 14"><strong>Puzzle 14</strong></a>
-      <a class="active" href="#"><img src="nft2_04.jpg" alt="Puzzle 15"><strong>Puzzle 15</strong></a>
-      <a class="active" href="#"><img src="nft3_04.jpg" alt="Puzzle 16"><strong>Puzzle 16</strong></a>
+      <a class="active" href="nft_series_01.html"><img src="nft1_01.jpg"><strong>퍼즐 게임</strong></a>
+      <a class="active" href="shop.html"><img src="nft2_01.jpg"><strong>NFT SHOP</strong></a>
+      <a class="active" href="about-orcax.html"><img src="nft3_01.jpg"><strong>OrcaX 소개</strong></a>
+      <a class="active" href="franchise.html"><img src="nft4_01.jpg"><strong>가맹점 현황</strong></a>
+      <a class="active" href="index-10.html"><img src="nft2_02.jpg"><strong>메시지 전송</strong></a>
+      <a class="active" href="Foundation.html"><img src="nft3_02.jpg"><strong>OrcaX 정책</strong></a>
+      <a class="active" href="NEXT2/log-0.html"><img src="nft4_02.jpg"><strong>항해 일지</strong></a>
+      <a class="active" href="orcax_lsg.html"><img src="nft1_02.jpg"><strong>가맹점 모집</strong></a>
+      <a class="active" href="index9.html"><img src="nft3_03.jpg"><strong>OrcaX 농장</strong></a>
+      <a class="active" href="orcax_1000.html"><img src="nft4_03.jpg"><strong>OrcaX포스터</strong></a>
     </div>
   </div>
 
   <footer>
     <p>
       <a href="privacy-policy-detailed.html" target="_blank">개인정보처리방침</a> |
-      <a href="https://byungil-cho.github.io/OrcaX/terms-of-service.html" target="_blank">이용약관</a> |
+      <a href="terms-of-service.html" target="_blank">이용약관</a> |
       <a href="Orcax-local-token.html" target="_blank">📢 공지사항 보기</a> |
       <a href="https://orcax-survey-3060.onrender.com/survey-submit.html" target="_blank">고객만족도</a> |
       <a href="#" onclick="toggleBusinessInfo()">사업자정보</a>
@@ -82,26 +75,50 @@
   </footer>
 
   <script>
-    const nickname = localStorage.getItem("nickname");
-    if (nickname) {
-      const userInfo = document.getElementById("user-info");
-      if (userInfo) {
-        userInfo.textContent = `👤 ${nickname}님, 환영합니다.`;
-      }
-    }
+    Kakao.init('284b798a9d9be8202f9c2e129fa6f329');
 
     function toggleBusinessInfo() {
       const info = document.getElementById("business-info");
       info.style.display = info.style.display === "none" ? "block" : "none";
     }
 
-    // 🔐 비밀번호 입력 후 링크 이동
     function checkPassword() {
       const input = prompt("비밀번호를 입력하세요:");
       if (input === "2025") {
         window.location.href = "https://orcax-survey-3060.onrender.com/survey-list.html";
       } else {
         alert("비밀번호가 틀렸습니다.");
+      }
+    }
+
+    document.getElementById("kakao-login-btn").addEventListener("click", function () {
+      Kakao.Auth.login({
+        success: function (authObj) {
+          Kakao.API.request({
+            url: '/v2/user/me',
+            success: function (res) {
+              const nickname = res.kakao_account.profile.nickname;
+              localStorage.setItem("nickname", nickname);
+              document.getElementById("user-info").textContent = `👤 ${nickname}님, 환영합니다.`;
+              document.getElementById("kakao-login-btn").style.display = "none";
+              document.getElementById("logout-btn").style.display = "inline-block";
+            }
+          });
+        }
+      });
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", function () {
+      localStorage.removeItem("nickname");
+      location.reload();
+    });
+
+    window.onload = () => {
+      const nickname = localStorage.getItem("nickname");
+      if (nickname) {
+        document.getElementById("user-info").textContent = `👤 ${nickname}님, 환영합니다.`;
+        document.getElementById("kakao-login-btn").style.display = "none";
+        document.getElementById("logout-btn").style.display = "inline-block";
       }
     }
   </script>
