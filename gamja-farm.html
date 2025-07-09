@@ -88,21 +88,34 @@
 
     async function fetchDashboardData() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`);
+        // 먼저 사용자 초기화 요청
+        await fetch(`${API_BASE}/api/init-user`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+          body: JSON.stringify({ kakaoId, nickname })
+        });
+
+        // 그다음 사용자 데이터 요청
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("데이터 불러오기 실패");
         const data = await res.json();
 
-        document.getElementById("water").textContent = data.water ?? "-";
-        document.getElementById("fertilizer").textContent = data.fertilizer ?? "-";
-        document.getElementById("orcx").textContent = data.token ?? "-";
-        document.getElementById("potato").textContent = data.potato ?? "-";
-        document.getElementById("barley").textContent = data.barley ?? "-";
+        const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
+        if (!user) throw new Error("유저 데이터 없음");
 
-        const harvestCount = data.harvestCount ?? 0;
+        document.getElementById("water").textContent = user.water ?? "-";
+        document.getElementById("fertilizer").textContent = user.fertilizer ?? "-";
+        document.getElementById("orcx").textContent = user.token ?? "-";
+        document.getElementById("potato").textContent = user.potato ?? "-";
+        document.getElementById("barley").textContent = user.barley ?? "-";
+
+        const harvestCount = user.harvestCount ?? 0;
         const level = Math.floor(harvestCount / 5) + 1;
         document.getElementById("harvestCount").textContent = harvestCount;
         document.getElementById("level").textContent = "LV." + level;
       } catch (err) {
-        console.error("서버 데이터 로딩 실패", err);
+        console.error("❌ 서버 데이터 로딩 실패:", err);
       }
     }
 
