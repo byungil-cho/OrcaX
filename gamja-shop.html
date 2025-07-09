@@ -28,9 +28,6 @@
       text-decoration: none;
       margin: 0 0.5rem;
     }
-    nav a:hover {
-      text-decoration: underline;
-    }
     .store-buttons {
       margin-top: 2rem;
     }
@@ -89,21 +86,18 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 
-    // 닉네임 표시
     const nickname = localStorage.getItem("nickname") || "알 수 없음";
     document.getElementById("nickname").textContent = nickname;
 
-    // 서버 상태 확인 (전원)
-    fetch(`${API_BASE}/power/status`)
+    fetch(`${API_BASE}/power-status`)
       .then(res => res.json())
       .then(data => {
-        document.getElementById("power").textContent = data.power === "on" ? "정상" : "꺼짐";
+        document.getElementById("power").textContent = data.status;
       })
       .catch(() => {
-        document.getElementById("power").textContent = "오류";
+        document.getElementById("power").textContent = "에러";
       });
 
-    // ORCX 토큰 조회
     const kakaoId = localStorage.getItem("kakaoId");
     if (kakaoId) {
       fetch(`${API_BASE}/userdata?kakaoId=${kakaoId}`)
@@ -115,7 +109,6 @@
         });
     }
 
-    // 씨앗 재고 상태 불러오기
     fetch(`${API_BASE}/seed/status`)
       .then(res => res.json())
       .then(data => {
@@ -127,9 +120,8 @@
         document.getElementById("barley-stock").textContent = "에러";
       });
 
-    // 구매 버튼 기능 (추후 연결 가능)
     function buySeed(type) {
-      alert(`구매 기능(${type})은 아직 구현되지 않았습니다.`);
+      alert(`구매 기능(${type})은 아직 연결되지 않았습니다.`);
     }
   </script>
 </body>
