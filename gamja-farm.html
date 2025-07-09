@@ -93,7 +93,7 @@
       }
 
       try {
-        const url = new URL("/api/user", API_BASE);
+        const url = new URL("/api/userdata", API_BASE);
         url.searchParams.append("kakaoId", kakaoId);
 
         const res = await fetch(url, {
