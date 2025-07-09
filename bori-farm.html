@@ -56,7 +56,7 @@
     <div class="info-box">🪙 ORCX: <span id="token">0</span> 개</div>
     <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
     <div class="info-box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
-    <div class="info-box">🩚 인벤토리:</div>
+    <div class="info-box">🧺 인벤토리:</div>
     <div id="inventoryBox" class="info-box"></div>
     <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
     <button id="startBtn" class="btn" disabled>🌱 보리 농사 짓기 이동</button>
@@ -66,7 +66,7 @@
 
     (async () => {
       const nickname = localStorage.getItem("nickname");
-      const kakaoId = localStorage.getItem("userId");
+      const kakaoId = localStorage.getItem("userId") || localStorage.getItem("kakaoId");
 
       if (!nickname || !kakaoId) {
         alert("로그인이 필요합니다.");
@@ -128,8 +128,10 @@
           }
           tokenEl.textContent = orcxVal;
 
-          seedBarleyEl.textContent = user.seedBarley ?? 0;
-          seedPotatoEl.textContent = user.seedPotato ?? 0;
+          // 씨앗 정보: localStorage에서 불러오기
+          const inventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
+          seedBarleyEl.textContent = inventory.seedBarley || 0;
+          seedPotatoEl.textContent = inventory.seedPotato || 0;
 
           inventoryBox.innerHTML = "";
           (user.inventory || []).forEach(item => {
