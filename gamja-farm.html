@@ -57,13 +57,13 @@
     </div>
 
     <div class="section">
-      <h2>🌱 씨앗 보유 (로컬 기준)</h2>
+      <h2>🌱 씨앗 보유 (서버 기준)</h2>
       씨감자: <span id="seedPotato">-</span><br>
       씨보리: <span id="seedBarley">-</span>
     </div>
 
     <div class="footer">
-      <a href="gamja-main.html">🌾 농장 작명소</a>
+      <a href="gamja-factory.html">🌾 농사 작업</a>
       <a href="gamja-shop.html">🛒 씨앗 상점</a>
     </div>
   </div>
@@ -72,22 +72,23 @@
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
     const kakaoId = localStorage.getItem("kakaoId") || "unknown";
-    const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
-    document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
-    document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
 
     async function fetchDashboardData() {
       try {
         const res = await fetch(`/users/me?kakaoId=${kakaoId}`);
         const data = await res.json();
+
         document.getElementById("water").textContent = data.water ?? "-";
         document.getElementById("fertilizer").textContent = data.fertilizer ?? "-";
         document.getElementById("orcx").textContent = data.token ?? "-";
         document.getElementById("potato").textContent = data.potato ?? "-";
         document.getElementById("barley").textContent = data.barley ?? "-";
+        document.getElementById("seedPotato").textContent = data.seedPotato ?? "-";
+        document.getElementById("seedBarley").textContent = data.seedBarley ?? "-";
+
       } catch (err) {
         console.error("서버 데이터 로딩 실패", err);
       }
