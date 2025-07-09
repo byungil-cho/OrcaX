@@ -1,42 +1,66 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>카카오 로그인 중...</title>
-  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <meta charset="UTF-8">
+  <title>Kakao Login Callback</title>
+  <script>
+    window.onload = async function () {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      if (!code) {
+        alert("로그인 인증 코드가 없습니다.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      try {
+        const response = await fetch("https://kauth.kakao.com/oauth/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            grant_type: "authorization_code",
+            client_id: "284b798a9d9be8202f9c2e129fa6f329", // 주인님 앱 키
+            redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html", // 리디렉션 주소
+            code: code,
+          }),
+        });
+
+        const tokenData = await response.json();
+        const accessToken = tokenData.access_token;
+
+        // 사용자 정보 요청
+        const userRes = await fetch("https://kapi.kakao.com/v2/user/me", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
+
+        const userInfo = await userRes.json();
+        const nickname = userInfo.kakao_account.profile.nickname;
+        const kakaoId = userInfo.id;
+
+        // localStorage 저장
+        localStorage.setItem("nickname", nickname);
+        localStorage.setItem("kakaoId", kakaoId);
+
+        // index.html로 이동
+        window.location.href = "index.html";
+      } catch (error) {
+        console.error("카카오 로그인 실패:", error);
+        alert("카카오 로그인 중 오류 발생");
+        window.location.href = "index.html";
+      }
+    };
+  </script>
 </head>
 <body>
-  <p>로그인 처리 중입니다...</p>
-
-  <script>
-    Kakao.init('284b798a9d9be8202f9c2e129fa6f329');
-
-    Kakao.Auth.login({
-      success: function (authObj) {
-        Kakao.API.request({
-          url: '/v2/user/me',
-          success: function (res) {
-            const kakaoId = res.id.toString();
-            const nickname = res.kakao_account.profile.nickname;
-
-            // ✅ localStorage 저장 (키 통일)
-            localStorage.setItem('kakaoId', kakaoId);
-            localStorage.setItem('nickname', nickname);
-
-            // ✅ 다음 페이지로 이동
-            location.href = 'index9.html';
-          },
-          fail: function (err) {
-            alert("카카오 정보 요청 실패");
-            console.error(err);
-          }
-        });
-      },
-      fail: function (err) {
-        alert("로그인 실패");
-        console.error(err);
-      }
-    });
-  </script>
+  <h3 style="color:white; background-color:black; padding:20px; text-align:center;">
+    로그인 처리 중입니다...
+  </h3>
 </body>
 </html>
