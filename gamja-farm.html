@@ -96,13 +96,15 @@
         if (!res.ok) throw new Error("서버 응답 실패");
         const data = await res.json();
 
-        document.getElementById("water").textContent = data.water ?? "-";
-        document.getElementById("fertilizer").textContent = data.fertilizer ?? "-";
-        document.getElementById("orcx").textContent = data.token ?? "-";
-        document.getElementById("potato").textContent = data.potato ?? "-";
-        document.getElementById("barley").textContent = data.barley ?? "-";
+        const userData = data.user || {};
 
-        const harvestCount = data.harvestCount ?? 0;
+        document.getElementById("water").textContent = userData.water ?? "-";
+        document.getElementById("fertilizer").textContent = userData.fertilizer ?? "-";
+        document.getElementById("orcx").textContent = userData.token ?? "-";
+        document.getElementById("potato").textContent = userData.potato ?? "-";
+        document.getElementById("barley").textContent = userData.barley ?? "-";
+
+        const harvestCount = userData.harvestCount ?? 0;
         const level = Math.floor(harvestCount / 5) + 1;
         document.getElementById("harvestCount").textContent = harvestCount;
         document.getElementById("level").textContent = "LV." + level;
@@ -115,6 +117,7 @@
   </script>
 </body>
 </html>
+
 
 
 
