@@ -89,6 +89,7 @@
   </div>
 
   <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
     const kakaoId = localStorage.getItem("kakaoId") || "unknown";
@@ -101,7 +102,7 @@
 
     async function fetchUserState() {
       try {
-        const res = await fetch(`/users/me?kakaoId=${kakaoId}`);
+        const res = await fetch(`${API_BASE}/users/me?kakaoId=${kakaoId}`);
         const data = await res.json();
         if (data.token !== undefined) resources.orcx = data.token;
         if (data.water !== undefined) resources.water = data.water;
@@ -140,13 +141,13 @@
       if (resources.water > 0) {
         resources.water--;
         growthPoint++;
-        await fetch(`/users/use-resource`, {
+        updateDisplay();
+        save();
+        await fetch(`${API_BASE}/users/use-resource`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, water: -1 })
         });
-        updateDisplay();
-        save();
       } else alert("물 부족!");
     }
 
@@ -156,13 +157,13 @@
       if (resources.fertilizer > 0) {
         resources.fertilizer--;
         growthPoint += 2;
-        await fetch(`/users/use-resource`, {
+        updateDisplay();
+        save();
+        await fetch(`${API_BASE}/users/use-resource`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, fertilizer: -1 })
         });
-        updateDisplay();
-        save();
       } else alert("거름 부족!");
     }
 
@@ -174,19 +175,19 @@
 
         if (seedInventory[cropType] > 0) {
           seedInventory[cropType]--;
-          await fetch(`/storage/return-seed`, {
+          await fetch(`${API_BASE}/storage/return-seed`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ seedType: cropType, count: 1 })
           });
 
-          if (cropType === "seedPotato") crops.potato += reward;
-          else if (cropType === "seedBarley") crops.barley += reward;
+          const cropKey = cropType === "seedPotato" ? "potato" : "barley";
+          crops[cropKey] += reward;
 
-          await fetch(`/users/update-crops`, {
+          await fetch(`${API_BASE}/users/update-crops`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ kakaoId, [cropType === "seedPotato" ? "potato" : "barley"]: reward })
+            body: JSON.stringify({ kakaoId, [cropKey]: reward })
           });
 
           growthPoint = 0;
@@ -209,6 +210,7 @@
   </script>
 </body>
 </html>
+
 
 
 
