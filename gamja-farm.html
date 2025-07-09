@@ -87,13 +87,23 @@
     document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
 
     async function fetchDashboardData() {
+      if (!kakaoId || kakaoId === "unknown") {
+        console.warn("⛔️ kakaoId 누락됨");
+        return;
+      }
+
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${encodeURIComponent(kakaoId)}`, {
+        const url = new URL("/api/userdata", API_BASE);
+        url.searchParams.append("kakaoId", kakaoId);
+
+        const res = await fetch(url, {
           method: "GET",
+          headers: { "Content-Type": "application/json" },
           cache: "no-store"
         });
 
-        if (!res.ok) throw new Error("서버 응답 실패");
+        if (!res.ok) throw new Error("서버 응답 실패: " + res.status);
+
         const userData = await res.json();
 
         document.getElementById("water").textContent = userData.물 ?? "-";
@@ -115,6 +125,7 @@
   </script>
 </body>
 </html>
+
 
 
 
