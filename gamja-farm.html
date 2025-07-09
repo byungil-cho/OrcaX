@@ -82,7 +82,6 @@
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
     const kakaoId = localStorage.getItem("kakaoId");
-
     const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
 
     document.getElementById("nickname").textContent = nickname;
@@ -100,12 +99,14 @@
         const res = await fetch(`${API_BASE}/users/me?kakaoId=${kakaoId}`);
         const data = await res.json();
 
+        // 자산 출력
         document.getElementById("water").textContent = data.water ?? "-";
         document.getElementById("fertilizer").textContent = data.fertilizer ?? "-";
         document.getElementById("orcx").textContent = data.token ?? "-";
         document.getElementById("potato").textContent = data.potato ?? "-";
         document.getElementById("barley").textContent = data.barley ?? "-";
 
+        // 레벨 계산 및 표시
         const harvestCount = data.harvestCount ?? 0;
         const level = Math.floor(harvestCount / 5) + 1;
         document.getElementById("harvestCount").textContent = harvestCount;
