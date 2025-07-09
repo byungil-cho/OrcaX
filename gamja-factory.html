@@ -165,9 +165,14 @@
 
         if (seedInventory[cropType] > 0) {
           seedInventory[cropType]--;
-          // 반납된 씨앗 보관소로 환원
-          if (cropType === "seedPotato") crops.potato += reward;
-          else if (cropType === "seedBarley") crops.barley += reward;
+          // 수확 작물 보관소 증가 + 사용한 씨앗 1개 환원
+          if (cropType === "seedPotato") {
+            crops.potato += reward;
+            seedInventory.seedPotato++;
+          } else if (cropType === "seedBarley") {
+            crops.barley += reward;
+            seedInventory.seedBarley++;
+          }
           growthPoint = 0;
           updateDisplay();
           save();
