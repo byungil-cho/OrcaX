@@ -88,29 +88,21 @@
 
     async function fetchDashboardData() {
       try {
-        // 먼저 사용자 초기화 요청
-        await fetch(`${API_BASE}/api/init-user`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          cache: "no-store",
-          body: JSON.stringify({ kakaoId, nickname })
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`, {
+          method: "GET",
+          cache: "no-store"
         });
 
-        // 그다음 사용자 데이터 요청
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("데이터 불러오기 실패");
+        if (!res.ok) throw new Error("서버 응답 실패");
         const data = await res.json();
 
-        const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
-        if (!user) throw new Error("유저 데이터 없음");
+        document.getElementById("water").textContent = data.water ?? "-";
+        document.getElementById("fertilizer").textContent = data.fertilizer ?? "-";
+        document.getElementById("orcx").textContent = data.token ?? "-";
+        document.getElementById("potato").textContent = data.potato ?? "-";
+        document.getElementById("barley").textContent = data.barley ?? "-";
 
-        document.getElementById("water").textContent = user.water ?? "-";
-        document.getElementById("fertilizer").textContent = user.fertilizer ?? "-";
-        document.getElementById("orcx").textContent = user.token ?? "-";
-        document.getElementById("potato").textContent = user.potato ?? "-";
-        document.getElementById("barley").textContent = user.barley ?? "-";
-
-        const harvestCount = user.harvestCount ?? 0;
+        const harvestCount = data.harvestCount ?? 0;
         const level = Math.floor(harvestCount / 5) + 1;
         document.getElementById("harvestCount").textContent = harvestCount;
         document.getElementById("level").textContent = "LV." + level;
@@ -123,6 +115,7 @@
   </script>
 </body>
 </html>
+
 
 
 
