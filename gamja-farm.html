@@ -62,8 +62,14 @@
       씨보리: <span id="seedBarley">-</span>
     </div>
 
+    <div class="section">
+      <h2>📊 농장 활동</h2>
+      농사 횟수: <span id="farmingCount">-</span><br>
+      레벨: <span id="farmingLevel">-</span>
+    </div>
+
     <div class="footer">
-      <a href="gamja-factory.html">🌾 농사 작업</a>
+      <a href="gamja-main.html">📛 농장 작명소</a>
       <a href="gamja-shop.html">🛒 씨앗 상점</a>
     </div>
   </div>
@@ -75,6 +81,13 @@
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
+
+    function getLevelFromFarmingCount(count) {
+      if (count >= 50) return "레전드 농부";
+      if (count >= 30) return "숙련 농부";
+      if (count >= 10) return "초보 농부";
+      return "씨앗 뿌리는 중";
+    }
 
     async function fetchDashboardData() {
       try {
@@ -89,6 +102,10 @@
         document.getElementById("seedPotato").textContent = data.seedPotato ?? "-";
         document.getElementById("seedBarley").textContent = data.seedBarley ?? "-";
 
+        const farmingCount = data.farmingCount ?? 0;
+        document.getElementById("farmingCount").textContent = farmingCount;
+        document.getElementById("farmingLevel").textContent = getLevelFromFarmingCount(farmingCount);
+
       } catch (err) {
         console.error("서버 데이터 로딩 실패", err);
       }
@@ -98,3 +115,4 @@
   </script>
 </body>
 </html>
+
