@@ -88,7 +88,7 @@
 
     async function fetchDashboardData() {
       try {
-        const res = await fetch(`${API_BASE}/users/me?kakaoId=${kakaoId}`);
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`);
         const data = await res.json();
 
         document.getElementById("water").textContent = data.water ?? "-";
@@ -110,7 +110,6 @@
   </script>
 </body>
 </html>
-
 
 
 
