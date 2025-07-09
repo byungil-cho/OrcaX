@@ -1,159 +1,110 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>감자 농장 입장</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>감자 농장 대시보드</title>
   <style>
     body {
       font-family: "Pretendard", sans-serif;
-      margin: 0;
-      padding: 0;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
       color: white;
       text-align: center;
+      margin: 0;
+      padding: 0;
     }
     .container {
-      background-color: rgba(0, 0, 0, 0.5);
       margin-top: 5%;
       padding: 20px;
+      background-color: rgba(0, 0, 0, 0.5);
       display: inline-block;
       border-radius: 12px;
     }
-    .btn {
-      margin-top: 20px;
-      padding: 15px 30px;
-      background-color: #FFD700;
-      color: black;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border: none;
+    .section {
+      background-color: #ffffff20;
+      padding: 20px;
+      margin: 20px 0;
       border-radius: 10px;
-      cursor: pointer;
     }
-    .status {
-      margin-top: 20px;
-      color: #00FF00;
+    .nav a {
+      display: inline-block;
+      margin: 10px 15px;
+      color: #FFD700;
       font-weight: bold;
-    }
-    .info-box {
-      background-color: #2166d1;
-      padding: 8px;
-      margin: 6px;
-      border-radius: 6px;
-      text-align: left;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <div class="container" role="region" aria-label="감자 농장 대시보드">
-    <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
-    <div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
-    <div class="info-box">🥔 감자: <span id="potato">0</span> 개</div>
-    <div class="info-box">💧 물: <span id="water">0</span> 개</div>
-    <div class="info-box">🌱 거름: <span id="fertilizer">0</span> 개</div>
-    <div class="info-box">🪙 ORCX: <span id="token">0</span> 개</div>
-    <div class="info-box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
-    <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
-    <div class="info-box">🧺 인벤토리:</div>
-    <div id="inventoryBox" class="info-box"></div>
-    <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
-    <button id="startBtn" class="btn" disabled>🌱 농장이름 짓기 이동</button>
+  <div class="container">
+    <h1>감자 농장 대시보드</h1>
+    <div id="userInfo">농장주: <span id="nickname">-</span><br>농장이름: <span id="farmName">-</span></div>
+    <div class="section">
+      <h2>📦 농자재 보관함</h2>
+      물: <span id="water">0</span><br>
+      거름: <span id="fertilizer">0</span><br>
+      ORCX: <span id="orcx">0</span>
+    </div>
+    <div class="section">
+      <h2>🌾 작물 보관소</h2>
+      감자: <span id="potato">0</span><br>
+      보리: <span id="barley">0</span>
+    </div>
+    <div class="section">
+      <h2>🌱 씨앗 보유 (로컬 기준)</h2>
+      씨감자: <span id="seedPotato">0</span><br>
+      씨보리: <span id="seedBarley">0</span>
+    </div>
+    <div class="nav">
+      <a href="gamja-factory.html">⚙️ 농사 작업</a>
+      <a href="gamja-shop.html">🛒 씨앗 상점</a>
+    </div>
   </div>
 
-  <script type="module">
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+  <script>
+    const kakaoId = localStorage.getItem("kakaoId") || "unknown";
+    const nickname = localStorage.getItem("nickname") || "-";
+    const farmName = localStorage.getItem("farmName") || "-";
 
-    (async () => {
-      const nicknameValue = localStorage.getItem("nickname");
-      const kakaoIdValue = localStorage.getItem("kakaoId");
+    const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
+    const resources = JSON.parse(localStorage.getItem("resources") || "{}");
+    const crops = JSON.parse(localStorage.getItem("crops") || "{}");
 
-      if (!nicknameValue || !kakaoIdValue) {
-        alert("로그인이 필요합니다.");
-        window.location.href = 'gamja-login.html';
-        return;
+    document.getElementById("nickname").textContent = nickname;
+    document.getElementById("farmName").textContent = farmName;
+
+    async function loadUserData() {
+      try {
+        const res = await fetch(`/users/me?kakaoId=${kakaoId}`);
+        const user = await res.json();
+
+        document.getElementById("water").textContent = user.water ?? 0;
+        document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
+        document.getElementById("orcx").textContent = user.token ?? 0;
+        document.getElementById("potato").textContent = user.potato ?? 0;
+        document.getElementById("barley").textContent = user.barley ?? 0;
+
+        // 로컬에도 동기화
+        localStorage.setItem("resources", JSON.stringify({
+          water: user.water,
+          fertilizer: user.fertilizer,
+          orcx: user.token
+        }));
+        localStorage.setItem("crops", JSON.stringify({
+          potato: user.potato,
+          barley: user.barley
+        }));
+      } catch (err) {
+        console.error("서버 데이터 불러오기 실패", err);
       }
-      document.getElementById("nickname").textContent = nicknameValue;
+    }
 
-      const startBtn = document.getElementById("startBtn");
-      const serverStatus = document.getElementById("serverStatus");
-      const inventoryBox = document.getElementById("inventoryBox");
-      const potatoEl = document.getElementById("potato");
-      const waterEl = document.getElementById("water");
-      const fertilizerEl = document.getElementById("fertilizer");
-      const tokenEl = document.getElementById("token");
-      const seedPotatoEl = document.getElementById("seedPotato");
-      const seedBarleyEl = document.getElementById("seedBarley");
+    // 씨앗은 로컬 기준 표시
+    document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
+    document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
 
-      startBtn.addEventListener("click", () => {
-        window.location.href = "gamja-main.html";
-      });
-
-      async function initUser() {
-        serverStatus.textContent = "유저 초기화 중...";
-        try {
-          await fetch(`${API_BASE}/api/init-user`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ kakaoId: kakaoIdValue, nickname: nicknameValue })
-          });
-          await loadUserData();
-        } catch (err) {
-          console.error("Initialization error:", err);
-          serverStatus.textContent = "❌ 초기화 실패: 네트워크를 확인하세요.";
-        }
-      }
-
-      async function loadUserData() {
-        serverStatus.textContent = "데이터 로딩 중...";
-        try {
-          const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoIdValue}`, {
-            cache: 'no-store'
-          });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-          const data = await res.json();
-          const user = data.user || (Array.isArray(data.users) ? data.users[0] : null);
-          if (!user) throw new Error('유저 데이터를 찾을 수 없습니다.');
-
-          potatoEl.textContent = user.potatoCount ?? user.potato ?? 0;
-          waterEl.textContent = user.water ?? 0;
-          fertilizerEl.textContent = user.fertilizer ?? 0;
-
-          const initKey = 'initialTokensGiven';
-          let orcxVal = user.orcx ?? user.token ?? 0;
-          const hasInit = localStorage.getItem(initKey) === 'true';
-          if (orcxVal === 0 && !hasInit) {
-            orcxVal = 10;
-            localStorage.setItem(initKey, 'true');
-          }
-          tokenEl.textContent = orcxVal;
-
-          // 씨감자, 씨보리: localStorage에서 불러오기
-          const inventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
-          seedPotatoEl.textContent = inventory.seedPotato || 0;
-          seedBarleyEl.textContent = inventory.seedBarley || 0;
-
-          inventoryBox.innerHTML = "";
-          (user.inventory || []).forEach(item => {
-            const count = item.count ?? 1;
-            const name = item.name || item.type || '알 수 없는 아이템';
-            const div = document.createElement("div");
-            div.textContent = `- ${name} (${count}개)`;
-            inventoryBox.appendChild(div);
-          });
-
-          serverStatus.textContent = "✅ 서버 연결 및 데이터 로드 완료";
-          startBtn.disabled = false;
-        } catch (err) {
-          console.error("Data fetch error:", err);
-          serverStatus.textContent = "❌ 서버 연결 실패";
-        }
-      }
-
-      initUser();
-    })();
+    loadUserData();
   </script>
 </body>
 </html>
