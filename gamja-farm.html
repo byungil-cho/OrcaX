@@ -57,7 +57,7 @@
     </div>
 
     <div class="section">
-      <h2>🌱 씨앗 보유 (서버 기준)</h2>
+      <h2>🌱 씨앗 보유 (로컬 임대 중)</h2>
       씨감자: <span id="seedPotato">-</span><br>
       씨보리: <span id="seedBarley">-</span>
     </div>
@@ -78,6 +78,7 @@
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
     const kakaoId = localStorage.getItem("kakaoId") || "unknown";
+    const localSeedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
@@ -99,8 +100,9 @@
         document.getElementById("orcx").textContent = data.token ?? "-";
         document.getElementById("potato").textContent = data.potato ?? "-";
         document.getElementById("barley").textContent = data.barley ?? "-";
-        document.getElementById("seedPotato").textContent = data.seedPotato ?? "-";
-        document.getElementById("seedBarley").textContent = data.seedBarley ?? "-";
+
+        document.getElementById("seedPotato").textContent = localSeedInventory.seedPotato || 0;
+        document.getElementById("seedBarley").textContent = localSeedInventory.seedBarley || 0;
 
         const farmingCount = data.farmingCount ?? 0;
         document.getElementById("farmingCount").textContent = farmingCount;
@@ -115,4 +117,5 @@
   </script>
 </body>
 </html>
+
 
