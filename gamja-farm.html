@@ -83,11 +83,11 @@
       try {
         const res = await fetch(`/users/me?kakaoId=${kakaoId}`);
         const data = await res.json();
-        document.getElementById("water").textContent = data.water || 0;
-        document.getElementById("fertilizer").textContent = data.fertilizer || 0;
-        document.getElementById("orcx").textContent = data.token || 0;
-        document.getElementById("potato").textContent = data.potato || 0;
-        document.getElementById("barley").textContent = data.barley || 0;
+        document.getElementById("water").textContent = data.water ?? "-";
+        document.getElementById("fertilizer").textContent = data.fertilizer ?? "-";
+        document.getElementById("orcx").textContent = data.token ?? "-";
+        document.getElementById("potato").textContent = data.potato ?? "-";
+        document.getElementById("barley").textContent = data.barley ?? "-";
       } catch (err) {
         console.error("서버 데이터 로딩 실패", err);
       }
