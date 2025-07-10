@@ -2,110 +2,112 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>감자 농장</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌾 감자 제국 농장</title>
   <style>
     body {
-      background-image: url('background.jpg');
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://i.imgur.com/6Zz2e6n.jpg') no-repeat center center fixed;
       background-size: cover;
-      color: white;
-      font-family: sans-serif;
-      text-align: center;
+      color: #fffdd0;
+      margin: 0;
+      padding: 0;
     }
-    .panel {
+
+    .container {
       background-color: rgba(0, 0, 0, 0.6);
+      max-width: 600px;
+      margin: 50px auto;
       padding: 20px;
-      margin: 30px auto;
-      width: 80%;
-      border-radius: 10px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
     }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #f6e58d;
+      font-size: 2rem;
+    }
+
+    .resource {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px dashed #ccc;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #dff9fb;
+    }
+
+    .value {
+      color: #f9ca24;
+    }
+
     button {
-      padding: 10px 20px;
-      margin: 10px;
-      font-size: 16px;
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1rem;
+      background: #44bd32;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #4cd137;
     }
   </style>
 </head>
 <body>
-  <h1>🌱 농장 관리</h1>
-  <div class="panel">
-    <h2>씨감자 🌱 씨보리</h2>
-    <button onclick="giveWater()">💧 물 주기</button>
-    <button disabled>💩 거름 주기</button>
-    <button disabled>🍠 수확하기</button>
-    <p>🌟 성장포인트: <span id="growth">0</span></p>
-  </div>
+  <div class="container">
+    <h1>🥔 감자 제국 농장</h1>
 
-  <div class="panel">
-    <h2>📦 농자재 보관함</h2>
-    <p>씨감자: <span id="seedPotato">0</span></p>
-    <p>씨보리: <span id="seedBarley">0</span></p>
-    <p>💧 물: <span id="water">0</span></p>
-    <p>💩 거름: <span id="fertilizer">0</span></p>
-    <p>🍀 보유 토큰: <span id="orcx">0</span></p>
-  </div>
+    <div class="resource"><span class="label">씨감자:</span> <span class="value" id="seedPotato">0</span></div>
+    <div class="resource"><span class="label">씨보리:</span> <span class="value" id="seedBarley">0</span></div>
+    <div class="resource"><span class="label">물:</span> <span class="value" id="water">0</span></div>
+    <div class="resource"><span class="label">거름:</span> <span class="value" id="fertilizer">0</span></div>
+    <div class="resource"><span class="label">감자:</span> <span class="value" id="potato">0</span></div>
+    <div class="resource"><span class="label">보리:</span> <span class="value" id="barley">0</span></div>
+    <div class="resource"><span class="label">🍀 ORCX 토큰:</span> <span class="value" id="orcx">0</span></div>
 
-  <div class="panel">
-    <h2>📥 작물 보관소</h2>
-    <p>감자: <span id="potato">0</span></p>
-    <p>보리: <span id="barley">0</span></p>
+    <button onclick="fetchUserData()">🔄 데이터 다시 불러오기</button>
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-    const kakaoId = localStorage.getItem("kakaoId") || "testUser";
+    async function fetchUserData() {
+      const kakaoId = localStorage.getItem("kakaoId") || "guestUser";
 
-    const resources = {
-      seedPotato: 0,
-      seedBarley: 0,
-      water: 0,
-      fertilizer: 0,
-      orcx: 0,
-      potato: 0,
-      barley: 0
-    };
-
-    async function fetchUserState() {
       try {
-        const res = await fetch(`${API_BASE}/userdata?kakaoId=${kakaoId}`, {
-          method: 'GET',
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
+        const res = await fetch("/api/userdata", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId }),
         });
-        if (!res.ok) throw new Error("불러오기 실패");
+
+        if (!res.ok) throw new Error("서버 응답 실패");
 
         const data = await res.json();
-        if (data.seedPotato !== undefined) resources.seedPotato = data.seedPotato;
-        if (data.seedBarley !== undefined) resources.seedBarley = data.seedBarley;
-        if (data.water !== undefined) resources.water = data.water;
-        if (data.fertilizer !== undefined) resources.fertilizer = data.fertilizer;
-        if (data.orcx !== undefined) resources.orcx = data.orcx;
-        if (data.potato !== undefined) resources.potato = data.potato;
-        if (data.barley !== undefined) resources.barley = data.barley;
 
-        updateUI();
+        if (data.seedPotato !== undefined) document.getElementById("seedPotato").textContent = data.seedPotato;
+        if (data.seedBarley !== undefined) document.getElementById("seedBarley").textContent = data.seedBarley;
+        if (data.water !== undefined) document.getElementById("water").textContent = data.water;
+        if (data.fertilizer !== undefined) document.getElementById("fertilizer").textContent = data.fertilizer;
+        if (data.potato !== undefined) document.getElementById("potato").textContent = data.potato;
+        if (data.barley !== undefined) document.getElementById("barley").textContent = data.barley;
+        if (data.orcx !== undefined) document.getElementById("orcx").textContent = data.orcx;
+
       } catch (err) {
-        alert("데이터를 불러오지 못했습니다. 네가 또 뭔가 망가뜨린 듯.");
+        alert("감자 밭 서버에서 엎어진 듯? 다시 시도하라 이놈아.");
         console.error(err);
       }
     }
 
-    function updateUI() {
-      document.getElementById("seedPotato").innerText = resources.seedPotato;
-      document.getElementById("seedBarley").innerText = resources.seedBarley;
-      document.getElementById("water").innerText = resources.water;
-      document.getElementById("fertilizer").innerText = resources.fertilizer;
-      document.getElementById("orcx").innerText = resources.orcx;
-      document.getElementById("potato").innerText = resources.potato;
-      document.getElementById("barley").innerText = resources.barley;
-    }
-
-    function giveWater() {
-      alert("물 줬다고 착각 마라. 아무 기능도 없으니까.");
-    }
-
-    fetchUserState();
+    window.onload = fetchUserData;
   </script>
 </body>
 </html>
