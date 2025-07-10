@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -89,7 +90,7 @@
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io"; // ✅ ngrok 고정 주소
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
     const kakaoId = localStorage.getItem("kakaoId") || "unknown";
@@ -107,8 +108,6 @@
         if (data.token !== undefined) resources.orcx = data.token;
         if (data.water !== undefined) resources.water = data.water;
         if (data.fertilizer !== undefined) resources.fertilizer = data.fertilizer;
-        if (data.potato !== undefined) crops.potato = data.potato;
-        if (data.barley !== undefined) crops.barley = data.barley;
         updateDisplay();
       } catch (err) {
         console.error("서버 상태 로딩 실패", err);
@@ -141,13 +140,13 @@
       if (resources.water > 0) {
         resources.water--;
         growthPoint++;
-        updateDisplay();
-        save();
         await fetch(`${API_BASE}/users/use-resource`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, water: -1 })
         });
+        updateDisplay();
+        save();
       } else alert("물 부족!");
     }
 
@@ -157,13 +156,13 @@
       if (resources.fertilizer > 0) {
         resources.fertilizer--;
         growthPoint += 2;
-        updateDisplay();
-        save();
         await fetch(`${API_BASE}/users/use-resource`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, fertilizer: -1 })
         });
+        updateDisplay();
+        save();
       } else alert("거름 부족!");
     }
 
@@ -181,13 +180,13 @@
             body: JSON.stringify({ seedType: cropType, count: 1 })
           });
 
-          const cropKey = cropType === "seedPotato" ? "potato" : "barley";
-          crops[cropKey] += reward;
+          if (cropType === "seedPotato") crops.potato += reward;
+          else if (cropType === "seedBarley") crops.barley += reward;
 
           await fetch(`${API_BASE}/users/update-crops`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ kakaoId, [cropKey]: reward })
+            body: JSON.stringify({ kakaoId, [cropType === "seedPotato" ? "potato" : "barley"]: reward })
           });
 
           growthPoint = 0;
@@ -210,7 +209,3 @@
   </script>
 </body>
 </html>
-
-
-
-
