@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>감자 농장 대시보드</title>
   <style>
     body {
@@ -14,6 +14,7 @@
       margin: 0;
       padding: 0;
     }
+
     .container {
       margin-top: 5%;
       padding: 20px;
@@ -21,32 +22,38 @@
       display: inline-block;
       border-radius: 12px;
     }
+
     .section {
       background-color: #ffffff20;
       padding: 20px;
       margin: 20px 0;
       border-radius: 10px;
     }
+
     .footer {
       margin-top: 20px;
     }
+
     .footer a {
       color: #FFD700;
       font-weight: bold;
       margin: 0 10px;
       text-decoration: none;
     }
+
+    .status {
+      margin-top: 10px;
+      color: #00ffcc;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>감자 농장 대시보드</h1>
-    <div id="userInfo">농장주: <span id="nickname">-</span><br>농장이름: <span id="farmName">-</span></div>
-
-    <div class="section">
-      <h2>🏅 농장주 레벨</h2>
-      현재 레벨: <span id="level">-</span><br>
-      총 농사 횟수: <span id="harvestCount">-</span>
+    <div id="userInfo">
+      농장주: <span id="nickname">-</span><br>
+      농장이름: <span id="farmName">-</span>
     </div>
 
     <div class="section">
@@ -72,64 +79,57 @@
       <a href="gamja-main.html">🌾 농장 작명소</a>
       <a href="gamja-shop.html">🛒 씨앗 상점</a>
     </div>
+
+    <div class="status" id="statusMessage">⏳ 데이터 불러오는 중...</div>
   </div>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
-    const kakaoId = (localStorage.getItem("kakaoId") || "unknown").trim();
+    const kakaoId = localStorage.getItem("kakaoId") || "unknown";
     const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
-    document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
-    document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
+    document.getElementById("seedPotato").textContent = seedInventory.seedPotato ?? 0;
+    document.getElementById("seedBarley").textContent = seedInventory.seedBarley ?? 0;
 
-    async function fetchDashboardData() {
-      if (!kakaoId || kakaoId === "unknown") {
-        console.warn("⛔️ kakaoId 누락됨");
-        return;
-      }
-
+    async function initUser() {
       try {
-        const url = new URL("/api/userdata", API_BASE);
-        url.searchParams.append("kakaoId", kakaoId);
-
-        const res = await fetch(url, {
-          method: "GET",
+        await fetch(`${API_BASE}/api/init-user`, {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
-          cache: "no-store"
+          body: JSON.stringify({ nickname, kakaoId })
         });
-
-        if (!res.ok) throw new Error("서버 응답 실패: " + res.status);
-
-        const userData = await res.json();
-
-        document.getElementById("water").textContent = userData.물 ?? "-";
-        document.getElementById("fertilizer").textContent = userData.거름 ?? "-";
-        document.getElementById("orcx").textContent = userData.ORCX ?? userData.오알 ?? "-";
-        document.getElementById("potato").textContent = userData.감자 ?? "-";
-        document.getElementById("barley").textContent = userData.보리 ?? "-";
-
-        const harvestCount = userData.총수확 ?? 0;
-        const level = Math.floor(harvestCount / 5) + 1;
-        document.getElementById("harvestCount").textContent = harvestCount;
-        document.getElementById("level").textContent = "LV." + level;
       } catch (err) {
-        console.error("❌ 서버 데이터 로딩 실패:", err);
+        console.warn("⚠️ 유저 초기화 실패", err);
       }
     }
 
-    fetchDashboardData();
+    async function loadUserData() {
+      const statusEl = document.getElementById("statusMessage");
+      statusEl.textContent = "📡 서버 연결 중...";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`);
+        const data = await res.json();
+        const user = data.user;
+
+        document.getElementById("water").textContent = user?.water ?? "-";
+        document.getElementById("fertilizer").textContent = user?.fertilizer ?? "-";
+        document.getElementById("orcx").textContent = user?.orcx ?? "-";
+        document.getElementById("potato").textContent = user?.potato ?? "-";
+        document.getElementById("barley").textContent = user?.barley ?? "-";
+
+        statusEl.textContent = "✅ 서버 연결 완료";
+      } catch (err) {
+        console.error("데이터 로딩 오류:", err);
+        document.getElementById("statusMessage").textContent = "❌ 데이터 로딩 실패";
+      }
+    }
+
+    initUser().then(loadUserData);
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
