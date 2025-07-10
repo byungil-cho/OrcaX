@@ -65,7 +65,7 @@
     </div>
 
     <div class="section">
-      <h2>🌱 씨앗 보유 (로컬)</h2>
+      <h2>🌱 씨앗 보유 (로컬 기준)</h2>
       씨감자: <span id="seedPotato">-</span><br>
       씨보리: <span id="seedBarley">-</span>
     </div>
@@ -109,7 +109,9 @@
       try {
         const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`);
         const data = await res.json();
-        const user = data.user || data.users?.[0];
+        console.log("✅ 서버 응답:", data);
+
+        const user = Array.isArray(data.users) ? data.users[0] : data.user;
 
         document.getElementById("water").textContent = user?.water ?? "-";
         document.getElementById("fertilizer").textContent = user?.fertilizer ?? "-";
