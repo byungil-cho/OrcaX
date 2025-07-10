@@ -55,6 +55,12 @@
     <h1>🌱 씨앗 구매소</h1>
 
     <h2>🧑‍🌾 닉네임: <span id="nickname">-</span></h2>
+    <h2>🥔 씨감자 (<span id="pricePotato">-</span> ORCX)</h2>
+    <p>남은 수량: <span id="seedPotatoStock">로딩 중...</span></p>
+
+    <h2>🌾 씨보리 (<span id="priceBarley">-</span> ORCX)</h2>
+    <p>남은 수량: <span id="seedBarleyStock">로딩 중...</span></p>
+
     <h3>⚡ 전원: <span id="power">-</span></h3>
     <h3>🍀 보유 토큰: <span id="orcx">-</span></h3>
 
@@ -116,6 +122,34 @@
         document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
       }
     }
+// 가격과 재고 모두 불러오는 부분
+async function fetchSeedInfo() {
+  try {
+    const [priceRes, stockRes] = await Promise.all([
+      fetch(`${API_BASE}/api/seed/price`),
+      fetch(`${API_BASE}/api/seed/status`)
+    ]);
+    const prices = await priceRes.json();
+    const stocks = await stockRes.json();
+
+    document.getElementById("pricePotato").textContent = prices.seedPotato;
+    document.getElementById("priceBarley").textContent = prices.seedBarley;
+
+    document.getElementById("seedPotatoStock").textContent = stocks.seedPotato;
+    document.getElementById("seedBarleyStock").textContent = stocks.seedBarley;
+  } catch (err) {
+    document.getElementById("pricePotato").textContent = "에러";
+    document.getElementById("priceBarley").textContent = "에러";
+    document.getElementById("seedPotatoStock").textContent = "에러";
+    document.getElementById("seedBarleyStock").textContent = "에러";
+  }
+}
+
+// 기존 fetchSeedStatus() 대신 fetchSeedInfo() 호출
+window.onload = () => {
+  fetchSeedInfo();
+  fetchUserInfo();
+};
 
     async function buySeed(seedType) {
       try {
