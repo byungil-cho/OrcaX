@@ -103,7 +103,7 @@
       try {
         const res = await fetch(`/users/me?kakaoId=${kakaoId}`);
         const data = await res.json();
-        if (data.token !== undefined) resources.orcx = data.token;
+        if (data.orcx !== undefined) resources.orcx = data.orcx;
         if (data.water !== undefined) resources.water = data.water;
         if (data.fertilizer !== undefined) resources.fertilizer = data.fertilizer;
         if (data.potato !== undefined) crops.potato = data.potato;
