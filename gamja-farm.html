@@ -64,7 +64,7 @@
   </main>
 
   <script>
-    const API = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
     const nickname = localStorage.getItem("nickname") || "범고래X";
     const farmName = localStorage.getItem("farmName") || "하늘농장";
 
@@ -79,7 +79,7 @@
           return;
         }
 
-        const res = await fetch(`${API}/userdata`, {
+        const res = await fetch(`${API}/userdata/userdata`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
