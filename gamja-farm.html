@@ -1,105 +1,99 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>감자 농장 대시보드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
-      font-family: 'Pretendard', sans-serif;
+      font-family: 'Do Hyeon', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
       text-align: center;
+      color: #fff;
     }
-    .dashboard {
-      background: rgba(0, 0, 0, 0.6);
-      margin: 4rem auto;
-      padding: 2rem;
-      border-radius: 20px;
+    main {
+      padding: 1rem;
+      min-height: 100vh;
+    }
+    header {
+      background-color: rgba(0,0,0,0.6);
+      padding: 1rem;
+      border-radius: 1rem;
+      margin: 1rem auto;
+      width: 90%;
       max-width: 500px;
     }
-    h1 {
-      font-size: 2rem;
-    }
-    .section-title {
-      margin-top: 1.5rem;
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
-    .info-line {
-      margin: 0.2rem 0;
-    }
-    .nav-buttons {
-      margin-top: 2rem;
-    }
-    .nav-buttons button {
-      margin: 0.4rem;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      background-color: #00e0ff;
+    footer a {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #00e0ff;
       color: #000;
+      border-radius: 1rem;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <div class="dashboard">
-    <h1>감자 농장 대시보드</h1>
-    <p>👩‍🌾 농장주: <span id="nickname">-</span></p>
-    <p>💗 농장이름: <span id="farmName">-</span></p>
+  <main>
+    <header>
+      <h1>감자 농장 대시보드</h1>
+      <p>👨‍🌾 농장주: <span id="nickname">-</span></p>
+      <p>💖 농장이름: <span id="farmName">-</span></p>
 
-    <div class="section-title">🌰 농자재 보관함</div>
-    <p class="info-line">물: <span id="water">-</span></p>
-    <p class="info-line">거름: <span id="fertilizer">-</span></p>
-    <p class="info-line">ORCX: <span id="orcx">-</span></p>
+      <h3>🌰 농자재 보관함</h3>
+      <p>물: <span id="water">-</span></p>
+      <p>거름: <span id="fertilizer">-</span></p>
+      <p>ORCX: <span id="orcx">-</span></p>
 
-    <div class="section-title">🥚 작물 보관소</div>
-    <p class="info-line">감자: <span id="potato">-</span></p>
-    <p class="info-line">보리: <span id="barley">-</span></p>
+      <h3>🥚 작물 보관소</h3>
+      <p>감자: <span id="gamja">-</span></p>
+      <p>보리: <span id="bori">-</span></p>
 
-    <div class="section-title">🌱 씨앗 보유</div>
-    <p class="info-line">씨감자: <span id="seedPotato">-</span></p>
-    <p class="info-line">씨보리: <span id="seedBarley">-</span></p>
+      <h3>🌱 씨앗 보유</h3>
+      <p>씨감자: <span id="seedPotato">-</span></p>
+      <p>씨보리: <span id="seedBarley">-</span></p>
+    </header>
 
-    <div class="nav-buttons">
-      <button onclick="location.href='gamja-main.html'">농장이름 만들기</button>
-      <button onclick="location.href='gamja-shop.html'">상점</button>
-      <button onclick="location.href='index9.html'">메인으로</button>
-    </div>
-  </div>
+    <footer>
+      <a href="gamja-main.html">➡️ 농장이름 짓기</a>
+      <a href="auction-house.html">🏭 마이페이지</a>
+      <a href="index9.html">🛒 메인으로</a>
+    </footer>
+  </main>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+    const nickname = localStorage.getItem("nickname") || "범고래X";
+    const farmName = localStorage.getItem("farmName") || "하늘농장";
 
-    async function loadUserData() {
+    document.getElementById("nickname").textContent = nickname;
+    document.getElementById("farmName").textContent = farmName;
+
+    async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/userdata`);
-        if (!res.ok) throw new Error("유저 데이터를 불러오지 못했습니다.");
+        const res = await fetch(`${API}/userdata`);
         const data = await res.json();
-
-        document.getElementById('nickname').innerText = data.nickname || '-';
-        document.getElementById('farmName').innerText = localStorage.getItem("farmName") || '-';
-
-        document.getElementById('water').innerText = data.inventory?.water ?? '-';
-        document.getElementById('fertilizer').innerText = data.inventory?.fertilizer ?? '-';
-        document.getElementById('orcx').innerText = data.token ?? '-';
-
-        document.getElementById('potato').innerText = data.produce?.potato ?? '-';
-        document.getElementById('barley').innerText = data.produce?.barley ?? '-';
-
-        document.getElementById('seedPotato').innerText = data.inventory?.seedPotato ?? '-';
-        document.getElementById('seedBarley').innerText = data.inventory?.seedBarley ?? '-';
-
+        if (data.success) {
+          document.getElementById("water").textContent = data.user.inventory.water;
+          document.getElementById("fertilizer").textContent = data.user.inventory.fertilizer;
+          document.getElementById("orcx").textContent = data.user.wallet.orcx;
+          document.getElementById("gamja").textContent = data.user.storage.gamja;
+          document.getElementById("bori").textContent = data.user.storage.bori;
+          document.getElementById("seedPotato").textContent = data.user.inventory.seedPotato;
+          document.getElementById("seedBarley").textContent = data.user.inventory.seedBarley;
+        } else {
+          alert("유저 정보를 불러오지 못했습니다.");
+        }
       } catch (err) {
-        console.error("데이터 불러오기 실패:", err);
+        console.error("API 요청 실패", err);
+        alert("서버에 연결할 수 없습니다.");
       }
     }
 
-    loadUserData();
+    fetchUserData();
   </script>
 </body>
 </html>
