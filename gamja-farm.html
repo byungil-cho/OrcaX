@@ -2,48 +2,46 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>감자 농장 대시보드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      font-family: "Pretendard", sans-serif;
+      margin: 0;
+      font-family: 'Do Hyeon', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
       color: white;
       text-align: center;
-      margin: 0;
-      padding: 0;
     }
-
     .container {
-      margin-top: 5%;
-      padding: 20px;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: inline-block;
-      border-radius: 12px;
+      background-color: rgba(0, 0, 0, 0.6);
+      margin: 2rem auto;
+      padding: 2rem;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 1rem;
     }
-
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
     .section {
-      background-color: #ffffff20;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
     }
-
-    .footer {
-      margin-top: 20px;
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      background-color: #222;
+      padding: 1rem;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+      left: 0;
     }
-
-    .footer a {
-      color: #FFD700;
-      font-weight: bold;
-      margin: 0 10px;
+    .bottom-nav a {
+      color: yellow;
       text-decoration: none;
-    }
-
-    .status {
-      margin-top: 10px;
-      color: #00ffcc;
       font-weight: bold;
     }
   </style>
@@ -51,85 +49,63 @@
 <body>
   <div class="container">
     <h1>감자 농장 대시보드</h1>
-    <div id="userInfo">
-      농장주: <span id="nickname">-</span><br>
-      농장이름: <span id="farmName">-</span>
+    <p>👨‍🌾 농장주: <span id="nickname">-</span></p>
+    <p>📛 농장이름: <span id="farmName">-</span></p>
+
+    <div class="section">
+      <h3>📦 농자재 보관함</h3>
+      <p>물: <span id="water">-</span></p>
+      <p>거름: <span id="fertilizer">-</span></p>
+      <p>ORCX: <span id="orcx">-</span></p>
     </div>
 
     <div class="section">
-      <h2>📦 농자재 보관함</h2>
-      물: <span id="water">-</span><br>
-      거름: <span id="fertilizer">-</span><br>
-      ORCX: <span id="orcx">-</span>
+      <h3>🥔 작물 보관소</h3>
+      <p>감자: <span id="potato">-</span></p>
+      <p>보리: <span id="barley">-</span></p>
     </div>
 
     <div class="section">
-      <h2>🌾 작물 보관소</h2>
-      감자: <span id="potato">-</span><br>
-      보리: <span id="barley">-</span>
+      <h3>🌱 씨앗 보유 (로컬 기준)</h3>
+      <p>씨감자: <span id="seedPotato">-</span></p>
+      <p>씨보리: <span id="seedBarley">-</span></p>
     </div>
+  </div>
 
-    <div class="section">
-      <h2>🌱 씨앗 보유 (로컬 기준)</h2>
-      씨감자: <span id="seedPotato">-</span><br>
-      씨보리: <span id="seedBarley">-</span>
-    </div>
-
-    <div class="footer">
-      <a href="gamja-main.html">🌾 농장 작명소</a>
-      <a href="gamja-shop.html">🛒 씨앗 상점</a>
-    </div>
-
-    <div class="status" id="statusMessage">⏳ 데이터 불러오는 중...</div>
+  <div class="bottom-nav">
+    <a href="gamja-main.html">🌾 농장 작명소</a>
+    <a href="gamja-shop.html">🛒 씨앗 상점</a>
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
-    const kakaoId = localStorage.getItem("kakaoId") || "unknown";
-    const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
+    const seedPotato = localStorage.getItem("seedPotato") || 0;
+    const seedBarley = localStorage.getItem("seedBarley") || 0;
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
-    document.getElementById("seedPotato").textContent = seedInventory.seedPotato ?? 0;
-    document.getElementById("seedBarley").textContent = seedInventory.seedBarley ?? 0;
+    document.getElementById("seedPotato").textContent = seedPotato;
+    document.getElementById("seedBarley").textContent = seedBarley;
 
-    async function initUser() {
+    async function loadData() {
       try {
-        await fetch(`${API_BASE}/api/init-user`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, kakaoId })
-        });
-      } catch (err) {
-        console.warn("⚠️ 유저 초기화 실패", err);
-      }
-    }
-
-    async function loadUserData() {
-      const statusEl = document.getElementById("statusMessage");
-      statusEl.textContent = "📡 서버 연결 중...";
-
-      try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`);
+        const res = await fetch(`${API_BASE}/userdata`);
+        if (!res.ok) throw new Error("데이터 불러오기 실패");
         const data = await res.json();
-        const user = data.user;
-
-        document.getElementById("water").textContent = user?.water ?? "-";
-        document.getElementById("fertilizer").textContent = user?.fertilizer ?? "-";
-        document.getElementById("orcx").textContent = user?.orcx ?? "-";
-        document.getElementById("potato").textContent = user?.potato ?? "-";
-        document.getElementById("barley").textContent = user?.barley ?? "-";
-
-        statusEl.textContent = "✅ 서버 연결 완료";
+        document.getElementById("water").textContent = data.water ?? 0;
+        document.getElementById("fertilizer").textContent = data.fertilizer ?? 0;
+        document.getElementById("orcx").textContent = data.orcx ?? 0;
+        document.getElementById("potato").textContent = data.potato ?? 0;
+        document.getElementById("barley").textContent = data.barley ?? 0;
       } catch (err) {
-        console.error("데이터 로딩 오류:", err);
-        document.getElementById("statusMessage").textContent = "❌ 데이터 로딩 실패";
+        console.log("서버 연결 오류:", err);
       }
     }
 
-    initUser().then(loadUserData);
+    loadData();
   </script>
 </body>
 </html>
