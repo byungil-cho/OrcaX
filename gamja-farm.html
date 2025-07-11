@@ -1,116 +1,118 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>감자 농장 대시보드</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>감자 농장 입장</title>
   <style>
     body {
+      font-family: "Pretendard", sans-serif;
       margin: 0;
-      font-family: 'Do Hyeon', sans-serif;
+      padding: 0;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
+      color: white;
       text-align: center;
-      color: #fff;
     }
-    main {
-      padding: 1rem;
-      min-height: 100vh;
-    }
-    header {
-      background-color: rgba(0,0,0,0.6);
-      padding: 1rem;
-      border-radius: 1rem;
-      margin: 1rem auto;
-      width: 90%;
-      max-width: 500px;
-    }
-    footer a {
+    .container {
+      background-color: rgba(0, 0, 0, 0.5);
+      margin-top: 5%;
+      padding: 20px;
       display: inline-block;
-      margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: #00e0ff;
-      color: #000;
-      border-radius: 1rem;
-      text-decoration: none;
+      border-radius: 12px;
+    }
+    .btn {
+      margin-top: 20px;
+      padding: 15px 30px;
+      background-color: #FFD700;
+      color: black;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .status {
+      margin-top: 20px;
+      color: #00FF00;
+      font-weight: bold;
+    }
+    .info-box {
+      background-color: #2166d1;
+      padding: 8px;
+      margin: 6px;
+      border-radius: 6px;
+      text-align: left;
     }
   </style>
+  <script>
+    'use strict';
+    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+  </script>
 </head>
 <body>
-  <main>
-    <header>
-      <h1>감자 농장 대시보드</h1>
-      <p>👨‍🌾 농장주: <span id="nickname">-</span></p>
-      <p>💖 농장이름: <span id="farmName">-</span></p>
-
-      <h3>🌰 농자재 보관함</h3>
-      <p>물: <span id="water">-</span></p>
-      <p>거름: <span id="fertilizer">-</span></p>
-      <p>ORCX: <span id="orcx">-</span></p>
-
-      <h3>🥚 작물 보관소</h3>
-      <p>감자: <span id="gamja">-</span></p>
-      <p>보리: <span id="bori">-</span></p>
-
-      <h3>🌱 씨앗 보유</h3>
-      <p>씨감자: <span id="seedPotato">-</span></p>
-      <p>씨보리: <span id="seedBarley">-</span></p>
-    </header>
-
-    <footer>
-      <a href="gamja-main.html">➡️ 농장이름 짓기</a>
-      <a href="index9.html">🛒 메인으로</a>
-    </footer>
-  </main>
-
+  <div class="container" role="region" aria-label="감자 농장 대시보드">
+    <h1>🥔 감자 농장에 오신 걸 환영합니다!</h1>
+    <div class="info-box">👤 닉네임: <span id="nickname">-</span></div>
+    <div class="info-box">🥔 감자: <span id="potato">0</span> 개</div>
+    <div class="info-box">💧 물: <span id="water">0</span> 개</div>
+    <div class="info-box">🌱 거름: <span id="fertilizer">0</span> 개</div>
+    <div class="info-box">🪙 ORCX: <span id="token">0</span> 개</div>
+    <div class="info-box">🥔 씨감자: <span id="seedPotato">0</span> 개</div>
+    <div class="info-box">🌾 씨보리: <span id="seedBarley">0</span> 개</div>
+    <div class="info-box">🧺 인벤토리:</div>
+    <div id="inventoryBox" class="info-box"></div>
+    <div class="status" id="serverStatus" aria-live="polite">⏳ 서버 상태 확인 중...</div>
+    <button id="startBtn" class="btn" disabled>🌱 농장이름 짓기 이동</button>
+  </div>
   <script>
-    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-    const nickname = localStorage.getItem("nickname") || "범고래X";
-    const farmName = localStorage.getItem("farmName") || "하늘농장";
+  const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+  const nickname = localStorage.getItem("nickname") || "범고래X";
+  const farmName = localStorage.getItem("farmName") || "하늘농장";
 
-    document.getElementById("nickname").textContent = nickname;
-    document.getElementById("farmName").textContent = farmName;
+  document.getElementById("nickname").textContent = nickname;
+  document.getElementById("farmName").textContent = farmName;
 
-    async function fetchUserData() {
-      try {
-        const kakaoId = localStorage.getItem("kakaoId");
-        if (!kakaoId) {
-          alert("카카오 ID가 없습니다.");
-          return;
-        }
+  async function fetchUserData() {
+    try {
+      const kakaoId = localStorage.getItem("kakaoId");
+      if (!kakaoId) {
+        alert("카카오 ID가 없습니다.");
+        return;
+      }
 
-        const res = await fetch(`${API}/userdata`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ kakaoId }),
-        });
+      const res = await fetch(`${API}/userdata`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ kakaoId }),
+      });
 
-        const data = await res.json();
-        if (data.success && data.users && data.users.length > 0) {
+      const data = await res.json();
+      if (data.success && data.users && data.users.length > 0) {
         const user = data.users[0];
 
         document.getElementById("nickname").textContent = user.nickname || "알 수 없음";
-        document.getElementById("water").textContent = user.inventory.water;
-        document.getElementById("fertilizer").textContent = user.inventory.fertilizer;
-        document.getElementById("orcx").textContent = user.wallet.orcx;
-        document.getElementById("gamja").textContent = user.storage.gamja;
-        document.getElementById("bori").textContent = user.storage.bori;
-        document.getElementById("seedPotato").textContent = user.inventory.seedPotato;
-        document.getElementById("seedBarley").textContent = user.inventory.seedBarley;
+        document.getElementById("water").textContent = user.water;
+        document.getElementById("fertilizer").textContent = user.fertilizer;
+        document.getElementById("orcx").textContent = user.orcx;
+        document.getElementById("gamja").textContent = user.potato;
+        document.getElementById("bori").textContent = user.bori || 0;
+        document.getElementById("seedPotato").textContent = user.seedPotato || 0;
+        document.getElementById("seedBarley").textContent = user.seedBarley || 0;
       } else {
         alert("유저 정보를 불러올 수 없습니다.");
       }
-   } catch (err) {
+    } catch (err) {
       console.error("API 오류", err);
       alert("서버 연결에 실패했습니다.");
-   }
+    }
+  }
 
- }
+  fetchUserData();
+</script>
 
-   fetchUserData();
-
- </script>
 </body>
 </html>
+
