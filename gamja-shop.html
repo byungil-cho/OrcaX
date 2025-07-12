@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>  <title>\u씨앗 구매소</title>
+  <title>씨앗 구매소</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
   <style>
@@ -75,7 +75,7 @@
     <p>내 보유: <span id="myBarleySeed">0개</span></p>
     <button onclick="buySeed('seedBarley')">구매하기</button>
 
-    <p id="status">✅ 서버 연결 대기 중...</p>
+    <p id="status">✅ 서버 연결 성공</p>
   </main>
 
   <script>
@@ -89,43 +89,28 @@
     const barleyPrice = document.getElementById("barleyPrice");
     const myPotatoSeed = document.getElementById("myPotatoSeed");
     const myBarleySeed = document.getElementById("myBarleySeed");
-    const status = document.getElementById("status");
-
-    function updateStatus(message, success = true) {
-      status.textContent = message;
-      status.style.color = success ? '#00ff99' : 'red';
-    }
 
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/user/data`, {
-          method: 'GET',
-          credentials: 'include'
-        });
+        const res = await fetch(`${API_BASE}/user/data`);
         const data = await res.json();
         if (data.success) {
           nicknameSpan.textContent = data.user.nickname || '이름없음';
           orcxBalance.textContent = data.user.token || 0;
           myPotatoSeed.textContent = `${data.user.inventory.seedPotato || 0}개`;
           myBarleySeed.textContent = `${data.user.inventory.seedBarley || 0}개`;
-          updateStatus("✅ 사용자 정보 불러오기 성공");
         } else {
           nicknameSpan.textContent = "불러오기 실패";
-          updateStatus("❌ 사용자 정보 없음", false);
         }
       } catch (err) {
         console.error('User fetch error:', err);
         nicknameSpan.textContent = "서버 오류";
-        updateStatus("❌ 서버 오류 (사용자 정보)", false);
       }
     }
 
     async function fetchSeedStatus() {
       try {
-        const res = await fetch(`${API_BASE}/seed/status`, {
-          method: 'GET',
-          credentials: 'include'
-        });
+        const res = await fetch(`${API_BASE}/seed/status`);
         const data = await res.json();
         if (data.success) {
           potatoStock.textContent = data.seedPotato || 0;
@@ -135,16 +120,12 @@
         console.error('Seed status error:', err);
         potatoStock.textContent = "오류";
         barleyStock.textContent = "오류";
-        updateStatus("❌ 씨앗 재고 불러오기 실패", false);
       }
     }
 
     async function fetchSeedPrices() {
       try {
-        const res = await fetch(`${API_BASE}/seed/price`, {
-          method: 'GET',
-          credentials: 'include'
-        });
+        const res = await fetch(`${API_BASE}/seed/price`);
         const data = await res.json();
         if (data.success) {
           potatoPrice.textContent = `${data.seedPotatoPrice} ORCX`;
@@ -154,7 +135,6 @@
         console.error('Seed price error:', err);
         potatoPrice.textContent = "불러오기 실패 ORCX";
         barleyPrice.textContent = "불러오기 실패 ORCX";
-        updateStatus("❌ 씨앗 가격 불러오기 실패", false);
       }
     }
 
@@ -163,8 +143,7 @@
         const res = await fetch(`${API_BASE}/seed/buy`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type }),
-          credentials: 'include'
+          body: JSON.stringify({ type })
         });
         const result = await res.json();
         alert(result.message);
@@ -173,7 +152,6 @@
       } catch (err) {
         console.error('구매 실패:', err);
         alert("서버 오류로 구매 실패!");
-        updateStatus("❌ 씨앗 구매 실패", false);
       }
     }
 
@@ -184,4 +162,3 @@
   </script>
 </body>
 </html>
-
