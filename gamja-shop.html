@@ -17,7 +17,7 @@
     .container {
       margin-top: 5%;
       padding: 20px;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.3);
       display: inline-block;
       border-radius: 12px;
     }
@@ -92,7 +92,15 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ kakaoId })
         });
-        const user = await res.json();
+        const result = await res.json();
+
+        // 유저 정보 위치 대응 (user or users[0] or root)
+        const user = result.user || result.users?.[0] || result;
+
+        if (!user || !user.kakaoId) {
+          document.getElementById("serverStatus").textContent = "❌ 유저 정보 없음";
+          return;
+        }
 
         // 표시
         document.getElementById("nickname").textContent = user.nickname || "-";
@@ -117,8 +125,12 @@
       try {
         const res = await fetch(`${API_BASE}/seed/status`);
         const data = await res.json();
-        document.getElementById("seedPotatoStock").textContent = data.seed_potato ?? "N/A";
-        document.getElementById("seedBarleyStock").textContent = data.seed_barley ?? "N/A";
+
+        const seedPotato = data.seed_potato ?? data.seedPotato ?? "N/A";
+        const seedBarley = data.seed_barley ?? data.seedBarley ?? "N/A";
+
+        document.getElementById("seedPotatoStock").textContent = seedPotato;
+        document.getElementById("seedBarleyStock").textContent = seedBarley;
       } catch (err) {
         document.getElementById("seedPotatoStock").textContent = "❌ 에러";
         document.getElementById("seedBarleyStock").textContent = "❌ 에러";
@@ -129,8 +141,12 @@
       try {
         const res = await fetch(`${API_BASE}/seed/price`);
         const data = await res.json();
-        document.getElementById("pricePotato").textContent = data.seed_potato ?? "불러오기 실패";
-        document.getElementById("priceBarley").textContent = data.seed_barley ?? "불러오기 실패";
+
+        const pricePotato = data.seed_potato ?? data.seedPotato ?? "불러오기 실패";
+        const priceBarley = data.seed_barley ?? data.seedBarley ?? "불러오기 실패";
+
+        document.getElementById("pricePotato").textContent = pricePotato;
+        document.getElementById("priceBarley").textContent = priceBarley;
       } catch (err) {
         document.getElementById("pricePotato").textContent = "❌";
         document.getElementById("priceBarley").textContent = "❌";
@@ -164,4 +180,5 @@
   </script>
 </body>
 </html>
+
 
