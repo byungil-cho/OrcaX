@@ -71,7 +71,7 @@
     </div>
 
     <div class="footer">
-      <a href="bori-main.html">🌾 농장 작명소</a>
+      <a href="bori-factory.html">🌾 보리 농사짓기</a>
       <a href="gamja-shop.html">🛒 씨앗 상점</a>
     </div>
 
@@ -79,7 +79,7 @@
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
     const kakaoId = localStorage.getItem("kakaoId") || "unknown";
@@ -90,41 +90,39 @@
     document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
     document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
 
-    async function initUser() {
-      try {
-        await fetch(`${API_BASE}/api/init-user`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, kakaoId })
-        });
-      } catch (err) {
-        console.warn("⚠️ 유저 초기화 실패", err);
-      }
-    }
-
     async function loadUserData() {
       const statusEl = document.getElementById("statusMessage");
       statusEl.textContent = "📡 서버 연결 중...";
 
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`);
+        const res = await fetch(`${API_BASE}/userdata`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId })
+        });
+
         const data = await res.json();
-        const user = data.user || data.users?.[0];
+        const user = data.users?.[0];
 
-        document.getElementById("water").textContent = user?.water ?? "-";
-        document.getElementById("fertilizer").textContent = user?.fertilizer ?? "-";
-        document.getElementById("orcx").textContent = user?.orcx ?? "-";
-        document.getElementById("potato").textContent = user?.potato ?? "-";
-        document.getElementById("barley").textContent = user?.barley ?? "-";
+        if (user) {
+          document.getElementById("water").textContent = user.water ?? "-";
+          document.getElementById("fertilizer").textContent = user.fertilizer ?? "-";
+          document.getElementById("orcx").textContent = user.orcx ?? "-";
+          document.getElementById("potato").textContent = user.potato ?? "-";
+          document.getElementById("barley").textContent = user.barley ?? "-";
 
-        statusEl.textContent = "✅ 서버 연결 완료";
+          statusEl.textContent = "✅ 서버 연결 완료";
+        } else {
+          statusEl.textContent = "❌ 유저 정보 없음";
+        }
+
       } catch (err) {
         console.error("데이터 로딩 오류:", err);
-        document.getElementById("statusMessage").textContent = "❌ 데이터 로딩 실패";
+        statusEl.textContent = "❌ 데이터 로딩 실패";
       }
     }
 
-    initUser().then(loadUserData);
+    loadUserData();
   </script>
 </body>
 </html>
