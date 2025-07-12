@@ -17,7 +17,7 @@
     .container {
       margin-top: 5%;
       padding: 20px;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.3);
       display: inline-block;
       border-radius: 12px;
     }
@@ -63,7 +63,7 @@
       <a href="index9.html">🏠 메인으로</a>
       <a href="gamja-factory.html">🥔 감자 농장</a>
       <a href="#" onclick="goToAdmin()">🌱 씨앗 관리소</a>
-      <a href="auction-house.html">📑 개인보관창고</a>
+      <a href="auction-house.html">📑 개인 보관함</a>
     </div>
 
     <div>
@@ -121,9 +121,10 @@
       try {
         const res = await fetch(`${API_BASE}/seed/status?ts=${Date.now()}`);
         const data = await res.json();
+        console.log("📦 씨앗 재고 응답:", data);
 
-        const seedPotato = data.seed_potato ?? data.seedPotato ?? "N/A";
-        const seedBarley = data.seed_barley ?? data.seedBarley ?? "N/A";
+        const seedPotato = data.seedPotato ?? data.potato ?? data.seed_potato ?? "N/A";
+        const seedBarley = data.seedBarley ?? data.barley ?? data.seed_barley ?? "N/A";
 
         document.getElementById("seedPotatoStock").textContent = seedPotato;
         document.getElementById("seedBarleyStock").textContent = seedBarley;
@@ -137,9 +138,10 @@
       try {
         const res = await fetch(`${API_BASE}/seed/price?ts=${Date.now()}`);
         const data = await res.json();
+        console.log("💰 씨앗 가격 응답:", data);
 
-        const pricePotato = data.seed_potato ?? data.seedPotato ?? "불러오기 실패";
-        const priceBarley = data.seed_barley ?? data.seedBarley ?? "불러오기 실패";
+        const pricePotato = data.potato ?? data.seedPotato ?? "불러오기 실패";
+        const priceBarley = data.barley ?? data.seedBarley ?? "불러오기 실패";
 
         document.getElementById("pricePotato").textContent = pricePotato;
         document.getElementById("priceBarley").textContent = priceBarley;
