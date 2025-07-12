@@ -89,36 +89,47 @@
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
     const kakaoId = localStorage.getItem("kakaoId") || "unknown";
 
-    const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
-    const resources = JSON.parse(localStorage.getItem("resources") || "{}");
-    const crops = JSON.parse(localStorage.getItem("crops") || "{}");
-
+    let seedInventory = {};
+    let resources = {};
+    let crops = {};
     let growthPoint = 0;
+
+    document.getElementById("nickname").textContent = nickname;
+    document.getElementById("farmName").textContent = farmName;
 
     async function fetchUserState() {
       try {
-        const res = await fetch(`${API_BASE}/users/me?kakaoId=${kakaoId}`);
+        const res = await fetch(`${API_BASE}/userdata`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId })
+        });
         const data = await res.json();
-        if (data.orcx !== undefined) resources.orcx = data.orcx;
-        if (data.water !== undefined) resources.water = data.water;
-        if (data.fertilizer !== undefined) resources.fertilizer = data.fertilizer;
-        if (data.potato !== undefined) crops.potato = data.potato;
-        if (data.barley !== undefined) crops.barley = data.barley;
+        const user = data.users?.[0];
+        if (user) {
+          seedInventory.seedPotato = user.seedPotato || 0;
+          seedInventory.seedBarley = user.seedBarley || 0;
+          resources.water = user.water || 0;
+          resources.fertilizer = user.fertilizer || 0;
+          resources.orcx = user.orcx || 0;
+          crops.potato = user.potato || 0;
+          crops.barley = user.barley || 0;
+          document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
+        } else {
+          document.getElementById("serverStatus").textContent = "❌ 유저 정보 없음";
+        }
         updateDisplay();
-        document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
+        save();
       } catch (err) {
         console.error("서버 상태 로딩 실패", err);
         document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
       }
     }
-
-    document.getElementById("nickname").textContent = nickname;
-    document.getElementById("farmName").textContent = farmName;
 
     function updateDisplay() {
       document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
@@ -182,13 +193,13 @@
             body: JSON.stringify({ seedType: cropType, count: 1 })
           });
 
-          if (cropType === "seedPotato") crops.potato += reward;
-          else if (cropType === "seedBarley") crops.barley += reward;
+          const cropName = cropType === "seedPotato" ? "potato" : "barley";
+          crops[cropName] += reward;
 
           await fetch(`${API_BASE}/users/update-crops`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ kakaoId, [cropType === "seedPotato" ? "potato" : "barley"]: reward })
+            body: JSON.stringify({ kakaoId, [cropName]: reward })
           });
 
           growthPoint = 0;
@@ -206,8 +217,6 @@
     }
 
     fetchUserState();
-    updateDisplay();
-    save();
   </script>
 </body>
 </html>
