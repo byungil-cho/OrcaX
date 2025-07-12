@@ -14,10 +14,11 @@
       text-align: center;
     }
     main {
-      background-color: rgba(0, 0, 0, 0.6);
-      margin: 2rem;
+      background-color: rgba(0, 0, 0, 0.7);
+      margin: 1rem auto;
       padding: 1rem;
       border-radius: 20px;
+      max-width: 480px;
     }
     button {
       font-size: 1.2rem;
@@ -27,18 +28,18 @@
       border: none;
       cursor: pointer;
     }
-    .btn-green {
-      background-color: #00e0a0;
-      color: black;
-    }
-    .btn-yellow {
-      background-color: #ffe100;
-      color: black;
-    }
+    .btn-green { background-color: #00e0a0; color: black; }
+    .btn-yellow { background-color: #ffe100; color: black; }
     nav a {
-      margin: 0 1rem;
+      margin: 0 0.5rem;
       text-decoration: none;
       color: #ffcc00;
+      font-weight: bold;
+    }
+    #adminButton {
+      margin-top: 1.2rem;
+      background-color: #ff5555;
+      color: white;
       font-weight: bold;
     }
   </style>
@@ -49,15 +50,15 @@
     <p>👤 닉네임: <span id="nickname">불러오는 중...</span></p>
     <p>🥔 씨감자 남은 수량: <span id="stockPotato">로딩중...</span></p>
     <p>🌾 씨보리 남은 수량: <span id="stockBarley">로딩중...</span></p>
-    <p>💰 씨감자 가격: <span id="seedPotatoPrice">불러오기 실패</span> ORCX</p>
-    <p>💰 씨보리 가격: <span id="seedBarleyPrice">불러오기 실패</span> ORCX</p>
+    <p>💰 씨감자 가격: <span id="seedPotatoPrice">-</span> ORCX</p>
+    <p>💰 씨보리 가격: <span id="seedBarleyPrice">-</span> ORCX</p>
     <p>🍀 보유 토큰: <span id="orcxToken">-</span></p>
 
     <nav>
-      <a href="index9.html">🏠 메인으로</a>
-      <a href="gamja-farm.html">🥔 감자 농장</a>
-      <a href="gamja-shop.html">🌱 씨앗 관리소</a>
-      <a href="admin-users.html">📋 유저 목록</a>
+      <a href="index9.html">🏠 메인</a>
+      <a href="gamja-factory.html">🥔 감자 농장</a>
+      <a href="gamja-result.html">🌱 감자 가공공장</a>
+      <a href="admin-users.html">📋 씨앗 관리소</a>
     </nav>
 
     <h3>🥔 씨감자</h3>
@@ -67,6 +68,8 @@
     <h3>🌾 씨보리</h3>
     <p>내 보유: <span id="mySeedBarley">0개</span></p>
     <button class="btn-yellow">구매하기</button>
+
+    <button id="adminButton">⚙️ 씨앗 관리소 이동</button>
 
     <p style="color: lightgreen;">✅ 서버 연결 성공</p>
   </main>
@@ -100,9 +103,7 @@
       try {
         const res = await fetch(`${API_BASE}/userdata`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({}),
         });
         const data = await res.json();
@@ -114,6 +115,16 @@
         console.error("유저 정보 불러오기 실패", e);
       }
     }
+
+    // 관리자 이동 버튼
+    document.getElementById("adminButton").addEventListener("click", () => {
+      const pass = prompt("관리자 비밀번호를 입력하세요:");
+      if (pass === "7788") {
+        window.location.href = "admin-seeds.html";
+      } else {
+        alert("비밀번호가 틀렸습니다.");
+      }
+    });
 
     // 실행
     fetchSeedPrices();
