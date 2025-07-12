@@ -53,8 +53,8 @@
   <div class="container">
     <h2>🌱 씨앗 구매소</h2>
     <h3>👨‍🌾 닉네임: <span id="nickname">-</span></h3>
-    <h3>🥔 씨감자 (ORCX) 남은 수량: <span id="seedPotatoStock">로딩 중...</span></h3>
-    <h3>🌾 씨보리 (ORCX) 남은 수량: <span id="seedBarleyStock">로딩 중...</span></h3>
+    <h3>🥔 씨감자 남은 수량: <span id="seedPotatoStock">로딩 중...</span></h3>
+    <h3>🌾 씨보리 남은 수량: <span id="seedBarleyStock">로딩 중...</span></h3>
     <h3>💰 씨감자 가격: <span id="pricePotato">-</span> ORCX</h3>
     <h3>💰 씨보리 가격: <span id="priceBarley">-</span> ORCX</h3>
     <h3>🍀 보유 토큰: <span id="orcx">-</span></h3>
@@ -62,7 +62,7 @@
     <div class="nav">
       <a href="index9.html">🏠 메인으로</a>
       <a href="gamja-factory.html">🥔 감자 농장</a>
-      <a href="gamja-shop.html">🌱 씨앗 구매소</a>
+      <a href="admin-seeds.html">🌱 씨앗 관리소</a>
       <a href="user-list.html">📑 유저 목록</a>
     </div>
 
@@ -82,7 +82,7 @@
   </div>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
     const nickname = localStorage.getItem("nickname") || "-";
     const kakaoId = localStorage.getItem("kakaoId") || "unknown";
 
@@ -90,36 +90,52 @@
 
     async function fetchSeedStatus() {
       try {
-        const res = await fetch(`${API_BASE}/api/seed/status`);
+        const res = await fetch(`${API_BASE}/seed/status`);
         const data = await res.json();
         document.getElementById("seedPotatoStock").textContent = data.seedPotato;
         document.getElementById("seedBarleyStock").textContent = data.seedBarley;
       } catch (err) {
-        document.getElementById("seedPotatoStock").textContent = "에러";
-        document.getElementById("seedBarleyStock").textContent = "에러";
+        document.getElementById("seedPotatoStock").textContent = "❌ 에러";
+        document.getElementById("seedBarleyStock").textContent = "❌ 에러";
       }
     }
 
     async function fetchSeedPrices() {
       try {
-        const res = await fetch(`${API_BASE}/api/seed/price`);
+        const res = await fetch(`${API_BASE}/seed/price`);
         const data = await res.json();
-        document.getElementById("pricePotato").textContent = data.seedPotato;
-        document.getElementById("priceBarley").textContent = data.seedBarley;
+        document.getElementById("pricePotato").textContent = data.seedPotato ?? "불러오기 실패";
+        document.getElementById("priceBarley").textContent = data.seedBarley ?? "불러오기 실패";
       } catch (err) {
-        document.getElementById("pricePotato").textContent = "에러";
-        document.getElementById("priceBarley").textContent = "에러";
+        document.getElementById("pricePotato").textContent = "❌";
+        document.getElementById("priceBarley").textContent = "❌";
       }
     }
 
     async function fetchUserInfo() {
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`);
+        const res = await fetch(`${API_BASE}/userdata`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId })
+        });
         const data = await res.json();
-        document.getElementById("myPotato").textContent = data.seedPotato || 0;
-        document.getElementById("myBarley").textContent = data.seedBarley || 0;
-        document.getElementById("orcx").textContent = data.orcx || 0;
-        document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
+        const user = data.users?.[0];
+        if (user) {
+          document.getElementById("myPotato").textContent = user.seedPotato || 0;
+          document.getElementById("myBarley").textContent = user.seedBarley || 0;
+          document.getElementById("orcx").textContent = user.orcx || 0;
+          document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
+
+          // localStorage 업데이트
+          const updatedInventory = {
+            seedPotato: user.seedPotato || 0,
+            seedBarley: user.seedBarley || 0
+          };
+          localStorage.setItem("seedInventory", JSON.stringify(updatedInventory));
+        } else {
+          document.getElementById("serverStatus").textContent = "❌ 유저 정보 없음";
+        }
       } catch (err) {
         document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
       }
@@ -127,21 +143,21 @@
 
     async function buySeed(seedType) {
       try {
-        const res = await fetch(`${API_BASE}/api/seed/buy`, {
+        const res = await fetch(`${API_BASE}/seed/buy`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ kakaoId, seedType })
         });
         const result = await res.json();
         if (result.success) {
-          alert("구매 성공!");
+          alert("✅ 구매 성공!");
           fetchSeedStatus();
           fetchUserInfo();
         } else {
           alert(result.message || "구매 실패");
         }
       } catch (err) {
-        alert("서버 오류로 구매 실패");
+        alert("❌ 서버 오류로 구매 실패");
       }
     }
 
