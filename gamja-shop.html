@@ -2,189 +2,166 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>씨앗 구매소</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: "Pretendard", sans-serif;
+      margin: 0;
+      font-family: 'Do Hyeon', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
       text-align: center;
-      margin: 0;
-      padding: 0;
+      color: white;
     }
-    .container {
-      margin-top: 5%;
-      padding: 20px;
+    main {
+      padding: 1rem;
+    }
+    .box {
       background-color: rgba(0, 0, 0, 0.3);
-      display: inline-block;
-      border-radius: 12px;
-    }
-    h1, h2, h3 {
-      margin: 10px 0;
+      padding: 1rem;
+      border-radius: 15px;
+      max-width: 400px;
+      margin: auto;
     }
     button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 1.2rem;
       background-color: #4CAF50;
+      border: none;
+      border-radius: 10px;
       color: white;
       cursor: pointer;
-      margin-top: 10px;
+      margin: 0.5rem;
     }
-    .nav a {
-      display: inline-block;
-      margin: 10px 15px;
-      color: #FFD700;
-      font-weight: bold;
+    nav {
+      margin-top: 1rem;
+    }
+    nav a {
+      margin: 0 10px;
+      color: orange;
       text-decoration: none;
+      font-size: 1.1rem;
     }
-    .status {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #00FF00;
+    #status {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #00ff99;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <main class="box">
     <h2>🌱 씨앗 구매소</h2>
-    <h3>👨‍🌾 닉네임: <span id="nickname">-</span></h3>
-    <h3>🥔 씨감자 남은 수량: <span id="seedPotatoStock">로딩 중...</span></h3>
-    <h3>🌾 씨보리 남은 수량: <span id="seedBarleyStock">로딩 중...</span></h3>
-    <h3>💰 씨감자 가격: <span id="pricePotato">-</span> ORCX</h3>
-    <h3>💰 씨보리 가격: <span id="priceBarley">-</span> ORCX</h3>
-    <h3>🍀 보유 토큰: <span id="orcx">-</span></h3>
+    <p>🧑 닉네임: <span id="nickname">불러오는 중...</span></p>
+    <p>🥔 씨감자 남은 수량: <span id="potatoStock">불러오는 중...</span></p>
+    <p>🌾 씨보리 남은 수량: <span id="barleyStock">불러오는 중...</span></p>
+    <p>💰 씨감자 가격: <span id="potatoPrice">불러오기 실패 ORCX</span></p>
+    <p>💰 씨보리 가격: <span id="barleyPrice">불러오기 실패 ORCX</span></p>
+    <p>🍀 보유 토큰: <span id="orcxBalance">0</span></p>
 
-    <div class="nav">
+    <nav>
       <a href="index9.html">🏠 메인으로</a>
       <a href="gamja-factory.html">🥔 감자 농장</a>
-      <a href="#" onclick="goToAdmin()">🌱 씨앗 관리소</a>
-      <a href="auction-house.html">📑 개인 보관함</a>
-    </div>
+      <a href="admin-seeds.html">🌱 씨앗 관리소</a>
+      <a href="auction-house.html">📁 개인 보관함</a>
+    </nav>
 
-    <div>
-      <h2>🥔 씨감자</h2>
-      <p>내 보유: <span id="myPotato">0</span>개</p>
-      <button onclick="buySeed('seedPotato')">구매하기</button>
-    </div>
+    <h3>🥔 씨감자</h3>
+    <p>내 보유: <span id="myPotatoSeed">0개</span></p>
+    <button onclick="buySeed('seedPotato')">구매하기</button>
 
-    <div>
-      <h2>🌾 씨보리</h2>
-      <p>내 보유: <span id="myBarley">0</span>개</p>
-      <button onclick="buySeed('seedBarley')">구매하기</button>
-    </div>
+    <h3>🌾 씨보리</h3>
+    <p>내 보유: <span id="myBarleySeed">0개</span></p>
+    <button onclick="buySeed('seedBarley')">구매하기</button>
 
-    <div class="status" id="serverStatus">⏳ 서버 연결 확인 중...</div>
-  </div>
+    <p id="status">✅ 서버 연결 성공</p>
+  </main>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-    const kakaoId = localStorage.getItem("kakaoId") || "unknown";
+    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io/api';
 
-    async function fetchUserInfo() {
+    const nicknameSpan = document.getElementById("nickname");
+    const orcxBalance = document.getElementById("orcxBalance");
+    const potatoStock = document.getElementById("potatoStock");
+    const barleyStock = document.getElementById("barleyStock");
+    const potatoPrice = document.getElementById("potatoPrice");
+    const barleyPrice = document.getElementById("barleyPrice");
+    const myPotatoSeed = document.getElementById("myPotatoSeed");
+    const myBarleySeed = document.getElementById("myBarleySeed");
+
+    async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/userdata`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId })
-        });
-        const result = await res.json();
-        const user = result.user || result.users?.[0] || result;
-
-        if (!user || !user.kakaoId) {
-          document.getElementById("serverStatus").textContent = "❌ 유저 정보 없음";
-          return;
+        const res = await fetch(`${API_BASE}/user/data`);
+        const data = await res.json();
+        if (data.success) {
+          nicknameSpan.textContent = data.user.nickname || '이름없음';
+          orcxBalance.textContent = data.user.token || 0;
+          myPotatoSeed.textContent = `${data.user.inventory.seedPotato || 0}개`;
+          myBarleySeed.textContent = `${data.user.inventory.seedBarley || 0}개`;
+        } else {
+          nicknameSpan.textContent = "불러오기 실패";
         }
-
-        document.getElementById("nickname").textContent = user.nickname || "-";
-        document.getElementById("myPotato").textContent = user.seedPotato ?? 0;
-        document.getElementById("myBarley").textContent = user.seedBarley ?? 0;
-        document.getElementById("orcx").textContent = user.orcx ?? 0;
-        document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
-
-        localStorage.setItem("nickname", user.nickname || "-");
-        const updatedInventory = {
-          seedPotato: user.seedPotato ?? 0,
-          seedBarley: user.seedBarley ?? 0
-        };
-        localStorage.setItem("seedInventory", JSON.stringify(updatedInventory));
       } catch (err) {
-        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+        console.error('User fetch error:', err);
+        nicknameSpan.textContent = "서버 오류";
       }
     }
 
     async function fetchSeedStatus() {
       try {
-        const res = await fetch(`${API_BASE}/seed/status?ts=${Date.now()}`);
+        const res = await fetch(`${API_BASE}/seed/status`);
         const data = await res.json();
-        console.log("📦 씨앗 재고 응답:", data);
-
-        const seedPotato = data.seedPotato ?? data.potato ?? data.seed_potato ?? "N/A";
-        const seedBarley = data.seedBarley ?? data.barley ?? data.seed_barley ?? "N/A";
-
-        document.getElementById("seedPotatoStock").textContent = seedPotato;
-        document.getElementById("seedBarleyStock").textContent = seedBarley;
+        if (data.success) {
+          potatoStock.textContent = data.seedPotato || 0;
+          barleyStock.textContent = data.seedBarley || 0;
+        }
       } catch (err) {
-        document.getElementById("seedPotatoStock").textContent = "❌ 에러";
-        document.getElementById("seedBarleyStock").textContent = "❌ 에러";
+        console.error('Seed status error:', err);
+        potatoStock.textContent = "오류";
+        barleyStock.textContent = "오류";
       }
     }
 
     async function fetchSeedPrices() {
       try {
-        const res = await fetch(`${API_BASE}/seed/price?ts=${Date.now()}`);
+        const res = await fetch(`${API_BASE}/seed/price`);
         const data = await res.json();
-        console.log("💰 씨앗 가격 응답:", data);
-
-        const pricePotato = data.potato ?? data.seedPotato ?? "불러오기 실패";
-        const priceBarley = data.barley ?? data.seedBarley ?? "불러오기 실패";
-
-        document.getElementById("pricePotato").textContent = pricePotato;
-        document.getElementById("priceBarley").textContent = priceBarley;
-      } catch (err) {
-        document.getElementById("pricePotato").textContent = "❌";
-        document.getElementById("priceBarley").textContent = "❌";
-      }
-    }
-
-    async function buySeed(seedType) {
-      try {
-        const res = await fetch(`${API_BASE}/seed/buy`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId, seedType })
-        });
-        const result = await res.json();
-        if (result.success) {
-          alert("✅ 구매 성공!");
-          fetchSeedStatus();
-          fetchUserInfo();
-        } else {
-          alert(result.message || "구매 실패");
+        if (data.success) {
+          potatoPrice.textContent = `${data.seedPotatoPrice} ORCX`;
+          barleyPrice.textContent = `${data.seedBarleyPrice} ORCX`;
         }
       } catch (err) {
-        alert("❌ 서버 오류로 구매 실패");
+        console.error('Seed price error:', err);
+        potatoPrice.textContent = "불러오기 실패 ORCX";
+        barleyPrice.textContent = "불러오기 실패 ORCX";
       }
     }
 
-    function goToAdmin() {
-      const input = prompt("씨앗 관리소 비밀번호를 입력하세요:");
-      if (input === "7788") {
-        location.href = "admin-seeds.html";
-      } else {
-        alert("❌ 비밀번호가 틀렸습니다!");
+    async function buySeed(type) {
+      try {
+        const res = await fetch(`${API_BASE}/seed/buy`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type })
+        });
+        const result = await res.json();
+        alert(result.message);
+        fetchUserData();
+        fetchSeedStatus();
+      } catch (err) {
+        console.error('구매 실패:', err);
+        alert("서버 오류로 구매 실패!");
       }
     }
 
+    // 최초 실행
+    fetchUserData();
     fetchSeedStatus();
     fetchSeedPrices();
-    fetchUserInfo();
   </script>
 </body>
 </html>
+
 
 
