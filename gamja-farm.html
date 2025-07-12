@@ -89,28 +89,27 @@
 
         const data = await res.json();
         if (data.success && data.users && data.users.length > 0) {
-        const user = data.users[0];
+          const user = data.users[0];
 
-        document.getElementById("nickname").textContent = user.nickname || "알 수 없음";
-        document.getElementById("water").textContent = user.inventory.water;
-        document.getElementById("fertilizer").textContent = user.inventory.fertilizer;
-        document.getElementById("orcx").textContent = user.wallet.orcx;
-        document.getElementById("gamja").textContent = user.storage.gamja;
-        document.getElementById("bori").textContent = user.storage.bori;
-        document.getElementById("seedPotato").textContent = user.inventory.seedPotato;
-        document.getElementById("seedBarley").textContent = user.inventory.seedBarley;
-      } else {
-        alert("유저 정보를 불러올 수 없습니다.");
+          document.getElementById("nickname").textContent = user.nickname || "알 수 없음";
+          document.getElementById("water").textContent = user.water;
+          document.getElementById("fertilizer").textContent = user.fertilizer;
+          document.getElementById("orcx").textContent = user.orcx;
+          document.getElementById("gamja").textContent = user.potato;
+          document.getElementById("bori").textContent = user.barley;
+          document.getElementById("seedPotato").textContent = user.seedPotato;
+          document.getElementById("seedBarley").textContent = user.seedBarley;
+
+        } else {
+          alert("유저 정보를 불러올 수 없습니다.");
+        }
+      } catch (err) {
+        console.error("API 오류", err);
+        alert("서버 연결에 실패했습니다.");
       }
-   } catch (err) {
-      console.error("API 오류", err);
-      alert("서버 연결에 실패했습니다.");
-   }
+    }
 
- }
-
-   fetchUserData();
-
- </script>
+    fetchUserData();
+  </script>
 </body>
 </html>
