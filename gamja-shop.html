@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>씨앗 상점</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
@@ -11,46 +11,42 @@
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
       text-align: center;
-      color: #fff;
+      color: #333;
     }
     main {
       padding: 1rem;
       min-height: 100vh;
-      background-color: rgba(0, 0, 0, 0.6);
     }
     header {
-      background-color: rgba(255, 248, 220, 0.85);
-      color: #000;
+      background-color: rgba(255, 248, 220, 0.8);
       padding: 1rem;
-      margin-bottom: 1rem;
       border-radius: 10px;
+      margin-bottom: 1rem;
     }
-    .info-box {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 1rem;
+    section {
+      background-color: rgba(255, 255, 255, 0.9);
       margin: 1rem auto;
-      max-width: 600px;
+      padding: 1rem;
+      max-width: 500px;
       border-radius: 15px;
     }
-    .shop-item {
-      background-color: rgba(255, 255, 255, 0.1);
-      margin: 1rem;
-      padding: 1rem;
-      border-radius: 10px;
+    h2, h3 {
+      margin: 0.5rem 0;
     }
     button {
       background-color: #00e0ff;
       color: #000;
       font-weight: bold;
       border: none;
-      padding: 0.5rem 1rem;
+      padding: 0.5rem 1.2rem;
       border-radius: 8px;
       cursor: pointer;
+      margin-top: 0.5rem;
     }
     a {
       display: inline-block;
-      margin: 0.5rem;
-      color: #00e0ff;
+      margin: 1rem 0.5rem;
+      color: blue;
       text-decoration: underline;
     }
   </style>
@@ -63,29 +59,29 @@
       <div id="orcx">ORCX 토큰: -</div>
     </header>
 
-    <div class="info-box">
+    <section>
       <h3>씨앗 보관소 재고</h3>
-      <div>씨감자 재고: <span id="seedPotatoStock">-</span>개 / 가격: <span id="seedPotatoPrice">-</span> ORCX</div>
-      <div>씨보리 재고: <span id="seedBarleyStock">-</span>개 / 가격: <span id="seedBarleyPrice">-</span> ORCX</div>
-    </div>
+      <p>씨감자 재고: <span id="seedPotatoStock">-</span>개 / 가격: <span id="seedPotatoPrice">-</span> ORCX</p>
+      <p>씨보리 재고: <span id="seedBarleyStock">-</span>개 / 가격: <span id="seedBarleyPrice">-</span> ORCX</p>
+    </section>
 
-    <div class="info-box">
+    <section>
       <h3>내 보유 씨앗</h3>
-      <div>씨감자: <span id="mySeedPotato">-</span>개</div>
-      <div>씨보리: <span id="mySeedBarley">-</span>개</div>
-    </div>
+      <p>씨감자: <span id="mySeedPotato">-</span>개</p>
+      <p>씨보리: <span id="mySeedBarley">-</span>개</p>
+    </section>
 
-    <div class="shop-item">
-      <h4>씨감자 구매</h4>
+    <section>
+      <h3>씨감자 구매</h3>
       <button onclick="buySeed('potato')">구매하기</button>
-    </div>
+    </section>
 
-    <div class="shop-item">
-      <h4>씨보리 구매</h4>
+    <section>
+      <h3>씨보리 구매</h3>
       <button onclick="buySeed('barley')">구매하기</button>
-    </div>
+    </section>
 
-    <a href="#" onclick="goToSeedAdmin()">🌱 씨앗 관리소</a>
+    <a href="#" onclick="goToSeedAdmin()">🌿 씨앗 관리소</a>
     <a href="gamja-farm.html">← 감자농장으로 돌아가기</a>
   </main>
 
@@ -122,8 +118,7 @@
         document.getElementById("seedPotatoStock").innerText = statusData.seedPotato || 0;
         document.getElementById("seedBarleyStock").innerText = statusData.seedBarley || 0;
       } catch (err) {
-        console.error("데이터 불러오기 실패:", err);
-        alert("서버 연결 오류");
+        alert("불러오기 오류: 서버 연결 실패");
       }
     }
 
@@ -159,6 +154,7 @@
   </script>
 </body>
 </html>
+
 
 
 
