@@ -14,7 +14,7 @@
       text-align: center;
     }
     main {
-      background-color: rgba(0, 0, 0, 0.5); /* 흐리게 수정 */
+      background-color: rgba(0, 0, 0, 0.5);
       margin: 1rem auto;
       padding: 1rem;
       border-radius: 20px;
@@ -79,10 +79,10 @@
 
     async function fetchSeedPrices() {
       try {
-        const res = await fetch(`${API_BASE}/seed/price`);
+        const res = await fetch(`${API_BASE}/seed/price`, { cache: "no-store" });
         const data = await res.json();
-        document.getElementById("seedPotatoPrice").innerText = data.seedPotato;
-        document.getElementById("seedBarleyPrice").innerText = data.seedBarley;
+        document.getElementById("seedPotatoPrice").innerText = data.seedPotato ?? "-";
+        document.getElementById("seedBarleyPrice").innerText = data.seedBarley ?? "-";
       } catch (e) {
         console.error("가격 불러오기 실패", e);
       }
@@ -90,10 +90,10 @@
 
     async function fetchSeedStatus() {
       try {
-        const res = await fetch(`${API_BASE}/seed/status`);
+        const res = await fetch(`${API_BASE}/seed/status`, { cache: "no-store" });
         const data = await res.json();
-        document.getElementById("stockPotato").innerText = data.seedPotato;
-        document.getElementById("stockBarley").innerText = data.seedBarley;
+        document.getElementById("stockPotato").innerText = data.seedPotato ?? "-";
+        document.getElementById("stockBarley").innerText = data.seedBarley ?? "-";
       } catch (e) {
         console.error("재고 불러오기 실패", e);
       }
@@ -104,19 +104,24 @@
         const res = await fetch(`${API_BASE}/userdata`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
+          body: JSON.stringify({ kakaoId: "4235108081" })  // 실제 사용자 ID
         });
         const data = await res.json();
-        document.getElementById("nickname").innerText = data.nickname || "닉네임 없음";
-        document.getElementById("orcxToken").innerText = data.orcxToken || "0";
-        document.getElementById("mySeedPotato").innerText = (data.inventory?.seedPotato || 0) + "개";
-        document.getElementById("mySeedBarley").innerText = (data.inventory?.seedBarley || 0) + "개";
+        const user = data.users?.[0];
+
+        if (!user) {
+          throw new Error("사용자 없음");
+        }
+
+        document.getElementById("nickname").innerText = user.별명 || "닉네임 없음";
+        document.getElementById("orcxToken").innerText = user.오크 ?? "0";
+        document.getElementById("mySeedPotato").innerText = (user.씨앗감자 || 0) + "개";
+        document.getElementById("mySeedBarley").innerText = (user.씨앗보리 || 0) + "개";
       } catch (e) {
         console.error("유저 정보 불러오기 실패", e);
       }
     }
 
-    // 관리자 이동 버튼
     document.getElementById("adminButton").addEventListener("click", () => {
       const pass = prompt("관리자 비밀번호를 입력하세요:");
       if (pass === "7788") {
@@ -126,7 +131,6 @@
       }
     });
 
-    // 실행
     fetchSeedPrices();
     fetchSeedStatus();
     fetchUserInfo();
