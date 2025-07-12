@@ -17,7 +17,7 @@
     .container {
       margin-top: 5%;
       padding: 20px;
-      background-color: rgba(0, 0, 0, 0.3);
+      background-color: rgba(0, 0, 0, 0.5);
       display: inline-block;
       border-radius: 12px;
     }
@@ -62,8 +62,8 @@
     <div class="nav">
       <a href="index9.html">🏠 메인으로</a>
       <a href="gamja-factory.html">🥔 감자 농장</a>
-      <a href="admin-seeds.html">🌱 씨앗 관리소</a>
-      <a href="user-list.html">📑 유저 목록</a>
+      <a href="#" onclick="goToAdmin()">🌱 씨앗 관리소</a>
+      <a href="auction-house.html">📑 개인보관창고</a>
     </div>
 
     <div>
@@ -93,8 +93,6 @@
           body: JSON.stringify({ kakaoId })
         });
         const result = await res.json();
-
-        // 유저 정보 위치 대응 (user or users[0] or root)
         const user = result.user || result.users?.[0] || result;
 
         if (!user || !user.kakaoId) {
@@ -102,14 +100,12 @@
           return;
         }
 
-        // 표시
         document.getElementById("nickname").textContent = user.nickname || "-";
         document.getElementById("myPotato").textContent = user.seedPotato ?? 0;
         document.getElementById("myBarley").textContent = user.seedBarley ?? 0;
         document.getElementById("orcx").textContent = user.orcx ?? 0;
         document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
 
-        // 저장
         localStorage.setItem("nickname", user.nickname || "-");
         const updatedInventory = {
           seedPotato: user.seedPotato ?? 0,
@@ -123,7 +119,7 @@
 
     async function fetchSeedStatus() {
       try {
-        const res = await fetch(`${API_BASE}/seed/status`);
+        const res = await fetch(`${API_BASE}/seed/status?ts=${Date.now()}`);
         const data = await res.json();
 
         const seedPotato = data.seed_potato ?? data.seedPotato ?? "N/A";
@@ -139,7 +135,7 @@
 
     async function fetchSeedPrices() {
       try {
-        const res = await fetch(`${API_BASE}/seed/price`);
+        const res = await fetch(`${API_BASE}/seed/price?ts=${Date.now()}`);
         const data = await res.json();
 
         const pricePotato = data.seed_potato ?? data.seedPotato ?? "불러오기 실패";
@@ -173,7 +169,15 @@
       }
     }
 
-    // 초기 로딩
+    function goToAdmin() {
+      const input = prompt("씨앗 관리소 비밀번호를 입력하세요:");
+      if (input === "7788") {
+        location.href = "admin-seeds.html";
+      } else {
+        alert("❌ 비밀번호가 틀렸습니다!");
+      }
+    }
+
     fetchSeedStatus();
     fetchSeedPrices();
     fetchUserInfo();
