@@ -148,15 +148,12 @@
       document.getElementById("loginBtn").style.display = "none";
       document.getElementById("logoutBtn").style.display = "inline-block";
 
-      // 로그인 기록
-      fetch('/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    kakaoId,
-    nickname,
-    email // ← 이거 추가
-  })
+   // 로그인 기록 (선택적 API)
+        fetch(`${BASE_URL}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, kakaoId })
+        }).catch(err => console.error("서버 등록 오류:", err));
       // 초기 자산 지급
       fetch(`${BASE_URL}/api/init-user`, {
         method: "POST",
