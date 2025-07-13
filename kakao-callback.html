@@ -27,16 +27,6 @@
             code: code,
           }),
         });
-fetch('/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    kakaoId,
-    nickname,
-    email // ← 이거 추가
-  })
-});
-
         const tokenData = await response.json();
         const accessToken = tokenData.access_token;
 
