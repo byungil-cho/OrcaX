@@ -2,137 +2,106 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>보리 농장 대시보드</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
   <style>
     body {
-      font-family: "Pretendard", sans-serif;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center center fixed;
+      background-image: url("img/bori-background.png");
       background-size: cover;
+      background-position: center;
+      font-family: 'Nanum Gothic', sans-serif;
       color: white;
       text-align: center;
-      margin: 0;
-      padding: 0;
     }
-    .container {
-      margin-top: 5%;
-      padding: 20px;
+    .dashboard {
       background-color: rgba(0, 0, 0, 0.3);
-      display: inline-block;
-      border-radius: 12px;
-    }
-    .section {
-      background-color: #ffffff20;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 10px;
+      margin: 2rem auto;
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 500px;
     }
     .footer {
-      margin-top: 20px;
+      margin-top: 2rem;
     }
-    .footer a {
-      color: #FFD700;
-      font-weight: bold;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-    .status {
-      margin-top: 10px;
+    .error {
+      color: red;
       font-weight: bold;
     }
-    .status.success {
-      color: #00ffcc;
-    }
-    .status.fail {
-      color: #ff4d4d;
+    .success {
+      color: lightgreen;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>보리 농장 대시보드</h1>
-    <div id="userInfo">
-      농장주: <span id="nickname">-</span><br>
-      농장이름: <span id="farmName">-</span>
-    </div>
+  <main class="container">
+    <div class="dashboard">
+      <h2>🌾 보리 농장 대시보드</h2>
+      <p>👨‍🌾 농장주: <span id="nickname">-</span></p>
+      <p>🌾 농장이름: 하늘농장</p>
+      
+      <h3>📦 농자재 보관함</h3>
+      <p>💧 물: <span id="water">-</span></p>
+      <p>🧪 거름: <span id="fertilizer">-</span></p>
+      <p>🪙 ORCX: <span id="token">-</span></p>
 
-    <div class="section">
-      <h2>📦 농자재 보관함</h2>
-      물: <span id="water">-</span><br>
-      거름: <span id="fertilizer">-</span><br>
-      ORCX: <span id="orcx">-</span>
-    </div>
+      <h3>🥔 작물 보관소</h3>
+      <p>감자: <span id="potato">-</span></p>
+      <p>보리: <span id="barley">-</span></p>
 
-    <div class="section">
-      <h2>🌾 작물 보관소</h2>
-      감자: <span id="gamja">-</span><br>
-      보리: <span id="bori">-</span>
-    </div>
-
-    <div class="section">
-      <h2>🌱 씨앗 보유</h2>
-      씨감자: <span id="seedPotato">-</span><br>
-      씨보리: <span id="seedBarley">-</span>
+      <h3>🌱 씨앗 보유</h3>
+      <p>씨감자: <span id="seedPotato">-</span></p>
+      <p>씨보리: <span id="seedBarley">-</span></p>
     </div>
 
     <div class="footer">
-      <a href="bori-main.html">🌾 농장 작명소</a>
-      <a href="gamja-shop.html">🛒 씨앗 상점</a>
-      <a href="index9.html">🏠 메인으로</a>
+      <button onclick="location.href='bori-factory.html'">🌾 보리 농장 </button>
+      <button onclick="location.href='gamja-shop.html'">🛒 씨앗 상점</button>
+      <button onclick="location.href='index9.html'">🏡 메인으로</button>
+      <p id="status" class="error">⛔ 유저 정보 불러오기 실패</p>
     </div>
-
-    <div class="status" id="statusMessage">⏳ 데이터 불러오는 중...</div>
-  </div>
+  </main>
 
   <script>
-    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-    const nickname = localStorage.getItem("nickname") || "범고래X";
-    const farmName = localStorage.getItem("farmName") || "하늘농장";
-    const kakaoId = localStorage.getItem("userId") || "unknown";
+    const kakaoId = localStorage.getItem("kakaoId");
 
-    document.getElementById("nickname").textContent = nickname;
-    document.getElementById("farmName").textContent = farmName;
-
-    async function fetchUserData() {
-      const statusEl = document.getElementById("statusMessage");
-      statusEl.textContent = "📡 서버 연결 중...";
-      statusEl.className = "status";
-
+    async function loadUserData() {
       try {
-        const res = await fetch(`${API}/userdata`, {
+        const res = await fetch("/api/user/v2data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, kakaoId })
+          body: JSON.stringify({ id: kakaoId })
         });
 
-        const data = await res.json();
-        if (data.success) {
-          const inv = data.user.inventory || {};
-          const storage = data.user.storage || {};
-          const wallet = data.user.wallet || {};
+        const result = await res.json();
 
-          document.getElementById("water").textContent = inv.water ?? "-";
-          document.getElementById("fertilizer").textContent = inv.fertilizer ?? "-";
-          document.getElementById("orcx").textContent = wallet.orcx ?? "-";
-          document.getElementById("gamja").textContent = storage.gamja ?? "-";
-          document.getElementById("bori").textContent = storage.bori ?? "-";
-          document.getElementById("seedPotato").textContent = inv.seedPotato ?? "-";
-          document.getElementById("seedBarley").textContent = inv.seedBarley ?? "-";
+        if (result.success) {
+          const user = result.user;
+          document.getElementById("nickname").textContent = user.nickname;
+          document.getElementById("token").textContent = user.token;
+          document.getElementById("seedPotato").textContent = user.inventory.seedPotato;
+          document.getElementById("seedBarley").textContent = user.inventory.seedBarley;
 
-          statusEl.textContent = "✅ 유저 정보 불러오기 완료";
-          statusEl.classList.add("success");
+          // 보관소 정보 추가 (임시 0 처리)
+          document.getElementById("potato").textContent = 0;
+          document.getElementById("barley").textContent = 0;
+          document.getElementById("water").textContent = 10;
+          document.getElementById("fertilizer").textContent = 10;
+
+          document.getElementById("status").textContent = "✅ 유저 정보 불러오기 성공";
+          document.getElementById("status").className = "success";
         } else {
-          statusEl.textContent = "❌ 유저 정보 불러오기 실패";
-          statusEl.classList.add("fail");
+          throw new Error("유저 없음");
         }
       } catch (err) {
-        console.error("❌ 서버 요청 실패:", err);
-        statusEl.textContent = "❌ 서버 연결 오류";
-        statusEl.classList.add("fail");
+        document.getElementById("status").textContent = "⛔ 유저 정보 불러오기 실패";
+        document.getElementById("status").className = "error";
+        console.error("불러오기 실패", err);
       }
     }
 
-    fetchUserData();
+    loadUserData();
   </script>
 </body>
 </html>
