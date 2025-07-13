@@ -8,7 +8,7 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Do Hyeon', sans-serif;
+      font-family: 'Do Hyeon', 'Arial', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
       text-align: center;
@@ -75,7 +75,7 @@
     <p>내 보유: <span id="myBarleySeed">0개</span></p>
     <button onclick="buySeed('seedBarley')">구매하기</button>
 
-    <p id="status">✅ 서버 연결 성공</p>
+    <p id="status">✅ 서버 연결 시도 중...</p>
   </main>
 
   <script>
@@ -89,22 +89,26 @@
     const barleyPrice = document.getElementById("barleyPrice");
     const myPotatoSeed = document.getElementById("myPotatoSeed");
     const myBarleySeed = document.getElementById("myBarleySeed");
+    const statusText = document.getElementById("status");
 
     async function fetchUserData() {
       try {
         const res = await fetch(`${API_BASE}/user/data`);
         const data = await res.json();
-        if (data.success) {
+        if (data.success && data.user) {
           nicknameSpan.textContent = data.user.nickname || '이름없음';
           orcxBalance.textContent = data.user.token || 0;
-          myPotatoSeed.textContent = `${data.user.inventory.seedPotato || 0}개`;
-          myBarleySeed.textContent = `${data.user.inventory.seedBarley || 0}개`;
+          myPotatoSeed.textContent = `${data.user.inventory?.seedPotato || 0}개`;
+          myBarleySeed.textContent = `${data.user.inventory?.seedBarley || 0}개`;
+          statusText.textContent = "✅ 서버 연결 성공";
         } else {
           nicknameSpan.textContent = "불러오기 실패";
+          statusText.textContent = "❌ 닉네임 불러오기 실패";
         }
       } catch (err) {
         console.error('User fetch error:', err);
         nicknameSpan.textContent = "서버 오류";
+        statusText.textContent = "❌ 서버 오류";
       }
     }
 
@@ -155,7 +159,6 @@
       }
     }
 
-    // 최초 실행
     fetchUserData();
     fetchSeedStatus();
     fetchSeedPrices();
