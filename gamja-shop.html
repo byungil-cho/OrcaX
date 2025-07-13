@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <title>씨앗 구매소</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: 'Gowun Dodum', sans-serif;
+      font-family: 'Do Hyeon', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
       text-align: center;
@@ -95,10 +95,10 @@
         const res = await fetch(`${API_BASE}/user/data`);
         const data = await res.json();
         if (data.success) {
-          nicknameSpan.textContent = data.nickname || '범고래X';
-          orcxBalance.textContent = data.token || 0;
-          myPotatoSeed.textContent = `${data.seed_potato || 0}개`;
-          myBarleySeed.textContent = `${data.seed_barley || 0}개`;
+          nicknameSpan.textContent = data.user.nickname || '이름없음';
+          orcxBalance.textContent = data.user.token || 0;
+          myPotatoSeed.textContent = `${data.user.inventory.seedPotato || 0}개`;
+          myBarleySeed.textContent = `${data.user.inventory.seedBarley || 0}개`;
         } else {
           nicknameSpan.textContent = "불러오기 실패";
         }
