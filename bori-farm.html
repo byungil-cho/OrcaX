@@ -17,7 +17,7 @@
     .container {
       margin-top: 5%;
       padding: 20px;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.3);
       display: inline-block;
       border-radius: 12px;
     }
@@ -93,17 +93,15 @@
       statusEl.textContent = "📡 서버 연결 중...";
 
       try {
-        const res = await fetch(`${API}/userdata`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nickname, kakaoId })
-        });
-
+        const res = await fetch(`${API}/userdata?kakaoId=${kakaoId}`);
         const data = await res.json();
-        if (data.success) {
-          const inv = data.user.inventory || {};
-          const storage = data.user.storage || {};
-          const wallet = data.user.wallet || {};
+
+        const user = data.user || data.users?.[0];
+
+        if (user) {
+          const inv = user.inventory || {};
+          const storage = user.storage || {};
+          const wallet = user.wallet || {};
 
           document.getElementById("water").textContent = inv.water ?? "-";
           document.getElementById("fertilizer").textContent = inv.fertilizer ?? "-";
@@ -113,12 +111,12 @@
           document.getElementById("seedPotato").textContent = inv.seedPotato ?? "-";
           document.getElementById("seedBarley").textContent = inv.seedBarley ?? "-";
 
-          statusEl.textContent = "✅ 데이터 로딩 완료";
+          statusEl.textContent = "✅ 유저 정보 불러오기 완료";
         } else {
           statusEl.textContent = "❌ 유저 정보 불러오기 실패";
         }
       } catch (err) {
-        console.error("데이터 요청 실패:", err);
+        console.error("❌ 서버 요청 실패:", err);
         document.getElementById("statusMessage").textContent = "❌ 서버 연결 오류";
       }
     }
