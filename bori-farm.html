@@ -38,8 +38,13 @@
     }
     .status {
       margin-top: 10px;
-      color: #00ffcc;
       font-weight: bold;
+    }
+    .status.success {
+      color: #00ffcc;
+    }
+    .status.fail {
+      color: #ff4d4d;
     }
   </style>
 </head>
@@ -91,17 +96,20 @@
     async function fetchUserData() {
       const statusEl = document.getElementById("statusMessage");
       statusEl.textContent = "📡 서버 연결 중...";
+      statusEl.className = "status";
 
       try {
-        const res = await fetch(`${API}/userdata?kakaoId=${kakaoId}`);
+        const res = await fetch(`${API}/userdata`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, kakaoId })
+        });
+
         const data = await res.json();
-
-        const user = data.user || data.users?.[0];
-
-        if (user) {
-          const inv = user.inventory || {};
-          const storage = user.storage || {};
-          const wallet = user.wallet || {};
+        if (data.success) {
+          const inv = data.user.inventory || {};
+          const storage = data.user.storage || {};
+          const wallet = data.user.wallet || {};
 
           document.getElementById("water").textContent = inv.water ?? "-";
           document.getElementById("fertilizer").textContent = inv.fertilizer ?? "-";
@@ -112,12 +120,15 @@
           document.getElementById("seedBarley").textContent = inv.seedBarley ?? "-";
 
           statusEl.textContent = "✅ 유저 정보 불러오기 완료";
+          statusEl.classList.add("success");
         } else {
           statusEl.textContent = "❌ 유저 정보 불러오기 실패";
+          statusEl.classList.add("fail");
         }
       } catch (err) {
         console.error("❌ 서버 요청 실패:", err);
-        document.getElementById("statusMessage").textContent = "❌ 서버 연결 오류";
+        statusEl.textContent = "❌ 서버 연결 오류";
+        statusEl.classList.add("fail");
       }
     }
 
@@ -125,4 +136,5 @@
   </script>
 </body>
 </html>
+
 
