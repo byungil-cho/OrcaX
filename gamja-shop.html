@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>씨앗 상점 - OrcaX</title>
+  <title>OrcaX 씨앗 상점</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -15,139 +15,156 @@
       color: white;
     }
     main {
-      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.5);
+      margin: 3rem auto;
+      padding: 2rem;
+      max-width: 480px;
+      border-radius: 20px;
     }
-    .box {
-      background-color: rgba(0, 0, 0, 0.3);
+    h1 {
+      margin-bottom: 1rem;
+      font-size: 2rem;
+    }
+    .info-block {
+      margin: 1rem 0;
+      font-size: 1.2rem;
+      text-align: left;
+    }
+    .info-block img {
+      vertical-align: middle;
+      width: 24px;
+    }
+    .seed-section {
+      margin: 2rem 0;
       padding: 1rem;
-      border-radius: 15px;
-      max-width: 400px;
-      margin: auto;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
     }
     button {
-      padding: 0.5rem 1rem;
-      font-size: 1.2rem;
-      background-color: #4CAF50;
-      border: none;
-      border-radius: 10px;
+      background-color: #28a745;
       color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      font-size: 1.2rem;
       cursor: pointer;
-      margin: 0.5rem;
+      border-radius: 8px;
+    }
+    button:hover {
+      background-color: #218838;
     }
     nav {
-      margin-top: 1rem;
+      display: flex;
+      justify-content: space-around;
+      padding: 1rem;
     }
     nav a {
-      margin: 0 10px;
-      color: #ffd700;
+      color: #ffcc00;
       text-decoration: none;
+      font-weight: bold;
     }
     .status {
       margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #00ffcc;
-    }
-    #nickname {
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      color: #87e8ff;
+      color: #00ff00;
     }
   </style>
 </head>
 <body>
   <main>
-    <div class="box">
-      <h1>🌱 씨앗 상점</h1>
-      <div id="nickname">닉네임: 불러오는 중...</div>
-
-      <h3>씨감자 남은 수량: <span id="potato-stock">...</span></h3>
-      <h3>씨보리 남은 수량: <span id="barley-stock">...</span></h3>
-      <h3>씨감자 가격: <span id="potato-price">...</span> ORCX</h3>
-      <h3>씨보리 가격: <span id="barley-price">...</span> ORCX</h3>
-      <h3>보유 토큰: <span id="user-tokens">0</span> ORCX</h3>
-
-      <nav>
-        <a href="gamja-farm.html">🏠 감자 농장</a>
-        <a href="admin-seeds.html">🌾 씨앗 관리소</a>
-        <a href="gamja-result.html">📁 개인 보관함</a>
-      </nav>
-
-      <h2>🥔 씨감자</h2>
-      <p>내 보유: <span id="my-potato">0</span>개</p>
-      <button onclick="buySeed('potato')">구매하기</button>
-
-      <h2>🌾 씨보리</h2>
-      <p>내 보유: <span id="my-barley">0</span>개</p>
-      <button onclick="buySeed('barley')">구매하기</button>
-      
-      <div class="status" id="server-status">🔌 서버 연결 중...</div>
+    <h1>🌱 OrcaX 씨앗 상점</h1>
+    <div class="info-block">
+      🧑‍🌾 닉네임: <span id="nickname">불러오는 중...</span><br />
+      🧠 카카오ID: <span id="kakaoId">-</span><br />
+      💰 보유 토큰: <span id="orcx">0</span> ORCX
     </div>
+    <div class="info-block">
+      🥔 씨감자 남은 수량: <span id="leftPotato">0</span><br />
+      🌾 씨보리 남은 수량: <span id="leftBarley">0</span><br />
+      🥔 씨감자 가격: <span id="pricePotato">-</span> ORCX<br />
+      🌾 씨보리 가격: <span id="priceBarley">-</span> ORCX
+    </div>
+
+    <div class="seed-section">
+      <h2>🥔 씨감자</h2>
+      내 보유: <span id="myPotato">0</span>개<br /><br />
+      <button onclick="buySeed('potato')">구매하기</button>
+    </div>
+
+    <div class="seed-section">
+      <h2>🌾 씨보리</h2>
+      내 보유: <span id="myBarley">0</span>개<br /><br />
+      <button onclick="buySeed('barley')">구매하기</button>
+    </div>
+
+    <nav>
+      <a href="gamja-farm.html">감자 농장</a>
+      <a href="admin-seeds.html">씨앗 관리소</a>
+      <a href="gamja-result.html">개인 보관함</a>
+    </nav>
+
+    <div class="status" id="statusMsg">📡 서버 연결 확인 중...</div>
   </main>
 
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 
-    async function fetchUser() {
+    async function fetchUserData() {
       try {
         const res = await fetch(`${API_BASE}/userdata`);
-        const user = await res.json();
-        if (!user || !user.nickname) {
-          document.getElementById("nickname").textContent = "닉네임 불러오기 실패";
-          return;
+        const data = await res.json();
+        if (data.success) {
+          const user = data.user;
+          document.getElementById("nickname").innerText = user.nickname;
+          document.getElementById("kakaoId").innerText = user.kakaoId;
+          document.getElementById("orcx").innerText = user.orcx;
+          document.getElementById("myPotato").innerText = user.seedPotato || 0;
+          document.getElementById("myBarley").innerText = user.seedBarley || 0;
+          document.getElementById("statusMsg").innerText = "✅ 서버 연결 성공";
+        } else {
+          document.getElementById("statusMsg").innerText = "❌ 로그인 필요";
         }
-
-        document.getElementById("nickname").textContent = `닉네임: ${user.nickname}`;
-        document.getElementById("user-tokens").textContent = user.token;
-        document.getElementById("my-potato").textContent = user.inventory.seedPotato || 0;
-        document.getElementById("my-barley").textContent = user.inventory.seedBarley || 0;
       } catch (err) {
-        document.getElementById("nickname").textContent = "❌ 사용자 정보 없음";
-        console.error(err);
+        document.getElementById("statusMsg").innerText = "❌ 서버 연결 실패";
       }
     }
 
-    async function fetchSeedInfo() {
+    async function fetchSeedStatus() {
       try {
-        const res1 = await fetch(`${API_BASE}/seed/status`);
-        const status = await res1.json();
-        document.getElementById("potato-stock").textContent = status.seedPotato;
-        document.getElementById("barley-stock").textContent = status.seedBarley;
-
-        const res2 = await fetch(`${API_BASE}/seed/price`);
-        const price = await res2.json();
-        document.getElementById("potato-price").textContent = price.seedPotato;
-        document.getElementById("barley-price").textContent = price.seedBarley;
-
-        document.getElementById("server-status").textContent = "✅ 서버 연결 성공";
+        const res = await fetch(`${API_BASE}/seed/status`);
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("leftPotato").innerText = data.seedPotato;
+          document.getElementById("leftBarley").innerText = data.seedBarley;
+          document.getElementById("pricePotato").innerText = data.pricePotato;
+          document.getElementById("priceBarley").innerText = data.priceBarley;
+        }
       } catch (err) {
-        console.error(err);
-        document.getElementById("server-status").textContent = "❌ 서버 연결 실패";
+        console.error("Seed status error", err);
       }
     }
 
     async function buySeed(type) {
       try {
-        const res = await fetch(`${API_BASE}/seed-buy`, {
+        const res = await fetch(`${API_BASE}/seed/buy`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type })
+          body: JSON.stringify({ seedType: type })
         });
-        const result = await res.json();
-        if (result.success) {
-          alert(`${type === 'potato' ? '씨감자' : '씨보리'} 구매 성공`);
-          fetchUser();
-          fetchSeedInfo();
+        const data = await res.json();
+        if (data.success) {
+          alert(`${type === 'potato' ? '씨감자' : '씨보리'} 구매 성공!`);
+          fetchUserData();
+          fetchSeedStatus();
         } else {
-          alert(result.message || "구매 실패");
+          alert("구매 실패: " + data.message);
         }
       } catch (err) {
-        console.error(err);
-        alert("에러 발생");
+        alert("오류 발생: " + err.message);
       }
     }
 
-    fetchUser();
-    fetchSeedInfo();
+    // 초기 로딩
+    fetchUserData();
+    fetchSeedStatus();
   </script>
 </body>
 </html>
