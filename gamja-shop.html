@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>씨앗 구매소</title>
+  <title>씨앗 상점 - OrcaX</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
   <style>
@@ -47,16 +47,24 @@
       font-size: 0.9rem;
       color: #00ffcc;
     }
+    #nickname {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: #87e8ff;
+    }
   </style>
 </head>
 <body>
   <main>
     <div class="box">
-      <h3>🥔 씨감자 남은 수량: <span id="potato-stock">...</span></h3>
-      <h3>🌾 씨보리 남은 수량: <span id="barley-stock">...</span></h3>
-      <h3>🥔 씨감자 가격: <span id="potato-price">...</span> ORCX</h3>
-      <h3>🌾 씨보리 가격: <span id="barley-price">...</span> ORCX</h3>
-      <h3>🥚 보유 토큰: <span id="user-tokens">0</span> ORCX</h3>
+      <h1>🌱 씨앗 상점</h1>
+      <div id="nickname">닉네임: 불러오는 중...</div>
+
+      <h3>씨감자 남은 수량: <span id="potato-stock">...</span></h3>
+      <h3>씨보리 남은 수량: <span id="barley-stock">...</span></h3>
+      <h3>씨감자 가격: <span id="potato-price">...</span> ORCX</h3>
+      <h3>씨보리 가격: <span id="barley-price">...</span> ORCX</h3>
+      <h3>보유 토큰: <span id="user-tokens">0</span> ORCX</h3>
 
       <nav>
         <a href="gamja-farm.html">🏠 감자 농장</a>
@@ -79,21 +87,22 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 
-    async function fetchData() {
+    async function fetchUser() {
       try {
         const res = await fetch(`${API_BASE}/userdata`);
         const user = await res.json();
         if (!user || !user.nickname) {
-          alert("사용자 없음");
+          document.getElementById("nickname").textContent = "닉네임 불러오기 실패";
           return;
         }
 
+        document.getElementById("nickname").textContent = `닉네임: ${user.nickname}`;
         document.getElementById("user-tokens").textContent = user.token;
         document.getElementById("my-potato").textContent = user.inventory.seedPotato || 0;
         document.getElementById("my-barley").textContent = user.inventory.seedBarley || 0;
       } catch (err) {
+        document.getElementById("nickname").textContent = "❌ 사용자 정보 없음";
         console.error(err);
-        alert("서버 연결 실패");
       }
     }
 
@@ -126,7 +135,7 @@
         const result = await res.json();
         if (result.success) {
           alert(`${type === 'potato' ? '씨감자' : '씨보리'} 구매 성공`);
-          fetchData();
+          fetchUser();
           fetchSeedInfo();
         } else {
           alert(result.message || "구매 실패");
@@ -137,7 +146,7 @@
       }
     }
 
-    fetchData();
+    fetchUser();
     fetchSeedInfo();
   </script>
 </body>
