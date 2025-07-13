@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <title>씨앗 구매소</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: 'Do Hyeon', sans-serif;
+      font-family: 'Noto Sans KR', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
       text-align: center;
@@ -90,9 +90,15 @@
     const myPotatoSeed = document.getElementById("myPotatoSeed");
     const myBarleySeed = document.getElementById("myBarleySeed");
 
+    const kakaoId = localStorage.getItem('kakaoId');
+
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/user/data`);
+        const res = await fetch(`${API_BASE}/user/v2data`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: kakaoId })
+        });
         const data = await res.json();
         if (data.success) {
           nicknameSpan.textContent = data.user.nickname || '이름없음';
@@ -155,7 +161,6 @@
       }
     }
 
-    // 최초 실행
     fetchUserData();
     fetchSeedStatus();
     fetchSeedPrices();
