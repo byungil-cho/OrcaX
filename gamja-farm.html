@@ -1,124 +1,111 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>감자 농장 대시보드</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       margin: 0;
       font-family: 'Do Hyeon', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
+      color: white;
       text-align: center;
-      color: #fff;
     }
     main {
-      padding: 1rem;
-      min-height: 100vh;
+      padding: 2rem;
+      background-color: rgba(0, 0, 0, 0.5);
+      margin: 2rem;
+      border-radius: 15px;
     }
-    header {
-      background-color: rgba(0,0,0,0.3);
-      padding: 1rem;
-      border-radius: 1rem;
-      margin: 1rem auto;
-      width: 90%;
-      max-width: 500px;
+    h1 {
+      margin-bottom: 1rem;
     }
-    footer a {
-      display: inline-block;
-      margin: 0.5rem;
+    .status {
+      margin-bottom: 2rem;
+    }
+    .dashboard-section {
+      margin: 1rem 0;
+    }
+    button {
+      margin: 1rem 0.5rem;
       padding: 0.5rem 1rem;
-      background: #00e0ff;
-      color: #000;
-      border-radius: 1rem;
-      text-decoration: none;
-    }
-    #serverStatus {
-      font-weight: bold;
+      font-size: 1rem;
     }
   </style>
 </head>
 <body>
   <main>
-    <header>
-      <h1>감자 농장 대시보드</h1>
-      <p>📡 서버 연결 상태: <span id="serverStatus">⏳ 확인 중...</span></p>
-      <p>👨‍🌾 농장주: <span id="nickname">-</span></p>
-      <p>💖 농장이름: <span id="farmName">-</span></p>
+    <h1>감자 농장 대시보드</h1>
+    <div class="status" id="status">🔌 서버 연결 상태: 확인 중...</div>
 
-      <h3>🌰 농자재 보관함</h3>
-      <p>물: <span id="water">-</span></p>
-      <p>거름: <span id="fertilizer">-</span></p>
-      <p>ORCX: <span id="orcx">-</span></p>
+    <div class="dashboard-section">
+      <strong>🌱 농장주:</strong> <span id="nickname">-</span><br />
+      <strong>💖 농장이름:</strong> <span id="farmName">-</span>
+    </div>
 
+    <div class="dashboard-section">
+      <h3>🧺 농자재 보관함</h3>
+      물: <span id="water">-</span><br />
+      거름: <span id="fertilizer">-</span><br />
+      ORCX: <span id="orcx">-</span>
+    </div>
+
+    <div class="dashboard-section">
       <h3>🥚 작물 보관소</h3>
-      <p>감자: <span id="gamja">-</span></p>
-      <p>보리: <span id="bori">-</span></p>
+      감자: <span id="potato">-</span><br />
+      보리: <span id="bori">-</span>
+    </div>
 
+    <div class="dashboard-section">
       <h3>🌱 씨앗 보유</h3>
-      <p>씨감자: <span id="seedPotato">-</span></p>
-      <p>씨보리: <span id="seedBarley">-</span></p>
-    </header>
+      씨감자: <span id="seedPotato">-</span><br />
+      씨보리: <span id="seedBarley">-</span>
+    </div>
 
-    <footer>
-      <a href="gamja-main.html">➡️ 농장이름 짓기</a>
-      <a href="auction-house.html">🏭 마이페이지</a>
-      <a href="index9.html">🛒 메인으로</a>
-    </footer>
+    <div>
+      <button onclick="location.href='gamja-main.html'">🌾 농장이름 짓기</button>
+      <button onclick="location.href='mypage.html'">📘 마이페이지</button>
+      <button onclick="location.href='index.html'">🏠 메인으로</button>
+    </div>
   </main>
 
   <script>
-    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
     const kakaoId = localStorage.getItem("kakaoId");
-    const nickname = localStorage.getItem("nickname") || "범고래X";
-    const farmName = localStorage.getItem("farmName") || "하늘농장";
-    const statusEl = document.getElementById("serverStatus");
+    const farmName = localStorage.getItem("farmName");
 
-    document.getElementById("nickname").textContent = nickname;
-    document.getElementById("farmName").textContent = farmName;
-
-    async function fetchUserData() {
-      if (!kakaoId) {
-        statusEl.textContent = "⚠️ 카카오 ID 없음 - 로그인 필요";
-        statusEl.style.color = "#ffaa00";
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API}/userdata`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ kakaoId })
+    if (!kakaoId || kakaoId === "null") {
+      document.getElementById("status").innerText = "⚠️ 유저 정보 없음 또는 초기화 필요";
+    } else {
+      fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kakaoId }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            document.getElementById("status").innerText = "✅ 서버 연결 완료";
+            const user = data.user;
+            document.getElementById("nickname").innerText = user.nickname;
+            document.getElementById("water").innerText = user.inventory.water;
+            document.getElementById("fertilizer").innerText = user.inventory.fertilizer;
+            document.getElementById("orcx").innerText = user.wallet.orcx;
+            document.getElementById("potato").innerText = user.storage.gamja;
+            document.getElementById("bori").innerText = user.storage.bori;
+            document.getElementById("seedPotato").innerText = user.inventory.seedPotato;
+            document.getElementById("seedBarley").innerText = user.inventory.seedBarley;
+            document.getElementById("farmName").innerText = farmName ?? "-";
+          } else {
+            document.getElementById("status").innerText = "⚠️ 유저 정보 없음 또는 초기화 필요";
+          }
+        })
+        .catch((err) => {
+          console.error("연결 오류", err);
+          document.getElementById("status").innerText = "❌ 서버 오류";
         });
-        const data = await res.json();
-
-        if (data.success && data.users && data.users.length > 0) {
-          const user = data.users[0];
-          document.getElementById("water").textContent = user.inventory.water ?? 0;
-          document.getElementById("fertilizer").textContent = user.inventory.fertilizer ?? 0;
-          document.getElementById("orcx").textContent = user.wallet.orcx ?? 0;
-          document.getElementById("gamja").textContent = user.storage.gamja ?? 0;
-          document.getElementById("bori").textContent = user.storage.bori ?? 0;
-          document.getElementById("seedPotato").textContent = user.inventory.seedPotato ?? 0;
-          document.getElementById("seedBarley").textContent = user.inventory.seedBarley ?? 0;
-
-          statusEl.textContent = "✅ 정상 연결됨";
-          statusEl.style.color = "#00ff99";
-        } else {
-          statusEl.textContent = "⚠️ 유저 정보 없음 또는 초기화 필요";
-          statusEl.style.color = "#ffcc00";
-        }
-      } catch (err) {
-        console.error("API 요청 실패", err);
-        statusEl.textContent = "❌ 서버 연결 실패";
-        statusEl.style.color = "#ff4444";
-      }
     }
-
-    fetchUserData();
   </script>
 </body>
 </html>
