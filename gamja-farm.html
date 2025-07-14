@@ -79,6 +79,12 @@
     document.getElementById("farmName").textContent = farmName;
 
     async function fetchUserData() {
+      if (!kakaoId) {
+        statusEl.textContent = "⚠️ 카카오 ID 없음 - 로그인 필요";
+        statusEl.style.color = "#ffaa00";
+        return;
+      }
+
       try {
         const res = await fetch(`${API}/userdata`, {
           method: "POST",
@@ -89,7 +95,7 @@
         });
         const data = await res.json();
 
-        if (data.success) {
+        if (data.success && data.users && data.users.length > 0) {
           const user = data.users[0];
           document.getElementById("water").textContent = user.inventory.water ?? 0;
           document.getElementById("fertilizer").textContent = user.inventory.fertilizer ?? 0;
@@ -102,7 +108,7 @@
           statusEl.textContent = "✅ 정상 연결됨";
           statusEl.style.color = "#00ff99";
         } else {
-          statusEl.textContent = "⚠️ 유저 정보 없음";
+          statusEl.textContent = "⚠️ 유저 정보 없음 또는 초기화 필요";
           statusEl.style.color = "#ffcc00";
         }
       } catch (err) {
