@@ -43,54 +43,71 @@
     <h1>🐳 감자 농장에 오신 것을 환영합니다!</h1>
     <p>닉네임: <span id="nickname">-</span></p>
   </header>
-  <main>
-    <div class="resource-box">
-      <p>보유 ORCX: <span id="orcx">0</span></p>
-      <p>물: <span id="water">0</span></p>
-      <p>거름: <span id="fertilizer">0</span></p>
-      <p>감자: <span id="potato">0</span></p>
-      <p>보리: <span id="bori">0</span></p>
-      <p>씨감자: <span id="seedPotato">0</span></p>
-      <p>씨보리: <span id="seedBarley">0</span></p>
-    </div>
-  </main>
+  <!-- 생략된 head, style 등은 그대로 유지됩니다 -->
 
-  <script>
-    async function loadUserData() {
-      const kakaoId = localStorage.getItem("kakaoId");
-      if (!kakaoId) {
-        alert("로그인이 필요합니다.");
-        window.location.href = "index9.html";
-        return;
-      }
+<main>
+  <div class="resource-box">
+    <p>보유 ORCX: <span id="orcx">0</span></p>
+    <p>물: <span id="water">0</span></p>
+    <p>거름: <span id="fertilizer">0</span></p>
+    <p>감자: <span id="potato">0</span></p>
+    <p>보리: <span id="bori">0</span></p>
+    <p>씨감자: <span id="seedPotato">0</span></p>
+    <p>씨보리: <span id="seedBarley">0</span></p>
+  </div>
 
-      try {
-        const response = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ kakaoId }),
-        });
+  <div style="margin-top: 2rem;">
+    <button onclick="goTo('gamja-main.html')">🌱 농장이름짓기</button>
+    <button onclick="goTo('index9.html')">🏭 메인으로</button>
+    <button onclick="logout()">🚪 로그아웃</button>
+  </div>
+</main>
 
-        const data = await response.json();
-        const user = data.user;
-
-        document.getElementById("nickname").innerText = user.nickname ?? "-";
-        document.getElementById("water").innerText = user.water ?? 0;
-        document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
-        document.getElementById("orcx").innerText = user.orcx ?? 0;
-        document.getElementById("potato").innerText = user.potato ?? 0;
-        document.getElementById("bori").innerText = user.bori ?? 0;
-        document.getElementById("seedPotato").innerText = user.seedPotato ?? 0;
-        document.getElementById("seedBarley").innerText = user.seedBarley ?? 0;
-      } catch (error) {
-        console.error("유저 데이터를 불러오는 중 오류 발생:", error);
-        alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
-      }
+<script>
+  async function loadUserData() {
+    const kakaoId = localStorage.getItem("kakaoId");
+    if (!kakaoId) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "index9.html";
+      return;
     }
 
-    window.onload = loadUserData;
-  </script>
+    try {
+      const response = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ kakaoId }),
+      });
+
+      const data = await response.json();
+      const user = data.user;
+
+      document.getElementById("nickname").innerText = user.nickname ?? "-";
+      document.getElementById("water").innerText = user.water ?? 0;
+      document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
+      document.getElementById("orcx").innerText = user.orcx ?? 0;
+      document.getElementById("potato").innerText = user.potato ?? 0;
+      document.getElementById("bori").innerText = user.bori ?? 0;
+      document.getElementById("seedPotato").innerText = user.seedPotato ?? 0;
+      document.getElementById("seedBarley").innerText = user.seedBarley ?? 0;
+    } catch (error) {
+      console.error("유저 데이터를 불러오는 중 오류 발생:", error);
+      alert("서버 오류가 발생했습니다.");
+    }
+  }
+
+  function goTo(page) {
+    window.location.href = page;
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = "index9.html";
+  }
+
+  window.onload = loadUserData;
+</script>
 </body>
 </html>
