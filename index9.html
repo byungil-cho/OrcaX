@@ -137,25 +137,24 @@
       }
     }
 
-    function init() {
+    (function init() {
       const nickname = localStorage.getItem("nickname");
-      const kakaoId = localStorage.getItem("kakaoId");
-
-      const el = document.getElementById("nicknameDisplay");
-
+      const kakaoId = localStorage.getItem("userId");
       if (nickname && kakaoId) {
+        const el = document.getElementById("nicknameDisplay");
         el.textContent = `👤 ${nickname}님, 환영합니다!`;
         el.style.display = "inline-block";
         document.getElementById("loginBtn").style.display = "none";
         document.getElementById("logoutBtn").style.display = "inline-block";
 
-        // 서버 기록 (선택 사항)
+        // 로그인 기록 (선택적 API)
         fetch(`${BASE_URL}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nickname, kakaoId })
         }).catch(err => console.error("서버 등록 오류:", err));
 
+        // ✅ 초기 자산 지급 API 요청
         fetch(`${BASE_URL}/api/init-user`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -170,20 +169,8 @@
           }
         })
         .catch(err => console.error("❌ init-user 오류:", err));
-      } else {
-        el.style.display = "none";
-        document.getElementById("loginBtn").style.display = "inline-block";
-        document.getElementById("logoutBtn").style.display = "none";
       }
-    }
-
-    window.addEventListener("pageshow", function(event) {
-      if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
-        location.reload(); // 뒤로가기 캐시 대응
-      }
-    });
-
-    window.onload = init;
+    })();
   </script>
 </body>
 </html>
