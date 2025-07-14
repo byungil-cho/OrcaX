@@ -69,6 +69,13 @@
   </main>
 
   <script>
+    // 캐시로 인해 로그아웃 정보가 남아있는 경우 방지
+    window.addEventListener("pageshow", function (event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        location.reload();
+      }
+    });
+
     const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
     const kakaoId = localStorage.getItem("kakaoId");
     const nickname = localStorage.getItem("nickname") || "범고래X";
