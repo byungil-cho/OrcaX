@@ -129,7 +129,9 @@
 
     function enterFarm(url) {
       const nickname = localStorage.getItem("nickname");
-      if (!nickname) {
+      const kakaoId = localStorage.getItem("kakaoId");
+
+      if (!nickname || !kakaoId || kakaoId === "null") {
         alert("로그인 후 입장하실 수 있습니다.");
         goKakaoLogin();
       } else {
@@ -187,3 +189,4 @@
   </script>
 </body>
 </html>
+
