@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaX 감자농장 입장</title>
+  <title>감자 농장 입장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -22,93 +21,98 @@
     main {
       padding: 2rem;
     }
+    h1 {
+      margin-bottom: 1rem;
+    }
     .resource-box {
-      background-color: rgba(255, 255, 255, 0.15);
+      background-color: rgba(255, 255, 255, 0.1);
       border-radius: 10px;
       padding: 1rem;
-      margin: 1rem auto;
-      width: 80%;
-      max-width: 400px;
-    }
-    .status {
-      margin: 1rem 0;
-    }
-    .nav-links a {
+      margin: 1rem;
       display: inline-block;
-      margin: 0.5rem;
-      padding: 0.7rem 1.2rem;
-      background-color: #00c3ff;
-      color: white;
+      text-align: left;
+    }
+    .resource-box span {
+      font-weight: bold;
+      color: #00e0ff;
+    }
+    .nav-buttons {
+      margin-top: 2rem;
+    }
+    .nav-buttons a {
+      display: inline-block;
+      margin: 0 1rem;
+      padding: 0.75rem 1.5rem;
+      background-color: rgba(0, 224, 255, 0.8);
       border-radius: 10px;
+      color: #000;
       text-decoration: none;
       font-weight: bold;
+    }
+    .nav-buttons a:hover {
+      background-color: rgba(0, 224, 255, 1);
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>OrcaX 감자농장 입장</h1>
-    <div class="status" id="powerStatus">🔌 서버 전원 상태 확인 중...</div>
-    <div>👤 <span id="nickname">닉네임</span>님 환영합니다!</div>
+    <h1>🐳 감자 농장에 오신 것을 환영합니다!</h1>
+    <p>닉네임: <span id="nickname">-</span></p>
   </header>
   <main>
     <div class="resource-box">
-      <h3>보유 자산</h3>
-      <p>💧 물: <span id="water">-</span> 개</p>
-      <p>💩 거름: <span id="fertilizer">-</span> 개</p>
-      <p>🥔 씨감자: <span id="seedPotato">-</span> 개</p>
-      <p>🌾 씨보리: <span id="seedBarley">-</span> 개</p>
-      <p>💰 ORCX: <span id="orcx">-</span> 개</p>
+      <p>보유 ORCX: <span id="orcx">0</span></p>
+      <p>물: <span id="water">0</span></p>
+      <p>거름: <span id="fertilizer">0</span></p>
+      <p>감자: <span id="potato">0</span></p>
+      <p>보리: <span id="bori">0</span></p>
+      <p>씨감자: <span id="seedPotato">0</span></p>
+      <p>씨보리: <span id="seedBarley">0</span></p>
     </div>
 
-    <div class="nav-links">
-      <a href="gamja-main.html">농장으로 입장</a>
-      <a href="index9.html">메인으로</a>
+    <div class="nav-buttons">
+      <a href="gamja-main.html">🚜 농장이름 짓기</a>
+      <a href="index9.html">🏠 메인으로</a>
     </div>
   </main>
 
   <script>
-    async function fetchUserInfo() {
+    async function loadUserData() {
       const kakaoId = localStorage.getItem("kakaoId");
-      const nickname = localStorage.getItem("nickname");
-      document.getElementById("nickname").textContent = nickname || "사용자";
+      if (!kakaoId) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "index9.html";
+        return;
+      }
 
       try {
-        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userinfo?kakaoId=" + kakaoId);
-        const data = await res.json();
+        const response = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ kakaoId }),
+        });
 
-        if (data.success) {
-          const user = data.user;
-          document.getElementById("water").textContent = user.water || 0;
-          document.getElementById("fertilizer").textContent = user.fertilizer || 0;
-          document.getElementById("seedPotato").textContent = user.seedPotato || 0;
-          document.getElementById("seedBarley").textContent = user.seedBarley || 0;
-          document.getElementById("orcx").textContent = user.orcx || 0;
-        }
-      } catch (err) {
-        console.error("유저 정보 불러오기 실패:", err);
+        const data = await response.json();
+        const user = data.user;
+
+        document.getElementById("nickname").innerText = user.nickname ?? "-";
+        document.getElementById("water").innerText = user.water ?? 0;
+        document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
+        document.getElementById("orcx").innerText = user.orcx ?? 0;
+        document.getElementById("potato").innerText = user.potato ?? 0;
+        document.getElementById("bori").innerText = user.bori ?? 0;
+        document.getElementById("seedPotato").innerText = user.seedPotato ?? 0;
+        document.getElementById("seedBarley").innerText = user.seedBarley ?? 0;
+
+      } catch (error) {
+        console.error("유저 데이터를 불러오는 중 오류 발생:", error);
+        alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
       }
     }
 
-    async function checkPower() {
-      try {
-        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/power");
-        const data = await res.json();
-        const status = document.getElementById("powerStatus");
-        if (data.power === true) {
-          status.textContent = "✅ 전기공급 ON";
-        } else {
-          status.textContent = "❌ 전기공급 OFF";
-        }
-      } catch (err) {
-        document.getElementById("powerStatus").textContent = "⚠️ 전원 상태 확인 실패";
-      }
-    }
-
-    fetchUserInfo();
-    checkPower();
+    window.onload = loadUserData;
   </script>
 </body>
 </html>
-
-
