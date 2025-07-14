@@ -66,6 +66,7 @@
 
   <script>
     const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+    const kakaoId = localStorage.getItem("kakaoId");
     const nickname = localStorage.getItem("nickname") || "범고래X";
     const farmName = localStorage.getItem("farmName") || "하늘농장";
 
@@ -74,16 +75,23 @@
 
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API}/userdata`);
+        const res = await fetch(`${API}/userdata`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ kakaoId })
+        });
         const data = await res.json();
         if (data.success) {
-          document.getElementById("water").textContent = data.user.inventory.water;
-          document.getElementById("fertilizer").textContent = data.user.inventory.fertilizer;
-          document.getElementById("orcx").textContent = data.user.wallet.orcx;
-          document.getElementById("gamja").textContent = data.user.storage.gamja;
-          document.getElementById("bori").textContent = data.user.storage.bori;
-          document.getElementById("seedPotato").textContent = data.user.inventory.seedPotato;
-          document.getElementById("seedBarley").textContent = data.user.inventory.seedBarley;
+          const user = data.users[0];
+          document.getElementById("water").textContent = user.inventory.water ?? 0;
+          document.getElementById("fertilizer").textContent = user.inventory.fertilizer ?? 0;
+          document.getElementById("orcx").textContent = user.wallet.orcx ?? 0;
+          document.getElementById("gamja").textContent = user.storage.gamja ?? 0;
+          document.getElementById("bori").textContent = user.storage.bori ?? 0;
+          document.getElementById("seedPotato").textContent = user.inventory.seedPotato ?? 0;
+          document.getElementById("seedBarley").textContent = user.inventory.seedBarley ?? 0;
         } else {
           alert("유저 정보를 불러오지 못했습니다.");
         }
