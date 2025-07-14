@@ -15,7 +15,7 @@
       text-align: center;
     }
     header {
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.3);
       padding: 1rem;
     }
     main {
@@ -36,33 +36,25 @@
       font-weight: bold;
       color: #00e0ff;
     }
-    .status-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      background: black;
-      color: white;
-      padding: 5px 10px;
-      font-size: 0.9rem;
-      z-index: 1000;
-    }
-    .nav-links {
+    .nav-buttons {
       margin-top: 2rem;
     }
-    .nav-links a {
+    .nav-buttons a {
       display: inline-block;
-      margin: 0 10px;
-      padding: 10px 15px;
-      background: rgba(255,255,255,0.8);
+      margin: 0 1rem;
+      padding: 0.75rem 1.5rem;
+      background-color: rgba(0, 224, 255, 0.8);
+      border-radius: 10px;
       color: #000;
       text-decoration: none;
-      border-radius: 8px;
       font-weight: bold;
+    }
+    .nav-buttons a:hover {
+      background-color: rgba(0, 224, 255, 1);
     }
   </style>
 </head>
 <body>
-  <div class="status-bar" id="status">🔄 서버 연결 중...</div>
   <header>
     <h1>🐳 감자 농장에 오신 것을 환영합니다!</h1>
     <p>닉네임: <span id="nickname">-</span></p>
@@ -78,9 +70,9 @@
       <p>씨보리: <span id="seedBarley">0</span></p>
     </div>
 
-    <div class="nav-links">
-      <a href="index9.html">⬅ 메인으로</a>
-      <a href="gamja-main.html">🌱 농장이름짓기</a>
+    <div class="nav-buttons">
+      <a href="gamja-main.html">🚜 농장이름 짓기</a>
+      <a href="index9.html">🏠 메인으로</a>
     </div>
   </main>
 
@@ -103,25 +95,19 @@
         });
 
         const data = await response.json();
-        console.log("서버 응답:", data);
-
-        if (!data.user) throw new Error("유저 정보 없음");
-
         const user = data.user;
 
         document.getElementById("nickname").innerText = user.nickname ?? "-";
-        document.getElementById("orcx").innerText = user.wallet?.orcx ?? 0;
-        document.getElementById("water").innerText = user.inventory?.water ?? 0;
-        document.getElementById("fertilizer").innerText = user.inventory?.fertilizer ?? 0;
-        document.getElementById("potato").innerText = user.storage?.gamja ?? 0;
-        document.getElementById("bori").innerText = user.storage?.bori ?? 0;
-        document.getElementById("seedPotato").innerText = user.inventory?.seedPotato ?? 0;
-        document.getElementById("seedBarley").innerText = user.inventory?.seedBarley ?? 0;
+        document.getElementById("water").innerText = user.water ?? 0;
+        document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
+        document.getElementById("orcx").innerText = user.orcx ?? 0;
+        document.getElementById("potato").innerText = user.potato ?? 0;
+        document.getElementById("bori").innerText = user.bori ?? 0;
+        document.getElementById("seedPotato").innerText = user.seedPotato ?? 0;
+        document.getElementById("seedBarley").innerText = user.seedBarley ?? 0;
 
-        document.getElementById("status").innerText = "✅ 서버 연결됨";
       } catch (error) {
         console.error("유저 데이터를 불러오는 중 오류 발생:", error);
-        document.getElementById("status").innerText = "❌ 서버 오류 발생";
         alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
       }
     }
