@@ -15,7 +15,7 @@
       text-align: center;
     }
     header {
-      background-color: rgba(0, 0, 0, 0.3);
+      background-color: rgba(0, 0, 0, 0.5);
       padding: 1rem;
     }
     main {
@@ -110,13 +110,13 @@
         const user = data.user;
 
         document.getElementById("nickname").innerText = user.nickname ?? "-";
-        document.getElementById("orcx").innerText = user.orcx ?? 0;
-        document.getElementById("water").innerText = user.water ?? 0;
-        document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
-        document.getElementById("potato").innerText = user.potato ?? 0;
-        document.getElementById("bori").innerText = user.bori ?? 0;
-        document.getElementById("seedPotato").innerText = user.seedPotato ?? 0;
-        document.getElementById("seedBarley").innerText = user.seedBarley ?? 0;
+        document.getElementById("orcx").innerText = user.wallet?.orcx ?? 0;
+        document.getElementById("water").innerText = user.inventory?.water ?? 0;
+        document.getElementById("fertilizer").innerText = user.inventory?.fertilizer ?? 0;
+        document.getElementById("potato").innerText = user.storage?.gamja ?? 0;
+        document.getElementById("bori").innerText = user.storage?.bori ?? 0;
+        document.getElementById("seedPotato").innerText = user.inventory?.seedPotato ?? 0;
+        document.getElementById("seedBarley").innerText = user.inventory?.seedBarley ?? 0;
 
         document.getElementById("status").innerText = "✅ 서버 연결됨";
       } catch (error) {
@@ -130,4 +130,5 @@
   </script>
 </body>
 </html>
+
 
