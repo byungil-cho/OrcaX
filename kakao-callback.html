@@ -2,68 +2,65 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>카카오 로그인 콜백</title>
+  <title>Kakao Login Callback</title>
+  <script>
+    window.onload = async function () {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      if (!code) {
+        alert("로그인 인증 코드가 없습니다.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      try {
+        const response = await fetch("https://kauth.kakao.com/oauth/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            grant_type: "authorization_code",
+            client_id: "284b798a9d9be8202f9c2e129fa6f329", // 주인님 앱 키
+            redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html", // 리디렉션 주소
+            code: code,
+          }),
+        });
+
+        const tokenData = await response.json();
+        const accessToken = tokenData.access_token;
+
+        // 사용자 정보 요청
+        const userRes = await fetch("https://kapi.kakao.com/v2/user/me", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
+
+        const userInfo = await userRes.json();
+        const nickname = userInfo.kakao_account.profile.nickname;
+        const kakaoId = userInfo.id;
+
+        // localStorage 저장
+        localStorage.setItem("nickname", nickname);
+        localStorage.setItem("kakaoId", kakaoId);
+
+        // index.html로 이동
+        window.location.href = "index.html";
+      } catch (error) {
+        console.error("카카오 로그인 실패:", error);
+        alert("카카오 로그인 중 오류 발생");
+        window.location.href = "index.html";
+      }
+    };
+  </script>
 </head>
 <body>
-  <script>
-    const code = new URL(window.location.href).searchParams.get("code");
-    if (!code) {
-      alert("인증 코드가 없습니다.");
-    } else {
-      fetch(`https://kauth.kakao.com/oauth/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: '284b798a9d9be8202f9c2e129fa6f329',
-          redirect_uri: 'https://byungil-cho.github.io/OrcaX/kakao-callback.html',
-          code: code
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const accessToken = data.access_token;
-        return fetch("https://kapi.kakao.com/v2/user/me", {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        }).then(res => res.json())
-          .then(profile => {
-            const nickname = profile.properties?.nickname;
-            const kakaoId = profile.id;
-            if (!nickname || nickname === "사용자") {
-              alert("닉네임을 불러오지 못했습니다. 다시 로그인 해주세요.");
-              return;
-            }
-
-            fetch("https://orcax-survey-3060.onrender.com/api/login", {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ nickname, kakaoId })
-            })
-            .then(res => res.json())
-            .then(result => {
-              if (result.success) {
-                console.log("서버 저장 성공:", result);
-              } else {
-                console.warn("서버 응답 오류", result);
-              }
-            })
-            .catch(err => {
-              console.error("서버 통신 실패", err);
-            });
-
-            localStorage.setItem("nickname", nickname);
-            localStorage.setItem("userId", kakaoId);
-            localStorage.setItem("accessToken", accessToken);
-
-            // ✅ 수정된 리디렉션 주소
-            window.location.href = "https://byungil-cho.github.io/OrcaX/index9.html";
-          });
-      })
-      .catch(err => {
-        console.error("로그인 오류", err);
-        alert("로그인 중 오류가 발생했습니다.");
-      });
-    }
-  </script>
+  <h3 style="color:white; background-color:black; padding:20px; text-align:center;">
+    로그인 처리 중입니다...
+  </h3>
 </body>
 </html>
