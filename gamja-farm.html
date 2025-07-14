@@ -34,12 +34,16 @@
       border-radius: 1rem;
       text-decoration: none;
     }
+    #serverStatus {
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <main>
     <header>
       <h1>감자 농장 대시보드</h1>
+      <p>📡 서버 연결 상태: <span id="serverStatus">⏳ 확인 중...</span></p>
       <p>👨‍🌾 농장주: <span id="nickname">-</span></p>
       <p>💖 농장이름: <span id="farmName">-</span></p>
 
@@ -69,6 +73,7 @@
     const kakaoId = localStorage.getItem("kakaoId");
     const nickname = localStorage.getItem("nickname") || "범고래X";
     const farmName = localStorage.getItem("farmName") || "하늘농장";
+    const statusEl = document.getElementById("serverStatus");
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
@@ -83,6 +88,7 @@
           body: JSON.stringify({ kakaoId })
         });
         const data = await res.json();
+
         if (data.success) {
           const user = data.users[0];
           document.getElementById("water").textContent = user.inventory.water ?? 0;
@@ -92,12 +98,17 @@
           document.getElementById("bori").textContent = user.storage.bori ?? 0;
           document.getElementById("seedPotato").textContent = user.inventory.seedPotato ?? 0;
           document.getElementById("seedBarley").textContent = user.inventory.seedBarley ?? 0;
+
+          statusEl.textContent = "✅ 정상 연결됨";
+          statusEl.style.color = "#00ff99";
         } else {
-          alert("유저 정보를 불러오지 못했습니다.");
+          statusEl.textContent = "⚠️ 유저 정보 없음";
+          statusEl.style.color = "#ffcc00";
         }
       } catch (err) {
         console.error("API 요청 실패", err);
-        alert("서버에 연결할 수 없습니다.");
+        statusEl.textContent = "❌ 서버 연결 실패";
+        statusEl.style.color = "#ff4444";
       }
     }
 
