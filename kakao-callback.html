@@ -10,7 +10,7 @@
 
       if (!code) {
         alert("로그인 인증 코드가 없습니다.");
-        window.location.href = "index.html";
+        window.location.href = "index9.html";  // ✅ 수정된 이동 위치
         return;
       }
 
@@ -22,8 +22,8 @@
           },
           body: new URLSearchParams({
             grant_type: "authorization_code",
-            client_id: "284b798a9d9be8202f9c2e129fa6f329", // 주인님 앱 키
-            redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html", // 리디렉션 주소
+            client_id: "284b798a9d9be8202f9c2e129fa6f329",
+            redirect_uri: "https://byungil-cho.github.io/OrcaX/kakao-callback.html",
             code: code,
           }),
         });
@@ -48,12 +48,12 @@
         localStorage.setItem("nickname", nickname);
         localStorage.setItem("kakaoId", kakaoId);
 
-        // index.html로 이동
-        window.location.href = "index.html";
+        // ✅ 수정된 리디렉션 위치
+        window.location.href = "index9.html";
       } catch (error) {
         console.error("카카오 로그인 실패:", error);
         alert("카카오 로그인 중 오류 발생");
-        window.location.href = "index.html";
+        window.location.href = "index9.html";  // 오류 시도 동일하게 처리
       }
     };
   </script>
