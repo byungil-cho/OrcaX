@@ -17,7 +17,7 @@
     .container {
       margin-top: 5%;
       padding: 20px;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.3);
       display: inline-block;
       border-radius: 12px;
     }
@@ -53,26 +53,27 @@
 
     <div class="section">
       <h2>📦 농자재 보관함</h2>
-      물: <span id="water">-</span><br>
-      거름: <span id="fertilizer">-</span><br>
-      ORCX: <span id="orcx">-</span>
+      물: <span id="water">0</span><br>
+      거름: <span id="fertilizer">0</span><br>
+      ORCX: <span id="orcx">0</span>
     </div>
 
     <div class="section">
       <h2>🌾 작물 보관소</h2>
-      감자: <span id="potato">-</span><br>
-      보리: <span id="barley">-</span>
+      감자: <span id="potato">0</span><br>
+      보리: <span id="barley">0</span>
     </div>
 
     <div class="section">
-      <h2>🌱 씨앗 보유 (로컬)</h2>
-      씨감자: <span id="seedPotato">-</span><br>
-      씨보리: <span id="seedBarley">-</span>
+      <h2>🌱 씨앗 보유</h2>
+      씨감자: <span id="seedPotato">0</span><br>
+      씨보리: <span id="seedBarley">0</span>
     </div>
 
     <div class="footer">
-      <a href="bori-main.html">🌾 농장 작명소</a>
+      <a href="bori-factory.html">🌾 보리 농장</a>
       <a href="gamja-shop.html">🛒 씨앗 상점</a>
+      <a href="index9.html">🌱 메인으로</a>
     </div>
 
     <div class="status" id="statusMessage">⏳ 데이터 불러오는 중...</div>
@@ -83,12 +84,9 @@
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
     const kakaoId = localStorage.getItem("kakaoId") || "unknown";
-    const seedInventory = JSON.parse(localStorage.getItem("seedInventory") || "{}");
 
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
-    document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
-    document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
 
     async function initUser() {
       try {
@@ -107,15 +105,27 @@
       statusEl.textContent = "📡 서버 연결 중...";
 
       try {
-        const res = await fetch(`${API_BASE}/api/userdata?kakaoId=${kakaoId}`);
-        const data = await res.json();
-        const user = data.user || data.users?.[0];
+        const res = await fetch(`${API_BASE}/api/userdata`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId })
+        });
 
-        document.getElementById("water").textContent = user?.water ?? "-";
-        document.getElementById("fertilizer").textContent = user?.fertilizer ?? "-";
-        document.getElementById("orcx").textContent = user?.orcx ?? "-";
-        document.getElementById("potato").textContent = user?.potato ?? "-";
-        document.getElementById("barley").textContent = user?.barley ?? "-";
+        const data = await res.json();
+        const user = data.user;
+
+        if (!user) {
+          statusEl.textContent = "❌ 유저 정보 없음";
+          return;
+        }
+
+        document.getElementById("water").textContent = user.water ?? 0;
+        document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
+        document.getElementById("orcx").textContent = user.orcx ?? 0;
+        document.getElementById("potato").textContent = user.potato ?? 0;
+        document.getElementById("barley").textContent = user.barley ?? 0;
+        document.getElementById("seedPotato").textContent = user.seedPotato ?? 0;
+        document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
 
         statusEl.textContent = "✅ 서버 연결 완료";
       } catch (err) {
