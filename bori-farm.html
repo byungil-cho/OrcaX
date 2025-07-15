@@ -15,7 +15,7 @@
       text-align: center;
     }
     header {
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.3);
       padding: 1rem;
     }
     main {
@@ -29,73 +29,91 @@
       border-radius: 10px;
       padding: 1rem;
       margin: 1rem auto;
-      width: 300px;
+      max-width: 300px;
     }
-    a {
-      color: white;
-      margin: 0 1rem;
-      text-decoration: none;
+    .status {
+      color: red;
+    }
+    nav a {
+      color: #fff;
+      margin: 0 10px;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>🌾 OrcaX 보리 농장</h1>
-    <div>
-      <a href="index9.html">메인으로</a>
-      <a href="gamja-shop.html">씨앗구매</a>
+    <div id="server-status" class="status">서버 연결 확인 중...</div>
+    <nav>
+      <a href="index9.html">메인으로</a> |
+      <a href="gamja-shop.html">씨앗구매</a> |
       <a href="bori-factory.html">보리농사 짓기</a>
-    </div>
-    <div id="server-status" style="margin-top: 10px;">🔴 서버 연결 실패</div>
+    </nav>
   </header>
   <main>
-    <div id="nickname">🧑‍🌾 닉네임: 로딩 중...</div>
     <div class="resource-box">
-      <p>💧 물: <span id="water">-</span> 개</p>
-      <p>🌱 거름: <span id="fertilizer">-</span> 개</p>
-      <p>🌾 씨보리: <span id="seedBarley">-</span> 개</p>
-      <p>🪙 ORCX 토큰: <span id="orcx">-</span> 개</p>
-      <p>📦 보리 보관량: <span id="boriStorage">-</span> 개</p>
+      <p>👤 닉네임: <span id="nickname">-</span></p>
+      <p>💧 물: <span id="water">0</span>개</p>
+      <p>🪱 거름: <span id="fertilizer">0</span>개</p>
+      <p>🌾 씨보리: <span id="seedBarley">0</span>개</p>
+      <p>🪙 ORCX 토큰: <span id="tokens">0</span>개</p>
+      <p>📦 보리 보관량: <span id="barleyStorage">0</span>개</p>
     </div>
   </main>
 
   <script>
-    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
-
-    async function checkServerStatus() {
-      try {
-        const res = await fetch(`${API_BASE}/api/init-user`);
-        document.getElementById('server-status').innerText = res.ok ? '🟢 서버 연결됨' : '🔴 서버 연결 실패';
-      } catch {
-        document.getElementById('server-status').innerText = '🔴 서버 연결 실패';
-      }
-    }
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+    const kakaoId = localStorage.getItem("kakaoId");
 
     async function fetchUserData() {
-      const kakaoId = localStorage.getItem('kakaoId');
-      if (!kakaoId) return;
+      if (!kakaoId) {
+        document.getElementById("nickname").textContent = "로그인 필요";
+        return;
+      }
 
       try {
-        const response = await fetch(`${API_BASE}/api/userdata`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId }),
+        const res = await fetch(`${API_BASE}/userdata`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId })
         });
-        const data = await response.json();
+        const result = await res.json();
 
-        document.getElementById('nickname').innerText = `🧑‍🌾 닉네임: ${data.nickname || '알 수 없음'}`;
-        document.getElementById('water').innerText = data.water || 0;
-        document.getElementById('fertilizer').innerText = data.fertilizer || 0;
-        document.getElementById('seedBarley').innerText = data.seedBarley || 0;
-        document.getElementById('orcx').innerText = data.orcx || 0;
-        document.getElementById('boriStorage').innerText = (data.bori || 0);
-      } catch (e) {
-        console.error('유저 데이터 불러오기 실패', e);
+        if (result.success) {
+          const user = result.user;
+          document.getElementById("nickname").textContent = user.nickname || "알 수 없음";
+          document.getElementById("water").textContent = user.inventory?.water || 0;
+          document.getElementById("fertilizer").textContent = user.inventory?.fertilizer || 0;
+          document.getElementById("seedBarley").textContent = user.inventory?.seedBarley || 0;
+          document.getElementById("tokens").textContent = user.tokens || 0;
+          document.getElementById("barleyStorage").textContent = user.barley || 0;
+        } else {
+          document.getElementById("nickname").textContent = "유저 정보 없음";
+        }
+      } catch (err) {
+        document.getElementById("nickname").textContent = "연결 오류";
       }
     }
 
-    checkServerStatus();
+    async function checkServer() {
+      try {
+        const res = await fetch(`${API_BASE}/ping`);
+        if (res.status === 200) {
+          document.getElementById("server-status").textContent = "✅ 서버 연결됨";
+          document.getElementById("server-status").style.color = "lightgreen";
+        } else {
+          throw new Error("Ping failed");
+        }
+      } catch {
+        document.getElementById("server-status").textContent = "❌ 서버 연결 실패";
+        document.getElementById("server-status").style.color = "red";
+      }
+    }
+
+    checkServer();
     fetchUserData();
   </script>
 </body>
 </html>
+
