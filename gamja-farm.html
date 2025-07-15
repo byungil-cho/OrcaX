@@ -81,7 +81,6 @@
       const kakaoId = localStorage.getItem("kakaoId");
       const nickname = localStorage.getItem("nickname");
 
-      // 로그인 정보 없을 시 강제 리디렉션
       if (!kakaoId || !nickname) {
         alert("로그인이 필요합니다. 메인 페이지로 이동합니다.");
         window.location.href = "index9.html";
@@ -107,13 +106,14 @@
           return;
         }
 
-        document.getElementById("water").innerText = user.water ?? 0;
-        document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
-        document.getElementById("orcx").innerText = user.orcx ?? 0;
-        document.getElementById("potato").innerText = user.potato ?? 0;
-        document.getElementById("bori").innerText = user.bori ?? 0;
-        document.getElementById("seedPotato").innerText = user.seedPotato ?? 0;
-        document.getElementById("seedBarley").innerText = user.seedBarley ?? 0;
+        // 서버 구조에 맞게 출력
+        document.getElementById("water").innerText = user.inventory?.water ?? 0;
+        document.getElementById("fertilizer").innerText = user.inventory?.fertilizer ?? 0;
+        document.getElementById("orcx").innerText = user.wallet?.orcx ?? 0;
+        document.getElementById("potato").innerText = user.storage?.gamja ?? 0;
+        document.getElementById("bori").innerText = user.storage?.bori ?? 0;
+        document.getElementById("seedPotato").innerText = user.inventory?.seedPotato ?? 0;
+        document.getElementById("seedBarley").innerText = user.inventory?.seedBarley ?? 0;
 
       } catch (error) {
         console.error("유저 데이터를 불러오는 중 오류 발생:", error);
@@ -125,4 +125,5 @@
   </script>
 </body>
 </html>
+
 
