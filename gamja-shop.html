@@ -21,38 +21,33 @@
       border-radius: 20px;
     }
     h1 { margin-bottom: 1rem; font-size: 2rem; }
-    .info-block { margin: 1rem 0; font-size: 1.2rem; text-align: left; }
-    .info-block img { vertical-align: middle; width: 24px; }
+    .info-block { margin: 1.5rem 0; font-size: 1.3rem; }
     .seed-section { margin: 2rem 0; padding: 1rem; background-color: rgba(255,255,255,0.1); border-radius: 10px; }
     button { background-color: #28a745; color: white; border: none; padding: 0.8rem 1.5rem; font-size: 1.2rem; cursor: pointer; border-radius: 8px; }
     button:hover { background-color: #218838; }
     nav { display: flex; justify-content: space-around; padding: 1rem; }
     nav a { color: #ffcc00; text-decoration: none; font-weight: bold; }
-    .status { margin-top: 1rem; color: #00ff00; }
+    .status { margin-top: 1.5rem; color: #00ff00; }
   </style>
 </head>
 <body>
   <main>
     <h1>🌱 OrcaX 씨앗 상점</h1>
     <div class="info-block">
-      🧑‍🌾 닉네임: <span id="nickname">-</span><br />
-      🧠 카카오ID: <span id="kakaoId">-</span><br />
       💰 보유 토큰: <span id="orcx">0</span> ORCX
     </div>
     <div class="info-block">
-      🥔 씨감자 남은 수량: <span id="leftPotato">0</span><br />
-      🌾 씨보리 남은 수량: <span id="leftBarley">0</span><br />
-      🥔 씨감자 가격: <span id="pricePotato">-</span> ORCX<br />
+      🥔 씨감자 재고: <span id="leftPotato">-</span>개<br />
+      🥔 씨감자 가격: <span id="pricePotato">-</span> ORCX<br /><br />
+      🌾 씨보리 재고: <span id="leftBarley">-</span>개<br />
       🌾 씨보리 가격: <span id="priceBarley">-</span> ORCX
     </div>
     <div class="seed-section">
       <h2>🥔 씨감자</h2>
-      내 보유: <span id="myPotato">0</span>개<br /><br />
       <button onclick="buySeed('seedPotato')">구매하기</button>
     </div>
     <div class="seed-section">
       <h2>🌾 씨보리</h2>
-      내 보유: <span id="myBarley">0</span>개<br /><br />
       <button onclick="buySeed('seedBarley')">구매하기</button>
     </div>
     <nav>
@@ -65,16 +60,13 @@
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
     const kakaoId = localStorage.getItem("kakaoId") || "";
-    const nickname = localStorage.getItem("nickname") || "-";
-    document.getElementById("nickname").innerText = nickname;
-    document.getElementById("kakaoId").innerText = kakaoId;
-
     if (!kakaoId) {
       alert("로그인이 필요합니다. 메인으로 이동합니다.");
       window.location.href = "index9.html";
     }
 
-    async function fetchUserData() {
+    // 토큰(ORCX)은 반드시 서버에서 user.wallet.orcx로!
+    async function fetchUserToken() {
       try {
         const res = await fetch(`${API_BASE}/userdata`, {
           method: "POST",
@@ -83,33 +75,24 @@
         });
         const data = await res.json();
         const user = data.user;
-        if (user) {
-          document.getElementById("nickname").innerText = user.nickname;
-          document.getElementById("kakaoId").innerText = user.kakaoId;
-          document.getElementById("orcx").innerText = user.wallet?.orcx ?? 0;
-          document.getElementById("myPotato").innerText = user.inventory?.seedPotato ?? 0;
-          document.getElementById("myBarley").innerText = user.inventory?.seedBarley ?? 0;
-          document.getElementById("statusMsg").innerText = "✅ 서버 연결 성공";
-        } else {
-          document.getElementById("statusMsg").innerText = "❌ 로그인 필요";
-        }
+        document.getElementById("orcx").innerText = user?.wallet?.orcx ?? 0;
       } catch (err) {
-        document.getElementById("statusMsg").innerText = "❌ 서버 연결 실패";
+        document.getElementById("orcx").innerText = 0;
       }
     }
 
+    // 씨앗 보관소 재고 및 가격 정보
     async function fetchSeedStatus() {
       try {
         const res = await fetch(`${API_BASE}/seed/status`);
         const data = await res.json();
-        if (data.success) {
-          document.getElementById("leftPotato").innerText = data.seedPotato;
-          document.getElementById("leftBarley").innerText = data.seedBarley;
-          document.getElementById("pricePotato").innerText = data.pricePotato;
-          document.getElementById("priceBarley").innerText = data.priceBarley;
-        }
+        document.getElementById("leftPotato").innerText = data.seedPotato ?? "-";
+        document.getElementById("pricePotato").innerText = data.pricePotato ?? "-";
+        document.getElementById("leftBarley").innerText = data.seedBarley ?? "-";
+        document.getElementById("priceBarley").innerText = data.priceBarley ?? "-";
+        document.getElementById("statusMsg").innerText = data.success ? "✅ 서버 연결 성공" : "❌ 씨앗 정보 없음";
       } catch (err) {
-        console.error("Seed status error", err);
+        document.getElementById("statusMsg").innerText = "❌ 서버 연결 실패";
       }
     }
 
@@ -123,20 +106,21 @@
         const data = await res.json();
         if (data.success) {
           alert(`${type === 'seedPotato' ? '씨감자' : '씨보리'} 구매 성공!`);
-          fetchUserData();
+          fetchUserToken();
           fetchSeedStatus();
         } else {
-          alert("구매 실패: " + data.message);
+          alert("구매 실패: " + (data.message || "서버 오류"));
         }
       } catch (err) {
         alert("오류 발생: " + err.message);
       }
     }
 
-    // 초기 로딩
-    fetchUserData();
+    // 페이지 로딩 시
+    fetchUserToken();
     fetchSeedStatus();
   </script>
 </body>
 </html>
+
 
