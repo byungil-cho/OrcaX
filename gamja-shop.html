@@ -92,64 +92,43 @@
   </nav>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-    const kakaoId = localStorage.getItem("kakaoId") || "";
-    if (!kakaoId) {
-      alert("로그인이 필요합니다. 메인으로 이동합니다.");
-      window.location.href = "index9.html";
-    }
+const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+const kakaoId = localStorage.getItem("kakaoId") || "";
 
-    // 유저/씨앗 데이터 한 번에 불러오기
-    async function fetchAllData() {
-      try {
-        // 1. 유저 정보 (내 보유 토큰, 내 씨앗 개수)
-        const userRes = await fetch(`${API_BASE}/user/v2data`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: kakaoId })
-        });
-        const userData = await userRes.json();
-        const user = userData.user;
+if (!kakaoId) {
+  alert("로그인이 필요합니다. 메인으로 이동합니다.");
+  window.location.href = "index9.html";
+}
 
-        // 콘솔로 실제 구조 체크
-        // console.log("user:", user);
+async function fetchAll() {
+  // 1. 내 정보 (토큰, 내 씨앗)
+  const res1 = await fetch(`${API_BASE}/user/v2data`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: kakaoId })
+  });
+  const u = await res1.json();
+  const user = u.user;
+  document.getElementById("orcx").innerText = user?.token ?? 0;
+  document.getElementById("myPotato").innerText = user?.inventory?.seedPotato ?? 0;
+  document.getElementById("myBarley").innerText = user?.inventory?.seedBarley ?? 0;
 
-        // 토큰
-        document.getElementById("orcx").innerText = user?.wallet?.orcx ?? 0;
-        // 내 씨감자/씨보리 개수
-        document.getElementById("myPotato").innerText = user?.inventory?.seedPotato ?? 0;
-        document.getElementById("myBarley").innerText = user?.inventory?.seedBarley ?? 0;
+  // 2. 씨앗 보관소 재고
+  const res2 = await fetch(`${API_BASE}/seed/status`);
+  const d = await res2.json();
+  document.getElementById("potato-stock").innerText = d.seedPotato ?? 0;
+  document.getElementById("barley-stock").innerText = d.seedBarley ?? 0;
 
-        // 2. 씨앗 재고/가격 (seedstocks)
-        const stockRes = await fetch(`${API_BASE}/seed/status`);
-        const stock = await stockRes.json();
-        // console.log("stock:", stock);
+  // 3. 씨앗 가격
+  const res3 = await fetch(`${API_BASE}/seed/price`);
+  const price = await res3.json();
+  document.getElementById("potato-price").innerText = price.seedPotatoPrice ?? 0;
+  document.getElementById("barley-price").innerText = price.seedBarleyPrice ?? 0;
+}
 
-        document.getElementById("potato-stock").innerText = stock.potato?.stock ?? 0;
-        document.getElementById("potato-price").innerText = stock.potato?.price ?? 0;
-        document.getElementById("barley-stock").innerText = stock.barley?.stock ?? 0;
-        document.getElementById("barley-price").innerText = stock.barley?.price ?? 0;
+fetchAll();
+</script>
 
-      } catch (err) {
-        document.getElementById("orcx").innerText = 0;
-        document.getElementById("myPotato").innerText = 0;
-        document.getElementById("myBarley").innerText = 0;
-        document.getElementById("potato-stock").innerText = 0;
-        document.getElementById("potato-price").innerText = 0;
-        document.getElementById("barley-stock").innerText = 0;
-        document.getElementById("barley-price").innerText = 0;
-      }
-    }
-
-    // 씨앗 구매 (예시 함수, 실제 구매 구현 필요시 서버 API 경로 확인!)
-    async function buySeed(type) {
-      alert(type + " 구매는 서버 연동 후 사용 가능합니다.");
-      // 실제 연동은 필요에 따라 추가
-    }
-
-    // 최초 진입 시 데이터 불러오기
-    fetchAllData();
-  </script>
 </body>
 </html>
 
