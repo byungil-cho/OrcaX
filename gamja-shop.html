@@ -65,17 +65,17 @@
       window.location.href = "index9.html";
     }
 
-    // 토큰(ORCX)은 반드시 서버에서 user.wallet.orcx로!
-    async function fetchUserToken() {
+    // 토큰(ORCX) + 내 씨앗 정보 불러오기 (POST /api/user/v2data)
+    async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/userdata`, {
+        const res = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId })
+          body: JSON.stringify({ id: kakaoId }) // ★ 반드시 'id'로 보냄!
         });
         const data = await res.json();
         const user = data.user;
-        document.getElementById("orcx").innerText = user?.wallet?.orcx ?? 0;
+        document.getElementById("orcx").innerText = user?.token ?? 0;
       } catch (err) {
         document.getElementById("orcx").innerText = 0;
       }
@@ -106,7 +106,7 @@
         const data = await res.json();
         if (data.success) {
           alert(`${type === 'seedPotato' ? '씨감자' : '씨보리'} 구매 성공!`);
-          fetchUserToken();
+          fetchUserData();
           fetchSeedStatus();
         } else {
           alert("구매 실패: " + (data.message || "서버 오류"));
@@ -117,10 +117,11 @@
     }
 
     // 페이지 로딩 시
-    fetchUserToken();
+    fetchUserData();
     fetchSeedStatus();
   </script>
 </body>
 </html>
+
 
 
