@@ -16,91 +16,87 @@
       min-height: 100vh;
     }
     main {
-      background: rgba(0,0,0,0.35);
+      background: rgba(0,0,0,0.36);
       margin: 40px auto 0;
       border-radius: 28px;
-      max-width: 530px;
-      padding: 36px 20px 30px 20px;
-      box-shadow: 0 6px 32px rgba(0,0,0,0.2);
+      max-width: 560px;
+      padding: 38px 20px 32px 20px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.22);
     }
-    .section {
-      margin-bottom: 28px;
-      font-size: 1.18rem;
-      text-align: left;
-    }
-    .section strong { font-size: 1.25rem; }
     h1 {
-      margin: 0 0 26px 0;
-      font-size: 2.3rem;
-      letter-spacing: -2px;
+      margin: 0 0 28px 0;
+      font-size: 2.4rem;
       font-weight: bold;
-      text-shadow: 2px 3px 16px #000b;
+      text-shadow: 2px 3px 16px #000a;
     }
-    .em { font-weight:bold; font-size:1.15em; }
-    .token { color: #ffc107; }
-    .seed-row { margin: 16px 0 0 0; font-size: 1.13rem; }
+    .token { color: #ffc107; font-size: 1.22rem; }
+    .seed-row { margin: 17px 0 0 0; font-size: 1.15rem; text-align:left; }
+    .section {
+      margin: 38px 0 0 0;
+      padding-bottom: 10px;
+    }
     .buy-btn {
-      display: inline-block;
+      display: block;
+      width: 90%;
+      margin: 15px auto 0;
       background: #26C281;
       color: #fff;
       font-weight: bold;
       border-radius: 12px;
       border: none;
-      padding: 13px 36px;
-      font-size: 1.2rem;
-      margin: 15px 0 0 0;
+      padding: 15px 0;
+      font-size: 1.25rem;
       cursor: pointer;
       box-shadow: 0 2px 8px #2225;
-      transition: 0.14s;
+      transition: 0.13s;
     }
-    .buy-btn:hover { background: #22a56b; }
+    .buy-btn:hover { background: #20aa69; }
     nav {
       position: fixed;
       left: 0; right: 0; bottom: 0;
       padding: 0.6rem 0 0.3rem 0;
-      background: rgba(0,0,0,0.65);
-      font-size: 1.16rem;
-      letter-spacing:0.04em;
-      z-index: 999;
+      background: rgba(0,0,0,0.67);
+      font-size: 1.13rem;
+      z-index: 10;
     }
     nav a {
       color: #ffc107;
-      margin: 0 26px;
+      margin: 0 28px;
       text-decoration: none;
       font-weight: bold;
-      transition: 0.2s;
+      transition: 0.18s;
     }
     nav a:hover { color: #fffad0; }
     @media (max-width:700px){
-      main { max-width:98vw; padding: 15px 2vw 20px 2vw; }
-      h1 { font-size: 1.6rem; }
-      .section, .seed-row { font-size: 1.02rem; }
+      main { max-width:98vw; padding: 13px 2vw 15px 2vw; }
+      h1 { font-size: 1.55rem; }
+      .seed-row { font-size: 1.01rem; }
     }
   </style>
 </head>
 <body>
   <main>
     <h1>🌱 OrcaX 씨앗 상점</h1>
-    <div class="section">
-      <span class="token">🪙 보유 토큰 : <span id="orcx">-</span> ORCX</span>
-      <div class="seed-row">
-        🥔 씨감자 재고: <span id="stockPotato">-</span>개<br>
-        🥔 씨감자 가격: <span id="pricePotato">-</span> ORCX
-      </div>
-      <div class="seed-row">
-        🌾 씨보리 재고: <span id="stockBarley">-</span>개<br>
-        🌾 씨보리 가격: <span id="priceBarley">-</span> ORCX
-      </div>
+    <div class="token">
+      🪙 보유 토큰 : <span id="orcx">0</span> ORCX
+    </div>
+    <div class="seed-row" style="margin-top:19px;">
+      🥔 씨감자 재고: <span id="stockPotato">0</span>개<br>
+      🥔 씨감자 가격: <span id="pricePotato">0</span> ORCX
+    </div>
+    <div class="seed-row">
+      🌾 씨보리 재고: <span id="stockBarley">0</span>개<br>
+      🌾 씨보리 가격: <span id="priceBarley">0</span> ORCX
     </div>
 
-    <div class="section" style="margin-top:36px;">
-      <strong>🥔 씨감자 구매</strong><br>
-      내 보유: <span id="myPotato">0</span>개<br>
+    <div class="section">
+      <strong style="font-size:1.18rem;">🥔 씨감자 구매</strong><br>
+      내 보유: <span id="myPotato">0</span>개
       <button class="buy-btn" id="buyPotatoBtn">씨감자 구매</button>
     </div>
     <div class="section">
-      <strong>🌾 씨보리 구매</strong><br>
-      내 보유: <span id="myBarley">0</span>개<br>
+      <strong style="font-size:1.18rem;">🌾 씨보리 구매</strong><br>
+      내 보유: <span id="myBarley">0</span>개
       <button class="buy-btn" id="buyBarleyBtn">씨보리 구매</button>
     </div>
   </main>
@@ -110,10 +106,10 @@
     <a href="gamja-factory.html">개인 보관함</a>
   </nav>
   <script>
-    // 1. 내 토큰 잔액만 /api/userdata 에서 별도 요청
+    // 1. 내 토큰 잔액만 /api/userdata 에서 POST로 별도 요청
     function loadOrcx() {
       const kakaoId = localStorage.getItem('kakaoId');
-      if (!kakaoId) return;
+      if (!kakaoId) { document.getElementById("orcx").textContent = "0"; return; }
       fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -121,51 +117,59 @@
       })
       .then(res => res.json())
       .then(user => {
-        // user.wallet.orcx 또는 user.orcx
-        document.getElementById("orcx").textContent =
-          (user.wallet && user.wallet.orcx !== undefined) ? user.wallet.orcx : (user.orcx || 0);
+        let orcx = 0;
+        if (user.wallet && user.wallet.orcx !== undefined) orcx = user.wallet.orcx;
+        else if (user.orcx !== undefined) orcx = user.orcx;
+        document.getElementById("orcx").textContent = orcx || "0";
       })
       .catch(()=>{ document.getElementById("orcx").textContent = "0"; });
     }
 
-    // 2. 씨앗 재고/가격은 기존대로
+    // 2. 씨앗 재고/내보유/가격
     function loadSeedStatus() {
       fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/seed/status")
       .then(res => res.json())
       .then(data => {
-        document.getElementById("stockPotato").textContent = data.gamja?.stock ?? "-";
-        document.getElementById("stockBarley").textContent = data.bori?.stock ?? "-";
+        document.getElementById("stockPotato").textContent = data.gamja?.stock ?? "0";
+        document.getElementById("stockBarley").textContent = data.bori?.stock ?? "0";
         document.getElementById("myPotato").textContent = data.user?.seedPotato ?? "0";
         document.getElementById("myBarley").textContent = data.user?.seedBarley ?? "0";
+      }).catch(()=>{
+        document.getElementById("stockPotato").textContent = "0";
+        document.getElementById("stockBarley").textContent = "0";
+        document.getElementById("myPotato").textContent = "0";
+        document.getElementById("myBarley").textContent = "0";
       });
     }
     function loadSeedPrice() {
       fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/seed/price")
       .then(res => res.json())
       .then(data => {
-        document.getElementById("pricePotato").textContent = data.potato ?? "-";
-        document.getElementById("priceBarley").textContent = data.barley ?? "-";
+        document.getElementById("pricePotato").textContent = data.potato ?? "0";
+        document.getElementById("priceBarley").textContent = data.barley ?? "0";
+      }).catch(()=>{
+        document.getElementById("pricePotato").textContent = "0";
+        document.getElementById("priceBarley").textContent = "0";
       });
     }
 
-    // 3. 씨앗 구매 버튼 예시 (API 연동 필요)
+    // 3. 씨앗 구매 버튼(예시)
     document.addEventListener('DOMContentLoaded', () => {
       loadOrcx();
       loadSeedStatus();
       loadSeedPrice();
 
-      // 씨감자 구매 (예시)
       document.getElementById("buyPotatoBtn").onclick = () => {
-        alert("구매 로직 연동 필요 (서버에 POST)");
+        alert("구매 연동 필요(서버에 POST)!");
       };
-      // 씨보리 구매 (예시)
       document.getElementById("buyBarleyBtn").onclick = () => {
-        alert("구매 로직 연동 필요 (서버에 POST)");
+        alert("구매 연동 필요(서버에 POST)!");
       };
     });
   </script>
 </body>
 </html>
+
 
 
 
