@@ -60,8 +60,8 @@
       <label><input type="radio" name="cropType" value="seedPotato" checked /> 씨감자</label>
       <label><input type="radio" name="cropType" value="seedBarley" /> 씨보리</label>
       <br>
-      <button class="water" onclick="giveWater()">💧 물 주기</button>
-      <button class="fertilizer" onclick="giveFertilizer()">🌿 거름 주기</button>
+      <button class="water" onclick="giveWater()" disabled>💧 물 주기</button>
+      <button class="fertilizer" onclick="giveFertilizer()" disabled>🌿 거름 주기</button>
       <button class="harvest" id="harvestBtn" onclick="harvestCrop()" disabled>🥔 수확하기</button>
       <div>🌟 성장포인트: <span id="growth">0</span></div>
     </div>
@@ -89,19 +89,54 @@
   </div>
 
   <script>
+    // ==== 핵심 세팅 ====
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+
+    // ==== 로그인 체크 (카카오ID 필수) ====
+    const kakaoId = localStorage.getItem("kakaoId");
     const nickname = localStorage.getItem("nickname") || "-";
     const farmName = localStorage.getItem("farmName") || "-";
-    const kakaoId = localStorage.getItem("kakaoId") || "unknown";
-
-    let seedInventory = {};
-    let resources = {};
-    let crops = {};
-    let growthPoint = 0;
-
     document.getElementById("nickname").textContent = nickname;
     document.getElementById("farmName").textContent = farmName;
 
+    // 카카오ID 없으면 index9로 강제 이동
+    if (!kakaoId) {
+      alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "index9.html";
+    }
+
+    // ==== 전역 상태 ====
+    let userData = {
+      seedPotato: 0,
+      seedBarley: 0,
+      water: 0,
+      fertilizer: 0,
+      orcx: 0,
+      potato: 0,
+      barley: 0
+    };
+    let growthPoint = 0;
+
+    // ==== UI 갱신 함수 ====
+    function updateDisplay() {
+      document.getElementById("seedPotato").textContent = userData.seedPotato;
+      document.getElementById("seedBarley").textContent = userData.seedBarley;
+      document.getElementById("water").textContent = userData.water;
+      document.getElementById("fertilizer").textContent = userData.fertilizer;
+      document.getElementById("orcx").textContent = userData.orcx;
+      document.getElementById("potato").textContent = userData.potato;
+      document.getElementById("barley").textContent = userData.barley;
+      document.getElementById("growth").textContent = growthPoint;
+
+      // 버튼 활성/비활성 제어
+      const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
+      const hasSeed = userData[selectedSeed] > 0;
+      document.querySelector(".water").disabled = !hasSeed || userData.water < 1;
+      document.querySelector(".fertilizer").disabled = !hasSeed || userData.fertilizer < 1;
+      document.getElementById("harvestBtn").disabled = !hasSeed || growthPoint < 5;
+    }
+
+    // ==== 서버에서 유저 상태 불러오기 ====
     async function fetchUserState() {
       try {
         const res = await fetch(`${API_BASE}/userdata`, {
@@ -112,111 +147,116 @@
         const data = await res.json();
         const user = data.users?.[0];
         if (user) {
-          seedInventory.seedPotato = user.seedPotato || 0;
-          seedInventory.seedBarley = user.seedBarley || 0;
-          resources.water = user.water || 0;
-          resources.fertilizer = user.fertilizer || 0;
-          resources.orcx = user.orcx || 0;
-          crops.potato = user.potato || 0;
-          crops.barley = user.barley || 0;
+          userData.seedPotato = user.seedPotato || 0;
+          userData.seedBarley = user.seedBarley || 0;
+          userData.water = user.water || 0;
+          userData.fertilizer = user.fertilizer || 0;
+          userData.orcx = user.orcx || 0;
+          userData.potato = user.potato || 0;
+          userData.barley = user.barley || 0;
           document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
         } else {
           document.getElementById("serverStatus").textContent = "❌ 유저 정보 없음";
         }
         updateDisplay();
-        save();
       } catch (err) {
         console.error("서버 상태 로딩 실패", err);
         document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
       }
     }
 
-    function updateDisplay() {
-      document.getElementById("seedPotato").textContent = seedInventory.seedPotato || 0;
-      document.getElementById("seedBarley").textContent = seedInventory.seedBarley || 0;
-      document.getElementById("water").textContent = resources.water || 0;
-      document.getElementById("fertilizer").textContent = resources.fertilizer || 0;
-      document.getElementById("orcx").textContent = resources.orcx || 0;
-      document.getElementById("growth").textContent = growthPoint;
-      document.getElementById("potato").textContent = crops.potato || 0;
-      document.getElementById("barley").textContent = crops.barley || 0;
-      const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
-      const hasSeed = seedInventory[selectedSeed] > 0;
-      document.querySelector(".water").disabled = !hasSeed;
-      document.querySelector(".fertilizer").disabled = !hasSeed;
-      document.getElementById("harvestBtn").disabled = !hasSeed || growthPoint < 5;
-    }
-
+    // ==== 물 주기 ====
     async function giveWater() {
       const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
-      if (seedInventory[selectedSeed] <= 0) return alert("씨앗이 없습니다!");
-      if (resources.water > 0) {
-        resources.water--;
-        growthPoint++;
-        await fetch(`${API_BASE}/users/use-resource`, {
+      if (userData[selectedSeed] < 1) return alert("씨앗이 없습니다!");
+      if (userData.water < 1) return alert("물 부족!");
+      // 서버 자원 사용 요청
+      try {
+        const patchRes = await fetch(`${API_BASE}/users/use-resource`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, water: -1 })
         });
-        updateDisplay();
-        save();
-      } else alert("물 부족!");
+        if (patchRes.ok) {
+          userData.water--;
+          growthPoint++;
+          updateDisplay();
+        } else {
+          alert("물 사용 실패");
+        }
+      } catch (e) {
+        alert("서버 오류");
+      }
     }
 
+    // ==== 거름 주기 ====
     async function giveFertilizer() {
       const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
-      if (seedInventory[selectedSeed] <= 0) return alert("씨앗이 없습니다!");
-      if (resources.fertilizer > 0) {
-        resources.fertilizer--;
-        growthPoint += 2;
-        await fetch(`${API_BASE}/users/use-resource`, {
+      if (userData[selectedSeed] < 1) return alert("씨앗이 없습니다!");
+      if (userData.fertilizer < 1) return alert("거름 부족!");
+      // 서버 자원 사용 요청
+      try {
+        const patchRes = await fetch(`${API_BASE}/users/use-resource`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, fertilizer: -1 })
         });
-        updateDisplay();
-        save();
-      } else alert("거름 부족!");
-    }
-
-    async function harvestCrop() {
-      if (growthPoint >= 5) {
-        const cropType = document.querySelector('input[name="cropType"]:checked').value;
-        const yieldOptions = [3, 5, 7];
-        const reward = yieldOptions[Math.floor(Math.random() * yieldOptions.length)];
-
-        if (seedInventory[cropType] > 0) {
-          seedInventory[cropType]--;
-          await fetch(`${API_BASE}/storage/return-seed`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ seedType: cropType, count: 1 })
-          });
-
-          const cropName = cropType === "seedPotato" ? "potato" : "barley";
-          crops[cropName] += reward;
-
-          await fetch(`${API_BASE}/users/update-crops`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ kakaoId, [cropName]: reward })
-          });
-
-          growthPoint = 0;
+        if (patchRes.ok) {
+          userData.fertilizer--;
+          growthPoint += 2;
           updateDisplay();
-          save();
-          alert(`🎉 수확 성공! ${reward}개를 얻었습니다.`);
+        } else {
+          alert("거름 사용 실패");
         }
+      } catch (e) {
+        alert("서버 오류");
       }
     }
 
-    function save() {
-      localStorage.setItem("resources", JSON.stringify(resources));
-      localStorage.setItem("seedInventory", JSON.stringify(seedInventory));
-      localStorage.setItem("crops", JSON.stringify(crops));
+    // ==== 수확하기 ====
+    async function harvestCrop() {
+      if (growthPoint < 5) return;
+      const cropType = document.querySelector('input[name="cropType"]:checked').value;
+      const yieldOptions = [3, 5, 7];
+      const reward = yieldOptions[Math.floor(Math.random() * yieldOptions.length)];
+
+      if (userData[cropType] < 1) return alert("씨앗이 없습니다!");
+
+      // 씨앗 사용 (서버 보관소 반환)
+      try {
+        // (1) 씨앗 서버에 반환
+        await fetch(`${API_BASE}/storage/return-seed`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ seedType: cropType, count: 1 })
+        });
+        userData[cropType]--;
+
+        // (2) 작물 보관소 증가 (서버 갱신)
+        const cropName = cropType === "seedPotato" ? "potato" : "barley";
+        userData[cropName] += reward;
+        await fetch(`${API_BASE}/users/update-crops`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId, [cropName]: reward })
+        });
+
+        growthPoint = 0;
+        updateDisplay();
+        alert(`🎉 수확 성공! ${reward}개를 얻었습니다.`);
+      } catch (e) {
+        alert("수확 실패(서버 오류)");
+      }
     }
 
+    // ==== 작물 타입 변경 시 버튼 업데이트 ====
+    document.querySelectorAll('input[name="cropType"]').forEach(radio => {
+      radio.addEventListener("change", updateDisplay);
+    });
+
+    // ==== 페이지 로딩 시 ====
     fetchUserState();
+
   </script>
 </body>
 </html>
