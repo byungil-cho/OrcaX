@@ -75,7 +75,7 @@
         });
         const data = await res.json();
         const user = data.user;
-        document.getElementById("orcx").innerText = user?.token ?? 0;
+        document.getElementById("orcx").innerText = user?.orcx ?? 0;
       } catch (err) {
         document.getElementById("orcx").innerText = 0;
       }
