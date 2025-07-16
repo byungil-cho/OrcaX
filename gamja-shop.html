@@ -1,82 +1,115 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>OrcaX 씨앗 상점</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: 'Do Hyeon', sans-serif;
-      background: #fcf5e5;
-      color: #222;
-      margin: 0; padding: 0;
-    }
-    .section {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px #ccc8;
-      padding: 2rem;
-      max-width: 400px;
-      margin: 3rem auto 1.5rem auto;
-      font-size: 1.15rem;
-    }
-    .main-label {
-      font-size: 1.25rem;
-      margin-bottom: 0.6rem;
-      display: block;
-    }
-    .btn {
-      background: #1fc76a;
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
       color: #fff;
-      padding: 0.8rem 2.2rem;
+    }
+    .container {
+      background: rgba(30,30,30,0.57);
+      border-radius: 32px;
+      box-shadow: 0 8px 32px #0005;
+      max-width: 530px;
+      margin: 44px auto 18px auto;
+      padding: 2.1rem 1.6rem 1.7rem 1.6rem;
+      text-align: center;
+    }
+    .shop-title {
+      font-size: 2.2rem;
+      margin-bottom: 1.4rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .token-label {
+      font-size: 1.13rem;
+      margin-bottom: 1.5rem;
+      display: block;
+      text-align: left;
+      color: #ffdf6d;
+      font-weight: 700;
+      margin-left: 0.3rem;
+    }
+    .shop-info {
+      margin-bottom: 1.3rem;
+      font-size: 1.1rem;
+      text-align: left;
+    }
+    .seed-box {
+      margin: 2.2rem 0 1.2rem 0;
+      background: rgba(45,45,45,0.3);
+      border-radius: 20px;
+      padding: 1.2rem 0.4rem 0.9rem 0.4rem;
+    }
+    .seed-box h2 {
+      margin-bottom: 0.6rem;
+      font-size: 1.55rem;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    .my-seed {
+      margin-bottom: 1rem;
+      font-size: 1.13rem;
+    }
+    .btn-buy {
+      background: #22c97d;
+      color: #fff;
+      padding: 0.8rem 2.6rem;
       font-size: 1.15rem;
       border: none;
-      border-radius: 0.8rem;
-      margin: 1.2rem 0;
+      border-radius: 0.9rem;
+      font-family: inherit;
       cursor: pointer;
-      font-family: 'Do Hyeon', sans-serif;
+      margin-bottom: 0.5rem;
       transition: background 0.2s;
     }
-    .btn:hover { background: #149b4b; }
+    .btn-buy:hover { background: #15924d; }
     nav {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      background: rgba(20,20,20,0.98);
-      padding: 0.7rem 0 0.5rem 0;
+      background: rgba(20,20,20,0.97);
+      padding: 1rem 0 0.8rem 0;
       display: flex;
       justify-content: center;
-      z-index: 10;
       gap: 2.5rem;
-      font-size: 1.1rem;
+      font-size: 1.12rem;
+      letter-spacing: 1px;
+      z-index: 100;
     }
-    nav a { color: #ffc107; text-decoration: none; }
-    .safe-box { margin: 1rem 0 2rem 0; }
-    .safe-box label { color: #4e4e4e; }
+    nav a { color: #ffd800; text-decoration: none; }
+    nav a:visited { color: #ffd800; }
+    @media (max-width: 600px) {
+      .container { padding: 1.1rem 0.3rem 1.2rem 0.3rem; }
+      nav { font-size: 1.02rem; gap: 1.5rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="section">
-    <span class="main-label">🌱 OrcaX 씨앗 상점</span>
-    <div class="safe-box">
-      <label>🪙 보유 토큰 : <span id="orcx">-</span> ORCX</label>
-    </div>
-    <div>
+  <div class="container">
+    <div class="shop-title">🌱 OrcaX 씨앗 상점</div>
+    <span class="token-label">🪙 보유 토큰 : <span id="orcx">-</span> ORCX</span>
+    <div class="shop-info">
       🥔 씨감자 재고: <span id="potato-stock">-</span>개<br>
-      🥔 씨감자 가격: <span id="potato-price">-</span> ORCX<br>
-      <br>
+      🥔 씨감자 가격: <span id="potato-price">-</span> ORCX<br><br>
       🌾 씨보리 재고: <span id="barley-stock">-</span>개<br>
       🌾 씨보리 가격: <span id="barley-price">-</span> ORCX
     </div>
-  </div>
-  <div class="section">
-    <h2>🥔 씨감자 구매</h2>
-    내 보유: <span id="myPotato">-</span>개<br>
-    <button class="btn" onclick="buySeed('potato')">씨감자 구매</button>
-  </div>
-  <div class="section">
-    <h2>🌾 씨보리 구매</h2>
-    내 보유: <span id="myBarley">-</span>개<br>
-    <button class="btn" onclick="buySeed('barley')">씨보리 구매</button>
+    <div class="seed-box">
+      <h2>🥔 씨감자 구매</h2>
+      <div class="my-seed">내 보유: <span id="myPotato">-</span>개</div>
+      <button class="btn-buy" onclick="buySeed('potato')">씨감자 구매</button>
+    </div>
+    <div class="seed-box">
+      <h2>🌾 씨보리 구매</h2>
+      <div class="my-seed">내 보유: <span id="myBarley">-</span>개</div>
+      <button class="btn-buy" onclick="buySeed('barley')">씨보리 구매</button>
+    </div>
   </div>
   <nav>
     <a href="gamja-farm.html">감자 농장</a>
@@ -91,20 +124,16 @@
       window.location.href = "index9.html";
     }
 
-    // 모든 정보 한 번에 불러오기 (통합 안전 버전)
+    // 모든 정보 한 번에 불러오기 (실전 안전버전)
     async function fetchAll() {
       try {
         // 1. 내 정보 (토큰/씨앗)
         const res1 = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId }) // ★ 여기 꼭 kakaoId로!
+          body: JSON.stringify({ kakaoId })
         });
         const data1 = await res1.json();
-        // data1.user 구조 확인 (콘솔)
-        // console.log("user:", data1);
-
-        // 토큰 - wallet.orcx 또는 평문 orcx 모두 대응
         const user = data1.user || data1;
         let orcx = 0;
         if (user.wallet && typeof user.wallet.orcx !== "undefined") {
@@ -147,13 +176,13 @@
     // 씨앗 구매 (예시, 실제 서버 구매 API 맞춰 수정 필요)
     async function buySeed(type) {
       alert(`${type === 'potato' ? '씨감자' : '씨보리'} 구매 기능은 서버 연동 후 사용 가능합니다.`);
-      // 실제 구매 로직 추가 시 서버와 맞는 API, 파라미터 확인 필요
     }
 
     fetchAll();
   </script>
 </body>
 </html>
+
 
 
 
