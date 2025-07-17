@@ -77,6 +77,8 @@
   </main>
 
   <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+
     async function loadUserData() {
       const kakaoId = localStorage.getItem("kakaoId");
       const nickname = localStorage.getItem("nickname");
@@ -90,12 +92,10 @@
       document.getElementById("nickname").innerText = nickname;
 
       try {
-        const response = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
+        const response = await fetch(`${API_BASE}/api/user/v2data`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ kakaoId }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: kakaoId })
         });
 
         const data = await response.json();
@@ -106,14 +106,16 @@
           return;
         }
 
-        // 서버 구조에 맞게 출력
-        document.getElementById("water").innerText = user.inventory?.water ?? 0;
-        document.getElementById("fertilizer").innerText = user.inventory?.fertilizer ?? 0;
-        document.getElementById("orcx").innerText = user.wallet?.orcx ?? 0;
-        document.getElementById("potato").innerText = user.storage?.gamja ?? 0;
-        document.getElementById("bori").innerText = user.storage?.bori ?? 0;
-        document.getElementById("seedPotato").innerText = user.inventory?.seedPotato ?? 0;
-        document.getElementById("seedBarley").innerText = user.inventory?.seedBarley ?? 0;
+        // 서버 응답 구조에 맞게 렌더링
+        document.getElementById("orcx").innerText = user.orcx ?? 0;
+        document.getElementById("water").innerText = user.water ?? 0;
+        document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
+        document.getElementById("seedPotato").innerText = user.seedPotato ?? 0;
+        document.getElementById("seedBarley").innerText = user.seedBarley ?? 0;
+
+        // 보관창고 구조 미포함 → 임시값
+        document.getElementById("potato").innerText = 0;
+        document.getElementById("bori").innerText = 0;
 
       } catch (error) {
         console.error("유저 데이터를 불러오는 중 오류 발생:", error);
