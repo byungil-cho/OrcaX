@@ -44,10 +44,12 @@
     </div>
     <div class="seed-section">
       <h2>🥔 씨감자</h2>
+      <div>내 보유: <span id="myPotato">0</span>개</div>
       <button onclick="buySeed('seedPotato')">구매하기</button>
     </div>
     <div class="seed-section">
       <h2>🌾 씨보리</h2>
+      <div>내 보유: <span id="myBarley">0</span>개</div>
       <button onclick="buySeed('seedBarley')">구매하기</button>
     </div>
     <nav>
@@ -65,22 +67,26 @@
       window.location.href = "index9.html";
     }
 
-    // 토큰(ORCX) + 내 씨앗 정보 불러오기 (POST /api/user/v2data)
+    // 유저 정보(토큰/씨감자/씨보리 등) 불러오기
     async function fetchUserData() {
-  try {
-    const res = await fetch(`${API_BASE}/user/v2data`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: kakaoId })
-    });
-    const data = await res.json();
-    console.log("[USERDATA]", data); // ★ 이 한 줄 추가
-    const user = data.user;
-    document.getElementById("orcx").innerText = user?.orcx ?? 0;
-  } catch (err) {
-    document.getElementById("orcx").innerText = 0;
-  }
-}
+      try {
+        const res = await fetch(`${API_BASE}/user/v2data`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: kakaoId }) // ★ 반드시 'id'로 보냄!
+        });
+        const data = await res.json();
+        const user = data.user;
+        document.getElementById("orcx").innerText = user?.orcx ?? 0;
+        document.getElementById("myPotato").innerText = user?.seedPotato ?? 0;
+        document.getElementById("myBarley").innerText = user?.seedBarley ?? 0;
+      } catch (err) {
+        document.getElementById("orcx").innerText = 0;
+        document.getElementById("myPotato").innerText = 0;
+        document.getElementById("myBarley").innerText = 0;
+      }
+    }
+
     // 씨앗 보관소 재고 및 가격 정보
     async function fetchSeedStatus() {
       try {
@@ -96,6 +102,7 @@
       }
     }
 
+    // 씨앗 구매
     async function buySeed(type) {
       try {
         const res = await fetch(`${API_BASE}/seed/buy`, {
@@ -116,7 +123,7 @@
       }
     }
 
-    // 페이지 로딩 시
+    // 페이지 로딩 시 정보 불러오기
     fetchUserData();
     fetchSeedStatus();
   </script>
