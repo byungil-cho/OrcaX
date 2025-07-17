@@ -152,7 +152,7 @@
       if ((user?.inventory?.[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
       if ((user?.inventory?.water ?? 0) < 1) return alert("물 부족!");
       try {
-        const patchRes = await fetch(`${API_BASE}/users/use-resource`, {
+        const patchRes = await fetch(`${API_BASE}/factory/use-resource`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, water: -1 })
@@ -175,7 +175,7 @@
       if ((user?.inventory?.[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
       if ((user?.inventory?.fertilizer ?? 0) < 1) return alert("거름 부족!");
       try {
-        const patchRes = await fetch(`${API_BASE}/users/use-resource`, {
+        const patchRes = await fetch(`${API_BASE}/factory/use-resource`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ kakaoId, fertilizer: -1 })
