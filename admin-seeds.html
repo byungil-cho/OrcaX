@@ -2,82 +2,63 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>🌱 관리자 - 씨감자 · 씨보리 관리</title>
+  <title>씨감자/씨보리 관리</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      font-family: 'Do Hyeon', sans-serif;
-      background: #181b1f;
-      color: #f2f2f2;
-      margin: 0; padding: 0;
-    }
-    h1 { text-align: center; margin: 1.3rem 0 1rem 0; font-size:2rem; }
+    body { font-family: 'Do Hyeon', sans-serif; background:#181b1f; color:#f2f2f2; margin:0; padding:0; }
+    h1 { text-align:center; margin:1.2rem 0 1rem 0; font-size:2rem; }
     .center-box {
-      background: rgba(40, 50, 80, 0.12);
-      border-radius: 20px;
-      max-width: 540px;
-      margin: 0 auto;
-      padding: 1.5rem;
+      background: rgba(40, 50, 80, 0.13);
+      border-radius: 20px; max-width: 540px; margin: 0 auto; padding: 1.5rem;
       box-shadow: 0 3px 22px #0006;
     }
-    table {
-      margin: 1rem auto 2rem auto;
-      border-collapse: collapse;
-      width: 94%;
-      font-size: 1.1rem;
-      background: #23283a;
-      border-radius: 13px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 0.85rem 0.7rem;
-      text-align: center;
-    }
-    th {
-      background: #26335c;
-      color: #ffe160;
-      font-size: 1.08rem;
-    }
-    td {
-      background: #222;
-      border-bottom: 1px solid #344060;
-    }
+    table { margin:1rem auto 2rem auto; border-collapse: collapse; width:95%; font-size:1.1rem; background:#23283a; border-radius:13px; overflow:hidden; }
+    th, td { padding:0.7rem 0.5rem; text-align:center; }
+    th { background: #26335c; color:#ffe160; font-size:1.07rem; }
+    td { background:#222; border-bottom:1px solid #344060;}
+    .menu-link { color:#ffe160; margin:1rem 1.1rem 0 1.1rem; text-decoration:none; font-size:1.05rem;}
     .status-ok { color: #24f065; font-weight: bold;}
     .status-fail { color: #ff3860; font-weight: bold;}
-    .status-wait { color: #ffe160; font-weight: bold;}
-    .menu-link {
-      color: #ffe160; margin: 1rem 1.1rem 0 1.1rem;
-      text-decoration: none; font-size: 1.05rem;
-    }
   </style>
 </head>
 <body>
-  <h1>🌱 관리자 - 씨감자 · 씨보리 재고 및 가격 관리</h1>
+  <h1>씨감자/씨보리 재고 및 가격 관리</h1>
   <div class="center-box">
-    <div id="server-status" class="status-wait" style="text-align:center; font-size:1.08rem; margin-bottom:1rem;">
+    <div id="server-status" style="text-align:center; font-size:1.08rem; margin-bottom:1rem;">
       서버 상태: <span>확인중...</span>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>구분</th>
-          <th>재고</th>
-          <th>가격(ORCX)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>씨감자</th>
-          <td id="qty-potato">-</td>
-          <td id="price-potato">-</td>
-        </tr>
-        <tr>
-          <th>씨보리</th>
-          <td id="qty-barley">-</td>
-          <td id="price-barley">-</td>
-        </tr>
-      </tbody>
-    </table>
+    <form id="seed-form" onsubmit="return false;">
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>재고</th>
+            <th>가격(ORCX)</th>
+            <th>가격수정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>씨감자</th>
+            <td id="qty-potato">-</td>
+            <td id="price-potato">-</td>
+            <td>
+              <input type="number" id="input-potato-price" style="width: 60px; font-size:1rem;" min="1">
+              <button type="button" onclick="updatePrice('potato')">저장</button>
+            </td>
+          </tr>
+          <tr>
+            <th>씨보리</th>
+            <td id="qty-barley">-</td>
+            <td id="price-barley">-</td>
+            <td>
+              <input type="number" id="input-barley-price" style="width: 60px; font-size:1rem;" min="1">
+              <button type="button" onclick="updatePrice('barley')">저장</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
     <div style="margin-top:1.5rem;text-align:center;">
       <a href="gamja-factory.html" class="menu-link">감자 농장</a>
       <a href="gamja-shop.html" class="menu-link">씨앗 상점</a>
@@ -85,37 +66,63 @@
     </div>
   </div>
   <script>
-    // 실제 API 경로 맞게 수정 필요!
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api/seed";
 
     async function fetchSeedStatus() {
       const statusDiv = document.getElementById('server-status');
       try {
-        // 서버 상태 & 씨앗 재고/가격 동시 불러오기
         const res = await fetch(`${API_BASE}/status`);
         if (!res.ok) throw new Error('서버 오류');
         const data = await res.json();
-        // 정상 연결 시
         statusDiv.innerHTML = '🟢 <span class="status-ok">서버 연결 정상</span>';
         document.getElementById('qty-potato').textContent = data.seedPotato?.quantity ?? '-';
         document.getElementById('price-potato').textContent = data.seedPotato?.price ?? '-';
+        document.getElementById('input-potato-price').value = data.seedPotato?.price ?? '';
         document.getElementById('qty-barley').textContent = data.seedBarley?.quantity ?? '-';
         document.getElementById('price-barley').textContent = data.seedBarley?.price ?? '-';
+        document.getElementById('input-barley-price').value = data.seedBarley?.price ?? '';
       } catch (e) {
-        // 연결 실패 시
         statusDiv.innerHTML = '🔴 <span class="status-fail">서버 연결 실패</span>';
         document.getElementById('qty-potato').textContent = '-';
         document.getElementById('price-potato').textContent = '-';
         document.getElementById('qty-barley').textContent = '-';
         document.getElementById('price-barley').textContent = '-';
+        document.getElementById('input-potato-price').value = '';
+        document.getElementById('input-barley-price').value = '';
       }
     }
 
-    // 페이지 진입시 1회 실행
-    fetchSeedStatus();
+    async function updatePrice(type) {
+      const price = type === 'potato'
+        ? document.getElementById('input-potato-price').value
+        : document.getElementById('input-barley-price').value;
+      if (!price || isNaN(price) || price < 1) {
+        alert("가격을 올바르게 입력하세요!");
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/price`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            seedType: type,
+            price: Number(price)
+          })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("가격 수정 완료!");
+          fetchSeedStatus(); // 최신 데이터 다시 반영
+        } else {
+          alert("수정 실패: " + (result.message || '오류'));
+        }
+      } catch(e) {
+        alert("가격 수정 서버 연결 실패!");
+      }
+    }
 
-    // 새로고침 등 추가 필요하면 아래처럼 버튼 추가해서 호출해도 됨
-    // <button onclick="fetchSeedStatus()">새로고침</button>
+    // 진입 시 바로 불러오기
+    fetchSeedStatus();
   </script>
 </body>
 </html>
