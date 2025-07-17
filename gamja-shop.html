@@ -6,116 +6,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
+      margin: 0;
       font-family: 'Do Hyeon', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      margin: 0;
-      color: #fff;
-    }
-    .container {
-      background: rgba(30,30,30,0.57);
-      border-radius: 32px;
-      box-shadow: 0 8px 32px #0005;
-      max-width: 530px;
-      margin: 44px auto 18px auto;
-      padding: 2.1rem 1.6rem 1.7rem 1.6rem;
       text-align: center;
+      color: white;
     }
-    .shop-title {
-      font-size: 2.2rem;
-      margin-bottom: 1.4rem;
-      font-weight: bold;
-      letter-spacing: 2px;
-    }
-    .token-label {
-      font-size: 1.13rem;
-      margin-bottom: 1.5rem;
-      display: block;
-      text-align: left;
-      color: #ffdf6d;
-      font-weight: 700;
-      margin-left: 0.3rem;
-    }
-    .shop-info {
-      margin-bottom: 1.3rem;
-      font-size: 1.1rem;
-      text-align: left;
-    }
-    .seed-box {
-      margin: 2.2rem 0 1.2rem 0;
-      background: rgba(45,45,45,0.3);
+    main {
+      background-color: rgba(0, 0, 0, 0.3);
+      margin: 3rem auto;
+      padding: 2rem;
+      max-width: 480px;
       border-radius: 20px;
-      padding: 1.2rem 0.4rem 0.9rem 0.4rem;
     }
-    .seed-box h2 {
-      margin-bottom: 0.6rem;
-      font-size: 1.55rem;
-      color: #fff;
-      letter-spacing: 1px;
-    }
-    .my-seed {
-      margin-bottom: 1rem;
-      font-size: 1.13rem;
-    }
-    .btn-buy {
-      background: #22c97d;
-      color: #fff;
-      padding: 0.8rem 2.6rem;
-      font-size: 1.15rem;
-      border: none;
-      border-radius: 0.9rem;
-      font-family: inherit;
-      cursor: pointer;
-      margin-bottom: 0.5rem;
-      transition: background 0.2s;
-    }
-    .btn-buy:hover { background: #15924d; }
-    nav {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(20,20,20,0.97);
-      padding: 1rem 0 0.8rem 0;
-      display: flex;
-      justify-content: center;
-      gap: 2.5rem;
-      font-size: 1.12rem;
-      letter-spacing: 1px;
-      z-index: 100;
-    }
-    nav a { color: #ffd800; text-decoration: none; }
-    nav a:visited { color: #ffd800; }
-    @media (max-width: 600px) {
-      .container { padding: 1.1rem 0.3rem 1.2rem 0.3rem; }
-      nav { font-size: 1.02rem; gap: 1.5rem; }
-    }
+    h1 { margin-bottom: 1rem; font-size: 2rem; }
+    .info-block { margin: 1.5rem 0; font-size: 1.3rem; }
+    .seed-section { margin: 2rem 0; padding: 1rem; background-color: rgba(255,255,255,0.1); border-radius: 10px; }
+    button { background-color: #28a745; color: white; border: none; padding: 0.8rem 1.5rem; font-size: 1.2rem; cursor: pointer; border-radius: 8px; }
+    button:hover { background-color: #218838; }
+    nav { display: flex; justify-content: space-around; padding: 1rem; }
+    nav a { color: #ffcc00; text-decoration: none; font-weight: bold; }
+    .status { margin-top: 1.5rem; color: #00ff00; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="shop-title">🌱 OrcaX 씨앗 상점</div>
-    <span class="token-label">🪙 보유 토큰 : <span id="orcx">-</span> ORCX</span>
-    <div class="shop-info">
-      🥔 씨감자 재고: <span id="potato-stock">-</span>개<br>
-      🥔 씨감자 가격: <span id="potato-price">-</span> ORCX<br><br>
-      🌾 씨보리 재고: <span id="barley-stock">-</span>개<br>
-      🌾 씨보리 가격: <span id="barley-price">-</span> ORCX
+  <main>
+    <h1>🌱 OrcaX 씨앗 상점</h1>
+    <div class="info-block">
+      💰 보유 토큰: <span id="orcx">0</span> ORCX
     </div>
-    <div class="seed-box">
-      <h2>🥔 씨감자 구매</h2>
-      <div class="my-seed">내 보유: <span id="myPotato">-</span>개</div>
-      <button class="btn-buy" onclick="buySeed('potato')">씨감자 구매</button>
+    <div class="info-block">
+      🥔 씨감자 재고: <span id="leftPotato">-</span>개<br />
+      🥔 씨감자 가격: <span id="pricePotato">-</span> ORCX<br /><br />
+      🌾 씨보리 재고: <span id="leftBarley">-</span>개<br />
+      🌾 씨보리 가격: <span id="priceBarley">-</span> ORCX
     </div>
-    <div class="seed-box">
-      <h2>🌾 씨보리 구매</h2>
-      <div class="my-seed">내 보유: <span id="myBarley">-</span>개</div>
-      <button class="btn-buy" onclick="buySeed('barley')">씨보리 구매</button>
+    <div class="seed-section">
+      <h2>🥔 씨감자</h2>
+      <button onclick="buySeed('seedPotato')">구매하기</button>
     </div>
-  </div>
-  <nav>
-    <a href="gamja-farm.html">감자 농장</a>
-    <a href="gamja-shop.html">씨앗 관리소</a>
-    <a href="gamja-storage.html">개인 보관함</a>
-  </nav>
+    <div class="seed-section">
+      <h2>🌾 씨보리</h2>
+      <button onclick="buySeed('seedBarley')">구매하기</button>
+    </div>
+    <nav>
+      <a href="gamja-farm.html">감자 농장</a>
+      <a href="admin-seeds.html">씨앗 관리소</a>
+      <a href="gamja-result.html">개인 보관함</a>
+    </nav>
+    <div class="status" id="statusMsg">📡 서버 연결 확인 중...</div>
+  </main>
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
     const kakaoId = localStorage.getItem("kakaoId") || "";
@@ -124,61 +65,60 @@
       window.location.href = "index9.html";
     }
 
-    // 모든 정보 한 번에 불러오기 (실전 안전버전)
-    async function fetchAll() {
+    // 토큰(ORCX) + 내 씨앗 정보 불러오기 (POST /api/user/v2data)
+    async function fetchUserData() {
+  try {
+    const res = await fetch(`${API_BASE}/user/v2data`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: kakaoId })
+    });
+    const data = await res.json();
+    console.log("[USERDATA]", data); // ★ 이 한 줄 추가
+    const user = data.user;
+    document.getElementById("orcx").innerText = user?.orcx ?? 0;
+  } catch (err) {
+    document.getElementById("orcx").innerText = 0;
+  }
+}
+    // 씨앗 보관소 재고 및 가격 정보
+    async function fetchSeedStatus() {
       try {
-        // 1. 내 정보 (토큰/씨앗)
-        const res1 = await fetch(`${API_BASE}/user/v2data`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId })
-        });
-        const data1 = await res1.json();
-        const user = data1.user || data1;
-        let orcx = 0;
-        if (user.wallet && typeof user.wallet.orcx !== "undefined") {
-          orcx = user.wallet.orcx;
-        } else if (typeof user.orcx !== "undefined") {
-          orcx = user.orcx;
-        } else if (typeof user.token !== "undefined") {
-          orcx = user.token;
-        }
-        document.getElementById("orcx").textContent = orcx;
-
-        // 내 씨앗
-        document.getElementById("myPotato").textContent =
-          user.inventory?.seedPotato ?? 0;
-        document.getElementById("myBarley").textContent =
-          user.inventory?.seedBarley ?? 0;
-
-        // 2. 씨앗 보관소 재고
-        const res2 = await fetch(`${API_BASE}/seed/status`);
-        const d = await res2.json();
-        document.getElementById("potato-stock").textContent = d.seedPotato ?? 0;
-        document.getElementById("barley-stock").textContent = d.seedBarley ?? 0;
-
-        // 3. 씨앗 가격
-        const res3 = await fetch(`${API_BASE}/seed/price`);
-        const price = await res3.json();
-        document.getElementById("potato-price").textContent = price.seedPotatoPrice ?? 0;
-        document.getElementById("barley-price").textContent = price.seedBarleyPrice ?? 0;
+        const res = await fetch(`${API_BASE}/seed/status`);
+        const data = await res.json();
+        document.getElementById("leftPotato").innerText = data.seedPotato ?? "-";
+        document.getElementById("pricePotato").innerText = data.pricePotato ?? "-";
+        document.getElementById("leftBarley").innerText = data.seedBarley ?? "-";
+        document.getElementById("priceBarley").innerText = data.priceBarley ?? "-";
+        document.getElementById("statusMsg").innerText = data.success ? "✅ 서버 연결 성공" : "❌ 씨앗 정보 없음";
       } catch (err) {
-        document.getElementById("orcx").textContent = 0;
-        document.getElementById("myPotato").textContent = 0;
-        document.getElementById("myBarley").textContent = 0;
-        document.getElementById("potato-stock").textContent = 0;
-        document.getElementById("barley-stock").textContent = 0;
-        document.getElementById("potato-price").textContent = 0;
-        document.getElementById("barley-price").textContent = 0;
+        document.getElementById("statusMsg").innerText = "❌ 서버 연결 실패";
       }
     }
 
-    // 씨앗 구매 (예시, 실제 서버 구매 API 맞춰 수정 필요)
     async function buySeed(type) {
-      alert(`${type === 'potato' ? '씨감자' : '씨보리'} 구매 기능은 서버 연동 후 사용 가능합니다.`);
+      try {
+        const res = await fetch(`${API_BASE}/seed/buy`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId, seedType: type })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`${type === 'seedPotato' ? '씨감자' : '씨보리'} 구매 성공!`);
+          fetchUserData();
+          fetchSeedStatus();
+        } else {
+          alert("구매 실패: " + (data.message || "서버 오류"));
+        }
+      } catch (err) {
+        alert("오류 발생: " + err.message);
+      }
     }
 
-    fetchAll();
+    // 페이지 로딩 시
+    fetchUserData();
+    fetchSeedStatus();
   </script>
 </body>
 </html>
