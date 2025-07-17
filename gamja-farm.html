@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>감자 농장 입장</title>
+  <title>OrcaX 감자농장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -15,7 +15,7 @@
       text-align: center;
     }
     header {
-      background-color: rgba(0, 0, 0, 0.3);
+      background-color: rgba(0, 0, 0, 0.5);
       padding: 1rem;
     }
     main {
@@ -28,104 +28,69 @@
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 10px;
       padding: 1rem;
-      margin: 1rem;
-      display: inline-block;
+      margin: 1rem auto;
+      width: 90%;
+      max-width: 500px;
       text-align: left;
-    }
-    .resource-box span {
-      font-weight: bold;
-      color: #00e0ff;
-    }
-    .nav-buttons {
-      margin-top: 2rem;
-    }
-    .nav-buttons a {
-      display: inline-block;
-      margin: 0 1rem;
-      padding: 0.75rem 1.5rem;
-      background-color: rgba(0, 224, 255, 0.8);
-      border-radius: 10px;
-      color: #000;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .nav-buttons a:hover {
-      background-color: rgba(0, 224, 255, 1);
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>🐳 감자 농장에 오신 것을 환영합니다!</h1>
-    <p>닉네임: <span id="nickname">-</span></p>
+    <h1>🌱 OrcaX 감자농장 대시보드</h1>
+    <p id="nickname">👤 닉네임: 불러오는 중...</p>
   </header>
+
   <main>
     <div class="resource-box">
-      <p>보유 ORCX: <span id="orcx">0</span></p>
-      <p>물: <span id="water">0</span></p>
-      <p>거름: <span id="fertilizer">0</span></p>
-      <p>감자: <span id="potato">0</span></p>
-      <p>보리: <span id="bori">0</span></p>
-      <p>씨감자: <span id="seedPotato">0</span></p>
-      <p>씨보리: <span id="seedBarley">0</span></p>
-    </div>
-
-    <div class="nav-buttons">
-      <a href="gamja-main.html">🚜 농장이름 짓기</a>
-      <a href="index9.html">🏠 메인으로</a>
+      <p>💧 물: <span id="water">-</span></p>
+      <p>🪱 거름: <span id="fertilizer">-</span></p>
+      <p>🥔 씨감자: <span id="seedPotato">-</span></p>
+      <p>🌾 씨보리: <span id="seedBarley">-</span></p>
+      <p>💰 토큰: <span id="tokens">-</span> ORCX</p>
     </div>
   </main>
 
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const kakaoId = localStorage.getItem('kakaoId');
+    const API_URL = "https://climbing-wholly-grouper.jp.ngrok.io/api/user/v2data/userdata";
 
-    async function loadUserData() {
-      const kakaoId = localStorage.getItem("kakaoId");
-      const nickname = localStorage.getItem("nickname");
-
-      if (!kakaoId || !nickname) {
-        alert("로그인이 필요합니다. 메인 페이지로 이동합니다.");
-        window.location.href = "index9.html";
-        return;
-      }
-
-      document.getElementById("nickname").innerText = nickname;
-
+    async function fetchUserData() {
       try {
-        const response = await fetch(`${API_BASE}/api/user/v2data`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: kakaoId })
-        });
+        const response = await fetch(API_URL);
+        const result = await response.json();
 
-        const data = await response.json();
-        const user = data.user;
+        if (result.success) {
+          const user = result.users.find(u => u.kakaoId === kakaoId);
+          if (!user) {
+            alert('사용자 정보를 찾을 수 없습니다.');
+            return;
+          }
 
-        if (!user) {
-          alert("유저 정보를 찾을 수 없습니다.");
-          return;
+          document.getElementById('nickname').innerText = `👤 닉네임: ${user.nickname || '이름없음'}`;
+          document.getElementById('water').innerText = user.inventory?.water ?? 0;
+          document.getElementById('fertilizer').innerText = user.inventory?.fertilizer ?? 0;
+          document.getElementById('seedPotato').innerText = user.inventory?.seedPotato ?? 0;
+          document.getElementById('seedBarley').innerText = user.inventory?.seedBarley ?? 0;
+          document.getElementById('tokens').innerText = user.tokens ?? 0;
+
+        } else {
+          alert("서버에서 데이터를 불러오는 데 실패했습니다.");
         }
-
-        // 서버 응답 구조에 맞게 렌더링
-        document.getElementById("orcx").innerText = user.orcx ?? 0;
-        document.getElementById("water").innerText = user.water ?? 0;
-        document.getElementById("fertilizer").innerText = user.fertilizer ?? 0;
-        document.getElementById("seedPotato").innerText = user.seedPotato ?? 0;
-        document.getElementById("seedBarley").innerText = user.seedBarley ?? 0;
-
-        // 보관창고 구조 미포함 → 임시값
-        document.getElementById("potato").innerText = 0;
-        document.getElementById("bori").innerText = 0;
-
       } catch (error) {
-        console.error("유저 데이터를 불러오는 중 오류 발생:", error);
-        alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+        console.error('불러오기 오류:', error);
+        alert("네트워크 오류가 발생했습니다.");
       }
     }
 
-    window.onload = loadUserData;
+    if (kakaoId) {
+      fetchUserData();
+    } else {
+      alert("카카오 ID가 없습니다. 먼저 로그인하세요.");
+    }
   </script>
 </body>
 </html>
+
 
 
