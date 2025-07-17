@@ -83,17 +83,15 @@
       window.location.href = "index9.html";
     }
 
-    // 상태 저장용
     let user = {};
     let growthPoint = 0;
 
-    // cropType 선택값 가져오기
     function getSelectedCropType() {
       const el = document.querySelector('input[name="cropType"]:checked');
       return el ? el.value : "seedPotato";
     }
 
-    // 농장/보관함 정보 불러오기
+    // 🚩 유저 정보(씨감자/씨보리/감자/보리 포함) 불러오기
     async function fetchUserData() {
       try {
         const res = await fetch(`${API_BASE}/user/v2data`, {
@@ -103,15 +101,16 @@
         });
         const data = await res.json();
         user = data.user || {};
+        // 자재
         document.getElementById("myPotato").innerText = user.seedPotato ?? 0;
         document.getElementById("myBarley").innerText = user.seedBarley ?? 0;
         document.getElementById("myWater").innerText = user.water ?? 0;
         document.getElementById("myFert").innerText = user.fertilizer ?? 0;
         document.getElementById("myOrcx").innerText = user.orcx ?? 0;
         document.getElementById("farmNameBlock").innerText = "농장이름: " + (localStorage.getItem("farmName") || "-");
-        // 🚩 수확 감자/보리 실시간 표시
-        document.getElementById("myCropPotato").innerText = user.potato ?? 0;
-        document.getElementById("myCropBarley").innerText = user.barley ?? 0;
+        // 수확 감자/보리 실시간 표시
+        document.getElementById("myCropPotato").innerText = (user.growth && user.growth.potato) ? user.growth.potato : (user.potato ?? 0);
+        document.getElementById("myCropBarley").innerText = (user.growth && user.growth.barley) ? user.growth.barley : (user.barley ?? 0);
       } catch (e) {
         document.getElementById("statusMsg").innerText = "❌ 유저정보 불러오기 실패";
       }
