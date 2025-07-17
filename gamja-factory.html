@@ -83,9 +83,11 @@
       window.location.href = "index9.html";
     }
 
+    // 상태 저장용
     let user = {};
     let growthPoint = 0;
 
+    // cropType 선택값 가져오기
     function getSelectedCropType() {
       const el = document.querySelector('input[name="cropType"]:checked');
       return el ? el.value : "seedPotato";
@@ -107,9 +109,10 @@
         document.getElementById("myFert").innerText = user.fertilizer ?? 0;
         document.getElementById("myOrcx").innerText = user.orcx ?? 0;
         document.getElementById("farmNameBlock").innerText = "농장이름: " + (localStorage.getItem("farmName") || "-");
-        // **수확 감자/보리 실시간 표시(성장 결과는 user.growth에서!)**
-        document.getElementById("myCropPotato").innerText = user.growth?.potato ?? 0;
-        document.getElementById("myCropBarley").innerText = user.growth?.barley ?? 0;
+        // 🚩 수확 감자/보리 실시간 표시
+        document.getElementById("myCropPotato").innerText = (user.growth && user.growth.potato != null) ? user.growth.potato : 0;
+        document.getElementById("myCropBarley").innerText = (user.growth && user.growth.barley != null) ? user.growth.barley : 0;
+        document.getElementById("statusMsg").innerText = "✅ 서버 연결 성공";
       } catch (e) {
         document.getElementById("statusMsg").innerText = "❌ 유저정보 불러오기 실패";
       }
@@ -127,6 +130,7 @@
         const cropType = getSelectedCropType();
         growthPoint = data.growth ? (cropType === "seedPotato" ? data.growth.potato : data.growth.barley) : 0;
         document.getElementById("growthPoint").innerText = growthPoint;
+        // 수확 버튼 활성화(포인트 5 이상, 씨앗도 1개 이상)
         if (growthPoint >= 5 && (user[cropType] ?? 0) > 0) {
           document.getElementById("harvestBtn").disabled = false;
         } else {
@@ -137,6 +141,7 @@
       }
     }
 
+    // 물주기
     async function giveWater() {
       const cropType = getSelectedCropType();
       if (!kakaoId) return alert("로그인 필요");
@@ -165,6 +170,7 @@
       }
     }
 
+    // 거름주기
     async function giveFertilizer() {
       const cropType = getSelectedCropType();
       if (!kakaoId) return alert("로그인 필요");
@@ -193,6 +199,7 @@
       }
     }
 
+    // 수확하기
     async function harvestCrop() {
       const cropType = getSelectedCropType();
       if (!kakaoId) return alert("로그인 필요");
@@ -216,10 +223,12 @@
       }
     }
 
+    // cropType 바뀔 때마다 성장포인트 조회
     document.querySelectorAll('input[name="cropType"]').forEach(el => {
       el.addEventListener('change', fetchGrowthPoint);
     });
 
+    // 첫 로딩
     fetchUserData().then(fetchGrowthPoint);
   </script>
 </body>
