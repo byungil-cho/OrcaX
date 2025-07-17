@@ -40,7 +40,7 @@
 </head>
 <body>
   <main>
-    <h1>🥔 감자 농장장</h1>
+    <h1>🥔 감자 농장</h1>
     <div class="info-block" id="farmNameBlock">농장이름: -</div>
     <div class="status" id="statusMsg">📡 서버 연결 확인 중...</div>
     <div class="control-block">
@@ -65,11 +65,14 @@
       &nbsp; 물: <span id="myWater">0</span>
       &nbsp; 거름: <span id="myFert">0</span>
       &nbsp; ORCX: <span id="myOrcx">0</span>
+      <br>
+      <span style="color:#ff0">감자: <span id="myCropPotato">0</span></span>
+      &nbsp; <span style="color:#ff0">보리: <span id="myCropBarley">0</span></span>
     </div>
     <nav>
       <a href="gamja-farm.html">감자 대시보드</a>
       <a href="gamja-shop.html">씨앗 상점</a>
-      <a href="gamja-result.html">가공공장장</a>
+      <a href="gamja-result.html">가공식품공장</a>
     </nav>
   </main>
   <script>
@@ -106,6 +109,9 @@
         document.getElementById("myFert").innerText = user.fertilizer ?? 0;
         document.getElementById("myOrcx").innerText = user.orcx ?? 0;
         document.getElementById("farmNameBlock").innerText = "농장이름: " + (localStorage.getItem("farmName") || "-");
+        // 🚩 수확 감자/보리 실시간 표시
+        document.getElementById("myCropPotato").innerText = user.potato ?? 0;
+        document.getElementById("myCropBarley").innerText = user.barley ?? 0;
       } catch (e) {
         document.getElementById("statusMsg").innerText = "❌ 유저정보 불러오기 실패";
       }
@@ -226,5 +232,6 @@
   </script>
 </body>
 </html>
+
 
 
