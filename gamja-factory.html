@@ -97,19 +97,21 @@
         const res = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: kakaoId })
+          body: JSON.stringify({ kakaoId })
         });
         const data = await res.json();
-        user = data.user || {};
+        user = data.user || data;
         document.getElementById("myPotato").innerText = user.seedPotato ?? 0;
         document.getElementById("myBarley").innerText = user.seedBarley ?? 0;
         document.getElementById("myWater").innerText = user.water ?? 0;
         document.getElementById("myFert").innerText = user.fertilizer ?? 0;
         document.getElementById("myOrcx").innerText = user.orcx ?? 0;
         document.getElementById("farmNameBlock").innerText = "농장이름: " + (localStorage.getItem("farmName") || "-");
-        // **수확 감자/보리 실시간 표시(성장 결과는 user.growth에서!)**
-        document.getElementById("myCropPotato").innerText = user.growth?.potato ?? 0;
-        document.getElementById("myCropBarley").innerText = user.growth?.barley ?? 0;
+        // 🚩 수확 감자/보리 실시간 표시 (growth 기준!)
+        document.getElementById("myCropPotato").innerText =
+          (user.growth && typeof user.growth.potato === "number") ? user.growth.potato : 0;
+        document.getElementById("myCropBarley").innerText =
+          (user.growth && typeof user.growth.barley === "number") ? user.growth.barley : 0;
       } catch (e) {
         document.getElementById("statusMsg").innerText = "❌ 유저정보 불러오기 실패";
       }
@@ -125,8 +127,10 @@
         });
         const data = await res.json();
         const cropType = getSelectedCropType();
+        // growth: { potato, barley }
         growthPoint = data.growth ? (cropType === "seedPotato" ? data.growth.potato : data.growth.barley) : 0;
         document.getElementById("growthPoint").innerText = growthPoint;
+        // 수확 버튼 활성화(포인트 5 이상, 씨앗도 1개 이상)
         if (growthPoint >= 5 && (user[cropType] ?? 0) > 0) {
           document.getElementById("harvestBtn").disabled = false;
         } else {
@@ -137,6 +141,7 @@
       }
     }
 
+    // 물주기
     async function giveWater() {
       const cropType = getSelectedCropType();
       if (!kakaoId) return alert("로그인 필요");
@@ -165,6 +170,7 @@
       }
     }
 
+    // 거름주기
     async function giveFertilizer() {
       const cropType = getSelectedCropType();
       if (!kakaoId) return alert("로그인 필요");
@@ -193,6 +199,7 @@
       }
     }
 
+    // 수확하기
     async function harvestCrop() {
       const cropType = getSelectedCropType();
       if (!kakaoId) return alert("로그인 필요");
@@ -216,10 +223,12 @@
       }
     }
 
+    // cropType 바뀔 때마다 성장포인트 조회
     document.querySelectorAll('input[name="cropType"]').forEach(el => {
       el.addEventListener('change', fetchGrowthPoint);
     });
 
+    // 첫 로딩
     fetchUserData().then(fetchGrowthPoint);
   </script>
 </body>
