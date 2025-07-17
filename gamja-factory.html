@@ -1,238 +1,231 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>OrcaX 감자농장</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>감자 농장</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      margin: 0;
       font-family: 'Do Hyeon', sans-serif;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
-      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #fff;
       text-align: center;
-      color: white;
+      background: url("https://byungil-cho.github.io/OrcaX/farm-101.png") no-repeat center center fixed;
+      background-size: cover;
     }
     main {
-      background-color: rgba(0, 0, 0, 0.3);
-      margin: 3rem auto;
-      padding: 2rem;
-      max-width: 480px;
-      border-radius: 20px;
+      padding: 2rem 1rem;
     }
-    h1 { margin-bottom: 1rem; font-size: 2rem; }
-    .info-block { margin: 1.5rem 0; font-size: 1.3rem; }
-    .control-block { margin: 2rem 0; }
+    .center-box {
+      background: rgba(0,0,0,0.45);
+      border-radius: 2rem;
+      display: inline-block;
+      padding: 2rem 3vw;
+      margin-top: 4vw;
+      min-width: 350px;
+      box-shadow: 0 6px 32px 0 rgba(0,0,0,0.16);
+    }
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 0.7rem;
+    }
+    .sub {
+      font-size: 1.3rem;
+      margin-bottom: 0.4rem;
+    }
+    .check {
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+      color: #3cff69;
+      font-weight: bold;
+    }
+    .fail { color: #f44; }
+    .farm-type {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+    }
+    .radio-group { margin: 1rem 0; }
+    .radio-group label { margin: 0 0.7rem; }
     button {
-      background-color: #28a745; color: white; border: none;
-      padding: 0.8rem 1.5rem; font-size: 1.2rem; cursor: pointer; border-radius: 8px;
+      font-size: 1.3rem;
+      margin: 0.6rem 0.5rem 0 0.5rem;
+      padding: 0.65rem 2.5rem;
+      border-radius: 0.9rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Do Hyeon', sans-serif;
+      font-weight: bold;
     }
-    button:disabled { background: #aaa; color: #444; }
-    .water-btn { background-color: #17a2b8; }
-    .fert-btn { background-color: #b6d142; color: #222; }
-    .harvest-btn { background-color: #ff7575; }
-    .radio-box { margin: 0.8rem 0; }
-    nav { display: flex; justify-content: space-around; padding: 1rem; }
-    nav a { color: #ffcc00; text-decoration: none; font-weight: bold; }
-    .status { margin-top: 1.5rem; color: #00ff00; }
-    .storage { margin-top: 2rem; font-size: 1.2rem; background:rgba(0,0,0,0.15); border-radius:1em; padding:1em; }
+    .water { background: #21b0ff; color: #fff; }
+    .fertilizer { background: #b6e43c; color: #333; }
+    .harvest { background: #bdbdbd; color: #666; }
+    .section-title {
+      margin-top: 1.5rem;
+      font-weight: bold;
+      font-size: 1.22rem;
+      letter-spacing: 0.03em;
+    }
+    .store {
+      font-size: 1.08rem;
+      margin: 1rem 0 0.7rem 0;
+    }
+    .yellow { color: #ffe160; }
+    .menu-link {
+      color: #ffe160;
+      margin: 1.2rem 1.3rem 0 1.3rem;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.09rem;
+    }
   </style>
 </head>
 <body>
   <main>
-    <h1>🥔 감자 농장</h1>
-    <div class="info-block" id="farmNameBlock">농장이름: -</div>
-    <div class="status" id="statusMsg">📡 서버 연결 확인 중...</div>
-    <div class="control-block">
-      <div>농장 관리</div>
-      <div class="radio-box">
-        <input type="radio" id="seedPotato" name="cropType" value="seedPotato" checked>
-        <label for="seedPotato">씨감자</label>
-        <input type="radio" id="seedBarley" name="cropType" value="seedBarley">
-        <label for="seedBarley">씨보리</label>
+    <div class="center-box">
+      <h1>🥔 감자 농장</h1>
+      <div class="sub" id="farmName"></div>
+      <div class="check" id="serverCheck">🔄 서버 연결 확인 중...</div>
+      <div class="farm-type">
+        농장 관리
+        <div class="radio-group">
+          <label><input type="radio" name="seedType" value="potato" checked> 씨감자</label>
+          <label><input type="radio" name="seedType" value="barley"> 씨보리</label>
+        </div>
       </div>
-      <button class="water-btn" onclick="giveWater()">💧 물 주기</button>
-      <button class="fert-btn" onclick="giveFertilizer()">🌿 거름 주기</button>
-      <button class="harvest-btn" id="harvestBtn" onclick="harvestCrop()" disabled>🌾 수확하기</button>
-      <div style="margin-top:1rem;">
-        성장포인트: <span id="growthPoint">0</span>
+      <div>
+        <button class="water" id="waterBtn">💧 물 주기</button>
+        <button class="fertilizer" id="fertilizerBtn">🌿 거름 주기</button>
+        <button class="harvest" id="harvestBtn" disabled>🌾 수확하기</button>
+      </div>
+      <div style="margin:1rem 0 0.5rem 0;font-size:1.1rem;">
+        성장포인트:<span id="growthPoint">0</span>
+      </div>
+
+      <div class="section-title">농자재 보관함</div>
+      <div class="store" id="myInventory">로딩 중...</div>
+      <div class="section-title yellow">감자: <span id="potatoBox">0</span> &nbsp; 보리: <span id="barleyBox">0</span></div>
+
+      <div style="margin-top:1.3rem;">
+        <a href="gamja-farm.html" class="menu-link">감자 대시보드</a>
+        <a href="gamja-shop.html" class="menu-link">씨앗 상점</a>
+        <a href="gamja-result.html" class="menu-link">가공식품공장</a>
       </div>
     </div>
-    <div class="storage" id="storageBlock">
-      <div>농자재 보관함</div>
-      씨감자: <span id="myPotato">0</span>
-      &nbsp; 씨보리: <span id="myBarley">0</span>
-      &nbsp; 물: <span id="myWater">0</span>
-      &nbsp; 거름: <span id="myFert">0</span>
-      &nbsp; ORCX: <span id="myOrcx">0</span>
-      <br>
-      <span style="color:#ff0">감자: <span id="myCropPotato">0</span></span>
-      &nbsp; <span style="color:#ff0">보리: <span id="myCropBarley">0</span></span>
-    </div>
-    <nav>
-      <a href="gamja-farm.html">감자 대시보드</a>
-      <a href="gamja-shop.html">씨앗 상점</a>
-      <a href="gamja-result.html">가공식품공장</a>
-    </nav>
   </main>
+
   <script>
+    // 서버 기본 URL
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-    const kakaoId = localStorage.getItem("kakaoId") || "";
-    if (!kakaoId) {
-      alert("로그인이 필요합니다. 메인으로 이동합니다.");
-      window.location.href = "index9.html";
+
+    let user = null;
+    let seedType = "potato"; // 기본 감자
+
+    function setFarmName() {
+      const farmName = localStorage.getItem("farmName") || "개똥농장";
+      document.getElementById('farmName').innerText = `농장이름: ${farmName}`;
     }
 
-    // 상태 저장용
-    let user = {};
-    let growthPoint = 0;
-
-    // cropType 선택값 가져오기
-    function getSelectedCropType() {
-      const el = document.querySelector('input[name="cropType"]:checked');
-      return el ? el.value : "seedPotato";
-    }
-
-    // 농장/보관함 정보 불러오기
-    async function fetchUserData() {
-      try {
-        const res = await fetch(`${API_BASE}/user/v2data`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: kakaoId })
-        });
-        const data = await res.json();
-        user = data.user || {};
-        document.getElementById("myPotato").innerText = user.seedPotato ?? 0;
-        document.getElementById("myBarley").innerText = user.seedBarley ?? 0;
-        document.getElementById("myWater").innerText = user.water ?? 0;
-        document.getElementById("myFert").innerText = user.fertilizer ?? 0;
-        document.getElementById("myOrcx").innerText = user.orcx ?? 0;
-        document.getElementById("farmNameBlock").innerText = "농장이름: " + (localStorage.getItem("farmName") || "-");
-        // 🚩 수확 감자/보리 실시간 표시
-        document.getElementById("myCropPotato").innerText = (user.growth && user.growth.potato != null) ? user.growth.potato : 0;
-        document.getElementById("myCropBarley").innerText = (user.growth && user.growth.barley != null) ? user.growth.barley : 0;
-        document.getElementById("statusMsg").innerText = "✅ 서버 연결 성공";
-      } catch (e) {
-        document.getElementById("statusMsg").innerText = "❌ 유저정보 불러오기 실패";
+    function setServerStatus(ok) {
+      const el = document.getElementById('serverCheck');
+      if(ok) {
+        el.textContent = "✅ 서버 연결 성공";
+        el.classList.remove("fail");
+      } else {
+        el.textContent = "❌ 서버 연결 실패";
+        el.classList.add("fail");
       }
     }
 
-    // 성장포인트 조회
-    async function fetchGrowthPoint() {
-      try {
-        const res = await fetch(`${API_BASE}/factory/growth-status`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId })
-        });
-        const data = await res.json();
-        const cropType = getSelectedCropType();
-        growthPoint = data.growth ? (cropType === "seedPotato" ? data.growth.potato : data.growth.barley) : 0;
-        document.getElementById("growthPoint").innerText = growthPoint;
-        // 수확 버튼 활성화(포인트 5 이상, 씨앗도 1개 이상)
-        if (growthPoint >= 5 && (user[cropType] ?? 0) > 0) {
-          document.getElementById("harvestBtn").disabled = false;
-        } else {
-          document.getElementById("harvestBtn").disabled = true;
-        }
-      } catch (e) {
-        document.getElementById("growthPoint").innerText = 0;
-      }
+    function renderInventory(user) {
+      if (!user) return;
+      const inv = user;
+      // 씨감자, 씨보리, 물, 거름, 토큰
+      const inventoryHTML = `
+        씨감자: <b>${inv.seedPotato||0}</b>
+        &nbsp; 씨보리: <b>${inv.seedBarley||0}</b>
+        &nbsp; 물: <b>${inv.water||0}</b>
+        &nbsp; 거름: <b>${inv.fertilizer||0}</b>
+        &nbsp; ORCX: <b>${inv.orcx||0}</b>
+      `;
+      document.getElementById("myInventory").innerHTML = inventoryHTML;
+
+      // 수확 감자, 보리 (growth)
+      document.getElementById("potatoBox").innerText = (user.growth?.potato ?? 0);
+      document.getElementById("barleyBox").innerText = (user.growth?.barley ?? 0);
     }
 
-    // 물주기
-    async function giveWater() {
-      const cropType = getSelectedCropType();
-      if (!kakaoId) return alert("로그인 필요");
-      if (!cropType) return alert("씨앗 종류를 선택하세요!");
-      if ((user[cropType] ?? 0) < 1) return alert("씨앗이 없습니다!");
-      if ((user.water ?? 0) < 1) return alert("물 부족!");
-      try {
-        const patchRes = await fetch(`${API_BASE}/factory/use-resource`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            kakaoId,
-            cropType,
-            water: -1 // 물 1개 사용
-          })
-        });
-        const data = await patchRes.json();
-        if (data.success) {
-          await fetchUserData();
-          await fetchGrowthPoint();
-        } else {
-          alert(data.message || "물 사용 실패");
-        }
-      } catch (e) {
-        alert("서버 오류(물)");
-      }
+    // 성장포인트 표시
+    function renderGrowthPoint(val) {
+      document.getElementById("growthPoint").innerText = val ?? 0;
     }
 
-    // 거름주기
-    async function giveFertilizer() {
-      const cropType = getSelectedCropType();
-      if (!kakaoId) return alert("로그인 필요");
-      if (!cropType) return alert("씨앗 종류를 선택하세요!");
-      if ((user[cropType] ?? 0) < 1) return alert("씨앗이 없습니다!");
-      if ((user.fertilizer ?? 0) < 1) return alert("거름 부족!");
-      try {
-        const patchRes = await fetch(`${API_BASE}/factory/use-resource`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            kakaoId,
-            cropType,
-            fertilizer: -1 // 거름 1개 사용
-          })
-        });
-        const data = await patchRes.json();
-        if (data.success) {
-          await fetchUserData();
-          await fetchGrowthPoint();
-        } else {
-          alert(data.message || "거름 사용 실패");
-        }
-      } catch (e) {
-        alert("서버 오류(거름)");
-      }
-    }
-
-    // 수확하기
-    async function harvestCrop() {
-      const cropType = getSelectedCropType();
-      if (!kakaoId) return alert("로그인 필요");
-      if (!cropType) return alert("씨앗 종류를 선택하세요!");
-      try {
-        const res = await fetch(`${API_BASE}/factory/harvest`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId, cropType })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert(`수확 성공! +${data.reward}개`);
-          await fetchUserData();
-          await fetchGrowthPoint();
-        } else {
-          alert(data.message || "수확 실패");
-        }
-      } catch (e) {
-        alert("서버 오류(수확)");
-      }
-    }
-
-    // cropType 바뀔 때마다 성장포인트 조회
-    document.querySelectorAll('input[name="cropType"]').forEach(el => {
-      el.addEventListener('change', fetchGrowthPoint);
+    // 라디오 선택 변경
+    document.querySelectorAll('input[name="seedType"]').forEach(el => {
+      el.addEventListener('change', (e) => {
+        seedType = e.target.value;
+        // 필요 시 감자/보리별 로직 분기 가능
+      });
     });
 
-    // 첫 로딩
-    fetchUserData().then(fetchGrowthPoint);
+    // 데이터 불러오기
+    async function fetchUser() {
+      try {
+        const kakaoId = localStorage.getItem("kakaoId");
+        if (!kakaoId) throw new Error("카카오ID 없음");
+        const res = await fetch(`${API_BASE}/user/v2data`, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ kakaoId })
+        });
+        if (!res.ok) throw new Error("서버 연결 실패");
+        const data = await res.json();
+        user = data.user;
+        setServerStatus(true);
+        renderInventory(user);
+        renderGrowthPoint(user.growthPoint || 0);
+      } catch(e) {
+        setServerStatus(false);
+        document.getElementById("myInventory").innerHTML = "연결 실패";
+      }
+    }
+
+    // 버튼 기능
+    document.getElementById("waterBtn").onclick = async () => {
+      if (!user) return;
+      await useResource("water");
+    };
+    document.getElementById("fertilizerBtn").onclick = async () => {
+      if (!user) return;
+      await useResource("fertilizer");
+    };
+
+    // 자원 사용 (물/거름)
+    async function useResource(type) {
+      try {
+        const res = await fetch(`${API_BASE}/factory/use-resource`, {
+          method: "PATCH",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({
+            kakaoId: localStorage.getItem("kakaoId"),
+            seedType,
+            resourceType: type
+          })
+        });
+        if (!res.ok) throw new Error("실패");
+        await fetchUser(); // 다시 불러오기
+      } catch {
+        alert(type + " 사용 실패!");
+      }
+    }
+
+    // 페이지 최초 진입 시
+    setFarmName();
+    fetchUser();
   </script>
 </body>
 </html>
+
 
 
 
