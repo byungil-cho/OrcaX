@@ -78,7 +78,7 @@
     <div class="section">
       <h2>🌾 작물 보관소</h2>
       감자: <span id="potato">0</span><br>
-      보리: <span id="barley">0</span>
+      보리: <span id="bori">0</span>
     </div>
 
     <div class="nav">
@@ -106,14 +106,13 @@
     let growthPoint = 0;
 
     function updateDisplay() {
-      // 🔥 user.필드명 직접 접근! (DB와 1:1 매칭)
       document.getElementById("seedPotato").textContent = user.seedPotato ?? 0;
       document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
       document.getElementById("water").textContent = user.water ?? 0;
       document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
       document.getElementById("orcx").textContent = user.orcx ?? 0;
       document.getElementById("potato").textContent = user.potato ?? 0;
-      document.getElementById("barley").textContent = user.bori ?? 0;
+      document.getElementById("bori").textContent = user.bori ?? 0;
       document.getElementById("growth").textContent = growthPoint;
 
       // 버튼 활성/비활성 제어
@@ -124,13 +123,13 @@
       document.getElementById("harvestBtn").disabled = !hasSeed || growthPoint < 5;
     }
 
-    // 유저 상태 불러오기
+    // 유저 상태 불러오기 (감자 전용 API)
     async function fetchUserState() {
       try {
-        const response = await fetch(`${API_BASE}/userdata`, {
+        const response = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId }),
+          body: JSON.stringify({ id: kakaoId }),
         });
         const data = await response.json();
         user = data.user;
@@ -153,8 +152,6 @@
       if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
       if ((user.water ?? 0) < 1) return alert("물 부족!");
       try {
-        // 서버에 자원 차감 PATCH (예시, 실제 구현은 서버와 맞춰야 함)
-        // ... 실제 자원 차감 서버 API 호출 추가 필요 ...
         user.water--;
         growthPoint++;
         updateDisplay();
@@ -169,8 +166,6 @@
       if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
       if ((user.fertilizer ?? 0) < 1) return alert("거름 부족!");
       try {
-        // 서버에 자원 차감 PATCH (예시, 실제 구현은 서버와 맞춰야 함)
-        // ... 실제 자원 차감 서버 API 호출 추가 필요 ...
         user.fertilizer--;
         growthPoint += 2;
         updateDisplay();
@@ -189,14 +184,9 @@
       if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
 
       try {
-        // (1) 씨앗 감소
         user[selectedSeed]--;
-
-        // (2) 작물 보관소 증가
         const cropName = selectedSeed === "seedPotato" ? "potato" : "bori";
         user[cropName] = (user[cropName] ?? 0) + reward;
-
-        // (3) 성장포인트 리셋
         growthPoint = 0;
         updateDisplay();
         alert(`🎉 수확 성공! ${reward}개를 얻었습니다.`);
@@ -216,6 +206,7 @@
   </script>
 </body>
 </html>
+
 
 
 
