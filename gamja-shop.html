@@ -107,12 +107,12 @@
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
     const kakaoId = localStorage.getItem("kakaoId");
 
-    // 서버에서 씨앗 보관소(운영자 재고/가격) 불러오기 (수정본)
+    // 씨앗 보관소 재고 및 가격 정보 불러오기
     async function fetchSeedStatus() {
       try {
         const res = await fetch(`${API_BASE}/seed/status`);
         const data = await res.json();
-        // type값이 "gamja", "bori"인 것을 배열에서 찾아 표시
+        // 배열에서 type으로 찾기!
         const potato = data.find(x => x.type === "gamja");
         const barley = data.find(x => x.type === "bori");
         document.getElementById("leftPotato").innerText = potato?.stock ?? "-";
@@ -173,3 +173,4 @@
   </script>
 </body>
 </html>
+
