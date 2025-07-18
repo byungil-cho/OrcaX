@@ -16,64 +16,122 @@
     main {
       background-color: rgba(0, 0, 0, 0.3);
       margin: 3rem auto;
-      padding: 2rem;
       max-width: 480px;
-      border-radius: 20px;
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 6px 18px 0 rgba(0,0,0,0.2);
     }
-    h1 { margin-bottom: 1rem; font-size: 2rem; }
-    .info-block { margin: 1.5rem 0; font-size: 1.3rem; }
-    .seed-section { margin: 2rem 0; padding: 1rem; background-color: rgba(255,255,255,0.1); border-radius: 10px; }
-    button { background-color: #28a745; color: white; border: none; padding: 0.8rem 1.5rem; font-size: 1.2rem; cursor: pointer; border-radius: 8px; }
-    button:hover { background-color: #218838; }
-    nav { display: flex; justify-content: space-around; padding: 1rem; }
-    nav a { color: #ffcc00; text-decoration: none; font-weight: bold; }
-    .status { margin-top: 1.5rem; color: #00ff00; }
+    h1 {
+      margin-bottom: 1rem;
+      font-size: 2rem;
+    }
+    .box {
+      background: rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 1.2rem 1rem;
+      margin: 1.2rem 0;
+    }
+    .status {
+      margin-bottom: 12px;
+      color: #00ffe0;
+      font-weight: bold;
+      font-size: 1.07rem;
+      letter-spacing: 1px;
+    }
+    button {
+      background: #00e0ff;
+      color: #222;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      padding: 10px 20px;
+      margin: 0 8px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px 0 rgba(0,0,0,0.09);
+      transition: background 0.15s;
+    }
+    button:active { background: #0096a3; }
+    .desc {
+      margin-top: 1.4rem;
+      color: #ffc600;
+      font-size: 1.06rem;
+    }
+    .my-inventory {
+      margin: 1.5rem 0 0.6rem;
+      color: #bef5ff;
+    }
+    .back-link {
+      color: #ffc600;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.06rem;
+      margin-top: 1.7rem;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
   <main>
     <h1>🌱 OrcaX 씨앗 상점</h1>
-    <div class="info-block">
-      💰 보유 토큰: <span id="orcx">0</span> ORCX
+    <div id="statusMsg" class="status">서버 연결 확인 중...</div>
+
+    <div class="box">
+      <h2>운영자 씨앗 보관소</h2>
+      씨감자: <span id="leftPotato">-</span>개 (<span id="pricePotato">-</span> ORCX)<br>
+      씨보리: <span id="leftBarley">-</span>개 (<span id="priceBarley">-</span> ORCX)
     </div>
-    <div class="info-block">
-      🥔 씨감자 재고: <span id="leftPotato">-</span>개<br />
-      🥔 씨감자 가격: <span id="pricePotato">-</span> ORCX<br /><br />
-      🌾 씨보리 재고: <span id="leftBarley">-</span>개<br />
-      🌾 씨보리 가격: <span id="priceBarley">-</span> ORCX
+
+    <div class="box">
+      <h2>내 보유 씨앗</h2>
+      씨감자: <span id="myPotato">-</span>개<br>
+      씨보리: <span id="myBarley">-</span>개<br>
+      보유 ORCX: <span id="orcx">-</span>
     </div>
-    <div class="seed-section">
-      <h2>🥔 씨감자</h2>
-      <div>내 보유: <span id="myPotato">0</span>개</div>
-      <button onclick="buySeed('seedPotato')">구매하기</button>
+
+    <div style="margin:1.5rem 0;">
+      <button onclick="buySeed('seedPotato')">씨감자 구매</button>
+      <button onclick="buySeed('seedBarley')">씨보리 구매</button>
     </div>
-    <div class="seed-section">
-      <h2>🌾 씨보리</h2>
-      <div>내 보유: <span id="myBarley">0</span>개</div>
-      <button onclick="buySeed('seedBarley')">구매하기</button>
+
+    <div class="desc">
+      씨앗은 운영자 재고가 모두 소진되면 더 이상 구매할 수 없습니다.<br>
+      구매 후 즉시 내 보유 씨앗이 갱신됩니다.
     </div>
-    <nav>
-      <a href="gamja-farm.html">감자 농장</a>
-      <a href="admin-seeds.html">씨앗 관리소</a>
-      <a href="gamja-result.html">개인 보관함</a>
-    </nav>
-    <div class="status" id="statusMsg">📡 서버 연결 확인 중...</div>
+
+    <a href="gamja-farm.html" class="back-link">← 농장 대시보드로</a>
   </main>
+
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-    const kakaoId = localStorage.getItem("kakaoId") || "";
-    if (!kakaoId) {
-      alert("로그인이 필요합니다. 메인으로 이동합니다.");
-      window.location.href = "index9.html";
+    const kakaoId = localStorage.getItem("kakaoId");
+
+    // 서버에서 씨앗 보관소(운영자 재고/가격) 불러오기 (수정본)
+    async function fetchSeedStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/seed/status`);
+        const data = await res.json();
+        // type값이 "gamja", "bori"인 것을 배열에서 찾아 표시
+        const potato = data.find(x => x.type === "gamja");
+        const barley = data.find(x => x.type === "bori");
+        document.getElementById("leftPotato").innerText = potato?.stock ?? "-";
+        document.getElementById("pricePotato").innerText = potato?.price ?? "-";
+        document.getElementById("leftBarley").innerText = barley?.stock ?? "-";
+        document.getElementById("priceBarley").innerText = barley?.price ?? "-";
+        document.getElementById("statusMsg").innerText = (potato && barley) ? "✅ 서버 연결 성공" : "❌ 씨앗 정보 없음";
+      } catch (err) {
+        document.getElementById("statusMsg").innerText = "❌ 서버 연결 실패";
+      }
     }
 
-    // 유저 정보(토큰/씨감자/씨보리 등) 불러오기
+    // 내 보유 씨앗/토큰 불러오기
     async function fetchUserData() {
       try {
         const res = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: kakaoId }) // ★ 반드시 'id'로 보냄!
+          body: JSON.stringify({ id: kakaoId })
         });
         const data = await res.json();
         const user = data.user;
@@ -81,29 +139,15 @@
         document.getElementById("myPotato").innerText = user?.seedPotato ?? 0;
         document.getElementById("myBarley").innerText = user?.seedBarley ?? 0;
       } catch (err) {
-        document.getElementById("orcx").innerText = 0;
-        document.getElementById("myPotato").innerText = 0;
-        document.getElementById("myBarley").innerText = 0;
+        document.getElementById("orcx").innerText = "-";
+        document.getElementById("myPotato").innerText = "-";
+        document.getElementById("myBarley").innerText = "-";
       }
     }
 
-    // 씨앗 보관소 재고 및 가격 정보
-    async function fetchSeedStatus() {
-      try {
-        const res = await fetch(`${API_BASE}/seed/status`);
-        const data = await res.json();
-        document.getElementById("leftPotato").innerText = data.seedPotato ?? "-";
-        document.getElementById("pricePotato").innerText = data.pricePotato ?? "-";
-        document.getElementById("leftBarley").innerText = data.seedBarley ?? "-";
-        document.getElementById("priceBarley").innerText = data.priceBarley ?? "-";
-        document.getElementById("statusMsg").innerText = data.success ? "✅ 서버 연결 성공" : "❌ 씨앗 정보 없음";
-      } catch (err) {
-        document.getElementById("statusMsg").innerText = "❌ 서버 연결 실패";
-      }
-    }
-
-    // 씨앗 구매
+    // 씨앗 구매 버튼
     async function buySeed(type) {
+      if (!kakaoId) return alert("로그인 정보 없음!");
       try {
         const res = await fetch(`${API_BASE}/seed/buy`, {
           method: "POST",
@@ -111,21 +155,21 @@
           body: JSON.stringify({ kakaoId, seedType: type })
         });
         const data = await res.json();
-        if (data.success) {
-          alert(`${type === 'seedPotato' ? '씨감자' : '씨보리'} 구매 성공!`);
-          fetchUserData();
-          fetchSeedStatus();
-        } else {
-          alert("구매 실패: " + (data.message || "서버 오류"));
+        if (!data.success) {
+          alert(data.message || "구매 실패!");
+          return;
         }
+        alert("구매 성공!");
+        await fetchUserData();
+        await fetchSeedStatus();
       } catch (err) {
-        alert("오류 발생: " + err.message);
+        alert("서버 오류: 구매 실패");
       }
     }
 
-    // 페이지 로딩 시 정보 불러오기
-    fetchUserData();
+    // 페이지 진입시 실행
     fetchSeedStatus();
+    fetchUserData();
   </script>
 </body>
 </html>
