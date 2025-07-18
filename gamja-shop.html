@@ -34,9 +34,6 @@
   <main>
     <h1>🌱 OrcaX 씨앗 상점</h1>
     <div class="info-block">
-      👤 현재 사용자: <span id="nickname">-</span>
-    </div>
-    <div class="info-block">
       💰 보유 토큰: <span id="orcx">0</span> ORCX
     </div>
     <div class="info-block">
@@ -63,34 +60,34 @@
     <div class="status" id="statusMsg">📡 서버 연결 확인 중...</div>
   </main>
   <script>
-    const API_BASE = "/api";
-    const kakaoId = localStorage.getItem("kakaoId") || sessionStorage.getItem("kakaoId") || "debug-test-id";
-    if (!kakaoId || kakaoId === "") {
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+    const kakaoId = localStorage.getItem("kakaoId") || "";
+    if (!kakaoId) {
       alert("로그인이 필요합니다. 메인으로 이동합니다.");
       window.location.href = "index9.html";
     }
 
+    // 유저 정보(토큰/씨감자/씨보리 등) 불러오기
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/userdata`, {
+        const res = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId })
+          body: JSON.stringify({ id: kakaoId }) // ★ 반드시 'id'로 보냄!
         });
         const data = await res.json();
         const user = data.user;
         document.getElementById("orcx").innerText = user?.orcx ?? 0;
         document.getElementById("myPotato").innerText = user?.seedPotato ?? 0;
         document.getElementById("myBarley").innerText = user?.seedBarley ?? 0;
-        document.getElementById("nickname").innerText = user?.nickname ?? "알 수 없음";
       } catch (err) {
         document.getElementById("orcx").innerText = 0;
         document.getElementById("myPotato").innerText = 0;
         document.getElementById("myBarley").innerText = 0;
-        document.getElementById("nickname").innerText = "불러오기 실패";
       }
     }
 
+    // 씨앗 보관소 재고 및 가격 정보
     async function fetchSeedStatus() {
       try {
         const res = await fetch(`${API_BASE}/seed/status`);
@@ -105,6 +102,7 @@
       }
     }
 
+    // 씨앗 구매
     async function buySeed(type) {
       try {
         const res = await fetch(`${API_BASE}/seed/buy`, {
@@ -125,16 +123,9 @@
       }
     }
 
+    // 페이지 로딩 시 정보 불러오기
     fetchUserData();
     fetchSeedStatus();
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
