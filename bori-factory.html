@@ -5,17 +5,104 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🌾 보리 농장</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Do Hyeon', sans-serif;
-      background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center top fixed;
-      background-size: cover;
-      color: #3e2723;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    /* ... (기존 스타일 동일, 생략) ... */
-  </style>
+body {
+  margin: 0;
+  font-family: 'Do Hyeon', sans-serif;
+  background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center top fixed;
+  background-size: cover;
+  color: #3e2723;
+  min-height: 100vh;
+  /* 👉 화면 꽉 채우기 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.scroll-area {
+  background: rgba(255,255,255,0.1);
+  border-radius: 24px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.12);
+  margin: 2rem auto;
+  padding: 2rem 1.2rem 2rem 1.2rem;
+  max-width: 420px;
+  width: 92vw;
+  min-width: 280px;
+  text-align: center;
+  backdrop-filter: blur(3px);
+}
+header {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+.nickname, .info-bar {
+  font-size: 1.12rem;
+  margin-bottom: 0.7rem;
+  letter-spacing: -1px;
+}
+.barley-field {
+  margin: 1.2rem 0 1.2rem 0;
+}
+.status {
+  font-size: 1.16rem;
+  margin-bottom: 1rem;
+}
+.grow-buttons button,
+#harvest-btn {
+  margin: 0.2rem 0.5rem;
+  padding: 0.8rem 1.4rem;
+  font-size: 1.15rem;
+  border-radius: 18px;
+  border: none;
+  cursor: pointer;
+  background: #fafafab7;
+  box-shadow: 0 1px 6px 0 #bdbdbd4a;
+  transition: background 0.16s;
+}
+.grow-buttons button:active,
+#harvest-btn:active {
+  background: #e6e6e6de;
+}
+.storage-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+}
+.storage-section div {
+  background: #fff8;
+  border-radius: 12px;
+  padding: 0.6rem;
+  font-size: 1.08rem;
+  word-break: keep-all;
+}
+.nav-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+}
+.nav-buttons a {
+  background: #fff6;
+  border-radius: 14px;
+  padding: 0.7rem 1.2rem;
+  text-decoration: none;
+  color: #795548;
+  font-weight: bold;
+  font-size: 1.08rem;
+  box-shadow: 0 1px 8px 0 #0001;
+  margin-bottom: 0.5rem;
+}
+@media (max-width: 600px) {
+  .scroll-area {
+    max-width: 98vw;
+    min-width: 0;
+    padding: 1.1rem 0.3rem 1.3rem 0.3rem;
+  }
+  header { font-size: 1.26rem; }
+}
+</style>
 </head>
 <body>
   <div class="scroll-area">
