@@ -144,78 +144,80 @@
       }
     }
 
-    async function giveWater() {
+    function giveWater() {
       const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
       if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
       if ((user.water ?? 0) < 1) return alert("물 부족!");
-      try {
-        const res = await fetch(`${API_BASE}/factory/use-resource`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            kakaoId,
-            cropType: selectedSeed,
-            water: -1,
-            fertilizer: 0
-          })
-        });
-        const data = await res.json();
-        if (data.success) await fetchUserState();
-        else alert(data.message || "서버 오류");
-      } catch (e) {
-        alert("서버 오류");
-      }
+      fetch(`${API_BASE}/factory/use-resource`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kakaoId,
+          cropType: selectedSeed,
+          water: -1,
+          fertilizer: 0
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) fetchUserState();
+          else alert(data.message || "서버 오류");
+        })
+        .catch(() => alert("서버 오류"));
     }
 
-    async function giveFertilizer() {
+    function giveFertilizer() {
       const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
       if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
       if ((user.fertilizer ?? 0) < 1) return alert("거름 부족!");
-      try {
-        const res = await fetch(`${API_BASE}/factory/use-resource`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            kakaoId,
-            cropType: selectedSeed,
-            water: 0,
-            fertilizer: -1
-          })
-        });
-        const data = await res.json();
-        if (data.success) await fetchUserState();
-        else alert(data.message || "서버 오류");
-      } catch (e) {
-        alert("서버 오류");
-      }
+      fetch(`${API_BASE}/factory/use-resource`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kakaoId,
+          cropType: selectedSeed,
+          water: 0,
+          fertilizer: -1
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) fetchUserState();
+          else alert(data.message || "서버 오류");
+        })
+        .catch(() => alert("서버 오류"));
     }
 
-    async function harvestCrop() {
+    function harvestCrop() {
       if (growthPoint < 5) return;
       const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
       if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
-      try {
-        const response = await fetch(`${API_BASE}/factory/harvest`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId, cropType: selectedSeed }),
-        });
-        const data = await response.json();
-        if (data.success) {
-          alert(`🎉 수확 성공! ${data.reward}개를 얻었습니다.`);
-          growthPoint = 0;
-          await fetchUserState();
-        } else {
-          alert(data.message || "수확 실패");
-        }
-      } catch (e) {
-        alert("수확 실패(서버 오류)");
-      }
+      fetch(`${API_BASE}/factory/harvest`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kakaoId, cropType: selectedSeed }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert(`🎉 수확 성공! ${data.reward}개를 얻었습니다.`);
+            growthPoint = 0;
+            fetchUserState();
+          } else {
+            alert(data.message || "수확 실패");
+          }
+        })
+        .catch(() => alert("수확 실패(서버 오류)"));
     }
 
     document.querySelectorAll('input[name="cropType"]').forEach(radio => {
       radio.addEventListener("change", updateDisplay);
     });
+
+    // 반드시 window에 함수 등록
+    window.giveWater = giveWater;
+    window.giveFertilizer = giveFertilizer;
+    window.harvestCrop = harvestCrop;
 
     fetchUserState();
   </script>
