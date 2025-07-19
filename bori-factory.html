@@ -10,99 +10,129 @@ body {
   font-family: 'Do Hyeon', sans-serif;
   background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center top fixed;
   background-size: cover;
-  color: #3e2723;
+  color: #2d1800;
   min-height: 100vh;
-  /* 👉 화면 꽉 채우기 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 .scroll-area {
-  background: rgba(255,255,255,0.1);
-  border-radius: 24px;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.25);
+  border-radius: 28px;
+  box-shadow: 0 4px 32px 0 rgba(50,30,10,0.20);
   margin: 2rem auto;
   padding: 2rem 1.2rem 2rem 1.2rem;
-  max-width: 420px;
-  width: 92vw;
-  min-width: 280px;
+  max-width: 440px;
+  width: 95vw;
+  min-width: 270px;
   text-align: center;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(3.5px);
 }
 header {
   font-size: 2.2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   font-weight: bold;
+  color: #53340f;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 2px 12px #ffe9bc, 0 0 2px #633e17;
 }
 .nickname, .info-bar {
   font-size: 1.12rem;
-  margin-bottom: 0.7rem;
-  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+  color: #2e1b09;
+  font-weight: 600;
+  text-shadow: 0 1px 10px #ffecc2ad, 0 0 1px #fff7;
 }
 .barley-field {
-  margin: 1.2rem 0 1.2rem 0;
+  margin: 1.3rem 0 1.3rem 0;
+  color: #321d0c;
 }
 .status {
-  font-size: 1.16rem;
-  margin-bottom: 1rem;
+  font-size: 1.17rem;
+  margin-bottom: 1.1rem;
+  font-weight: bold;
+  text-shadow: 0 2px 12px #fff6;
 }
 .grow-buttons button,
 #harvest-btn {
-  margin: 0.2rem 0.5rem;
-  padding: 0.8rem 1.4rem;
-  font-size: 1.15rem;
-  border-radius: 18px;
+  margin: 0.18rem 0.45rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1.14rem;
+  border-radius: 19px;
   border: none;
   cursor: pointer;
-  background: #fafafab7;
-  box-shadow: 0 1px 6px 0 #bdbdbd4a;
-  transition: background 0.16s;
+  background: #fffbf8e9;
+  box-shadow: 0 1px 8px 0 #bdbdbd45;
+  font-weight: bold;
+  transition: background 0.14s;
 }
 .grow-buttons button:active,
 #harvest-btn:active {
-  background: #e6e6e6de;
+  background: #f9e7c7e8;
 }
 .storage-section {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.1rem;
 }
 .storage-section div {
-  background: #fff8;
-  border-radius: 12px;
-  padding: 0.6rem;
-  font-size: 1.08rem;
+  background: #fff9eebd;
+  border-radius: 13px;
+  padding: 0.65rem 0.3rem;
+  font-size: 1.12rem;
   word-break: keep-all;
+  color: #3c2107;
+  box-shadow: 0 2px 7px #fff6;
+  font-weight: 500;
+}
+.storage-section strong {
+  color: #bb7e28;
+}
+.seedbarley-box {
+  margin-top: 0.25rem;
+  color: #3b240a;
+  font-weight: 700;
+  font-size: 1.07rem;
+  background: #ffeec2a3;
+  border-radius: 8px;
+  padding: 0.28rem 0;
+  box-shadow: 0 1px 5px #f9eab32c;
 }
 .nav-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.8rem;
-  margin-top: 1.6rem;
+  margin-top: 1.4rem;
 }
 .nav-buttons a {
   background: #fff6;
-  border-radius: 14px;
+  border-radius: 15px;
   padding: 0.7rem 1.2rem;
   text-decoration: none;
   color: #795548;
   font-weight: bold;
-  font-size: 1.08rem;
+  font-size: 1.09rem;
   box-shadow: 0 1px 8px 0 #0001;
   margin-bottom: 0.5rem;
+  transition: background 0.14s, color 0.15s;
+}
+.nav-buttons a:hover {
+  background: #ffefc7;
+  color: #ae7c26;
 }
 @media (max-width: 600px) {
   .scroll-area {
-    max-width: 98vw;
+    max-width: 99vw;
     min-width: 0;
     padding: 1.1rem 0.3rem 1.3rem 0.3rem;
   }
-  header { font-size: 1.26rem; }
+  header { font-size: 1.34rem; }
 }
-</style>
+  </style>
 </head>
 <body>
   <div class="scroll-area">
@@ -116,7 +146,7 @@ header {
     </div>
 
     <div class="barley-field">
-      🌱 보리가 자라고 있습니다...
+      🌱 <span id="barley-status">보리가 자라고 있습니다...</span>
       <div class="status">성장 포인트: <span id="growth">0</span></div>
       <div class="grow-buttons">
         <button onclick="applyWater()">💧 물 주기</button>
@@ -126,8 +156,16 @@ header {
     </div>
 
     <div class="storage-section">
-      <div><strong>📦 자재 보관함</strong><br><div id="materials">-</div></div>
-      <div><strong>🛒 제품 보관함</strong><br><div id="products">-</div></div>
+      <div>
+        <strong>📦 자재 보관함</strong><br>
+        물: <span id="water">0</span>,
+        거름: <span id="fertilizer">0</span>
+        <div class="seedbarley-box">씨보리: <span id="seed-barley">0</span></div>
+      </div>
+      <div>
+        <strong>🛒 제품 보관함</strong><br>
+        보리: <span id="barley">0</span>
+      </div>
     </div>
 
     <div class="nav-buttons">
@@ -160,10 +198,18 @@ async function fetchUserData() {
   if (data.success) {
     document.getElementById("token").textContent = data.user.orcx;
     document.getElementById("growth").textContent = data.user.growth?.barley ?? 0;
-    document.getElementById("materials").textContent = 
-      `물: ${data.user.inventory.water ?? 0}, 거름: ${data.user.inventory.fertilizer ?? 0}`;
-    document.getElementById("products").textContent = 
-      `보리: ${data.user.barley ?? 0}`;
+    document.getElementById("water").textContent = data.user.inventory.water ?? 0;
+    document.getElementById("fertilizer").textContent = data.user.inventory.fertilizer ?? 0;
+    document.getElementById("seed-barley").textContent = data.user.seedBarley ?? 0;
+    document.getElementById("barley").textContent = data.user.barley ?? 0;
+    // 상태에 따라 문구 변경
+    if ((data.user.growth?.barley ?? 0) === 0) {
+      document.getElementById("barley-status").textContent = "보리가 자라기 시작합니다...";
+    } else if ((data.user.growth?.barley ?? 0) < 4) {
+      document.getElementById("barley-status").textContent = "보리가 무럭무럭 자라는 중입니다...";
+    } else {
+      document.getElementById("barley-status").textContent = "보리 수확 준비 완료!";
+    }
   } else {
     alert("유저 정보를 불러오지 못했습니다!");
   }
@@ -190,8 +236,17 @@ async function growBarley(action) {
   const data = await res.json();
   if (data.success) {
     document.getElementById("growth").textContent = data.growth?.barley ?? 0;
-    document.getElementById("materials").textContent = 
-      `물: ${data.inventory.water ?? 0}, 거름: ${data.inventory.fertilizer ?? 0}`;
+    document.getElementById("water").textContent = data.inventory.water ?? 0;
+    document.getElementById("fertilizer").textContent = data.inventory.fertilizer ?? 0;
+    document.getElementById("seed-barley").textContent = data.user.seedBarley ?? 0;
+    // 상태에 따라 문구 변경
+    if ((data.growth?.barley ?? 0) === 0) {
+      document.getElementById("barley-status").textContent = "보리가 자라기 시작합니다...";
+    } else if ((data.growth?.barley ?? 0) < 4) {
+      document.getElementById("barley-status").textContent = "보리가 무럭무럭 자라는 중입니다...";
+    } else {
+      document.getElementById("barley-status").textContent = "보리 수확 준비 완료!";
+    }
     showHarvestBtn(data.growth?.barley ?? 0);
   } else {
     alert(data.message || "성장 실패");
@@ -229,7 +284,6 @@ function showHarvestBtn(growth) {
 // 페이지 진입 시 성장 포인트에 따라 수확 버튼 표시
 window.addEventListener("DOMContentLoaded", async () => {
   await fetchUserData();
-  // 현재 성장 포인트로 수확 버튼 보이기
   const g = document.getElementById("growth").textContent;
   showHarvestBtn(Number(g));
 });
