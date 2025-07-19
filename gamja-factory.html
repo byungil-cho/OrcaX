@@ -110,10 +110,8 @@
       document.getElementById("water").textContent = user.water ?? 0;
       document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
       document.getElementById("orcx").textContent = user.orcx ?? user.tokens ?? 0;
-
       document.getElementById("potato").textContent = (user.storage?.gamja ?? user.potato ?? 0);
       document.getElementById("barley").textContent = (user.storage?.bori ?? user.barley ?? 0);
-
       document.getElementById("growth").textContent = growthPoint;
 
       const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
@@ -125,11 +123,11 @@
 
     async function fetchUserState() {
       try {
-        // 👇👇 여기서 반드시 id로 보내야 함!! 👇👇
-        const response = await fetch(`${API_BASE}/userdata_v2`, {
+        // ⭐⭐⭐ 여기서 API 주소만 바꿈! ⭐⭐⭐
+        const response = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: kakaoId }), // ⭐ 여기만 다름!
+          body: JSON.stringify({ id: kakaoId }), // 반드시 "id"
         });
         const data = await response.json();
         user = data.user;
