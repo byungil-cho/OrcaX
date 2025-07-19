@@ -123,11 +123,10 @@
 
     async function fetchUserState() {
       try {
-        // ⭐⭐⭐ 여기서 API 주소만 바꿈! ⭐⭐⭐
         const response = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: kakaoId }), // 반드시 "id"
+          body: JSON.stringify({ id: kakaoId }),
         });
         const data = await response.json();
         user = data.user;
@@ -150,18 +149,19 @@
       if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
       if ((user.water ?? 0) < 1) return alert("물 부족!");
       try {
-        const response = await fetch(`${API_BASE}/factory/grow`, {
-          method: "POST",
+        const res = await fetch(`${API_BASE}/factory/use-resource`, {
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId, cropType: selectedSeed, action: "water" }),
+          body: JSON.stringify({
+            kakaoId,
+            cropType: selectedSeed,
+            water: -1,
+            fertilizer: 0
+          })
         });
-        const data = await response.json();
-        if (data.success) {
-          growthPoint = data.growthPoint ?? user.growth?.potato ?? 0;
-          await fetchUserState();
-        } else {
-          alert(data.message || "서버 처리 실패!");
-        }
+        const data = await res.json();
+        if (data.success) await fetchUserState();
+        else alert(data.message || "서버 오류");
       } catch (e) {
         alert("서버 오류");
       }
@@ -172,18 +172,19 @@
       if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
       if ((user.fertilizer ?? 0) < 1) return alert("거름 부족!");
       try {
-        const response = await fetch(`${API_BASE}/factory/grow`, {
-          method: "POST",
+        const res = await fetch(`${API_BASE}/factory/use-resource`, {
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId, cropType: selectedSeed, action: "fertilizer" }),
+          body: JSON.stringify({
+            kakaoId,
+            cropType: selectedSeed,
+            water: 0,
+            fertilizer: -1
+          })
         });
-        const data = await response.json();
-        if (data.success) {
-          growthPoint = data.growthPoint ?? user.growth?.potato ?? 0;
-          await fetchUserState();
-        } else {
-          alert(data.message || "서버 처리 실패!");
-        }
+        const data = await res.json();
+        if (data.success) await fetchUserState();
+        else alert(data.message || "서버 오류");
       } catch (e) {
         alert("서버 오류");
       }
