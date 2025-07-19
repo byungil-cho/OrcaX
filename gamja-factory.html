@@ -60,9 +60,9 @@
       <label><input type="radio" name="cropType" value="seedPotato" checked /> 씨감자</label>
       <label><input type="radio" name="cropType" value="seedBarley" /> 씨보리</label>
       <br>
-      <button class="water" onclick="giveWater()" disabled>💧 물 주기</button>
-      <button class="fertilizer" onclick="giveFertilizer()" disabled>🌿 거름 주기</button>
-      <button class="harvest" id="harvestBtn" onclick="harvestCrop()" disabled>🥔 수확하기</button>
+      <button class="water" onclick="giveWater()">💧 물 주기</button>
+      <button class="fertilizer" onclick="giveFertilizer()">🌿 거름 주기</button>
+      <button class="harvest" id="harvestBtn" onclick="harvestCrop()">🥔 수확하기</button>
       <div>🌟 성장포인트: <span id="growth">0</span></div>
     </div>
 
@@ -160,7 +160,6 @@
         });
         const data = await response.json();
         if (data.success) {
-          // 서버값 다시 반영!
           growthPoint = data.growthPoint ?? 0;
           await fetchUserState();
         } else {
@@ -228,6 +227,7 @@
   </script>
 </body>
 </html>
+
 
 
 
