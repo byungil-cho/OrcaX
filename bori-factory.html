@@ -176,8 +176,7 @@ header {
   </div>
 
 <script>
-const API_URL = "https://climbing-wholly-grouper.jp.ngrok.io";
-
+const API_URL = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 let kakaoId = localStorage.getItem("kakaoId") || "";
 let nickname = localStorage.getItem("nickname") || "익명농부";
 let farmName = localStorage.getItem("farmName") || "보리농장";
@@ -186,30 +185,42 @@ document.getElementById("nickname").textContent = nickname;
 document.getElementById("farm-name").textContent = farmName;
 document.getElementById("power-status").textContent = "전기 공급중입니다.";
 
+let user = null;
+let growthPoint = 0;
+
+function updateDisplay() {
+  document.getElementById("token").textContent = user.orcx ?? 0;
+  document.getElementById("growth").textContent = user.growth?.barley ?? 0;
+  document.getElementById("water").textContent = user.water ?? 0;
+  document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
+  document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
+  document.getElementById("barley").textContent = user.barley ?? 0;
+
+  // 수확 버튼 표시 조건
+  showHarvestBtn(user.growth?.barley ?? 0);
+  // 상태 메세지
+  if ((user.growth?.barley ?? 0) === 0) {
+    document.getElementById("barley-status").textContent = "보리가 자라기 시작합니다...";
+  } else if ((user.growth?.barley ?? 0) < 4) {
+    document.getElementById("barley-status").textContent = "보리가 무럭무럭 자라는 중입니다...";
+  } else {
+    document.getElementById("barley-status").textContent = "보리 수확 준비 완료!";
+  }
+}
+
 // 유저 데이터 서버에서 불러오기
 async function fetchUserData() {
   if (!kakaoId) return;
-  const res = await fetch(API_URL + "/api/userdata", {
+  const res = await fetch(API_URL + "/userdata", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ kakaoId })
   });
   const data = await res.json();
   if (data.success) {
-    document.getElementById("token").textContent = data.user.orcx;
-    document.getElementById("growth").textContent = data.user.growth?.barley ?? 0;
-    document.getElementById("water").textContent = (data.user.inventory && data.user.inventory.water !== undefined) ? data.user.inventory.water : (data.user.water ?? 0);
-    document.getElementById("fertilizer").textContent = (data.user.inventory && data.user.inventory.fertilizer !== undefined) ? data.user.inventory.fertilizer : (data.user.fertilizer ?? 0);
-    document.getElementById("seedBarley").textContent = data.user.seedBarley ?? 0; // 🚩 감자와 통일
-    document.getElementById("barley").textContent = data.user.barley ?? 0;
-    // 상태에 따라 문구 변경
-    if ((data.user.growth?.barley ?? 0) === 0) {
-      document.getElementById("barley-status").textContent = "보리가 자라기 시작합니다...";
-    } else if ((data.user.growth?.barley ?? 0) < 4) {
-      document.getElementById("barley-status").textContent = "보리가 무럭무럭 자라는 중입니다...";
-    } else {
-      document.getElementById("barley-status").textContent = "보리 수확 준비 완료!";
-    }
+    user = data.user;
+    growthPoint = user.growth?.barley ?? 0;
+    updateDisplay();
   } else {
     alert("유저 정보를 불러오지 못했습니다!");
   }
@@ -228,25 +239,14 @@ async function applyFertilizer() {
 // 성장 포인트 +1 서버 연동
 async function growBarley(action) {
   if (!kakaoId) return alert("로그인 정보 없음");
-  const res = await fetch(API_URL + "/api/factory/grow", {
+  const res = await fetch(API_URL + "/factory/grow", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ kakaoId, cropType: "barley", action })
   });
   const data = await res.json();
   if (data.success) {
-    document.getElementById("growth").textContent = data.growth?.barley ?? 0;
-    document.getElementById("water").textContent = data.inventory.water ?? 0;
-    document.getElementById("fertilizer").textContent = data.inventory.fertilizer ?? 0;
-    document.getElementById("seedBarley").textContent = data.user.seedBarley ?? 0; // 🚩 감자와 통일
-    if ((data.growth?.barley ?? 0) === 0) {
-      document.getElementById("barley-status").textContent = "보리가 자라기 시작합니다...";
-    } else if ((data.growth?.barley ?? 0) < 4) {
-      document.getElementById("barley-status").textContent = "보리가 무럭무럭 자라는 중입니다...";
-    } else {
-      document.getElementById("barley-status").textContent = "보리 수확 준비 완료!";
-    }
-    showHarvestBtn(data.growth?.barley ?? 0);
+    await fetchUserData();
   } else {
     alert(data.message || "성장 실패");
   }
@@ -261,7 +261,7 @@ function showHarvestBtn(growth) {
     btn.textContent = "🌾 수확하기";
     btn.id = "harvest-btn";
     btn.onclick = async function() {
-      const res = await fetch(API_URL + "/api/factory/harvest", {
+      const res = await fetch(API_URL + "/factory/harvest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ kakaoId, cropType: "barley" })
@@ -269,8 +269,7 @@ function showHarvestBtn(growth) {
       const data = await res.json();
       if (data.success) {
         alert(`🎉 보리 ${data.reward}말을 수확했습니다!`);
-        document.getElementById("growth").textContent = 0;
-        fetchUserData();
+        await fetchUserData();
         c.innerHTML = "";
       } else {
         alert(data.message || "수확 실패");
@@ -280,11 +279,9 @@ function showHarvestBtn(growth) {
   }
 }
 
-// 페이지 진입 시 성장 포인트에 따라 수확 버튼 표시
+// 페이지 진입 시 수확 버튼도 반영
 window.addEventListener("DOMContentLoaded", async () => {
   await fetchUserData();
-  const g = document.getElementById("growth").textContent;
-  showHarvestBtn(Number(g));
 });
 </script>
 </body>
