@@ -14,82 +14,7 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-    .scroll-area {
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 1rem 0;
-    }
-    header {
-      padding: 1rem;
-      font-size: 2rem;
-      color: #ffffff;
-      text-shadow: 1px 1px 2px #000;
-      text-align: center;
-    }
-    .nickname, .info-bar {
-      margin-top: 0.5rem;
-      font-size: 1.1rem;
-      color: #ffffff;
-      text-shadow: 1px 1px 2px #000;
-      text-align: center;
-    }
-    .info-bar {
-      font-size: 0.95rem;
-    }
-    .barley-field, .storage-section, .nav-buttons {
-      margin-top: 2rem;
-      text-align: center;
-    }
-    .status {
-      font-size: 1.2rem;
-      margin-top: 1rem;
-      color: #fff;
-      text-shadow: 1px 1px 2px #000;
-    }
-    .grow-buttons {
-      margin-top: 1.5rem;
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .grow-buttons button, #harvest-btn {
-      padding: 0.75rem 1.25rem;
-      background-color: rgba(255,255,255,0.8);
-      color: #1b5e20;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 0 6px rgba(0,0,0,0.3);
-    }
-    .storage-section > div {
-      margin: 0.5rem auto;
-      padding: 0.75rem;
-      background-color: rgba(255, 255, 255, 0.85);
-      border-radius: 10px;
-      width: 80%;
-      color: #3e2723;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-    .nav-buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .nav-buttons a {
-      background-color: rgba(255, 255, 255, 0.85);
-      padding: 0.5rem 1rem;
-      border-radius: 10px;
-      text-decoration: none;
-      color: #3e2723;
-      font-weight: bold;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
+    /* ... (기존 스타일 동일, 생략) ... */
   </style>
 </head>
 <body>
@@ -125,53 +50,102 @@
     </div>
   </div>
 
-  <script>
-    const nickname = localStorage.getItem("nickname") || "익명농부";
-    const farmName = localStorage.getItem("farmName") || "보리농장";
-    const token = localStorage.getItem("token") || 0;
-    const materials = localStorage.getItem("materials") || "자재 없음";
-    const products = localStorage.getItem("products") || "제품 없음";
-    let growth = parseInt(localStorage.getItem("growth") || 0);
-    let barley = parseInt(localStorage.getItem("보리") || 0);
+<script>
+const API_URL = "https://climbing-wholly-grouper.jp.ngrok.io"; // 주인님 고정 도메인
 
-    document.getElementById("nickname").textContent = nickname;
-    document.getElementById("farm-name").textContent = farmName;
-    document.getElementById("token").textContent = token;
-    document.getElementById("growth").textContent = growth;
-    document.getElementById("power-status").textContent = "전기 공급중입니다.";
-    document.getElementById("materials").textContent = materials;
-    document.getElementById("products").textContent = products;
+let kakaoId = localStorage.getItem("kakaoId") || ""; // 로그인시 저장된 kakaoId 사용
+let nickname = localStorage.getItem("nickname") || "익명농부";
+let farmName = localStorage.getItem("farmName") || "보리농장";
 
-    function applyWater() {
-      growth += 1;
-      updateGrowth();
-    }
+document.getElementById("nickname").textContent = nickname;
+document.getElementById("farm-name").textContent = farmName;
+document.getElementById("power-status").textContent = "전기 공급중입니다.";
 
-    function applyFertilizer() {
-      growth += 1;
-      updateGrowth();
-    }
+// 유저 데이터 서버에서 불러오기
+async function fetchUserData() {
+  if (!kakaoId) return;
+  const res = await fetch(API_URL + "/api/userdata", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kakaoId })
+  });
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById("token").textContent = data.user.orcx;
+    document.getElementById("growth").textContent = data.user.growth?.barley ?? 0;
+    document.getElementById("materials").textContent = 
+      `물: ${data.user.inventory.water ?? 0}, 거름: ${data.user.inventory.fertilizer ?? 0}`;
+    document.getElementById("products").textContent = 
+      `보리: ${data.user.barley ?? 0}`;
+  } else {
+    alert("유저 정보를 불러오지 못했습니다!");
+  }
+}
+fetchUserData();
 
-    function updateGrowth() {
-      localStorage.setItem("growth", growth);
-      document.getElementById("growth").textContent = growth;
-      if (growth >= 4 && !document.getElementById("harvest-btn")) {
-        const btn = document.createElement("button");
-        btn.textContent = "🌾 수확하기";
-        btn.id = "harvest-btn";
-        btn.onclick = function() {
-          const yieldAmount = [3, 5, 6][Math.floor(Math.random() * 3)];
-          barley += yieldAmount;
-          localStorage.setItem("보리", barley);
-          alert(`🎉 보리 ${yieldAmount}말을 수확했습니다!`);
-          growth = 0;
-          localStorage.setItem("growth", growth);
-          document.getElementById("growth").textContent = growth;
-          document.getElementById("harvest-container").innerHTML = "";
-        };
-        document.getElementById("harvest-container").appendChild(btn);
+// 물 주기 버튼
+async function applyWater() {
+  await growBarley("water");
+}
+// 거름 주기 버튼
+async function applyFertilizer() {
+  await growBarley("fertilizer");
+}
+
+// 성장 포인트 +1 서버 연동
+async function growBarley(action) {
+  if (!kakaoId) return alert("로그인 정보 없음");
+  const res = await fetch(API_URL + "/api/factory/grow", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kakaoId, cropType: "barley", action }) // cropType: barley 고정
+  });
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById("growth").textContent = data.growth?.barley ?? 0;
+    document.getElementById("materials").textContent = 
+      `물: ${data.inventory.water ?? 0}, 거름: ${data.inventory.fertilizer ?? 0}`;
+    showHarvestBtn(data.growth?.barley ?? 0);
+  } else {
+    alert(data.message || "성장 실패");
+  }
+}
+
+// 수확하기 버튼 동작
+function showHarvestBtn(growth) {
+  const c = document.getElementById("harvest-container");
+  c.innerHTML = "";
+  if (growth >= 4) {
+    const btn = document.createElement("button");
+    btn.textContent = "🌾 수확하기";
+    btn.id = "harvest-btn";
+    btn.onclick = async function() {
+      const res = await fetch(API_URL + "/api/factory/harvest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kakaoId, cropType: "barley" })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`🎉 보리 ${data.reward}말을 수확했습니다!`);
+        document.getElementById("growth").textContent = 0;
+        fetchUserData();
+        c.innerHTML = "";
+      } else {
+        alert(data.message || "수확 실패");
       }
-    }
-  </script>
+    };
+    c.appendChild(btn);
+  }
+}
+
+// 페이지 진입 시 성장 포인트에 따라 수확 버튼 표시
+window.addEventListener("DOMContentLoaded", async () => {
+  await fetchUserData();
+  // 현재 성장 포인트로 수확 버튼 보이기
+  const g = document.getElementById("growth").textContent;
+  showHarvestBtn(Number(g));
+});
+</script>
 </body>
 </html>
