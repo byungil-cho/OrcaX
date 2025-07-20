@@ -2,224 +2,263 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <title>OrcaX 감자 농장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>감자 농장</title>
   <style>
     body {
-      font-family: "Pretendard", sans-serif;
+      font-family: 'Do Hyeon', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
-      text-align: center;
+      color: #fff;
       margin: 0;
       padding: 0;
     }
-    .container {
-      margin-top: 5%;
-      padding: 20px;
-      background-color: rgba(0, 0, 0, 0.3);
-      display: inline-block;
+    .main {
+      max-width: 420px;
+      margin: 2.2rem auto;
+      background: rgba(0,0,0,0.45);
+      border-radius: 24px;
+      padding: 2rem 1rem 1.4rem 1rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .links {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .links a {
+      color: #fff;
+      text-decoration: underline;
+      margin: 0 10px;
+      font-size: 1.2rem;
+    }
+    .server-status {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    .databox {
+      font-size: 1.13rem;
+      margin: .15rem 0 .2rem 0;
+      text-align: center;
+    }
+    .box {
+      background: rgba(0,0,0,0.18);
       border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.2rem;
+      text-align: center;
     }
-    .section {
-      background-color: #ffffff20;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 10px;
-    }
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 1rem;
+    .label {
+      color: #ffd900;
+      font-size: 1.17rem;
       font-weight: bold;
+      margin-bottom: .2rem;
+      display: block;
+    }
+    .action-btns {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.2rem;
+      justify-content: center;
+    }
+    .action-btns button {
+      flex: 1;
+      background: #ffe689;
+      color: #222;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
+      padding: .8rem 0;
+      font-size: 1.13rem;
+      font-family: inherit;
+      font-weight: 700;
+      margin: 0 .1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
       cursor: pointer;
+      transition: background .14s;
     }
-    .water { background-color: #4FC3F7; }
-    .fertilizer { background-color: #AED581; }
-    .harvest { background-color: #FF8A65; }
-    .status { margin-top: 10px; font-weight: bold; color: #00FF00; }
-    .nav a {
-      display: inline-block;
-      margin: 10px 15px;
-      color: #FFD700;
-      font-weight: bold;
-      text-decoration: none;
+    .action-btns button:active {
+      background: #ffd900;
+    }
+    @media (max-width: 600px) {
+      .main { margin: 0.5rem; padding: 1rem 0.5rem; }
+      h1 { font-size: 1.4rem; }
+      .links a { font-size: 1rem; }
+      .action-btns button { font-size: 0.97rem; padding: .6rem 0; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>감자 농장</h1>
-    <div id="userInfo">농장주: <span id="nickname">-</span><br>농장이름: <span id="farmName">-</span></div>
-    <div class="status" id="serverStatus">⏳ 서버 연결 확인 중...</div>
-
-    <div class="section">
-      <h2>🌱 농장 관리</h2>
-      <label><input type="radio" name="cropType" value="seedPotato" checked /> 씨감자</label>
-      <label><input type="radio" name="cropType" value="seedBarley" /> 씨보리</label>
-      <br>
-      <button class="water" onclick="giveWater()">💧 물 주기</button>
-      <button class="fertilizer" onclick="giveFertilizer()">🌿 거름 주기</button>
-      <button class="harvest" id="harvestBtn" onclick="harvestCrop()">🥔 수확하기</button>
-      <div>🌟 성장포인트: <span id="growthPotato">0</span></div>
+  <div class="main">
+    <h1>OrcaX 감자 농장</h1>
+    <div class="links">
+      <a href="index9.html">메인으로</a> |
+      <a href="bori-factory.html">보리농장</a> |
+      <a href="gamja-shop.html">상점</a>
     </div>
-
-    <div class="section">
-      <h2>📦 농자재 보관함</h2>
-      씨감자: <span id="seedPotato">0</span><br>
-      씨보리: <span id="seedBarley">0</span><br>
-      물: <span id="water">0</span><br>
-      거름: <span id="fertilizer">0</span><br>
+    <div id="server-status" class="server-status">서버 연결 중...</div>
+    <div class="databox">
+      닉네임: <span id="nickname">-</span> | 농장이름: <span id="farmName">-</span><br>
       ORCX: <span id="orcx">0</span>
     </div>
-
-    <div class="section">
-      <h2>🌾 작물 보관소</h2>
-      감자: <span id="storageGamja">0</span><br>
-      보리: <span id="storageBori">0</span>
+    <div class="box">
+      <span class="label">🪴 자재 보관함</span>
+      물: <span id="water">0</span>,
+      거름: <span id="fertilizer">0</span><br>
+      씨감자: <span id="seedPotato">0</span>
     </div>
-
-    <div class="nav">
-      <a href="gamja-farm.html">🏠 농장 대시보드</a>
-      <a href="gamja-shop.html">🌱 씨앗 상점</a>
-      <a href="gamja-result.html">⚙️ 작물 가공공장</a>
+    <div class="box">
+      <span class="label">🥚 제품 보관함</span>
+      감자: <span id="potatoStorage">0</span>
+    </div>
+    <div class="databox">
+      성장 포인트: <span id="growth">0</span>
+    </div>
+    <div class="action-btns">
+      <button id="waterBtn">물 주기</button>
+      <button id="fertBtn">거름 주기</button>
+      <button id="harvestBtn">수확</button>
     </div>
   </div>
-
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-    const kakaoId = localStorage.getItem("kakaoId");
-    const nickname = localStorage.getItem("nickname") || "-";
-    const farmName = localStorage.getItem("farmName") || "-";
-    document.getElementById("nickname").textContent = nickname;
-    document.getElementById("farmName").textContent = farmName;
+    // 상태 변수
+    let state = {
+      nickname: "-",
+      farmName: localStorage.getItem("farmName") || "-",
+      orcx: 0,
+      water: 0,
+      fertilizer: 0,
+      seedPotato: 0,
+      potato: 0,
+      growth: 0
+    };
 
-    if (!kakaoId) {
-      alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "index9.html";
-    }
-
-    let user = null;
-    let growthPotato = 0;
-
-    function updateDisplay() {
-      document.getElementById("seedPotato").textContent = user.seedPotato ?? 0;
-      document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
-      document.getElementById("water").textContent = user.water ?? 0;
-      document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
-      document.getElementById("orcx").textContent = user.orcx ?? user.tokens ?? 0;
-      document.getElementById("growthPotato").textContent = user.growth?.potato ?? 0;
-      document.getElementById("storageGamja").textContent = user.storage?.gamja ?? 0;
-      document.getElementById("storageBori").textContent = user.storage?.bori ?? 0;
-
-      const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
-      const hasSeed = user[selectedSeed] > 0;
-      document.querySelector(".water").disabled = !hasSeed || (user.water ?? 0) < 1;
-      document.querySelector(".fertilizer").disabled = !hasSeed || (user.fertilizer ?? 0) < 1;
-      document.getElementById("harvestBtn").disabled = !hasSeed || (user.growth?.potato ?? 0) < 5;
-    }
-
-    async function fetchUserState() {
+    async function fetchUserData() {
       try {
-        const response = await fetch(`${API_BASE}/user/v2data`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: kakaoId }),
+        document.getElementById("server-status").innerHTML = '서버 연결 중...';
+        const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/userdata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId: localStorage.getItem("kakaoId") })
         });
-        const data = await response.json();
-        user = data.user;
-        if (!user) {
-          document.getElementById("serverStatus").textContent = "❌ 유저 정보 없음";
-          alert("유저 정보를 찾을 수 없습니다.");
+        const result = await res.json();
+        if (!result.success) {
+          document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
           return;
         }
-        growthPotato = user.growth?.potato ?? 0;
-        document.getElementById("serverStatus").textContent = "✅ 서버 연결 성공";
-        updateDisplay();
+        const user = result.user;
+        document.getElementById("server-status").innerHTML = "<span style='color:#1effa3;'>✔ 서버 연결 성공</span>";
+        state.nickname = user.nickname ?? "-";
+        state.orcx = user.orcx ?? 0;
+        state.water = user.inventory?.water || 0;
+        state.fertilizer = user.inventory?.fertilizer || 0;
+        state.seedPotato = user.inventory?.seedPotato || user.seedPotato || 0;
+        state.potato = user.storage?.gamja || user.potato || 0;
+        state.growth = user.growth?.potato ?? 0;
+        render();
       } catch (err) {
-        console.error("서버 상태 로딩 실패", err);
-        document.getElementById("serverStatus").textContent = "❌ 서버 연결 실패";
+        document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
       }
     }
 
-    function giveWater() {
-      const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
-      if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
-      if ((user.water ?? 0) < 1) return alert("물 부족!");
-      fetch(`${API_BASE}/factory/use-resource`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kakaoId,
-          cropType: selectedSeed,
-          water: -1,
-          fertilizer: 0
-        })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) fetchUserState();
-          else alert(data.message || "서버 오류");
-        })
-        .catch(() => alert("서버 오류"));
+    function render() {
+      document.getElementById('nickname').textContent = state.nickname;
+      document.getElementById('farmName').textContent = state.farmName;
+      document.getElementById('orcx').textContent = state.orcx;
+      document.getElementById('water').textContent = state.water;
+      document.getElementById('fertilizer').textContent = state.fertilizer;
+      document.getElementById('seedPotato').textContent = state.seedPotato;
+      document.getElementById('potatoStorage').textContent = state.potato;
+      document.getElementById('growth').textContent = state.growth;
     }
 
-    function giveFertilizer() {
-      const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
-      if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
-      if ((user.fertilizer ?? 0) < 1) return alert("거름 부족!");
-      fetch(`${API_BASE}/factory/use-resource`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kakaoId,
-          cropType: selectedSeed,
-          water: 0,
-          fertilizer: -1
-        })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) fetchUserState();
-          else alert(data.message || "서버 오류");
-        })
-        .catch(() => alert("서버 오류"));
-    }
-
-    function harvestCrop() {
-      const growthPt = user.growth?.potato ?? 0;
-      if (growthPt < 5) return;
-      const selectedSeed = document.querySelector('input[name="cropType"]:checked').value;
-      if ((user[selectedSeed] ?? 0) < 1) return alert("씨앗이 없습니다!");
-      fetch(`${API_BASE}/factory/harvest`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kakaoId, cropType: selectedSeed }),
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            alert(`🎉 수확 성공! ${data.reward}개를 얻었습니다.`);
-            fetchUserState();
+    window.onload = function() {
+      // 물 주기 (서버에 요청)
+      document.getElementById('waterBtn').onclick = async function() {
+        if (state.water > 0) {
+          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/factory/use-resource', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              kakaoId: localStorage.getItem("kakaoId"),
+              cropType: "seedPotato", // 반드시 seedPotato!
+              water: 1,
+              fertilizer: 0
+            })
+          });
+          const result = await res.json();
+          if (result.success) {
+            state.water = result.water;
+            state.growth = result.growth;
+            render();
           } else {
-            alert(data.message || "수확 실패");
+            alert(result.message || "물 사용 실패");
           }
-        })
-        .catch(() => alert("수확 실패(서버 오류)"));
-    }
+        } else {
+          alert("물 부족!");
+        }
+      };
 
-    document.querySelectorAll('input[name="cropType"]').forEach(radio => {
-      radio.addEventListener("change", updateDisplay);
-    });
+      // 거름 주기 (서버에 요청)
+      document.getElementById('fertBtn').onclick = async function() {
+        if (state.fertilizer > 0) {
+          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/factory/use-resource', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              kakaoId: localStorage.getItem("kakaoId"),
+              cropType: "seedPotato", // 반드시 seedPotato!
+              water: 0,
+              fertilizer: 1
+            })
+          });
+          const result = await res.json();
+          if (result.success) {
+            state.fertilizer = result.fertilizer;
+            state.growth = result.growth;
+            render();
+          } else {
+            alert(result.message || "거름 사용 실패");
+          }
+        } else {
+          alert("거름 부족!");
+        }
+      };
 
-    // 반드시 window에 함수 등록
-    window.giveWater = giveWater;
-    window.giveFertilizer = giveFertilizer;
-    window.harvestCrop = harvestCrop;
-
-    fetchUserState();
+      // 수확 (성장 5이상, 씨감자 1개 이상, 서버 수확 요청)
+      document.getElementById('harvestBtn').onclick = async function() {
+        if (state.seedPotato > 0 && state.growth >= 5) {
+          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/factory/harvest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              kakaoId: localStorage.getItem("kakaoId"),
+              cropType: "seedPotato"   // 반드시 seedPotato!
+            })
+          });
+          const result = await res.json();
+          if (result.success) {
+            state.potato = result.cropAmount || 0;
+            state.growth = 0;
+            state.seedPotato = result.userSeed ?? state.seedPotato;
+            render();
+            alert(`감자 ${result.reward}개 수확!`);
+            fetchUserData();
+          } else {
+            alert(result.message || "수확 실패");
+          }
+        } else if (state.seedPotato <= 0) {
+          alert("씨앗이 없습니다");
+        } else {
+          alert("성장포인트 부족!(최소 5 필요)");
+        }
+      };
+      fetchUserData();
+    };
   </script>
 </body>
 </html>
