@@ -2,287 +2,173 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <title>OrcaX 보리 농장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌾 보리 농장</title>
   <style>
-body {
-  margin: 0;
-  font-family: 'Do Hyeon', sans-serif;
-  background: url('https://byungil-cho.github.io/OrcaX/farm-201.png') no-repeat center top fixed;
-  background-size: cover;
-  color: #2d1800;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.scroll-area {
-  background: rgba(255,255,255,0.25);
-  border-radius: 28px;
-  box-shadow: 0 4px 32px 0 rgba(50,30,10,0.20);
-  margin: 2rem auto;
-  padding: 2rem 1.2rem 2rem 1.2rem;
-  max-width: 440px;
-  width: 95vw;
-  min-width: 270px;
-  text-align: center;
-  backdrop-filter: blur(3.5px);
-}
-header {
-  font-size: 2.2rem;
-  margin-bottom: 0.8rem;
-  font-weight: bold;
-  color: #53340f;
-  letter-spacing: 0.5px;
-  text-shadow: 1px 2px 12px #ffe9bc, 0 0 2px #633e17;
-}
-.nickname, .info-bar {
-  font-size: 1.12rem;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.5px;
-  color: #2e1b09;
-  font-weight: 600;
-  text-shadow: 0 1px 10px #ffecc2ad, 0 0 1px #fff7;
-}
-.barley-field {
-  margin: 1.3rem 0 1.3rem 0;
-  color: #321d0c;
-}
-.status {
-  font-size: 1.17rem;
-  margin-bottom: 1.1rem;
-  font-weight: bold;
-  text-shadow: 0 2px 12px #fff6;
-}
-.grow-buttons button,
-#harvest-btn {
-  margin: 0.18rem 0.45rem;
-  padding: 0.8rem 1.5rem;
-  font-size: 1.14rem;
-  border-radius: 19px;
-  border: none;
-  cursor: pointer;
-  background: #fffbf8e9;
-  box-shadow: 0 1px 8px 0 #bdbdbd45;
-  font-weight: bold;
-  transition: background 0.14s;
-}
-.grow-buttons button:active,
-#harvest-btn:active {
-  background: #f9e7c7e8;
-}
-.storage-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin-bottom: 1.1rem;
-}
-.storage-section div {
-  background: #fff9eebd;
-  border-radius: 13px;
-  padding: 0.65rem 0.3rem;
-  font-size: 1.12rem;
-  word-break: keep-all;
-  color: #3c2107;
-  box-shadow: 0 2px 7px #fff6;
-  font-weight: 500;
-}
-.storage-section strong {
-  color: #bb7e28;
-}
-.seedbarley-box {
-  margin-top: 0.25rem;
-  color: #3b240a;
-  font-weight: 700;
-  font-size: 1.07rem;
-  background: #ffeec2a3;
-  border-radius: 8px;
-  padding: 0.28rem 0;
-  box-shadow: 0 1px 5px #f9eab32c;
-}
-.nav-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.8rem;
-  margin-top: 1.4rem;
-}
-.nav-buttons a {
-  background: #fff6;
-  border-radius: 15px;
-  padding: 0.7rem 1.2rem;
-  text-decoration: none;
-  color: #795548;
-  font-weight: bold;
-  font-size: 1.09rem;
-  box-shadow: 0 1px 8px 0 #0001;
-  margin-bottom: 0.5rem;
-  transition: background 0.14s, color 0.15s;
-}
-.nav-buttons a:hover {
-  background: #ffefc7;
-  color: #ae7c26;
-}
-@media (max-width: 600px) {
-  .scroll-area {
-    max-width: 99vw;
-    min-width: 0;
-    padding: 1.1rem 0.3rem 1.3rem 0.3rem;
-  }
-  header { font-size: 1.34rem; }
-}
+    body {
+      font-family: 'Do Hyeon', sans-serif;
+      background: url("https://byungil-cho.github.io/OrcaX/farm-101.png") no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      text-align: center;
+    }
+    header {
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 1rem;
+    }
+    main {
+      padding: 2rem;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    .resource-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 1rem auto;
+      max-width: 400px;
+    }
+    .actions {
+      margin: 1.5rem 0;
+    }
+    .actions button {
+      margin: 0 0.5rem;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      background: #f8e99f;
+      color: #666;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+    .actions button:active {
+      background: #f5c542;
+    }
+    #message {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      min-height: 2rem;
+    }
+    @media (max-width: 500px) {
+      main {
+        padding: 1rem;
+      }
+      .resource-box {
+        max-width: 90vw;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="scroll-area">
-    <header>🌾 보리 농장 - Barley Farm</header>
-
-    <div class="nickname">👤 농장주: <span id="nickname">-</span></div>
-    <div class="info-bar">
-      🌐 전원 상태: <span id="power-status">확인 중...</span> |
-      🌾 농장이름: <span id="farm-name">-</span> |
-      💰 토큰: <span id="token">-</span>
+  <header>
+    <h1>OrcaX 보리 농장</h1>
+    <div>닉네임: <span id="nickname"></span> | 농장이름: <span id="farmName"></span></div>
+    <div>ORCX: <span id="token">0</span></div>
+  </header>
+  <main>
+    <div class="resource-box">
+      <div>물: <span id="water">0</span> | 거름: <span id="fertilizer">0</span></div>
+      <div>씨보리: <span id="seedBarley">0</span> | 보리: <span id="barley">0</span></div>
     </div>
-
-    <div class="barley-field">
-      🌱 <span id="barley-status">보리가 자라고 있습니다...</span>
-      <div class="status">성장 포인트: <span id="growth">0</span></div>
-      <div class="grow-buttons">
-        <button onclick="applyWater()">💧 물 주기</button>
-        <button onclick="applyFertilizer()">💩 거름 주기</button>
-      </div>
-      <div id="harvest-container" style="margin-top: 1.5rem;"></div>
+    <div>성장 포인트: <span id="growth">0</span></div>
+    <div class="actions">
+      <button onclick="grow('water')">물 주기</button>
+      <button onclick="grow('fertilizer')">거름 주기</button>
+      <button onclick="harvest()">수확</button>
     </div>
+    <div id="message"></div>
+  </main>
 
-    <div class="storage-section">
-      <div>
-        <strong>📦 자재 보관함</strong><br>
-        물: <span id="water">0</span>,
-        거름: <span id="fertilizer">0</span>
-        <div class="seedbarley-box">씨보리: <span id="seedBarley">0</span></div>
-      </div>
-      <div>
-        <strong>🛒 제품 보관함</strong><br>
-        보리: <span id="barley">0</span>
-      </div>
-    </div>
+  <script>
+    const API_URL = "/api";
+    let user = {};
+    let kakaoId = localStorage.getItem("kakaoId") || "";
 
-    <div class="nav-buttons">
-      <a href="gamja-result.html">감자 보리 가공공장</a>
-      <a href="gamja-shop.html">씨감자 씨보리 구매</a>
-      <a href="orcax-farm_000.html">메인 페이지</a>
-    </div>
-  </div>
-
-<script>
-const API_URL = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-let kakaoId = localStorage.getItem("kakaoId") || "";
-let nickname = localStorage.getItem("nickname") || "익명농부";
-let farmName = localStorage.getItem("farmName") || "보리농장";
-
-document.getElementById("nickname").textContent = nickname;
-document.getElementById("farm-name").textContent = farmName;
-document.getElementById("power-status").textContent = "전기 공급중입니다.";
-
-let user = null;
-let growthPoint = 0;
-
-function updateDisplay() {
-  document.getElementById("token").textContent = user.orcx ?? 0;
-  document.getElementById("growth").textContent = user.growth?.barley ?? 0;
-  document.getElementById("water").textContent = user.water ?? 0;
-  document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
-  document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
-  document.getElementById("barley").textContent = user.barley ?? 0;
-
-  // 수확 버튼 표시 조건
-  showHarvestBtn(user.growth?.barley ?? 0);
-  // 상태 메세지
-  if ((user.growth?.barley ?? 0) === 0) {
-    document.getElementById("barley-status").textContent = "보리가 자라기 시작합니다...";
-  } else if ((user.growth?.barley ?? 0) < 4) {
-    document.getElementById("barley-status").textContent = "보리가 무럭무럭 자라는 중입니다...";
-  } else {
-    document.getElementById("barley-status").textContent = "보리 수확 준비 완료!";
-  }
-}
-
-// 유저 데이터 서버에서 불러오기
-async function fetchUserData() {
-  if (!kakaoId) return;
-  const res = await fetch(API_URL + "/userdata", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kakaoId })
-  });
-  const data = await res.json();
-  if (data.success) {
-    user = data.user;
-    growthPoint = user.growth?.barley ?? 0;
-    updateDisplay();
-  } else {
-    alert("유저 정보를 불러오지 못했습니다!");
-  }
-}
-fetchUserData();
-
-// 물 주기 버튼
-async function applyWater() {
-  await growBarley("water");
-}
-// 거름 주기 버튼
-async function applyFertilizer() {
-  await growBarley("fertilizer");
-}
-
-// 성장 포인트 +1 서버 연동
-async function growBarley(action) {
-  if (!kakaoId) return alert("로그인 정보 없음");
-  const res = await fetch(API_URL + "/factory/grow", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kakaoId, cropType: "barley", action })
-  });
-  const data = await res.json();
-  if (data.success) {
-    await fetchUserData();
-  } else {
-    alert(data.message || "성장 실패");
-  }
-}
-
-// 수확하기 버튼 동작
-function showHarvestBtn(growth) {
-  const c = document.getElementById("harvest-container");
-  c.innerHTML = "";
-  if (growth >= 4) {
-    const btn = document.createElement("button");
-    btn.textContent = "🌾 수확하기";
-    btn.id = "harvest-btn";
-    btn.onclick = async function() {
-      const res = await fetch(API_URL + "/factory/harvest", {
+    async function fetchUserData() {
+      if (!kakaoId) {
+        alert("로그인이 필요합니다.");
+        location.href = "/login";
+        return;
+      }
+      const res = await fetch(API_URL + "/userdata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kakaoId, cropType: "barley" })
+        body: JSON.stringify({ kakaoId })
       });
       const data = await res.json();
       if (data.success) {
-        alert(`🎉 보리 ${data.reward}말을 수확했습니다!`);
-        await fetchUserData();
-        c.innerHTML = "";
+        user = data.user;
+        updateDisplay();
       } else {
-        alert(data.message || "수확 실패");
+        alert("유저 정보를 불러올 수 없습니다.");
       }
-    };
-    c.appendChild(btn);
-  }
-}
+    }
 
-// 페이지 진입 시 수확 버튼도 반영
-window.addEventListener("DOMContentLoaded", async () => {
-  await fetchUserData();
-});
-</script>
+    function updateDisplay() {
+      document.getElementById("nickname").textContent = user.nickname ?? "";
+      document.getElementById("token").textContent = user.orcx ?? 0;
+      document.getElementById("growth").textContent = user.growth?.barley ?? 0;
+      document.getElementById("water").textContent = user.water ?? 0;
+      document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
+      document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
+      document.getElementById("barley").textContent = user.storage?.bori ?? 0; // ← 수정 포인트!
+      document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "";
+    }
+
+    async function grow(type) {
+      if (!user || !kakaoId) return;
+      const res = await fetch(API_URL + "/factory/grow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kakaoId,
+          cropType: "barley",
+          resource: type
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        user = data.user;
+        updateDisplay();
+        setMessage(type === "water" ? "물을 주었습니다." : "거름을 주었습니다.");
+      } else {
+        setMessage(data.message || "실패했습니다.");
+      }
+    }
+
+    async function harvest() {
+      if (!user || !kakaoId) return;
+      const res = await fetch(API_URL + "/factory/harvest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kakaoId,
+          cropType: "barley"
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        user = data.user;
+        updateDisplay();
+        setMessage("수확 성공! + " + data.reward + " 보리");
+      } else {
+        setMessage(data.message || "수확 실패");
+      }
+    }
+
+    function setMessage(msg) {
+      document.getElementById("message").textContent = msg;
+      setTimeout(() => {
+        document.getElementById("message").textContent = "";
+      }, 2000);
+    }
+
+    // 최초 실행
+    fetchUserData();
+  </script>
 </body>
 </html>
