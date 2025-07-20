@@ -157,7 +157,7 @@
         state.water = user.inventory?.water || 0;
         state.fertilizer = user.inventory?.fertilizer || 0;
         state.seedBarley = user.inventory?.seedBarley || user.seedBarley || 0;
-        state.barley = user.storage?.bori || 0;
+        state.barley = user.storage?.bori || user.barley || 0;
         state.growth = user.growth?.barley ?? 0;
         render();
       } catch (err) {
@@ -180,20 +180,20 @@
       // 물 주기 (성장+1, 물-1, 서버 저장)
       document.getElementById('waterBtn').onclick = async function() {
         if (state.water > 0) {
-          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/use-resource', {
+          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/factory/use-resource', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               kakaoId: localStorage.getItem("kakaoId"),
-              cropType: "seedBarley",
+              cropType: "barley", // 반드시 barley!
               water: 1,
               fertilizer: 0
             })
           });
           const result = await res.json();
           if (result.success) {
-            state.water = result.user.water;
-            state.growth = result.user.growth?.barley || 0;
+            state.water = result.water;
+            state.growth = result.growth;
             render();
           } else {
             alert(result.message || "물 사용 실패");
@@ -202,23 +202,24 @@
           alert("물 부족!");
         }
       };
+
       // 거름 주기 (성장+2, 거름-1, 서버 저장)
       document.getElementById('fertBtn').onclick = async function() {
         if (state.fertilizer > 0) {
-          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/use-resource', {
+          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/factory/use-resource', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               kakaoId: localStorage.getItem("kakaoId"),
-              cropType: "seedBarley",
+              cropType: "barley",
               water: 0,
               fertilizer: 1
             })
           });
           const result = await res.json();
           if (result.success) {
-            state.fertilizer = result.user.fertilizer;
-            state.growth = result.user.growth?.barley || 0;
+            state.fertilizer = result.fertilizer;
+            state.growth = result.growth;
             render();
           } else {
             alert(result.message || "거름 사용 실패");
@@ -227,32 +228,30 @@
           alert("거름 부족!");
         }
       };
-      // 수확 (성장 5이상, 씨보리-1, 보리+랜덤, 성장포인트 0, 서버 저장)
+
+      // 수확 (성장 5이상, 서버 수확 요청)
       document.getElementById('harvestBtn').onclick = async function() {
-        if (state.seedBarley > 0 && state.growth >= 5) {
-          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/harvest', {
+        if (state.growth >= 5) {
+          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/factory/harvest', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               kakaoId: localStorage.getItem("kakaoId"),
-              cropType: "seedBarley"
+              cropType: "barley"
             })
           });
           const result = await res.json();
           if (result.success) {
-            state.seedBarley = result.userSeed || 0;
-            state.barley = result.storage?.bori || 0;
+            state.barley = result.cropAmount || 0;
             state.growth = 0;
             render();
             alert(`보리 ${result.reward}개 수확!`);
-            fetchUserData(); // 혹시 데이터 싱크용
+            fetchUserData();
           } else {
             alert(result.message || "수확 실패");
           }
-        } else if (state.growth < 5) {
-          alert("성장포인트 부족!(최소 5 필요)");
         } else {
-          alert("씨보리 부족!");
+          alert("성장포인트 부족!(최소 5 필요)");
         }
       };
       fetchUserData();
