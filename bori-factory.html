@@ -156,40 +156,12 @@
         state.orcx = user.orcx ?? 0;
         state.water = user.inventory?.water || 0;
         state.fertilizer = user.inventory?.fertilizer || 0;
-        state.seedBarley = user.inventory?.seedBarley || 0;
-        state.barley = user.barley || user.storage?.bori || 0;
+        state.seedBarley = user.inventory?.seedBarley || user.seedBarley || 0;
+        state.barley = user.storage?.bori || 0;
         state.growth = user.growth?.barley ?? 0;
         render();
       } catch (err) {
         document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
-      }
-    }
-
-    // 서버에 보리농장 상태 저장
-    async function saveBarleyFarm() {
-      try {
-        const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/update-barley-farm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            kakaoId: localStorage.getItem("kakaoId"),
-            inventory: {
-              water: state.water,
-              fertilizer: state.fertilizer,
-              seedBarley: state.seedBarley
-            },
-            storage: {
-              bori: state.barley
-            },
-            growth: {
-              barley: state.growth
-            }
-          })
-        });
-        const result = await res.json();
-        return result.success;
-      } catch (err) {
-        return false;
       }
     }
 
@@ -205,44 +177,80 @@
     }
 
     window.onload = function() {
-      // 물 주기: 물-1, 성장+1 (저장)
+      // 물 주기 (성장+1, 물-1, 서버 저장)
       document.getElementById('waterBtn').onclick = async function() {
         if (state.water > 0) {
-          state.water -= 1;
-          state.growth += 1;
-          render();
-          await saveBarleyFarm();
+          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/use-resource', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              kakaoId: localStorage.getItem("kakaoId"),
+              cropType: "seedBarley",
+              water: 1,
+              fertilizer: 0
+            })
+          });
+          const result = await res.json();
+          if (result.success) {
+            state.water = result.user.water;
+            state.growth = result.user.growth?.barley || 0;
+            render();
+          } else {
+            alert(result.message || "물 사용 실패");
+          }
         } else {
           alert("물 부족!");
         }
       };
-      // 거름 주기: 거름-1, 성장+2 (저장)
+      // 거름 주기 (성장+2, 거름-1, 서버 저장)
       document.getElementById('fertBtn').onclick = async function() {
         if (state.fertilizer > 0) {
-          state.fertilizer -= 1;
-          state.growth += 2;
-          render();
-          await saveBarleyFarm();
+          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/use-resource', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              kakaoId: localStorage.getItem("kakaoId"),
+              cropType: "seedBarley",
+              water: 0,
+              fertilizer: 1
+            })
+          });
+          const result = await res.json();
+          if (result.success) {
+            state.fertilizer = result.user.fertilizer;
+            state.growth = result.user.growth?.barley || 0;
+            render();
+          } else {
+            alert(result.message || "거름 사용 실패");
+          }
         } else {
           alert("거름 부족!");
         }
       };
-      // 수확: 씨보리-1, 성장 0, 보리 3/5/7 랜덤 증가 (저장)
+      // 수확 (성장 5이상, 씨보리-1, 보리+랜덤, 성장포인트 0, 서버 저장)
       document.getElementById('harvestBtn').onclick = async function() {
-        if (state.seedBarley > 0) {
-          state.seedBarley -= 1;
-          const amount = [3, 5, 7][Math.floor(Math.random() * 3)];
-          state.barley += amount;
-          state.growth = 0;
-          render();
-          const ok = await saveBarleyFarm();
-          if (ok) {
-            alert("보리 " + amount + "개 수확!");
+        if (state.seedBarley > 0 && state.growth >= 5) {
+          const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/harvest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              kakaoId: localStorage.getItem("kakaoId"),
+              cropType: "seedBarley"
+            })
+          });
+          const result = await res.json();
+          if (result.success) {
+            state.seedBarley = result.userSeed || 0;
+            state.barley = result.storage?.bori || 0;
+            state.growth = 0;
+            render();
+            alert(`보리 ${result.reward}개 수확!`);
+            fetchUserData(); // 혹시 데이터 싱크용
           } else {
-            alert("서버 저장 실패! 새로고침 후 다시 시도하세요.");
-            // 에러 시 데이터 복원 또는 새로고침 권고
-            fetchUserData();
+            alert(result.message || "수확 실패");
           }
+        } else if (state.growth < 5) {
+          alert("성장포인트 부족!(최소 5 필요)");
         } else {
           alert("씨보리 부족!");
         }
@@ -252,6 +260,7 @@
   </script>
 </body>
 </html>
+
 
 
 
