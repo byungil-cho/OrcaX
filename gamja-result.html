@@ -42,8 +42,8 @@
     </div>
     <div class="sys">
       <span>서버연결: <b id="svrStat">⏳</b></span>
-      <span>카카오ID: <b id="kid">-</b></span>
       <span>닉네임: <b id="nick">-</b></span>
+      <span>농장이름: <b id="farm">-</b></span>
     </div>
     <div class="asset">
       <div class="asset-row"><b>ORCX</b>: <span id="orcx">0</span></div>
@@ -80,7 +80,6 @@
   <script>
     // 유저 정보 상태
     let userInfo = {
-      kakaoId: "",
       nickname: "",
       orcx: 0, water: 0, fert: 0,
       potatoseed: 0, barleyseed: 0,
@@ -90,12 +89,17 @@
 
     // 서버/DB 인벤토리+제품 불러오기
     async function fetchUser() {
+      // 닉네임/카카오ID 등 서버 연동용
       const kid = localStorage.getItem("kakaoId");
-      if(!kid){ alert("로그인 필요!"); return; }
-      userInfo.kakaoId = kid;
-      document.getElementById("kid").textContent = kid;
+      const farmName = localStorage.getItem("farmName") || "-";
+      document.getElementById("farm").textContent = farmName;
       try{
         document.getElementById("svrStat").textContent = "⏳";
+        if(!kid){ 
+          document.getElementById("svrStat").textContent = "❌";
+          document.getElementById("nick").textContent = "-";
+          return;
+        }
         const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/processing/get-inventory', {
           method:'POST', headers:{'Content-Type':'application/json'},
           body:JSON.stringify({ kakaoId: kid })
@@ -116,9 +120,11 @@
           renderInfo();
         } else {
           document.getElementById("svrStat").textContent = "❌";
+          document.getElementById("nick").textContent = "-";
         }
       }catch{
         document.getElementById("svrStat").textContent = "❌";
+        document.getElementById("nick").textContent = "-";
       }
     }
 
@@ -155,12 +161,13 @@
     document.getElementById("makeForm").onsubmit = async function() {
       const material = document.getElementById("material").value;
       const product = document.getElementById("productName").value.trim();
-      if(!userInfo.kakaoId || !product){ alert("입력 확인!"); return; }
+      const kid = localStorage.getItem("kakaoId");
+      if(!kid || !product){ alert("입력 확인!"); return; }
       if(product.length<2){ alert("제품명을 2자 이상 입력하세요."); return; }
       try{
         const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/processing/make-product', {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ kakaoId:userInfo.kakaoId, material, product })
+          body:JSON.stringify({ kakaoId:kid, material, product })
         });
         const result = await res.json();
         if(result.success){
