@@ -146,7 +146,7 @@
         document.getElementById("water").textContent = user.water ?? 0;
         document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
         document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
-        document.getElementById("barley").textContent = user.barley ?? 0;
+        document.getElementById("barley").textContent = user.storage?.bori ?? 0; // 정답!
         document.getElementById("growth").textContent = user.growth?.barley ?? 0;
       } catch (err) {
         document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
@@ -156,6 +156,7 @@
   </script>
 </body>
 </html>
+
 
 
 
