@@ -113,7 +113,7 @@
     </div>
     <div class="box">
       <span class="label">🥚 제품 보관함</span>
-      보리: <span id="barley">0</span>
+      보리: <span id="barleyStorage">0</span>
     </div>
     <div class="databox">
       성장 포인트: <span id="growth">0</span>
@@ -142,11 +142,11 @@
         document.getElementById("server-status").innerHTML = "<span style='color:#1effa3;'>✔ 서버 연결 성공</span>";
         document.getElementById("nickname").textContent = user.nickname ?? "-";
         document.getElementById("farmName").textContent = localStorage.getItem("farmName") ?? "-";
-        document.getElementById("orcx").textContent = user.orcx ?? 0;
-        document.getElementById("water").textContent = user.water ?? 0;
-        document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
-        document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
-        document.getElementById("barley").textContent = user.storage?.bori ?? 0; // 정답!
+        document.getElementById("orcx").textContent = user.orcx || user.wallet?.orcx || 0;
+        document.getElementById("water").textContent = user.inventory?.water || 0;
+        document.getElementById("fertilizer").textContent = user.inventory?.fertilizer || 0;
+        document.getElementById("seedBarley").textContent = user.inventory?.seedBarley || 0;
+        document.getElementById("barleyStorage").textContent = user.barley || user.storage?.bori || 0;
         document.getElementById("growth").textContent = user.growth?.barley ?? 0;
       } catch (err) {
         document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
@@ -156,6 +156,7 @@
   </script>
 </body>
 </html>
+
 
 
 
