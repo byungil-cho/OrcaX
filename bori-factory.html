@@ -63,9 +63,32 @@
     }
   </style>
 </head>
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaX 보리 농장</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: 'Do Hyeon', sans-serif; background: url("https://byungil-cho.github.io/OrcaX/farm-101.png") no-repeat center center fixed; background-size: cover; margin: 0; padding: 0; color: #fff; text-align: center;}
+    header { background-color: rgba(0,0,0,0.5); padding: 1rem;}
+    main { padding: 2rem;}
+    h1 { margin-bottom: 1rem;}
+    .resource-box { background-color: rgba(255,255,255,0.1); border-radius: 10px; padding: 1rem; margin: 1rem auto; max-width: 400px;}
+    .actions { margin: 1.5rem 0;}
+    .actions button { margin: 0 0.5rem; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; background: #f8e99f; color: #666; font-weight: bold; font-size: 1.1rem; cursor: pointer;}
+    .actions button:active { background: #f5c542;}
+    #message { margin-top: 1.5rem; font-size: 1.2rem; min-height: 2rem;}
+    .nav-links a { color: #fff; text-decoration: underline; margin: 0 0.8rem; font-size: 1.1rem;}
+    @media (max-width: 500px) { main { padding: 1rem;} .resource-box { max-width: 90vw; } }
+  </style>
+</head>
 <body>
   <header>
     <h1>OrcaX 보리 농장</h1>
+    <div class="nav-links">
+      <a href="index9.html">메인으로</a> |
+      <a href="gamja-factory.html">감자농장</a> |
+      <a href="gamja-shop.html">상점</a>
+    </div>
     <div>닉네임: <span id="nickname"></span> | 농장이름: <span id="farmName"></span></div>
     <div>ORCX: <span id="token">0</span></div>
   </header>
@@ -82,7 +105,6 @@
     </div>
     <div id="message"></div>
   </main>
-
   <script>
     const API_URL = "/api";
     let user = {};
@@ -90,73 +112,85 @@
 
     async function fetchUserData() {
       if (!kakaoId) {
-        alert("로그인이 필요합니다.");
-        location.href = "/login";
+        alert("로그인이 필요합니다. 메인으로 이동합니다.");
+        location.href = "index9.html";
         return;
       }
-      const res = await fetch(API_URL + "/userdata", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kakaoId })
-      });
-      const data = await res.json();
-      if (data.success) {
-        user = data.user;
-        updateDisplay();
-      } else {
-        alert("유저 정보를 불러올 수 없습니다.");
+      try {
+        const res = await fetch(API_URL + "/userdata", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          user = data.user;
+          updateDisplay();
+        } else {
+          setMessage("유저 정보를 불러올 수 없습니다.");
+        }
+      } catch (err) {
+        setMessage("서버와의 연결에 실패했습니다.");
       }
     }
 
     function updateDisplay() {
       document.getElementById("nickname").textContent = user.nickname ?? "";
+      document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "";
       document.getElementById("token").textContent = user.orcx ?? 0;
       document.getElementById("growth").textContent = user.growth?.barley ?? 0;
       document.getElementById("water").textContent = user.water ?? 0;
       document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
       document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
-      document.getElementById("barley").textContent = user.storage?.bori ?? 0; // ← 수정 포인트!
-      document.getElementById("farmName").textContent = localStorage.getItem("farmName") || "";
+      document.getElementById("barley").textContent = user.storage?.bori ?? 0;
     }
 
     async function grow(type) {
       if (!user || !kakaoId) return;
-      const res = await fetch(API_URL + "/factory/grow", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kakaoId,
-          cropType: "barley",
-          resource: type
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        user = data.user;
-        updateDisplay();
-        setMessage(type === "water" ? "물을 주었습니다." : "거름을 주었습니다.");
-      } else {
-        setMessage(data.message || "실패했습니다.");
+      try {
+        const res = await fetch(API_URL + "/factory/grow", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            kakaoId,
+            cropType: "barley",
+            resource: type
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          user = data.user;
+          updateDisplay();
+          setMessage(type === "water" ? "물을 주었습니다." : "거름을 주었습니다.");
+        } else {
+          setMessage(data.message || "실패했습니다.");
+        }
+      } catch (err) {
+        setMessage("네트워크 오류");
       }
     }
 
     async function harvest() {
       if (!user || !kakaoId) return;
-      const res = await fetch(API_URL + "/factory/harvest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kakaoId,
-          cropType: "barley"
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        user = data.user;
-        updateDisplay();
-        setMessage("수확 성공! + " + data.reward + " 보리");
-      } else {
-        setMessage(data.message || "수확 실패");
+      try {
+        const res = await fetch(API_URL + "/factory/harvest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            kakaoId,
+            cropType: "barley"
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          user = data.user;
+          updateDisplay();
+          setMessage("수확 성공! +" + data.reward + " 보리");
+        } else {
+          setMessage(data.message || "수확 실패");
+        }
+      } catch (err) {
+        setMessage("네트워크 오류");
       }
     }
 
@@ -167,8 +201,7 @@
       }, 2000);
     }
 
-    // 최초 실행
-    fetchUserData();
+    window.addEventListener("DOMContentLoaded", fetchUserData);
   </script>
 </body>
 </html>
