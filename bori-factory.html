@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>OrcaX 보리 농장</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Do Hyeon', sans-serif;
@@ -125,19 +125,6 @@
     </div>
   </div>
   <script>
-    // 상태 변수
-    let state = {
-      nickname: "-",
-      farmName: localStorage.getItem("farmName") || "-",
-      orcx: 0,
-      water: 0,
-      fertilizer: 0,
-      seedBarley: 0,
-      barley: 0,
-      growth: 0
-    };
-
-    // 데이터 불러오기 (user.inventory 사용)
     async function fetchUserData() {
       try {
         document.getElementById("server-status").innerHTML = '서버 연결 중...';
@@ -153,68 +140,44 @@
         }
         const user = result.user;
         document.getElementById("server-status").innerHTML = "<span style='color:#1effa3;'>✔ 서버 연결 성공</span>";
-        state.nickname = user.nickname ?? "-";
-        state.orcx = user.orcx ?? 0;
-        state.water = user.inventory?.water || 0;
-        state.fertilizer = user.inventory?.fertilizer || 0;
-        state.seedBarley = user.inventory?.seedBarley || 0;
-        state.barley = user.barley || user.storage?.bori || 0;
-        state.growth = user.growth?.barley ?? 0;
-        render();
+        document.getElementById("nickname").textContent = user.nickname ?? "-";
+        document.getElementById("farmName").textContent = localStorage.getItem("farmName") ?? "-";
+        document.getElementById("orcx").textContent = user.orcx || user.wallet?.orcx || 0;
+        document.getElementById("water").textContent = user.inventory?.water || 0;
+        document.getElementById("fertilizer").textContent = user.inventory?.fertilizer || 0;
+        document.getElementById("seedBarley").textContent = user.inventory?.seedBarley || 0;
+        document.getElementById("barleyStorage").textContent = user.barley || user.storage?.bori || 0;
+        document.getElementById("growth").textContent = user.growth?.barley ?? 0;
       } catch (err) {
         document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
       }
     }
 
-    // 화면 표시
-    function render() {
-      document.getElementById('nickname').textContent = state.nickname;
-      document.getElementById('farmName').textContent = state.farmName;
-      document.getElementById('orcx').textContent = state.orcx;
-      document.getElementById('water').textContent = state.water;
-      document.getElementById('fertilizer').textContent = state.fertilizer;
-      document.getElementById('seedBarley').textContent = state.seedBarley;
-      document.getElementById('barleyStorage').textContent = state.barley;
-      document.getElementById('growth').textContent = state.growth;
+    // 서버 저장(실제 반영) 요청 함수
+    async function postFarmAction(actionType) {
+      const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/bori-farm-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kakaoId: localStorage.getItem("kakaoId"),
+          action: actionType // "water" | "fertilizer" | "harvest"
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        await fetchUserData(); // 서버에서 최신값 다시 불러옴
+        if (actionType === "harvest" && result.amount) {
+          alert("보리 " + result.amount + "개 수확!");
+        }
+      } else {
+        alert(result.message || "오류!");
+      }
     }
 
-    // 물 주기: 물-1, 성장+1
-    document.getElementById('waterBtn').onclick = function() {
-      if (state.water > 0) {
-        state.water -= 1;
-        state.growth += 1;
-        render();
-      } else {
-        alert("물 부족!");
-      }
-    };
+    document.getElementById('waterBtn').onclick = () => postFarmAction("water");
+    document.getElementById('fertBtn').onclick = () => postFarmAction("fertilizer");
+    document.getElementById('harvestBtn').onclick = () => postFarmAction("harvest");
 
-    // 거름 주기: 거름-1, 성장+2
-    document.getElementById('fertBtn').onclick = function() {
-      if (state.fertilizer > 0) {
-        state.fertilizer -= 1;
-        state.growth += 2;
-        render();
-      } else {
-        alert("거름 부족!");
-      }
-    };
-
-    // 수확: 씨보리-1, 성장 0, 보리 3/5/7 랜덤 증가
-    document.getElementById('harvestBtn').onclick = function() {
-      if (state.seedBarley > 0) {
-        state.seedBarley -= 1;
-        const amount = [3, 5, 7][Math.floor(Math.random() * 3)];
-        state.barley += amount;
-        state.growth = 0;
-        render();
-        alert("보리 " + amount + "개 수확!");
-      } else {
-        alert("씨보리 부족!");
-      }
-    };
-
-    // 페이지 로딩 시 데이터 불러오기
     fetchUserData();
   </script>
 </body>
