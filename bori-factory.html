@@ -58,7 +58,7 @@
     </div>
   </div>
   <script>
-    // 유저 상태 fetch
+    // 상태 갱신 함수
     async function fetchUserData() {
       try {
         document.getElementById("server-status").innerHTML = '서버 연결 중...';
@@ -87,12 +87,12 @@
       }
     }
 
-    // 1. 물주기/거름주기: /api/use-resource (PATCH)
+    // 실전: factory.js 연동
     async function useResource(type) {
       const url = 'https://climbing-wholly-grouper.jp.ngrok.io/api/use-resource';
       const data = {
         kakaoId: localStorage.getItem("kakaoId"),
-        cropType: "seedBarley", // 보리
+        cropType: "seedBarley",
         water: type === "water" ? 1 : 0,
         fertilizer: type === "fertilizer" ? 2 : 0
       };
@@ -109,26 +109,6 @@
       }
     }
 
-    // 2. 농사짓기: /api/farm (POST) [옵션: 필요시]
-    async function doFarm() {
-      const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/farm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          kakaoId: localStorage.getItem("kakaoId"),
-          cropType: "seedBarley"
-        })
-      });
-      const result = await res.json();
-      if(result.success) {
-        await fetchUserData();
-        alert("농사 성공!");
-      } else {
-        alert(result.message || "농사 불가!");
-      }
-    }
-
-    // 3. 수확하기: /api/harvest (POST)
     async function harvest() {
       const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/harvest', {
         method: 'POST',
@@ -148,9 +128,18 @@
     }
 
     window.onload = function() {
-      document.getElementById('waterBtn').onclick = () => useResource("water");
-      document.getElementById('fertBtn').onclick = () => useResource("fertilizer");
-      document.getElementById('harvestBtn').onclick = () => harvest();
+      const waterBtn = document.getElementById('waterBtn');
+      const fertBtn = document.getElementById('fertBtn');
+      const harvestBtn = document.getElementById('harvestBtn');
+
+      // id 모두 제대로 연결되어야 함!
+      if (!waterBtn || !fertBtn || !harvestBtn) {
+        alert("버튼 id 오류: waterBtn, fertBtn, harvestBtn 체크!");
+        return;
+      }
+      waterBtn.onclick = () => useResource("water");
+      fertBtn.onclick = () => useResource("fertilizer");
+      harvestBtn.onclick = () => harvest();
       fetchUserData();
     };
   </script>
