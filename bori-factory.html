@@ -165,6 +165,34 @@
       }
     }
 
+    // 서버에 보리농장 상태 저장
+    async function saveBarleyFarm() {
+      try {
+        const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/update-barley-farm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            kakaoId: localStorage.getItem("kakaoId"),
+            inventory: {
+              water: state.water,
+              fertilizer: state.fertilizer,
+              seedBarley: state.seedBarley
+            },
+            storage: {
+              bori: state.barley
+            },
+            growth: {
+              barley: state.growth
+            }
+          })
+        });
+        const result = await res.json();
+        return result.success;
+      } catch (err) {
+        return false;
+      }
+    }
+
     function render() {
       document.getElementById('nickname').textContent = state.nickname;
       document.getElementById('farmName').textContent = state.farmName;
@@ -177,35 +205,44 @@
     }
 
     window.onload = function() {
-      // 물 주기: 물-1, 성장+1
-      document.getElementById('waterBtn').onclick = function() {
+      // 물 주기: 물-1, 성장+1 (저장)
+      document.getElementById('waterBtn').onclick = async function() {
         if (state.water > 0) {
           state.water -= 1;
           state.growth += 1;
           render();
+          await saveBarleyFarm();
         } else {
           alert("물 부족!");
         }
       };
-      // 거름 주기: 거름-1, 성장+2
-      document.getElementById('fertBtn').onclick = function() {
+      // 거름 주기: 거름-1, 성장+2 (저장)
+      document.getElementById('fertBtn').onclick = async function() {
         if (state.fertilizer > 0) {
           state.fertilizer -= 1;
           state.growth += 2;
           render();
+          await saveBarleyFarm();
         } else {
           alert("거름 부족!");
         }
       };
-      // 수확: 씨보리-1, 성장 0, 보리 3/5/7 랜덤 증가
-      document.getElementById('harvestBtn').onclick = function() {
+      // 수확: 씨보리-1, 성장 0, 보리 3/5/7 랜덤 증가 (저장)
+      document.getElementById('harvestBtn').onclick = async function() {
         if (state.seedBarley > 0) {
           state.seedBarley -= 1;
           const amount = [3, 5, 7][Math.floor(Math.random() * 3)];
           state.barley += amount;
           state.growth = 0;
           render();
-          alert("보리 " + amount + "개 수확!");
+          const ok = await saveBarleyFarm();
+          if (ok) {
+            alert("보리 " + amount + "개 수확!");
+          } else {
+            alert("서버 저장 실패! 새로고침 후 다시 시도하세요.");
+            // 에러 시 데이터 복원 또는 새로고침 권고
+            fetchUserData();
+          }
         } else {
           alert("씨보리 부족!");
         }
@@ -215,6 +252,7 @@
   </script>
 </body>
 </html>
+
 
 
 
