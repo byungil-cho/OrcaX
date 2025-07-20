@@ -113,26 +113,23 @@
       }
     }
 
-    // 유저 데이터 불러오기
-    async function loadUser() {
-      try {
-        const res = await fetch(API_URL + '/api/userdata', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({})
-        });
-        if(!res.ok) return;
-        const user = await res.json();
-        document.getElementById('nickname').textContent = `닉네임: ${user.nickname || '-'}`;
-        document.getElementById('farmName').textContent = `농장이름: ${user.farmName || '-'}`;
-        document.getElementById('orcx').textContent = `ORCX: ${user.orcx || 0}`;
-        document.getElementById('water').textContent = user.water || 0;
-        document.getElementById('fertilizer').textContent = user.fertilizer || 0;
-        document.getElementById('seedBarley').textContent = user.seedBarley || 0;
-        document.getElementById('barley').textContent = (user.storage && user.storage.bori) ? user.storage.bori : 0;
-        document.getElementById('growPoint').textContent = (user.growth && user.growth.barley) ? user.growth.barley : 0;
-      } catch (e) { /* 오류 무시 */ }
-    }
+   fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ kakaoId: localStorage.getItem("kakaoId") })
+})
+.then(res => res.json())
+.then(userData => {
+  document.getElementById("nickname").textContent = userData.nickname || "";
+  document.getElementById("farmName").textContent = userData.farmName || "";
+  document.getElementById("orcx").textContent = userData.orcx || 0;
+  document.getElementById("water").textContent = userData.water || 0;
+  document.getElementById("fertilizer").textContent = userData.fertilizer || 0;
+  document.getElementById("seedBarley").textContent = userData.seedBarley || 0;
+  document.getElementById("barley").textContent = userData.barley || 0;
+  // etc...
+  console.log("userData:", userData); // 실제 값 확인용
+});
 
     // 버튼 이벤트 - (예시, 실제 동작 구현 필요)
     document.getElementById('waterBtn').onclick = () => alert('물 주기!');
