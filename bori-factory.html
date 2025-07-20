@@ -1,161 +1,238 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>OrcaX 보리 농장</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
+      margin: 0;
       font-family: 'Do Hyeon', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
+      text-align: center;
       color: #fff;
-      margin: 0;
-      padding: 0;
     }
-    .main {
-      max-width: 420px;
-      margin: 2.2rem auto;
-      background: rgba(0,0,0,0.45);
-      border-radius: 24px;
-      padding: 2rem 1rem 1.4rem 1rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    .main-box {
+      background: rgba(0,0,0,0.36);
+      border-radius: 28px;
+      max-width: 430px;
+      margin: 3rem auto 1rem auto;
+      padding: 2.5rem 1rem 1.5rem 1rem;
+      box-shadow: 0 0 20px 0 rgba(0,0,0,0.13);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     h1 {
+      margin-top: 0;
       font-size: 2.2rem;
-      margin-bottom: 1rem;
-      text-align: center;
+      font-weight: bold;
     }
-    .links {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .links a {
-      color: #fff;
-      text-decoration: underline;
-      margin: 0 10px;
-      font-size: 1.2rem;
-    }
-    .server-status {
-      text-align: center;
-      margin-bottom: 1rem;
+    .server-status { margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: bold;}
+    .data-box {
+      background: rgba(30,30,30,0.12);
+      border-radius: 18px;
+      padding: 1.3rem 0.5rem;
+      margin: 1.2rem 0;
+      width: 98%;
       font-size: 1.1rem;
     }
-    .databox {
-      font-size: 1.13rem;
-      margin: .15rem 0 .2rem 0;
-      text-align: center;
-    }
-    .box {
-      background: rgba(0,0,0,0.18);
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1.2rem;
-      text-align: center;
-    }
-    .label {
-      color: #ffd900;
-      font-size: 1.17rem;
-      font-weight: bold;
-      margin-bottom: .2rem;
-      display: block;
-    }
-    .action-btns {
+    .data-box strong { color: #ffe066; }
+    .button-row {
       display: flex;
-      gap: 1rem;
-      margin-top: 1.2rem;
       justify-content: center;
+      gap: 1rem;
+      margin: 2rem 0 0 0;
     }
-    .action-btns button {
-      flex: 1;
-      background: #ffe689;
-      color: #222;
-      border: none;
-      border-radius: 10px;
-      padding: .8rem 0;
-      font-size: 1.13rem;
+    button {
+      padding: 1rem 2.2rem;
+      font-size: 1.1rem;
       font-family: inherit;
-      font-weight: 700;
-      margin: 0 .1rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+      border: none;
+      border-radius: 16px;
+      background: #ffe066;
+      color: #222;
+      font-weight: bold;
       cursor: pointer;
-      transition: background .14s;
+      transition: background 0.2s;
     }
-    .action-btns button:active {
-      background: #ffd900;
-    }
+    button:active { background: #ffd500; }
     @media (max-width: 600px) {
-      .main { margin: 0.5rem; padding: 1rem 0.5rem; }
-      h1 { font-size: 1.4rem; }
-      .links a { font-size: 1rem; }
-      .action-btns button { font-size: 0.97rem; padding: .6rem 0; }
+      .main-box { max-width: 98vw; padding: 1rem 0.5rem; }
+      h1 { font-size: 1.5rem; }
+      button { padding: 0.7rem 1.1rem; font-size: 1rem;}
     }
   </style>
 </head>
 <body>
-  <div class="main">
+  <div class="main-box">
     <h1>OrcaX 보리 농장</h1>
-    <div class="links">
-      <a href="index9.html">메인으로</a> |
-      <a href="gamja-factory.html">감자농장</a> |
-      <a href="gamja-shop.html">상점</a>
+    <div class="server-status" id="serverStatus">서버 연결 중...</div>
+    <div style="margin: 0.5rem 0 1.2rem 0;">
+      <a href="https://byungil-cho.github.io/OrcaX/index9.html" style="color:#fff; text-decoration:underline; font-weight:bold;">메인으로</a> |
+      <a href="https://byungil-cho.github.io/OrcaX/gamja-farm.html" style="color:#fff; text-decoration:underline;">감자농장</a> |
+      <a href="https://byungil-cho.github.io/OrcaX/gamja-shop.html" style="color:#fff; text-decoration:underline;">상점</a>
     </div>
-    <div id="server-status" class="server-status">서버 연결 중...</div>
-    <div class="databox">
-      닉네임: <span id="nickname">-</span> | 농장이름: <span id="farmName">-</span><br>
-      ORCX: <span id="orcx">0</span>
+    <div style="margin-bottom: 1.1rem;">
+      <span id="nickname">닉네임: -</span> |
+      <span id="farmName">농장이름: -</span>
+      <br/>
+      <span id="orcx">ORCX: 0</span>
     </div>
-    <div class="box">
-      <span class="label">🪴 자재 보관함</span>
-      물: <span id="water">0</span>,
-      거름: <span id="fertilizer">0</span><br>
+    <div class="data-box">
+      <div style="font-weight:bold;color:#ffe066;">🌾 자재 보관함</div>
+      물: <span id="water">0</span>, 거름: <span id="fertilizer">0</span><br>
       씨보리: <span id="seedBarley">0</span>
     </div>
-    <div class="box">
-      <span class="label">🥚 제품 보관함</span>
-      보리: <span id="barleyStorage">0</span>
+    <div class="data-box">
+      <div style="font-weight:bold;color:#ffe066;">🥚 제품 보관함</div>
+      보리: <span id="barley">0</span>
     </div>
-    <div class="databox">
-      성장 포인트: <span id="growth">0</span>
+    <div class="data-box">
+      성장 포인트: <span id="growthPoint">0</span>
     </div>
-    <div class="action-btns">
-      <button id="waterBtn">물 주기</button>
-      <button id="fertBtn">거름 주기</button>
-      <button id="harvestBtn">수확</button>
+    <div class="button-row">
+      <button onclick="waterAction()">물 주기</button>
+      <button onclick="fertilizerAction()">거름 주기</button>
+      <button onclick="harvestAction()">수확</button>
     </div>
   </div>
   <script>
-    async function fetchUserData() {
+    // API 주소
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+    // 로그인 정보(카카오ID 등) 불러오기
+    let kakaoId = localStorage.getItem('kakaoId') || sessionStorage.getItem('kakaoId');
+    let farmName = localStorage.getItem('farmName') || "-";
+    // 상태 저장
+    let state = {
+      nickname: "-",
+      farmName: farmName,
+      orcx: 0,
+      water: 0,
+      fertilizer: 0,
+      seedBarley: 0,
+      barley: 0,
+      growth: 0
+    };
+
+    // 서버 연결 확인
+    async function checkServer() {
       try {
-        document.getElementById("server-status").innerHTML = '서버 연결 중...';
-        const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/userdata', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId: localStorage.getItem("kakaoId") })
-        });
-        const result = await res.json();
-        if (!result.success) {
-          document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
-          return;
+        let res = await fetch(API_BASE + "/ping");
+        if (res.ok) {
+          document.getElementById('serverStatus').innerHTML = '✔ 서버 연결 성공';
+        } else {
+          document.getElementById('serverStatus').innerHTML = '✗ 서버 연결 실패';
         }
-        const user = result.user;
-        document.getElementById("server-status").innerHTML = "<span style='color:#1effa3;'>✔ 서버 연결 성공</span>";
-        document.getElementById("nickname").textContent = user.nickname ?? "-";
-        document.getElementById("farmName").textContent = localStorage.getItem("farmName") ?? "-";
-        document.getElementById("orcx").textContent = user.orcx || user.wallet?.orcx || 0;
-        document.getElementById("water").textContent = user.inventory?.water || 0;
-        document.getElementById("fertilizer").textContent = user.inventory?.fertilizer || 0;
-        document.getElementById("seedBarley").textContent = user.inventory?.seedBarley || 0;
-        document.getElementById("barleyStorage").textContent = user.barley || user.storage?.bori || 0;
-        document.getElementById("growth").textContent = user.growth?.barley ?? 0;
-      } catch (err) {
-        document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
+      } catch {
+        document.getElementById('serverStatus').innerHTML = '✗ 서버 연결 실패';
       }
     }
-    fetchUserData();
+
+    // 유저 정보 불러오기
+    async function loadUser() {
+      if (!kakaoId) return;
+      try {
+        const res = await fetch(API_BASE + "/userdata", {
+          method: "POST",
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ kakaoId })
+        });
+        const data = await res.json();
+        if (!data || !data.user) return;
+        // 데이터 반영
+        state.nickname = data.user.nickname || "-";
+        state.orcx = data.user.orcx || 0;
+        state.water = data.user.water || 0;
+        state.fertilizer = data.user.fertilizer || 0;
+        state.seedBarley = data.user.seedBarley || 0;
+        state.barley = data.user.storage?.bori || 0;
+        state.growth = data.user.growth?.barley || 0;
+        render();
+      } catch {
+        document.getElementById('serverStatus').innerHTML = '✗ 서버 연결 실패';
+      }
+    }
+
+    // 화면 렌더
+    function render() {
+      document.getElementById('nickname').textContent = "닉네임: " + state.nickname;
+      document.getElementById('farmName').textContent = "농장이름: " + (state.farmName || "-");
+      document.getElementById('orcx').textContent = "ORCX: " + state.orcx;
+      document.getElementById('water').textContent = state.water;
+      document.getElementById('fertilizer').textContent = state.fertilizer;
+      document.getElementById('seedBarley').textContent = state.seedBarley;
+      document.getElementById('barley').textContent = state.barley;
+      document.getElementById('growthPoint').textContent = state.growth;
+    }
+
+    // 물 주기
+    async function waterAction() {
+      if (state.water <= 0) return alert("물 없음!");
+      let res = await fetch(API_BASE + "/user/farm-action", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ kakaoId, action: "water", crop: "barley" })
+      });
+      let data = await res.json();
+      if (data.success) {
+        state.water--;
+        state.growth += 1;
+        render();
+      } else {
+        alert(data.message || "오류!");
+      }
+    }
+
+    // 거름 주기
+    async function fertilizerAction() {
+      if (state.fertilizer <= 0) return alert("거름 없음!");
+      let res = await fetch(API_BASE + "/user/farm-action", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ kakaoId, action: "fertilizer", crop: "barley" })
+      });
+      let data = await res.json();
+      if (data.success) {
+        state.fertilizer--;
+        state.growth += 2;
+        render();
+      } else {
+        alert(data.message || "오류!");
+      }
+    }
+
+    // 수확
+    async function harvestAction() {
+      if (state.seedBarley < 1) return alert("씨보리가 부족합니다!");
+      let res = await fetch(API_BASE + "/user/farm-action", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ kakaoId, action: "harvest", crop: "barley" })
+      });
+      let data = await res.json();
+      if (data.success) {
+        state.seedBarley--;
+        let rand = [3,5,7][Math.floor(Math.random()*3)];
+        state.barley += rand;
+        state.growth = 0;
+        render();
+        alert("보리 " + rand + "개 수확!");
+      } else {
+        alert(data.message || "오류!");
+      }
+    }
+
+    // 페이지 로드
+    window.onload = async () => {
+      await checkServer();
+      await loadUser();
+    };
   </script>
 </body>
 </html>
+
 
 
 
