@@ -58,6 +58,7 @@
     </div>
   </div>
   <script>
+    // 유저 상태 fetch
     async function fetchUserData() {
       try {
         document.getElementById("server-status").innerHTML = '서버 연결 중...';
@@ -86,35 +87,76 @@
       }
     }
 
-    async function postFarmAction(actionType) {
-      const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/bori-farm-action', {
+    // 1. 물주기/거름주기: /api/use-resource (PATCH)
+    async function useResource(type) {
+      const url = 'https://climbing-wholly-grouper.jp.ngrok.io/api/use-resource';
+      const data = {
+        kakaoId: localStorage.getItem("kakaoId"),
+        cropType: "seedBarley", // 보리
+        water: type === "water" ? 1 : 0,
+        fertilizer: type === "fertilizer" ? 2 : 0
+      };
+      const res = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if(result.success) {
+        await fetchUserData();
+      } else {
+        alert(result.message || (type === "water" ? "물 부족!" : "거름 부족!"));
+      }
+    }
+
+    // 2. 농사짓기: /api/farm (POST) [옵션: 필요시]
+    async function doFarm() {
+      const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/farm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           kakaoId: localStorage.getItem("kakaoId"),
-          action: actionType
+          cropType: "seedBarley"
         })
       });
       const result = await res.json();
-      if (result.success) {
+      if(result.success) {
         await fetchUserData();
-        if (actionType === "harvest" && result.amount) {
-          alert("보리 " + result.amount + "개 수확!");
-        }
+        alert("농사 성공!");
       } else {
-        alert(result.message || "오류!");
+        alert(result.message || "농사 불가!");
+      }
+    }
+
+    // 3. 수확하기: /api/harvest (POST)
+    async function harvest() {
+      const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/harvest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kakaoId: localStorage.getItem("kakaoId"),
+          cropType: "seedBarley"
+        })
+      });
+      const result = await res.json();
+      if(result.success) {
+        await fetchUserData();
+        alert("보리 " + (result.reward || "?") + "개 수확!");
+      } else {
+        alert(result.message || "수확 불가!");
       }
     }
 
     window.onload = function() {
-      document.getElementById('waterBtn').onclick = () => postFarmAction("water");
-      document.getElementById('fertBtn').onclick = () => postFarmAction("fertilizer");
-      document.getElementById('harvestBtn').onclick = () => postFarmAction("harvest");
+      document.getElementById('waterBtn').onclick = () => useResource("water");
+      document.getElementById('fertBtn').onclick = () => useResource("fertilizer");
+      document.getElementById('harvestBtn').onclick = () => harvest();
       fetchUserData();
     };
   </script>
 </body>
 </html>
+
 
 
 
