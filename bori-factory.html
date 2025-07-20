@@ -21,16 +21,69 @@
       padding: 2rem 1rem 1.4rem 1rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.18);
     }
-    h1 { font-size: 2.2rem; margin-bottom: 1rem; text-align: center; }
-    .links { text-align: center; margin-bottom: 1rem; }
-    .links a { color: #fff; text-decoration: underline; margin: 0 10px; font-size: 1.2rem; }
-    .server-status { text-align: center; margin-bottom: 1rem; font-size: 1.1rem; }
-    .databox { font-size: 1.13rem; margin: .15rem 0 .2rem 0; text-align: center; }
-    .box { background: rgba(0,0,0,0.18); border-radius: 12px; padding: 1rem; margin-bottom: 1.2rem; text-align: center; }
-    .label { color: #ffd900; font-size: 1.17rem; font-weight: bold; margin-bottom: .2rem; display: block; }
-    .action-btns { display: flex; gap: 1rem; margin-top: 1.2rem; justify-content: center; }
-    .action-btns button { flex: 1; background: #ffe689; color: #222; border: none; border-radius: 10px; padding: .8rem 0; font-size: 1.13rem; font-family: inherit; font-weight: 700; margin: 0 .1rem; box-shadow: 0 2px 8px rgba(0,0,0,.12); cursor: pointer; transition: background .14s;}
-    .action-btns button:active { background: #ffd900; }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .links {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .links a {
+      color: #fff;
+      text-decoration: underline;
+      margin: 0 10px;
+      font-size: 1.2rem;
+    }
+    .server-status {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    .databox {
+      font-size: 1.13rem;
+      margin: .15rem 0 .2rem 0;
+      text-align: center;
+    }
+    .box {
+      background: rgba(0,0,0,0.18);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+    .label {
+      color: #ffd900;
+      font-size: 1.17rem;
+      font-weight: bold;
+      margin-bottom: .2rem;
+      display: block;
+    }
+    .action-btns {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.2rem;
+      justify-content: center;
+    }
+    .action-btns button {
+      flex: 1;
+      background: #ffe689;
+      color: #222;
+      border: none;
+      border-radius: 10px;
+      padding: .8rem 0;
+      font-size: 1.13rem;
+      font-family: inherit;
+      font-weight: 700;
+      margin: 0 .1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+      cursor: pointer;
+      transition: background .14s;
+    }
+    .action-btns button:active {
+      background: #ffd900;
+    }
     @media (max-width: 600px) {
       .main { margin: 0.5rem; padding: 1rem 0.5rem; }
       h1 { font-size: 1.4rem; }
@@ -70,91 +123,93 @@
       <button id="fertBtn">거름 주기</button>
       <button id="harvestBtn">수확</button>
     </div>
-    <div id="msg" style="min-height:2em; text-align:center; color:#28e1fa; font-weight:bold;"></div>
   </div>
   <script>
-    const API = "https://climbing-wholly-grouper.jp.ngrok.io";
-    const kakaoId = localStorage.getItem("kakaoId");
+    // 상태 변수
+    let state = {
+      nickname: "-",
+      farmName: localStorage.getItem("farmName") || "-",
+      orcx: 0,
+      water: 0,
+      fertilizer: 0,
+      seedBarley: 0,
+      barley: 0,
+      growth: 0
+    };
 
-    // 서버에서 값 받아와서 UI 렌더링
     async function fetchUserData() {
       try {
         document.getElementById("server-status").innerHTML = '서버 연결 중...';
-        const res = await fetch(API + '/api/userdata', {
+        const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/userdata', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId })
+          body: JSON.stringify({ kakaoId: localStorage.getItem("kakaoId") })
         });
         const result = await res.json();
-        if (!result.success || !result.user) {
+        if (!result.success) {
           document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
-          showMsg(result.message || "유저정보 오류");
           return;
         }
         const user = result.user;
         document.getElementById("server-status").innerHTML = "<span style='color:#1effa3;'>✔ 서버 연결 성공</span>";
-        document.getElementById('nickname').textContent = user.nickname ?? "-";
-        document.getElementById('farmName').textContent = localStorage.getItem("farmName") || "-";
-        document.getElementById('orcx').textContent = user.orcx ?? 0;
-        document.getElementById('water').textContent = user.water ?? 0;
-        document.getElementById('fertilizer').textContent = user.fertilizer ?? 0;
-        document.getElementById('seedBarley').textContent = user.seedBarley ?? 0;
-        document.getElementById('barleyStorage').textContent = user.storage?.bori ?? 0;
-        document.getElementById('growth').textContent = user.growth?.barley ?? 0;
-        showMsg("");
+        state.nickname = user.nickname ?? "-";
+        state.orcx = user.orcx ?? 0;
+        state.water = user.inventory?.water || 0;
+        state.fertilizer = user.inventory?.fertilizer || 0;
+        state.seedBarley = user.inventory?.seedBarley || 0;
+        state.barley = user.barley || user.storage?.bori || 0;
+        state.growth = user.growth?.barley ?? 0;
+        render();
       } catch (err) {
         document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
-        showMsg("서버 연결/데이터 오류!");
       }
     }
 
-    function showMsg(msg) {
-      document.getElementById("msg").textContent = msg || "";
-    }
-
-    // 자원 사용(서버 기록)
-    async function useResource(type) {
-      showMsg('');
-      const res = await fetch(API + "/api/factory/use-resource", {
-        method: "PATCH",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kakaoId, cropType: "barley", water: type === "water" ? 1 : 0, fertilizer: type === "fertilizer" ? 1 : 0 })
-      });
-      const data = await res.json();
-      if (data.success) {
-        await fetchUserData();
-        showMsg(type === "water" ? "물 사용 완료!" : "거름 사용 완료!");
-      } else {
-        showMsg(data.message || (type === "water" ? "물 부족!" : "거름 부족!"));
-      }
-    }
-
-    // 수확하기(서버 기록)
-    async function harvest() {
-      showMsg('');
-      await fetchUserData();
-      const seedBarley = parseInt(document.getElementById('seedBarley').textContent);
-      const growth = parseInt(document.getElementById('growth').textContent);
-      if (seedBarley < 1) return showMsg("씨보리가 없습니다! 씨앗을 구매하세요.");
-      if (growth < 5) return showMsg("성장 포인트가 부족합니다! (최소 5 필요)");
-      const res = await fetch(API + "/api/factory/harvest", {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kakaoId, cropType: "barley" })
-      });
-      const data = await res.json();
-      if (data.success) {
-        await fetchUserData();
-        showMsg(`수확 성공! +${data.reward || '랜덤'}개`);
-      } else {
-        showMsg(data.message || "수확 실패");
-      }
+    function render() {
+      document.getElementById('nickname').textContent = state.nickname;
+      document.getElementById('farmName').textContent = state.farmName;
+      document.getElementById('orcx').textContent = state.orcx;
+      document.getElementById('water').textContent = state.water;
+      document.getElementById('fertilizer').textContent = state.fertilizer;
+      document.getElementById('seedBarley').textContent = state.seedBarley;
+      document.getElementById('barleyStorage').textContent = state.barley;
+      document.getElementById('growth').textContent = state.growth;
     }
 
     window.onload = function() {
-      document.getElementById('waterBtn').onclick = () => useResource("water");
-      document.getElementById('fertBtn').onclick = () => useResource("fertilizer");
-      document.getElementById('harvestBtn').onclick = () => harvest();
+      // 물 주기: 물-1, 성장+1
+      document.getElementById('waterBtn').onclick = function() {
+        if (state.water > 0) {
+          state.water -= 1;
+          state.growth += 1;
+          render();
+        } else {
+          alert("물 부족!");
+        }
+      };
+      // 거름 주기: 거름-1, 성장+2
+      document.getElementById('fertBtn').onclick = function() {
+        if (state.fertilizer > 0) {
+          state.fertilizer -= 1;
+          state.growth += 2;
+          render();
+        } else {
+          alert("거름 부족!");
+        }
+      };
+      // 수확: 씨보리-1, 성장 0, 보리 3/5/7 랜덤 증가
+      document.getElementById('harvestBtn').onclick = function() {
+        if (state.seedBarley > 0) {
+          state.seedBarley -= 1;
+          const amount = [3, 5, 7][Math.floor(Math.random() * 3)];
+          state.barley += amount;
+          state.growth = 0;
+          render();
+          alert("보리 " + amount + "개 수확!");
+        } else {
+          alert("씨보리 부족!");
+        }
+      };
       fetchUserData();
     };
   </script>
