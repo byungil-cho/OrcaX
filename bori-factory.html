@@ -58,7 +58,7 @@
     </div>
   </div>
   <script>
-    // 1. 서버에서 실시간 유저 데이터 가져오기
+    // 1. 서버에서 실시간 유저 데이터 불러오기
     async function fetchUserData() {
       try {
         document.getElementById("server-status").innerHTML = '서버 연결 중...';
@@ -87,14 +87,14 @@
       }
     }
 
-    // 2. 물/거름 사용 → 서버에 기록
+    // 2. 서버에 “물/거름 사용” 기록
     async function useResource(type) {
       const url = 'https://climbing-wholly-grouper.jp.ngrok.io/api/factory/use-resource';
       const data = {
         kakaoId: localStorage.getItem("kakaoId"),
         cropType: "barley",
         water: type === "water" ? 1 : 0,
-        fertilizer: type === "fertilizer" ? 1 : 0 // 1씩만 사용(주인님 요구시 2로 변경)
+        fertilizer: type === "fertilizer" ? 2 : 0  // 거름 1번에 2씩 사용
       };
       const res = await fetch(url, {
         method: 'PATCH',
@@ -109,7 +109,7 @@
       }
     }
 
-    // 3. 수확 → 서버에 기록
+    // 3. 서버에 “수확” 기록
     async function harvest() {
       const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/factory/harvest', {
         method: 'POST',
@@ -137,6 +137,7 @@
   </script>
 </body>
 </html>
+
 
 
 
