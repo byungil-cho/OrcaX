@@ -1,181 +1,158 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>OrcaX 보리 농장</title>
-  <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Do Hyeon', sans-serif;
       background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
       background-size: cover;
-      margin: 0;
       color: #fff;
+      margin: 0;
+      padding: 0;
     }
-    .container {
-      max-width: 430px;
-      margin: 2rem auto 0;
-      background: rgba(0,0,0,0.38);
-      border-radius: 22px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.16);
-      padding: 2.3rem 1.2rem 2rem;
-      text-align: center;
+    .main {
+      max-width: 400px;
+      margin: 2rem auto;
+      background: rgba(0,0,0,0.45);
+      border-radius: 24px;
+      padding: 2rem 1rem 1.5rem 1rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
     h1 {
-      font-size: 2.3rem;
-      margin: 0 0 1.5rem 0;
-      letter-spacing: 2px;
-      font-weight: bold;
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      text-align: center;
     }
-    .nav {
-      margin-bottom: 0.9rem;
-      font-size: 1.1rem;
+    .links {
+      text-align: center;
+      margin-bottom: 1rem;
     }
-    .nav a {
-      color: #e5e5e5;
+    .links a {
+      color: #fff;
       text-decoration: underline;
-      margin: 0 9px;
+      margin: 0 10px;
+      font-size: 1.2rem;
     }
-    .nav a:hover {
-      color: #aafad2;
-    }
-    .status-success {
-      color: #2ff7b3;
-      font-weight: bold;
-      margin-bottom: 0.6rem;
-    }
-    .status-fail {
-      color: #ff6060;
-      font-weight: bold;
-      margin-bottom: 0.6rem;
-    }
-    .info-group {
-      margin: 1.2rem 0 1.1rem;
+    .server-status {
+      text-align: center;
+      margin-bottom: 1rem;
       font-size: 1.1rem;
     }
-    .section-title {
-      margin: 2.2rem 0 0.7rem;
-      font-size: 1.18rem;
-      color: #ffd974;
+    .databox {
+      font-size: 1.1rem;
+      margin: .1rem 0;
+      text-align: center;
+    }
+    .box {
+      background: rgba(0,0,0,0.18);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+    .label {
+      color: #ffd900;
+      font-size: 1.2rem;
       font-weight: bold;
-      letter-spacing: 0.5px;
+      margin-bottom: .2rem;
+      display: block;
     }
-    .storage {
-      background: rgba(255,255,255,0.11);
-      border-radius: 13px;
-      padding: 0.7rem 1rem 0.85rem;
-      margin: 0.6rem 0 0.2rem;
-      font-size: 1.15rem;
-      color: #fff6c3;
-    }
-    .storage span {
-      display: inline-block;
-      min-width: 72px;
-      font-size: 1.07rem;
-      margin: 0.1rem 0;
-    }
-    .btn-group {
-      margin: 2.1rem 0 0.3rem;
+    .action-btns {
       display: flex;
-      gap: 10px;
+      gap: 1rem;
+      margin-top: 1.2rem;
       justify-content: center;
     }
-    button {
-      font-family: 'Do Hyeon', sans-serif;
-      font-size: 1.15rem;
-      background: #fffad0;
+    .action-btns button {
+      flex: 1;
+      background: #ffe689;
       color: #222;
       border: none;
-      border-radius: 12px;
-      padding: 0.85rem 1.5rem;
+      border-radius: 10px;
+      padding: .8rem 0;
+      font-size: 1.13rem;
+      font-family: inherit;
+      font-weight: 700;
+      margin: 0 .1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
       cursor: pointer;
-      margin-top: 0.3rem;
-      margin-bottom: 0.2rem;
-      box-shadow: 0 2px 7px rgba(0,0,0,0.10);
-      transition: background 0.15s;
+      transition: background .14s;
     }
-    button:active {
-      background: #ffeea7;
+    .action-btns button:active {
+      background: #ffd900;
     }
     @media (max-width: 600px) {
-      .container { max-width: 98vw; padding: 1.2rem 0.1rem; }
-      h1 { font-size: 1.32rem;}
-      .btn-group button { padding: 0.65rem 0.95rem; font-size: 1.03rem;}
+      .main { margin: 0.5rem; padding: 1rem 0.5rem; }
+      h1 { font-size: 1.4rem; }
+      .links a { font-size: 1rem; }
+      .action-btns button { font-size: 0.97rem; padding: .6rem 0; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="main">
     <h1>OrcaX 보리 농장</h1>
-    <div class="nav">
-      <a href="/OrcaX/index9.html">메인으로</a> |
-      <a href="/OrcaX/gamja-factory.html">감자농장</a> |
-      <a href="/OrcaX/gamja-shop.html">상점</a>
+    <div class="links">
+      <a href="index9.html">메인으로</a> |
+      <a href="gamja-factory.html">감자농장</a> |
+      <a href="gamja-shop.html">상점</a>
     </div>
-    <div id="serverStatus" class="status-success" style="display:none;">✔ 서버 연결 성공</div>
-    <div id="serverStatusFail" class="status-fail" style="display:none;">✗ 서버 연결 실패</div>
-
-    <div class="info-group">
-      닉네임: <span id="nickname">-</span> |
-      농장이름: <span id="farmName">-</span><br>
-      ORCX: <span id="orcax">0</span>
+    <div id="server-status" class="server-status">서버 연결 중...</div>
+    <div class="databox">
+      닉네임: <span id="nickname">-</span> | 농장이름: <span id="farmName">-</span><br>
+      ORCX: <span id="orcx">0</span>
     </div>
-
-    <div class="section-title">📦 자재 보관함</div>
-    <div class="storage">
-      <span>물: <span id="water">0</span></span>
-      <span>거름: <span id="fertilizer">0</span></span>
-      <br>
-      <span>씨보리: <span id="seedBarley">0</span></span>
+    <div class="box">
+      <span class="label">🪴 자재 보관함</span>
+      물: <span id="water">0</span>,
+      거름: <span id="fertilizer">0</span><br>
+      씨보리: <span id="seedBarley">0</span>
     </div>
-    <div class="section-title">🥚 제품 보관함</div>
-    <div class="storage">
-      <span>보리: <span id="barley">0</span></span>
+    <div class="box">
+      <span class="label">🥚 제품 보관함</span>
+      보리: <span id="barley">0</span>
     </div>
-    <div class="section-title" style="margin-top:2.1rem;font-size:1.1rem;">성장 포인트: <span id="growPoint">0</span></div>
-    <div class="btn-group">
-      <button onclick="alert('준비중!')">물 주기</button>
-      <button onclick="alert('준비중!')">거름 주기</button>
-      <button onclick="alert('준비중!')">수확</button>
+    <div class="databox">
+      성장 포인트: <span id="growth">0</span>
+    </div>
+    <div class="action-btns">
+      <button id="waterBtn">물 주기</button>
+      <button id="fertBtn">거름 주기</button>
+      <button id="harvestBtn">수확</button>
     </div>
   </div>
   <script>
-    // 카카오 ID 가져오기
-    const kakaoId = localStorage.getItem("kakaoId");
-
-    // 서버에서 데이터 불러오기
-    async function loadUserData() {
-      let statusSuccess = document.getElementById('serverStatus');
-      let statusFail = document.getElementById('serverStatusFail');
-      statusSuccess.style.display = 'none';
-      statusFail.style.display = 'none';
+    // ===== 서버에서 데이터 받아서 화면에 뿌리는 부분 =====
+    async function fetchUserData() {
       try {
-        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId })
+        document.getElementById("server-status").innerHTML = '서버 연결 중...';
+        const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/userdata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId: localStorage.getItem("kakaoId") })
         });
-        if (!res.ok) throw new Error('서버 연결 실패');
-        const userData = await res.json();
-        // 데이터 표시
-        document.getElementById('nickname').textContent = userData.nickname || "-";
-        document.getElementById('farmName').textContent = userData.farmName || "-";
-        document.getElementById('orcax').textContent = userData.orcx ?? 0;
-        document.getElementById('water').textContent = userData.water ?? 0;
-        document.getElementById('fertilizer').textContent = userData.fertilizer ?? 0;
-        document.getElementById('seedBarley').textContent = userData.seedBarley ?? 0;
-        document.getElementById('barley').textContent = userData.barley ?? 0;
-        document.getElementById('growPoint').textContent = (userData.growth && userData.growth.barley) ? userData.growth.barley : 0;
-        statusSuccess.style.display = 'block';
-      } catch (e) {
-        statusFail.style.display = 'block';
+        if (!res.ok) throw new Error("서버 연결 실패");
+        const user = await res.json();
+        document.getElementById("server-status").innerHTML = "<span style='color:#1effa3;'>✔ 서버 연결 성공</span>";
+        document.getElementById("nickname").textContent = user.nickname ?? "-";
+        document.getElementById("farmName").textContent = localStorage.getItem("farmName") ?? "-";
+        document.getElementById("orcx").textContent = user.orcx ?? 0;
+        document.getElementById("water").textContent = user.water ?? 0;
+        document.getElementById("fertilizer").textContent = user.fertilizer ?? 0;
+        document.getElementById("seedBarley").textContent = user.seedBarley ?? 0;
+        document.getElementById("barley").textContent = user.storage?.bori ?? 0;
+        document.getElementById("growth").textContent = user.growth?.barley ?? 0;
+      } catch (err) {
+        document.getElementById("server-status").innerHTML = "<span style='color:#fa5050;'>✗ 서버 연결 실패</span>";
       }
     }
-
-    window.onload = loadUserData;
+    fetchUserData();
   </script>
 </body>
 </html>
+
 
 
