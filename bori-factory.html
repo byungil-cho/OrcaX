@@ -185,7 +185,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               kakaoId: localStorage.getItem("kakaoId"),
-              cropType: "barley", // 반드시 barley!
+              cropType: "barley",
               water: 1,
               fertilizer: 0
             })
@@ -237,7 +237,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               kakaoId: localStorage.getItem("kakaoId"),
-              cropType: "barley"
+              cropType: "seedBarley"   // ★★★ 반드시 seedBarley로!
             })
           });
           const result = await res.json();
@@ -262,6 +262,7 @@
   </script>
 </body>
 </html>
+
 
 
 
