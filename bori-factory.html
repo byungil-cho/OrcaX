@@ -229,9 +229,9 @@
         }
       };
 
-      // 수확 (성장 5이상, 서버 수확 요청)
+      // 수확 (성장 5이상, 씨보리 1개 이상, 서버 수확 요청)
       document.getElementById('harvestBtn').onclick = async function() {
-        if (state.growth >= 5) {
+        if (state.seedBarley > 0 && state.growth >= 5) {
           const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/factory/harvest', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -244,12 +244,15 @@
           if (result.success) {
             state.barley = result.cropAmount || 0;
             state.growth = 0;
+            state.seedBarley = result.userSeed ?? state.seedBarley;
             render();
             alert(`보리 ${result.reward}개 수확!`);
             fetchUserData();
           } else {
             alert(result.message || "수확 실패");
           }
+        } else if (state.seedBarley <= 0) {
+          alert("씨앗이 없습니다");
         } else {
           alert("성장포인트 부족!(최소 5 필요)");
         }
@@ -259,6 +262,7 @@
   </script>
 </body>
 </html>
+
 
 
 
