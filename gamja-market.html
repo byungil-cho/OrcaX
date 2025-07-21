@@ -127,7 +127,7 @@
     // 초기 출력
     document.getElementById("nick").textContent = nickname;
 
-    // 유저 자원 불러오기 (user/users/data/fallback 모두 대응)
+    // 유저 자원 불러오기 (무적 조건)
     async function loadUserResource() {
       try {
         const response = await fetch(USERDATA_API, {
@@ -136,11 +136,25 @@
           body: JSON.stringify({ kakaoId })
         });
         const data = await response.json();
-        // user, users, 또는 data에 바로 담겼을 경우까지 모두 지원
         const user = data.user || data.users || data || {};
-        myWater = user.water ?? data.water ?? 0;
-        myFertilizer = user.fertilizer ?? data.fertilizer ?? 0;
-        myToken = user.orcx ?? user.token ?? data.orcx ?? data.token ?? 0;
+        myWater =
+          user.water ??
+          (user.inventory && user.inventory.water) ??
+          data.water ??
+          (data.inventory && data.inventory.water) ??
+          0;
+        myFertilizer =
+          user.fertilizer ??
+          (user.inventory && user.inventory.fertilizer) ??
+          data.fertilizer ??
+          (data.inventory && data.inventory.fertilizer) ??
+          0;
+        myToken =
+          user.orcx ??
+          user.token ??
+          data.orcx ??
+          data.token ??
+          0;
         renderMyResource();
       } catch (e) {
         myWater = 0; myFertilizer = 0; myToken = 0;
