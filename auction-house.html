@@ -90,7 +90,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
   const nickname = localStorage.getItem("nickname");
 
-  // ✅ 로그인 상태 확인
   if (!nickname) {
     alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
     window.location.href = "index9.html";
@@ -99,37 +98,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("nickname").textContent = nickname;
 
-  // ✅ 토큰
-  fetch(`${API_BASE}/api/user/token/${nickname}`)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("tokenBalance").textContent = data.token || 0;
-    })
-    .catch(() => {
-      document.getElementById("tokenBalance").textContent = 0;
-    });
-
-  // ✅ 보관함
-  fetch(`${API_BASE}/api/userdata?nickname=${nickname}`)
+  // ✅ 통합 프로필 전체 불러오기
+  fetch(`${API_BASE}/api/user/profile/${nickname}`)
     .then(res => res.json())
     .then(user => {
-      const data = user.inventory || [];
+      // 토큰
+      document.getElementById("tokenBalance").textContent = user.orcx || 0;
+      // 등급, 레벨, 물, 거름, 씨감자, 씨보리 등 표시 추가
+      // (필요한 곳에 각 값 넣기)
+
+      // 보관함 (가공식품)
+      const prod = user.products || {};
       const tbody = document.querySelector("#storageTable tbody");
       tbody.innerHTML = "";
-      data.forEach(item => {
-        const row = `<tr>
-          <td>${item.type}</td>
-          <td>${item.count}</td>
-        </tr>`;
-        tbody.insertAdjacentHTML("beforeend", row);
+      Object.entries(prod).forEach(([type, count]) => {
+        if (count > 0) {
+          const row = `<tr>
+            <td>${type}</td>
+            <td>${count}</td>
+          </tr>`;
+          tbody.insertAdjacentHTML("beforeend", row);
+        }
       });
+      // 만약 제품이 하나도 없을 경우 메시지
+      if (tbody.innerHTML === "") {
+        tbody.innerHTML = "<tr><td colspan='2'>보관한 가공식품이 없습니다.</td></tr>";
+      }
+      // 기타 정보(물, 거름, 씨감자 등)는 별도 표/박스에 추가해도 됨
     })
     .catch(() => {
       const tbody = document.querySelector("#storageTable tbody");
       tbody.innerHTML = "<tr><td colspan='2'>❌ 보관함 불러오기 실패</td></tr>";
     });
 
-  // ✅ 관리자 진입 (비밀번호 7788)
   window.goToAdmin = function () {
     const pw = prompt("관리자 비밀번호를 입력하세요:");
     if (pw === "7788") {
