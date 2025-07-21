@@ -1,66 +1,89 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="utf-8"/>
-<title>🌽 OrcaX 농장 제품 거래소</title>
+<title>🐋 OrcaX 마이페이지</title>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <style>
     body { font-family: 'Arial', sans-serif; background: #f7f7f7; padding: 1rem; margin: 0; }
-    h1, h2 { text-align: center; color: #2e2e2e; margin: 1rem 0; }
+    h1, h2 { text-align: center; color: #2e2e2e; margin: 1.3rem 0 1.1rem 0; }
+    .top-menu {
+      background: #575757; padding: 0.5rem 0 0.5rem 0;
+      text-align: center; font-size: 1.08rem;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .top-menu a, .top-menu span {
+      padding: 0.4rem 1.1rem;
+      border-radius: 16px;
+      margin: 0 0.15rem;
+      font-weight: bold;
+      display: inline-block;
+    }
+    .top-menu a {
+      color: #fff; text-decoration: none;
+      background: #2ebca0;
+      transition: background 0.15s;
+    }
+    .top-menu a:hover { background: #22a6a0; color: #fff; }
+    .top-menu .active-menu {
+      background: #888;
+      color: #fff;
+      cursor: default;
+      pointer-events: none;
+      border: 2px solid #fff2;
+    }
     table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; font-size: 0.9rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; font-size: 0.97rem; }
     th { background-color: #efefef; }
     #notice { margin-top: 1rem; color: #555; text-align: center; }
     #myStorage { margin-top: 2rem; }
     #userInfo {
-      position: sticky; top: 0; z-index: 999;
-      background: #fff; padding: 0.5rem 1rem;
+      background: #fff; padding: 0.7rem 1rem;
       border-bottom: 2px solid #eee;
-      font-size: 0.95rem; text-align: right;
+      font-size: 1.05rem; text-align: right; margin-bottom:12px;
     }
     button {
-      margin: 1rem auto; display: block;
-      padding: 0.6rem 1.2rem; font-size: 1rem;
-      background: #4CAF50; color: white; border: none;
-      border-radius: 5px; cursor: pointer;
+      margin: 1.5rem auto 1.1rem auto; display: block;
+      padding: 0.65rem 1.4rem; font-size: 1.06rem;
+      background: #23b399; color: white; border: none;
+      border-radius: 7px; cursor: pointer; font-weight:bold;
     }
-    button:hover { background-color: #45a049; }
+    button:hover { background-color: #14807d; }
     @media screen and (max-width: 600px) {
-      th, td { font-size: 0.75rem; padding: 0.4rem; }
-      button { font-size: 0.9rem; padding: 0.5rem 1rem; }
+      th, td { font-size: 0.85rem; padding: 0.4rem; }
+      button { font-size: 0.95rem; padding: 0.5rem 1rem; }
+      .top-menu a, .top-menu span { padding: 0.4rem 0.6rem; font-size: 0.95rem; }
     }
-  </style>
+</style>
 </head>
 <body>
+<div class="top-menu">
+  <a href="index9.html">메인</a>
+  <a href="gamja-farm.html">농장</a>
+  <a href="gamja-shop.html">씨앗상점</a>
+  <span class="active-menu">마이페이지</span>
+  <a href="#" onclick="goToAdmin();return false;">관리자</a>
+</div>
 <div id="userInfo">
-    👤 <span id="nickname">닉네임</span> | 💰 <span id="tokenBalance">0</span> ORCAX
-  </div>
-<h1>🌽 OrcaX 농장 제품 거래소</h1>
-<table id="priceTable">
-<thead>
-<tr>
-<th>제품명</th>
-<th>판매량</th>
-<th>시세 (토큰)</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-<p id="notice"></p>
+    👤 <span id="nickname">닉네임</span> | 💰 <span id="tokenBalance">0</span> ORCX
+</div>
+<h1>🐋 OrcaX 마이페이지</h1>
+<div style="text-align:center; color:#14807d; margin-bottom:1.3rem;">
+    환영합니다!<br>
+    아래는 회원님의 OrcaX 자산 및 가공식품 보관 현황입니다.
+</div>
 <div id="myStorage">
-<h2>🐋 <span id="userFarmTitle"></span> 보관 창고 <span style="font-size:0.9rem;">(개인 전용 창고)</span></h2>
+<h2>🗃️ 내 보관 창고 <span style="font-size:0.95rem;">(가공식품 현황)</span></h2>
 <table id="storageTable">
 <thead>
 <tr>
-<th>선택</th>
 <th>제품명</th>
 <th>보유 수량</th>
 </tr>
 </thead>
 <tbody></tbody>
 </table>
-<button onclick="goToAdmin()">🔐 관리자 전용 페이지</button>
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -70,19 +93,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // ✅ 로그인 상태 확인
   if (!nickname) {
     alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-    window.location.href = "orcax-farm_000.html";
+    window.location.href = "index9.html";
     return;
   }
 
-  console.log("💡 nickname 확인:", nickname);
   document.getElementById("nickname").textContent = nickname;
-
-  // ✅ 자동 유저 등록 시도
-  fetch(`${API_BASE}/api/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nickname })
-  });
 
   // ✅ 토큰
   fetch(`${API_BASE}/api/user/token/${nickname}`)
@@ -103,7 +118,6 @@ document.addEventListener("DOMContentLoaded", function () {
       tbody.innerHTML = "";
       data.forEach(item => {
         const row = `<tr>
-          <td><input type='checkbox' name='product' value='${item.type}' data-count='${item.count}'></td>
           <td>${item.type}</td>
           <td>${item.count}</td>
         </tr>`;
@@ -112,31 +126,15 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .catch(() => {
       const tbody = document.querySelector("#storageTable tbody");
-      tbody.innerHTML = "<tr><td colspan='3'>❌ 보관함 불러오기 실패</td></tr>";
+      tbody.innerHTML = "<tr><td colspan='2'>❌ 보관함 불러오기 실패</td></tr>";
     });
 
-  // ✅ 전광판
-  fetch(`${API_BASE}/api/market/prices`)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("notice").textContent = data.notice || "";
-      const tbody = document.querySelector("#priceTable tbody");
-      tbody.innerHTML = "";
-      data.prices.forEach(item => {
-        const row = `<tr><td>${item.type}</td><td>${item.count}</td><td>${item.price}</td></tr>`;
-        tbody.insertAdjacentHTML("beforeend", row);
-      });
-    })
-    .catch(() => {
-      document.getElementById("notice").textContent = "❌ 시세 정보를 불러오지 못했습니다.";
-    });
-
-  // ✅ 관리자 진입
+  // ✅ 관리자 진입 (비밀번호 7788)
   window.goToAdmin = function () {
     const pw = prompt("관리자 비밀번호를 입력하세요:");
     if (pw === "7788") {
       location.href = "admin-users.html";
-    } else {
+    } else if (pw !== null) {
       alert("비밀번호가 틀렸습니다.");
     }
   };
