@@ -127,7 +127,7 @@
     // 초기 출력
     document.getElementById("nick").textContent = nickname;
 
-    // 유저 자원 불러오기 (gamja-farm.html 방식)
+    // 유저 자원 불러오기 (user 또는 users 자동 대응)
     async function loadUserResource() {
       try {
         const response = await fetch(USERDATA_API, {
@@ -136,8 +136,7 @@
           body: JSON.stringify({ kakaoId })
         });
         const data = await response.json();
-        const user = data.user;
-        if (!user) return;
+        const user = data.user || data.users || {};
         myWater = user.water ?? 0;
         myFertilizer = user.fertilizer ?? 0;
         myToken = user.orcx ?? 0;
