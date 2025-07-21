@@ -2,186 +2,190 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaX 감자/보리 식품 가공공장</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OrcaX 감자 가공공장</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family:'Do Hyeon',sans-serif; background:#f5fbf7; margin:0; }
-    .wrap { max-width: 490px; margin:2.3rem auto; background:rgba(0,0,0,0.07); border-radius:20px; padding:2.5rem 1.1rem 1.8rem 1.1rem; box-shadow:0 4px 18px rgba(40,160,90,0.07);}
-    h1 { color:#17a651; margin-bottom:1.4rem; text-align:center; }
-    .menu { text-align:center; margin-bottom:1.6rem;}
-    .menu a { color:#189747; text-decoration:underline; margin:0 10px; font-size:1.1rem;}
-    .sys { margin-bottom:0.9rem; background:#e8ffe5; border-radius:10px; padding:0.6rem 1rem; font-size:1.08rem;}
-    .sys span { margin-right:1.3rem;}
-    .asset { background:#fff; border-radius:10px; padding:0.6rem 1.1rem; margin:0.6rem 0 1.2rem 0;}
-    .asset-row { display:flex; justify-content:space-between; margin-bottom:0.3rem;}
-    .asset-row b { color:#17a651;}
-    .products-box { background:#f7fafc; border-radius:13px; padding:0.8rem 0.8rem 1.2rem 0.8rem; margin:0.5rem 0 1.4rem 0;}
-    .products-box h3 { margin-top:0.5rem; color:#166099; }
-    .prod-list { display:flex; flex-wrap:wrap; gap:1.1rem; margin-top:0.5rem; }
-    .prod-card { background:#fff; border-radius:8px; box-shadow:0 1px 7px #eee; min-width:108px; text-align:center; padding:0.6rem 0.5rem 0.9rem 0.5rem;}
-    .prod-name { font-size:1.04rem; color:#1a8a34; margin-bottom:0.18rem;}
-    .prod-count { font-weight:bold; color:#de8511;}
-    .make-box { background:#f7ffe9; border-radius:13px; padding:1.5rem 1.3rem; box-shadow:0 1px 6px #f0efea;}
-    .make-row { margin-bottom:1.2rem; }
-    label { font-size:1.06rem;}
-    input[type="text"] { padding:0.7rem; font-size:1.1rem; border-radius:7px; border:1px solid #ddd; margin-top:0.5rem; width:97%;}
-    select { padding:0.5rem; font-size:1.1rem; border-radius:6px;}
-    button { background:#14c064; color:#fff; border:none; border-radius:8px; font-size:1.12rem; font-family:inherit; padding:0.7rem 2.1rem; cursor:pointer; margin-top:0.7rem;}
-    .log { text-align:center; color:#1b9e43; margin-top:1.3rem;}
-    @media (max-width:600px){ .wrap{margin:0.4rem;padding:0.7rem 0.18rem;} }
+    body { font-family: 'Do Hyeon', sans-serif; background: #fcfff4; margin: 0;}
+    header { background: #585858; color: #fff; padding: 1.5rem 0 1rem 0; text-align: center; font-size: 2.3rem;}
+    .main-box { max-width: 580px; margin: 2rem auto; padding: 2rem; border-radius: 30px; background: #fff; box-shadow: 0 2px 18px #d2e5df44;}
+    .section { margin-bottom: 2rem; padding: 1.1rem 1.4rem; border-radius: 20px; background: #f2f5f6;}
+    .title { font-weight: bold; font-size: 1.25rem; margin-bottom: 1rem; }
+    .resource-bar { display: flex; gap: 18px; margin: 0.4rem 0 1rem 0; justify-content: center; font-size: 1.11rem;}
+    .res-item { background: #fff; color: #585858; border-radius: 10px; padding: 2px 13px 2px 9px; box-shadow: 0 1px 6px #ddebe822; font-weight: 600;}
+    .res-label { font-size: 1rem; color: #1c928d; margin-right: 3px;}
+    .item-card { padding: 0.7rem 1.2rem; border-radius: 16px; background: #fff; box-shadow: 0 1px 6px #ddebe844; min-width: 120px; margin-bottom: 7px;}
+    .center { text-align: center;}
+    .gray { color: #aaa;}
+    #log { margin-top: 0.6rem; color: #e67e22;}
+    button, .btn { font-family: inherit; border: none; background: #23d160; color: #fff; padding: 7px 18px; border-radius: 12px; font-size: 1rem; cursor: pointer; margin-left: 7px;}
+    .btn:disabled { background: #ccc; cursor: default;}
+    @media (max-width: 600px) {
+      .main-box { padding: 1rem;}
+      .item-card { min-width: 80px;}
+      .resource-bar { font-size: 0.99rem;}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>감자/보리 식품 가공공장</h1>
-    <div class="menu">
-      <a href="index9.html">메인</a> |
-      <a href="gamja-factory.html">감자농장</a> |
-      <a href="bori-factory.html">보리농장</a> |
-      <a href="gamja-market.html">마켓</a>
-    </div>
-    <div class="sys">
-      <span>서버연결: <b id="svrStat">⏳</b></span>
-      <span>닉네임: <b id="nick">-</b></span>
-      <span>농장이름: <b id="farm">-</b></span>
-    </div>
-    <div class="asset">
-      <div class="asset-row"><b>ORCX</b>: <span id="orcx">0</span></div>
-      <div class="asset-row"><b>물</b>: <span id="water">0</span> <b>거름</b>: <span id="fert">0</span></div>
-      <div class="asset-row"><b>씨감자</b>: <span id="potatoseed">0</span> <b>씨보리</b>: <span id="barleyseed">0</span></div>
-      <div class="asset-row"><b>감자</b>: <span id="potato">0</span> <b>보리</b>: <span id="barley">0</span></div>
-    </div>
-    <div class="products-box">
-      <h3>생산한 가공제품 목록</h3>
-      <div class="prod-list" id="prodList">
-        <div style="opacity:.4;">아직 가공한 제품이 없습니다.</div>
+  <header>🥔 OrcaX 감자 가공공장</header>
+  <div class="main-box">
+    <div class="section center">
+      <div id="srvStatus" class="gray">서버 연결 확인중...</div>
+      <div class="resource-bar">
+        <span class="res-item"><span class="res-label">닉네임</span> <span id="nick">-</span></span>
+        <span class="res-item"><span class="res-label">물</span> <span id="myWater">-</span></span>
+        <span class="res-item"><span class="res-label">거름</span> <span id="myFertilizer">-</span></span>
+        <span class="res-item"><span class="res-label">토큰</span> <span id="myToken">-</span></span>
       </div>
     </div>
-    <div class="make-box">
-      <form id="makeForm" onsubmit="return false;">
-        <div class="make-row">
-          <label>가공 원료 선택: 
-            <select id="material">
-              <option value="potato">감자</option>
-              <option value="barley">보리</option>
-            </select>
-          </label>
-        </div>
-        <div class="make-row">
-          <label>가공 제품명 (직접 입력):<br>
-            <input id="productName" type="text" maxlength="18" required placeholder="예: 내마음의감자칩">
-          </label>
-        </div>
-        <button type="submit">가공하기</button>
+
+    <div class="section">
+      <div class="title">보관함 (가공식품)</div>
+      <div class="inv-list" id="inventory">-</div>
+    </div>
+
+    <div class="section">
+      <div class="title">가공하기</div>
+      <form id="makeForm" class="center">
+        <select id="materialSel" required>
+          <option value="">원재료 선택</option>
+          <option value="potato">감자</option>
+          <option value="bori">보리</option>
+        </select>
+        <select id="productSel" required>
+          <option value="">제품 선택</option>
+          <option value="감자스넥">감자스넥</option>
+          <option value="감자깡">감자깡</option>
+          <option value="보리빵">보리빵</option>
+          <option value="보리국수">보리국수</option>
+        </select>
+        <button id="makeBtn">가공</button>
       </form>
-      <div class="log" id="log"></div>
+      <div id="log"></div>
+    </div>
+
+    <div class="section">
+      <div class="title">가공 기록</div>
+      <div id="processLog" class="gray">-</div>
     </div>
   </div>
+
   <script>
-    // 유저 정보 상태
-    let userInfo = {
-      nickname: "",
-      orcx: 0, water: 0, fert: 0,
-      potatoseed: 0, barleyseed: 0,
-      potato: 0, barley: 0,
-      products: {}
-    };
+    // 서버 API 주소
+    const BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api/processing";
+    const USERDATA_API = "https://climbing-wholly-grouper.jp.ngrok.io/api/userdata";
+    const kakaoId = localStorage.getItem("kakaoId") || "";
+    const nickname = localStorage.getItem("nickname") || "-";
+    document.getElementById("nick").textContent = nickname;
 
-    // 서버/DB 인벤토리+제품 불러오기
+    // 자원 상태
+    let myWater = 0, myFertilizer = 0, myToken = 0;
+
+    // Promise.all로 모든 정보를 한 번에 동기화!
     async function fetchUser() {
-      // 닉네임/카카오ID 등 서버 연동용
-      const kid = localStorage.getItem("kakaoId");
-      const farmName = localStorage.getItem("farmName") || "-";
-      document.getElementById("farm").textContent = farmName;
-      try{
-        document.getElementById("svrStat").textContent = "⏳";
-        if(!kid){ 
-          document.getElementById("svrStat").textContent = "❌";
-          document.getElementById("nick").textContent = "-";
-          return;
-        }
-        const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/processing/get-inventory', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ kakaoId: kid })
-        });
-        const result = await res.json();
-        if(result.success){
-          document.getElementById("svrStat").textContent = "✅";
-          const u = result.user;
-          userInfo.nickname = u.nickname||"-";
-          userInfo.orcx = u.orcx||0;
-          userInfo.water = u.water||0;
-          userInfo.fert = u.fertilizer||0;
-          userInfo.potatoseed = u.seedPotato||0;
-          userInfo.barleyseed = u.seedBarley||0;
-          userInfo.potato = u.storage?.gamja||0;
-          userInfo.barley = u.storage?.bori||0;
-          userInfo.products = u.products||{};
-          renderInfo();
-        } else {
-          document.getElementById("svrStat").textContent = "❌";
-          document.getElementById("nick").textContent = "-";
-        }
-      }catch{
-        document.getElementById("svrStat").textContent = "❌";
-        document.getElementById("nick").textContent = "-";
+      try {
+        document.getElementById("srvStatus").textContent = "서버 연결 확인중...";
+        const [invRes, prodRes, logRes, userRes] = await Promise.all([
+          fetch(BASE + "/get-inventory", {
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ kakaoId }), cache:"no-store"
+          }),
+          fetch(BASE + "/get-products", {
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ kakaoId }), cache:"no-store"
+          }),
+          fetch(BASE + "/log", {
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ kakaoId }), cache:"no-store"
+          }),
+          fetch(USERDATA_API, {
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ kakaoId }), cache:"no-store"
+          }),
+        ]);
+        const [invData, prodData, logData, userData] = await Promise.all([
+          invRes.json(), prodRes.json(), logRes.json(), userRes.json()
+        ]);
+
+        // 자원 최신 동기화
+        const user = userData.user || userData.users || userData || {};
+        myWater =
+          user.water ??
+          (user.inventory && user.inventory.water) ??
+          userData.water ??
+          (userData.inventory && userData.inventory.water) ??
+          0;
+        myFertilizer =
+          user.fertilizer ??
+          (user.inventory && user.inventory.fertilizer) ??
+          userData.fertilizer ??
+          (userData.inventory && userData.inventory.fertilizer) ??
+          0;
+        myToken =
+          user.orcx ??
+          user.token ??
+          userData.orcx ??
+          userData.token ??
+          0;
+        renderMyResource();
+
+        // 보관함 (가공식품)
+        const inv = invData.products || {};
+        const list = Object.entries(inv)
+          .filter(([_, qty]) => qty > 0)
+          .map(([name, qty]) => `<div class="item-card">${name} <b>${qty}</b>개</div>`);
+        document.getElementById("inventory").innerHTML = list.length ? list.join("") : `<span class="gray">보유 제품 없음</span>`;
+
+        // 가공 기록
+        const logs = logData.log || [];
+        document.getElementById("processLog").innerHTML =
+          logs.length
+            ? logs.map(x=>`${x.date||""} <b>${x.product||"-"}</b> (+${x.qty||1})`).join("<br>")
+            : `<span class="gray">가공 기록 없음</span>`;
+
+        document.getElementById("srvStatus").textContent = "✅ 서버 연결 성공!";
+      } catch (e) {
+        document.getElementById("srvStatus").textContent = "❌ 서버 연결 실패!";
+        document.getElementById("inventory").innerHTML = "-";
+        document.getElementById("processLog").innerHTML = "-";
       }
     }
 
-    // 정보 표시
-    function renderInfo() {
-      document.getElementById("nick").textContent = userInfo.nickname;
-      document.getElementById("orcx").textContent = userInfo.orcx;
-      document.getElementById("water").textContent = userInfo.water;
-      document.getElementById("fert").textContent = userInfo.fert;
-      document.getElementById("potatoseed").textContent = userInfo.potatoseed;
-      document.getElementById("barleyseed").textContent = userInfo.barleyseed;
-      document.getElementById("potato").textContent = userInfo.potato;
-      document.getElementById("barley").textContent = userInfo.barley;
-      // 제품 목록
-      const prod = userInfo.products;
-      const prodList = document.getElementById("prodList");
-      prodList.innerHTML = "";
-      let found = false;
-      Object.entries(prod).forEach(([name,count])=>{
-        if(count>0){
-          found = true;
-          const d = document.createElement("div");
-          d.className = "prod-card";
-          d.innerHTML = `<div class="prod-name">${name}</div><div class="prod-count">${count} 개</div>`;
-          prodList.appendChild(d);
-        }
-      });
-      if(!found){
-        prodList.innerHTML = `<div style="opacity:.4;">아직 가공한 제품이 없습니다.</div>`;
-      }
+    function renderMyResource() {
+      document.getElementById("myWater").textContent = myWater;
+      document.getElementById("myFertilizer").textContent = myFertilizer;
+      document.getElementById("myToken").textContent = myToken;
     }
 
-    // 가공폼 submit
-    document.getElementById("makeForm").onsubmit = async function() {
-      const material = document.getElementById("material").value;
-      const product = document.getElementById("productName").value.trim();
-      const kid = localStorage.getItem("kakaoId");
-      if(!kid || !product){ alert("입력 확인!"); return; }
-      if(product.length<2){ alert("제품명을 2자 이상 입력하세요."); return; }
-      try{
-        const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/processing/make-product', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ kakaoId:kid, material, product })
+    // 가공폼 제출
+    document.getElementById("makeForm").onsubmit = async function(e) {
+      e.preventDefault();
+      const material = document.getElementById("materialSel").value;
+      const product = document.getElementById("productSel").value;
+      if (!material || !product) {
+        document.getElementById("log").textContent = "원재료와 제품을 선택하세요!";
+        return;
+      }
+      document.getElementById("makeBtn").disabled = true;
+      try {
+        const res = await fetch(BASE + "/make-product", {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ kakaoId, material, product }),
+          cache:"no-store"
         });
         const result = await res.json();
         if(result.success){
           document.getElementById("log").innerHTML = `가공 성공! <b>${product}</b> 1개 추가`;
-          fetchUser();
+          await fetchUser(); // 가공 후 반드시 한 번에 동기화!
         } else {
           document.getElementById("log").innerHTML = result.message || "가공 실패";
         }
-      }catch{
-        document.getElementById("log").innerHTML = "서버 연결 실패";
+      } catch {
+        document.getElementById("log").textContent = "서버 연결 실패";
       }
+      document.getElementById("makeBtn").disabled = false;
     };
 
+    // 뒤로가기/새로고침도 항상 동기화
     window.onload = fetchUser;
+    window.onpageshow = fetchUser;
   </script>
 </body>
 </html>
