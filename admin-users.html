@@ -6,20 +6,38 @@
   <title>관리자 - 유저 관리</title>
   <style>
     body { font-family: sans-serif; padding: 20px; background: #f8f9fa; }
-    h2 { margin-top: 40px; }
+    h1, h2 { text-align: center; }
     .status { font-weight: bold; }
     .green { color: green; }
     .red { color: red; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background-color: #eee; }
+    .top-menu {
+      background: #575757; padding: 0.4rem 0;
+      text-align: center; font-size: 1.07rem; margin-bottom: 10px;
+    }
+    .top-menu a, .top-menu span {
+      padding: 0.4rem 1rem; border-radius: 16px; margin: 0 0.12rem; font-weight: bold;
+      display: inline-block;
+    }
+    .top-menu a { color: #fff; text-decoration: none; background: #2ebca0; transition: background 0.15s; }
+    .top-menu a:hover { background: #22a6a0; color: #fff; }
+    .top-menu .active-menu { background: #888; color: #fff; cursor: default; pointer-events: none; border: 2px solid #fff2; }
   </style>
 </head>
 <body>
+  <div class="top-menu">
+    <a href="index9.html">메인</a>
+    <a href="gamja-farm.html">농장</a>
+    <a href="gamja-shop.html">씨앗상점</a>
+    <a href="auction-house.html">마이페이지</a>
+    <span class="active-menu">관리자</span>
+  </div>
   <h1>🛠 관리자 - 유저 관리 페이지</h1>
-  <p>서버 전원 상태: <span id="powerStatus" class="status">확인 중...</span></p>
+  <p style="text-align:center;">서버 전원 상태: <span id="powerStatus" class="status">확인 중...</span></p>
 
-  <h2>👤 가입된 유저 목록</h2>
+  <h2>👤 가입된 유저 목록 및 자산 현황</h2>
   <table id="userTable">
     <thead>
       <tr>
@@ -83,13 +101,13 @@
           <td>${user.nickname}</td>
           <td>${user.kakaoId}</td>
           <td>${user.isConnected ? '🟢' : '🔴'}</td>
-          <td>${user.orcx}</td>
-          <td>${user.water}</td>
-          <td>${user.fertilizer}</td>
-          <td>${user.potatoCount}</td>
-          <td>${user.barleyCount}</td>
-          <td>${user.seedPotato}</td>
-          <td>${user.seedBarley}</td>
+          <td>${user.orcx ?? 0}</td>
+          <td>${user.water ?? 0}</td>
+          <td>${user.fertilizer ?? 0}</td>
+          <td>${user.potatoCount ?? 0}</td>
+          <td>${user.barleyCount ?? 0}</td>
+          <td>${user.seedPotato ?? 0}</td>
+          <td>${user.seedBarley ?? 0}</td>
         `;
         tbody.appendChild(row);
       });
