@@ -1,94 +1,206 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>OrcaX 감자마켓</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family: 'Do Hyeon', sans-serif; background: #eef6ef; margin:0; }
-    header { background: #666; color:#fff; padding:20px 0; text-align:center; font-size:2rem;}
-    .status { margin:16px auto; width:95%; max-width:400px; padding:10px; border-radius:8px; background:#fff;}
-    .fail { background:#ffdbe0; color:#d90000; font-weight:bold; font-size:1.2em; border:2px solid #ff5555;}
-    .success { background:#d7f7dd; color:#228800; font-weight:bold; font-size:1.2em;}
-    .content-box {background:#eee; border-radius:18px; padding:24px; margin:20px auto; width:95%; max-width:480px;}
-    .box-disabled {opacity:0.5; pointer-events:none;}
-    .info-label {font-size:1.1em; font-weight:bold;}
-    #log {margin:10px 0; font-size:1em;}
-    .btn {background:#25b74b; color:#fff; border:none; border-radius:8px; padding:10px 18px; font-size:1.1em;}
-    .btn:disabled {opacity:0.4;}
-    input[type="text"] {padding:8px; font-size:1em;}
+    body { font-family: 'Do Hyeon', sans-serif; background: #f6fff8; margin: 0; }
+    header { background: #727272; color: #fff; padding: 1rem 0; text-align: center; font-size: 2rem; }
+    .main-box { max-width: 600px; margin: 2rem auto; padding: 2rem; border-radius: 30px; background: #fff; box-shadow: 0 2px 18px #d2e5df44;}
+    .section { margin-bottom: 2rem; padding: 1rem 1.5rem; border-radius: 20px; background: #f2f5f6; }
+    .title { font-weight: bold; font-size: 1.25rem; margin-bottom: 1rem; }
+    .gray { color: #aaa; }
+    .board-list, .inv-list { display: flex; flex-wrap: wrap; gap: 12px;}
+    .item-card { padding: 0.7rem 1.2rem; border-radius: 18px; background: #fff; box-shadow: 0 1px 6px #ddebe844; min-width: 120px;}
+    button, .btn { font-family: inherit; border: none; background: #23d160; color: #fff; padding: 7px 18px; border-radius: 12px; font-size: 1rem; cursor: pointer; margin-left: 7px;}
+    .btn-swap { background: #6cc0ff;}
+    .btn:disabled { background: #ccc; cursor: default;}
+    .center { text-align: center; }
+    .flex { display: flex; align-items: center; }
+    .label { min-width: 85px; font-weight: bold; }
+    #log { margin-top: 1rem; color: #e67e22; text-align: center;}
+    @media (max-width: 600px) {
+      .main-box { padding: 1rem; }
+      .item-card { min-width: 90px;}
+    }
   </style>
 </head>
 <body>
-  <header>🥔 OrcaX 감자마켓 🥔</header>
-  <div class="status" id="serverStatus">서버 연결 확인중...</div>
-  <div style="text-align:center;margin-top:6px;">
-    <span class="info-label">닉네임:</span> <span id="nickname">-</span>
-    | <span class="info-label">카카오ID:</span> <span id="kakaoId">-</span>
+  <header>
+    🥔 OrcaX 감자마켓 🥔
+  </header>
+  <div class="main-box">
+    <div class="section center">
+      <div id="srvStatus" class="gray">서버 연결 확인중...</div>
+      <div>
+        <span class="label">닉네임:</span><span id="nick">-</span>
+        <span class="label">카카오ID:</span><span id="kid">-</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="title">내 제품 보관함</div>
+      <div class="inv-list" id="inventory">-</div>
+    </div>
+
+    <div class="section">
+      <div class="title">감자/보리 가공식품 시세 전광판</div>
+      <div class="board-list" id="priceBoard">-</div>
+    </div>
+
+    <div class="section">
+      <div class="title">제품 판매 (ORCX 교환)</div>
+      <div class="flex" style="gap:10px;">
+        <select id="sellProduct"></select>
+        <input type="number" id="sellQty" value="1" min="1" style="width:55px;">
+        <button id="sellBtn">판매</button>
+      </div>
+      <div class="flex" style="gap:10px; margin-top:10px;">
+        <select id="swapProduct"></select>
+        <input type="number" id="swapQty" value="1" min="1" style="width:55px;">
+        <select id="swapType">
+          <option value="water">물로 교환</option>
+          <option value="fertilizer">거름으로 교환</option>
+        </select>
+        <button class="btn btn-swap" id="swapBtn">교환</button>
+      </div>
+      <div id="log"></div>
+    </div>
   </div>
+  <script>
+    // 서버주소
+    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api/market";
+    const kakaoId = localStorage.getItem("kakaoId") || "";
+    const nickname = localStorage.getItem("nickname") || "-";
 
-  <div class="content-box" id="box1">
-    <div class="info-label">내 제품 보관함</div>
-    <div id="myProducts">-</div>
-  </div>
+    // 상태
+    let myProducts = {};   // {제품명: 수량}
+    let priceList = [];    // [{name, price}...]
+    let boardProductSet = new Set();
 
-  <div class="content-box" id="box2">
-    <div class="info-label">감자/보리 가공식품 시세 전광판</div>
-    <div id="marketPrice">-</div>
-  </div>
+    // 초기 출력
+    document.getElementById("nick").textContent = nickname;
+    document.getElementById("kid").textContent = kakaoId;
 
-  <div class="content-box" id="box3">
-    <div class="info-label">제품 판매 (ORCX 교환)</div>
-    <input type="text" id="sellProduct" placeholder="판매할 제품명">
-    <input type="number" id="sellCount" min="1" value="1" style="width:60px;">
-    <button class="btn" id="sellBtn">판매</button>
-    <div id="log"></div>
-  </div>
- <script>
-const SERVER = "https://climbing-wholly-grouper.jp.ngrok.io/api/market";
-let kakaoId = localStorage.getItem("kakaoId");
+    // 전광판/내 보관함 불러오기
+    async function loadData() {
+      document.getElementById("srvStatus").textContent = "서버 연결 확인중...";
+      try {
+        // 1. 전광판
+        let res = await fetch(`${API}/price-board`);
+        let data = await res.json();
+        if(!data.success) throw "전광판 오류";
+        priceList = data.priceList || [];
+        boardProductSet = new Set(priceList.map(x=>x.name));
+        renderPriceBoard();
 
-// 1. 전광판 시세표 불러오기
-async function loadPriceBoard() {
-  const res = await fetch(`${SERVER}/price-board`);
-  const data = await res.json();
-  if(data.success) {
-    // 전광판 제품 목록/가격 data.priceList
-  }
-}
+        // 2. 내 보관함
+        res = await fetch(`${API}/user-inventory`, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ kakaoId })
+        });
+        data = await res.json();
+        if(!data.success) throw "보관함 오류";
+        myProducts = data.products || {};
+        renderInventory();
 
-// 2. 내 가공식품(보관함) 불러오기
-async function loadInventory() {
-  const res = await fetch(`${SERVER}/user-inventory`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ kakaoId })
-  });
-  const data = await res.json();
-  if(data.success) {
-    // 내 제품목록 data.products
-  }
-}
+        document.getElementById("srvStatus").textContent = "✅ 서버 연결 성공!";
+      } catch(e) {
+        document.getElementById("srvStatus").textContent = "❌ 서버 연결 실패!";
+        document.getElementById("inventory").innerHTML = "-";
+        document.getElementById("priceBoard").innerHTML = "-";
+        document.getElementById("log").textContent = (e.message||e) + "";
+      }
+      fillSelectOptions();
+    }
 
-// 3. ORCX 판매
-async function sellProduct(product, qty) {
-  const res = await fetch(`${SERVER}/sell`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ kakaoId, product, qty })
-  });
-  return await res.json();
-}
+    // 보관함 출력
+    function renderInventory() {
+      const list = Object.entries(myProducts)
+        .filter(([_, qty]) => qty > 0)
+        .map(([name, qty]) =>
+          `<div class="item-card">${name} <b>${qty}</b>개</div>`
+        );
+      document.getElementById("inventory").innerHTML = list.length ? list.join("") : `<span class="gray">보유 제품 없음</span>`;
+    }
 
-// 4. 물/거름 교환
-async function exchangeProduct(product, qty, exchangeItem) {
-  const res = await fetch(`${SERVER}/exchange`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ kakaoId, product, qty, exchangeItem })
-  });
-  return await res.json();
-}
-</script>
+    // 전광판 출력
+    function renderPriceBoard() {
+      const list = priceList
+        .map(item =>
+          `<div class="item-card">${item.name} <b>${item.price} ORCX</b></div>`
+        );
+      document.getElementById("priceBoard").innerHTML = list.length ? list.join("") : `<span class="gray">전광판 없음</span>`;
+    }
+
+    // 판매/교환 옵션 세팅
+    function fillSelectOptions() {
+      // 전광판에 등록된 제품만 판매 옵션
+      const sellSel = document.getElementById("sellProduct");
+      sellSel.innerHTML = "";
+      for (const [name, qty] of Object.entries(myProducts)) {
+        if (qty > 0 && boardProductSet.has(name)) {
+          sellSel.innerHTML += `<option value="${name}">${name} (${qty})</option>`;
+        }
+      }
+      // 전광판 미등록 제품만 교환 옵션
+      const swapSel = document.getElementById("swapProduct");
+      swapSel.innerHTML = "";
+      for (const [name, qty] of Object.entries(myProducts)) {
+        if (qty > 0 && !boardProductSet.has(name)) {
+          swapSel.innerHTML += `<option value="${name}">${name} (${qty})</option>`;
+        }
+      }
+    }
+
+    // 판매
+    document.getElementById("sellBtn").onclick = async function() {
+      const prod = document.getElementById("sellProduct").value;
+      const qty = Number(document.getElementById("sellQty").value) || 1;
+      if (!prod) return logMsg("판매할 제품 선택!");
+      const res = await fetch(`${API}/sell`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ kakaoId, product: prod, qty })
+      });
+      const data = await res.json();
+      if (data.success) {
+        logMsg(`✅ 판매 성공! (남은수량: ${data.left})`);
+        myProducts[prod] = data.left;
+        renderInventory(); fillSelectOptions();
+      } else {
+        logMsg("❌ " + (data.message || "판매 실패"));
+      }
+    };
+
+    // 교환
+    document.getElementById("swapBtn").onclick = async function() {
+      const prod = document.getElementById("swapProduct").value;
+      const qty = Number(document.getElementById("swapQty").value) || 1;
+      const exchangeItem = document.getElementById("swapType").value;
+      if (!prod) return logMsg("교환할 제품 선택!");
+      const res = await fetch(`${API}/exchange`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ kakaoId, product: prod, qty, exchangeItem })
+      });
+      const data = await res.json();
+      if (data.success) {
+        logMsg(`✅ 교환 성공! (남은수량: ${data.left})`);
+        myProducts[prod] = data.left;
+        renderInventory(); fillSelectOptions();
+      } else {
+        logMsg("❌ " + (data.message || "교환 실패"));
+      }
+    };
+
+    function logMsg(msg) {
+      document.getElementById("log").textContent = msg;
+      setTimeout(()=>{document.getElementById("log").textContent="";}, 3500);
+    }
+
+    // 자동 로딩
+    loadData();
+  </script>
 </body>
 </html>
