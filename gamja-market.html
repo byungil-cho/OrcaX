@@ -6,7 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body { font-family: 'Do Hyeon', sans-serif; background: #f6fff8; margin: 0; }
-    header { background: #727272; color: #fff; padding: 1rem 0; text-align: center; font-size: 2rem; }
+    header { background: #727272; color: #fff; padding: 1rem 0 0.7rem 0; text-align: center; font-size: 2rem; }
+    .top-menu {
+      background: #575757; padding: 0.5rem 0 0.5rem 0;
+      text-align: center; font-size: 1.08rem;
+      letter-spacing: 1px;
+    }
+    .top-menu a {
+      color: #fff; text-decoration: none;
+      padding: 0.4rem 1.1rem;
+      border-radius: 16px;
+      margin: 0 0.15rem;
+      background: #2ebca0;
+      transition: background 0.15s;
+      font-weight: bold;
+      display: inline-block;
+    }
+    .top-menu a:hover { background: #22a6a0; color: #fff; }
     .main-box { max-width: 600px; margin: 2rem auto; padding: 2rem; border-radius: 30px; background: #fff; box-shadow: 0 2px 18px #d2e5df44;}
     .section { margin-bottom: 2rem; padding: 1rem 1.5rem; border-radius: 20px; background: #f2f5f6; }
     .title { font-weight: bold; font-size: 1.25rem; margin-bottom: 1rem; }
@@ -23,12 +39,19 @@
     @media (max-width: 600px) {
       .main-box { padding: 1rem; }
       .item-card { min-width: 90px;}
+      .top-menu a { padding: 0.4rem 0.5rem; font-size: 0.95rem; }
     }
   </style>
 </head>
 <body>
   <header>
     🥔 OrcaX 감자마켓 🥔
+    <div class="top-menu">
+      <a href="index9.html">메인</a>
+      <a href="gamja-farm.html">농장</a>
+      <a href="gamja-shop.html">숍</a>
+      <a href="auction-house.html">파이페이지</a>
+    </div>
   </header>
   <div class="main-box">
     <div class="section center">
