@@ -112,6 +112,7 @@
   <script>
     // 서버주소
     const API = "https://climbing-wholly-grouper.jp.ngrok.io/api/market";
+    const USERDATA_API = "https://climbing-wholly-grouper.jp.ngrok.io/api/userdata";
     const kakaoId = localStorage.getItem("kakaoId") || "";
     const nickname = localStorage.getItem("nickname") || "-";
 
@@ -125,6 +126,27 @@
 
     // 초기 출력
     document.getElementById("nick").textContent = nickname;
+
+    // 유저 자원 불러오기 (gamja-farm.html 방식)
+    async function loadUserResource() {
+      try {
+        const response = await fetch(USERDATA_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId })
+        });
+        const data = await response.json();
+        const user = data.user;
+        if (!user) return;
+        myWater = user.water ?? 0;
+        myFertilizer = user.fertilizer ?? 0;
+        myToken = user.orcx ?? 0;
+        renderMyResource();
+      } catch (e) {
+        myWater = 0; myFertilizer = 0; myToken = 0;
+        renderMyResource();
+      }
+    }
 
     // 전광판/내 보관함 불러오기
     async function loadData() {
@@ -147,11 +169,7 @@
         data = await res.json();
         if(!data.success) throw "보관함 오류";
         myProducts = data.products || {};
-        myWater = data.water ?? 0;
-        myFertilizer = data.fertilizer ?? 0;
-        myToken = data.token ?? 0;
         renderInventory();
-        renderMyResource();
 
         document.getElementById("srvStatus").textContent = "✅ 서버 연결 성공!";
       } catch(e) {
@@ -159,9 +177,6 @@
         document.getElementById("inventory").innerHTML = "-";
         document.getElementById("priceBoard").innerHTML = "-";
         document.getElementById("log").textContent = (e.message||e) + "";
-        document.getElementById("myWater").textContent = "-";
-        document.getElementById("myFertilizer").textContent = "-";
-        document.getElementById("myToken").textContent = "-";
       }
       fillSelectOptions();
     }
@@ -224,8 +239,8 @@
       if (data.success) {
         logMsg(`✅ 판매 성공! (남은수량: ${data.left})`);
         myProducts[prod] = data.left;
-        myToken = data.token ?? myToken; // 판매 후 토큰 수 갱신
-        renderInventory(); fillSelectOptions(); renderMyResource();
+        await loadUserResource(); // 자원 재로드
+        renderInventory(); fillSelectOptions();
       } else {
         logMsg("❌ " + (data.message || "판매 실패"));
       }
@@ -245,9 +260,8 @@
       if (data.success) {
         logMsg(`✅ 교환 성공! (남은수량: ${data.left})`);
         myProducts[prod] = data.left;
-        myWater = data.water ?? myWater;
-        myFertilizer = data.fertilizer ?? myFertilizer;
-        renderInventory(); fillSelectOptions(); renderMyResource();
+        await loadUserResource(); // 자원 재로드
+        renderInventory(); fillSelectOptions();
       } else {
         logMsg("❌ " + (data.message || "교환 실패"));
       }
@@ -259,6 +273,7 @@
     }
 
     // 자동 로딩
+    loadUserResource();
     loadData();
   </script>
 </body>
