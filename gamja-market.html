@@ -36,10 +36,18 @@
     .flex { display: flex; align-items: center; }
     .label { min-width: 85px; font-weight: bold; }
     #log { margin-top: 1rem; color: #e67e22; text-align: center;}
+    .resource-bar {
+      display: flex; justify-content: center; align-items: center;
+      gap: 18px; margin-top: 7px; margin-bottom: 4px;
+      font-size: 1.08rem;
+    }
+    .res-item { background: #fff; color: #575757; border-radius: 10px; padding: 2px 13px 2px 9px; box-shadow: 0 1px 6px #ddebe822; display: flex; align-items: center; font-weight: 600;}
+    .res-label { font-size: 1rem; color: #1c928d; margin-right: 3px; }
     @media (max-width: 600px) {
       .main-box { padding: 1rem; }
       .item-card { min-width: 90px;}
       .top-menu a { padding: 0.4rem 0.5rem; font-size: 0.95rem; }
+      .resource-bar { font-size: 0.99rem;}
     }
   </style>
 </head>
@@ -56,9 +64,19 @@
   <div class="main-box">
     <div class="section center">
       <div id="srvStatus" class="gray">서버 연결 확인중...</div>
-      <div>
-        <span class="label">닉네임:</span><span id="nick">-</span>
-        <span class="label">카카오ID:</span><span id="kid">-</span>
+      <div class="resource-bar">
+        <span class="res-item">
+          <span class="res-label">닉네임</span> <span id="nick">-</span>
+        </span>
+        <span class="res-item">
+          <span class="res-label">물</span> <span id="myWater">-</span>
+        </span>
+        <span class="res-item">
+          <span class="res-label">거름</span> <span id="myFertilizer">-</span>
+        </span>
+        <span class="res-item">
+          <span class="res-label">토큰</span> <span id="myToken">-</span>
+        </span>
       </div>
     </div>
 
@@ -99,12 +117,14 @@
 
     // 상태
     let myProducts = {};   // {제품명: 수량}
-    let priceList = [];    // [{name, price}...]
+    let priceList = [];
     let boardProductSet = new Set();
+    let myWater = 0;
+    let myFertilizer = 0;
+    let myToken = 0;
 
     // 초기 출력
     document.getElementById("nick").textContent = nickname;
-    document.getElementById("kid").textContent = kakaoId;
 
     // 전광판/내 보관함 불러오기
     async function loadData() {
@@ -118,7 +138,7 @@
         boardProductSet = new Set(priceList.map(x=>x.name));
         renderPriceBoard();
 
-        // 2. 내 보관함
+        // 2. 내 보관함(+자원)
         res = await fetch(`${API}/user-inventory`, {
           method:"POST",
           headers:{"Content-Type":"application/json"},
@@ -127,7 +147,11 @@
         data = await res.json();
         if(!data.success) throw "보관함 오류";
         myProducts = data.products || {};
+        myWater = data.water ?? 0;
+        myFertilizer = data.fertilizer ?? 0;
+        myToken = data.token ?? 0;
         renderInventory();
+        renderMyResource();
 
         document.getElementById("srvStatus").textContent = "✅ 서버 연결 성공!";
       } catch(e) {
@@ -135,8 +159,17 @@
         document.getElementById("inventory").innerHTML = "-";
         document.getElementById("priceBoard").innerHTML = "-";
         document.getElementById("log").textContent = (e.message||e) + "";
+        document.getElementById("myWater").textContent = "-";
+        document.getElementById("myFertilizer").textContent = "-";
+        document.getElementById("myToken").textContent = "-";
       }
       fillSelectOptions();
+    }
+
+    function renderMyResource() {
+      document.getElementById("myWater").textContent = myWater;
+      document.getElementById("myFertilizer").textContent = myFertilizer;
+      document.getElementById("myToken").textContent = myToken;
     }
 
     // 보관함 출력
@@ -191,7 +224,8 @@
       if (data.success) {
         logMsg(`✅ 판매 성공! (남은수량: ${data.left})`);
         myProducts[prod] = data.left;
-        renderInventory(); fillSelectOptions();
+        myToken = data.token ?? myToken; // 판매 후 토큰 수 갱신
+        renderInventory(); fillSelectOptions(); renderMyResource();
       } else {
         logMsg("❌ " + (data.message || "판매 실패"));
       }
@@ -211,7 +245,9 @@
       if (data.success) {
         logMsg(`✅ 교환 성공! (남은수량: ${data.left})`);
         myProducts[prod] = data.left;
-        renderInventory(); fillSelectOptions();
+        myWater = data.water ?? myWater;
+        myFertilizer = data.fertilizer ?? myFertilizer;
+        renderInventory(); fillSelectOptions(); renderMyResource();
       } else {
         logMsg("❌ " + (data.message || "교환 실패"));
       }
