@@ -8,7 +8,7 @@
     body { font-family: 'Arial', sans-serif; background: #f7f7f7; padding: 1rem; margin: 0; }
     h1, h2 { text-align: center; color: #2e2e2e; margin: 1.3rem 0 1.1rem 0; }
     .top-menu {
-      background: #575757; padding: 0.5rem 0 0.5rem 0;
+      background: #575757; padding: 0.5rem 0;
       text-align: center; font-size: 1.08rem;
       letter-spacing: 1px;
       margin-bottom: 10px;
@@ -98,7 +98,6 @@
 <div id="userInfo">
     👤 <span id="nickname">닉네임</span> | 💰 <span id="tokenBalance">0</span> ORCX
 </div>
-<!-- 🟩 추가: 자산(씨감자/씨보리/물/거름) 한줄 요약 박스 -->
 <div id="myAssets">
   💧 물 <span id="water">0</span>
   🌱 거름 <span id="fertilizer">0</span>
@@ -112,10 +111,10 @@
     아래는 회원님의 OrcaX 자산 및 가공식품 보관 현황입니다.
 </div>
 
-<!-- 🟦 출금신청 폼 추가 -->
+<!-- 🟦 출금신청 폼 (토큰 금액 입력 포함) -->
 <div class="withdraw-form" id="withdrawFormBox">
   <h2>💸 출금신청</h2>
-  <div class="tip">출금받을 <b>팬텀(솔라나) 지갑 주소</b>와 연락처, 이메일을 입력해 주세요.<br/>신청시 관리자가 직접 확인 후 처리합니다.</div>
+  <div class="tip">출금받을 <b>팬텀(솔라나) 지갑 주소</b>와 연락처, 이메일, <b>출금 토큰금액</b>을 입력해 주세요.<br/>신청시 관리자가 직접 확인 후 처리합니다.</div>
   <form id="withdrawForm" autocomplete="off">
     <label for="wNickname">닉네임</label>
     <input type="text" id="wNickname" name="nickname" required disabled>
@@ -125,6 +124,8 @@
     <input type="tel" id="wPhone" name="phone" placeholder="010-1234-5678" required>
     <label for="wWallet">팬텀(솔라나) 지갑주소</label>
     <input type="text" id="wWallet" name="wallet" placeholder="팬텀(Phantom) SOL 주소 입력" required>
+    <label for="wAmount">출금할 ORCX 토큰 수량</label>
+    <input type="number" id="wAmount" name="amount" min="1" step="1" required>
     <button type="submit">출금신청</button>
     <div class="result-msg" id="withdrawResult"></div>
   </form>
@@ -147,7 +148,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
   const nickname = localStorage.getItem("nickname") || "";
 
-  // 닉네임 자동입력
   document.getElementById("nickname").textContent = nickname;
   document.getElementById("wNickname").value = nickname;
 
@@ -155,9 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
   fetch(`${API_BASE}/api/user/profile/${nickname}`)
     .then(res => res.json())
     .then(user => {
-      // 토큰
       document.getElementById("tokenBalance").textContent = user.orcx || 0;
-      // 자산: 물, 거름, 씨감자, 씨보리
       document.getElementById("water").textContent = user.water || 0;
       document.getElementById("fertilizer").textContent = user.fertilizer || 0;
       document.getElementById("seedPotato").textContent = user.seedPotato || 0;
@@ -176,7 +174,6 @@ document.addEventListener("DOMContentLoaded", function () {
           tbody.insertAdjacentHTML("beforeend", row);
         }
       });
-      // 만약 제품이 하나도 없을 경우 메시지
       if (tbody.innerHTML === "") {
         tbody.innerHTML = "<tr><td colspan='2'>보관한 가공식품이 없습니다.</td></tr>";
       }
@@ -186,17 +183,17 @@ document.addEventListener("DOMContentLoaded", function () {
       tbody.innerHTML = "<tr><td colspan='2'>❌ 보관함 불러오기 실패</td></tr>";
     });
 
-  // 🟦 출금신청 폼 submit 처리
+  // 🟦 출금신청 폼 submit 처리 (토큰 금액 포함)
   document.getElementById("withdrawForm").addEventListener("submit", async function (e) {
     e.preventDefault();
     const email = document.getElementById("wEmail").value.trim();
     const phone = document.getElementById("wPhone").value.trim();
     const wallet = document.getElementById("wWallet").value.trim();
+    const amount = parseInt(document.getElementById("wAmount").value.trim(), 10);
     const withdrawResult = document.getElementById("withdrawResult");
 
-    // 간단한 검증
-    if (!nickname || !email || !phone || !wallet) {
-      withdrawResult.textContent = "모든 정보를 입력해 주세요.";
+    if (!nickname || !email || !phone || !wallet || !amount || isNaN(amount) || amount < 1) {
+      withdrawResult.textContent = "모든 정보를 정확히 입력해 주세요.";
       withdrawResult.style.color = "#d32f2f";
       return;
     }
@@ -208,14 +205,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const res = await fetch(`${API_BASE}/api/withdraw`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, email, phone, wallet })
+        body: JSON.stringify({ nickname, email, phone, wallet, amount })
       });
       const result = await res.json();
       if (result.success) {
         withdrawResult.textContent = "출금 신청이 정상적으로 접수되었습니다.";
         withdrawResult.style.color = "#19713c";
         document.getElementById("withdrawForm").reset();
-        document.getElementById("wNickname").value = nickname; // 닉네임 자동복구
+        document.getElementById("wNickname").value = nickname;
       } else {
         withdrawResult.textContent = result.message || "출금 신청 실패. 다시 시도해 주세요.";
         withdrawResult.style.color = "#d32f2f";
