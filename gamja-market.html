@@ -1,185 +1,101 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>OrcaX 감자마켓</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: 'Do Hyeon', sans-serif;
-      background: url("https://byungil-cho.github.io/OrcaX/farm-103.png") no-repeat center center fixed;
-      background-size: cover;
-      margin: 0;
-      padding: 0;
-      color: #fff;
-      text-align: center;
-    }
-    header {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 1rem;
-    }
-    main {
-      padding: 1.2rem;
-    }
-    h2 {
-      margin-top: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .box {
-      background: rgba(0,0,0,0.25);
-      border-radius: 20px;
-      margin: 1rem auto;
-      padding: 1.2rem 1.2rem 0.8rem 1.2rem;
-      max-width: 410px;
-      min-height: 120px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    }
-    .small {
-      font-size: 0.92rem;
-      opacity: 0.78;
-    }
-    button, input[type="button"] {
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border: none;
-      background: #ffc960;
-      color: #333;
-      border-radius: 10px;
-      margin-top: 0.7rem;
-      margin-bottom: 1.1rem;
-      font-family: 'Do Hyeon', sans-serif;
-      cursor: pointer;
-      transition: background 0.2s;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.11);
-    }
-    button:hover { background: #ffe9ad; }
-    .title {
-      font-size: 1.25rem;
-      font-weight: bold;
-      margin-bottom: 0.7rem;
-    }
-    #user-info { font-size:1.05rem; margin:0.6rem 0; }
-    #product-list li { margin:0.3rem 0; }
-    #log { color: #fffd8b; font-size: 1.04rem; min-height: 22px; }
-    @media (max-width:600px) {
-      main { padding: 0.5rem; }
-      .box { padding:0.7rem 0.7rem 0.7rem 0.7rem; max-width: 99vw; }
-    }
+    body { font-family: 'Do Hyeon', sans-serif; background: #eef6ef; margin:0; }
+    header { background: #666; color:#fff; padding:20px 0; text-align:center; font-size:2rem;}
+    .status { margin:16px auto; width:95%; max-width:400px; padding:10px; border-radius:8px; background:#fff;}
+    .fail { background:#ffdbe0; color:#d90000; font-weight:bold; font-size:1.2em; border:2px solid #ff5555;}
+    .success { background:#d7f7dd; color:#228800; font-weight:bold; font-size:1.2em;}
+    .content-box {background:#eee; border-radius:18px; padding:24px; margin:20px auto; width:95%; max-width:480px;}
+    .box-disabled {opacity:0.5; pointer-events:none;}
+    .info-label {font-size:1.1em; font-weight:bold;}
+    #log {margin:10px 0; font-size:1em;}
+    .btn {background:#25b74b; color:#fff; border:none; border-radius:8px; padding:10px 18px; font-size:1.1em;}
+    .btn:disabled {opacity:0.4;}
+    input[type="text"] {padding:8px; font-size:1em;}
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <span style="font-size:1.2rem;font-weight:bold;">🥔 OrcaX 감자마켓 🥔</span>
-    </div>
-  </header>
-  <main>
-    <div id="log"></div>
-    <div class="box">
-      <div class="title">내 제품 보관함</div>
-      <ul id="product-list"></ul>
-      <div class="small" id="user-info"></div>
-    </div>
-    <div class="box">
-      <div class="title">감자/보리 가공식품 시세 전광판</div>
-      <ul id="market-list"></ul>
-    </div>
-    <div class="box">
-      <div class="title">제품 판매 (ORCX 교환)</div>
-      <form id="sellForm">
-        <input type="text" id="sellProduct" placeholder="판매할 제품명" style="width:50%;min-width:110px;font-size:1.08rem;">
-        <input type="number" id="sellCount" min="1" value="1" style="width:55px;">
-        <button type="submit">판매</button>
-      </form>
-    </div>
-    <div class="small" style="margin-top:1.5rem;">※ 서버 연결 상태, 전기 공급 여부, 닉네임/카카오 연동 상태를 반드시 확인해 주세요.</div>
-  </main>
-  <script>
-    // 🥔 서버 고정 주소
-    const BASE_URL = "https://climbing-wholly-grouper.jp.ngrok.io";
-    // 🥔 닉네임/카카오ID 우선 불러오기
-    let nickname = localStorage.getItem("nickname") || '';
-    let kakaoId = localStorage.getItem("kakaoId") || '';
-    if (!nickname || !kakaoId) {
-      alert("닉네임 또는 카카오ID 정보가 없습니다. 입구에서 로그인해주세요!");
-      window.location.href = "orcax-farm_000.html";
-    }
+  <header>🥔 OrcaX 감자마켓 🥔</header>
+  <div class="status" id="serverStatus">서버 연결 확인중...</div>
+  <div style="text-align:center;margin-top:6px;">
+    <span class="info-label">닉네임:</span> <span id="nickname">-</span>
+    | <span class="info-label">카카오ID:</span> <span id="kakaoId">-</span>
+  </div>
 
-    // 🟡 내 제품+토큰 불러오기
+  <div class="content-box" id="box1">
+    <div class="info-label">내 제품 보관함</div>
+    <div id="myProducts">-</div>
+  </div>
+
+  <div class="content-box" id="box2">
+    <div class="info-label">감자/보리 가공식품 시세 전광판</div>
+    <div id="marketPrice">-</div>
+  </div>
+
+  <div class="content-box" id="box3">
+    <div class="info-label">제품 판매 (ORCX 교환)</div>
+    <input type="text" id="sellProduct" placeholder="판매할 제품명">
+    <input type="number" id="sellCount" min="1" value="1" style="width:60px;">
+    <button class="btn" id="sellBtn">판매</button>
+    <div id="log"></div>
+  </div>
+
+  <script>
+    // 유저 정보/상태
+    let kakaoId = localStorage.getItem("kakaoId") || "";
+    let nickname = localStorage.getItem("nickname") || "-";
+
+    document.getElementById("kakaoId").textContent = kakaoId;
+    document.getElementById("nickname").textContent = nickname;
+
+    // 서버연결 및 데이터 불러오기
     async function fetchUserData() {
       try {
-        const res = await fetch(`${BASE_URL}/api/userdata?nickname=${encodeURIComponent(nickname)}&kakaoId=${encodeURIComponent(kakaoId)}`);
-        if (!res.ok) throw new Error("서버 연결 실패!");
-        const data = await res.json();
-        if (!data.success) throw new Error(data.message || "유저 정보 불러오기 실패!");
-        let html = `<b>${nickname}</b> | ORCX: <b>${data.token ?? 0}</b> | 감자: ${data.potatoCount ?? 0}개 | 씨감자: ${data.seedPotato ?? 0}개`;
-        html += `<br>물: ${data.water ?? 0} / 거름: ${data.fertilizer ?? 0}`;
-        document.getElementById("user-info").innerHTML = html;
-        // 내 제품목록 표시
-        let products = data.inventory || [];
-        let prodHtml = '';
-        if (!products.length) prodHtml = '<span style="color:#ccc;">보유한 가공제품이 없습니다.</span>';
-        else {
-          prodHtml = products.map(p => `<li>${p.type} <b>${p.count}개</b></li>`).join('');
-        }
-        document.getElementById("product-list").innerHTML = prodHtml;
-      } catch (e) {
-        document.getElementById("log").innerText = e.message || "서버 연결 실패";
-        document.getElementById("user-info").innerText = '';
-        document.getElementById("product-list").innerHTML = '<span style="color:#ccc;">-</span>';
-      }
-    }
-
-    // 🟡 시세 전광판
-    async function fetchMarketData() {
-      try {
-        const res = await fetch(`${BASE_URL}/api/market`);
-        if (!res.ok) throw new Error("서버 연결 실패!");
-        const data = await res.json();
-        if (!data.success) throw new Error("시세 정보 없음");
-        let marketHtml = '';
-        if (!data.market || !data.market.length) {
-          marketHtml = '<span style="color:#ccc;">시세 정보 없음</span>';
-        } else {
-          marketHtml = data.market.map(m => `<li>${m.type}: <b>${m.price} ORCX</b> (잔여:${m.left}개)</li>`).join('');
-        }
-        document.getElementById("market-list").innerHTML = marketHtml;
-      } catch (e) {
-        document.getElementById("market-list").innerHTML = `<span style="color:#ccc;">연결 실패</span>`;
-      }
-    }
-
-    // 🟡 제품 판매
-    document.getElementById("sellForm").onsubmit = async function(e) {
-      e.preventDefault();
-      const type = document.getElementById("sellProduct").value.trim();
-      const count = Number(document.getElementById("sellCount").value) || 1;
-      if (!type) { alert("제품명을 입력하세요."); return; }
-      if (count < 1) { alert("1개 이상 입력!"); return; }
-      document.getElementById("log").innerText = "판매 요청 중...";
-      try {
-        const res = await fetch(`${BASE_URL}/api/userdata`, {
+        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nickname, kakaoId, type, count, action: "sell"
-          })
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({kakaoId})
         });
-        const result = await res.json();
-        if (result.success) {
-          document.getElementById("log").innerHTML = `판매 성공! ORCX +${result.gain || '-'} 지급`;
-          await fetchUserData(); // 내 정보/제품 갱신
+        const data = await res.json();
+        if(data.success) {
+          document.getElementById("serverStatus").textContent = "서버 연결 성공!";
+          document.getElementById("serverStatus").className = "status success";
+          document.getElementById("nickname").textContent = data.user.nickname || "-";
+          document.getElementById("kakaoId").textContent = data.user.kakaoId || "-";
+          document.getElementById("myProducts").textContent =
+            Object.keys(data.user.products||{}).length > 0
+              ? Object.entries(data.user.products).map(([k,v]) => `${k}: ${v}개`).join(", ")
+              : "아직 보관 중인 제품 없음";
+          // 가격표 더미 예시
+          document.getElementById("marketPrice").textContent = "감자스넥 3ORCX, 감자칩 5ORCX";
         } else {
-          document.getElementById("log").innerText = result.message || "판매 실패";
+          showFail("서버 연결 실패! (유저 정보 없음)");
         }
-      } catch (err) {
-        document.getElementById("log").innerText = "서버 연결 실패";
+      } catch(e) {
+        showFail("서버 연결 실패!");
       }
-    };
-
-    // 🟡 페이지 진입시 데이터 불러오기
+    }
+    function showFail(msg) {
+      document.getElementById("serverStatus").textContent = msg;
+      document.getElementById("serverStatus").className = "status fail";
+      // 모든 박스 비활성화
+      for(let id of ["box1","box2","box3"]) document.getElementById(id).classList.add("box-disabled");
+    }
     fetchUserData();
-    fetchMarketData();
+
+    // 판매 버튼 예시
+    document.getElementById("sellBtn").onclick = function() {
+      const prod = document.getElementById("sellProduct").value.trim();
+      const cnt = Number(document.getElementById("sellCount").value) || 1;
+      if(!prod) { document.getElementById("log").textContent = "제품명을 입력하세요."; return; }
+      document.getElementById("log").textContent = `판매 요청: ${prod} ${cnt}개 (서버연동 필요)`;
+      // 실제 판매연동 시 POST 호출 추가
+    }
   </script>
 </body>
 </html>
