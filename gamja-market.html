@@ -44,65 +44,51 @@
     <button class="btn" id="sellBtn">판매</button>
     <div id="log"></div>
   </div>
+ <script>
+const SERVER = "https://climbing-wholly-grouper.jp.ngrok.io/api/market";
+let kakaoId = localStorage.getItem("kakaoId");
 
-  <script>
-// [1] 내 가공제품 전체 불러오기
-async function fetchUserProducts() {
-  const kakaoId = localStorage.getItem("kakaoId");
-  const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/marketdata/get-user-products', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
+// 1. 전광판 시세표 불러오기
+async function loadPriceBoard() {
+  const res = await fetch(`${SERVER}/price-board`);
+  const data = await res.json();
+  if(data.success) {
+    // 전광판 제품 목록/가격 data.priceList
+  }
+}
+
+// 2. 내 가공식품(보관함) 불러오기
+async function loadInventory() {
+  const res = await fetch(`${SERVER}/user-inventory`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ kakaoId })
   });
   const data = await res.json();
-  if(data.success){
-    // 보관함/목록에 제품들 표시
-    // 예시: data.products = { '감자칩':2, '감자스넥':1 }
-    //      data.orcx = 내 잔고
-  } else {
-    // 서버연결실패 표시
+  if(data.success) {
+    // 내 제품목록 data.products
   }
 }
 
-// [2] 전광판(전체 시세/거래)
-async function fetchMarketBoard() {
-  const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/marketdata/get-market-board');
-  const data = await res.json();
-  if(data.success){
-    // data.board: { prices, sold, history 등 }
-    // 시세판/통계에 표시
-  }
-}
-
-// [3] 제품 판매(ORCX 교환)
-async function sellProduct(productName, amount) {
-  const kakaoId = localStorage.getItem("kakaoId");
-  const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/marketdata/sell-product', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ kakaoId, productName, amount })
+// 3. ORCX 판매
+async function sellProduct(product, qty) {
+  const res = await fetch(`${SERVER}/sell`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ kakaoId, product, qty })
   });
-  const data = await res.json();
-  if(data.success){
-    // 잔고 갱신, 보관함 재조회
-  } else {
-    alert("판매실패: " + data.message);
-  }
+  return await res.json();
 }
 
-// [4] 교환(예: 감자칩 1개 → 물 3개)
-async function exchangeProduct(productName, amount, exchangeItem, exchangeRate) {
-  const kakaoId = localStorage.getItem("kakaoId");
-  const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/marketdata/exchange', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ kakaoId, productName, amount, exchangeItem, exchangeRate })
+// 4. 물/거름 교환
+async function exchangeProduct(product, qty, exchangeItem) {
+  const res = await fetch(`${SERVER}/exchange`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ kakaoId, product, qty, exchangeItem })
   });
-  const data = await res.json();
-  if(data.success){
-    // 내 자원/보관함 갱신
-  } else {
-    alert("교환실패: " + data.message);
-  }
+  return await res.json();
 }
 </script>
-
 </body>
 </html>
