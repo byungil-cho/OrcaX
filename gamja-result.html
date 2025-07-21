@@ -164,6 +164,15 @@
       const kid = localStorage.getItem("kakaoId");
       if(!kid || !product){ alert("입력 확인!"); return; }
       if(product.length<2){ alert("제품명을 2자 이상 입력하세요."); return; }
+
+      // 12종류 이상 방지(0개는 제외)
+      const products = userInfo.products || {};
+      const nonZero = Object.entries(products).filter(([_,v])=>v>0).map(([k])=>k);
+      if(nonZero.length >= 12 && !products[product]) {
+        document.getElementById("log").innerHTML = "제품은 동시에 최대 12종까지 가질 수 있습니다.<br>기존 제품 소진 후 새로운 제품명을 추가하세요.";
+        return;
+      }
+
       try{
         const res = await fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/processing/make-product', {
           method:'POST', headers:{'Content-Type':'application/json'},
