@@ -27,6 +27,7 @@
     button { padding: 6px 16px; background: #2ebca0; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;}
     button:hover { background: #22a6a0; }
     input[type="number"] { width: 80px; padding: 4px; }
+    .complete { background: #b2f6c3; color: #1c714b; font-weight: bold;}
   </style>
 </head>
 <body>
@@ -47,7 +48,7 @@
         <th>닉네임</th>
         <th>카카오ID</th>
         <th>접속 상태</th>
-        <th>ORCX</th>
+        <th>ORCX<br>(수정/지급)</th>
         <th>물</th>
         <th>거름</th>
         <th>감자</th>
@@ -68,6 +69,7 @@
         <th>지갑 주소</th>
         <th>출금금액</th>
         <th>요청 시간</th>
+        <th>상태</th>
         <th>관리자 처리</th>
       </tr>
     </thead>
@@ -106,7 +108,10 @@
           <td>${user.nickname}</td>
           <td>${user.kakaoId}</td>
           <td>${user.isConnected ? '🟢' : '🔴'}</td>
-          <td>${user.orcx ?? 0}</td>
+          <td>
+            <input type="number" value="${user.orcx ?? 0}" min="0" id="orcx-${user.kakaoId}">
+            <button onclick="updateToken('${user.kakaoId}')">수정/지급</button>
+          </td>
           <td>${user.water ?? 0}</td>
           <td>${user.fertilizer ?? 0}</td>
           <td>${user.potatoCount ?? 0}</td>
@@ -124,44 +129,65 @@
       const tbody = document.querySelector('#withdrawTable tbody');
       tbody.innerHTML = '';
       data.forEach(w => {
+        const completed = !!w.completed; // 출금완료 상태 여부
         const row = document.createElement('tr');
-        // 출금 금액 입력란과 지급 버튼(관리자)
         row.innerHTML = `
           <td>${w.name}</td>
           <td>${w.phone}</td>
           <td>${w.wallet}</td>
-          <td>
-            <input type="number" value="${w.amount ?? ''}" min="1" style="width:80px" id="amount-${w._id}">
-          </td>
+          <td>${w.amount ?? ''}</td>
           <td>${new Date(w.createdAt).toLocaleString()}</td>
+          <td class="${completed ? 'complete' : ''}">${completed ? '완료' : '대기중'}</td>
           <td>
-            <button onclick="processWithdraw('${w._id}')">토큰 지급</button>
+            ${completed
+              ? ''
+              : `<button onclick="processWithdraw('${w._id}', '${w.nickname}', ${w.amount ?? 0})">출금하기</button>`
+            }
           </td>
         `;
         tbody.appendChild(row);
       });
     }
 
-    async function processWithdraw(withdrawId) {
-      // 관리자 지급: 출금 금액 입력 + 지급 처리
-      const input = document.getElementById(`amount-${withdrawId}`);
+    // 관리자에서 직접 ORCX 수정/지급
+    async function updateToken(kakaoId) {
+      const input = document.getElementById(`orcx-${kakaoId}`);
       const amount = Number(input.value);
-      if (!amount || amount < 1) {
-        alert("출금 금액을 입력하세요.");
-        return;
+      if (isNaN(amount) || amount < 0) return alert("올바른 금액 입력");
+      if (!confirm(`토큰 잔액을 ${amount}으로 변경?`)) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/user/update-token`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kakaoId, orcx: amount })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("수정 완료");
+          fetchUsers();
+        } else {
+          alert(data.message || "수정 실패");
+        }
+      } catch {
+        alert("서버 오류");
       }
-      if(!confirm(`해당 요청에 대해 ${amount} ORCX를 지급 처리할까요?`)) return;
+    }
+
+    // 출금신청 내역에서 '출금하기' 클릭 시 자동 차감
+    async function processWithdraw(withdrawId, nickname, amount) {
+      if (!amount || amount < 1) return alert("출금 금액 오류");
+      if(!confirm(`${nickname}님의 토큰을 ${amount}만큼 차감하고 출금처리 하시겠습니까?`)) return;
       try {
         const res = await fetch(`${API_BASE}/api/withdraw/process`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: withdrawId, amount })
+          body: JSON.stringify({ withdrawId, amount })
         });
         const result = await res.json();
         if (result.success) {
-          alert("지급 및 출금처리가 완료되었습니다.");
+          alert("출금 완료!");
           fetchWithdrawals();
-          fetchUsers(); // 사용자 잔액 갱신
+          fetchUsers();
         } else {
           alert(result.message || "처리 실패");
         }
@@ -173,7 +199,8 @@
     fetchPowerStatus();
     fetchUsers();
     fetchWithdrawals();
-    window.processWithdraw = processWithdraw; // for button onclick
+    window.updateToken = updateToken;
+    window.processWithdraw = processWithdraw;
   </script>
 </body>
 </html>
