@@ -24,6 +24,9 @@
     .top-menu a { color: #fff; text-decoration: none; background: #2ebca0; transition: background 0.15s; }
     .top-menu a:hover { background: #22a6a0; color: #fff; }
     .top-menu .active-menu { background: #888; color: #fff; cursor: default; pointer-events: none; border: 2px solid #fff2; }
+    button { padding: 6px 16px; background: #2ebca0; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;}
+    button:hover { background: #22a6a0; }
+    input[type="number"] { width: 80px; padding: 4px; }
   </style>
 </head>
 <body>
@@ -63,7 +66,9 @@
         <th>이름</th>
         <th>전화번호</th>
         <th>지갑 주소</th>
+        <th>출금금액</th>
         <th>요청 시간</th>
+        <th>관리자 처리</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -120,19 +125,55 @@
       tbody.innerHTML = '';
       data.forEach(w => {
         const row = document.createElement('tr');
+        // 출금 금액 입력란과 지급 버튼(관리자)
         row.innerHTML = `
           <td>${w.name}</td>
           <td>${w.phone}</td>
           <td>${w.wallet}</td>
+          <td>
+            <input type="number" value="${w.amount ?? ''}" min="1" style="width:80px" id="amount-${w._id}">
+          </td>
           <td>${new Date(w.createdAt).toLocaleString()}</td>
+          <td>
+            <button onclick="processWithdraw('${w._id}')">토큰 지급</button>
+          </td>
         `;
         tbody.appendChild(row);
       });
     }
 
+    async function processWithdraw(withdrawId) {
+      // 관리자 지급: 출금 금액 입력 + 지급 처리
+      const input = document.getElementById(`amount-${withdrawId}`);
+      const amount = Number(input.value);
+      if (!amount || amount < 1) {
+        alert("출금 금액을 입력하세요.");
+        return;
+      }
+      if(!confirm(`해당 요청에 대해 ${amount} ORCX를 지급 처리할까요?`)) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/withdraw/process`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: withdrawId, amount })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("지급 및 출금처리가 완료되었습니다.");
+          fetchWithdrawals();
+          fetchUsers(); // 사용자 잔액 갱신
+        } else {
+          alert(result.message || "처리 실패");
+        }
+      } catch (err) {
+        alert("서버 오류: 처리 실패");
+      }
+    }
+
     fetchPowerStatus();
     fetchUsers();
     fetchWithdrawals();
+    window.processWithdraw = processWithdraw; // for button onclick
   </script>
 </body>
 </html>
