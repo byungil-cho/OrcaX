@@ -43,6 +43,16 @@
       border-bottom: 2px solid #eee;
       font-size: 1.05rem; text-align: right; margin-bottom:12px;
     }
+    #myAssets {
+      margin-bottom: 10px;
+      padding: 0.6rem 1.2rem;
+      background: #e4f8f7;
+      border-radius: 12px;
+      font-size: 1.08em;
+      text-align: center;
+      color: #137877;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 1.4em;
+    }
     button {
       margin: 1.5rem auto 1.1rem auto; display: block;
       padding: 0.65rem 1.4rem; font-size: 1.06rem;
@@ -54,6 +64,7 @@
       th, td { font-size: 0.85rem; padding: 0.4rem; }
       button { font-size: 0.95rem; padding: 0.5rem 1rem; }
       .top-menu a, .top-menu span { padding: 0.4rem 0.6rem; font-size: 0.95rem; }
+      #myAssets { font-size: 0.98em; gap: 0.7em; padding: 0.45rem 0.2rem;}
     }
 </style>
 </head>
@@ -67,6 +78,13 @@
 </div>
 <div id="userInfo">
     👤 <span id="nickname">닉네임</span> | 💰 <span id="tokenBalance">0</span> ORCX
+</div>
+<!-- 🟩 추가: 자산(씨감자/씨보리/물/거름) 한줄 요약 박스 -->
+<div id="myAssets">
+  💧 물 <span id="water">0</span>
+  🌱 거름 <span id="fertilizer">0</span>
+  🥔 씨감자 <span id="seedPotato">0</span>
+  🌾 씨보리 <span id="seedBarley">0</span>
 </div>
 <h1>🐋 OrcaX 마이페이지</h1>
 <div style="text-align:center; color:#14807d; margin-bottom:1.3rem;">
@@ -104,8 +122,11 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(user => {
       // 토큰
       document.getElementById("tokenBalance").textContent = user.orcx || 0;
-      // 등급, 레벨, 물, 거름, 씨감자, 씨보리 등 표시 추가
-      // (필요한 곳에 각 값 넣기)
+      // 자산: 물, 거름, 씨감자, 씨보리
+      document.getElementById("water").textContent = user.water || 0;
+      document.getElementById("fertilizer").textContent = user.fertilizer || 0;
+      document.getElementById("seedPotato").textContent = user.seedPotato || 0;
+      document.getElementById("seedBarley").textContent = user.seedBarley || 0;
 
       // 보관함 (가공식품)
       const prod = user.products || {};
@@ -124,7 +145,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (tbody.innerHTML === "") {
         tbody.innerHTML = "<tr><td colspan='2'>보관한 가공식품이 없습니다.</td></tr>";
       }
-      // 기타 정보(물, 거름, 씨감자 등)는 별도 표/박스에 추가해도 됨
     })
     .catch(() => {
       const tbody = document.querySelector("#storageTable tbody");
