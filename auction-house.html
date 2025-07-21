@@ -60,11 +60,30 @@
       border-radius: 7px; cursor: pointer; font-weight:bold;
     }
     button:hover { background-color: #14807d; }
+    .withdraw-form {
+      margin: 2rem auto 1.5rem auto;
+      background: #e8f6ff;
+      border: 1.5px solid #bae2fd;
+      border-radius: 11px;
+      max-width: 420px;
+      padding: 1.4rem 1.2rem 1.2rem 1.2rem;
+      box-shadow: 0 2px 12px #e0e0e040;
+    }
+    .withdraw-form h2 { margin: 0 0 1.1rem 0; color: #268bd2; }
+    .withdraw-form label { display: block; font-weight:bold; margin-bottom: 5px; margin-top: 13px;}
+    .withdraw-form input {
+      width: 100%; padding: 0.55rem; border-radius: 5px; border: 1px solid #b2c2cc;
+      margin-bottom: 2px; font-size: 1rem;
+    }
+    .withdraw-form input:disabled { background: #f2f2f2; }
+    .withdraw-form .tip { font-size: 0.91em; color: #777; margin-bottom: 10px;}
+    .withdraw-form .result-msg { font-size: 0.99em; color: #19713c; margin: 0.5em 0 0.2em 0; text-align:center;}
     @media screen and (max-width: 600px) {
       th, td { font-size: 0.85rem; padding: 0.4rem; }
       button { font-size: 0.95rem; padding: 0.5rem 1rem; }
       .top-menu a, .top-menu span { padding: 0.4rem 0.6rem; font-size: 0.95rem; }
       #myAssets { font-size: 0.98em; gap: 0.7em; padding: 0.45rem 0.2rem;}
+      .withdraw-form { padding: 0.7rem 0.7rem;}
     }
 </style>
 </head>
@@ -86,11 +105,31 @@
   🥔 씨감자 <span id="seedPotato">0</span>
   🌾 씨보리 <span id="seedBarley">0</span>
 </div>
+
 <h1>🐋 OrcaX 마이페이지</h1>
 <div style="text-align:center; color:#14807d; margin-bottom:1.3rem;">
     환영합니다!<br>
     아래는 회원님의 OrcaX 자산 및 가공식품 보관 현황입니다.
 </div>
+
+<!-- 🟦 출금신청 폼 추가 -->
+<div class="withdraw-form" id="withdrawFormBox">
+  <h2>💸 출금신청</h2>
+  <div class="tip">출금받을 <b>팬텀(솔라나) 지갑 주소</b>와 연락처, 이메일을 입력해 주세요.<br/>신청시 관리자가 직접 확인 후 처리합니다.</div>
+  <form id="withdrawForm" autocomplete="off">
+    <label for="wNickname">닉네임</label>
+    <input type="text" id="wNickname" name="nickname" required disabled>
+    <label for="wEmail">이메일</label>
+    <input type="email" id="wEmail" name="email" placeholder="example@email.com" required>
+    <label for="wPhone">전화번호</label>
+    <input type="tel" id="wPhone" name="phone" placeholder="010-1234-5678" required>
+    <label for="wWallet">팬텀(솔라나) 지갑주소</label>
+    <input type="text" id="wWallet" name="wallet" placeholder="팬텀(Phantom) SOL 주소 입력" required>
+    <button type="submit">출금신청</button>
+    <div class="result-msg" id="withdrawResult"></div>
+  </form>
+</div>
+
 <div id="myStorage">
 <h2>🗃️ 내 보관 창고 <span style="font-size:0.95rem;">(가공식품 현황)</span></h2>
 <table id="storageTable">
@@ -106,15 +145,11 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
-  const nickname = localStorage.getItem("nickname");
+  const nickname = localStorage.getItem("nickname") || "";
 
-  if (!nickname) {
-    alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-    window.location.href = "index9.html";
-    return;
-  }
-
+  // 닉네임 자동입력
   document.getElementById("nickname").textContent = nickname;
+  document.getElementById("wNickname").value = nickname;
 
   // ✅ 통합 프로필 전체 불러오기
   fetch(`${API_BASE}/api/user/profile/${nickname}`)
@@ -150,6 +185,46 @@ document.addEventListener("DOMContentLoaded", function () {
       const tbody = document.querySelector("#storageTable tbody");
       tbody.innerHTML = "<tr><td colspan='2'>❌ 보관함 불러오기 실패</td></tr>";
     });
+
+  // 🟦 출금신청 폼 submit 처리
+  document.getElementById("withdrawForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const email = document.getElementById("wEmail").value.trim();
+    const phone = document.getElementById("wPhone").value.trim();
+    const wallet = document.getElementById("wWallet").value.trim();
+    const withdrawResult = document.getElementById("withdrawResult");
+
+    // 간단한 검증
+    if (!nickname || !email || !phone || !wallet) {
+      withdrawResult.textContent = "모든 정보를 입력해 주세요.";
+      withdrawResult.style.color = "#d32f2f";
+      return;
+    }
+
+    withdrawResult.textContent = "출금신청 처리 중...";
+    withdrawResult.style.color = "#19713c";
+
+    try {
+      const res = await fetch(`${API_BASE}/api/withdraw`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, email, phone, wallet })
+      });
+      const result = await res.json();
+      if (result.success) {
+        withdrawResult.textContent = "출금 신청이 정상적으로 접수되었습니다.";
+        withdrawResult.style.color = "#19713c";
+        document.getElementById("withdrawForm").reset();
+        document.getElementById("wNickname").value = nickname; // 닉네임 자동복구
+      } else {
+        withdrawResult.textContent = result.message || "출금 신청 실패. 다시 시도해 주세요.";
+        withdrawResult.style.color = "#d32f2f";
+      }
+    } catch (e) {
+      withdrawResult.textContent = "서버 오류로 신청에 실패했습니다.";
+      withdrawResult.style.color = "#d32f2f";
+    }
+  });
 
   window.goToAdmin = function () {
     const pw = prompt("관리자 비밀번호를 입력하세요:");
