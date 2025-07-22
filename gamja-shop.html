@@ -112,7 +112,6 @@
       try {
         const res = await fetch(`${API_BASE}/seed/status`);
         const data = await res.json();
-        // 배열에서 type으로 찾기!
         const potato = data.find(x => x.type === "gamja");
         const barley = data.find(x => x.type === "bori");
         document.getElementById("leftPotato").innerText = potato?.stock ?? "-";
@@ -125,13 +124,13 @@
       }
     }
 
-    // 내 보유 씨앗/토큰 불러오기
+    // 내 보유 씨앗/토큰 불러오기 (파라미터명 수정)
     async function fetchUserData() {
       try {
         const res = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId }) // <-- 여기 수정!
+          body: JSON.stringify({ kakaoId }) // ← 반드시 kakaoId!
         });
         const data = await res.json();
         const user = data.user;
@@ -173,5 +172,6 @@
   </script>
 </body>
 </html>
+
 
 
