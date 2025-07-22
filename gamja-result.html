@@ -12,6 +12,25 @@
     .menu a { color:#189747; text-decoration:underline; margin:0 10px; font-size:1.1rem;}
     .sys { margin-bottom:0.9rem; background:#e8ffe5; border-radius:10px; padding:0.6rem 1rem; font-size:1.08rem;}
     .sys span { margin-right:1.3rem;}
+    .market-board-box {
+      background:#eef6fb;
+      border-radius:13px;
+      margin-bottom:1.2rem;
+      padding:1.1rem 1rem 0.6rem 1rem;
+      box-shadow:0 2px 8px #c5e8e84b;
+    }
+    .market-board-title { font-size:1.11rem; color:#217bb3; font-weight:bold; margin-bottom:0.7rem;}
+    .market-board-list { display:flex; flex-wrap:wrap; gap:1.1rem;}
+    .market-board-item {
+      background:#fff;
+      border-radius:10px;
+      box-shadow:0 1px 7px #ddebe855;
+      min-width:108px; text-align:center;
+      padding:0.58rem 0.5rem 0.75rem 0.5rem;
+      font-size:1.01rem;
+    }
+    .market-board-name { font-weight:bold; color:#20764f;}
+    .market-board-price { color:#cf7b13; font-weight:600;}
     .asset { background:#fff; border-radius:10px; padding:0.6rem 1.1rem; margin:0.6rem 0 1.2rem 0;}
     .asset-row { display:flex; justify-content:space-between; margin-bottom:0.3rem;}
     .asset-row b { color:#17a651;}
@@ -29,6 +48,7 @@
     button { background:#14c064; color:#fff; border:none; border-radius:8px; font-size:1.12rem; font-family:inherit; padding:0.7rem 2.1rem; cursor:pointer; margin-top:0.7rem;}
     .log { text-align:center; color:#1b9e43; margin-top:1.3rem;}
     @media (max-width:600px){ .wrap{margin:0.4rem;padding:0.7rem 0.18rem;} }
+    .gray { color: #aaa; }
   </style>
 </head>
 <body>
@@ -45,6 +65,14 @@
       <span>닉네임: <b id="nick">-</b></span>
       <span>농장이름: <b id="farm">-</b></span>
     </div>
+
+    <!-- [전광판 시세 박스 추가: 고객 자재표 위에 위치] -->
+    <div class="market-board-box">
+      <div class="market-board-title">감자/보리 가공식품 시세 전광판</div>
+      <div class="market-board-list" id="priceBoard">-</div>
+    </div>
+    <!-- -------------------- -->
+
     <div class="asset">
       <div class="asset-row"><b>ORCX</b>: <span id="orcx">0</span></div>
       <div class="asset-row"><b>물</b>: <span id="water">0</span> <b>거름</b>: <span id="fert">0</span></div>
@@ -78,6 +106,28 @@
     </div>
   </div>
   <script>
+    // 전광판 시세 불러오기
+    async function loadPriceBoard() {
+      try {
+        const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/market/price-board");
+        const data = await res.json();
+        const board = document.getElementById("priceBoard");
+        if (!data.success || !data.priceList || !data.priceList.length) {
+          board.innerHTML = `<span class="gray">전광판 없음</span>`;
+          return;
+        }
+        board.innerHTML = data.priceList
+          .map(item =>
+            `<div class="market-board-item">
+              <div class="market-board-name">${item.name}</div>
+              <div class="market-board-price">${item.price} ORCX</div>
+            </div>`
+          ).join("");
+      } catch (e) {
+        document.getElementById("priceBoard").innerHTML = `<span class="gray">전광판 없음</span>`;
+      }
+    }
+
     // 유저 정보 상태
     let userInfo = {
       nickname: "",
@@ -190,7 +240,11 @@
       }
     };
 
-    window.onload = fetchUser;
+    // 최초 실행
+    window.onload = function() {
+      fetchUser();
+      loadPriceBoard();
+    }
   </script>
 </body>
 </html>
