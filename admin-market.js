@@ -1,11 +1,13 @@
 // admin-market.js
 
-const API_SEED = "/api/seed";
-const API_MARKET = "/api/marketdata";
-const API_ALL_PRODUCTS = "/api/admin/all-products-quantities";
-const API_SERVER_STATUS = "/api/power-status";
+// 반드시 실제 API 서버 도메인으로 고정!
+// (아래 경로를 본인의 API 서버 도메인에 맞게 설정하세요.)
+const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+const API_SEED = `${API_BASE}/seed`;
+const API_MARKET = `${API_BASE}/marketdata`;
+const API_ALL_PRODUCTS = `${API_BASE}/admin/all-products-quantities`;
+const API_SERVER_STATUS = `${API_BASE}/power-status`;
 
-// 네임스페이스 객체 패턴(코드 충돌X)
 const AdminMarket = {
   // 서버상태
   async fetchServerStatus() {
