@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 씨앗+전광판(제품) 통합관리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Arial', sans-serif; background: #f8f6e8; padding: 2rem; color: #333; }
+    h1 { text-align: center; color: #3a2921; }
+    .section-title { margin-top: 2.2rem; color:#4d372d; font-size:1.12rem; margin-bottom:.6rem;}
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #fff; }
+    th, td { border: 1px solid #aaa; padding: 0.5rem; text-align: center; }
+    th { background-color: #e6ee9c; }
+    input[type="number"], input[type="text"] { width: 82px; padding: 0.2rem; }
+    button { padding: 0.4rem 0.9rem; background-color: #388e3c; color: white; border: none; cursor: pointer; }
+    .on { color: #2e7d32; font-weight: bold;}
+    .off { color: #bdbdbd; font-weight: bold;}
+    .link { text-align: center; margin-bottom: 1.5rem; }
+    .link a { color: #1976d2; font-weight: bold; text-decoration: none; }
+    .desc { color: #888; font-size: 0.97rem; margin:1rem 0 1.7rem 0;}
+    .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right:6px; vertical-align:middle;}
+    .status-ok { background: #27ae60; }
+    .status-bad { background: #e74c3c; }
+    .limit-text { color:#a00; font-size:0.98rem; margin-bottom:10px;}
+  </style>
+</head>
+<body>
+  <h1>🌱 관리자 - 씨앗+전광판(제품) 통합 관리</h1>
+  <div class="link">
+    <a href="admin-users.html" target="_blank">👤 유저 및 출금관리 페이지로 이동</a>
+  </div>
+
+  <!-- 서버상태 -->
+  <div id="serverStatusArea" style="margin-bottom:10px;">
+    <span id="serverStatusDot" class="status-dot status-bad"></span>
+    <span id="serverStatusText">서버 연결 상태: 확인중...</span>
+    <button onclick="AdminMarket.refreshAll()">새로고침</button>
+  </div>
+
+  <div class="desc">
+    • 씨앗 재고/가격, 고객 전체 생산 제품(중복X), 전광판(마켓) 제품을 한 곳에서 관리<br>
+    • 전체 생산 제품은 고객 전체가 만든 모든 가공식품명에서 중복 없이 나열(합산수량 포함).<br>
+    • 최대 5개까지 동시 선택 등록(합산수량/수량/가격 입력) 전광판에 등재.
+  </div>
+
+  <!-- 씨앗 재고/가격 -->
+  <div class="section-title">씨앗 재고 · 가격 관리</div>
+  <table>
+    <thead>
+      <tr>
+        <th>씨앗 종류</th>
+        <th>재고량</th>
+        <th>현재 가격</th>
+        <th>새 가격</th>
+        <th>작업</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>씨감자</td>
+        <td id="qty-potato">-</td>
+        <td id="price-potato">-</td>
+        <td><input type="number" id="input-potato" /></td>
+        <td><button onclick="AdminMarket.updatePrice('seedPotato')">변경</button></td>
+      </tr>
+      <tr>
+        <td>씨보리</td>
+        <td id="qty-barley">-</td>
+        <td id="price-barley">-</td>
+        <td><input type="number" id="input-barley" /></td>
+        <td><button onclick="AdminMarket.updatePrice('seedBarley')">변경</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 전체 고객 생산 가공식품 (중복 없이/합산수량/최대 5개 체크/등록수량/가격입력/등록) -->
+  <div class="section-title">전체 생산 제품(중복X, 합산수량) - 전광판(마켓) 등록</div>
+  <div class="limit-text">* 최대 5개까지 동시 선택 등록 가능</div>
+  <form id="registerForm" onsubmit="AdminMarket.handleRegister(event)">
+    <table>
+      <thead>
+        <tr>
+          <th>선택</th>
+          <th>제품명</th>
+          <th>전체 합산수량</th>
+          <th>등록 수량</th>
+          <th>등록 가격(ORCX)</th>
+        </tr>
+      </thead>
+      <tbody id="uniqueProductsBody"></tbody>
+    </table>
+    <button type="submit" style="margin-top: 10px;">전광판 등록</button>
+  </form>
+
+  <!-- 전광판(마켓) 등록제품 관리 -->
+  <div class="section-title">전광판(마켓) 제품 관리</div>
+  <table>
+    <thead>
+      <tr>
+        <th>제품명</th>
+        <th>가격(ORCX)</th>
+        <th>매집수량</th>
+        <th>활성</th>
+        <th>작업</th>
+      </tr>
+    </thead>
+    <tbody id="marketProductBody"></tbody>
+  </table>
+
+  <script src="admin-market.js"></script>
+</body>
+</html>
