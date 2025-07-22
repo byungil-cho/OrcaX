@@ -124,19 +124,19 @@
       }
     }
 
-    // 내 보유 씨앗/토큰 불러오기 (파라미터명 수정)
+    // 내 보유 씨앗/토큰 불러오기 (감자 대시보드 방식)
     async function fetchUserData() {
       try {
-        const res = await fetch(`${API_BASE}/user/v2data`, {
+        const res = await fetch(`${API_BASE}/userdata`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId }) // ← 반드시 kakaoId!
+          body: JSON.stringify({ kakaoId })
         });
         const data = await res.json();
         const user = data.user;
-        document.getElementById("orcx").innerText = user?.orcx ?? 0;
-        document.getElementById("myPotato").innerText = user?.seedPotato ?? 0;
-        document.getElementById("myBarley").innerText = user?.seedBarley ?? 0;
+        document.getElementById("orcx").innerText = user.orcx ?? 0;
+        document.getElementById("myPotato").innerText = user.inventory?.seedPotato ?? 0;
+        document.getElementById("myBarley").innerText = user.inventory?.seedBarley ?? 0;
       } catch (err) {
         document.getElementById("orcx").innerText = "-";
         document.getElementById("myPotato").innerText = "-";
@@ -172,6 +172,7 @@
   </script>
 </body>
 </html>
+
 
 
 
