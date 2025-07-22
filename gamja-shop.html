@@ -131,7 +131,7 @@
         const res = await fetch(`${API_BASE}/user/v2data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: kakaoId })
+          body: JSON.stringify({ kakaoId }) // <-- 여기 수정!
         });
         const data = await res.json();
         const user = data.user;
@@ -173,4 +173,5 @@
   </script>
 </body>
 </html>
+
 
