@@ -2,128 +2,184 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>씨감자/씨보리 관리</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 - 씨앗+전광판 제품 관리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: 'Do Hyeon', sans-serif; background:#181b1f; color:#f2f2f2; margin:0; padding:0; }
-    h1 { text-align:center; margin:1.2rem 0 1rem 0; font-size:2rem; }
-    .center-box {
-      background: rgba(40, 50, 80, 0.13);
-      border-radius: 20px; max-width: 540px; margin: 0 auto; padding: 1.5rem;
-      box-shadow: 0 3px 22px #0006;
-    }
-    table { margin:1rem auto 2rem auto; border-collapse: collapse; width:95%; font-size:1.1rem; background:#23283a; border-radius:13px; overflow:hidden; }
-    th, td { padding:0.7rem 0.5rem; text-align:center; }
-    th { background: #26335c; color:#ffe160; font-size:1.07rem; }
-    td { background:#222; border-bottom:1px solid #344060;}
-    .menu-link { color:#ffe160; margin:1rem 1.1rem 0 1.1rem; text-decoration:none; font-size:1.05rem;}
-    .status-ok { color: #24f065; font-weight: bold;}
-    .status-fail { color: #ff3860; font-weight: bold;}
+    body { font-family: 'Arial', sans-serif; background: #fffde7; padding: 2rem; color: #333; }
+    h1 { text-align: center; color: #4d372d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #aaa; padding: 0.5rem; text-align: center; }
+    th { background-color: #dcedc8; }
+    input[type="number"], input[type="text"] { width: 80px; padding: 0.2rem; }
+    button { padding: 0.4rem 0.8rem; background-color: #4caf50; color: white; border: none; cursor: pointer; }
+    .link { text-align: center; margin-bottom: 1.5rem; }
+    .link a { color: #00796b; font-weight: bold; text-decoration: none; }
+    .section-title { margin-top: 2.5rem; margin-bottom:0.7rem; color:#4d372d; font-size:1.16rem;}
+    .on { color: #27ae60; font-weight: bold;}
+    .off { color: #bdbdbd; font-weight: bold;}
   </style>
 </head>
 <body>
-  <h1>씨감자/씨보리 재고 및 가격 관리</h1>
-  <div class="center-box">
-    <div id="server-status" style="text-align:center; font-size:1.08rem; margin-bottom:1rem;">
-      서버 상태: <span>확인중...</span>
-    </div>
-    <form id="seed-form" onsubmit="return false;">
-      <table>
-        <thead>
-          <tr>
-            <th>구분</th>
-            <th>재고</th>
-            <th>가격(ORCX)</th>
-            <th>가격수정</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>씨감자</th>
-            <td id="qty-potato">-</td>
-            <td id="price-potato">-</td>
-            <td>
-              <input type="number" id="input-potato-price" style="width: 60px; font-size:1rem;" min="1">
-              <button type="button" onclick="updatePrice('potato')">저장</button>
-            </td>
-          </tr>
-          <tr>
-            <th>씨보리</th>
-            <td id="qty-barley">-</td>
-            <td id="price-barley">-</td>
-            <td>
-              <input type="number" id="input-barley-price" style="width: 60px; font-size:1rem;" min="1">
-              <button type="button" onclick="updatePrice('barley')">저장</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
-    <div style="margin-top:1.5rem;text-align:center;">
-      <a href="gamja-factory.html" class="menu-link">감자 농장</a>
-      <a href="gamja-shop.html" class="menu-link">씨앗 상점</a>
-      <a href="admin-users.html" class="menu-link">회원 현황</a>
-    </div>
+  <h1>🌱 관리자 - 씨앗+전광판(제품) 관리</h1>
+
+  <div class="link">
+    <a href="admin-users.html" target="_blank">👤 유저 목록 및 출금 관리 페이지로 이동</a>
   </div>
+
+  <!-- 씨앗 가격/재고 관리 -->
+  <div class="section-title">씨앗 재고 · 가격 관리</div>
+  <table>
+    <thead>
+      <tr>
+        <th>씨앗 종류</th>
+        <th>재고량</th>
+        <th>현재 가격</th>
+        <th>새 가격 설정</th>
+        <th>작업</th>
+      </tr>
+    </thead>
+    <tbody id="seedTableBody">
+      <tr>
+        <td>씨감자</td>
+        <td id="qty-potato">-</td>
+        <td id="price-potato">-</td>
+        <td><input type="number" id="input-potato" /></td>
+        <td><button onclick="updatePrice('seedPotato')">변경</button></td>
+      </tr>
+      <tr>
+        <td>씨보리</td>
+        <td id="qty-barley">-</td>
+        <td id="price-barley">-</td>
+        <td><input type="number" id="input-barley" /></td>
+        <td><button onclick="updatePrice('seedBarley')">변경</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 전광판: 제품 관리 영역 -->
+  <div class="section-title">전광판(제품) 등록 · 수정 · 삭제</div>
+  <table>
+    <thead>
+      <tr>
+        <th>제품명</th>
+        <th>가격(ORCX)</th>
+        <th>활성</th>
+        <th>작업</th>
+      </tr>
+    </thead>
+    <tbody id="productTableBody"></tbody>
+    <tfoot>
+      <tr>
+        <td><input type="text" id="newProductName" placeholder="제품명" /></td>
+        <td><input type="number" id="newProductPrice" placeholder="가격" /></td>
+        <td>ON</td>
+        <td><button onclick="addProduct()">제품 등록</button></td>
+      </tr>
+    </tfoot>
+  </table>
+
   <script>
-    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api/seed";
+    const API_SEED = "/api/seed";
+    const API_PRODUCTS = "/api/marketdata"; // 전광판 제품 관리용 (엔드포인트 맞춰주세요!)
 
+    // 씨앗 재고/가격 불러오기
     async function fetchSeedStatus() {
-      const statusDiv = document.getElementById('server-status');
-      try {
-        const res = await fetch(`${API_BASE}/status`);
-        if (!res.ok) throw new Error('서버 오류');
-        const data = await res.json();
-        statusDiv.innerHTML = '🟢 <span class="status-ok">서버 연결 정상</span>';
-        document.getElementById('qty-potato').textContent = data.seedPotato?.quantity ?? '-';
-        document.getElementById('price-potato').textContent = data.seedPotato?.price ?? '-';
-        document.getElementById('input-potato-price').value = data.seedPotato?.price ?? '';
-        document.getElementById('qty-barley').textContent = data.seedBarley?.quantity ?? '-';
-        document.getElementById('price-barley').textContent = data.seedBarley?.price ?? '-';
-        document.getElementById('input-barley-price').value = data.seedBarley?.price ?? '';
-      } catch (e) {
-        statusDiv.innerHTML = '🔴 <span class="status-fail">서버 연결 실패</span>';
-        document.getElementById('qty-potato').textContent = '-';
-        document.getElementById('price-potato').textContent = '-';
-        document.getElementById('qty-barley').textContent = '-';
-        document.getElementById('price-barley').textContent = '-';
-        document.getElementById('input-potato-price').value = '';
-        document.getElementById('input-barley-price').value = '';
-      }
+      const res = await fetch(`${API_SEED}/status`);
+      const data = await res.json();
+      document.getElementById('qty-potato').textContent = data.seedPotato.quantity;
+      document.getElementById('price-potato').textContent = data.seedPotato.price;
+      document.getElementById('qty-barley').textContent = data.seedBarley.quantity;
+      document.getElementById('price-barley').textContent = data.seedBarley.price;
     }
-
     async function updatePrice(type) {
-      const price = type === 'potato'
-        ? document.getElementById('input-potato-price').value
-        : document.getElementById('input-barley-price').value;
-      if (!price || isNaN(price) || price < 1) {
-        alert("가격을 올바르게 입력하세요!");
-        return;
+      const inputId = type === 'seedPotato' ? 'input-potato' : 'input-barley';
+      const price = parseInt(document.getElementById(inputId).value);
+      if (isNaN(price)) {
+        alert("유효한 가격을 입력하세요."); return;
       }
-      try {
-        const res = await fetch(`${API_BASE}/price`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            seedType: type,
-            price: Number(price)
-          })
-        });
-        const result = await res.json();
-        if (result.success) {
-          alert("가격 수정 완료!");
-          fetchSeedStatus(); // 최신 데이터 다시 반영
-        } else {
-          alert("수정 실패: " + (result.message || '오류'));
-        }
-      } catch(e) {
-        alert("가격 수정 서버 연결 실패!");
+      const res = await fetch(`${API_SEED}/admin/set-price`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, price })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        alert(`가격 변경 완료: ${result.newPrice}`);
+        fetchSeedStatus();
+      } else {
+        alert(result.message || '가격 변경 실패');
       }
     }
 
-    // 진입 시 바로 불러오기
+    // ----- 전광판(제품) 영역 -----
+    async function fetchProducts() {
+      const res = await fetch(`${API_PRODUCTS}/products`);
+      const products = await res.json();
+      const tbody = document.getElementById('productTableBody');
+      tbody.innerHTML = '';
+      products.forEach(prod => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" value="${prod.name}" onchange="editProduct('${prod._id}', 'name', this.value)" /></td>
+          <td><input type="number" value="${prod.price}" onchange="editProduct('${prod._id}', 'price', this.value)" /></td>
+          <td>
+            <button onclick="toggleProduct('${prod._id}', ${!prod.active})" class="${prod.active ? 'on' : 'off'}">
+              ${prod.active ? 'ON' : 'OFF'}
+            </button>
+          </td>
+          <td>
+            <button onclick="deleteProduct('${prod._id}')">삭제</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    async function addProduct() {
+      const name = document.getElementById('newProductName').value.trim();
+      const price = parseInt(document.getElementById('newProductPrice').value);
+      if (!name || isNaN(price)) {
+        alert("제품명과 가격을 입력하세요."); return;
+      }
+      const res = await fetch(`${API_PRODUCTS}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, price, active: true })
+      });
+      if (res.ok) {
+        document.getElementById('newProductName').value = '';
+        document.getElementById('newProductPrice').value = '';
+        fetchProducts();
+      } else {
+        alert('제품 등록 실패');
+      }
+    }
+    async function editProduct(id, field, value) {
+      await fetch(`${API_PRODUCTS}/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [field]: value })
+      });
+      fetchProducts();
+    }
+    async function toggleProduct(id, newActive) {
+      await fetch(`${API_PRODUCTS}/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: newActive })
+      });
+      fetchProducts();
+    }
+    async function deleteProduct(id) {
+      if (!confirm('정말 삭제하시겠습니까?')) return;
+      await fetch(`${API_PRODUCTS}/products/${id}`, { method: 'DELETE' });
+      fetchProducts();
+    }
+
+    // 초기 데이터 불러오기
     fetchSeedStatus();
+    fetchProducts();
   </script>
 </body>
 </html>
+
 
