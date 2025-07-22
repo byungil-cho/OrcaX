@@ -20,29 +20,35 @@ const AdminMarket = {
     }
   },
 
-  // 씨앗 재고/가격
+  // 씨앗 재고/가격 (배열 응답 기준)
   async fetchSeedStatus() {
     try {
       const res = await fetch(`${API_SEED}/status`);
-      const data = await res.json();
-      document.getElementById('qty-potato').textContent = data.seedPotato?.quantity ?? '-';
-      document.getElementById('price-potato').textContent = data.seedPotato?.price ?? '-';
-      document.getElementById('qty-barley').textContent = data.seedBarley?.quantity ?? '-';
-      document.getElementById('price-barley').textContent = data.seedBarley?.price ?? '-';
-    } catch {}
+      const arr = await res.json();
+      let potato = Array.isArray(arr) ? arr.find(x=>x.type==="gamja") : null;
+      let barley = Array.isArray(arr) ? arr.find(x=>x.type==="bori") : null;
+      document.getElementById('qty-potato').textContent = potato ? potato.stock : '-';
+      document.getElementById('price-potato').textContent = potato ? potato.price : '-';
+      document.getElementById('qty-barley').textContent = barley ? barley.stock : '-';
+      document.getElementById('price-barley').textContent = barley ? barley.price : '-';
+    } catch {
+      document.getElementById('qty-potato').textContent = document.getElementById('qty-barley').textContent =
+      document.getElementById('price-potato').textContent = document.getElementById('price-barley').textContent = "-";
+    }
   },
+  // 씨앗 가격 변경
   async updatePrice(type) {
-    const inputId = type === 'seedPotato' ? 'input-potato' : 'input-barley';
+    const inputId = type === 'gamja' ? 'input-potato' : 'input-barley';
     const price = parseInt(document.getElementById(inputId).value);
-    if (isNaN(price)) { alert("유효한 가격을 입력하세요."); return; }
-    const res = await fetch(`${API_SEED}/admin/set-price`, {
+    if (isNaN(price) || price < 1) { alert("유효한 가격을 입력하세요."); return; }
+    const res = await fetch(`${API_SEED}/price`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, price })
     });
     if (res.ok) {
       alert('가격 변경 완료!');
-      this.fetchSeedStatus();
+      await this.fetchSeedStatus();
     } else {
       alert('가격 변경 실패');
     }
@@ -55,7 +61,7 @@ const AdminMarket = {
       const products = await res.json();
       const tbody = document.getElementById('uniqueProductsBody');
       tbody.innerHTML = '';
-      products.forEach((prod, idx) => {
+      (products||[]).forEach((prod, idx) => {
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>
@@ -68,22 +74,25 @@ const AdminMarket = {
         `;
         tbody.appendChild(row);
       });
-    } catch {}
-  },
-
-  checkLimit() {
-    // 최대 5개까지만 체크 가능
-    const checked = document.querySelectorAll('input[name="selectProd"]:checked');
-    const boxes = document.querySelectorAll('input[name="selectProd"]');
-    boxes.forEach(box => box.disabled = false);
-    if (checked.length >= 5) {
-      boxes.forEach(box => { if (!box.checked) box.disabled = true; });
+    } catch {
+      document.getElementById('uniqueProductsBody').innerHTML = "<tr><td colspan='5'>불러오기 실패</td></tr>";
     }
   },
 
+  // 체크박스 5개 제한
+  checkLimit() {
+    const checked = document.querySelectorAll('input[name="selectProd"]:checked');
+    const boxes = document.querySelectorAll('input[name="selectProd"]');
+    boxes.forEach(box => box.disabled = false);
+    if (checked.length > 5) {
+      alert("최대 5개까지 선택할 수 있습니다.");
+      checked[checked.length-1].checked = false;
+    }
+  },
+
+  // 전광판 등록 (등록시 전체 새로고침)
   async handleRegister(e) {
     e.preventDefault();
-    // 체크된 제품만 추출, 각 등록수량/가격 가져오기
     const checked = Array.from(document.querySelectorAll('input[name="selectProd"]:checked'));
     if (checked.length < 1) return alert("1개 이상 선택하세요");
     if (checked.length > 5) return alert("최대 5개까지 동시 등록 가능합니다");
@@ -95,7 +104,6 @@ const AdminMarket = {
       if (!amount || !price) return alert(`[${name}] 수량/가격 입력!`);
       payload.push({ name, price, amount });
     }
-    // 등록 (배열 단위 POST)
     const regRes = await fetch(`${API_MARKET}/products/bulk`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -103,8 +111,7 @@ const AdminMarket = {
     });
     if (regRes.ok) {
       alert("전광판 등록 완료!");
-      // 등록 직후 즉시 제품 목록만 새로고침 (전체 갱신 X)
-      this.fetchMarketProducts();
+      this.refreshAll(); // 등록 후 전체 새로고침
     } else {
       alert("전광판 등록 실패! (이미 등록된 품목이거나 서버 오류)");
     }
@@ -117,7 +124,7 @@ const AdminMarket = {
       const products = await res.json();
       const tbody = document.getElementById('marketProductBody');
       tbody.innerHTML = '';
-      products.forEach(prod => {
+      (products||[]).forEach(prod => {
         const row = document.createElement('tr');
         row.innerHTML = `
           <td><input type="text" value="${prod.name}" onchange="AdminMarket.editMarketProduct('${prod._id}', 'name', this.value)" /></td>
@@ -134,15 +141,18 @@ const AdminMarket = {
         `;
         tbody.appendChild(row);
       });
-    } catch {}
+    } catch {
+      document.getElementById('marketProductBody').innerHTML = "<tr><td colspan='5'>불러오기 실패</td></tr>";
+    }
   },
+
   async editMarketProduct(id, field, value) {
     await fetch(`${API_MARKET}/products/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ [field]: value })
     });
-    this.fetchMarketProducts();
+    this.refreshAll();
   },
   async toggleMarketProduct(id, newActive) {
     await fetch(`${API_MARKET}/products/${id}`, {
@@ -150,12 +160,12 @@ const AdminMarket = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ active: newActive })
     });
-    this.fetchMarketProducts();
+    this.refreshAll();
   },
   async deleteMarketProduct(id) {
     if (!confirm('정말 삭제하시겠습니까?')) return;
     await fetch(`${API_MARKET}/products/${id}`, { method: 'DELETE' });
-    this.fetchMarketProducts();
+    this.refreshAll();
   },
 
   // 전체 갱신 (자동 새로고침: 너무 빠른 경우 문제 생기니 10초 이상으로만!)

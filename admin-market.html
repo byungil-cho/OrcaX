@@ -111,10 +111,12 @@
 const API = "https://climbing-wholly-grouper.jp.ngrok.io";
 const AdminMarket = {
   async refreshAll() {
-    AdminMarket.getServerStatus();
-    AdminMarket.loadSeeds();
-    AdminMarket.loadUniqueProducts();
-    AdminMarket.loadMarketProducts();
+    await Promise.all([
+      AdminMarket.getServerStatus(),
+      AdminMarket.loadSeeds(),
+      AdminMarket.loadUniqueProducts(),
+      AdminMarket.loadMarketProducts()
+    ]);
   },
   // 서버 상태
   async getServerStatus() {
@@ -130,15 +132,19 @@ const AdminMarket = {
   },
   // 씨앗 재고/가격 불러오기
   async loadSeeds() {
-    const r = await fetch(API + "/api/seed/status");
-    const data = await r.json();
-    // 씨감자, 씨보리
-    let potato = data.find(x=>x.type==="gamja");
-    let barley = data.find(x=>x.type==="bori");
-    document.getElementById("qty-potato").innerText = potato ? potato.stock : "-";
-    document.getElementById("qty-barley").innerText = barley ? barley.stock : "-";
-    document.getElementById("price-potato").innerText = potato ? potato.price : "-";
-    document.getElementById("price-barley").innerText = barley ? barley.price : "-";
+    try {
+      const r = await fetch(API + "/api/seed/status");
+      const data = await r.json();
+      let potato = data.find(x=>x.type==="gamja");
+      let barley = data.find(x=>x.type==="bori");
+      document.getElementById("qty-potato").innerText = potato ? potato.stock : "-";
+      document.getElementById("qty-barley").innerText = barley ? barley.stock : "-";
+      document.getElementById("price-potato").innerText = potato ? potato.price : "-";
+      document.getElementById("price-barley").innerText = barley ? barley.price : "-";
+    } catch {
+      document.getElementById("qty-potato").innerText = document.getElementById("qty-barley").innerText =
+      document.getElementById("price-potato").innerText = document.getElementById("price-barley").innerText = "-";
+    }
   },
   // 씨앗 가격 변경
   async updatePrice(type) {
@@ -154,19 +160,23 @@ const AdminMarket = {
   },
   // 전체 고객 생산제품(합산) 목록
   async loadUniqueProducts() {
-    const r = await fetch(API + "/api/admin/all-products-quantities");
-    const list = await r.json();
-    let html = "";
-    (list||[]).forEach(prod=>{
-      html += `<tr>
-        <td><input type="checkbox" class="prodCheck" data-name="${prod.name}" onchange="AdminMarket.checkLimit()" /></td>
-        <td>${prod.name}</td>
-        <td>${prod.total}</td>
-        <td><input type="number" min="1" class="inputAmount" /></td>
-        <td><input type="number" min="1" class="inputPrice" /></td>
-      </tr>`;
-    });
-    document.getElementById("uniqueProductsBody").innerHTML = html;
+    try {
+      const r = await fetch(API + "/api/admin/all-products-quantities");
+      const list = await r.json();
+      let html = "";
+      (list||[]).forEach(prod=>{
+        html += `<tr>
+          <td><input type="checkbox" class="prodCheck" data-name="${prod.name}" onchange="AdminMarket.checkLimit()" /></td>
+          <td>${prod.name}</td>
+          <td>${prod.total}</td>
+          <td><input type="number" min="1" class="inputAmount" /></td>
+          <td><input type="number" min="1" class="inputPrice" /></td>
+        </tr>`;
+      });
+      document.getElementById("uniqueProductsBody").innerHTML = html;
+    } catch {
+      document.getElementById("uniqueProductsBody").innerHTML = "<tr><td colspan='5'>불러오기 실패</td></tr>";
+    }
   },
   // 체크박스 5개 제한
   checkLimit() {
@@ -181,46 +191,59 @@ const AdminMarket = {
     e.preventDefault();
     let rows = Array.from(document.querySelectorAll("#uniqueProductsBody tr"));
     let selected = [];
-    rows.forEach(row=>{
+    for(let row of rows){
       let cb = row.querySelector(".prodCheck");
       if(cb && cb.checked) {
         let name = row.cells[1].innerText;
         let total = Number(row.cells[2].innerText);
         let amount = Number(row.querySelector(".inputAmount").value);
         let price = Number(row.querySelector(".inputPrice").value);
-        if(!amount || !price) return;
+        if(!amount || !price) {
+          alert(`[${name}] 수량/가격 입력!`);
+          return;
+        }
         selected.push({ name, total, amount, price });
       }
-    });
+    }
     if(selected.length===0) return alert("등록할 제품을 선택하세요.");
     if(selected.length>5) return alert("최대 5개까지 등록 가능합니다.");
-    const res = await fetch(API + "/api/marketdata/products/bulk", {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: selected })
-    });
-    if(res.ok) {
-      alert("전광판 등록 완료!");
-      AdminMarket.loadMarketProducts();
+    try {
+      const res = await fetch(API + "/api/marketdata/products/bulk", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: selected })
+      });
+      if(res.ok) {
+        alert("전광판 등록 완료!");
+        AdminMarket.refreshAll(); // 전체 새로고침(중복 없이 반영)
+      } else {
+        alert("전광판 등록 실패!");
+      }
+    } catch(e) {
+      alert("전광판 등록 중 에러!");
     }
   },
   // 전광판 제품 목록
   async loadMarketProducts() {
-    const r = await fetch(API + "/api/marketdata/products");
-    const list = await r.json();
-    let html = "";
-    (list||[]).forEach(prod=>{
-      html += `<tr>
-        <td>${prod.name}</td>
-        <td>${prod.price}</td>
-        <td>${prod.amount}</td>
-        <td>${prod.active?"ON":"OFF"}</td>
-        <td>
-          <button onclick="AdminMarket.deleteProduct('${prod._id}')">삭제</button>
-        </td>
-      </tr>`;
-    });
-    document.getElementById("marketProductBody").innerHTML = html;
+    try {
+      const r = await fetch(API + "/api/marketdata/products");
+      const list = await r.json();
+      let html = "";
+      (list||[]).forEach(prod=>{
+        html += `<tr>
+          <td>${prod.name}</td>
+          <td>${prod.price}</td>
+          <td>${prod.amount}</td>
+          <td>${prod.active?"ON":"OFF"}</td>
+          <td>
+            <button onclick="AdminMarket.deleteProduct('${prod._id}')">삭제</button>
+          </td>
+        </tr>`;
+      });
+      document.getElementById("marketProductBody").innerHTML = html;
+    } catch {
+      document.getElementById("marketProductBody").innerHTML = "<tr><td colspan='5'>불러오기 실패</td></tr>";
+    }
   },
   // 전광판 제품 삭제
   async deleteProduct(id) {
@@ -232,7 +255,6 @@ const AdminMarket = {
 
 // 페이지 진입시 전체 로딩
 window.onload = ()=>AdminMarket.refreshAll();
-
 </script>
 </body>
 </html>
