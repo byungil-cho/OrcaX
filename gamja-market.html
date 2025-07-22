@@ -240,9 +240,10 @@
       if (data.success) {
         logMsg(`✅ 판매 성공! (남은수량: ${data.left})`);
         myProducts[prod] = data.left;
+        renderInventory();
+        fillSelectOptions();
         await loadUserResource();
-        renderInventory(); fillSelectOptions();
-        await loadData(); // 판매 후 전광판 갱신!
+        await loadData(); // 판매 후 전체 상태 갱신
       } else {
         logMsg("❌ " + (data.message || "판매 실패"));
       }
@@ -262,9 +263,10 @@
       if (data.success) {
         logMsg(`✅ 교환 성공! (남은수량: ${data.left})`);
         myProducts[prod] = data.left;
+        renderInventory();
+        fillSelectOptions();
         await loadUserResource();
-        renderInventory(); fillSelectOptions();
-        await loadData(); // 교환 후 전광판 갱신!
+        await loadData(); // 교환 후 전체 상태 갱신
       } else {
         logMsg("❌ " + (data.message || "교환 실패"));
       }
