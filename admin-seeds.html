@@ -2,31 +2,37 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>관리자 - 씨앗+전광판 제품 관리</title>
+  <title>관리자 - 씨앗+전광판(제품) 통합관리</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: 'Arial', sans-serif; background: #fffde7; padding: 2rem; color: #333; }
-    h1 { text-align: center; color: #4d372d; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    body { font-family: 'Arial', sans-serif; background: #f8f6e8; padding: 2rem; color: #333; }
+    h1 { text-align: center; color: #3a2921; }
+    .section-title { margin-top: 2.2rem; color:#4d372d; font-size:1.12rem; margin-bottom:.6rem;}
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #fff; }
     th, td { border: 1px solid #aaa; padding: 0.5rem; text-align: center; }
-    th { background-color: #dcedc8; }
-    input[type="number"], input[type="text"] { width: 80px; padding: 0.2rem; }
-    button { padding: 0.4rem 0.8rem; background-color: #4caf50; color: white; border: none; cursor: pointer; }
-    .link { text-align: center; margin-bottom: 1.5rem; }
-    .link a { color: #00796b; font-weight: bold; text-decoration: none; }
-    .section-title { margin-top: 2.5rem; margin-bottom:0.7rem; color:#4d372d; font-size:1.16rem;}
-    .on { color: #27ae60; font-weight: bold;}
+    th { background-color: #e6ee9c; }
+    input[type="number"], input[type="text"] { width: 82px; padding: 0.2rem; }
+    button { padding: 0.4rem 0.9rem; background-color: #388e3c; color: white; border: none; cursor: pointer; }
+    .on { color: #2e7d32; font-weight: bold;}
     .off { color: #bdbdbd; font-weight: bold;}
+    .link { text-align: center; margin-bottom: 1.5rem; }
+    .link a { color: #1976d2; font-weight: bold; text-decoration: none; }
+    .desc { color: #888; font-size: 0.97rem; margin:1rem 0 1.7rem 0;}
   </style>
 </head>
 <body>
-  <h1>🌱 관리자 - 씨앗+전광판(제품) 관리</h1>
-
+  <h1>🌱 관리자 - 씨앗+전광판(제품) 통합 관리</h1>
   <div class="link">
-    <a href="admin-users.html" target="_blank">👤 유저 목록 및 출금 관리 페이지로 이동</a>
+    <a href="admin-users.html" target="_blank">👤 유저 및 출금관리 페이지로 이동</a>
   </div>
 
-  <!-- 씨앗 가격/재고 관리 -->
+  <div class="desc">
+    • 씨앗 재고/가격, 고객 전체 생산 제품(중복X), 전광판(마켓) 제품을 한 곳에서 관리<br>
+    • 아래 '전체 생산 제품'은 고객 전체가 만든 모든 제품에서 중복 없이 나열됩니다.<br>
+    • 제품 등록→전광판에 올리고, 전광판 제품은 ON/OFF, 가격, 삭제 관리.
+  </div>
+
+  <!-- 씨앗 재고/가격 -->
   <div class="section-title">씨앗 재고 · 가격 관리</div>
   <table>
     <thead>
@@ -34,7 +40,7 @@
         <th>씨앗 종류</th>
         <th>재고량</th>
         <th>현재 가격</th>
-        <th>새 가격 설정</th>
+        <th>새 가격</th>
         <th>작업</th>
       </tr>
     </thead>
@@ -56,8 +62,21 @@
     </tbody>
   </table>
 
-  <!-- 전광판: 제품 관리 영역 -->
-  <div class="section-title">전광판(제품) 등록 · 수정 · 삭제</div>
+  <!-- 전체 고객 생산 제품명 목록 (중복 없이) -->
+  <div class="section-title">전체 생산 제품(중복X) - 전광판(마켓) 등록</div>
+  <table>
+    <thead>
+      <tr>
+        <th>제품명</th>
+        <th>전광판 가격(입력)</th>
+        <th>등록</th>
+      </tr>
+    </thead>
+    <tbody id="uniqueProductsBody"></tbody>
+  </table>
+
+  <!-- 전광판(마켓) 등록제품 관리 -->
+  <div class="section-title">전광판(마켓) 제품 관리</div>
   <table>
     <thead>
       <tr>
@@ -67,119 +86,119 @@
         <th>작업</th>
       </tr>
     </thead>
-    <tbody id="productTableBody"></tbody>
-    <tfoot>
-      <tr>
-        <td><input type="text" id="newProductName" placeholder="제품명" /></td>
-        <td><input type="number" id="newProductPrice" placeholder="가격" /></td>
-        <td>ON</td>
-        <td><button onclick="addProduct()">제품 등록</button></td>
-      </tr>
-    </tfoot>
+    <tbody id="marketProductBody"></tbody>
   </table>
 
   <script>
     const API_SEED = "/api/seed";
-    const API_PRODUCTS = "/api/marketdata"; // 전광판 제품 관리용 (엔드포인트 맞춰주세요!)
+    const API_MARKET = "/api/marketdata";
+    const API_ALL_PRODUCTS = "/api/admin/all-products"; // (중복 없는 전체 제품명 리스트 API)
 
-    // 씨앗 재고/가격 불러오기
+    // 1. 씨앗 재고/가격
     async function fetchSeedStatus() {
       const res = await fetch(`${API_SEED}/status`);
       const data = await res.json();
-      document.getElementById('qty-potato').textContent = data.seedPotato.quantity;
-      document.getElementById('price-potato').textContent = data.seedPotato.price;
-      document.getElementById('qty-barley').textContent = data.seedBarley.quantity;
-      document.getElementById('price-barley').textContent = data.seedBarley.price;
+      document.getElementById('qty-potato').textContent = data.seedPotato?.quantity ?? '-';
+      document.getElementById('price-potato').textContent = data.seedPotato?.price ?? '-';
+      document.getElementById('qty-barley').textContent = data.seedBarley?.quantity ?? '-';
+      document.getElementById('price-barley').textContent = data.seedBarley?.price ?? '-';
     }
     async function updatePrice(type) {
       const inputId = type === 'seedPotato' ? 'input-potato' : 'input-barley';
       const price = parseInt(document.getElementById(inputId).value);
-      if (isNaN(price)) {
-        alert("유효한 가격을 입력하세요."); return;
-      }
+      if (isNaN(price)) { alert("유효한 가격을 입력하세요."); return; }
       const res = await fetch(`${API_SEED}/admin/set-price`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, price })
       });
-      const result = await res.json();
       if (res.ok) {
-        alert(`가격 변경 완료: ${result.newPrice}`);
+        alert('가격 변경 완료!');
         fetchSeedStatus();
       } else {
-        alert(result.message || '가격 변경 실패');
+        alert('가격 변경 실패');
       }
     }
 
-    // ----- 전광판(제품) 영역 -----
-    async function fetchProducts() {
-      const res = await fetch(`${API_PRODUCTS}/products`);
-      const products = await res.json();
-      const tbody = document.getElementById('productTableBody');
+    // 2. 고객 전체가 만든(중복 없는) 제품명 불러오기
+    async function fetchUniqueProducts() {
+      const res = await fetch(API_ALL_PRODUCTS);
+      const productNames = await res.json();
+      const tbody = document.getElementById('uniqueProductsBody');
       tbody.innerHTML = '';
-      products.forEach(prod => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><input type="text" value="${prod.name}" onchange="editProduct('${prod._id}', 'name', this.value)" /></td>
-          <td><input type="number" value="${prod.price}" onchange="editProduct('${prod._id}', 'price', this.value)" /></td>
-          <td>
-            <button onclick="toggleProduct('${prod._id}', ${!prod.active})" class="${prod.active ? 'on' : 'off'}">
-              ${prod.active ? 'ON' : 'OFF'}
-            </button>
-          </td>
-          <td>
-            <button onclick="deleteProduct('${prod._id}')">삭제</button>
-          </td>
+      productNames.forEach(name => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${name}</td>
+          <td><input type="number" id="regPrice_${name}" placeholder="가격"></td>
+          <td><button onclick="registerMarketProduct('${name}')">전광판 등록</button></td>
         `;
-        tbody.appendChild(tr);
+        tbody.appendChild(row);
       });
     }
-    async function addProduct() {
-      const name = document.getElementById('newProductName').value.trim();
-      const price = parseInt(document.getElementById('newProductPrice').value);
-      if (!name || isNaN(price)) {
-        alert("제품명과 가격을 입력하세요."); return;
-      }
-      const res = await fetch(`${API_PRODUCTS}/products`, {
+    async function registerMarketProduct(name) {
+      const price = parseInt(document.getElementById(`regPrice_${name}`).value);
+      if (isNaN(price) || price < 1) return alert("가격을 입력하세요");
+      await fetch(`${API_MARKET}/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, price, active: true })
       });
-      if (res.ok) {
-        document.getElementById('newProductName').value = '';
-        document.getElementById('newProductPrice').value = '';
-        fetchProducts();
-      } else {
-        alert('제품 등록 실패');
-      }
+      fetchMarketProducts();
     }
-    async function editProduct(id, field, value) {
-      await fetch(`${API_PRODUCTS}/products/${id}`, {
+
+    // 3. 전광판(마켓) 등록 제품 관리
+    async function fetchMarketProducts() {
+      const res = await fetch(`${API_MARKET}/products`);
+      const products = await res.json();
+      const tbody = document.getElementById('marketProductBody');
+      tbody.innerHTML = '';
+      products.forEach(prod => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><input type="text" value="${prod.name}" onchange="editMarketProduct('${prod._id}', 'name', this.value)" /></td>
+          <td><input type="number" value="${prod.price}" onchange="editMarketProduct('${prod._id}', 'price', this.value)" /></td>
+          <td>
+            <button onclick="toggleMarketProduct('${prod._id}', ${!prod.active})" class="${prod.active ? 'on' : 'off'}">
+              ${prod.active ? 'ON' : 'OFF'}
+            </button>
+          </td>
+          <td>
+            <button onclick="deleteMarketProduct('${prod._id}')">삭제</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+    async function editMarketProduct(id, field, value) {
+      await fetch(`${API_MARKET}/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [field]: value })
       });
-      fetchProducts();
+      fetchMarketProducts();
     }
-    async function toggleProduct(id, newActive) {
-      await fetch(`${API_PRODUCTS}/products/${id}`, {
+    async function toggleMarketProduct(id, newActive) {
+      await fetch(`${API_MARKET}/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active: newActive })
       });
-      fetchProducts();
+      fetchMarketProducts();
     }
-    async function deleteProduct(id) {
+    async function deleteMarketProduct(id) {
       if (!confirm('정말 삭제하시겠습니까?')) return;
-      await fetch(`${API_PRODUCTS}/products/${id}`, { method: 'DELETE' });
-      fetchProducts();
+      await fetch(`${API_MARKET}/products/${id}`, { method: 'DELETE' });
+      fetchMarketProducts();
     }
 
-    // 초기 데이터 불러오기
+    // 초기에 모든 데이터 불러오기
     fetchSeedStatus();
-    fetchProducts();
+    fetchUniqueProducts();
+    fetchMarketProducts();
   </script>
 </body>
 </html>
+
 
 
