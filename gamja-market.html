@@ -217,11 +217,11 @@
           sellSel.innerHTML += `<option value="${name}">${name} (${qty})</option>`;
         }
       }
-      // 전광판 미등록 제품만 교환 옵션
+      // [수정!] 모든 보유 제품이 교환 옵션에 노출!
       const swapSel = document.getElementById("swapProduct");
       swapSel.innerHTML = "";
       for (const [name, qty] of Object.entries(myProducts)) {
-        if (qty > 0 && !boardProductSet.has(name)) {
+        if (qty > 0) {
           swapSel.innerHTML += `<option value="${name}">${name} (${qty})</option>`;
         }
       }
