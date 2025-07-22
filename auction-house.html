@@ -105,7 +105,10 @@
   🌾 씨보리 <span id="seedBarley">0</span>
 </div>
 
-<h1>🐋 OrcaX 마이페이지</h1>
+<h1>
+  🐋 OrcaX 마이페이지
+  <span id="userLevel" style="font-size:1.08rem; color:#19713c; margin-left:8px;">Lv. 1</span>
+</h1>
 <div style="text-align:center; color:#14807d; margin-bottom:1.3rem;">
     환영합니다!<br>
     아래는 회원님의 OrcaX 자산 및 가공식품 보관 현황입니다.
@@ -160,6 +163,9 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("fertilizer").textContent = user.fertilizer || 0;
       document.getElementById("seedPotato").textContent = user.seedPotato || 0;
       document.getElementById("seedBarley").textContent = user.seedBarley || 0;
+
+      // ⭐ 레벨 표기 (없으면 Lv. 1)
+      document.getElementById("userLevel").textContent = "Lv. " + (user.level || 1);
 
       // 보관함 (가공식품)
       const prod = user.products || {};
