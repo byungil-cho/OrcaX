@@ -1,77 +1,50 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>OrcaX 보리 농장</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: 'Do Hyeon', sans-serif;
-      background: url("https://byungil-cho.github.io/OrcaX/farm-101.png") no-repeat center center fixed;
-      background-size: cover;
-      margin: 0;
-      padding: 0;
-      color: #fff;
-      text-align: center;
-    }
-    header {
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 1rem;
-    }
-    main {
-      padding: 2rem;
-    }
-    h1 {
-      margin-bottom: 1rem;
-    }
-    .resource-box {
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 1rem;
-      margin: 1rem auto;
-      max-width: 300px;
-    }
-    .status {
-      color: red;
-    }
-    nav a {
-      color: #fff;
-      margin: 0 10px;
-      text-decoration: underline;
-    }
+    body { background: #f9fff6; font-family: 'Do Hyeon', sans-serif; color: #222; margin: 0; }
+    header { background: #8fc372; color: #fff; padding: 1rem; text-align: center; }
+    main { padding: 2rem 1rem; max-width: 600px; margin: 2rem auto; background: #fff; border-radius: 18px; box-shadow: 0 4px 18px #d3efc2aa; }
+    .info-box { background: #f3fbe9; border-radius: 12px; padding: 1.2rem; margin-bottom: 2rem; }
+    h1 { margin-top: 0; color: #6b9530; }
+    .stat-label { font-weight: bold; margin-right: 7px; }
+    .stat-row { margin: 0.6rem 0; }
+    #nickname { color: #225200; }
+    @media (max-width:600px) { main{padding:1.2rem 0.5rem;} }
   </style>
 </head>
 <body>
   <header>
     <h1>🌾 OrcaX 보리 농장</h1>
-    <div id="server-status" class="status">서버 연결 확인 중...</div>
-    <nav>
-      <a href="index9.html">메인으로</a> |
-      <a href="gamja-shop.html">씨앗구매</a> |
-      <a href="bori-factory.html">보리농사 지기</a>
-    </nav>
   </header>
   <main>
-    <div class="resource-box">
-      <p>👤 닉네임: <span id="nickname">-</span></p>
-      <p>💧 물: <span id="water">0</span>개</p>
-      <p>🩱 거름: <span id="fertilizer">0</span>개</p>
-      <p>🌾 씨보리: <span id="seedBarley">0</span>개</p>
-      <p>🪙 ORCX 토큰: <span id="tokens">0</span>개</p>
-      <p>📦 보리 보관량: <span id="barleyStorage">0</span>개</p>
+    <div class="info-box">
+      <div><span class="stat-label">닉네임:</span> <span id="nickname">-</span></div>
+      <div class="stat-row"><span class="stat-label">내 ORCX 토큰:</span> <span id="tokens">0</span></div>
+      <div class="stat-row"><span class="stat-label">물:</span> <span id="water">0</span></div>
+      <div class="stat-row"><span class="stat-label">거름:</span> <span id="fertilizer">0</span></div>
+      <div class="stat-row"><span class="stat-label">씨보리:</span> <span id="seedBarley">0</span></div>
+      <div class="stat-row"><span class="stat-label">보리 저장고:</span> <span id="barleyStorage">0</span></div>
+    </div>
+
+    <!-- 이 아래에 농사짓기, 수확하기, 가공 등 기능 UI가 들어갑니다 -->
+    <div style="margin-top:2.2rem; text-align:center; color:#666;">
+      <b>※ 보리 농장 입장은<br>ORCX 토큰 5만 이상 보유 시에만 가능합니다.</b>
     </div>
   </main>
-
   <script>
     const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
-    const kakaoId = localStorage.getItem("kakaoId");
+    // 예시: 로그인된 카카오 ID를 localStorage에서 읽는다(실제 구현에 맞게 조정)
+    const kakaoId = localStorage.kakaoId || "";
 
     async function fetchUserData() {
       if (!kakaoId) {
         document.getElementById("nickname").textContent = "로그인 필요";
         return;
       }
-
       try {
         const res = await fetch(`${API_BASE}/userdata`, {
           method: "POST",
@@ -88,6 +61,15 @@
           document.getElementById("seedBarley").textContent = user.inventory?.seedBarley || 0;
           document.getElementById("tokens").textContent = user.orcx || user.wallet?.orcx || 0;
           document.getElementById("barleyStorage").textContent = user.barley || 0;
+
+          // 🟢 토큰 5만 미만이면 입장 차단 및 강제 이동!
+          const myTokens = Number(user.orcx || user.wallet?.orcx || 0);
+          if (myTokens < 50000) {
+            alert("ORCX 토큰이 5만 이상일 때만 보리 농장 입장 가능합니다!");
+            window.location.href = "index9.html"; // 또는 로그인/메인 등 원하는 페이지로
+            return;
+          }
+
         } else {
           document.getElementById("nickname").textContent = "유저 정보 없음";
         }
@@ -96,25 +78,11 @@
       }
     }
 
-    async function checkServer() {
-      try {
-        const res = await fetch(`${API_BASE}/ping`);
-        if (res.status === 200) {
-          document.getElementById("server-status").textContent = "✅ 서버 연결됨";
-          document.getElementById("server-status").style.color = "lightgreen";
-        } else {
-          throw new Error("Ping failed");
-        }
-      } catch {
-        document.getElementById("server-status").textContent = "❌ 서버 연결 실패";
-        document.getElementById("server-status").style.color = "red";
-      }
-    }
-
-    checkServer();
-    fetchUserData();
+    // 진입시 자동 불러오기
+    window.onload = fetchUserData;
   </script>
 </body>
 </html>
+
 
 
