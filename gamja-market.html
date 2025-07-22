@@ -43,11 +43,43 @@
     }
     .res-item { background: #fff; color: #575757; border-radius: 10px; padding: 2px 13px 2px 9px; box-shadow: 0 1px 6px #ddebe822; display: flex; align-items: center; font-weight: 600;}
     .res-label { font-size: 1rem; color: #1c928d; margin-right: 3px; }
+
+    /* ======== 전광판 LED 스타일 ======== */
+    .section.display-board-bg {
+      background: #181c27 !important;
+      box-shadow: 0 2px 24px #0005;
+      border: 2px solid #edc337;
+      color: #ffe952;
+      padding-top: 1.3rem;
+      margin-bottom: 2.2rem;
+      position: relative;
+    }
+    .section.display-board-bg .title {
+      color: #ffd000;
+      letter-spacing: 2px;
+      text-shadow: 0 0 7px #ffaa0d88;
+    }
+    .board-list {
+      gap: 18px;
+      justify-content: center;
+    }
+    .section.display-board-bg .item-card {
+      background: rgba(34,32,44,0.93);
+      color: #ffe952;
+      border: 1.5px solid #ffd00088;
+      box-shadow: 0 1px 8px #e4be2a33, 0 0px 22px #2226;
+      font-size: 1.12rem;
+      min-width: 120px;
+      text-shadow: 0 0 6px #2d2305bb;
+      font-weight: 700;
+    }
     @media (max-width: 600px) {
       .main-box { padding: 1rem; }
       .item-card { min-width: 90px;}
       .top-menu a { padding: 0.4rem 0.5rem; font-size: 0.95rem; }
       .resource-bar { font-size: 0.99rem;}
+      .section.display-board-bg {padding:0.7rem 0.2rem;}
+      .section.display-board-bg .item-card {min-width:80px; font-size:1.01rem;}
     }
   </style>
 </head>
@@ -80,8 +112,8 @@
       </div>
     </div>
 
-    <!-- 전광판(마켓) 먼저 위에 -->
-    <div class="section">
+    <!-- 전광판(마켓) 위에: LED스타일만 추가 -->
+    <div class="section display-board-bg">
       <div class="title">감자/보리 가공식품 시세 전광판</div>
       <div class="board-list" id="priceBoard">-</div>
     </div>
@@ -119,17 +151,15 @@
     const nickname = localStorage.getItem("nickname") || "-";
 
     // 상태
-    let myProducts = {};   // {제품명: 수량}
+    let myProducts = {};
     let priceList = [];
     let boardProductSet = new Set();
     let myWater = 0;
     let myFertilizer = 0;
     let myToken = 0;
 
-    // 초기 출력
     document.getElementById("nick").textContent = nickname;
 
-    // 유저 자원 불러오기
     async function loadUserResource() {
       try {
         const response = await fetch(USERDATA_API, {
@@ -149,7 +179,6 @@
       }
     }
 
-    // 전광판+내 보관함 불러오기
     async function loadData() {
       document.getElementById("srvStatus").textContent = "서버 연결 확인중...";
       try {
@@ -161,7 +190,7 @@
         boardProductSet = new Set(priceList.map(x=>x.name));
         renderPriceBoard();
 
-        // 2. 내 보관함(+자원)
+        // 2. 내 보관함
         res = await fetch(`${API}/user-inventory`, {
           method:"POST",
           headers:{"Content-Type":"application/json"},
@@ -188,7 +217,6 @@
       document.getElementById("myToken").textContent = myToken;
     }
 
-    // 보관함 출력
     function renderInventory() {
       const list = Object.entries(myProducts)
         .filter(([_, qty]) => qty > 0)
@@ -198,7 +226,6 @@
       document.getElementById("inventory").innerHTML = list.length ? list.join("") : `<span class="gray">보유 제품 없음</span>`;
     }
 
-    // 전광판 출력
     function renderPriceBoard() {
       const list = priceList
         .map(item =>
@@ -207,9 +234,7 @@
       document.getElementById("priceBoard").innerHTML = list.length ? list.join("") : `<span class="gray">전광판 없음</span>`;
     }
 
-    // 판매/교환 옵션 세팅
     function fillSelectOptions() {
-      // 전광판에 등록된 제품만 판매 옵션
       const sellSel = document.getElementById("sellProduct");
       sellSel.innerHTML = "";
       for (const [name, qty] of Object.entries(myProducts)) {
@@ -217,7 +242,6 @@
           sellSel.innerHTML += `<option value="${name}">${name} (${qty})</option>`;
         }
       }
-      // [수정!] 모든 보유 제품이 교환 옵션에 노출!
       const swapSel = document.getElementById("swapProduct");
       swapSel.innerHTML = "";
       for (const [name, qty] of Object.entries(myProducts)) {
@@ -227,7 +251,6 @@
       }
     }
 
-    // 판매
     document.getElementById("sellBtn").onclick = async function() {
       const prod = document.getElementById("sellProduct").value;
       const qty = Number(document.getElementById("sellQty").value) || 1;
@@ -243,13 +266,12 @@
         renderInventory();
         fillSelectOptions();
         await loadUserResource();
-        await loadData(); // 판매 후 전체 상태 갱신
+        await loadData();
       } else {
         logMsg("❌ " + (data.message || "판매 실패"));
       }
     };
 
-    // 교환
     document.getElementById("swapBtn").onclick = async function() {
       const prod = document.getElementById("swapProduct").value;
       const qty = Number(document.getElementById("swapQty").value) || 1;
@@ -266,7 +288,7 @@
         renderInventory();
         fillSelectOptions();
         await loadUserResource();
-        await loadData(); // 교환 후 전체 상태 갱신
+        await loadData();
       } else {
         logMsg("❌ " + (data.message || "교환 실패"));
       }
@@ -277,7 +299,6 @@
       setTimeout(()=>{document.getElementById("log").textContent="";}, 3500);
     }
 
-    // 최초 로딩
     loadUserResource();
     loadData();
   </script>
