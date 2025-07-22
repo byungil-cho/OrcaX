@@ -1,7 +1,5 @@
 // admin-market.js
 
-// 반드시 실제 API 서버 도메인으로 고정!
-// (아래 경로를 본인의 API 서버 도메인에 맞게 설정하세요.)
 const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 const API_SEED = `${API_BASE}/seed`;
 const API_MARKET = `${API_BASE}/marketdata`;
@@ -98,13 +96,18 @@ const AdminMarket = {
       payload.push({ name, price, amount });
     }
     // 등록 (배열 단위 POST)
-    await fetch(`${API_MARKET}/products/bulk`, {
+    const regRes = await fetch(`${API_MARKET}/products/bulk`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ items: payload })
     });
-    alert("전광판 등록 완료!");
-    this.refreshAll();
+    if (regRes.ok) {
+      alert("전광판 등록 완료!");
+      // 등록 직후 즉시 제품 목록만 새로고침 (전체 갱신 X)
+      this.fetchMarketProducts();
+    } else {
+      alert("전광판 등록 실패! (이미 등록된 품목이거나 서버 오류)");
+    }
   },
 
   // 전광판(마켓) 등록제품 관리
@@ -155,7 +158,7 @@ const AdminMarket = {
     this.fetchMarketProducts();
   },
 
-  // 전체 갱신
+  // 전체 갱신 (자동 새로고침: 너무 빠른 경우 문제 생기니 10초 이상으로만!)
   refreshAll() {
     this.fetchServerStatus();
     this.fetchSeedStatus();
@@ -164,6 +167,6 @@ const AdminMarket = {
   }
 };
 
-// 최초 및 주기적 새로고침
+// 최초 및 주기적 새로고침 (10초마다. 더 빠르게 X)
 AdminMarket.refreshAll();
 setInterval(() => AdminMarket.refreshAll(), 10000); // 10초마다 자동새로고침

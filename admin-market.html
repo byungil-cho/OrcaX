@@ -61,14 +61,14 @@
         <td id="qty-potato">-</td>
         <td id="price-potato">-</td>
         <td><input type="number" id="input-potato" /></td>
-        <td><button onclick="AdminMarket.updatePrice('seedPotato')">변경</button></td>
+        <td><button onclick="AdminMarket.updatePrice('gamja')">변경</button></td>
       </tr>
       <tr>
         <td>씨보리</td>
         <td id="qty-barley">-</td>
         <td id="price-barley">-</td>
         <td><input type="number" id="input-barley" /></td>
-        <td><button onclick="AdminMarket.updatePrice('seedBarley')">변경</button></td>
+        <td><button onclick="AdminMarket.updatePrice('bori')">변경</button></td>
       </tr>
     </tbody>
   </table>
@@ -107,6 +107,132 @@
     <tbody id="marketProductBody"></tbody>
   </table>
 
-  <script src="admin-market.js"></script>
+<script>
+const API = "https://climbing-wholly-grouper.jp.ngrok.io";
+const AdminMarket = {
+  async refreshAll() {
+    AdminMarket.getServerStatus();
+    AdminMarket.loadSeeds();
+    AdminMarket.loadUniqueProducts();
+    AdminMarket.loadMarketProducts();
+  },
+  // 서버 상태
+  async getServerStatus() {
+    try {
+      const res = await fetch(API + "/api/power-status");
+      const ok = res.ok;
+      document.getElementById("serverStatusDot").className = "status-dot " + (ok ? "status-ok" : "status-bad");
+      document.getElementById("serverStatusText").innerText = "서버 연결: " + (ok ? "정상" : "오류");
+    } catch {
+      document.getElementById("serverStatusDot").className = "status-dot status-bad";
+      document.getElementById("serverStatusText").innerText = "서버 연결: 오류";
+    }
+  },
+  // 씨앗 재고/가격 불러오기
+  async loadSeeds() {
+    const r = await fetch(API + "/api/seed/status");
+    const data = await r.json();
+    // 씨감자, 씨보리
+    let potato = data.find(x=>x.type==="gamja");
+    let barley = data.find(x=>x.type==="bori");
+    document.getElementById("qty-potato").innerText = potato ? potato.stock : "-";
+    document.getElementById("qty-barley").innerText = barley ? barley.stock : "-";
+    document.getElementById("price-potato").innerText = potato ? potato.price : "-";
+    document.getElementById("price-barley").innerText = barley ? barley.price : "-";
+  },
+  // 씨앗 가격 변경
+  async updatePrice(type) {
+    let price = type === "gamja" ? document.getElementById("input-potato").value : document.getElementById("input-barley").value;
+    if(!price || price < 1) return alert("가격을 입력하세요!");
+    await fetch(API + "/api/seed/price", {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, price: Number(price) })
+    });
+    alert("가격 변경 완료!");
+    AdminMarket.loadSeeds();
+  },
+  // 전체 고객 생산제품(합산) 목록
+  async loadUniqueProducts() {
+    const r = await fetch(API + "/api/admin/all-products-quantities");
+    const list = await r.json();
+    let html = "";
+    (list||[]).forEach(prod=>{
+      html += `<tr>
+        <td><input type="checkbox" class="prodCheck" data-name="${prod.name}" onchange="AdminMarket.checkLimit()" /></td>
+        <td>${prod.name}</td>
+        <td>${prod.total}</td>
+        <td><input type="number" min="1" class="inputAmount" /></td>
+        <td><input type="number" min="1" class="inputPrice" /></td>
+      </tr>`;
+    });
+    document.getElementById("uniqueProductsBody").innerHTML = html;
+  },
+  // 체크박스 5개 제한
+  checkLimit() {
+    let checks = document.querySelectorAll(".prodCheck:checked");
+    if(checks.length > 5) {
+      alert("최대 5개까지 선택할 수 있습니다.");
+      checks[checks.length-1].checked = false;
+    }
+  },
+  // 전광판 등록
+  async handleRegister(e) {
+    e.preventDefault();
+    let rows = Array.from(document.querySelectorAll("#uniqueProductsBody tr"));
+    let selected = [];
+    rows.forEach(row=>{
+      let cb = row.querySelector(".prodCheck");
+      if(cb && cb.checked) {
+        let name = row.cells[1].innerText;
+        let total = Number(row.cells[2].innerText);
+        let amount = Number(row.querySelector(".inputAmount").value);
+        let price = Number(row.querySelector(".inputPrice").value);
+        if(!amount || !price) return;
+        selected.push({ name, total, amount, price });
+      }
+    });
+    if(selected.length===0) return alert("등록할 제품을 선택하세요.");
+    if(selected.length>5) return alert("최대 5개까지 등록 가능합니다.");
+    const res = await fetch(API + "/api/marketdata/products/bulk", {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: selected })
+    });
+    if(res.ok) {
+      alert("전광판 등록 완료!");
+      AdminMarket.loadMarketProducts();
+    }
+  },
+  // 전광판 제품 목록
+  async loadMarketProducts() {
+    const r = await fetch(API + "/api/marketdata/products");
+    const list = await r.json();
+    let html = "";
+    (list||[]).forEach(prod=>{
+      html += `<tr>
+        <td>${prod.name}</td>
+        <td>${prod.price}</td>
+        <td>${prod.amount}</td>
+        <td>${prod.active?"ON":"OFF"}</td>
+        <td>
+          <button onclick="AdminMarket.deleteProduct('${prod._id}')">삭제</button>
+        </td>
+      </tr>`;
+    });
+    document.getElementById("marketProductBody").innerHTML = html;
+  },
+  // 전광판 제품 삭제
+  async deleteProduct(id) {
+    if(!confirm("정말 삭제하시겠습니까?")) return;
+    await fetch(API + "/api/marketdata/products/"+id, { method:"DELETE" });
+    AdminMarket.loadMarketProducts();
+  }
+};
+
+// 페이지 진입시 전체 로딩
+window.onload = ()=>AdminMarket.refreshAll();
+
+</script>
 </body>
 </html>
