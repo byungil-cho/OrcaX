@@ -22,6 +22,11 @@
     }
     .logo-img {
       width: 52px; height: 52px; border-radius: 1.1rem; margin-bottom: 0.9rem; background: #111c;
+      transition: filter 0.14s;
+      cursor: pointer;
+    }
+    .logo-img:hover {
+      filter: brightness(1.1) drop-shadow(0 2px 8px #ffd70055);
     }
     h2 {
       text-align: center;
@@ -100,7 +105,9 @@
 <body>
   <div class="signup-container">
     <div style="text-align:center;">
-      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+      <a href="https://byungil-cho.github.io/OrcaX/Cargo/index.html">
+        <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+      </a>
     </div>
     <h2>회원가입</h2>
     <button class="sns-btn kakao" type="button" onclick="alert('카카오 간편가입 연동')">카카오로 1초 가입</button>

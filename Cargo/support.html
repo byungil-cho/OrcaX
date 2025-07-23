@@ -22,6 +22,11 @@
     }
     .logo-img {
       width: 44px; height: 44px; border-radius: 1.2rem; margin-bottom: 0.7rem; background: #111c;
+      transition: filter 0.14s;
+      cursor: pointer;
+    }
+    .logo-img:hover {
+      filter: brightness(1.1) drop-shadow(0 2px 8px #ffd70055);
     }
     h2 {
       text-align: center;
@@ -93,7 +98,9 @@
 <body>
   <div class="support-container">
     <div style="text-align:center;">
-      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+      <a href="https://byungil-cho.github.io/OrcaX/Cargo/index.html">
+        <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+      </a>
     </div>
     <h2>고객센터 · FAQ</h2>
     <div class="section-title">자주 묻는 질문</div>

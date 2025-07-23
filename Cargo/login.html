@@ -30,6 +30,11 @@
       width: 75px; height: 75px; border-radius: 1.2rem; margin-bottom: 0.7rem;
       box-shadow: 0 4px 16px #05214a32;
       background: #111c;
+      transition: filter 0.14s;
+      cursor: pointer;
+    }
+    .logo-img:hover {
+      filter: brightness(1.1) drop-shadow(0 2px 8px #ffd70055);
     }
     h2 {
       font-size: 1.45rem;
@@ -114,7 +119,9 @@
 </head>
 <body>
   <div class="login-container">
-    <img src="img/log_01.jpg" class="logo-img" alt="OrcaX 로고" />
+    <a href="https://byungil-cho.github.io/OrcaX/Cargo/index.html">
+      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX 로고" />
+    </a>
     <h2>로그인 · 회원가입</h2>
     <form>
       <div class="input-group">
