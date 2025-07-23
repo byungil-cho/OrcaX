@@ -115,12 +115,12 @@
   <script>
     const basePriceMap = {
       "damas": 50000,
-      "1t": 60000,
-      "1.4t": 70000,
-      "2.5t": 80000,
-      "4.5t": 90000,
-      "5t": 100000,
-      "11t": 110000
+      "1t": 70000,
+      "1.4t": 80000,
+      "2.5t": 100000,
+      "4.5t": 120000,
+      "5t": 130000,
+      "11t": 160000
     };
     function estimatePrice() {
       const car = document.getElementById('carType').value;
@@ -130,7 +130,7 @@
         return;
       }
       const base = basePriceMap[car] || 0;
-      const perKm = 700;
+      const perKm = 500;
       const price = base + km * perKm;
       document.getElementById('estPrice').innerText =
         (km > 0 ? `예상 운임: ` : '') + (km > 0 ? price.toLocaleString() + '원 (부가세포함)' : '');
