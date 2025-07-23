@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>화물주문 신청 | OrcaX 화물</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    .order-container {
+      background: rgba(22,36,62,0.97);
+      border-radius: 1.7rem;
+      padding: 1.8rem 1.1rem 1.2rem 1.1rem;
+      margin: 2.5rem auto 0 auto;
+      max-width: 440px;
+      box-shadow: 0 6px 36px #021e3f50;
+    }
+    .logo-img {
+      width: 55px; height: 55px; border-radius: 1.2rem; margin-bottom: 0.7rem;
+      background: #151c2e;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.1rem;
+      font-size: 1.29rem;
+      font-weight: 700;
+      color: #ffe37b;
+    }
+    .input-group {
+      margin-bottom: 1.12rem;
+    }
+    .input-group label {
+      display: block;
+      font-size: 1.04rem;
+      color: #ffe27e;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+      width: 100%;
+      padding: 0.78rem;
+      border: none;
+      border-radius: 0.75rem;
+      font-size: 1.09rem;
+      background: #e8f3ff;
+      color: #142741;
+      margin-bottom: 0.08rem;
+      outline: none;
+      resize: none;
+      transition: box-shadow 0.16s;
+    }
+    .input-group input:focus,
+    .input-group select:focus,
+    .input-group textarea:focus {
+      box-shadow: 0 0 0 2px #2b74ff44;
+    }
+    .price-preview {
+      margin: 0.4rem 0 0.5rem 0;
+      font-size: 1.11rem;
+      color: #b2eaff;
+      text-align: right;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    .notice {
+      background: #253b4fbb;
+      color: #fffacd;
+      font-size: 0.99rem;
+      border-radius: 0.7rem;
+      padding: 0.9rem 0.7rem;
+      text-align: left;
+      margin: 0.8rem 0 1.1rem 0;
+      line-height: 1.6;
+    }
+    .notice .phone {
+      color: #ffe34d;
+      font-weight: bold;
+      font-size: 1.02em;
+      margin-left: 0.3em;
+    }
+    .order-btn {
+      width: 100%;
+      padding: 1.0rem;
+      font-size: 1.13rem;
+      border: none;
+      border-radius: 1.3rem;
+      background: #0070f3;
+      color: #fff;
+      font-weight: 600;
+      margin-top: 0.7rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #00417733;
+      transition: background 0.17s;
+    }
+    .order-btn:hover { background: #0056b3; }
+    @media (max-width:500px) {
+      .order-container { padding: 1.0rem 0.5rem 0.7rem 0.5rem; margin-top: 1.2rem; }
+      .logo-img { width: 42px; height: 42px;}
+      h2 { font-size: 1.04rem;}
+      .notice { font-size: 0.93rem; padding: 0.7rem 0.3rem; }
+    }
+  </style>
+  <script>
+    const basePriceMap = {
+      "damas": 50000,
+      "1t": 60000,
+      "1.4t": 70000,
+      "2.5t": 80000,
+      "4.5t": 90000,
+      "5t": 100000,
+      "11t": 110000
+    };
+    function estimatePrice() {
+      const car = document.getElementById('carType').value;
+      const km = parseInt(document.getElementById('distance').value) || 0;
+      if (!car) {
+        document.getElementById('estPrice').innerText = '';
+        return;
+      }
+      const base = basePriceMap[car] || 0;
+      const perKm = 100;
+      const price = base + km * perKm;
+      document.getElementById('estPrice').innerText =
+        (km > 0 ? `예상 운임: ` : '') + (km > 0 ? price.toLocaleString() + '원 (부가세포함)' : '');
+    }
+  </script>
+</head>
+<body>
+  <div class="order-container">
+    <div style="text-align:center;">
+      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+    </div>
+    <h2>화물주문 신청</h2>
+    <form autocomplete="off">
+      <div class="input-group">
+        <label for="from">출발지</label>
+        <input type="text" id="from" name="from" placeholder="예: 안산시 상록구" required />
+      </div>
+      <div class="input-group">
+        <label for="to">도착지</label>
+        <input type="text" id="to" name="to" placeholder="예: 대전광역시" required />
+      </div>
+      <div class="input-group">
+        <label for="carType">차량종류</label>
+        <select id="carType" name="carType" onchange="estimatePrice()" required>
+          <option value="">차량 선택</option>
+          <option value="damas">다마스/0.5톤</option>
+          <option value="1t">1톤/1톤카고</option>
+          <option value="1.4t">1.4톤/1.4톤카고</option>
+          <option value="2.5t">2.5톤 카고</option>
+          <option value="4.5t">4.5톤 카고</option>
+          <option value="5t">5톤 카고</option>
+          <option value="11t">11톤 카고</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="distance">예상거리 (km)</label>
+        <input type="number" min="1" id="distance" name="distance" placeholder="예: 170" oninput="estimatePrice()" required />
+      </div>
+      <div class="price-preview" id="estPrice"></div>
+      <div class="notice">
+        ※ <b>현재 가격은 예상 가격입니다.</b><br>
+        상세 가격은 <span class="phone">010-1234-5678</span>로 전화 문의 주세요.
+      </div>
+      <div class="input-group">
+        <label for="tel">연락처</label>
+        <input type="tel" id="tel" name="tel" placeholder="예: 010-1234-5678" required />
+      </div>
+      <div class="input-group">
+        <label for="memo">특이사항/요청</label>
+        <textarea id="memo" name="memo" rows="2" placeholder="상세 요청 또는 적재물, 부가사항 등"></textarea>
+      </div>
+      <button type="submit" class="order-btn">주문 신청</button>
+    </form>
+  </div>
+</body>
+</html>

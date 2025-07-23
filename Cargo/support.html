@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>고객센터 | OrcaX 화물</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    .support-container {
+      background: rgba(22,36,62,0.97);
+      border-radius: 1.7rem;
+      padding: 1.8rem 1.1rem 1.2rem 1.1rem;
+      margin: 2.5rem auto 0 auto;
+      max-width: 460px;
+      box-shadow: 0 6px 36px #021e3f50;
+    }
+    .logo-img {
+      width: 44px; height: 44px; border-radius: 1.2rem; margin-bottom: 0.7rem; background: #111c;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.0rem;
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #ffe37b;
+    }
+    .section-title {
+      font-size: 1.04rem;
+      color: #b7e2ff;
+      font-weight: 700;
+      margin: 1.1rem 0 0.35rem 0;
+      border-bottom: 1px solid #35578844;
+      padding-bottom: 0.2rem;
+    }
+    .faq-list, .notice-list {
+      margin: 0 0 0.8rem 0;
+      padding: 0;
+      list-style: none;
+      font-size: 1.03rem;
+      color: #e5f3ff;
+    }
+    .faq-list li, .notice-list li {
+      padding: 0.37rem 0.2rem;
+      border-bottom: 1px solid #28579b22;
+    }
+    .ask-form {
+      margin-top: 1.3rem;
+      background: #23365a77;
+      border-radius: 0.9rem;
+      padding: 1.1rem 0.7rem;
+    }
+    .ask-form input, .ask-form textarea {
+      width: 100%;
+      padding: 0.7rem;
+      margin-bottom: 0.8rem;
+      border: none;
+      border-radius: 0.7rem;
+      font-size: 1.01rem;
+      background: #e8f3ff;
+      color: #102549;
+      outline: none;
+      resize: none;
+    }
+    .ask-form textarea { min-height: 72px;}
+    .ask-btn {
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 1.2rem;
+      background: #0070f3;
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      font-size: 1.07rem;
+      margin-bottom: 0.3rem;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .ask-btn:hover { background: #0056b3;}
+    @media (max-width: 500px) {
+      .support-container { padding: 1.1rem 0.5rem 0.6rem 0.5rem; margin-top: 1.1rem;}
+      .logo-img { width: 33px; height: 33px;}
+      h2 { font-size: 0.96rem;}
+      .section-title { font-size: 0.9rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="support-container">
+    <div style="text-align:center;">
+      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+    </div>
+    <h2>고객센터 · FAQ</h2>
+    <div class="section-title">자주 묻는 질문</div>
+    <ul class="faq-list">
+      <li><b>Q.</b> 운송 주문은 어떻게 하나요?<br>
+          <b>A.</b> [화물주문 신청] 메뉴에서 출발/도착지, 차량, 거리를 입력 후 신청하면 됩니다.
+      </li>
+      <li><b>Q.</b> 결제수단은 무엇이 지원되나요?<br>
+          <b>A.</b> 카카오페이, 네이버페이, 신용카드 모두 사용 가능합니다.
+      </li>
+      <li><b>Q.</b> ORCX 포인트는 어디서 확인하나요?<br>
+          <b>A.</b> [마이페이지]에서 포인트 적립/사용 내역을 모두 확인할 수 있습니다.
+      </li>
+    </ul>
+    <div class="section-title">공지사항</div>
+    <ul class="notice-list">
+      <li>[이벤트] 첫 가입시 1,000 ORCX 즉시 적립!</li>
+      <li>[안내] 화물 요금표/배차시스템 업그레이드 완료</li>
+    </ul>
+    <form class="ask-form" autocomplete="off">
+      <div class="section-title" style="border:none;">문의하기</div>
+      <input type="text" name="name" placeholder="이름/연락처" required>
+      <textarea name="ask" placeholder="문의/요청사항을 남겨주세요" required></textarea>
+      <button type="submit" class="ask-btn">문의 남기기</button>
+    </form>
+  </div>
+</body>
+</html>

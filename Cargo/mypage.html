@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>마이페이지 | OrcaX 화물</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    .mypage-container {
+      background: rgba(22,36,62,0.97);
+      border-radius: 1.7rem;
+      padding: 1.8rem 1.1rem 1.2rem 1.1rem;
+      margin: 2.5rem auto 0 auto;
+      max-width: 450px;
+      box-shadow: 0 6px 36px #021e3f50;
+    }
+    .logo-img {
+      width: 50px; height: 50px; border-radius: 1.2rem; margin-bottom: 0.7rem; background: #111c;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.0rem;
+      font-size: 1.19rem;
+      font-weight: 700;
+      color: #ffe37b;
+    }
+    .section-title {
+      font-size: 1.09rem;
+      color: #b7e2ff;
+      font-weight: 700;
+      margin: 1.2rem 0 0.4rem 0;
+      border-bottom: 1px solid #35578844;
+      padding-bottom: 0.2rem;
+    }
+    .info-list {
+      margin: 0 0 0.8rem 0;
+      padding: 0;
+      list-style: none;
+      font-size: 1.03rem;
+      color: #e5f3ff;
+    }
+    .info-list li {
+      padding: 0.44rem 0.2rem 0.44rem 0.2rem;
+      border-bottom: 1px solid #28579b22;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-logout, .btn-edit {
+      padding: 0.52rem 1.1rem;
+      border-radius: 1.2rem;
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.99rem;
+      background: #0070f3;
+      margin: 0.4rem 0.2rem 0 0;
+      cursor: pointer;
+      transition: background 0.16s;
+    }
+    .btn-logout:hover, .btn-edit:hover { background: #0056b3;}
+    @media (max-width: 500px) {
+      .mypage-container { padding: 1.1rem 0.5rem 0.6rem 0.5rem; margin-top: 1.1rem;}
+      .logo-img { width: 38px; height: 38px;}
+      h2 { font-size: 0.98rem;}
+      .section-title { font-size: 0.92rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="mypage-container">
+    <div style="text-align:center;">
+      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+    </div>
+    <h2>마이페이지</h2>
+    <div class="section-title">나의 포인트</div>
+    <ul class="info-list">
+      <li>
+        <span>보유 ORCX 포인트</span>
+        <span><b>12,500</b> ORCX</span>
+      </li>
+      <li>
+        <span>누적 운송 주문</span>
+        <span>4건</span>
+      </li>
+    </ul>
+    <div class="section-title">최근 주문/배차 현황</div>
+    <ul class="info-list">
+      <li>
+        <span>2024-07-21 대전 → 서울 (1톤)</span>
+        <span style="color:#3ecbff;">운송완료</span>
+      </li>
+      <li>
+        <span>2024-07-18 안산 → 대구 (2.5톤)</span>
+        <span style="color:#ffe16e;">진행중</span>
+      </li>
+    </ul>
+    <div class="section-title">내 정보</div>
+    <ul class="info-list">
+      <li>
+        <span>이름</span>
+        <span>홍길동</span>
+      </li>
+      <li>
+        <span>연락처</span>
+        <span>010-1234-5678</span>
+      </li>
+      <li>
+        <span>이메일</span>
+        <span>orca@orcax.com</span>
+      </li>
+      <li>
+        <span>회원등급</span>
+        <span>일반</span>
+      </li>
+    </ul>
+    <button class="btn-edit" onclick="alert('개인정보 수정 기능 예정')">개인정보 수정</button>
+    <button class="btn-logout" onclick="alert('로그아웃 처리 예정')">로그아웃</button>
+  </div>
+</body>
+</html>

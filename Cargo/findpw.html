@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>비밀번호 찾기 | OrcaX 화물</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    .pw-container {
+      background: rgba(22,36,62,0.97);
+      border-radius: 1.7rem;
+      padding: 2.1rem 1.1rem 1.2rem 1.1rem;
+      margin: 2.7rem auto 0 auto;
+      max-width: 370px;
+      box-shadow: 0 6px 36px #021e3f50;
+    }
+    .logo-img {
+      width: 45px; height: 45px; border-radius: 1.1rem; margin-bottom: 0.7rem; background: #111c;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.15rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffe37b;
+    }
+    .input-group {
+      margin-bottom: 1.08rem;
+    }
+    .input-group label {
+      display: block;
+      font-size: 1.01rem;
+      color: #ffe27e;
+      margin-bottom: 0.21rem;
+      font-weight: 500;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 0.75rem;
+      font-size: 1.09rem;
+      background: #e8f3ff;
+      color: #142741;
+      outline: none;
+      transition: box-shadow 0.15s;
+    }
+    .input-group input:focus {
+      box-shadow: 0 0 0 2px #2b74ff44;
+    }
+    .find-btn {
+      width: 100%;
+      padding: 0.92rem;
+      font-size: 1.13rem;
+      border: none;
+      border-radius: 1.25rem;
+      background: #0070f3;
+      color: #fff;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #00417733;
+      transition: background 0.16s;
+    }
+    .find-btn:hover { background: #0056b3;}
+    .sub-links {
+      margin-top: 1.2rem;
+      font-size: 0.97rem;
+      color: #e9f2ffcc;
+      text-align: center;
+    }
+    .sub-links a {
+      color: #fff;
+      text-decoration: underline;
+      margin: 0 0.6rem;
+      font-weight: 500;
+    }
+    @media (max-width:500px) {
+      .pw-container {padding: 1.15rem 0.6rem 0.7rem 0.6rem; margin-top: 1.1rem;}
+      .logo-img { width: 33px; height: 33px;}
+      h2 { font-size: 0.98rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="pw-container">
+    <div style="text-align:center;">
+      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+    </div>
+    <h2>비밀번호 찾기</h2>
+    <form autocomplete="off">
+      <div class="input-group">
+        <label for="email">가입 이메일</label>
+        <input type="email" id="email" name="email" required placeholder="이메일을 입력하세요" />
+      </div>
+      <div class="input-group">
+        <label for="phone">연락처 (선택)</label>
+        <input type="tel" id="phone" name="phone" placeholder="010-1234-5678" />
+      </div>
+      <button type="submit" class="find-btn">임시 비밀번호 발송</button>
+    </form>
+    <div class="sub-links">
+      <a href="login.html">로그인</a>
+      <a href="signup.html">회원가입</a>
+    </div>
+  </div>
+</body>
+</html>

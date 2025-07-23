@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>배차 현황 | OrcaX 화물</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    .dispatch-container {
+      background: rgba(22,36,62,0.97);
+      border-radius: 1.7rem;
+      padding: 2.0rem 1.2rem 1.2rem 1.2rem;
+      margin: 2.5rem auto 0 auto;
+      max-width: 430px;
+      box-shadow: 0 6px 36px #021e3f50;
+    }
+    .logo-img {
+      width: 48px; height: 48px; border-radius: 1.1rem; margin-bottom: 0.7rem; background: #111c;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.0rem;
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #ffe37b;
+    }
+    .status-block {
+      background: #23365a77;
+      border-radius: 0.8rem;
+      margin-bottom: 1.3rem;
+      padding: 1.0rem 0.7rem 0.7rem 0.7rem;
+    }
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.65rem;
+      font-size: 1.06rem;
+    }
+    .status-label {
+      color: #8edcff;
+      font-weight: 700;
+    }
+    .status-value {
+      font-weight: 600;
+    }
+    .progress-bar {
+      height: 11px;
+      width: 100%;
+      background: #3c588533;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 0.7rem;
+      margin-bottom: 0.4rem;
+    }
+    .progress {
+      height: 100%;
+      background: linear-gradient(90deg,#33e0ff,#0091ea);
+      border-radius: 5px;
+      width: 55%; /* 진행 퍼센트에 따라 JS로 변경 */
+      transition: width 0.3s;
+    }
+    .status-step {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.2rem;
+      font-size: 0.98rem;
+      color: #d7e8ff;
+    }
+    .actions {
+      margin-top: 1.2rem;
+      text-align: center;
+    }
+    .act-btn {
+      background: #0070f3;
+      color: #fff;
+      border: none;
+      border-radius: 1.2rem;
+      padding: 0.8rem 1.8rem;
+      font-size: 1.07rem;
+      font-weight: 600;
+      margin: 0.1rem 0.6rem 0.1rem 0.6rem;
+      box-shadow: 0 2px 8px #00417733;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .act-btn:hover { background: #0056b3;}
+    .subinfo {
+      margin-top: 1.3rem;
+      color: #e5e8fb88;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    @media (max-width: 500px) {
+      .dispatch-container { padding: 1.1rem 0.5rem 0.7rem 0.5rem; margin-top: 1.1rem;}
+      .logo-img { width: 33px; height: 33px;}
+      h2 { font-size: 0.98rem;}
+      .status-step { font-size: 0.82rem;}
+    }
+  </style>
+  <script>
+    // 예시 - 상태 진행도 연동
+    window.onload = function() {
+      // 예시상태 (1:배차대기, 2:배차완료, 3:운송중, 4:완료)
+      var nowStatus = 3;
+      var statusText = ['배차대기','배차완료','운송중','운송완료'];
+      var percent = [12, 33, 66, 100];
+      document.getElementById('curStatus').innerText = statusText[nowStatus-1];
+      document.getElementById('prog').style.width = percent[nowStatus-1]+"%";
+    }
+  </script>
+</head>
+<body>
+  <div class="dispatch-container">
+    <div style="text-align:center;">
+      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+    </div>
+    <h2>배차 현황/진행 상태</h2>
+    <div class="status-block">
+      <div class="status-row">
+        <span class="status-label">주문번호</span>
+        <span class="status-value">#240721-0027</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">출발지</span>
+        <span class="status-value">안산시 상록구</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">도착지</span>
+        <span class="status-value">대전광역시</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">차량종류</span>
+        <span class="status-value">1톤 카고</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">기사연락처</span>
+        <span class="status-value">010-2345-8888</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">진행상태</span>
+        <span class="status-value" id="curStatus"></span>
+      </div>
+      <div class="progress-bar"><div class="progress" id="prog"></div></div>
+      <div class="status-step">
+        <span>배차대기</span>
+        <span>배차완료</span>
+        <span>운송중</span>
+        <span>운송완료</span>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="act-btn" onclick="alert('실시간 위치 확인(예정)')">위치 확인</button>
+      <button class="act-btn" onclick="alert('운송 완료 확인(예정)')">운송 완료</button>
+    </div>
+    <div class="subinfo">
+      • 운송 및 배차 상태가 실시간으로 표시됩니다.<br>
+      • 문의: <b>고객센터</b>에서 실시간 상담 가능합니다.
+    </div>
+  </div>
+</body>
+</html>

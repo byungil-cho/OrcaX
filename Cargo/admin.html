@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>관리자 대시보드 | OrcaX 화물</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    .admin-container {
+      background: rgba(22,36,62,0.97);
+      border-radius: 1.7rem;
+      padding: 2.0rem 1.3rem 1.2rem 1.3rem;
+      margin: 2.5rem auto 0 auto;
+      max-width: 530px;
+      box-shadow: 0 6px 36px #021e3f50;
+    }
+    .logo-img {
+      width: 48px; height: 48px; border-radius: 1.2rem; margin-bottom: 0.7rem; background: #111c;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.0rem;
+      font-size: 1.22rem;
+      font-weight: 700;
+      color: #ffe37b;
+    }
+    .section-title {
+      font-size: 1.09rem;
+      color: #b7e2ff;
+      font-weight: 700;
+      margin: 1.15rem 0 0.4rem 0;
+      border-bottom: 1px solid #35578844;
+      padding-bottom: 0.2rem;
+    }
+    .admin-list {
+      margin: 0 0 1.1rem 0;
+      padding: 0;
+      list-style: none;
+      font-size: 1.05rem;
+      color: #e5f3ff;
+    }
+    .admin-list li {
+      padding: 0.55rem 0.2rem 0.55rem 0.2rem;
+      border-bottom: 1px solid #28579b22;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-btn {
+      padding: 0.5rem 1.2rem;
+      border-radius: 1.1rem;
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.01rem;
+      background: #0070f3;
+      margin-left: 0.3rem;
+      cursor: pointer;
+      transition: background 0.16s;
+    }
+    .admin-btn:hover { background: #0056b3;}
+    @media (max-width: 500px) {
+      .admin-container { padding: 1.2rem 0.6rem 0.7rem 0.6rem; margin-top: 1.1rem;}
+      .logo-img { width: 35px; height: 35px;}
+      h2 { font-size: 0.98rem;}
+      .section-title { font-size: 0.92rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div style="text-align:center;">
+      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+    </div>
+    <h2>관리자 대시보드</h2>
+    <div class="section-title">관리 항목</div>
+    <ul class="admin-list">
+      <li>
+        <span>회원 관리</span>
+        <button class="admin-btn" onclick="alert('회원 관리로 이동(연동예정)')">이동</button>
+      </li>
+      <li>
+        <span>운송 주문/배차 현황</span>
+        <button class="admin-btn" onclick="alert('주문/배차 관리로 이동(연동예정)')">이동</button>
+      </li>
+      <li>
+        <span>포인트 정산 관리</span>
+        <button class="admin-btn" onclick="alert('정산 관리로 이동(연동예정)')">이동</button>
+      </li>
+      <li>
+        <span>화물 요금표/차량 설정</span>
+        <button class="admin-btn" onclick="alert('요금표 관리로 이동(연동예정)')">이동</button>
+      </li>
+      <li>
+        <span>공지사항/FAQ 관리</span>
+        <button class="admin-btn" onclick="alert('공지/FAQ 관리로 이동(연동예정)')">이동</button>
+      </li>
+      <li>
+        <span>통계·데이터 분석</span>
+        <button class="admin-btn" onclick="alert('통계 데이터로 이동(연동예정)')">이동</button>
+      </li>
+    </ul>
+    <div style="text-align:center; margin-top:1.1rem; color:#ffb278; font-size:0.97rem;">
+      * 본 화면은 관리자용이며, 보안이 필요한 페이지입니다.
+    </div>
+  </div>
+</body>
+</html>

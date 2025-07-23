@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>로그인 | OrcaX 화물</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+    .login-container {
+      background: rgba(22,36,62,0.97);
+      border-radius: 2rem;
+      padding: 2.2rem 1.5rem 1.5rem 1.5rem;
+      margin-top: 3rem;
+      box-shadow: 0 6px 36px #021e3f50;
+      width: 98vw;
+      max-width: 360px;
+      text-align: center;
+    }
+    .logo-img {
+      width: 75px; height: 75px; border-radius: 1.2rem; margin-bottom: 0.7rem;
+      box-shadow: 0 4px 16px #05214a32;
+      background: #111c;
+    }
+    h2 {
+      font-size: 1.45rem;
+      margin: 0.3rem 0 1.2rem 0;
+      color: #e6f4ff;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .input-group {
+      margin-bottom: 1.2rem;
+      text-align: left;
+    }
+    .input-group label {
+      display: block;
+      font-size: 1.01rem;
+      color: #ffe27e;
+      margin-bottom: 0.3rem;
+      margin-left: 0.1rem;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 0.8rem;
+      font-size: 1.07rem;
+      background: #e8f3ff;
+      color: #102549;
+      margin-bottom: 0.2rem;
+      outline: none;
+      transition: box-shadow 0.16s;
+    }
+    .input-group input:focus {
+      box-shadow: 0 0 0 2px #2b74ff44;
+    }
+    .login-btn, .sns-btn {
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 1.13rem;
+      border: none;
+      border-radius: 1.3rem;
+      background: #0070f3;
+      color: #fff;
+      font-weight: 600;
+      margin-top: 0.6rem;
+      margin-bottom: 0.2rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #00417733;
+      transition: background 0.18s;
+    }
+    .login-btn:hover, .sns-btn:hover {
+      background: #0056b3;
+    }
+    .sns-btn {
+      background: #FAE100;
+      color: #232323;
+      margin-top: 0.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .sns-btn.naver { background: #2db400; color: #fff;}
+    .sns-btn.kakao { background: #fee500; color: #181600;}
+    .sns-btn + .sns-btn {margin-top: 0.3rem;}
+    .divider {
+      margin: 1.3rem 0 0.8rem 0;
+      color: #b2c3d3;
+      font-size: 1.02rem;
+      font-weight: 500;
+    }
+    .sub-links {
+      margin-top: 1.2rem;
+      font-size: 0.98rem;
+      color: #e9f2ffcc;
+    }
+    .sub-links a {
+      color: #fff;
+      text-decoration: underline;
+      margin: 0 0.6rem;
+      font-weight: 500;
+    }
+    @media (max-width:500px) {
+      .login-container {padding: 1.4rem 0.7rem 1rem 0.7rem; margin-top: 1.7rem;}
+      .logo-img {width: 54px; height: 54px;}
+      h2 {font-size: 1.09rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <img src="img/log_01.jpg" class="logo-img" alt="OrcaX 로고" />
+    <h2>로그인 · 회원가입</h2>
+    <form>
+      <div class="input-group">
+        <label for="userId">아이디 (이메일/전화번호)</label>
+        <input type="text" id="userId" name="userId" autocomplete="username" required />
+      </div>
+      <div class="input-group">
+        <label for="userPw">비밀번호</label>
+        <input type="password" id="userPw" name="userPw" autocomplete="current-password" required />
+      </div>
+      <button class="login-btn" type="submit">로그인</button>
+    </form>
+    <div class="divider">SNS 간편로그인</div>
+    <button class="sns-btn naver" onclick="location.href='#'">네이버 로그인</button>
+    <button class="sns-btn kakao" onclick="location.href='#'">카카오 로그인</button>
+    <div class="sub-links">
+      <a href="signup.html">회원가입</a>
+      <a href="findpw.html">비밀번호 찾기</a>
+      <a href="driver-signup.html" style="color:#ffd232;">기사 회원가입</a>
+    </div>
+  </div>
+</body>
+</html>

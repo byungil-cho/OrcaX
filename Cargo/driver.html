@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>기사 전용 | OrcaX 화물</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    .driver-container {
+      background: rgba(22,36,62,0.97);
+      border-radius: 1.7rem;
+      padding: 2.0rem 1.2rem 1.2rem 1.2rem;
+      margin: 2.5rem auto 0 auto;
+      max-width: 430px;
+      box-shadow: 0 6px 36px #021e3f50;
+    }
+    .logo-img {
+      width: 48px; height: 48px; border-radius: 1.1rem; margin-bottom: 0.7rem; background: #111c;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.0rem;
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #ffe37b;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.1rem;
+      border-bottom: 1px solid #2a6cff22;
+      font-size: 1.03rem;
+    }
+    .myearn {
+      text-align: right;
+      margin: 1.1rem 0 0.5rem 0;
+      color: #96ebff;
+      font-size: 1.08rem;
+      font-weight: 600;
+    }
+    .section-title {
+      font-size: 1.09rem;
+      color: #b7e2ff;
+      font-weight: 700;
+      margin: 1.15rem 0 0.4rem 0;
+      border-bottom: 1px solid #35578844;
+      padding-bottom: 0.2rem;
+    }
+    .dispatch-list {
+      margin: 0 0 1.1rem 0;
+      padding: 0;
+      list-style: none;
+      font-size: 1.01rem;
+      color: #e5f3ff;
+    }
+    .dispatch-list li {
+      padding: 0.56rem 0.2rem 0.56rem 0.2rem;
+      border-bottom: 1px solid #28579b22;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .d-btn {
+      padding: 0.5rem 1.1rem;
+      border-radius: 1.1rem;
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.97rem;
+      background: #0070f3;
+      margin-top: 0.3rem;
+      cursor: pointer;
+      transition: background 0.16s;
+    }
+    .d-btn.accept { background: #22b355; }
+    .d-btn.done { background: #ffc42e; color: #18380d;}
+    .d-btn:hover { background: #0056b3;}
+    .subinfo {
+      margin-top: 1.2rem;
+      color: #e5e8fb88;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    .logout-btn {
+      width: 100%;
+      margin: 1.2rem 0 0 0;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 1.2rem;
+      background: #e74c3c;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.01rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .logout-btn:hover { background: #ba2c00; }
+    @media (max-width: 500px) {
+      .driver-container { padding: 1.1rem 0.5rem 0.7rem 0.5rem; margin-top: 1.1rem;}
+      .logo-img { width: 33px; height: 33px;}
+      h2 { font-size: 0.98rem;}
+      .section-title { font-size: 0.92rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="driver-container">
+    <div style="text-align:center;">
+      <img src="img/log_01.jpg" class="logo-img" alt="OrcaX로고" />
+    </div>
+    <h2>기사 전용 페이지</h2>
+    <div class="info-row">
+      <span>이름</span>
+      <span>박기사</span>
+    </div>
+    <div class="info-row">
+      <span>차량번호</span>
+      <span>12가 1234</span>
+    </div>
+    <div class="info-row">
+      <span>금일 누적수익</span>
+      <span>145,000원</span>
+    </div>
+    <div class="myearn">보유 ORCX 포인트 <b>2,500</b> ORCX</div>
+    <div class="section-title">내 배차 현황</div>
+    <ul class="dispatch-list">
+      <li>
+        <div>
+          <b>안산→대전 (1톤) </b><br>
+          <span style="color:#ffe18e;">운송중 | #240721-0027</span>
+        </div>
+        <button class="d-btn done" onclick="alert('운송완료 처리!')">운송완료</button>
+      </li>
+      <li>
+        <div>
+          <b>수원→창원 (2.5톤)</b><br>
+          <span style="color:#8edcff;">배차대기 | #240721-0029</span>
+        </div>
+        <button class="d-btn accept" onclick="alert('배차수락!')">수락</button>
+      </li>
+    </ul>
+    <div class="section-title">정산 · 내역</div>
+    <ul class="dispatch-list">
+      <li>
+        <span>2024-07-18 대전→부산</span>
+        <span style="color:#60ffc6;">완료 (45,000원)</span>
+      </li>
+      <li>
+        <span>2024-07-14 평택→서울</span>
+        <span style="color:#60ffc6;">완료 (73,000원)</span>
+      </li>
+    </ul>
+    <button class="logout-btn" onclick="alert('로그아웃 처리!')">로그아웃</button>
+    <div class="subinfo">
+      • 신규 배차/운송 현황은 실시간으로 안내됩니다.<br>
+      • 운송 완료시 정산/포인트 자동 적립<br>
+      • 문의: <b>고객센터</b>에서 기사 전용 상담 지원
+    </div>
+  </div>
+</body>
+</html>
