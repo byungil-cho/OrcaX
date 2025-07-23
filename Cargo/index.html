@@ -101,7 +101,6 @@
       color: #fff700;
       text-decoration: underline;
     }
-    /* 사업자정보 팝업 스타일 */
     .biz-info-hover {
       color: #ffd66b;
       cursor: pointer;
@@ -149,15 +148,19 @@
       gap: 1em;
       margin-bottom: 0.2em;
     }
-    .footer-row .footer-link {
-      margin: 0 0.4em;
+    .admin-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 0.5em;
+      gap: 1em;
     }
     @media (max-width: 600px) {
       .logo-img { width: 105px; height: 105px; }
       .brand-title { font-size: 1.2rem; }
       .main-btns a { font-size: 0.96rem; padding: 0.8rem 1.2rem; }
       .biz-popup { font-size: 0.93em; min-width: 170px; max-width: 90vw; }
-      .footer-row { flex-direction: column; gap: 0.7em; }
+      .footer-row, .admin-row { flex-direction: column; gap: 0.7em; }
     }
   </style>
 </head>
@@ -182,12 +185,13 @@
     </div>
   </div>
   <div class="footer">
-    © OrcaX 화물 | 쉽고 빠른 전국 화물 주문/배차 · Powered by ORCX<br>
-    <div class="footer-row">
+    <div class="admin-row">
       <!-- 관리자: 비번 2233 -->
       <a href="#" onclick="adminLogin();return false;" class="footer-link" style="color:#ffe;text-decoration:underline;font-size:0.88em;">관리자</a>
+    </div>
+    © OrcaX 화물 | 쉽고 빠른 전국 화물 주문/배차 · Powered by ORCX<br>
+    <div class="footer-row">
       <a href="terms.html" class="footer-link">이용약관</a>
-      <!-- 사업자정보 가운데 배치 -->
       <span class="biz-info-hover" tabindex="0">
         사업자정보
         <div class="biz-popup">
