@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>영원의 집 1호 – 인생 스토리/가족사</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 60% 18%, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.74;
+    }
+    .container {
+      max-width: 860px;
+      margin: 2.2rem auto 0 auto;
+      background: rgba(22,36,62,0.98);
+      border-radius: 2.2rem;
+      box-shadow: 0 6px 44px #021e3f70;
+      padding: 2.3rem 1.5rem 2.1rem 1.5rem;
+    }
+    h1 {
+      color: #ffe37b;
+      font-weight: 900;
+      font-size: 2.11rem;
+      letter-spacing: -1.2px;
+      text-align: center;
+      margin-bottom: 1.7rem;
+      text-shadow: 1px 2px 8px #1128;
+    }
+    .profile-img {
+      display: block;
+      margin: 0 auto 1.6rem auto;
+      width: 116px; height: 116px;
+      border-radius: 50%;
+      box-shadow: 0 3px 18px #ffe37b66;
+      border: 4px solid #ffe37b44;
+      background: #fff1;
+      object-fit: cover;
+    }
+    .timeline {
+      margin: 2.3rem 0 2.5rem 0;
+      border-left: 3px solid #ffe37b77;
+      padding-left: 2.1rem;
+      position: relative;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: -6px; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(#ffe37b, #23457c 85%);
+      border-radius: 2px;
+    }
+    .tl-event {
+      margin-bottom: 2.1rem;
+      position: relative;
+    }
+    .tl-date {
+      font-size: 1.08em;
+      color: #ffe37b;
+      font-weight: 700;
+      margin-bottom: 0.28em;
+    }
+    .tl-title {
+      font-size: 1.08em;
+      color: #fff;
+      font-weight: 600;
+      margin-bottom: 0.14em;
+      letter-spacing: -0.5px;
+    }
+    .tl-desc {
+      font-size: 0.99em;
+      color: #fffded;
+      margin-bottom: 0.12em;
+      line-height: 1.7;
+    }
+    .tl-img {
+      width: 76px; height: 76px;
+      border-radius: 1.2em;
+      object-fit: cover;
+      box-shadow: 0 2px 12px #ffe37b33;
+      background: #fff1;
+      margin: 0.55em 0 0.22em 0;
+    }
+    .back-btn {
+      display: block;
+      width: max-content;
+      margin: 1.6rem auto 0 auto;
+      padding: 0.9em 2.2em;
+      background: #ffe37b;
+      color: #1b273b;
+      border: none;
+      border-radius: 1.2em;
+      font-size: 1.07em;
+      font-weight: 700;
+      box-shadow: 0 2px 14px #ffe37b22;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.16s, color 0.13s;
+      letter-spacing: -0.5px;
+      text-align: center;
+    }
+    .back-btn:hover {
+      background: #1b273b;
+      color: #ffe37b;
+    }
+    @media (max-width: 700px) {
+      .container { padding: 0.7rem 0.3rem 1.1rem 0.3rem;}
+      h1 { font-size: 1.09rem;}
+      .profile-img { width: 72px; height: 72px;}
+      .tl-img { width: 50px; height: 50px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>영원의 집 1호 – 인생 스토리</h1>
+    <img src="img/0.jpg" alt="조병일 프로필" class="profile-img"
+      onerror="this.src='https://dummyimage.com/116x116/333/fff&text=No+Image';" />
+
+    <div class="timeline">
+      <!-- 주요 인생 타임라인 샘플 -->
+      <div class="tl-event">
+        <div class="tl-date">1962</div>
+        <div class="tl-title">탄생과 새로운 시작</div>
+        <div class="tl-desc">조병일, 대한민국에서 탄생. 가족의 소중한 아들로 첫발을 내딛다.</div>
+        <img src="img/0_2.jpg" class="tl-img" alt="유년 사진" onerror="this.style.display='none';" />
+      </div>
+      <div class="tl-event">
+        <div class="tl-date">1981</div>
+        <div class="tl-title">청소년 시절과 성장</div>
+        <div class="tl-desc">학업과 우정, 가족과 함께 성장하며 인생의 꿈을 키우던 시기.</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-date">1990</div>
+        <div class="tl-title">사랑, 결혼, 그리고 가족</div>
+        <div class="tl-desc">김미숙님과의 만남과 결혼, 따뜻한 가정의 시작.</div>
+        <img src="img/0_0.jpg" class="tl-img" alt="결혼 사진" onerror="this.style.display='none';" />
+      </div>
+      <div class="tl-event">
+        <div class="tl-date">1991</div>
+        <div class="tl-title">큰딸 조아롱 탄생</div>
+        <div class="tl-desc">기쁨과 책임, 가족의 행복이 더해진 순간.</div>
+        <img src="img/+-1.jpg" class="tl-img" alt="큰딸 사진" onerror="this.style.display='none';" />
+      </div>
+      <div class="tl-event">
+        <div class="tl-date">1992</div>
+        <div class="tl-title">작은딸 조아랑 탄생</div>
+        <div class="tl-desc">더욱 풍성해진 가족, 희망과 사랑이 넘치는 집.</div>
+        <img src="img/+-_2.jpg" class="tl-img" alt="작은딸 사진" onerror="this.style.display='none';" />
+      </div>
+      <div class="tl-event">
+        <div class="tl-date">2025</div>
+        <div class="tl-title">외손녀 이유하 탄생</div>
+        <div class="tl-desc">새로운 세대, 가족의 미래, 대를 잇는 기쁨.</div>
+        <img src="img/+-2.jpg" class="tl-img" alt="외손녀 사진" onerror="this.style.display='none';" />
+      </div>
+      <div class="tl-event">
+        <div class="tl-date">2025</div>
+        <div class="tl-title">“영원의 집” 1호 입주</div>
+        <div class="tl-desc">조병일, 가족과 함께 영원의 집 프로젝트의 첫 입주자로 새로운 역사를 시작하다.</div>
+        <img src="img/0.jpg" class="tl-img" alt="영원의 집" onerror="this.style.display='none';" />
+      </div>
+    </div>
+
+    <a href="house_01.html" class="back-btn">&larr; 영원의 집 1호 메인으로 돌아가기</a>
+  </div>
+</body>
+</html>

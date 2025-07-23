@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>영원의 집 1호 – 추억의 사진 앨범</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* (이전 답변 media.html 스타일과 동일 - 생략 가능) */
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 60% 16%, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.75;
+    }
+    .container {
+      max-width: 960px;
+      margin: 2.2rem auto 0 auto;
+      background: rgba(22,36,62,0.98);
+      border-radius: 2.2rem;
+      box-shadow: 0 6px 44px #021e3f70;
+      padding: 2.2rem 2.1rem 2.7rem 2.1rem;
+    }
+    h1 {
+      color: #ffe37b;
+      font-weight: 900;
+      font-size: 2.12rem;
+      letter-spacing: -1.2px;
+      text-align: center;
+      margin-bottom: 2.2rem;
+      text-shadow: 1px 2px 8px #1128;
+    }
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 2.1rem 1.6rem;
+    }
+    .media-card {
+      background: #243b5cdd;
+      border-radius: 1.3em;
+      padding: 1.05em 1em 1.05em 1em;
+      text-align: center;
+      box-shadow: 0 2px 14px #0114;
+      position: relative;
+      transition: transform 0.14s, box-shadow 0.17s;
+      cursor: pointer;
+    }
+    .media-card:hover {
+      transform: translateY(-5px) scale(1.04);
+      box-shadow: 0 7px 32px #ffe37b33;
+      background: #273d61ee;
+    }
+    .media-thumb {
+      width: 140px; height: 140px;
+      border-radius: 1em;
+      object-fit: cover;
+      margin-bottom: 0.82em;
+      background: #fff2;
+      box-shadow: 0 2px 12px #ffe37b33;
+      border: 3px solid #ffe37b33;
+      transition: border-color 0.18s;
+    }
+    .media-card:hover .media-thumb {
+      border-color: #ffe37b;
+    }
+    .media-title {
+      color: #ffe37b;
+      font-size: 1.05em;
+      font-weight: bold;
+      margin-bottom: 0.18em;
+      letter-spacing: -0.6px;
+    }
+    .media-year {
+      color: #c9e2ff;
+      font-size: 0.97em;
+      margin-bottom: 0.18em;
+    }
+    .media-desc {
+      color: #fffde8;
+      font-size: 0.97em;
+      min-height: 2.1em;
+      margin-bottom: 0.04em;
+    }
+    .back-btn {
+      display: block;
+      width: max-content;
+      margin: 2.3rem auto 0 auto;
+      padding: 0.9em 2.2em;
+      background: #ffe37b;
+      color: #1b273b;
+      border: none;
+      border-radius: 1.2em;
+      font-size: 1.07em;
+      font-weight: 700;
+      box-shadow: 0 2px 14px #ffe37b22;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.16s, color 0.13s;
+      letter-spacing: -0.5px;
+      text-align: center;
+    }
+    .back-btn:hover {
+      background: #1b273b;
+      color: #ffe37b;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 99;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(16,24,36,0.96);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #111d35;
+      padding: 2.1em 2.2em 1.7em 2.2em;
+      border-radius: 1.4em;
+      box-shadow: 0 2px 32px #ffe37b77;
+      text-align: center;
+      max-width: 98vw;
+      max-height: 92vh;
+    }
+    .modal-img {
+      max-width: 56vw;
+      max-height: 46vh;
+      border-radius: 1em;
+      box-shadow: 0 4px 32px #ffe37b22;
+      margin-bottom: 1em;
+      background: #fff2;
+    }
+    .modal-title {
+      color: #ffe37b;
+      font-size: 1.18em;
+      font-weight: bold;
+      margin-bottom: 0.16em;
+    }
+    .modal-desc {
+      color: #fff;
+      font-size: 1em;
+      margin-bottom: 0.1em;
+    }
+    .close-btn {
+      margin-top: 1.2em;
+      background: #ffe37b;
+      color: #1b273b;
+      border: none;
+      border-radius: 1.1em;
+      font-size: 1em;
+      padding: 0.5em 2em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.17s, color 0.12s;
+    }
+    .close-btn:hover {
+      background: #1b273b;
+      color: #ffe37b;
+    }
+    @media (max-width: 700px) {
+      .container { padding: 0.7rem 0.3rem 1.1rem 0.3rem;}
+      h1 { font-size: 1.09rem;}
+      .media-thumb { width: 88px; height: 88px;}
+      .modal-img { max-width: 92vw; max-height: 30vh;}
+      .modal-content { padding: 0.7em 0.6em 1em 0.6em;}
+    }
+  </style>
+  <script>
+    function showModal(img, title, desc) {
+      document.getElementById('modal-img').src = img;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-desc').textContent = desc;
+      document.getElementById('media-modal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('media-modal').style.display = 'none';
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>추억의 사진 앨범</h1>
+    <div class="media-grid">
+      <!-- 1 -->
+      <div class="media-card" onclick="showModal('img/1_01.jpg', '고향의 옛집', '어릴 적 살던 시골집 풍경, 자연과 가족의 뿌리')">
+        <img src="img/1_01.jpg" alt="고향의 옛집" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">고향의 옛집</div>
+        <div class="media-year">1960~1970년대</div>
+        <div class="media-desc">어릴 적 살던 시골집 풍경, 자연과 가족의 뿌리</div>
+      </div>
+      <!-- 2 -->
+      <div class="media-card" onclick="showModal('img/1_02.jpg', '아기 시절', '갓난아기 조병일의 소중한 첫 사진')">
+        <img src="img/1_02.jpg" alt="아기 시절" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">아기 시절</div>
+        <div class="media-year">1962~1963년</div>
+        <div class="media-desc">갓난아기 조병일의 소중한 첫 사진</div>
+      </div>
+      <!-- 3 -->
+      <div class="media-card" onclick="showModal('img/1_03.jpg', '형제와 함께한 유년 시절', '들판에서 어린 형제와 함께, 순수했던 시절')">
+        <img src="img/1_03.jpg" alt="형제와 함께한 유년 시절" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">형제와 함께한 유년 시절</div>
+        <div class="media-year">1965~1967년</div>
+        <div class="media-desc">들판에서 어린 형제와 함께, 순수했던 시절</div>
+      </div>
+      <!-- 4 -->
+      <div class="media-card" onclick="showModal('img/1_04.jpg', '학창시절', '교복 입고 추억을 남긴 소년')">
+        <img src="img/1_04.jpg" alt="학창시절" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">학창시절</div>
+        <div class="media-year">1978년대 중후반</div>
+        <div class="media-desc">교복 입고 추억을 남긴 소년</div>
+      </div>
+      <!-- 5 -->
+      <div class="media-card" onclick="showModal('img/1_05.jpg', '친구와의 청춘', '젊은 날, 친구와 함께한 즐거운 시간')">
+        <img src="img/1_05.jpg" alt="친구와의 청춘" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">친구와의 청춘</div>
+        <div class="media-year">1980~1982년대</div>
+        <div class="media-desc">젊은 날, 친구와 함께한 즐거운 시간</div>
+      </div>
+      <!-- 6 -->
+      <div class="media-card" onclick="showModal('img/1_06.jpg', '바이크와 자유', '자연 속에서 바이크를 타며 자유를 만끽하던 시절')">
+        <img src="img/1_06.jpg" alt="바이크와 자유" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">바이크와 자유</div>
+        <div class="media-year">1982년대</div>
+        <div class="media-desc">자연 속에서 바이크를 타며 자유를 만끽하던 시절</div>
+      </div>
+      <!-- 7 -->
+      <div class="media-card" onclick="showModal('img/1_07.jpg', '젊은 시절, 사랑과 여행', '아내와 함께한 젊은 시절, 여행의 추억')">
+        <img src="img/1_07.jpg" alt="젊은 시절, 사랑과 여행" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">젊은 시절, 사랑과 여행</div>
+        <div class="media-year">1990년 전후</div>
+        <div class="media-desc">아내와 함께한 젊은 시절, 여행의 추억</div>
+      </div>
+      <!-- ...이전 부분(조병일 사진 7장) 동일... -->
+
+     <!-- 조아롱의 사진 7장 추가 -->
+     <div class="media-card" onclick="showModal('img/2_01.jpg', '웃음 가득한 아기 시절', '조아롱, 해맑게 웃던 아기 시절의 추억')">
+       <img src="img/2_01.jpg" alt="웃음 가득한 아기 시절" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+       <div class="media-title">웃음 가득한 아기 시절</div>
+       <div class="media-year">1995년대 초</div>
+       <div class="media-desc">조아롱, 해맑게 웃던 아기 시절의 추억</div>
+     </div>
+     <div class="media-card" onclick="showModal('img/2_02.jpg', '철길 위 동심', '조아롱, 동생과 함께 철길 위를 달리던 어린 시절')">
+       <img src="img/2_02.jpg" alt="철길 위 동심" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+       <div class="media-title">철길 위 동심</div>
+       <div class="media-year">1996년대</div>
+       <div class="media-desc">조아롱, 동생과 함께 철길 위를 달리던 어린 시절</div>
+     </div>
+      <div class="media-card" onclick="showModal('img/2_03.jpg', '한복 입은 어린 시절', '조아롱, 고운 한복을 입고 남긴 소중한 순간')">
+      <img src="img/2_03.jpg" alt="한복 입은 어린 시절" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+      <div class="media-title">한복 입은 어린 시절</div>
+      <div class="media-year">1998년대</div>
+      <div class="media-desc">조아롱, 고운 한복을 입고 남긴 소중한 순간</div>
+   </div>
+     <div class="media-card" onclick="showModal('img/2_04.jpg', '웨딩드레스, 새로운 시작', '조아롱, 결혼식장에서 드레스를 입고')">
+     <img src="img/2_04.jpg" alt="웨딩드레스, 새로운 시작" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+     <div class="media-title">웨딩드레스, 새로운 시작</div>
+     <div class="media-year">2024년대</div>
+     <div class="media-desc">조아롱, 결혼식장에서 드레스를 입고</div>
+   </div>
+    <div class="media-card" onclick="showModal('img/2_05.jpg', '가족과 함께한 결혼식', '조아롱, 엄마와 동생과 함께 기념 촬영')">
+    <img src="img/2_05.jpg" alt="가족과 함께한 결혼식" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+    <div class="media-title">가족과 함께한 결혼식</div>
+    <div class="media-year">2024년대</div>
+    <div class="media-desc">조아롱, 엄마와 동생과 함께 기념 촬영</div>
+  </div>
+    <div class="media-card" onclick="showModal('img/2_06.jpg', '세 여자의 기념 촬영', '조아롱, 엄마와 동생과 특별한 날의 사진')">
+    <img src="img/2_06.jpg" alt="세 여자의 기념 촬영" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+    <div class="media-title">세 여자의 기념 촬영</div>
+    <div class="media-year">2024년대</div>
+    <div class="media-desc">조아롱, 엄마와 동생과 특별한 날의 사진</div>
+  </div>
+    <div class="media-card" onclick="showModal('img/2_07.jpg', '자매와 함께', '조아롱, 동생과 나란히 선 결혼식의 순간')">
+    <img src="img/2_07.jpg" alt="자매와 함께" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+    <div class="media-title">자매와 함께</div>
+    <div class="media-year">2024년대</div>
+    <div class="media-desc">조아롱, 동생과 나란히 선 결혼식의 순간</div>
+  </div>
+
+      </div>
+
+      <a href="house_01.html" class="back-btn">&larr; 영원의 집 1호 메인으로 돌아가기</a>
+  </div>
+
+  <!-- 이미지 확대 모달 -->
+  <div class="modal" id="media-modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <img src="" alt="미리보기" class="modal-img" id="modal-img">
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <button class="close-btn" onclick="closeModal()">닫기</button>
+    </div>
+  </div>
+</body>
+</html>
