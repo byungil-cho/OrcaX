@@ -100,7 +100,7 @@
             <input id="productName" type="text" maxlength="18" required placeholder="예: 내마음의감자칩">
           </label>
         </div>
-        <button type="submit">가공하기</button>
+        <button id="makeBtn" type="submit">가공하기</button>
       </form>
       <div class="log" id="log"></div>
     </div>
@@ -207,19 +207,24 @@
       }
     }
 
-    // 가공폼 submit
+    // 가공폼 submit (연속 처리 개선)
     document.getElementById("makeForm").onsubmit = async function() {
+      const makeBtn = document.getElementById("makeBtn");
+      makeBtn.disabled = true;
+      makeBtn.textContent = "가공 중...";
+
       const material = document.getElementById("material").value;
       const product = document.getElementById("productName").value.trim();
       const kid = localStorage.getItem("kakaoId");
-      if(!kid || !product){ alert("입력 확인!"); return; }
-      if(product.length<2){ alert("제품명을 2자 이상 입력하세요."); return; }
+      if(!kid || !product){ alert("입력 확인!"); makeBtn.disabled=false; makeBtn.textContent="가공하기"; return; }
+      if(product.length<2){ alert("제품명을 2자 이상 입력하세요."); makeBtn.disabled=false; makeBtn.textContent="가공하기"; return; }
 
       // 12종류 이상 방지(0개는 제외)
       const products = userInfo.products || {};
       const nonZero = Object.entries(products).filter(([_,v])=>v>0).map(([k])=>k);
       if(nonZero.length >= 12 && !products[product]) {
         document.getElementById("log").innerHTML = "제품은 동시에 최대 12종까지 가질 수 있습니다.<br>기존 제품 소진 후 새로운 제품명을 추가하세요.";
+        makeBtn.disabled=false; makeBtn.textContent="가공하기";
         return;
       }
 
@@ -238,6 +243,10 @@
       }catch{
         document.getElementById("log").innerHTML = "서버 연결 실패";
       }
+      // 여기서 즉시 버튼 활성화!
+      makeBtn.disabled = false;
+      makeBtn.textContent = "가공하기";
+      document.getElementById("productName").focus();
     };
 
     // 최초 실행
@@ -248,3 +257,4 @@
   </script>
 </body>
 </html>
+
