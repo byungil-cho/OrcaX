@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaX 화물 – 스마트 화물 플랫폼</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      background: radial-gradient(circle at 60% 10%, #23457c 0%, #0d2945 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .logo-wrap {
+      margin-top: 3.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .logo-img {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      border-radius: 32px;
+      box-shadow: 0 6px 24px #0008;
+      background: #181e22;
+      transition: filter 0.15s, box-shadow 0.18s;
+      cursor: pointer;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .logo-img:hover {
+      filter: brightness(1.04) drop-shadow(0 4px 18px #1e8fff77);
+      box-shadow: 0 8px 30px #007fff88;
+    }
+    .brand-title {
+      margin-top: 1rem;
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: #e6f4ff;
+      text-shadow: 1px 2px 8px #1122;
+    }
+    .slogan {
+      margin: 0.6rem 0 2rem 0;
+      font-size: 1.16rem;
+      color: #ffdb6d;
+      font-weight: 500;
+      text-shadow: 1px 2px 8px #1129;
+    }
+    .main-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.3rem;
+      justify-content: center;
+      margin-bottom: 2.2rem;
+    }
+    .main-btns a {
+      padding: 1.1rem 2.2rem;
+      border-radius: 1.6rem;
+      background: #0070f3;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.12rem;
+      text-decoration: none;
+      box-shadow: 0 4px 18px #003f7520;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      display: inline-block;
+      transition: background 0.18s, transform 0.18s;
+    }
+    .main-btns a:hover {
+      background: #0056b3;
+      transform: scale(1.05);
+    }
+    .footer {
+      font-size: 0.94rem;
+      color: #e8eefc88;
+      text-align: center;
+      padding: 1.3rem 0 0.5rem 0;
+      line-height: 1.7;
+      position: relative;
+    }
+    .footer a {
+      color: #b6d6ff;
+      text-decoration: underline;
+      font-size: 0.99em;
+      margin: 0 0.5em;
+    }
+    .footer a:hover {
+      color: #fff700;
+      text-decoration: underline;
+    }
+    /* 사업자정보 팝업 스타일 */
+    .biz-info-hover {
+      color: #ffd66b;
+      cursor: pointer;
+      font-weight: 600;
+      margin-left: 0.7em;
+      border-bottom: 1px dotted #ffe7b5;
+      display: inline-block;
+      position: relative;
+    }
+    .biz-popup {
+      display: none;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 2.4em;
+      background: #203350f7;
+      color: #f7f7f7;
+      border-radius: 1.1em;
+      box-shadow: 0 4px 24px #0009;
+      padding: 1.1em 1.5em 0.7em 1.5em;
+      z-index: 99;
+      min-width: 280px;
+      max-width: 370px;
+      text-align: left;
+      font-size: 1em;
+    }
+    .biz-info-hover:hover .biz-popup,
+    .biz-info-hover:focus .biz-popup {
+      display: block;
+    }
+    .biz-popup img {
+      width: 100%;
+      max-width: 290px;
+      border-radius: 0.7em;
+      margin-bottom: 0.8em;
+      box-shadow: 0 3px 14px #0004;
+      background: #fff;
+    }
+    .biz-popup strong { color: #ffe16e; }
+    @media (max-width: 600px) {
+      .logo-img { width: 105px; height: 105px; }
+      .brand-title { font-size: 1.2rem; }
+      .main-btns a { font-size: 0.96rem; padding: 0.8rem 1.2rem; }
+      .biz-popup { font-size: 0.93em; min-width: 170px; max-width: 90vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <div class="logo-wrap">
+      <img src="img/log_01.jpg" 
+           alt="OrcaX 화물 로고"
+           class="logo-img"
+           id="mainLogo"
+           onmouseover="changeLogo(true)" 
+           onmouseout="changeLogo(false)"
+      />
+    </div>
+    <div class="brand-title">OrcaX 화물</div>
+    <div class="slogan">범고래처럼 빠르고, X처럼 자유로운 화물 플랫폼!</div>
+    <div class="main-btns">
+      <a href="login.html">로그인/회원가입</a>
+      <a href="order.html">화물주문 신청</a>
+      <a href="mypage.html">마이페이지</a>
+      <a href="support.html">고객센터</a>
+    </div>
+  </div>
+  <div class="footer">
+    © OrcaX 화물 | 쉽고 빠른 전국 화물 주문/배차 · Powered by ORCX<br>
+    <a href="admin.html" style="color:#ffe;text-decoration:underline;font-size:0.88em;">관리자</a>
+    <br>
+    <a href="terms.html">이용약관</a>
+    <a href="privacy.html">개인정보 처리방침</a>
+    <span class="biz-info-hover" tabindex="0">
+      사업자정보
+      <div class="biz-popup">
+          <div>
+          <strong>금강퀵25시물류</strong><br>
+          <b>사업자번호:</b> 678-73-00302<br>
+          <b>대표:</b> 서평원 (1967.01.09)<br>
+          <b>개업일:</b> 2019.11.15<br>
+          <b>주소:</b> 경기도 안산시 단원구 근우로 2, 1층 102호<br>
+          <b>업태:</b> 운수업 (일반화물, 운송주선업)<br>
+        </div>
+      </div>
+    </span>
+  </div>
+  <script>
+    const defaultLogo = "img/log_01.jpg";
+    const hoverLogo = "img/log_02.jpg";
+    function changeLogo(hovered) {
+      document.getElementById('mainLogo').src = hovered ? hoverLogo : defaultLogo;
+    }
+  </script>
+</body>
+</html>
