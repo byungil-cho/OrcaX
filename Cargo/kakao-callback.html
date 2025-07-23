@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Kakao Login Callback (Cargo)</title>
+  <script>
+    window.onload = async function () {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      if (!code) {
+        alert("로그인 인증 코드가 없습니다.");
+        window.location.href = "Cargo/index.html";
+        return;
+      }
+
+      try {
+        const response = await fetch("https://kauth.kakao.com/oauth/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            grant_type: "authorization_code",
+            client_id: "284b798a9d9be8202f9c2e129fa6f329",
+            redirect_uri: "https://byungil-cho.github.io/OrcaX/Cargo/kakao-callback.html", // 🚩 CARGO 전용 콜백
+            code: code,
+          }),
+        });
+
+        const tokenData = await response.json();
+        const accessToken = tokenData.access_token;
+
+        // 사용자 정보 요청
+        const userRes = await fetch("https://kapi.kakao.com/v2/user/me", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
+
+        const userInfo = await userRes.json();
+        const nickname = userInfo.kakao_account?.profile?.nickname || "";
+        const kakaoId = userInfo.id;
+
+        // localStorage 저장
+        localStorage.setItem("nickname", nickname);
+        localStorage.setItem("kakaoId", kakaoId);
+
+        // 🚩 CARGO 메인으로 이동
+        window.location.href = "Cargo/index.html";
+      } catch (error) {
+        console.error("카카오 로그인 실패:", error);
+        alert("카카오 로그인 중 오류 발생");
+        window.location.href = "Cargo/index.html";
+      }
+    };
+  </script>
+</head>
+<body>
+  <h3 style="color:white; background-color:black; padding:20px; text-align:center;">
+    로그인 처리 중입니다...
+  </h3>
+</body>
+</html>
