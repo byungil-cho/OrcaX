@@ -130,7 +130,7 @@
         return;
       }
       const base = basePriceMap[car] || 0;
-      const perKm = 100;
+      const perKm = 500;
       const price = base + km * perKm;
       document.getElementById('estPrice').innerText =
         (km > 0 ? `예상 운임: ` : '') + (km > 0 ? price.toLocaleString() + '원 (부가세포함)' : '');
