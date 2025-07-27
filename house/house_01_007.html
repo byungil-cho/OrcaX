@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>영원의 집 1호 – 할아버지 생전 가족과 친구들</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #1c2331;
+      color: #fff;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .album-container {
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem 1rem;
+    }
+    h2 {
+      font-size: 1.7rem;
+      margin-top: 1.2rem;
+      margin-bottom: 0.6rem;
+      letter-spacing: -1px;
+      font-weight: 700;
+    }
+    .desc {
+      font-size: 1rem;
+      color: #e0e6f7;
+      margin-bottom: 1.8rem;
+      line-height: 1.6;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.1rem;
+      margin-bottom: 2.5rem;
+    }
+    .media-card {
+      background: #232b3b;
+      border-radius: 18px;
+      box-shadow: 0 2px 10px #0004;
+      padding: 0.7rem 0.7rem 1rem 0.7rem;
+      transition: transform 0.12s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .media-card:hover {
+      transform: scale(1.045);
+      background: #2e3852;
+    }
+    .media-thumb {
+      width: 100%;
+      max-width: 155px;
+      max-height: 120px;
+      border-radius: 10px;
+      object-fit: cover;
+      box-shadow: 0 1px 8px #2226;
+      margin-bottom: 0.5rem;
+      background: #222;
+    }
+    .media-title {
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+      font-size: 1rem;
+      color: #c8d4fa;
+      text-align: center;
+      word-break: keep-all;
+    }
+    .media-desc {
+      font-size: 0.92rem;
+      color: #9cb4d6;
+      text-align: center;
+      word-break: keep-all;
+    }
+    /* Modal */
+    #modal-bg {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(23, 26, 34, 0.85);
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    #modal-bg.active {
+      display: flex;
+    }
+    #modal-view {
+      background: #22293e;
+      border-radius: 16px;
+      padding: 1.7rem 1.7rem 1.2rem 1.7rem;
+      box-shadow: 0 2px 20px #0009;
+      max-width: 95vw;
+      max-height: 92vh;
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #modal-img {
+      max-width: 680px;
+      max-height: 55vh;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      background: #333;
+      object-fit: contain;
+    }
+    #modal-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #b8e6fc;
+      margin-bottom: 0.2rem;
+    }
+    #modal-desc {
+      font-size: 1rem;
+      color: #d9e3f7;
+      margin-bottom: 0.3rem;
+    }
+    #modal-close {
+      position: absolute;
+      right: 18px; top: 10px;
+      font-size: 2rem;
+      color: #b2c7e7;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1;
+    }
+    @media (max-width: 1023px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      .media-thumb { max-width: 98vw; }
+      #modal-img { max-width: 90vw; }
+    }
+    @media (max-width: 600px) {
+      .gallery-grid { grid-template-columns: 1fr; }
+      .album-container { padding: 1.2rem 0.3rem 2.4rem 0.3rem; }
+      .media-thumb { max-width: 98vw; }
+      #modal-view { padding: 1.1rem 0.3rem 1rem 0.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="album-container">
+    <h2>할아버지와 가족, 친구들의 추억</h2>
+    <div class="desc">
+      살아생전 할아버지의 모습과, 그 곁을 함께 한 가족들과 친구분들의 소중한 순간들을 담았습니다.<br>
+      가족 사진, 형제·자매, 부부 기념, 그리고 할아버지의 친구분들과의 옛날 사진들입니다.
+    </div>
+    <div class="gallery-grid">
+
+      <!-- 1 -->
+      <div class="media-card" onclick="showModal('img/+2.jpg','할아버지 초상','할아버지 젊은 시절의 흑백 초상 사진입니다.')">
+        <img src="img/+2.jpg" alt="할아버지 초상" class="media-thumb">
+        <div class="media-title">할아버지 초상</div>
+        <div class="media-desc">할아버지 젊은 시절, 단정한 모습</div>
+      </div>
+      <!-- 2 -->
+      <div class="media-card" onclick="showModal('img/+2_01.jpg','할아버지 친구분들과 야외','네 분이 돗자리에 앉아 담소를 나누는 모습')">
+        <img src="img/+2_01.jpg" alt="할아버지 친구분들과" class="media-thumb">
+        <div class="media-title">친구들과 야외 모임</div>
+        <div class="media-desc">돗자리 위에서 친구분들과 함께</div>
+      </div>
+      <!-- 3 -->
+      <div class="media-card" onclick="showModal('img/+2_02.jpg','자식 형제들과 손자사진 (흑백)','겨울 소나무 숲에서 가족 단체사진, 흐릿하지만 따뜻한 추억')">
+        <img src="img/+2_02.jpg" alt="어린 시절 가족 사진" class="media-thumb">
+        <div class="media-title">가족 단체사진(흑백)</div>
+        <div class="media-desc">소나무 숲에서 찍은 겨울 가족사진</div>
+      </div>
+      <!-- 4 -->
+      <div class="media-card" onclick="showModal('img/+2_03.jpg','할아버지 자식들과 손자들','형제자매들이 한자리에 모인 소중한 사진')">
+        <img src="img/+2_03.jpg" alt="형제 단체사진" class="media-thumb">
+        <div class="media-title">자식들과 손자들</div>
+        <div class="media-desc">할아버지 자식들이 성장한 모습과 함께한 사진</div>
+      </div>
+      <!-- 5 -->
+      <div class="media-card" onclick="showModal('img/+2_04.jpg','부부 기념사진','할아버지와 할머니의 셋째 아들 부부 특별한 날 기념 사진')">
+        <img src="img/+2_04.jpg" alt="부부 기념사진" class="media-thumb">
+        <div class="media-title">3째 아들 부부 사진</div>
+        <div class="media-desc">젊은 시절 부부, 한복 차림</div>
+      </div>
+      <!-- 6 -->
+      <div class="media-card" onclick="showModal('img/+2_05.jpg','딸과 아들들이 함께한 단체사진','가족들이 한자리에 모여 함께한 따뜻한 순간')">
+        <img src="img/+2_05.jpg" alt="가족 모임" class="media-thumb">
+        <div class="media-title">가족 모임</div>
+        <div class="media-desc">집에서 모두 함께한 사진</div>
+      </div>
+      <!-- 7 -->
+      <div class="media-card" onclick="showModal('img/+2_06.jpg','가족 친척 단체사진','가족, 친척들이 모여 단체로 찍은 기념사진')">
+        <img src="img/+2_06.jpg" alt="가족 친척 모임" class="media-thumb">
+        <div class="media-title">가족·친척 단체사진</div>
+        <div class="media-desc">아들 딸들이 함께한 소중한 순간</div>
+      </div>
+
+    </div>
+  </div>
+  <!-- Modal (팝업) -->
+  <div id="modal-bg" onclick="closeModal(event)">
+    <div id="modal-view" onclick="event.stopPropagation()">
+      <button id="modal-close" onclick="closeModal(event)">&times;</button>
+      <img id="modal-img" src="" alt="큰 이미지">
+      <div id="modal-title"></div>
+      <div id="modal-desc"></div>
+    </div>
+  </div>
+  <script>
+    function showModal(src, title, desc) {
+      document.getElementById('modal-img').src = src;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-desc').textContent = desc;
+      document.getElementById('modal-bg').classList.add('active');
+    }
+    function closeModal(e) {
+      document.getElementById('modal-bg').classList.remove('active');
+    }
+  </script>
+</body>
+</html>
