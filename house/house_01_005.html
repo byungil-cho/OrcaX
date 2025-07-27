@@ -14,7 +14,7 @@
       line-height: 1.75;
     }
     .container {
-      max-width: 1060px;
+      max-width: 1100px;
       margin: 2.2rem auto 0 auto;
       background: rgba(22,36,62,0.98);
       border-radius: 2.2rem;
@@ -32,7 +32,7 @@
     }
     .media-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 2.1rem 1.6rem;
     }
     .media-card {
@@ -117,8 +117,8 @@
       max-height: 92vh;
     }
     .modal-img {
-      max-width: 70vw;
-      max-height: 80vh;
+      max-width: 56vw;
+      max-height: 46vh;
       border-radius: 1em;
       box-shadow: 0 4px 32px #ffe37b22;
       margin-bottom: 1em;
@@ -151,11 +151,15 @@
       background: #1b273b;
       color: #ffe37b;
     }
-    @media (max-width: 700px) {
-      .container { padding: 0.7rem 0.3rem 1.1rem 0.3rem;}
+    @media (max-width: 900px) {
+      .media-grid { grid-template-columns: repeat(2, 1fr);}
+    }
+    @media (max-width: 600px) {
+      .container { padding: 0.7rem 0.2rem 1.1rem 0.2rem;}
+      .media-grid { grid-template-columns: repeat(1, 1fr);}
+      .media-thumb { width: 100px; height: 100px;}
       h1 { font-size: 1.09rem;}
-      .media-thumb { width: 88px; height: 88px;}
-      .modal-img { max-width: 92vw; max-height: 40vh;}
+      .modal-img { max-width: 92vw; max-height: 30vh;}
       .modal-content { padding: 0.7em 0.6em 1em 0.6em;}
     }
   </style>
@@ -175,36 +179,43 @@
   <div class="container">
     <h1>가족과 삶의 기록 – 추억의 사진 24장</h1>
     <div class="media-grid">
+      <!-- 1 -->
       <div class="media-card" onclick="showModal('img/+1_01.jpg', '증명사진', '아버지의 정장 프로필, 강인한 삶의 흔적')">
         <img src="img/+1_01.jpg" alt="증명사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
         <div class="media-title">증명사진</div>
         <div class="media-desc">아버지의 정장 프로필, 강인한 삶의 흔적</div>
       </div>
+      <!-- 2 -->
       <div class="media-card" onclick="showModal('img/+1_02.jpg', '부부 기념사진', '아버지와 어머니, 한복 차림 부부사진')">
         <img src="img/+1_02.jpg" alt="부부 기념사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
         <div class="media-title">부부 기념사진</div>
         <div class="media-desc">아버지와 어머니, 한복 차림 부부사진</div>
       </div>
+      <!-- 3 -->
       <div class="media-card" onclick="showModal('img/+1_03.jpg', '젊은 시절의 추억', '젊은 시절, 자연 속에서의 모습')">
         <img src="img/+1_03.jpg" alt="젊은 시절의 추억" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
         <div class="media-title">젊은 시절의 추억</div>
         <div class="media-desc">젊은 시절, 자연 속에서의 모습</div>
       </div>
+      <!-- 4 -->
       <div class="media-card" onclick="showModal('img/+1_04.jpg', '흑백 단체사진', '흑백시절, 하얀 작업복을 입은 젊은이들')">
         <img src="img/+1_04.jpg" alt="흑백 단체사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
         <div class="media-title">흑백 단체사진</div>
         <div class="media-desc">흑백시절, 하얀 작업복을 입은 젊은이들</div>
       </div>
+      <!-- 5 -->
       <div class="media-card" onclick="showModal('img/+1_05.jpg', '농촌의 청년들', '들판에서 함께한 흑백 단체사진')">
         <img src="img/+1_05.jpg" alt="농촌의 청년들" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
         <div class="media-title">농촌의 청년들</div>
         <div class="media-desc">들판에서 함께한 흑백 단체사진</div>
       </div>
+      <!-- 6 -->
       <div class="media-card" onclick="showModal('img/+1_06.jpg', '초기 가족사진', '어린 자녀들과 함께한 가족의 시작')">
         <img src="img/+1_06.jpg" alt="초기 가족사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
         <div class="media-title">초기 가족사진</div>
         <div class="media-desc">어린 자녀들과 함께한 가족의 시작</div>
       </div>
+      <!-- ... (7~24번 동일 형식으로 아래 계속) ... -->
       <div class="media-card" onclick="showModal('img/+1_07.jpg', '농업교육 단체사진', '제1회 농업기술 및 조사교육(1979.2)')">
         <img src="img/+1_07.jpg" alt="농업교육 단체사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
         <div class="media-title">농업교육 단체사진</div>
@@ -215,10 +226,11 @@
         <div class="media-title">숲속의 한끼</div>
         <div class="media-desc">여름 숲에서 즐기는 식사, 젊음의 에너지</div>
       </div>
-      <div class="media-card" onclick="showModal('img/+1_09.jpg', '숲속의 대화', '동료들과 나누는 깊은 대화와 정')">
-        <img src="img/+1_09.jpg" alt="숲속의 대화" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-        <div class="media-title">숲속의 대화</div>
-        <div class="media-desc">동료들과 나누는 깊은 대화와 정</div>
+<!-- ... 이하 동일 패턴으로 +1_09.jpg ~ 0_1.jpg 까지 24장 모두 복붙 ... -->
+      <div class="media-card" onclick="showModal('img/0_1.jpg', '부부의 마지막 미소', '한복을 곱게 차려입은 아버지 어머니의 모습')">
+        <img src="img/0_1.jpg" alt="부부의 마지막 미소" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">부부의 마지막 미소</div>
+        <div class="media-desc">한복을 곱게 차려입은 아버지 어머니의 모습</div>
       </div>
       <div class="media-card" onclick="showModal('img/+1_10.jpg', '온실 속 가족', '온실에서 한복을 입은 가족과 함께')">
         <img src="img/+1_10.jpg" alt="온실 속 가족" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
@@ -262,7 +274,7 @@
       </div>
       <div class="media-card" onclick="showModal('img/+1_18.jpg', '4인 가족 사진', '부모님과 자녀들, 정겨운 가족사진')">
         <img src="img/+1_18.jpg" alt="4인 가족 사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-                <div class="media-title">4인 가족 사진</div>
+       <div class="media-title">4인 가족 사진</div>
         <div class="media-desc">부모님과 자녀들, 정겨운 가족사진</div>
       </div>
       <div class="media-card" onclick="showModal('img/+1_19.jpg', '생일 케이크 파티', '아버지의 생일을 온 가족이 축하하며')">
@@ -309,4 +321,8 @@
   </div>
 </body>
 </html>
+
+
+
+
 
