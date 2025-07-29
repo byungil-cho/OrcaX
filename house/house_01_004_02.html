@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>손녀딸 성장앨범 2페이지</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0; padding: 0;
+      background: #f5fafd;
+      font-family: 'Pretendard','Noto Sans KR',sans-serif;
+      color: #23457c;
+    }
+    .album-box {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #eaf6ff;
+      display: flex; flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding-bottom: 90px;
+    }
+    .album-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 32px 0 14px 0;
+      letter-spacing: 2px;
+      color: #134c7f;
+      text-shadow: 0 1px 0 #fff;
+    }
+    .album-desc {
+      color: #5993c9;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-bottom: 18px;
+      padding: 0 12px;
+    }
+    .photo-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .photo-thumb-box {
+      width: 74px; height: 74px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 10px #c7eaff55;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid #d0e6f5;
+      transition: border-color 0.2s;
+    }
+    .photo-thumb-box:hover { border-color: #82c6fa; }
+    .photo-thumb-box img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: 12px;
+    }
+    /* 모달 스타일 */
+    .modal-bg {
+      display: none;
+      position: fixed; z-index: 99;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(36,56,100,0.65);
+      justify-content: center; align-items: center;
+    }
+    .modal-bg.active { display: flex; }
+    .modal-img-wrap {
+      position: relative;
+      background: #eaf6ff;
+      border-radius: 18px;
+      box-shadow: 0 6px 36px #23457c44;
+      max-width: 96vw;
+      max-height: 90vh;
+      width: 92vw; height: 66vw; /* 기본: 가로사진 3:2 */
+      min-width: 320px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center;
+      padding: 1.5em 0 0.5em 0;
+    }
+    .modal-img-wrap.vert { height: 110vw; width: 70vw; max-width: 430px; max-height: 93vh;}
+    .modal-img-wrap.horiz { height: 66vw; width: 94vw; }
+    .modal-img-wrap .modal-img {
+      border-radius: 13px;
+      max-width: 98%; max-height: 57vw;
+      box-shadow: 0 2px 16px #6bc5e288;
+      background: #fff;
+      object-fit: contain;
+      margin: 0 auto 8px auto;
+      display: block;
+    }
+    .modal-img-wrap.vert .modal-img { 
+      max-height: 90vw;
+      aspect-ratio: 3/5;
+    }
+    .modal-img-wrap.horiz .modal-img {
+      max-height: 52vw;
+      aspect-ratio: 3/2;
+    }
+    .modal-desc {
+      font-size: 1.09em;
+      color: #23457c;
+      padding: 10px 14px 12px 14px;
+      background: #f5fafdcc;
+      border-radius: 12px;
+      text-align: center;
+      margin: 0;
+      word-break: keep-all;
+    }
+    /* 네비게이션 */
+    .nav-links {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      background: #d7ecfd;
+      border-top: 1px solid #bfe0fb;
+      padding: 12px 16px;
+      z-index: 100;
+      box-shadow: 0 -3px 24px #bad6f0bb;
+    }
+    .nav-link-btn {
+      color: #298bdb;
+      background: #f5fafd;
+      border: none;
+      border-radius: 10px;
+      padding: 7px 18px;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      cursor: pointer;
+      box-shadow: 0 1px 6px #bee3f8aa;
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none;
+      margin: 0 2px;
+    }
+    .nav-link-btn:hover {
+      background: #c8e6ff;
+      color: #176cbf;
+    }
+    @media (max-width: 520px) {
+      .album-title { font-size: 1.25rem;}
+      .modal-img-wrap { min-width: 0;}
+      .nav-links { padding: 7px 4px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="album-box">
+    <div class="album-title">우리 손녀딸의 성장기 <span style="font-size:1rem; color:#66aee9;">2/3</span></div>
+    <div class="album-desc">
+      사랑스러움이 가득한 두 번째 페이지.<br>
+      이번엔 웃음과 변화, 소소한 일상 속에서 특별한 순간을 담았습니다.<br>
+      가족과 함께한 추억, 매일매일 성장하는 소중한 모습!
+    </div>
+    <div class="photo-grid">
+      <!-- 16장 썸네일 반복 -->
+      <div class="photo-thumb-box"><img src="img/+-2_-1_18.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_19.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_20.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_21.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_22.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_23.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_24.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_25.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_26.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_27.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_28.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_29.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_30.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_31.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_32.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/+-2_-1_33.jpg" alt=""></div>
+    </div>
+  </div>
+  <!-- 팝업/모달 -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal-img-wrap vert" id="modalImgWrap">
+      <img id="modalImg" class="modal-img" src="" alt="">
+      <div class="modal-desc" id="modalDesc"></div>
+    </div>
+  </div>
+  <!-- 네비게이션 -->
+  <div class="nav-links">
+    <a href="house_01_004.html" class="nav-link-btn">◀ 이전페이지</a>
+    <a href="house_01.html" class="nav-link-btn">메인으로</a>
+    <a href="house_01_004_03.html" class="nav-link-btn">다음페이지 ▶</a>
+  </div>
+  <script>
+    // 각 사진별 비율/설명 (1:1, 세로, 가로, 설명)
+    const photoList = [
+      {
+        src: 'img/+-2_-1_18.jpg', ratio: 'vert',
+        desc: "노란 곰돌이 옷을 입고 새근새근. 작은 두 손을 번쩍 든 포즈가 귀엽기 그지없습니다.<br><b>오늘은 세상을 처음 바라보는 듯한 맑은 눈빛</b>."
+      },
+      {
+        src: 'img/+-2_-1_19.jpg', ratio: 'vert',
+        desc: "귀여운 노란 모자에 멜빵 바지!<br>언제나 카메라 앞에서 표정 하나하나가 예술. 호기심 가득한 시선에 모두 미소짓게 됩니다."
+      },
+      {
+        src: 'img/+-2_-1_20.jpg', ratio: 'vert',
+        desc: "핑크 리본을 머리에 달고, 오늘은 작아도 당당한 패셔니스타!<br>조금은 진지한 표정도 사랑스럽습니다."
+      },
+      {
+        src: 'img/+-2_-1_21.jpg', ratio: 'vert',
+        desc: "동화 속 주인공 같은 레이스 모자. 엄마 품에서 느긋하게 미소짓는 모습이 천사 그 자체!<br>이 순간이 영원히 기억되길."
+      },
+      {
+        src: 'img/+-2_-1_22.jpg', ratio: 'vert',
+        desc: "방긋방긋 웃으며 침대 위에서!<br>발그레한 볼, 통통한 손, 모든 게 귀여움 그 자체. 건강하게 자라길 바라며."
+      },
+      {
+        src: 'img/+-2_-1_23.jpg', ratio: 'vert',
+        desc: "오늘은 체크무늬 드레스로 분위기 변신!<br>엄마의 사랑이 느껴지는 한 컷, 동글동글 귀여운 볼살도 포인트."
+      },
+      {
+        src: 'img/+-2_-1_24.jpg', ratio: 'horiz',
+        desc: "가족 모두가 한자리에!<br><b>백일잔치</b>에서 우리 손녀딸의 첫 기념사진.<br>모두의 사랑이 한 컷에 담겼습니다."
+      },
+      {
+        src: 'img/+-2_-1_25.jpg', ratio: 'vert',
+        desc: "곰돌이 인형 친구들과 함께한 특별한 하루.<br>서랍 속에서 장난꾸러기 포즈로 귀여움 폭발!"
+      },
+      {
+        src: 'img/+-2_-1_26.jpg', ratio: 'horiz',
+        desc: "곰돌이들이 주위를 지켜주는 가운데,<br>우리 손녀딸은 언제나 중심! 아기와 인형들이 조화롭게 어울린 감성샷."
+      },
+      {
+        src: 'img/+-2_-1_27.jpg', ratio: 'vert',
+        desc: "환하게 웃는 얼굴, 기분 좋은 하루의 시작.<br>오늘은 작은 곰돌이 인형보다 더 사랑스럽다!"
+      },
+      {
+        src: 'img/+-2_-1_28.jpg', ratio: 'vert',
+        desc: "초록 나뭇가지와 레몬 소품에 둘러싸인 아기.<br>밀짚모자를 눌러쓰고 자연 속에서 즐기는 여유로움이 느껴집니다."
+      },
+      {
+        src: 'img/+-2_-1_29.jpg', ratio: 'vert',
+        desc: "깊은 밤 엄마 품에서 활짝!<br>밝은 조명에 더 빛나는 미소, 오늘도 사랑받는 하루."
+      },
+      {
+        src: 'img/+-2_-1_30.jpg', ratio: 'vert',
+        desc: "동화 속 한 장면처럼, 조그만 의자 위에서 책과 레몬, 그리고 하얀 꽃과 함께한 촬영.<br>우리 가족의 일상이 더 특별해지는 순간."
+      },
+      {
+        src: 'img/+-2_-1_31.jpg', ratio: 'horiz',
+        desc: "싱그러운 미소가 가득!<br>따스한 햇살과 자연, 아기의 웃음이 완벽하게 어울린 행복한 하루."
+      },
+      {
+        src: 'img/+-2_-1_32.jpg', ratio: 'vert',
+        desc: "햇살을 머금은 창가에서 살짝 미소짓는 모습.<br>맑고 투명한 눈망울, 가족 모두의 희망입니다."
+      },
+      {
+        src: 'img/+-2_-1_33.jpg', ratio: 'vert',
+        desc: "드디어 마지막 컷! 하얀 드레스를 입고 환하게 웃는 모습은 가족 모두의 마음을 따뜻하게 해줍니다.<br><b>우리 손녀딸, 앞으로도 행복하자!</b>"
+      }
+    ];
+
+    // 썸네일 클릭 이벤트
+    document.querySelectorAll('.photo-thumb-box').forEach((box, idx) => {
+      box.onclick = function() {
+        const photo = photoList[idx];
+        const img = document.getElementById('modalImg');
+        const desc = document.getElementById('modalDesc');
+        const wrap = document.getElementById('modalImgWrap');
+        img.src = photo.src;
+        desc.innerHTML = photo.desc;
+        wrap.className = 'modal-img-wrap ' + (photo.ratio === 'horiz' ? 'horiz' : 'vert');
+        document.getElementById('modalBg').classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+    // 팝업 닫기(배경 또는 큰사진 클릭)
+    document.getElementById('modalImgWrap').onclick = closeModal;
+    document.getElementById('modalBg').onclick = function(e) {
+      if (e.target === this) closeModal();
+    };
+    window.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+    function closeModal() {
+      document.getElementById('modalBg').classList.remove('active');
+      document.getElementById('modalImg').src = '';
+      document.body.style.overflow = '';
+    }
+  </script>
+</body>
+</html>
