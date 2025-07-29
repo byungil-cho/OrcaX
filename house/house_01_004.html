@@ -1,277 +1,353 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>우리 손녀딸, 기적의 첫 앨범</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>손녀딸 추억 앨범 1페이지</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       margin: 0; padding: 0;
-      background: #fff7f0;
       font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
-      color: #3d2a1a;
+      background: radial-gradient(circle at 60% 16%, #23457c 0%, #0d2945 100%);
+      color: #fff;
+    }
+    .nav-links {
+      display: flex;
+      justify-content: space-between;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 22px 0 12px 0;
+      gap: 12px;
+    }
+    .nav-btn {
+      background: linear-gradient(90deg, #26d0ce 0%, #1a2980 100%);
+      color: #fff;
+      border: none;
+      border-radius: 2em;
+      font-size: 1.07em;
+      font-weight: bold;
+      padding: 8px 20px;
+      text-decoration: none;
+      box-shadow: 0 2px 8px #19204499;
+      transition: background 0.18s, color 0.18s;
+      cursor: pointer;
+    }
+    .nav-btn:hover {
+      background: linear-gradient(90deg, #48c6ef 0%, #6f86d6 100%);
+      color: #fffdc9;
     }
     .album-title {
       text-align: center;
-      font-size: 2.1rem;
+      font-size: 2rem;
       font-weight: bold;
-      margin-top: 2rem;
-      margin-bottom: 0.3rem;
+      margin: 0 0 0.4em 0;
       letter-spacing: -0.5px;
+      color: #ffe37b;
+      text-shadow: 0 2px 16px #23457c66;
     }
     .album-desc {
       text-align: center;
-      color: #856959;
-      font-size: 1.05rem;
-      margin-bottom: 2.2rem;
+      color: #79f6e0;
+      font-size: 1.09rem;
+      margin-bottom: 1.6em;
+      text-shadow: 0 1px 7px #11224188;
     }
     .album-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-      max-width: 750px;
-      margin: 0 auto 2.5rem auto;
-      padding: 0 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 7px;
     }
     @media (max-width: 700px) {
       .album-grid {
-        grid-template-columns: 1fr;
-        gap: 14px;
-        padding: 0 6px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 9px;
+        max-width: 360px;
       }
     }
-    .photo-card {
-      background: #fff;
-      border-radius: 24px;
-      box-shadow: 0 4px 16px rgba(80,60,50,0.13);
-      padding: 15px 15px 12px 15px;
+    @media (max-width: 500px) {
+      .album-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        max-width: 99vw;
+      }
+    }
+    .photo-thumb-box {
+      background: #1d2540ee;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px #23284c66;
       text-align: center;
-      transition: transform 0.18s;
+      padding: 8px 4px;
       cursor: pointer;
-      border: 1.5px solid #f2ebe2;
+      transition: transform 0.14s, box-shadow 0.14s;
+      border: 1.5px solid #2b355e99;
+      position: relative;
+      min-height: 160px;
     }
-    .photo-card:hover {
-      transform: scale(1.025);
-      box-shadow: 0 8px 22px rgba(120,90,70,0.15);
+    .photo-thumb-box:hover {
+      transform: scale(1.032);
+      box-shadow: 0 7px 22px #60b6d855;
+      z-index: 2;
     }
-    .photo-card img {
-      width: 100%;
-      max-width: 340px;
-      height: 200px;
+    .photo-thumb-box img {
+      width: 140px; height: 93px; /* 3:2 가로기본 */
       object-fit: cover;
-      border-radius: 16px;
-      margin-bottom: 9px;
-      box-shadow: 0 2px 6px rgba(120,90,70,0.08);
-      background: #f8f4ed;
+      border-radius: 12px;
+      background: #fff1;
+      margin-bottom: 0.4em;
+      margin-top: 2px;
+      box-shadow: 0 2px 7px #18346c25;
     }
-    .photo-desc {
-      font-size: 0.99rem;
-      color: #5c3c28;
-      margin-top: 0;
-      margin-bottom: 2px;
-      letter-spacing: -0.1px;
+    @media (max-width: 540px) {
+      .photo-thumb-box img { width: 99vw; height: 62vw; max-width: 320px; max-height: 200px;}
+    }
+    .photo-thumb-label {
+      font-size: 0.93em;
+      color: #fffdc9;
+      background: linear-gradient(90deg,#0e2045cc 0%,#3b6d81cc 100%);
+      border-radius: 0.7em;
+      padding: 3px 9px;
+      margin: 0 auto;
+      display: inline-block;
+      margin-bottom: 3px;
+      box-shadow: 0 1px 4px #18235225;
     }
 
     /* 팝업(모달) */
     .modal-bg {
       position: fixed;
-      z-index: 2000;
+      z-index: 1000;
       left: 0; top: 0; width: 100vw; height: 100vh;
-      background: rgba(30,19,10, 0.84);
+      background: rgba(20,27,46, 0.98);
       display: none;
       align-items: center;
       justify-content: center;
     }
     .modal-bg.active { display: flex; }
-    .modal-box {
-      background: #fff;
-      border-radius: 22px;
-      max-width: 98vw;
-      max-height: 97vh;
-      box-shadow: 0 8px 36px rgba(60,40,20,0.24);
-      padding: 0 0 0.7rem 0;
+
+    .modal-content {
+      position: relative;
+      background: #222b43;
+      border-radius: 28px;
+      width: 98vw;
+      max-width: 520px;
+      height: 98vh;
+      max-height: 760px;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
-      overflow: auto;
+      box-shadow: 0 6px 48px #5beed822;
+      overflow: hidden;
+      padding: 0;
+    }
+    /* 세로 사진 (5:3) */
+    .modal-img-wrap.vert {
+      width: 90vw; max-width: 380px;
+      aspect-ratio: 3/5;
+      background: #1e2a4a;
+      margin-top: 4vh;
       position: relative;
-      animation: popin 0.18s;
+      display: flex; align-items: center; justify-content: center;
     }
-    @keyframes popin {
-      from { transform: scale(0.92); opacity: 0.4; }
-      to { transform: scale(1); opacity: 1; }
+    /* 가로 사진 (3:2) */
+    .modal-img-wrap.horiz {
+      width: 94vw; max-width: 480px;
+      aspect-ratio: 3/2;
+      background: #1e2a4a;
+      margin-top: 6vh;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
     }
-    .modal-photo {
-      margin-top: 22px;
-      width: 92vw; max-width: 450px;
-      max-height: 55vh;
-      border-radius: 15px;
-      object-fit: contain;
-      box-shadow: 0 2px 12px rgba(80,60,40,0.10);
+    .modal-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+      background: #fff3;
+      box-shadow: 0 3px 14px #1c2e5775;
+    }
+    /* 설명글(사진 위 오버레이) */
+    .modal-desc-box {
+      position: absolute;
+      bottom: 0; left: 0; width: 100%;
+      background: linear-gradient(0deg,#1a2246ee 70%,#1a224600 100%);
+      padding: 0.8em 0.7em 1.1em 0.7em;
+      box-sizing: border-box;
+      text-align: center;
+      z-index: 8;
     }
     .modal-desc {
-      margin: 18px 0 14px 0;
-      font-size: 1.14rem;
-      color: #6d4e36;
-      text-align: center;
+      color: #ffe37b;
+      font-size: 1.16em;
+      font-weight: bold;
+      text-shadow: 0 2px 12px #091629ee;
       line-height: 1.7;
-      padding: 0 14px;
+      word-break: keep-all;
+      letter-spacing: -0.3px;
     }
     .modal-close {
       position: absolute;
-      right: 18px;
-      top: 16px;
-      background: #faede1;
+      right: 16px; top: 15px;
+      background: #132b40d2;
       border: none;
-      color: #a9776c;
-      font-size: 1.7rem;
+      color: #ffe37b;
+      font-size: 2.1rem;
       border-radius: 50%;
-      width: 40px; height: 40px;
+      width: 44px; height: 44px;
       cursor: pointer;
       font-family: inherit;
-      box-shadow: 0 2px 6px rgba(110,80,60,0.07);
-      transition: background 0.18s;
+      z-index: 50;
+      box-shadow: 0 2px 6px #101b2f51;
+      transition: background 0.18s, color 0.18s;
     }
-    .modal-close:hover { background: #ffebd6; color: #bc4e3c; }
-    @media (max-width: 540px) {
-      .modal-photo { width: 98vw; max-width: 99vw; max-height: 48vh; }
-      .modal-box { max-width: 100vw; }
+    .modal-close:hover { background: #ffe37b; color: #122a41;}
+    @media (max-width: 700px) {
+      .modal-content { max-width: 98vw; }
+      .modal-img-wrap.vert { width: 96vw; max-width: 99vw;}
+      .modal-img-wrap.horiz { width: 98vw; max-width: 99vw;}
+    }
+    @media (max-width: 430px) {
+      .modal-desc { font-size: 1.06em; }
     }
   </style>
 </head>
 <body>
+  <!-- 네비게이션 링크 -->
+  <div class="nav-links">
+    <a href="house_01.html" class="nav-btn">◀ 메인으로</a>
+    <a href="house_01_004_02.html" class="nav-btn">다음 페이지 ▶</a>
+  </div>
   <div class="album-title">손녀딸, 사랑의 기적</div>
   <div class="album-desc">
     가족 모두의 사랑을 듬뿍 받으며 태어난 우리 손녀딸.<br>
     첫 순간의 감동과 성장의 기쁨, 그리고 동화 같은 웃음을 담았습니다.
   </div>
   <div class="album-grid" id="albumGrid">
-    <!-- 여기서부터 사진 16장 + 설명 입력 -->
-    <div class="photo-card" data-idx="0">
-      <img src="img/+-2_-1_02.jpg" alt="신생아실에서 만난 첫 순간">
-      <div class="photo-desc">신생아실에서 처음 만난 사랑스러운 우리 손녀딸</div>
+    <!-- 썸네일 16장 -->
+    <div class="photo-thumb-box" data-idx="0">
+      <img src="img/+-2_-1_02.jpg" alt="">
+      <div class="photo-thumb-label">신생아실 첫 만남</div>
     </div>
-    <div class="photo-card" data-idx="1">
-      <img src="img/+-2_-1_03.jpg" alt="작은 얼굴 클로즈업">
-      <div class="photo-desc">아기처럼 곱고 맑은 얼굴, 작은 숨결에 감동</div>
+    <div class="photo-thumb-box" data-idx="1">
+      <img src="img/+-2_-1_03.jpg" alt="">
+      <div class="photo-thumb-label">아기 얼굴 클로즈업</div>
     </div>
-    <div class="photo-card" data-idx="2">
-      <img src="img/+-2_-1_04.jpg" alt="눈을 살며시 뜬 모습">
-      <div class="photo-desc">살며시 눈을 뜨고 가족을 바라본 첫 순간</div>
+    <div class="photo-thumb-box" data-idx="2">
+      <img src="img/+-2_-1_04.jpg" alt="">
+      <div class="photo-thumb-label">살며시 눈을 뜨다</div>
     </div>
-    <div class="photo-card" data-idx="3">
-      <img src="img/+-2_-1_05.jpg" alt="작은 미소">
-      <div class="photo-desc">아기 볼에 번지는 작은 미소, 모두의 마음이 녹아요</div>
+    <div class="photo-thumb-box" data-idx="3">
+      <img src="img/+-2_-1_05.jpg" alt="">
+      <div class="photo-thumb-label">첫 미소</div>
     </div>
-    <div class="photo-card" data-idx="4">
-      <img src="img/+-2_-1_06.jpg" alt="작은 발">
-      <div class="photo-desc">처음 세상을 밟은 작은 발, 이 발로 행복한 길만 걷길</div>
+    <div class="photo-thumb-box" data-idx="4">
+      <img src="img/+-2_-1_06.jpg" alt="">
+      <div class="photo-thumb-label">작은 발</div>
     </div>
-    <div class="photo-card" data-idx="5">
-      <img src="img/+-2_-1_07.jpg" alt="가족 손을 잡은 아기 손">
-      <div class="photo-desc">엄마 아빠 손 위에 올려진, 세상에서 가장 작은 손</div>
+    <div class="photo-thumb-box" data-idx="5">
+      <img src="img/+-2_-1_07.jpg" alt="">
+      <div class="photo-thumb-label">손 안의 아기손</div>
     </div>
-    <div class="photo-card" data-idx="6">
-      <img src="img/+-2_-1_08.jpg" alt="D+6 아기 미소">
-      <div class="photo-desc">D+6, 환하게 웃는 천사의 얼굴</div>
+    <div class="photo-thumb-box" data-idx="6">
+      <img src="img/+-2_-1_08.jpg" alt="">
+      <div class="photo-thumb-label">D+6 미소</div>
     </div>
-    <div class="photo-card" data-idx="7">
-      <img src="img/+-2_-1_09.jpg" alt="D+6 생애 첫 한 주">
-      <div class="photo-desc">태어난 지 6일, 가족의 사랑을 가득 받는 모습</div>
+    <div class="photo-thumb-box" data-idx="7">
+      <img src="img/+-2_-1_09.jpg" alt="">
+      <div class="photo-thumb-label">D+6 첫 한 주</div>
     </div>
-    <div class="photo-card" data-idx="8">
-      <img src="img/+-2_-1_10.jpg" alt="포근하게 잠든 모습">
-      <div class="photo-desc">포근하게 잠든 천사, 모든 꿈이 이루어지길</div>
+    <div class="photo-thumb-box" data-idx="8">
+      <img src="img/+-2_-1_10.jpg" alt="">
+      <div class="photo-thumb-label">포근하게 잠든</div>
     </div>
-    <div class="photo-card" data-idx="9">
-      <img src="img/+-2_-1_11.jpg" alt="아기 발도장">
-      <div class="photo-desc">작고 소중한 발자국, 가족 모두의 기쁨</div>
+    <div class="photo-thumb-box" data-idx="9">
+      <img src="img/+-2_-1_11.jpg" alt="">
+      <div class="photo-thumb-label">아기 발도장</div>
     </div>
-    <div class="photo-card" data-idx="10">
-      <img src="img/+-2_-1_12.jpg" alt="꽃과 토끼, 동화 속 아기">
-      <div class="photo-desc">꽃과 토끼가 가득한 동화 속 주인공이 된 아기</div>
+    <div class="photo-thumb-box" data-idx="10">
+      <img src="img/+-2_-1_12.jpg" alt="">
+      <div class="photo-thumb-label">꽃 토끼 아기</div>
     </div>
-    <div class="photo-card" data-idx="11">
-      <img src="img/+-2_-1_13.jpg" alt="꽃밭에서 잠든 토끼 아기">
-      <div class="photo-desc">부드러운 토끼옷, 사랑에 둘러싸인 꿀잠</div>
+    <div class="photo-thumb-box" data-idx="11">
+      <img src="img/+-2_-1_13.jpg" alt="">
+      <div class="photo-thumb-label">토끼옷 꿀잠</div>
     </div>
-    <div class="photo-card" data-idx="12">
-      <img src="img/+-2_-1_14.jpg" alt="토끼 아기의 동화">
-      <div class="photo-desc">자연과 꽃, 인형과 함께하는 동화 같은 성장</div>
+    <div class="photo-thumb-box" data-idx="12">
+      <img src="img/+-2_-1_14.jpg" alt="">
+      <div class="photo-thumb-label">동화 속 성장</div>
     </div>
-    <div class="photo-card" data-idx="13">
-      <img src="img/+-2_-1_15.jpg" alt="사랑에 감싸인 모습">
-      <div class="photo-desc">가족의 축복과 사랑에 감싸인 아름다운 순간</div>
+    <div class="photo-thumb-box" data-idx="13">
+      <img src="img/+-2_-1_15.jpg" alt="">
+      <div class="photo-thumb-label">사랑에 감싸인</div>
     </div>
-    <div class="photo-card" data-idx="14">
-      <img src="img/+-2_-1_16.jpg" alt="꿈꾸는 토끼 아기">
-      <div class="photo-desc">토끼귀를 쫑긋, 꿈꾸는 천사 아기</div>
+    <div class="photo-thumb-box" data-idx="14">
+      <img src="img/+-2_-1_16.jpg" alt="">
+      <div class="photo-thumb-label">꿈꾸는 토끼</div>
     </div>
-    <div class="photo-card" data-idx="15">
-      <img src="img/+-2_-1_17.jpg" alt="꽃 속의 웃음">
-      <div class="photo-desc">꽃과 인형, 행복한 웃음이 가득한 추억</div>
+    <div class="photo-thumb-box" data-idx="15">
+      <img src="img/+-2_-1_17.jpg" alt="">
+      <div class="photo-thumb-label">꽃 속의 웃음</div>
     </div>
   </div>
-<div style="text-align:center; margin-top: 18px; margin-bottom: 32px;">
-  <a href="house_01_004_02.html" 
-     style="display:inline-block; padding: 10px 32px; border-radius:24px; background:#ffe7c6;
-            color:#965d36; font-size:1.16rem; font-weight:bold; text-decoration:none; box-shadow:0 2px 7px rgba(150,110,80,0.09); transition:background 0.15s;">
-    ▶ 다음 페이지(더보기)
-  </a>
-</div>
   <!-- 팝업(모달) -->
   <div class="modal-bg" id="modalBg">
-    <div class="modal-box">
+    <div class="modal-content" id="modalContent">
       <button class="modal-close" id="modalClose" title="닫기">×</button>
-      <img class="modal-photo" id="modalPhoto" src="" alt="앨범 큰 사진">
-      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-img-wrap horiz" id="modalImgWrap">
+        <img class="modal-img" id="modalImg" src="" alt="큰사진">
+        <div class="modal-desc-box"><div class="modal-desc" id="modalDesc"></div></div>
+      </div>
     </div>
   </div>
   <script>
-    // 이미지, 설명 배열
+    // 사진/설명/비율
     const photoList = [
-      {src: 'img/+-2_-1_02.jpg', desc: '신생아실에서 처음 만난 사랑스러운 우리 손녀딸'},
-      {src: 'img/+-2_-1_03.jpg', desc: '아기처럼 곱고 맑은 얼굴, 작은 숨결에 감동'},
-      {src: 'img/+-2_-1_04.jpg', desc: '살며시 눈을 뜨고 가족을 바라본 첫 순간'},
-      {src: 'img/+-2_-1_05.jpg', desc: '아기 볼에 번지는 작은 미소, 모두의 마음이 녹아요'},
-      {src: 'img/+-2_-1_06.jpg', desc: '처음 세상을 밟은 작은 발, 이 발로 행복한 길만 걷길'},
-      {src: 'img/+-2_-1_07.jpg', desc: '엄마 아빠 손 위에 올려진, 세상에서 가장 작은 손'},
-      {src: 'img/+-2_-1_08.jpg', desc: 'D+6, 환하게 웃는 천사의 얼굴'},
-      {src: 'img/+-2_-1_09.jpg', desc: '태어난 지 6일, 가족의 사랑을 가득 받는 모습'},
-      {src: 'img/+-2_-1_10.jpg', desc: '포근하게 잠든 천사, 모든 꿈이 이루어지길'},
-      {src: 'img/+-2_-1_11.jpg', desc: '작고 소중한 발자국, 가족 모두의 기쁨'},
-      {src: 'img/+-2_-1_12.jpg', desc: '꽃과 토끼가 가득한 동화 속 주인공이 된 아기'},
-      {src: 'img/+-2_-1_13.jpg', desc: '부드러운 토끼옷, 사랑에 둘러싸인 꿀잠'},
-      {src: 'img/+-2_-1_14.jpg', desc: '자연과 꽃, 인형과 함께하는 동화 같은 성장'},
-      {src: 'img/+-2_-1_15.jpg', desc: '가족의 축복과 사랑에 감싸인 아름다운 순간'},
-      {src: 'img/+-2_-1_16.jpg', desc: '토끼귀를 쫑긋, 꿈꾸는 천사 아기'},
-      {src: 'img/+-2_-1_17.jpg', desc: '꽃과 인형, 행복한 웃음이 가득한 추억'}
+      {src: 'img/+-2_-1_02.jpg', desc: '신생아실에서 처음 만난 사랑스러운 우리 손녀딸', ratio: 'vert'},
+      {src: 'img/+-2_-1_03.jpg', desc: '아기처럼 곱고 맑은 얼굴, 작은 숨결에 감동', ratio: 'vert'},
+      {src: 'img/+-2_-1_04.jpg', desc: '살며시 눈을 뜨고 가족을 바라본 첫 순간', ratio: 'vert'},
+      {src: 'img/+-2_-1_05.jpg', desc: '아기 볼에 번지는 작은 미소, 모두의 마음이 녹아요', ratio: 'vert'},
+      {src: 'img/+-2_-1_06.jpg', desc: '처음 세상을 밟은 작은 발, 이 발로 행복한 길만 걷길', ratio: 'horiz'},
+      {src: 'img/+-2_-1_07.jpg', desc: '엄마 아빠 손 위에 올려진, 세상에서 가장 작은 손', ratio: 'horiz'},
+      {src: 'img/+-2_-1_08.jpg', desc: 'D+6, 환하게 웃는 천사의 얼굴', ratio: 'vert'},
+      {src: 'img/+-2_-1_09.jpg', desc: '태어난 지 6일, 가족의 사랑을 가득 받는 모습', ratio: 'vert'},
+      {src: 'img/+-2_-1_10.jpg', desc: '포근하게 잠든 천사, 모든 꿈이 이루어지길', ratio: 'vert'},
+      {src: 'img/+-2_-1_11.jpg', desc: '작고 소중한 발자국, 가족 모두의 기쁨', ratio: 'horiz'},
+      {src: 'img/+-2_-1_12.jpg', desc: '꽃과 토끼가 가득한 동화 속 주인공이 된 아기', ratio: 'vert'},
+      {src: 'img/+-2_-1_13.jpg', desc: '부드러운 토끼옷, 사랑에 둘러싸인 꿀잠', ratio: 'vert'},
+      {src: 'img/+-2_-1_14.jpg', desc: '자연과 꽃, 인형과 함께하는 동화 같은 성장', ratio: 'vert'},
+      {src: 'img/+-2_-1_15.jpg', desc: '가족의 축복과 사랑에 감싸인 아름다운 순간', ratio: 'vert'},
+      {src: 'img/+-2_-1_16.jpg', desc: '토끼귀를 쫑긋, 꿈꾸는 천사 아기', ratio: 'vert'},
+      {src: 'img/+-2_-1_17.jpg', desc: '꽃과 인형, 행복한 웃음이 가득한 추억', ratio: 'vert'}
     ];
-    const cards = document.querySelectorAll('.photo-card');
-    const modalBg = document.getElementById('modalBg');
-    const modalPhoto = document.getElementById('modalPhoto');
-    const modalDesc = document.getElementById('modalDesc');
-    const modalClose = document.getElementById('modalClose');
-    cards.forEach((card, idx) => {
-      card.addEventListener('click', () => {
-        modalPhoto.src = photoList[idx].src;
-        modalDesc.textContent = photoList[idx].desc;
-        modalBg.classList.add('active');
+    // 썸네일 클릭 이벤트
+    document.querySelectorAll('.photo-thumb-box').forEach((box, idx) => {
+      box.onclick = function() {
+        const photo = photoList[idx];
+        const img = document.getElementById('modalImg');
+        const desc = document.getElementById('modalDesc');
+        const wrap = document.getElementById('modalImgWrap');
+        img.src = photo.src;
+        desc.textContent = photo.desc;
+        wrap.className = 'modal-img-wrap ' + (photo.ratio === 'horiz' ? 'horiz' : 'vert');
+        document.getElementById('modalBg').classList.add('active');
         document.body.style.overflow = 'hidden';
-      });
+      }
     });
-    modalClose.onclick = closeModal;
-    modalBg.onclick = function(e) {
-      if(e.target === modalBg) closeModal();
-    }
-    function closeModal(){
-      modalBg.classList.remove('active');
-      modalPhoto.src = '';
+    // 모달 닫기
+    document.getElementById('modalClose').onclick = closeModal;
+    document.getElementById('modalBg').onclick = function(e) {
+      if (e.target === this) closeModal();
+    };
+    function closeModal() {
+      document.getElementById('modalBg').classList.remove('active');
+      document.getElementById('modalImg').src = '';
       document.body.style.overflow = '';
     }
-    // 모바일 esc 닫기
-    window.addEventListener('keydown', e=>{
-      if(e.key==='Escape') closeModal();
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
     });
   </script>
 </body>
