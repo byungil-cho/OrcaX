@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>영원의 집 1호 – 가족 사진 앨범</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
     body {
       margin: 0;
       background: radial-gradient(circle at 60% 16%, #23457c 0%, #0d2945 100%);
-      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      font-family: 'Pretendard','Noto Sans KR',sans-serif;
       color: #fff;
       min-height: 100vh;
       line-height: 1.75;
@@ -109,51 +109,84 @@
       align-items: center;
     }
     .modal-bg.active { display: flex; }
+    .modal-box {
+      background: #111d35;
+      padding: 1.1em 1em 1.2em 1em;
+      border-radius: 1.3em;
+      box-shadow: 0 2px 32px #ffe37b77;
+      text-align: center;
+      max-width: 96vw;
+      max-height: 94vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
     .modal-img {
-      width: 90vw;
-      max-width: 900px;
+      width: 86vw;
+      max-width: 600px;
       height: auto;
-      max-height: 92vh;
+      max-height: 58vh;
       border-radius: 1em;
       box-shadow: 0 4px 32px #ffe37b22;
+      margin-bottom: 1em;
       background: #fff2;
       display: block;
     }
+    .modal-title {
+      color: #ffe37b;
+      font-size: 1.15em;
+      font-weight: bold;
+      margin-bottom: 0.13em;
+      margin-top: 0.1em;
+    }
+    .modal-desc {
+      color: #fff;
+      font-size: 1em;
+      margin-bottom: 0.1em;
+    }
     @media (max-width: 900px) {
       .media-grid { grid-template-columns: repeat(2, 1fr);}
+      .modal-img { width: 92vw; max-width: 96vw; max-height: 46vh;}
+      .modal-box { padding: 0.6em 0.5em 1em 0.5em; }
     }
     @media (max-width: 600px) {
       .container { padding: 0.7rem 0.2rem 1.1rem 0.2rem;}
       .media-grid { grid-template-columns: repeat(1, 1fr);}
       .media-thumb { width: 100px; height: 100px;}
       h1 { font-size: 1.09rem;}
-      .modal-img { width: 98vw; max-width: 98vw; max-height: 90vh;}
+      .modal-img { width: 96vw; max-width: 98vw; max-height: 36vh;}
+      .modal-box { padding: 0.6em 0.1em 0.7em 0.1em;}
     }
   </style>
   <script>
-    function showModal(img) {
-      var modalBg = document.getElementById('media-modal-bg');
-      var modalImg = document.getElementById('modal-img');
-      modalImg.src = img;
-      modalBg.classList.add('active');
+    function showModal(img, title, desc) {
+      document.getElementById('modal-img').src = img;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-desc').textContent = desc;
+      document.getElementById('media-modal-bg').classList.add('active');
       document.body.style.overflow = 'hidden';
     }
     function closeModal() {
-      var modalBg = document.getElementById('media-modal-bg');
-      modalBg.classList.remove('active');
+      document.getElementById('media-modal-bg').classList.remove('active');
       document.body.style.overflow = '';
     }
     // ESC키로 닫기(PC)
     window.addEventListener('keydown', function(e){
       if(e.key==='Escape') closeModal();
     });
-    // 바깥 배경 클릭해도 닫힘
+    // 바깥 배경, 팝업 박스, 이미지 아무데나 클릭해도 닫힘
     window.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('media-modal-bg').addEventListener('click', function(e){
-        if(e.target === this) closeModal();
+      document.getElementById('media-modal-bg').addEventListener('click', function(){
+        closeModal();
       });
-      // 팝업 이미지 클릭해도 닫힘
       document.getElementById('modal-img').addEventListener('click', function(){
+        closeModal();
+      });
+      document.getElementById('modal-title').addEventListener('click', function(){
+        closeModal();
+      });
+      document.getElementById('modal-desc').addEventListener('click', function(){
         closeModal();
       });
     });
@@ -161,21 +194,22 @@
 </head>
 <body>
   <div class="container">
-     <h1>가족과 삶의 기록 – 추억의 사진 24장</h1>
+    <h1>가족과 삶의 기록 – 추억의 사진 24장</h1>
     <div class="media-grid">
-      <!-- 1 -->
+      <!-- 카드 예시 (이미지/번호/글씨 원본 그대로 유지) -->
       <div class="media-card" onclick="showModal('img/+1_01.jpg', '증명사진', '아버지의 정장 프로필, 강인한 삶의 흔적')">
         <img src="img/+1_01.jpg" alt="증명사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
         <div class="media-title">증명사진</div>
         <div class="media-desc">아버지의 정장 프로필, 강인한 삶의 흔적</div>
       </div>
-      <!-- 2 -->
-     <div class="media-card" onclick="showModal('img/+1_02.jpg', '군 병원에서의 청춘', '아버지의 젊은 시절, 군생활 중 병원에 입원해 있을 때 찍은 사진')">
-      <img src="img/+1_02.jpg" alt="군 병원에서의 청춘" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-      <div class="media-title">군 병원에서의 청춘</div>
-      <div class="media-desc">아버지의 젊은 시절, 군생활 중 병원에 입원해 있을 때 찍은 사진</div>
+      <!-- 이하 동일하게 모든 카드 반복 (기존 카드 소스 그대로 유지) -->
+      <!-- ... (카드 목록 복사) ... -->
+      <div class="media-card" onclick="showModal('img/+1_02.jpg', '군 병원에서의 청춘', '아버지의 젊은 시절, 군생활 중 병원에 입원해 있을 때 찍은 사진')">
+        <img src="img/+1_02.jpg" alt="군 병원에서의 청춘" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">군 병원에서의 청춘</div>
+        <div class="media-desc">아버지의 젊은 시절, 군생활 중 병원에 입원해 있을 때 찍은 사진</div>
       </div>
-      <!-- 3 -->
+     <!-- 3 -->
       <div class="media-card" onclick="showModal('img/+1_03.jpg', '젊은 시절의 추억', '젊은 시절, 자연 속에서의 모습')">
         <img src="img/+1_03.jpg" alt="젊은 시절의 추억" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
         <div class="media-title">젊은 시절의 추억</div>
@@ -297,7 +331,11 @@
 
   <!-- 팝업(모달) -->
   <div class="modal-bg" id="media-modal-bg">
-    <img src="" alt="큰사진" class="modal-img" id="modal-img">
+    <div class="modal-box">
+      <img src="" alt="큰사진" class="modal-img" id="modal-img">
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+    </div>
   </div>
 </body>
 </html>
