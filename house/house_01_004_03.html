@@ -11,30 +11,31 @@
       color: #fff; margin:0; min-height:100vh;
     }
     .container {
-      max-width: 520px; margin: 0 auto; padding: 32px 0 50px 0;
+      max-width: 640px; margin: 0 auto; padding: 22px 0 40px 0;
       text-align: center;
     }
     h2 { margin-bottom: 16px; font-size:1.3rem; }
-    .thumb-list {
-      display: flex; flex-wrap: wrap;
-      gap: 8px; justify-content: center;
-      margin-bottom: 24px;
+    .desc {
+      font-size: 1.02rem; color:#d0e4ff; margin-bottom: 17px;
     }
-    .thumb {
-      width: 72px; height: 72px;
-      object-fit: cover; border-radius: 10px;
-      border: 2px solid #194c9e;
-      cursor: pointer; background: #fff;
-      transition: box-shadow 0.18s;
-      box-shadow: 0 1px 8px #0a305d55;
+    .thumb-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-bottom: 25px;
+      width: 98vw; max-width: 600px; margin-left:auto; margin-right:auto;
     }
-    .thumb:hover { box-shadow:0 4px 16px #3ad1ff22; border-color:#3ad1ff; }
-    .caption {
-      font-size: 1.05rem;
-      color: #e4e9ef;
-      margin-bottom: 7px;
-      min-height: 36px;
+    .thumb-grid img {
+      width: 100%; aspect-ratio: 1/1; object-fit: cover;
+      border-radius: 10px;
+      border: 2.5px solid #23457c;
+      background: #fff;
+      cursor: pointer;
+      box-shadow: 0 1px 6px #0a305d3a;
+      transition: border-color 0.18s;
     }
+    .thumb-grid img:hover { border-color:#3ad1ff; }
+    .caption { display:none; }
     .link-bar {
       display: flex; justify-content: center; gap: 22px; margin-top:24px;
     }
@@ -46,17 +47,16 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.09);
     }
     .link-bar a:hover { background: #185cc4; }
-
-    /* 큰사진 팝업 */
+    /* 팝업 */
     .modal-bg {
       position: fixed; top:0; left:0; width:100vw; height:100vh;
-      background: rgba(20,38,72,0.91);
+      background: rgba(20,38,72,0.92);
       z-index: 1111; display: flex; align-items: center; justify-content: center;
-      animation: fadeIn 0.18s;
+      animation: fadeIn 0.17s;
     }
     @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
     .modal-img {
-      max-width: 97vw; max-height: 85vh;
+      max-width: 97vw; max-height: 87vh;
       border-radius: 18px;
       box-shadow: 0 8px 32px #0007;
       object-fit: contain;
@@ -67,27 +67,31 @@
     }
     .modal-caption {
       color: #ffeeb9;
-      font-size: 1.14rem;
+      font-size: 1.13rem;
       text-align: center;
       margin-bottom: 12px;
       padding: 0 16px;
     }
-    @media (max-width: 500px) {
-      .container { padding: 10px 0 30px 0;}
-      .thumb { width: 54px; height:54px; }
-      .modal-img { max-width:99vw; max-height:67vh; }
+    @media (max-width: 850px) {
+      .container { max-width:100vw;}
+      .thumb-grid { grid-template-columns: repeat(3, 1fr); max-width: 100vw;}
+    }
+    @media (max-width: 550px) {
+      .thumb-grid { grid-template-columns: repeat(3, 1fr);}
+    }
+    @media (max-width: 390px) {
+      .thumb-grid { grid-template-columns: repeat(2, 1fr);}
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>손녀딸 사랑의 성장 앨범 (3/3)</h2>
- <div class="desc">
+    <div class="desc">
       할아버지와 손녀딸의 애틋한 순간들, 사랑스러운 미소와 함께한 소중한 시간을 사진으로 담았습니다.<br>
       성장하는 손녀딸의 모습과 함께 따뜻한 가족의 추억을 간직하세요.
     </div>
-    <div class="thumb-list" id="thumbList"></div>
-    <div class="caption" id="thumbCaption"></div>
+    <div class="thumb-grid" id="thumbGrid"></div>
     <div class="link-bar">
       <a href="house_01_004_01.html">이전</a>
       <a href="house_01.html">메인으로 가기</a>
@@ -120,15 +124,13 @@
       { src: "img/+-2_-1_47.jpg", cap: "하얀 보닛을 쓰고 가족과 함께한 환한 웃음" }
     ];
     // 썸네일 생성
-    const thumbList = document.getElementById('thumbList');
-    const thumbCaption = document.getElementById('thumbCaption');
+    const thumbGrid = document.getElementById('thumbGrid');
     photos.forEach((ph,i)=>{
       const img = document.createElement('img');
       img.src = ph.src;
-      img.className = 'thumb';
       img.alt = `작은사진${i+1}`;
       img.onclick = ()=>openModal(i);
-      thumbList.appendChild(img);
+      thumbGrid.appendChild(img);
     });
 
     function openModal(idx){
