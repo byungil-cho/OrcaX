@@ -2,98 +2,128 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>손녀딸 추억앨범</title>
+  <title>손녀딸 사랑의 포토북 (3/3)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 감성 폰트 -->
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(140deg, #23457c 0%, #0d2945 100%);
-      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
-      color: #fff; margin:0; min-height:100vh;
+      background: linear-gradient(130deg, #ffe8ef 0%, #aee7f6 100%);
+      font-family: 'Gowun Dodum', 'Jua', 'Pretendard', 'Noto Sans KR', sans-serif;
+      color: #3b2c21; margin:0; min-height:100vh;
     }
     .container {
-      max-width: 640px; margin: 0 auto; padding: 22px 0 40px 0;
+      max-width: 670px; margin: 0 auto; padding: 18px 0 38px 0;
       text-align: center;
     }
-    h2 { margin-bottom: 16px; font-size:1.3rem; }
+    h2 {
+      margin-bottom: 8px; margin-top:6px;
+      font-family: 'Jua', 'Pretendard', sans-serif;
+      font-size: 2rem; color: #d64a6e;
+      letter-spacing: -1px;
+      text-shadow: 0 2px 8px #ffdde9b0;
+    }
     .desc {
-      font-size: 1.02rem; color:#d0e4ff; margin-bottom: 17px;
+      font-size: 1.07rem; color:#7f5a46;
+      margin-bottom: 22px;
+      background: rgba(255,255,255,0.62);
+      border-radius: 16px;
+      padding: 14px 6vw 13px 6vw;
+      box-shadow: 0 2px 14px #ffe3f277;
+      font-family: 'Gowun Dodum', 'Pretendard', sans-serif;
+      line-height: 1.7;
     }
     .thumb-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 9px;
-      margin-bottom: 25px;
-      width: 98vw; max-width: 600px; margin-left:auto; margin-right:auto;
+      gap: 12px;
+      margin-bottom: 26px;
+      width: 97vw; max-width: 620px; margin-left:auto; margin-right:auto;
     }
     .thumb-grid img {
       width: 100%; aspect-ratio: 1/1; object-fit: cover;
-      border-radius: 10px;
-      border: 2.5px solid #23457c;
-      background: #fff;
+      border-radius: 20px;
+      border: 2.5px solid #f8c8e0;
+      background: #fff5fa;
+      box-shadow: 0 3px 14px #b6d3ef33, 0 0px 0 #ffe3f2;
       cursor: pointer;
-      box-shadow: 0 1px 6px #0a305d3a;
-      transition: border-color 0.18s;
+      transition: border-color 0.17s, box-shadow 0.17s;
+      position: relative;
     }
-    .thumb-grid img:hover { border-color:#3ad1ff; }
+    .thumb-grid img:hover {
+      border-color: #8bd1f7;
+      box-shadow: 0 6px 22px #85c1e366, 0 0px 0 #ffe3f2;
+    }
     .caption { display:none; }
     .link-bar {
-      display: flex; justify-content: center; gap: 22px; margin-top:24px;
+      display: flex; justify-content: center; gap: 22px; margin-top:32px;
     }
     .link-bar a {
-      background: #23457c; color: #fff;
-      text-decoration: none; font-size:1.06rem;
-      padding: 7px 20px; border-radius: 16px;
-      transition: background 0.13s; font-weight: bold;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+      background: linear-gradient(90deg,#ff90c3 10%, #86e1f7 90%);
+      color: #fff;
+      text-decoration: none; font-size:1.11rem;
+      padding: 10px 30px; border-radius: 24px;
+      font-family: 'Jua', 'Pretendard', sans-serif;
+      font-weight: bold; letter-spacing:-0.5px;
+      box-shadow: 0 2px 8px #ffd2eb6c;
+      border: 1.5px solid #ffe3f2;
+      transition: background 0.14s, color 0.14s;
     }
-    .link-bar a:hover { background: #185cc4; }
+    .link-bar a:hover { background:#fa8ea1; color:#fff8ef; }
     /* 팝업 */
     .modal-bg {
       position: fixed; top:0; left:0; width:100vw; height:100vh;
-      background: rgba(20,38,72,0.92);
+      background: rgba(242, 212, 228, 0.93);
       z-index: 1111; display: flex; align-items: center; justify-content: center;
-      animation: fadeIn 0.17s;
+      animation: fadeIn 0.15s;
     }
     @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
     .modal-img {
-      max-width: 97vw; max-height: 87vh;
-      border-radius: 18px;
-      box-shadow: 0 8px 32px #0007;
+      max-width: 96vw; max-height: 78vh;
+      border-radius: 32px;
+      box-shadow: 0 8px 38px #fcb8e2a1, 0 2px 12px #4dc3ea66;
       object-fit: contain;
-      background: #222;
+      background: #fff2fb;
       display: block;
       margin-bottom: 12px;
       cursor: pointer;
+      border: 2.5px solid #f6bcda;
     }
     .modal-caption {
-      color: #ffeeb9;
-      font-size: 1.13rem;
+      color: #d74a7b;
+      font-size: 1.2rem;
       text-align: center;
-      margin-bottom: 12px;
-      padding: 0 16px;
+      margin-bottom: 8px;
+      padding: 0 18px;
+      font-family: 'Jua', 'Pretendard', sans-serif;
+      text-shadow: 0 1px 6px #ffd6ea6b;
     }
     @media (max-width: 850px) {
       .container { max-width:100vw;}
       .thumb-grid { grid-template-columns: repeat(3, 1fr); max-width: 100vw;}
     }
-    @media (max-width: 550px) {
+    @media (max-width: 620px) {
       .thumb-grid { grid-template-columns: repeat(3, 1fr);}
     }
-    @media (max-width: 390px) {
+    @media (max-width: 420px) {
       .thumb-grid { grid-template-columns: repeat(2, 1fr);}
+    }
+    @media (max-width: 500px) {
+      .modal-img { max-width: 99vw; max-height: 53vw;}
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>손녀딸 사랑의 성장 앨범 (3/3)</h2>
+    <h2>손녀딸, 사랑의 성장 앨범</h2>
     <div class="desc">
-      할아버지와 손녀딸의 애틋한 순간들, 사랑스러운 미소와 함께한 소중한 시간을 사진으로 담았습니다.<br>
-      성장하는 손녀딸의 모습과 함께 따뜻한 가족의 추억을 간직하세요.
+      가족 모두의 사랑을 듬뿍 받고 자란 우리 손녀딸!<br>
+      사진 한 장 한 장에 웃음, 추억, 그리고 할아버지의 따뜻한 마음이 담겨 있습니다.<br>
+      <span style="color:#e06597;">손녀딸의 작은 미소와 행복한 순간을 <b>함께 기억</b>해주세요.</span>
     </div>
     <div class="thumb-grid" id="thumbGrid"></div>
     <div class="link-bar">
-      <a href="house_01_004_01.html">이전</a>
+      <a href="house_01_004_02.html">이전</a>
       <a href="house_01.html">메인으로 가기</a>
     </div>
   </div>
@@ -106,29 +136,29 @@
     </div>
   </div>
   <script>
-    // 데이터
+    // 데이터 (사진과 감성설명, 더 감성적으로!)
     const photos = [
-      { src: "img/+-2_-1_34.jpg", cap: "하늘하늘 예쁜 원피스와 레이스 보닛, 사랑스러운 첫 촬영" },
-      { src: "img/+-2_-1_35.jpg", cap: "보닛을 쓰고 천진난만한 표정으로 활짝 웃는 순간" },
-      { src: "img/+-2_-1_36.jpg", cap: "커다란 밀짚모자와 노란 뜨개 파인애플, 자연 속 작은 아기천사" },
-      { src: "img/+-2_-1_37.jpg", cap: "햇살 아래 밀짚모자를 쓴 채, 평온하고 귀여운 모습" },
-      { src: "img/+-2_-1_38.jpg", cap: "밀짚모자와 함께한 포근한 분위기의 정면샷" },
-      { src: "img/+-2_-1_39.jpg", cap: "포근한 쿠션 위, 레이스 보닛을 쓰고 바라보는 동그란 눈망울" },
-      { src: "img/+-2_-1_40.jpg", cap: "곰돌이 옷을 입고 서랍장 속 인형 친구들과 함께 찰칵" },
-      { src: "img/+-2_-1_41.jpg", cap: "포근한 곰돌이 인형들 사이에서 환하게 웃는 모습" },
-      { src: "img/+-2_-1_42.jpg", cap: "수많은 곰돌이 인형들 사이, 귀여운 곰돌이로 변신" },
-      { src: "img/+-2_-1_43.jpg", cap: "곰돌이 인형을 꼭 안고 있는 사랑스러운 손녀딸" },
-      { src: "img/+-2_-1_44.jpg", cap: "상큼한 그린 턱받이, 엄마와 함께한 자연스러운 일상" },
-      { src: "img/+-2_-1_45.jpg", cap: "연하늘색 모자와 미소 가득, 엄마와 함께하는 행복" },
-      { src: "img/+-2_-1_46.jpg", cap: "하얀 원피스에 사랑스러운 미소, 깔끔한 분위기의 기념사진" },
-      { src: "img/+-2_-1_47.jpg", cap: "하얀 보닛을 쓰고 가족과 함께한 환한 웃음" }
+      { src: "img/+-2_-1_34.jpg", cap: "포근한 아침, 햇살 아래에서 예쁜 미소와 함께 첫 인사를 건네요." },
+      { src: "img/+-2_-1_35.jpg", cap: "작은 손에 꽃을 쥐고, 천진난만하게 웃는 모습이 너무 사랑스러워요." },
+      { src: "img/+-2_-1_36.jpg", cap: "파스텔빛 방 안, 인형을 꼭 안고 세상을 궁금해하는 눈빛." },
+      { src: "img/+-2_-1_37.jpg", cap: "커다란 밀짚모자 아래에서 햇살처럼 빛나는 얼굴." },
+      { src: "img/+-2_-1_38.jpg", cap: "살짝 수줍은 표정에 담긴 행복, 사랑스러움이 가득합니다." },
+      { src: "img/+-2_-1_39.jpg", cap: "포근한 쿠션 위, 호기심 가득한 눈동자로 세상을 바라봐요." },
+      { src: "img/+-2_-1_40.jpg", cap: "곰돌이 인형들과 친구가 되어 서랍장 위에서 깜찍한 포즈!" },
+      { src: "img/+-2_-1_41.jpg", cap: "인형들 사이에서 세상 제일 행복한 미소를 짓는 손녀딸." },
+      { src: "img/+-2_-1_42.jpg", cap: "곰인형들 틈에서 작고 소중한 보물처럼 반짝이는 미소." },
+      { src: "img/+-2_-1_43.jpg", cap: "곰인형을 품에 꼭 안고 할아버지를 바라보는 따뜻한 눈빛." },
+      { src: "img/+-2_-1_44.jpg", cap: "상큼한 턱받이, 엄마 품에서 안심한 듯 평화로운 표정." },
+      { src: "img/+-2_-1_45.jpg", cap: "하늘빛 모자, 사랑이 넘치는 엄마와의 행복한 순간." },
+      { src: "img/+-2_-1_46.jpg", cap: "하얀 원피스와 미소, 가족과 함께여서 더욱 빛나는 우리." },
+      { src: "img/+-2_-1_47.jpg", cap: "환한 웃음, 사랑하는 가족의 품에서 자라나는 행복." }
     ];
     // 썸네일 생성
     const thumbGrid = document.getElementById('thumbGrid');
     photos.forEach((ph,i)=>{
       const img = document.createElement('img');
       img.src = ph.src;
-      img.alt = `작은사진${i+1}`;
+      img.alt = `손녀딸사진${i+1}`;
       img.onclick = ()=>openModal(i);
       thumbGrid.appendChild(img);
     });
@@ -151,4 +181,5 @@
   </script>
 </body>
 </html>
+
 
