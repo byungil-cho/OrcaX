@@ -117,12 +117,17 @@
       max-height: 92vh;
     }
     .modal-img {
-      max-width: 56vw;
-      max-height: 46vh;
+      width: 90vw;
+      max-width: 900px;
+      height: auto;
+      max-height: 86vh;
       border-radius: 1em;
       box-shadow: 0 4px 32px #ffe37b22;
       margin-bottom: 1em;
       background: #fff2;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
     .modal-title {
       color: #ffe37b;
@@ -159,7 +164,7 @@
       .media-grid { grid-template-columns: repeat(1, 1fr);}
       .media-thumb { width: 100px; height: 100px;}
       h1 { font-size: 1.09rem;}
-      .modal-img { max-width: 92vw; max-height: 30vh;}
+      .modal-img { width: 90vw; max-width: 98vw; max-height: 50vh;}
       .modal-content { padding: 0.7em 0.6em 1em 0.6em;}
     }
   </style>
@@ -173,6 +178,10 @@
     function closeModal() {
       document.getElementById('media-modal').style.display = 'none';
     }
+    // ESC로 닫기
+    window.addEventListener('keydown', function(e){
+      if(e.key==='Escape') closeModal();
+    });
   </script>
 </head>
 <body>
@@ -310,6 +319,7 @@
     </div>
     <a href="house_01_006.html" class="back-btn">&larr; 영원의 집 1호 어머니 게신곳으로 돌아가기</a>
   </div>
+
   <!-- 이미지 확대 모달 -->
   <div class="modal" id="media-modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
@@ -321,8 +331,3 @@
   </div>
 </body>
 </html>
-
-
-
-
-
