@@ -98,63 +98,26 @@
       background: #1b273b;
       color: #ffe37b;
     }
-    .modal {
+    /* 팝업(모달) 스타일 */
+    .modal-bg {
       display: none;
       position: fixed;
       z-index: 99;
-      left: 0; top: 0; right: 0; bottom: 0;
+      left: 0; top: 0; width: 100vw; height: 100vh;
       background: rgba(16,24,36,0.96);
-      align-items: center;
       justify-content: center;
+      align-items: center;
     }
-    .modal-content {
-      background: #111d35;
-      padding: 2.1em 2.2em 1.7em 2.2em;
-      border-radius: 1.4em;
-      box-shadow: 0 2px 32px #ffe37b77;
-      text-align: center;
-      max-width: 98vw;
-      max-height: 92vh;
-    }
+    .modal-bg.active { display: flex; }
     .modal-img {
       width: 90vw;
       max-width: 900px;
       height: auto;
-      max-height: 86vh;
+      max-height: 92vh;
       border-radius: 1em;
       box-shadow: 0 4px 32px #ffe37b22;
-      margin-bottom: 1em;
       background: #fff2;
       display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .modal-title {
-      color: #ffe37b;
-      font-size: 1.18em;
-      font-weight: bold;
-      margin-bottom: 0.16em;
-    }
-    .modal-desc {
-      color: #fff;
-      font-size: 1em;
-      margin-bottom: 0.1em;
-    }
-    .close-btn {
-      margin-top: 1.2em;
-      background: #ffe37b;
-      color: #1b273b;
-      border: none;
-      border-radius: 1.1em;
-      font-size: 1em;
-      padding: 0.5em 2em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.17s, color 0.12s;
-    }
-    .close-btn:hover {
-      background: #1b273b;
-      color: #ffe37b;
     }
     @media (max-width: 900px) {
       .media-grid { grid-template-columns: repeat(2, 1fr);}
@@ -164,29 +127,41 @@
       .media-grid { grid-template-columns: repeat(1, 1fr);}
       .media-thumb { width: 100px; height: 100px;}
       h1 { font-size: 1.09rem;}
-      .modal-img { width: 90vw; max-width: 98vw; max-height: 50vh;}
-      .modal-content { padding: 0.7em 0.6em 1em 0.6em;}
+      .modal-img { width: 98vw; max-width: 98vw; max-height: 90vh;}
     }
   </style>
   <script>
-    function showModal(img, title, desc) {
-      document.getElementById('modal-img').src = img;
-      document.getElementById('modal-title').textContent = title;
-      document.getElementById('modal-desc').textContent = desc;
-      document.getElementById('media-modal').style.display = 'flex';
+    function showModal(img) {
+      var modalBg = document.getElementById('media-modal-bg');
+      var modalImg = document.getElementById('modal-img');
+      modalImg.src = img;
+      modalBg.classList.add('active');
+      document.body.style.overflow = 'hidden';
     }
     function closeModal() {
-      document.getElementById('media-modal').style.display = 'none';
+      var modalBg = document.getElementById('media-modal-bg');
+      modalBg.classList.remove('active');
+      document.body.style.overflow = '';
     }
-    // ESC로 닫기
+    // ESC키로 닫기(PC)
     window.addEventListener('keydown', function(e){
       if(e.key==='Escape') closeModal();
+    });
+    // 바깥 배경 클릭해도 닫힘
+    window.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('media-modal-bg').addEventListener('click', function(e){
+        if(e.target === this) closeModal();
+      });
+      // 팝업 이미지 클릭해도 닫힘
+      document.getElementById('modal-img').addEventListener('click', function(){
+        closeModal();
+      });
     });
   </script>
 </head>
 <body>
   <div class="container">
-    <h1>가족과 삶의 기록 – 추억의 사진 24장</h1>
+     <h1>가족과 삶의 기록 – 추억의 사진 24장</h1>
     <div class="media-grid">
       <!-- 1 -->
       <div class="media-card" onclick="showModal('img/+1_01.jpg', '증명사진', '아버지의 정장 프로필, 강인한 삶의 흔적')">
@@ -320,14 +295,9 @@
     <a href="house_01_006.html" class="back-btn">&larr; 영원의 집 1호 어머니 게신곳으로 돌아가기</a>
   </div>
 
-  <!-- 이미지 확대 모달 -->
-  <div class="modal" id="media-modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <img src="" alt="미리보기" class="modal-img" id="modal-img">
-      <div class="modal-title" id="modal-title"></div>
-      <div class="modal-desc" id="modal-desc"></div>
-      <button class="close-btn" onclick="closeModal()">닫기</button>
-    </div>
+  <!-- 팝업(모달) -->
+  <div class="modal-bg" id="media-modal-bg">
+    <img src="" alt="큰사진" class="modal-img" id="modal-img">
   </div>
 </body>
 </html>
