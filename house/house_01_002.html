@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>유하 엄마 아빠 사진 앨범</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #f8f7f5;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      margin: 0;
+      color: #222;
+    }
+    .album-container {
+      max-width: 900px;
+      margin: 24px auto 16px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.07), 0 1.5px 6px rgba(0,0,0,0.04);
+      padding: 32px 18px 32px 18px;
+    }
+    h1 {
+      text-align: center;
+      color: #3a5e9e;
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .desc {
+      text-align: center;
+      color: #999;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+    .thumbnails {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+    }
+    .thumb {
+      width: 100px;
+      height: 100px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(60,60,60,0.07);
+      cursor: pointer;
+      background: #f0f0f0;
+      border: 2px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border 0.2s;
+    }
+    .thumb:hover {
+      border: 2px solid #3a5e9e;
+    }
+    .thumb img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .overlay {
+      position: fixed;
+      top:0; left:0; width:100vw; height:100vh;
+      background: rgba(32,32,32,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      animation: fadeIn 0.2s;
+    }
+    @keyframes fadeIn {
+      from { opacity:0;}
+      to {opacity:1;}
+    }
+    .big-img-box {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.13);
+      max-width: 84vw;
+      max-height: 80vh;
+      padding: 16px 16px 8px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: popIn 0.2s;
+    }
+    @keyframes popIn {
+      from {transform: scale(0.94);}
+      to {transform: scale(1);}
+    }
+    .big-img {
+      width: auto;
+      height: auto;
+      max-width: 70vw;
+      max-height: 56vh;
+      display: block;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(40,40,40,0.14);
+      margin-bottom: 18px;
+      background: #f9f9f9;
+      cursor: pointer;
+    }
+    .caption {
+      color: #222;
+      font-size: 1.03rem;
+      text-align: center;
+      margin-bottom: 6px;
+      font-weight: 400;
+    }
+    .caption.sm {
+      font-size: 0.98rem;
+      color: #444;
+      margin-bottom: 0;
+      margin-top: 6px;
+    }
+    @media (max-width: 680px) {
+      .album-container {padding: 12px 4px;}
+      h1 {font-size: 1.17rem;}
+      .big-img-box {max-width: 99vw; max-height: 94vh;}
+      .big-img {max-width: 94vw; max-height: 60vh;}
+    }
+    .nav-links {
+      margin-top: 40px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+    }
+    .nav-links a {
+      color: #3a5e9e;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.03rem;
+      padding: 8px 20px;
+      border-radius: 14px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-links a:hover {
+      background: #e6f0ff;
+      color: #0d2345;
+    }
+  </style>
+</head>
+<body>
+  <div class="album-container">
+    <h1>유하 엄마 아빠 사진 앨범</h1>
+    <div class="desc">사랑스러운 이유하의 엄마, 아빠. 그리고 가족의 따뜻한 순간들.<br>여행과 성장, 그리고 첫 만남의 감동까지 모두 담았습니다.</div>
+    <div class="thumbnails" id="thumbnails">
+      <!-- 썸네일 자동삽입 -->
+    </div>
+    <div class="nav-links">
+      <a href="house_01.html">메인</a>
+      <a href="house_01_001.html">이전</a>
+      <a href="house_01_003.html">다음</a>
+    </div>
+  </div>
+
+  <!-- 오버레이/큰이미지 -->
+  <div class="overlay" id="overlay" style="display:none;">
+    <div class="big-img-box">
+      <img id="bigImg" class="big-img" src="" alt="" onclick="hideBig()">
+      <div id="bigCaption" class="caption"></div>
+      <div id="bigCaptionSm" class="caption sm"></div>
+    </div>
+  </div>
+  <script>
+    // 업로드하신 파일명 순서대로 배열 (1~20)
+    const images = [
+      { src: "img/+-1_01.jpg",     caption: "유하 엄마의 유럽 여행 한 장면. 설산과 맑은 하늘 아래, 설렘 가득한 미소." },
+      { src: "img/+-1_01_01.jpg",  caption: "따스한 시선으로 갓 태어난 유하를 바라보는 엄마의 첫 순간." },
+      { src: "img/+-1_01_02.jpg",  caption: "엄마와 아기 유하의 백일잔치. 하얀 드레스와 꽃 장식이 어우러진 순수한 행복." },
+      { src: "img/+-1_01_03.jpg",  caption: "유하 백일을 축하하는 가족 단체사진. 모두의 사랑을 받으며 자라는 유하." },
+      { src: "img/+-1_01_04.jpg",  caption: "유하 엄마, 할머니, 이모와 함께한 백일잔치의 즐거운 순간." },
+      { src: "img/+-1_01_05.jpg",  caption: "아빠와 엄마, 그리고 유하의 첫 가족사진. 따뜻한 미소로 가득한 가족의 시작." },
+      { src: "img/+-1_01_06.jpg",  caption: "다시 한 번, 온 가족이 유하의 백일을 축하합니다. 밝은 웃음이 넘치는 순간." },
+      { src: "img/+-1_01_07.jpg",  caption: "엄마의 품에 안겨 환하게 웃는 유하. 아기와 엄마의 사랑스러운 교감." },
+      { src: "img/+-1_+1_01.jpg",  caption: "기차 여행 중 아빠의 익살스러운 표정! 가족 여행의 또 다른 추억." },
+      { src: "img/+-1_+1_02.jpg",  caption: "처음으로 유하를 품에 안고 감격스러워 하는 아빠. 행복 가득한 순간." },
+      { src: "img/+-1_+1_03.jpg",  caption: "아빠 품에서 새근새근 잠든 유하. 평온한 가족의 저녁." },
+      { src: "img/+-1_+1_04.jpg",  caption: "아빠 품에 안겨 아기 미소를 짓는 유하. 사랑이 전해지는 포근한 품." },
+      { src: "img/+-1_+1_05.jpg",  caption: "아빠의 환한 웃음과 아기 유하. 행복이 얼굴에 가득." },
+      { src: "img/+-1_+1_06.jpg",  caption: "유하를 조심스레 눕혀주는 아빠의 손길. 사랑이 묻어나는 일상." },
+      { src: "img/+-1_+1_07.jpg",  caption: "밤 늦게까지 아빠 품에서 포근히 안긴 유하. 소중한 휴식." },
+      { src: "img/+-1_+1_08.jpg",  caption: "흑백사진 속 아빠와 유하. 진심이 묻어나는 감동적인 교감의 순간." },
+      { src: "img/+-1_+1_09.jpg",  caption: "따뜻한 아침 햇살 아래 아빠와 아기 유하. 두 사람만의 대화." },
+      { src: "img/+-1_+1_10.jpg",  caption: "백일잔치 리허설 준비! 모두의 관심을 받는 유하의 귀여운 모습." },
+      { src: "img/+-1_+1_11.jpg",  caption: "온 가족이 다시 한 번 모여서, 함께 남기는 소중한 백일잔치 기념." },
+      { src: "img/+-1_+1_12.jpg",  caption: "엄마 아빠 그리고 유하의 백일날. 가족 모두가 소중히 여긴 순간." }
+    ];
+    const captions_sm = [
+      "맑은 알프스의 설경이 엄마의 미소와 함께.",
+      "처음 만난 내 딸, 유하야 사랑해.",
+      "순백의 드레스, 백일의 꽃길을 시작하며.",
+      "온 가족이 함께 한 첫 번째 잔치.",
+      "여자들만의 웃음이 가득한 시간.",
+      "처음으로 한 가족이 된 기념일.",
+      "밝은 웃음, 사랑 가득한 백일의 하루.",
+      "엄마와 아기의 따뜻한 교감.",
+      "아빠의 유쾌함이 빛난 가족 여행길.",
+      "눈물이 맺히는 첫 포옹, 아빠의 뿌듯함.",
+      "평온한 밤, 사랑이 스며드는 꿈.",
+      "아빠와 아기의 포근한 오후.",
+      "행복의 표정, 아빠의 자신감.",
+      "작은 손길에 담긴 큰 사랑.",
+      "아빠 품에서 깊이 잠드는 아기.",
+      "흑백이지만 감정은 컬러보다 진하게.",
+      "아빠와 아기, 아침의 속삭임.",
+      "리허설부터 이미 주인공 유하.",
+      "두 번째 가족사진, 모두의 환한 미소.",
+      "첫 백일, 세 가족의 찬란한 시작."
+    ];
+    const thumbs = document.getElementById('thumbnails');
+    images.forEach((img, idx) => {
+      const el = document.createElement('div');
+      el.className = "thumb";
+      el.innerHTML = `<img src="${img.src}" alt="photo${idx+1}">`;
+      el.onclick = ()=>showBig(idx);
+      thumbs.appendChild(el);
+    });
+
+    // 큰 이미지 보여주기
+    function showBig(idx) {
+      document.getElementById('bigImg').src = images[idx].src;
+      document.getElementById('bigCaption').textContent = images[idx].caption;
+      document.getElementById('bigCaptionSm').textContent = captions_sm[idx];
+      document.getElementById('overlay').style.display = 'flex';
+      // 큰 사진 클릭하면 닫히기
+      document.getElementById('bigImg').onclick = hideBig;
+      // ESC 키 닫기
+      document.addEventListener('keydown', escHandler);
+    }
+    // 닫기
+    function hideBig() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('bigImg').onclick = null;
+      document.removeEventListener('keydown', escHandler);
+    }
+    // ESC 키 핸들러
+    function escHandler(e){
+      if(e.key === "Escape") hideBig();
+    }
+  </script>
+</body>
+</html>
