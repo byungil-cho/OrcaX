@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>할머니와 아들·딸·며느리들의 추억</title>
+  <meta name="viewport" content="width=1024">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 60% 16%, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 0 70px 0;
+    }
+    h1 {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 2.3rem;
+      color: #5d87c4;
+      letter-spacing: 0.03em;
+      font-weight: 700;
+      text-align: center;
+    }
+    .desc {
+      text-align: center;
+      color: #c9ced8;
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 32px;
+      letter-spacing: 0.01em;
+    }
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px 20px;
+      justify-content: center;
+      margin-bottom: 44px;
+    }
+    .photo-card {
+      background: rgba(10, 20, 40, 0.75);
+      border-radius: 24px;
+      box-shadow: 0 6px 18px 0 rgba(32,60,120,0.13);
+      padding: 18px 12px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 290px;
+    }
+    .thumb-bg {
+      width: 90px;
+      height: 150px;
+      background: #12244a;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px 0 rgba(20,40,80,0.11);
+      overflow: hidden;
+    }
+    .thumb-bg img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #dedede;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+      transition: transform 0.15s;
+    }
+    .thumb-bg img:active {
+      transform: scale(0.98);
+    }
+    .caption {
+      font-size: 1.06rem;
+      color: #dbe5f0;
+      font-weight: 500;
+      margin-bottom: 2px;
+      text-align: center;
+      letter-spacing: 0.01em;
+      min-height: 30px;
+    }
+    .desc-detail {
+      font-size: 0.97rem;
+      color: #c4cfe0;
+      font-weight: 300;
+      text-align: center;
+      line-height: 1.6;
+      min-height: 38px;
+      margin-bottom: 0;
+    }
+    .album-link {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 40px 0 0 0;
+    }
+    .album-link a {
+      color: #fff;
+      background: #3769c8;
+      border-radius: 22px;
+      padding: 10px 38px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      box-shadow: 0 4px 12px 0 rgba(40,60,140,0.07);
+      transition: background 0.2s;
+    }
+    .album-link a:hover {
+      background: #1e3670;
+    }
+    /* 팝업 레이어 */
+    .popup-bg {
+      position: fixed;
+      z-index: 1000;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(24,32,56, 0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: popupIn .18s;
+    }
+    @keyframes popupIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .popup-img-wrap {
+      max-width: 95vw;
+      max-height: 72vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: 40px;
+    }
+    .popup-img {
+      max-width: 95vw;
+      max-height: 60vh;
+      box-shadow: 0 8px 28px 0 rgba(30, 44, 66, 0.26);
+      border-radius: 18px;
+      display: block;
+      margin: 0 auto 16px auto;
+      background: #fff;
+      object-fit: contain;
+      /* 꽉 채우고 비율 유지 */
+    }
+    .popup-caption {
+      font-size: 1.18rem;
+      color: #e7f0fd;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      font-weight: 300;
+      text-align: center;
+      margin-top: 6px;
+      letter-spacing: 0.01em;
+      margin-bottom: 10px;
+      max-width: 600px;
+      line-height: 1.7;
+      word-break: keep-all;
+    }
+    @media (max-width: 1080px) {
+      .container { max-width: 99vw; }
+      .album-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .container { padding: 6vw 0 60px 0; }
+      .album-grid { grid-template-columns: 1fr; gap: 26px 0;}
+      .popup-img-wrap { max-width: 100vw; }
+      .popup-img { max-width: 98vw; max-height: 60vw; }
+      .popup-caption { font-size: 1.02rem; max-width: 97vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>할머니와 아들·딸·며느리들의 추억</h1>
+    <div class="desc">
+      할머니, 아들·딸·며느리들의 다양한 순간들.<br>
+      졸업식, 결혼식, 가족 모임, 동네친구들과의 빛나는 기억을 담았습니다.
+    </div>
+    <div class="album-grid">
+      <!-- 썸네일+설명 (순서, 설명, 파일명 직접 매핑) -->
+      <!-- 각 img에 data-img="경로" data-caption="설명" 추가 -->
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_01.jpg" data-img="img/+2_1_5_01.jpg" data-caption="큰며느리와 작은 셋째 아들과 막내아들, 막내딸 이야기" alt="">
+        </div>
+        <div class="caption">큰며느리와 작은 셋째 아들과 막내아들, 막내딸 이야기</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_02.jpg" data-img="img/+2_1_5_02.jpg" data-caption="막내딸과 친구" alt="">
+        </div>
+        <div class="caption">막내딸과 친구</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_03.jpg" data-img="img/+2_1_5_03.jpg" data-caption="막내아들 고등학교 사진" alt="">
+        </div>
+        <div class="caption">막내아들 고등학교 사진</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_04.jpg" data-img="img/+2_1_5_04.jpg" data-caption="막내아들" alt="">
+        </div>
+        <div class="caption">막내아들</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_05.jpg" data-img="img/+2_1_5_05.jpg" data-caption="셋째 아들 고등학교 사진" alt="">
+        </div>
+        <div class="caption">셋째 아들 고등학교 사진</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_06.jpg" data-img="img/+2_1_5_06.jpg" data-caption="막내아들 대학교 졸업(중앙대학교)" alt="">
+        </div>
+        <div class="caption">막내아들 대학교 졸업(중앙대학교)</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_07.jpg" data-img="img/+2_1_5_07.jpg" data-caption="큰아들과 막내동생" alt="">
+        </div>
+        <div class="caption">큰아들과 막내동생</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_08.jpg" data-img="img/+2_1_5_08.jpg" data-caption="막내아들 졸업, 교수와 함께" alt="">
+        </div>
+        <div class="caption">막내아들 졸업, 교수와 함께</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_09.jpg" data-img="img/+2_1_5_09.jpg" data-caption="막내아들 결혼사진" alt="">
+        </div>
+        <div class="caption">막내아들 결혼사진</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_10.jpg" data-img="img/+2_1_5_10.jpg" data-caption="막내아들 대학졸업사진, 큰 형수와 함께" alt="">
+        </div>
+        <div class="caption">막내아들 대학졸업사진, 큰 형수와 함께</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_11.jpg" data-img="img/+2_1_5_11.jpg" data-caption="막내아들 졸업, 큰형과 함께" alt="">
+        </div>
+        <div class="caption">막내아들 졸업, 큰형과 함께</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_12.jpg" data-img="img/+2_1_5_12.jpg" data-caption="막내아들 졸업, 막내 며느리, 큰아들, 큰 며느리" alt="">
+        </div>
+        <div class="caption">막내아들 졸업, 막내 며느리, 큰아들, 큰 며느리</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_13.jpg" data-img="img/+2_1_5_13.jpg" data-caption="큰며느리, 막내며느리" alt="">
+        </div>
+        <div class="caption">큰며느리, 막내며느리</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_14.jpg" data-img="img/+2_1_5_14.jpg" data-caption="큰형내외, 막내아들 내외" alt="">
+        </div>
+        <div class="caption">큰형내외, 막내아들 내외</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_15.jpg" data-img="img/+2_1_5_15.jpg" data-caption="큰며느리" alt="">
+        </div>
+        <div class="caption">큰며느리</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_16.jpg" data-img="img/+2_1_5_16.jpg" data-caption="큰며느리, 동네 친구들" alt="">
+        </div>
+        <div class="caption">큰며느리, 동네 친구들</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_17.jpg" data-img="img/+2_1_5_17.jpg" data-caption="큰며느리, 동네 친구들" alt="">
+        </div>
+        <div class="caption">큰며느리, 동네 친구들</div>
+      </div>
+      <div class="photo-card">
+        <div class="thumb-bg">
+          <img src="img/+2_1_5_18.jpg" data-img="img/+2_1_5_18.jpg" data-caption="큰아들, 동네 친구들" alt="">
+        </div>
+        <div class="caption">큰아들, 동네 친구들</div>
+      </div>
+    </div>
+    <div class="album-link">
+      <a href="house_01_007.html">← 할아버지 추억 앨범 보러가기</a>
+    </div>
+  </div>
+
+  <!-- 팝업 레이어 -->
+  <div class="popup-bg" id="popupBg">
+    <div class="popup-img-wrap">
+      <img class="popup-img" id="popupImg" src="" alt="큰사진">
+      <div class="popup-caption" id="popupCaption"></div>
+    </div>
+  </div>
+  <script>
+    // 모든 썸네일 클릭시 큰 이미지 & 설명 표시
+    document.querySelectorAll('.thumb-bg img').forEach(function(img) {
+      img.addEventListener('click', function(e) {
+        var popup = document.getElementById('popupBg');
+        var popupImg = document.getElementById('popupImg');
+        var popupCaption = document.getElementById('popupCaption');
+        popupImg.src = img.getAttribute('data-img');
+        popupCaption.textContent = img.getAttribute('data-caption');
+        popup.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // 스크롤 막기
+      });
+    });
+    // 팝업 닫기(어디든 클릭)
+    document.getElementById('popupBg').addEventListener('click', function() {
+      this.style.display = 'none';
+      document.body.style.overflow = '';
+    });
+  </script>
+</body>
+</html>
