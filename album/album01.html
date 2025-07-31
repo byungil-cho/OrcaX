@@ -1,1 +1,107 @@
-1
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>가족 앨범 샘플 1 – 격자형</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {background: #eef2f6; margin:0; font-family: 'Pretendard','Noto Sans KR',sans-serif;}
+    .album-titlebar {max-width:1020px;margin:30px auto 16px;text-align:center;}
+    .album-titlebar input {font-size:1.4em;padding:0.5em 1em;border-radius:1em;border:1.5px solid #c6c6c6;width:70%;background:#fff9e7;color:#1b273b;font-weight:600;text-align:center;}
+    .album-grid {max-width:1050px;margin:10px auto 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.3em 1.5em;padding:0 1.2em;}
+    .album-card {background:#fff;border-radius:1.2em;box-shadow:0 2px 18px #aaa2;display:flex;flex-direction:column;align-items:center;transition:transform .12s;cursor:pointer;position:relative;min-height:260px;}
+    .album-card:hover { transform: scale(1.04) translateY(-4px);}
+    .type1 { border: 3px solid #ffe37b; }
+    .type1 .album-img { border-radius: 50%; border: 2px solid #ffd90088;}
+    .type1 .album-title { color: #222; font-weight: bold;}
+    .type2 { border: 2px dashed #3467ce; background: #f5faff;}
+    .type2 .album-img { border-radius: 10px; border: 2px solid #3467ce66;}
+    .type2 .album-title { color: #3467ce;}
+    .type3 { background: linear-gradient(135deg,#ffe2e3 50%,#fff9e7 100%);}
+    .type3 .album-img { border: 2px solid #fbb6b9; box-shadow: 0 0 12px #fbb6b988;}
+    .type3 .album-title { color: #c00; font-weight: bold;}
+    .type4 { border: 2px solid #0dbd9c; background: #f7fff9;}
+    .type4 .album-img { border-radius: 25%; border: 2px solid #0dbd9c88;}
+    .type4 .album-title { color: #0dbd9c;}
+    .type5 { background: linear-gradient(90deg,#b2c6ff11,#fff9e799);}
+    .type5 .album-img { border-radius: 10px 40px 40px 10px; border: 2px solid #ffe37b77;}
+    .type5 .album-title { color: #3a2d09;}
+    .album-img {margin:23px 0 12px;width:98px;height:98px;object-fit:cover;background:#eee;}
+    .album-title {font-size:1.09em;margin:0 0 0.3em;font-weight:600;letter-spacing:-0.5px;}
+    .album-desc {color:#444;font-size:.99em;margin-bottom:12px;min-height:32px;text-align:center;padding:0 6px;}
+    @media (max-width:700px){
+      .album-grid{grid-template-columns:repeat(2,minmax(140px,1fr));}
+      .album-img{width:60px;height:60px;}
+      .album-title{font-size:1em;}
+    }
+    .modal-bg {display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:#09152ad0;justify-content:center;align-items:center;}
+    .modal-content {background:#fff;color:#222;padding:2.2em 1.2em 2em 1.2em;border-radius:2em;max-width:600px;box-shadow:0 10px 50px #000b;text-align:center;position:relative;}
+    .modal-img {width:540px;max-width:95vw;max-height:78vh;height:auto;border-radius:2em;object-fit:contain;margin-bottom:1.2em;box-shadow:0 8px 44px #ffe37b55,0 2px 16px #0004;background:#fff;border:3px solid #ffe37b66;cursor:pointer;}
+    @media (max-width:800px){.modal-img{width:95vw;max-height:60vw;border-radius:1em;}.modal-content{max-width:99vw;}}
+    .modal-title { font-size: 1.17em; color:#23457c; font-weight: bold; margin-bottom:0.2em; letter-spacing:-1px;}
+    .modal-desc {font-size:1em;color:#222;line-height:1.7;margin-bottom:1em;}
+  </style>
+</head>
+<body>
+  <div class="album-titlebar">
+    <input id="albumTitle" value="우리 가족의 추억 앨범" onchange="document.title=this.value;" />
+  </div>
+  <div class="album-grid" id="albumGrid"></div>
+  <div id="modalBg" class="modal-bg" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation();">
+      <img id="modalImg" class="modal-img" src="" alt="미리보기" onclick="hideModal()">
+      <div class="modal-title" id="modalModalTitle"></div>
+      <div class="modal-desc" id="modalModalDesc"></div>
+    </div>
+  </div>
+  <script>
+    const cards = [
+      {src:"img/sample01.jpg", title:"조병일", desc:"영원의 집 1호 대표", type:1},
+      {src:"img/sample02.jpg", title:"김미숙", desc:"아내, 엄마, 든든한 동반자", type:2},
+      {src:"img/sample03.jpg", title:"조아롱", desc:"큰딸, 한가족의 자랑", type:3},
+      {src:"img/sample04.jpg", title:"조아랑", desc:"작은딸, 가족의 활력소", type:4},
+      {src:"img/sample05.jpg", title:"이유하", desc:"외손녀, 미래의 희망", type:5},
+      {src:"img/sample06.jpg", title:"예시6", desc:"설명6", type:1},
+      {src:"img/sample07.jpg", title:"예시7", desc:"설명7", type:2},
+      {src:"img/sample08.jpg", title:"예시8", desc:"설명8", type:3},
+      {src:"img/sample09.jpg", title:"예시9", desc:"설명9", type:4},
+      {src:"img/sample10.jpg", title:"예시10", desc:"설명10", type:5},
+      {src:"img/sample11.jpg", title:"예시11", desc:"설명11", type:1},
+      {src:"img/sample12.jpg", title:"예시12", desc:"설명12", type:2},
+      {src:"img/sample13.jpg", title:"예시13", desc:"설명13", type:3},
+      {src:"img/sample14.jpg", title:"예시14", desc:"설명14", type:4},
+      {src:"img/sample15.jpg", title:"예시15", desc:"설명15", type:5},
+      {src:"img/sample16.jpg", title:"예시16", desc:"설명16", type:1},
+      {src:"img/sample17.jpg", title:"예시17", desc:"설명17", type:2},
+      {src:"img/sample18.jpg", title:"예시18", desc:"설명18", type:3},
+      {src:"img/sample19.jpg", title:"예시19", desc:"설명19", type:4},
+      {src:"img/sample20.jpg", title:"예시20", desc:"설명20", type:5},
+    ];
+    function renderGrid() {
+      let html = '';
+      for(let c of cards) {
+        html += `<div class="album-card type${c.type}" onclick="showModal('${c.src}','${c.title}','${c.desc}')">
+          <img class="album-img" src="${c.src}" alt="${c.title}" />
+          <div class="album-title">${c.title}</div>
+          <div class="album-desc">${c.desc}</div>
+        </div>`;
+      }
+      document.getElementById('albumGrid').innerHTML = html;
+    }
+    function showModal(src, title, desc) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('modalModalTitle').textContent = title;
+      document.getElementById('modalModalDesc').textContent = desc;
+      document.getElementById('modalBg').style.display = 'flex';
+    }
+    function hideModal() {
+      document.getElementById('modalBg').style.display = 'none';
+      document.getElementById('modalImg').src = '';
+    }
+    document.getElementById('albumTitle').addEventListener('change', function(){
+      document.title = this.value;
+    });
+    renderGrid();
+  </script>
+</body>
+</html>
