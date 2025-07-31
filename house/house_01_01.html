@@ -7,8 +7,7 @@
   <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,500,700,900&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       background: radial-gradient(circle at 60% 16%, #23457c 0%, #0d2945 100%);
       font-family: 'Noto Sans KR', 'Spoqa Han Sans', sans-serif;
       color: #e9eaf6;
@@ -34,51 +33,131 @@
     }
     .album-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 16px;
-      max-width: 880px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px 16px;
+      max-width: 950px;
       margin: 0 auto 34px auto;
-      padding: 0 3vw;
+      padding: 0 2vw;
     }
+    @media (max-width: 1050px) { .album-grid { max-width: 680px; } }
+    @media (max-width: 900px)  { .album-grid { grid-template-columns: repeat(3, 1fr); max-width: 500px;}}
+    @media (max-width: 700px)  { .album-grid { grid-template-columns: repeat(2, 1fr); max-width: 95vw; gap: 11px 7px; } }
     .album-item {
-      background: rgba(22,30,48, 0.88);
-      border-radius: 13px;
-      box-shadow: 0 2px 10px 0 rgba(25,37,73, 0.15);
-      padding: 12px 7px 13px 7px;
-      text-align: center;
-      min-width: 0;
-      cursor: default;
-      transition: none;
-      user-select: none;
+      background: rgba(28,36,53, 0.91);
+      border-radius: 15px;
+      box-shadow: 0 3px 12px 0 rgba(20,30,55,0.14);
+      padding: 16px 5px 13px 5px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      transition: box-shadow 0.15s, transform 0.13s;
+    }
+    .album-item:hover {
+      box-shadow: 0 7px 24px 0 rgba(34,65,139,0.18);
+      transform: translateY(-2px) scale(1.025);
+      background: rgba(35,50,85, 0.99);
+    }
+    .album-thumb-wrap {
+      width: 120px;
+      height: 120px;
+      background: #f7fafc1a;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      margin-top: 6px;
+      box-shadow: 0 2px 7px 0 rgba(22,34,62,0.12);
+      position: relative;
     }
     .album-thumb {
       width: 100px;
       height: 100px;
       object-fit: cover;
       border-radius: 8px;
-      margin: 0 auto 7px auto;
-      box-shadow: 0 1px 7px 0 rgba(20,28,52, 0.14);
+      box-shadow: 0 1px 6px 0 rgba(20,28,52, 0.10);
       display: block;
-      pointer-events: none;
+      background: #191e2e;
+      pointer-events: none; /* 작은사진 클릭 안되게 */
     }
     .album-era {
-      font-size: 0.90rem;
+      font-size: 0.93rem;
       color: #7ec0f7;
       font-family: 'Noto Sans KR', sans-serif;
       font-weight: 500;
       margin-bottom: 2px;
-      margin-top: 2px;
       letter-spacing: 0.02em;
     }
     .album-caption {
-      font-size: 0.91rem;
+      font-size: 0.89rem;
       color: #cfd6e2;
       font-family: 'Noto Sans KR', sans-serif;
       font-weight: 400;
-      line-height: 1.43;
-      margin-bottom: 0;
+      line-height: 1.4;
       letter-spacing: 0.01em;
       min-height: 32px;
+      text-align: center;
+    }
+    /* 큰사진 오버레이 */
+    .overlay {
+      position: fixed; top:0; left:0; width:100vw; height:100vh;
+      background: rgba(17,25,44, 0.93);
+      z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      animation: fadeIn 0.19s;
+    }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    .overlay-img {
+      width: min(98vw, 660px);
+      height: min(65vw, 460px);
+      max-height: 68vh;
+      object-fit: contain;
+      border-radius: 24px;
+      margin-bottom: 15px;
+      box-shadow: 0 6px 28px 0 rgba(29,48,86, 0.26);
+      background: #181c25;
+      display: block;
+    }
+    .overlay-era {
+      font-size: 1.17rem;
+      color: #8bc0ff;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 500;
+      margin-bottom: 6px;
+      margin-top: 2px;
+      text-align: center;
+    }
+    .overlay-caption {
+      font-size: 1.05rem;
+      color: #e7ecfa;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 400;
+      text-align: center;
+      line-height: 1.54;
+      margin-bottom: 19px;
+      margin-top: 3px;
+      max-width: 98vw;
+    }
+    .overlay-close {
+      background: #355da8;
+      color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 500;
+      font-size: 1.01rem;
+      border: none;
+      border-radius: 18px;
+      padding: 10px 38px;
+      margin-top: 11px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px 0 rgba(16,34,63, 0.18);
+      transition: background 0.14s;
+    }
+    .overlay-close:hover {
+      background: #78b9f7;
+      color: #18386b;
     }
     .nav-btns {
       margin: 34px 0 13px 0;
@@ -101,21 +180,10 @@
       display: inline-block;
     }
     .nav-btn:hover { background: linear-gradient(90deg,#60b9ff 0%, #4be2ff 100%); color: #17305a;}
-    @media (max-width: 700px) {
-      .album-grid { gap: 9px; }
-      .album-item { padding: 8px 2px 9px 2px; }
-      .album-thumb { width: 80px; height: 80px; }
-      .album-era { font-size: 0.84rem; }
-      .album-caption { font-size: 0.87rem; min-height: 22px;}
-      .album-main-title { font-size: 1.16rem; margin-top: 16px;}
-      .album-desc { font-size: 0.93rem;}
-    }
   </style>
 </head>
 <body>
-  <div class="album-main-title">
-    고등학교 시절 추억 앨범
-  </div>
+  <div class="album-main-title">고등학교 시절 추억 앨범</div>
   <div class="album-desc">
     초등학교부터 고등학교 졸업, 그리고 고향에서의 젊은 시절까지.<br>
     사진 한 장 한 장에 담긴 추억과 성장의 순간들,<br>
@@ -126,6 +194,7 @@
     <a href="house_01_02.html" class="nav-btn">다음 사진 앨범으로</a>
     <a href="story.html" class="nav-btn">스토리로 돌아가기</a>
   </div>
+  <div id="overlay" style="display:none"></div>
   <script>
     const albumData = [
       { src: "img/house_01_01_01.jpg", era: "초등학교 시절 증명사진", caption: "어린 시절의 모습. 순수하고 맑았던 초등학교 시절 증명사진." },
@@ -152,22 +221,33 @@
       { src: "img/house_01_01_22.jpg", era: "고등학교 시절", caption: "야외 단체사진, 친구들과 함께한 소중한 시간." },
       { src: "img/house_01_01_23.jpg", era: "고등학교 시절", caption: "여행지에서 편안하게 기대어, 청춘의 여유와 낭만." }
     ];
+
     const albumGrid = document.getElementById("albumGrid");
+    const overlay = document.getElementById("overlay");
+
     function renderAlbum() {
       albumGrid.innerHTML = "";
-      albumData.forEach((item) => {
+      albumData.forEach((item, idx) => {
         const albumItem = document.createElement("div");
         albumItem.className = "album-item";
-        albumItem.tabIndex = -1;
-        albumItem.style.cursor = "default";
+        albumItem.tabIndex = 0;
+
+        // 작은 사진만 클릭 안되게, 카드(배경) 전체는 클릭 가능
+        const thumbWrap = document.createElement("div");
+        thumbWrap.className = "album-thumb-wrap";
 
         const img = document.createElement("img");
         img.src = item.src;
         img.alt = item.caption;
         img.className = "album-thumb";
         img.draggable = false;
-        albumItem.appendChild(img);
+        img.tabIndex = -1;
+        img.onclick = (e) => { e.stopPropagation(); }; // 작은 사진 클릭해도 아무 반응 X
+        thumbWrap.appendChild(img);
 
+        albumItem.appendChild(thumbWrap);
+
+        // 설명 등
         const era = document.createElement("div");
         era.className = "album-era";
         era.textContent = item.era;
@@ -178,10 +258,39 @@
         cap.textContent = item.caption;
         albumItem.appendChild(cap);
 
+        // 카드 클릭시만 오버레이 큰사진
+        albumItem.onclick = () => showOverlay(idx);
+
         albumGrid.appendChild(albumItem);
       });
     }
+
+    function showOverlay(idx) {
+      const item = albumData[idx];
+      overlay.innerHTML = `
+        <img src="${item.src}" alt="${item.caption}" class="overlay-img">
+        <div class="overlay-era">${item.era}</div>
+        <div class="overlay-caption">${item.caption}</div>
+        <button class="overlay-close" onclick="hideOverlay()">닫기</button>
+      `;
+      overlay.style.display = "flex";
+      overlay.onclick = function(e) {
+        if (e.target === overlay) hideOverlay();
+      }
+      document.body.style.overflow = 'hidden';
+    }
+    function hideOverlay() {
+      overlay.style.display = "none";
+      overlay.innerHTML = "";
+      document.body.style.overflow = 'auto';
+    }
     renderAlbum();
+    // ESC키로도 닫기
+    window.addEventListener('keydown', function(e) {
+      if (overlay.style.display === "flex" && (e.key === "Escape" || e.key === "Esc")) {
+        hideOverlay();
+      }
+    });
   </script>
 </body>
 </html>
