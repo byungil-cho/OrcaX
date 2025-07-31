@@ -22,6 +22,36 @@
     .modal-title { font-size: 1.15em; color:#23457c; font-weight: bold; margin-bottom:0.2em; }
     .modal-role  { color: #9c6c1b; font-size:.97em; font-weight:600; }
     .modal-desc  { color: #222; font-size:1em; margin:1.1em 0 .5em 0; }
+    /* 페이지네이션 스타일 */
+    .album-pagination {
+      text-align: center;
+      margin: 2.5em 0 0.5em 0;
+      font-size: 1.09em;
+    }
+    .album-pagination a {
+      display: inline-block;
+      min-width: 40px;
+      padding: 0.35em 0.9em;
+      margin: 0 0.2em;
+      border-radius: 0.9em;
+      background: #f6f7fd;
+      color: #337ab7;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .album-pagination a.active,
+    .album-pagination a:active {
+      background: #ffe37b;
+      color: #222;
+      font-weight: bold;
+      pointer-events: none;
+      border: 1.5px solid #e2cd6b;
+    }
+    .album-pagination a:hover {
+      background: #fbb6b9;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -30,6 +60,14 @@
       가족 가로형 소개카드 <span style="font-size:.78em;color:#99720e;">– Card Sample 3</span>
     </h2>
   </div>
+
+  <!-- 페이지네이션 링크 (1, 2, 3페이지) -->
+  <div class="album-pagination">
+    <a href="album01.html">1페이지</a>
+    <a href="album02.html">2페이지</a>
+    <a href="album03.html" class="active">3페이지</a>
+  </div>
+
   <div class="hori-grid" id="horiGrid"></div>
   <div id="modalBg" class="modal-bg" onclick="hideModal()">
     <div class="modal-content" onclick="event.stopPropagation();">

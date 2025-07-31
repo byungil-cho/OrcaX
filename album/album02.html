@@ -20,6 +20,36 @@
     .modal-title { font-size: 1.15em; color:#23457c; font-weight: bold; margin-bottom:0.2em;}
     .modal-role  { color: #9c6c1b; font-size:.97em; font-weight:600; }
     .modal-desc  { color: #222; font-size:1em; margin:1.1em 0 .5em 0;}
+    /* 페이지네이션 스타일 */
+    .album-pagination {
+      text-align: center;
+      margin: 2.5em 0 0.5em 0;
+      font-size: 1.09em;
+    }
+    .album-pagination a {
+      display: inline-block;
+      min-width: 40px;
+      padding: 0.35em 0.9em;
+      margin: 0 0.2em;
+      border-radius: 0.9em;
+      background: #f6f7fd;
+      color: #337ab7;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .album-pagination a.active,
+    .album-pagination a:active {
+      background: #ffe37b;
+      color: #222;
+      font-weight: bold;
+      pointer-events: none;
+      border: 1.5px solid #e2cd6b;
+    }
+    .album-pagination a:hover {
+      background: #fbb6b9;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -28,6 +58,13 @@
       우리 가족 프로필 앨범 <span style="font-size:.75em;color:#99720e;">– 프로필 카드형 샘플2</span>
     </h2>
   </div>
+
+  <!-- 앨범 2페이지 상단/하단에 링크 -->
+  <div class="album-pagination">
+    <a href="album01.html">1페이지</a>
+    <a href="album02.html" class="active">2페이지</a>
+  </div>
+
   <div class="profile-grid" id="profileGrid"></div>
   <div id="modalBg" class="modal-bg" onclick="hideModal()">
     <div class="modal-content" onclick="event.stopPropagation();">
