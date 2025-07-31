@@ -114,6 +114,31 @@
       word-break: keep-all;
       margin: 0;
     }
+    .album-btns {
+      text-align: center;
+      margin: 24px auto 48px auto;
+    }
+    .album-btns a {
+      display: inline-block;
+      font-family: 'Do Hyeon', sans-serif;
+      font-size: 1.16rem;
+      padding: 0.67em 2.1em;
+      background: #4ca6fa;
+      color: #fff;
+      border: none;
+      border-radius: 1.7em;
+      margin: 0 0.7em;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 1px 8px #23326955;
+      transition: background 0.18s, color 0.13s;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .album-btns a:hover {
+      background: #266dbf;
+      color: #d7f3ff;
+    }
     .overlay {
       display: none;
       position: fixed;
@@ -166,126 +191,13 @@
   <div class="album-desc">증명사진(초·중·고)과 고등학교, 졸업 후 청춘 시절의 추억을<br>순서대로 기록한 특별한 앨범입니다.</div>
   <div class="album-guide">사진을 클릭하면 자세한 설명과 함께 큰 사진으로 감상할 수 있습니다.</div>
 
-  <div class="album-grid">
-    <!-- 1~23장 카드 -->
-    <div class="album-card" onclick="openOverlay(0)">
-      <div class="thumb-box"><img src="img/house_01_01_01.jpg" alt="초등학교 시절 증명사진"></div>
-      <div class="caption-title">초등학교 시절 증명사진</div>
-      <div class="caption-desc">어린 시절의 모습. 순수하고 맑았던 초등학교 시절 증명사진.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(1)">
-      <div class="thumb-box"><img src="img/house_01_01_02.jpg" alt="중학교 시절 증명사진"></div>
-      <div class="caption-title">중학교 시절 증명사진</div>
-      <div class="caption-desc">조금씩 성장해가던, 중학교 때의 풋풋함이 담긴 증명사진.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(2)">
-      <div class="thumb-box"><img src="img/house_01_01_03.jpg" alt="고등학교 시절 증명사진"></div>
-      <div class="caption-title">고등학교 시절 증명사진</div>
-      <div class="caption-desc">자유와 청춘의 기운이 느껴지는 고등학교 시절의 모습.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(3)">
-      <div class="thumb-box"><img src="img/house_01_01_04.jpg" alt="고등학교 졸업 후, 20대 초반"></div>
-      <div class="caption-title">고등학교 졸업 후, 20대 초반</div>
-      <div class="caption-desc">졸업 후, 사회로 나가기 전의 설렘과 각오가 담긴 사진.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(4)">
-      <div class="thumb-box"><img src="img/house_01_01_05.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">집에서 친구와 함께 찍은 정겨운 한 컷. 1980년대 시골의 소박한 풍경과 따뜻함이 느껴진다.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(5)">
-      <div class="thumb-box"><img src="img/house_01_01_06.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">평범한 일상 속에서의 나, 그 시절의 패션과 감성.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(6)">
-      <div class="thumb-box"><img src="img/house_01_01_07.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">고향 들판에서 자유를 만끽하며. 푸른 자연에 배경이 되었던 소중한 시간.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(7)">
-      <div class="thumb-box"><img src="img/house_01_01_08.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">자전거를 타며, 친구들과 함께 했던 즐거운 추억.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(8)">
-      <div class="thumb-box"><img src="img/house_01_01_09.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">수학여행 또는 친구들과의 여행길, 명소에서의 단체 사진.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(9)">
-      <div class="thumb-box"><img src="img/house_01_01_10.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">교복을 입고 버스에 기대어 선명한 청춘의 한 페이지.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(10)">
-      <div class="thumb-box"><img src="img/house_01_01_11.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">맨발로 개울가에서, 우정으로 하나 되었던 학창시절.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(11)">
-      <div class="thumb-box"><img src="img/house_01_01_12.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">봄이 오면, 들판과 숲에서 친구들과 함께한 시간.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(12)">
-      <div class="thumb-box"><img src="img/house_01_01_13.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">군복 차림으로, 미래의 꿈을 품었던 순간.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(13)">
-      <div class="thumb-box"><img src="img/house_01_01_14.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">친구와 함께한 봄날의 들판, 자연과 어우러진 우정.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(14)">
-      <div class="thumb-box"><img src="img/house_01_01_15.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">오토바이 위에서 젊음을 즐기던 한때.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(15)">
-      <div class="thumb-box"><img src="img/house_01_01_16.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">셋이 함께한 포즈, 변치 않는 우정과 추억의 시작.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(16)">
-      <div class="thumb-box"><img src="img/house_01_01_17.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">황금 들녘, 친구들과의 미소 가득한 단체사진.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(17)">
-      <div class="thumb-box"><img src="img/house_01_01_18.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">흙바닥 운동장에서 장난기 넘치던 씨름 한판!</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(18)">
-      <div class="thumb-box"><img src="img/house_01_01_19.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">교복 입고 버스 앞에서, 늘 함께였던 친구들.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(19)">
-      <div class="thumb-box"><img src="img/house_01_01_20.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">수련회 혹은 현장학습에서의 단체 포즈.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(20)">
-      <div class="thumb-box"><img src="img/house_01_01_21.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">동물원 견학, 어린 시절의 호기심과 활력이 가득.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(21)">
-      <div class="thumb-box"><img src="img/house_01_01_22.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">야외 단체사진, 친구들과 함께한 소중한 시간.</div>
-    </div>
-    <div class="album-card" onclick="openOverlay(22)">
-      <div class="thumb-box"><img src="img/house_01_01_23.jpg" alt="고등학교 시절"></div>
-      <div class="caption-title">고등학교 시절</div>
-      <div class="caption-desc">여행지에서 편안하게 기대어, 청춘의 여유와 낭만.</div>
-    </div>
+  <div class="album-grid" id="albumGrid"></div>
+
+  <div class="album-btns">
+    <a href="house_01_02.html">다음 사진 앨범으로</a>
+    <a href="story.html">스토리로 돌아가기</a>
   </div>
 
-  <!-- 오버레이(큰사진) -->
   <div class="overlay" id="photoOverlay" onclick="closeOverlay()">
     <div class="overlay-imgbox" onclick="event.stopPropagation()">
       <img id="overlayImg" src="" alt="">
@@ -293,8 +205,8 @@
     </div>
   </div>
 
-   <script>
-    // 23장 모두 설명·파일·제목 배열
+  <script>
+    // 23장 전체 정보
     const photoData = [
       { src: "img/house_01_01_01.jpg", title: "초등학교 시절 증명사진", desc: "어린 시절의 모습. 순수하고 맑았던 초등학교 시절 증명사진." },
       { src: "img/house_01_01_02.jpg", title: "중학교 시절 증명사진", desc: "조금씩 성장해가던, 중학교 때의 풋풋함이 담긴 증명사진." },
@@ -320,7 +232,21 @@
       { src: "img/house_01_01_22.jpg", title: "고등학교 시절", desc: "야외 단체사진, 친구들과 함께한 소중한 시간." },
       { src: "img/house_01_01_23.jpg", title: "고등학교 시절", desc: "여행지에서 편안하게 기대어, 청춘의 여유와 낭만." }
     ];
-
+    // 카드 자동 생성
+    const grid = document.getElementById('albumGrid');
+    photoData.forEach((item, idx) => {
+      const card = document.createElement('div');
+      card.className = 'album-card';
+      card.onclick = () => openOverlay(idx);
+      card.innerHTML = `
+        <div class="thumb-box">
+          <img src="${item.src}" alt="${item.title}">
+        </div>
+        <div class="caption-title">${item.title}</div>
+        <div class="caption-desc">${item.desc}</div>
+      `;
+      grid.appendChild(card);
+    });
     function openOverlay(idx) {
       document.getElementById('overlayImg').src = photoData[idx].src;
       document.getElementById('overlayCaption').textContent = photoData[idx].title + " - " + photoData[idx].desc;
