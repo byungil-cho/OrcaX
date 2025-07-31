@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>가로형 가족카드 샘플 3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { margin:0; font-family: 'Pretendard','Noto Sans KR',sans-serif; background:#f6f6fa;}
+    .hori-grid {max-width:1100px;margin:44px auto 0;display:flex;flex-wrap:wrap;gap:1.7em 2.1em;padding:0 1em;}
+    .hori-card {display:flex;width:480px;min-width:320px;max-width:99vw;background:linear-gradient(90deg,#fff 70%,#d2ebff2c 100%);border-radius:1.6em;box-shadow:0 2px 26px #2b87ff14,0 1.5px 10px #ffe37b18;align-items:center;margin-bottom:10px;transition:box-shadow .14s, transform .10s;cursor:pointer;border:2px solid #e2e8f0;padding:0.6em 1.1em 0.6em 0.7em;position:relative;overflow:hidden;}
+    .hori-card:hover { box-shadow:0 10px 32px #5cb6ff14,0 1.5px 14px #ffe37b1a; transform: translateY(-4px) scale(1.02);}
+    .hori-img {width:102px;height:102px;border-radius:1.2em;object-fit:cover;background:#eee;box-shadow:0 2px 14px #ffe37b22;border:2.5px solid #ffe37b60;margin-right:1.4em;}
+    .hori-info {flex:1 1 0;min-width:0;}
+    .hori-name {font-size:1.13em;color:#253a5e;font-weight:bold;margin-bottom:0.19em;letter-spacing:-0.5px;}
+    .hori-role {color:#9c6c1b;font-size:.99em;font-weight:600;margin-bottom:0.34em;}
+    .hori-desc {font-size:0.99em;color:#444;margin-bottom:0.13em;line-height:1.7;min-height:26px;word-break:keep-all;}
+    @media (max-width:900px){.hori-card{width:99vw;min-width:0;}}
+    @media (max-width:600px){.hori-card{flex-direction:column;align-items:center;width:99vw;padding:0.9em 0.4em;}.hori-img{margin:0 0 0.8em 0;}.hori-info{width:100%;text-align:center;}}
+    .modal-bg {display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:#09152ad4;justify-content:center;align-items:center;}
+    .modal-content {background:#fff;color:#222;padding:2em 1.2em 2em 1.2em;border-radius:2em;max-width:560px;box-shadow:0 10px 48px #000a;text-align:center;position:relative;}
+    .modal-img {width:440px;max-width:96vw;max-height:72vh;border-radius:2em;object-fit:contain;margin-bottom:1.2em;box-shadow:0 8px 44px #ffe37b33,0 2px 18px #0002;background:#fff;border:3px solid #ffe37b66;cursor:pointer;}
+    .modal-title { font-size: 1.15em; color:#23457c; font-weight: bold; margin-bottom:0.2em; }
+    .modal-role  { color: #9c6c1b; font-size:.97em; font-weight:600; }
+    .modal-desc  { color: #222; font-size:1em; margin:1.1em 0 .5em 0; }
+  </style>
+</head>
+<body>
+  <div style="max-width:1100px;margin:2.5em auto 0 auto;text-align:center;">
+    <h2 style="font-size:1.45em;font-weight:bold;color:#23457c;margin-bottom:1.3em;">
+      가족 가로형 소개카드 <span style="font-size:.78em;color:#99720e;">– Card Sample 3</span>
+    </h2>
+  </div>
+  <div class="hori-grid" id="horiGrid"></div>
+  <div id="modalBg" class="modal-bg" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation();">
+      <img id="modalImg" class="modal-img" src="" alt="미리보기" onclick="hideModal()">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-role" id="modalRole"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+    </div>
+  </div>
+  <script>
+    const profiles = [
+      {src:"img/hori01.jpg", name:"조병일", role:"아버지/가장", desc:"든든한 버팀목, 영원의 집 대표."},
+      {src:"img/hori02.jpg", name:"김미숙", role:"어머니", desc:"온 가족을 보듬는 사랑의 중심."},
+      {src:"img/hori03.jpg", name:"조아롱", role:"큰딸", desc:"가족의 자랑, 믿음직한 장녀."},
+      {src:"img/hori04.jpg", name:"조아랑", role:"작은딸", desc:"활력소, 웃음꽃 피우는 막내."},
+      {src:"img/hori05.jpg", name:"이유하", role:"외손녀", desc:"미래의 희망, 사랑스러운 손녀."},
+      {src:"img/hori06.jpg", name:"이정훈", role:"사위", desc:"좋은 남편, 모두를 아끼는 사위."},
+      {src:"img/hori07.jpg", name:"조예슬", role:"손녀", desc:"새로운 가족의 시작."},
+      {src:"img/hori08.jpg", name:"고조할아버지", role:"조상", desc:"가족 역사의 시작점."},
+      {src:"img/hori09.jpg", name:"진주할아버지", role:"조상", desc:"지혜의 뿌리."},
+      {src:"img/hori10.jpg", name:"할아버지", role:"조상", desc:"온화한 인품의 리더."},
+      {src:"img/hori11.jpg", name:"할머니", role:"조상", desc:"따뜻한 품, 자애로운 마음."},
+      {src:"img/hori12.jpg", name:"친척1", role:"삼촌", desc:"우정과 의리의 아이콘."},
+      {src:"img/hori13.jpg", name:"친척2", role:"이모", desc:"친근한 가족의 허브."},
+      {src:"img/hori14.jpg", name:"친척3", role:"고모", desc:"밝은 에너지."},
+      {src:"img/hori15.jpg", name:"조카", role:"형제/자매", desc:"함께 자란 최고의 친구."},
+      {src:"img/hori16.jpg", name:"예시16", role:"가족", desc:"설명16"},
+      {src:"img/hori17.jpg", name:"예시17", role:"가족", desc:"설명17"},
+      {src:"img/hori18.jpg", name:"예시18", role:"가족", desc:"설명18"},
+      {src:"img/hori19.jpg", name:"예시19", role:"가족", desc:"설명19"},
+      {src:"img/hori20.jpg", name:"예시20", role:"가족", desc:"설명20"},
+    ];
+    function renderGrid() {
+      let html = '';
+      for(let p of profiles) {
+        html += `<div class="hori-card" onclick="showModal('${p.src}','${p.name}','${p.role}','${p.desc}')">
+          <img class="hori-img" src="${p.src}" alt="${p.name}" />
+          <div class="hori-info">
+            <div class="hori-name">${p.name}</div>
+            <div class="hori-role">${p.role}</div>
+            <div class="hori-desc">${p.desc}</div>
+          </div>
+        </div>`;
+      }
+      document.getElementById('horiGrid').innerHTML = html;
+    }
+    function showModal(src, name, role, desc) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('modalTitle').textContent = name;
+      document.getElementById('modalRole').textContent = role;
+      document.getElementById('modalDesc').textContent = desc;
+      document.getElementById('modalBg').style.display = 'flex';
+    }
+    function hideModal() {
+      document.getElementById('modalBg').style.display = 'none';
+      document.getElementById('modalImg').src = '';
+    }
+    renderGrid();
+  </script>
+</body>
+</html>

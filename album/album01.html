@@ -40,6 +40,36 @@
     @media (max-width:800px){.modal-img{width:95vw;max-height:60vw;border-radius:1em;}.modal-content{max-width:99vw;}}
     .modal-title { font-size: 1.17em; color:#23457c; font-weight: bold; margin-bottom:0.2em; letter-spacing:-1px;}
     .modal-desc {font-size:1em;color:#222;line-height:1.7;margin-bottom:1em;}
+    /* 페이지네이션 스타일 */
+    .album-pagination {
+      text-align: center;
+      margin: 2.5em 0 0.5em 0;
+      font-size: 1.09em;
+    }
+    .album-pagination a {
+      display: inline-block;
+      min-width: 40px;
+      padding: 0.35em 0.9em;
+      margin: 0 0.2em;
+      border-radius: 0.9em;
+      background: #f6f7fd;
+      color: #337ab7;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .album-pagination a.active,
+    .album-pagination a:active {
+      background: #ffe37b;
+      color: #222;
+      font-weight: bold;
+      pointer-events: none;
+      border: 1.5px solid #e2cd6b;
+    }
+    .album-pagination a:hover {
+      background: #fbb6b9;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -47,6 +77,13 @@
     <input id="albumTitle" value="우리 가족의 추억 앨범" onchange="document.title=this.value;" />
   </div>
   <div class="album-grid" id="albumGrid"></div>
+
+  <!-- 페이지네이션 -->
+  <div class="album-pagination">
+    <a href="album01.html" class="active">1페이지</a>
+    <a href="album02.html">2페이지</a>
+  </div>
+
   <div id="modalBg" class="modal-bg" onclick="hideModal()">
     <div class="modal-content" onclick="event.stopPropagation();">
       <img id="modalImg" class="modal-img" src="" alt="미리보기" onclick="hideModal()">

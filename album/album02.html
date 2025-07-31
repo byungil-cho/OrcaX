@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>프로필 카드형 가족앨범 샘플 2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {margin:0;font-family:'Pretendard','Noto Sans KR',sans-serif;background:#f7fafb;}
+    .profile-grid {max-width:1100px;margin:48px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2.1em 1.4em;padding:0 1em;}
+    .profile-card {background:linear-gradient(160deg,#f3f7ff 70%,#ffe9bc 100%);border-radius:1.9em;box-shadow:0 2px 20px #7ea7d420;padding:1.3em 1.1em 1.5em;text-align:center;position:relative;cursor:pointer;border:2px solid #e2e8f0;transition:box-shadow .14s;}
+    .profile-card:hover { box-shadow:0 6px 32px #2b5dff18;}
+    .profile-img {width:116px;height:136px;border-radius:1.2em 1.2em 1.2em 1.2em/1.9em 1.9em 1.2em 1.2em;object-fit:cover;box-shadow:0 4px 16px #ffe37b33;background:#fff;margin-bottom:1em;border:3px solid #fff9e7;}
+    .profile-name {font-size:1.14em;color:#23457c;font-weight:bold;margin-bottom:0.2em;letter-spacing:-0.5px;}
+    .profile-role {color:#9c6c1b;font-size:.99em;font-weight:600;margin-bottom:0.5em;}
+    .profile-desc {font-size:0.98em;color:#333;margin-bottom:0.13em;line-height:1.6;min-height:34px;}
+    .modal-bg {display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:#09152ad4;justify-content:center;align-items:center;}
+    .modal-content {background:#fff;color:#222;padding:2em 1.2em 2em;border-radius:2em;max-width:560px;box-shadow:0 10px 48px #000a;text-align:center;position:relative;}
+    .modal-img {width:440px;max-width:96vw;max-height:72vh;border-radius:2em;object-fit:contain;margin-bottom:1.2em;box-shadow:0 8px 44px #ffe37b33,0 2px 18px #0002;background:#fff;border:3px solid #ffe37b66;cursor:pointer;}
+    @media (max-width:800px){.profile-img{width:68vw;height:80vw;max-width:270px;max-height:320px;}.modal-img{width:96vw;}.modal-content{max-width:99vw;}}
+    .modal-title { font-size: 1.15em; color:#23457c; font-weight: bold; margin-bottom:0.2em;}
+    .modal-role  { color: #9c6c1b; font-size:.97em; font-weight:600; }
+    .modal-desc  { color: #222; font-size:1em; margin:1.1em 0 .5em 0;}
+  </style>
+</head>
+<body>
+  <div style="max-width:1100px;margin:2.5em auto 0 auto;text-align:center;">
+    <h2 style="font-size:1.5em;font-weight:bold;color:#253a5e;margin-bottom:1.5em;">
+      우리 가족 프로필 앨범 <span style="font-size:.75em;color:#99720e;">– 프로필 카드형 샘플2</span>
+    </h2>
+  </div>
+  <div class="profile-grid" id="profileGrid"></div>
+  <div id="modalBg" class="modal-bg" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation();">
+      <img id="modalImg" class="modal-img" src="" alt="미리보기" onclick="hideModal()">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-role" id="modalRole"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+    </div>
+  </div>
+  <script>
+    const profiles = [
+      {src:"img/prof01.jpg", name:"조병일", role:"아버지/가장", desc:"온 가족의 든든한 버팀목. 영원의 집 1호 대표.", type:1},
+      {src:"img/prof02.jpg", name:"김미숙", role:"어머니", desc:"가족을 사랑으로 보살피는 엄마, 인생의 동반자.", type:2},
+      {src:"img/prof03.jpg", name:"조아롱", role:"큰딸", desc:"성실하고 책임감 있는 장녀, 한가족의 자랑.", type:3},
+      {src:"img/prof04.jpg", name:"조아랑", role:"작은딸", desc:"밝고 명랑한 분위기 메이커, 가족의 활력소.", type:4},
+      {src:"img/prof05.jpg", name:"이유하", role:"외손녀", desc:"천진난만한 미소, 집안의 미래와 희망.", type:5},
+      {src:"img/prof06.jpg", name:"이정훈", role:"사위", desc:"가족의 큰힘, 모두를 아끼는 좋은 남편.", type:1},
+      {src:"img/prof07.jpg", name:"조예슬", role:"손녀", desc:"새롭게 태어난 생명, 가족 모두의 기쁨.", type:2},
+      {src:"img/prof08.jpg", name:"고조할아버지", role:"조상", desc:"가족 역사의 시작점.", type:3},
+      {src:"img/prof09.jpg", name:"진주할아버지", role:"조상", desc:"슬기와 지혜의 원천.", type:4},
+      {src:"img/prof10.jpg", name:"할아버지", role:"조상", desc:"온화한 미소와 든든한 리더십.", type:5},
+      {src:"img/prof11.jpg", name:"할머니", role:"조상", desc:"온가족을 품어준 따뜻한 마음.", type:1},
+      {src:"img/prof12.jpg", name:"친척1", role:"삼촌", desc:"즐거움과 우정의 아이콘.", type:2},
+      {src:"img/prof13.jpg", name:"친척2", role:"이모", desc:"친근하고 편안한 존재.", type:3},
+      {src:"img/prof14.jpg", name:"친척3", role:"고모", desc:"항상 밝은 에너지.", type:4},
+      {src:"img/prof15.jpg", name:"조카", role:"형제/자매", desc:"함께 자란 최고의 친구.", type:5},
+      {src:"img/prof16.jpg", name:"예시16", role:"가족", desc:"설명16", type:1},
+      {src:"img/prof17.jpg", name:"예시17", role:"가족", desc:"설명17", type:2},
+      {src:"img/prof18.jpg", name:"예시18", role:"가족", desc:"설명18", type:3},
+      {src:"img/prof19.jpg", name:"예시19", role:"가족", desc:"설명19", type:4},
+      {src:"img/prof20.jpg", name:"예시20", role:"가족", desc:"설명20", type:5},
+    ];
+    function renderGrid() {
+      let html = '';
+      for(let p of profiles) {
+        html += `<div class="profile-card type${p.type}" onclick="showModal('${p.src}','${p.name}','${p.role}','${p.desc}')">
+          <img class="profile-img" src="${p.src}" alt="${p.name}" />
+          <div class="profile-name">${p.name}</div>
+          <div class="profile-role">${p.role}</div>
+          <div class="profile-desc">${p.desc}</div>
+        </div>`;
+      }
+      document.getElementById('profileGrid').innerHTML = html;
+    }
+    function showModal(src, name, role, desc) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('modalTitle').textContent = name;
+      document.getElementById('modalRole').textContent = role;
+      document.getElementById('modalDesc').textContent = desc;
+      document.getElementById('modalBg').style.display = 'flex';
+    }
+    function hideModal() {
+      document.getElementById('modalBg').style.display = 'none';
+      document.getElementById('modalImg').src = '';
+    }
+    renderGrid();
+  </script>
+</body>
+</html>
