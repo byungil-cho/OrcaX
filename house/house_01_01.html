@@ -4,186 +4,111 @@
   <meta charset="UTF-8">
   <title>영원의 집 1호 – 고등학교 시절 추억 앨범</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Noto Sans KR 폰트 적용 -->
   <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,500,700,900&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       padding: 0;
       background: radial-gradient(circle at 60% 16%, #23457c 0%, #0d2945 100%);
-      font-family: 'Noto Sans KR', 'Spoqa Han Sans', 'Nanum Gothic', 'Do Hyeon', 'Noto Sans KR', sans-serif;
+      font-family: 'Noto Sans KR', 'Spoqa Han Sans', sans-serif;
       color: #e9eaf6;
       min-height: 100vh;
     }
     .album-main-title {
       text-align: center;
-      font-size: 2.3rem;
-      margin-top: 48px;
-      letter-spacing: 0.05em;
-      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 2.1rem;
+      margin-top: 34px;
       font-weight: 700;
       color: #355da8;
-      line-height: 1.2;
+      letter-spacing: 0.04em;
+      line-height: 1.18;
     }
     .album-desc {
       text-align: center;
-      font-size: 1.15rem;
+      font-size: 1.04rem;
       color: #b8bec9;
-      font-family: 'Noto Sans KR', sans-serif;
       font-weight: 400;
-      margin-bottom: 36px;
-      margin-top: 14px;
-      line-height: 1.7;
-      letter-spacing: 0.01em;
+      margin-bottom: 26px;
+      margin-top: 10px;
+      line-height: 1.6;
     }
     .album-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 18px;
-      max-width: 1080px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 16px;
+      max-width: 880px;
       margin: 0 auto 34px auto;
-      padding: 0 8vw;
+      padding: 0 3vw;
     }
     .album-item {
       background: rgba(22,30,48, 0.88);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 4px 18px 0 rgba(25,37,73, 0.23);
-      padding: 10px 8px 18px 8px;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.12s;
+      border-radius: 13px;
+      box-shadow: 0 2px 10px 0 rgba(25,37,73, 0.15);
+      padding: 12px 7px 13px 7px;
+      text-align: center;
       min-width: 0;
+      cursor: default;
+      transition: none;
+      user-select: none;
     }
-    .album-item:hover { transform: translateY(-5px) scale(1.04);}
     .album-thumb {
-      width: 100%;
-      height: 170px;
+      width: 100px;
+      height: 100px;
       object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px 0 rgba(19,29,53,0.16);
-      background: #111;
-      transition: 0.2s;
+      border-radius: 8px;
+      margin: 0 auto 7px auto;
+      box-shadow: 0 1px 7px 0 rgba(20,28,52, 0.14);
       display: block;
-      margin-bottom: 9px;
+      pointer-events: none;
     }
     .album-era {
-      font-size: 0.93rem;
-      color: #8bc0ff;
-      text-align: center;
-      margin-bottom: 3px;
+      font-size: 0.90rem;
+      color: #7ec0f7;
       font-family: 'Noto Sans KR', sans-serif;
       font-weight: 500;
+      margin-bottom: 2px;
+      margin-top: 2px;
+      letter-spacing: 0.02em;
     }
     .album-caption {
-      font-size: 0.98rem;
+      font-size: 0.91rem;
       color: #cfd6e2;
-      text-align: center;
-      margin-bottom: 5px;
-      min-height: 38px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 400;
+      line-height: 1.43;
+      margin-bottom: 0;
       letter-spacing: 0.01em;
-      line-height: 1.57;
-      font-family: 'Noto Sans KR', sans-serif;
-      font-weight: 400;
-      padding: 0 4px;
-    }
-    /* 오버레이 (큰사진) */
-    .overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(20,28,49, 0.92);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      animation: fadeIn 0.23s;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0;}
-      to { opacity: 1;}
-    }
-    .overlay-img {
-      width: min(95vw, 600px);
-      height: min(55vw, 400px);
-      max-height: 64vh;
-      object-fit: contain;
-      border-radius: 24px;
-      margin-bottom: 15px;
-      box-shadow: 0 6px 28px 0 rgba(29,48,86, 0.28);
-      background: #181c25;
-      display: block;
-    }
-    .overlay-era {
-      font-size: 1.15rem;
-      color: #8bc0ff;
-      font-family: 'Noto Sans KR', sans-serif;
-      font-weight: 500;
-      margin-bottom: 6px;
-      margin-top: 2px;
-      text-align: center;
-    }
-    .overlay-caption {
-      font-size: 1.04rem;
-      color: #e7ecfa;
-      font-family: 'Noto Sans KR', sans-serif;
-      font-weight: 400;
-      text-align: center;
-      line-height: 1.6;
-      margin-bottom: 20px;
-      margin-top: 3px;
-      max-width: 98vw;
-    }
-    .overlay-close {
-      background: #304872;
-      color: #fff;
-      font-family: 'Noto Sans KR', sans-serif;
-      font-weight: 500;
-      font-size: 1.02rem;
-      border: none;
-      border-radius: 20px;
-      padding: 10px 32px;
-      margin-top: 10px;
-      cursor: pointer;
-      box-shadow: 0 2px 12px 0 rgba(16,34,63, 0.18);
-      transition: background 0.13s;
-    }
-    .overlay-close:hover {
-      background: #69a1e3;
-      color: #23457c;
+      min-height: 32px;
     }
     .nav-btns {
-      margin: 48px 0 16px 0;
+      margin: 34px 0 13px 0;
       text-align: center;
     }
     .nav-btn {
       background: linear-gradient(90deg,#3697ff 0%, #64bbe7 100%);
       color: #fff;
       border: none;
-      border-radius: 18px;
-      font-size: 1.07rem;
-      padding: 12px 32px;
-      margin: 0 16px;
-      box-shadow: 0 2px 8px 0 rgba(38,80,158, 0.13);
+      border-radius: 15px;
+      font-size: 1.01rem;
+      padding: 10px 24px;
+      margin: 0 13px;
+      box-shadow: 0 2px 8px 0 rgba(38,80,158, 0.11);
       font-family: 'Noto Sans KR', sans-serif;
       font-weight: 700;
       text-decoration: none;
-      letter-spacing: 0.03em;
-      transition: background 0.18s, transform 0.1s;
+      letter-spacing: 0.02em;
+      transition: background 0.15s;
       display: inline-block;
     }
     .nav-btn:hover { background: linear-gradient(90deg,#60b9ff 0%, #4be2ff 100%); color: #17305a;}
-    @media (max-width: 800px) {
-      .album-grid { padding: 0 1vw; gap: 11px;}
-      .album-thumb, .overlay-img { height: 34vw; min-height: 120px;}
-      .overlay-img { width: 97vw; min-width: 0; }
-      .album-caption { font-size: 0.93rem;}
-      .album-era, .overlay-era { font-size: 1rem;}
-    }
-    @media (max-width: 480px) {
-      .album-main-title { font-size: 1.32rem; margin-top: 24px;}
-      .album-desc { font-size: 0.96rem;}
-      .album-caption, .overlay-caption { min-height: 24px;}
+    @media (max-width: 700px) {
+      .album-grid { gap: 9px; }
+      .album-item { padding: 8px 2px 9px 2px; }
+      .album-thumb { width: 80px; height: 80px; }
+      .album-era { font-size: 0.84rem; }
+      .album-caption { font-size: 0.87rem; min-height: 22px;}
+      .album-main-title { font-size: 1.16rem; margin-top: 16px;}
+      .album-desc { font-size: 0.93rem;}
     }
   </style>
 </head>
@@ -201,7 +126,6 @@
     <a href="house_01_02.html" class="nav-btn">다음 사진 앨범으로</a>
     <a href="story.html" class="nav-btn">스토리로 돌아가기</a>
   </div>
-  <div id="overlay" style="display:none"></div>
   <script>
     const albumData = [
       { src: "img/house_01_01_01.jpg", era: "초등학교 시절 증명사진", caption: "어린 시절의 모습. 순수하고 맑았던 초등학교 시절 증명사진." },
@@ -229,20 +153,19 @@
       { src: "img/house_01_01_23.jpg", era: "고등학교 시절", caption: "여행지에서 편안하게 기대어, 청춘의 여유와 낭만." }
     ];
     const albumGrid = document.getElementById("albumGrid");
-    const overlay = document.getElementById("overlay");
-
     function renderAlbum() {
       albumGrid.innerHTML = "";
-      albumData.forEach((item, idx) => {
+      albumData.forEach((item) => {
         const albumItem = document.createElement("div");
         albumItem.className = "album-item";
-        albumItem.tabIndex = 0;
-        albumItem.onclick = () => showOverlay(idx);
+        albumItem.tabIndex = -1;
+        albumItem.style.cursor = "default";
 
         const img = document.createElement("img");
         img.src = item.src;
         img.alt = item.caption;
         img.className = "album-thumb";
+        img.draggable = false;
         albumItem.appendChild(img);
 
         const era = document.createElement("div");
@@ -258,34 +181,7 @@
         albumGrid.appendChild(albumItem);
       });
     }
-
-    function showOverlay(idx) {
-      const item = albumData[idx];
-      overlay.innerHTML = `
-        <img src="${item.src}" alt="${item.caption}" class="overlay-img">
-        <div class="overlay-era">${item.era}</div>
-        <div class="overlay-caption">${item.caption}</div>
-        <button class="overlay-close" onclick="hideOverlay()">닫기</button>
-      `;
-      overlay.style.display = "flex";
-      // 바깥 배경 클릭 시 닫기
-      overlay.onclick = function(e) {
-        if (e.target === overlay) hideOverlay();
-      }
-      document.body.style.overflow = 'hidden'; // 스크롤 잠금
-    }
-    function hideOverlay() {
-      overlay.style.display = "none";
-      overlay.innerHTML = "";
-      document.body.style.overflow = 'auto';
-    }
     renderAlbum();
-    // ESC 키로 닫기
-    window.addEventListener('keydown', function(e) {
-      if (overlay.style.display === "flex" && (e.key === "Escape" || e.key === "Esc")) {
-        hideOverlay();
-      }
-    });
   </script>
 </body>
 </html>
