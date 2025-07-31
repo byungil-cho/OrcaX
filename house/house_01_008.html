@@ -6,190 +6,120 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      margin: 0;
-      background: radial-gradient(circle at 60% 16%, #23457c 0%, #0d2945 100%);
-      font-family: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-      color: #fff;
-      min-height: 100vh;
+      margin: 0; background: #f7f8fa;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif; color: #232323;
     }
     .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 28px 0 50px 0;
+      max-width: 1100px; margin: 0 auto; padding: 40px 0 60px 0;
     }
     h1 {
-      margin-top: 20px;
-      margin-bottom: 14px;
-      font-size: 2.3rem;
-      color: #ffec55;
-      font-family: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-      font-weight: 900;
-      letter-spacing: 1.5px;
+      margin: 0 0 18px 0;
       text-align: center;
-      text-shadow: 1px 3px 20px #443b0990;
+      color: #2e3a55;
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -1.2px;
+      line-height: 1.3;
     }
     .desc {
       text-align: center;
-      color: #ece6c2;
-      font-size: 1.16rem;
+      color: #657085;
+      font-size: 1.17rem;
       font-weight: 400;
-      margin-bottom: 32px;
-      letter-spacing: -0.05px;
+      margin-bottom: 40px;
       line-height: 1.7;
     }
     .album-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 30px 14px;
-      margin-bottom: 36px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px 24px;
+      margin-bottom: 46px;
     }
     .photo-card {
-      background: rgba(20, 20, 40, 0.74);
-      border-radius: 20px;
-      box-shadow: 0 5px 15px 0 rgba(30,40,80,0.10);
-      padding: 15px 8px 14px 8px;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 4px 24px 0 rgba(36, 41, 68, 0.13);
+      padding: 18px 14px 16px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 210px;
+      transition: box-shadow 0.14s;
+      min-height: 360px;
+      border: 1.5px solid #f1e9db;
     }
+    .photo-card:hover { box-shadow: 0 8px 32px 0 rgba(80,90,160,0.14);}
     .thumb-bg {
-      width: 90px;
-      height: 120px;
-      background: #1c2e56;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 7px;
-      box-shadow: 0 1.5px 7px 0 rgba(40,60,120,0.10);
-      overflow: hidden;
+      width: 210px; height: 148px; background: #f4efe3;
+      border-radius: 18px; display: flex;
+      align-items: center; justify-content: center;
+      margin-bottom: 10px; box-shadow: 0 2px 8px 0 #e2e1d7c6; overflow: hidden;
+      border: 1.2px solid #efe4c5;
     }
     .thumb-bg img {
-      width: 84px;
-      height: 112px;
-      object-fit: cover;
-      border-radius: 8px;
-      background: #dedede;
-      cursor: pointer;
-      display: block;
-      margin: 0 auto;
-      transition: transform 0.13s;
-      border: 2px solid #ffe07a90;
-      box-shadow: 0 2px 8px #2a222205;
+      width: 206px; height: 144px; object-fit: cover; border-radius: 15px;
+      cursor: pointer; background: #e9e5dd;
+      display: block; transition: transform 0.15s;
     }
-    .thumb-bg img:active { transform: scale(0.97);}
+    .thumb-bg img:active { transform: scale(0.96);}
     .caption {
-      font-size: 1.18rem;
-      color: #ffe144;
-      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      margin-bottom: 5px;
-      text-align: center;
-      line-height: 1.18;
-      text-shadow: 0 2px 10px #231e0444;
+      font-size: 1.19rem; color: #d9ad26; font-weight: 800;
+      letter-spacing: -0.5px; margin-bottom: 7px; text-align: center;
     }
     .desc-detail {
-      font-size: 1.04rem;
-      color: #f8f2cd;
-      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
-      font-weight: 300;
-      text-align: center;
-      line-height: 1.7;
-      min-height: 38px;
-      margin-bottom: 0;
-      margin-top: 2px;
-      letter-spacing: 0.01em;
-      text-shadow: 0 2px 8px #1b120733;
+      font-size: 1.05rem; color: #5b5367;
+      font-weight: 400; text-align: center; line-height: 1.7;
+      margin-bottom: 0; margin-top: 0px; letter-spacing: 0.01em;
+      min-height: 42px;
     }
     .album-link {
-      display: flex;
-      justify-content: center;
-      gap: 18px;
-      margin: 42px 0 0 0;
+      display: flex; justify-content: center; gap: 18px; margin: 38px 0 0 0;
     }
     .album-link a {
-      color: #232201;
-      background: #ffec55;
-      border-radius: 22px;
-      padding: 13px 38px;
-      font-size: 1.14rem;
-      font-weight: 700;
-      text-decoration: none;
-      letter-spacing: 0.01em;
-      box-shadow: 0 4px 12px 0 rgba(40,60,140,0.07);
+      color: #fff; background: #f3c94d;
+      border-radius: 20px; padding: 12px 40px;
+      font-size: 1.07rem; font-weight: 700;
+      text-decoration: none; letter-spacing: 0.01em;
+      box-shadow: 0 3px 12px 0 #ffeabd80;
       transition: background 0.18s, color 0.18s;
+      border: none;
     }
-    .album-link a:hover { background: #ffe54c; color: #333;}
+    .album-link a:hover { background: #e4b900; color: #fff;}
     /* 팝업 */
     .popup-bg {
-      position: fixed;
-      z-index: 1000;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(28,24,8, 0.92);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      animation: popupIn .18s;
+      position: fixed; z-index: 1000; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(54,56,64, 0.90);
+      display: none; align-items: center; justify-content: center; flex-direction: column;
     }
-    @keyframes popupIn { from { opacity: 0;} to {opacity: 1;}}
     .popup-img-wrap {
-      max-width: 98vw;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      margin-top: 14px;
+      max-width: 97vw; max-height: 88vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin-top: 14px;
     }
     .popup-img {
-      max-width: 97vw;
-      max-height: 74vh;
-      box-shadow: 0 8px 40px 0 rgba(35,29,5, 0.23);
-      border-radius: 16px;
-      display: block;
-      margin: 0 auto 12px auto;
-      background: #fff;
-      object-fit: contain;
-      border: 3px solid #ffe25b;
+      max-width: 94vw; max-height: 66vh; box-shadow: 0 10px 36px 0 #10131a85;
+      border-radius: 20px; display: block; margin: 0 auto 13px auto;
+      background: #fff; object-fit: contain; border: 2.5px solid #fff5d4;
     }
     .popup-caption {
-      font-size: 1.23rem;
-      color: #fffbe3;
-      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
-      font-weight: 600;
-      text-align: center;
-      margin-top: 10px;
-      margin-bottom: 10px;
-      max-width: 98vw;
-      line-height: 1.8;
-      word-break: keep-all;
-      letter-spacing: 0.01em;
-      text-shadow: 0 2px 8px #4a410799;
+      font-size: 1.19rem; color: #fff9e2; font-weight: 500; text-align: center;
+      margin-top: 6px; margin-bottom: 11px; max-width: 600px; line-height: 1.8; word-break: keep-all;
+      letter-spacing: 0.01em; text-shadow: 0 2px 8px #32270733;
     }
-    @media (max-width: 900px) {
-      .container { padding: 10px 0 30px 0;}
+    @media (max-width: 1200px) {
+      .container { max-width: 96vw;}
       .album-grid { grid-template-columns: repeat(2, 1fr);}
-      .photo-card { min-height: 170px; }
-      .thumb-bg { width: 23vw; height: 31vw; min-width: 70px; min-height: 90px; }
-      .thumb-bg img { width: 92%; height: 93%; min-width: 64px; min-height: 80px; }
-      .caption { font-size: 1.05rem; }
-      .desc-detail { font-size: 0.97rem; }
+      .thumb-bg, .thumb-bg img { width: 44vw; min-width: 150px; height: 110px;}
     }
-    @media (max-width: 600px) {
-      .container { padding: 1vw 0 16vw 0;}
-      .album-grid { grid-template-columns: 1fr; gap: 20px 0;}
-      .photo-card { min-height: 120px; padding: 10px 4px 13px 4px;}
-      .thumb-bg { width: 24vw; height: 33vw; min-width: 56px; min-height: 66px; max-width: 110px; max-height: 140px; }
-      .thumb-bg img { width: 95%; height: 96%; min-width: 54px; min-height: 62px;}
-      .caption { font-size: 1.13rem; }
+    @media (max-width: 700px) {
+      .container { padding: 5vw 0 18vw 0;}
+      .album-grid { grid-template-columns: 1fr; gap: 22px 0;}
+      .thumb-bg, .thumb-bg img { width: 84vw; min-width: 140px; height: 108px;}
+      .photo-card { min-height: 210px;}
+      .caption { font-size: 1.11rem;}
       .desc-detail { font-size: 1.01rem;}
-      .album-link a { font-size: 1.03rem; padding: 10px 10vw;}
-      .popup-img-wrap { margin-top: 2vw;}
-      .popup-img { max-width: 97vw; max-height: 46vh;}
-      .popup-caption { font-size: 1.09rem; max-width: 97vw;}
+      .album-link a { font-size: 0.97rem; padding: 10px 18vw;}
+      .popup-img { max-width: 98vw; max-height: 45vh;}
+      .popup-caption { font-size: 1.05rem; max-width: 98vw;}
     }
   </style>
 </head>
@@ -197,12 +127,11 @@
   <div class="container">
     <h1>할머니와 아들·딸·며느리들의 추억</h1>
     <div class="desc">
-      가족의 역사가 깃든 따스한 순간들.<br>
-      졸업식, 결혼식, 우정과 사랑이 담긴 특별한 이야기를 사진과 함께 돌아봅니다.
+      가족의 소중한 기억을 한 권의 앨범에.<br>
+      오래된 사진이지만, 마음은 늘 지금처럼 따뜻합니다.
     </div>
     <div class="album-grid">
-      <!-- 아래 18장, 위에서 사용한 내용 그대로 넣으시면 됩니다 -->
-      <!-- (예시 2장만, 나머지도 그대로 복붙) -->
+      <!-- 사진 예시: 아래는 2장만 예시, 나머지는 그대로 복붙/수정해서 18장까지! -->
       <div class="photo-card">
         <div class="thumb-bg">
           <img src="img/+2_1_5_01.jpg" data-img="img/+2_1_5_01.jpg" data-caption="가족의 시작과 성장, 어린 시절의 순수함과 따뜻함이 고스란히 남아있는 한 컷. 서로를 바라보는 시선 속에 엄마의 사랑과 남매의 정이 녹아있습니다." alt="">
@@ -217,7 +146,7 @@
         <div class="caption">막내딸과 친구</div>
         <div class="desc-detail">교복을 입고 나란히 선 두 소녀의 모습. 풋풋한 우정과 청춘의 빛나는 하루를 함께한 소중한 동행의 추억입니다.</div>
       </div>
-    <!-- 3 -->
+      <!-- 3 -->
       <div class="photo-card">
         <div class="thumb-bg">
           <img src="img/+2_1_5_03.jpg" data-img="img/+2_1_5_03.jpg" data-caption="교복을 입은 사내들의 늠름한 모습. 철길 앞에서 함께한 학창시절의 동료애, 꿈을 향해 나아가던 열정의 순간." alt="">
@@ -346,6 +275,7 @@
         <div class="desc-detail">청춘의 한가운데서 웃고 있는 친구들의 모습. 그 시절의 끈끈한 우정과 추억을 담아낸 사진입니다.</div>
       </div>
     </div>
+
     <div class="album-link">
       <a href="house_01_007.html">← 할아버지 추억 앨범 보러가기</a>
     </div>
@@ -357,6 +287,7 @@
     </div>
   </div>
   <script>
+    // 팝업: 썸네일 클릭 시 큰사진 + 설명
     document.querySelectorAll('.thumb-bg img').forEach(function(img) {
       img.addEventListener('click', function(e) {
         var popup = document.getElementById('popupBg');
@@ -375,3 +306,4 @@
   </script>
 </body>
 </html>
+
