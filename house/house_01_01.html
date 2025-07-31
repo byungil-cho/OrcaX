@@ -56,16 +56,7 @@
       min-width: 0;
     }
     .album-item:hover { transform: translateY(-5px) scale(1.04);}
-    .album-item.selected {
-      grid-column: 1 / -1 !important;
-      z-index: 99;
-      background: rgba(25, 40, 72, 0.98);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .album-thumb, .album-large {
+    .album-thumb {
       width: 100%;
       height: 170px;
       object-fit: cover;
@@ -76,15 +67,13 @@
       display: block;
       margin-bottom: 9px;
     }
-    .album-large {
-      width: min(95vw, 600px);
-      height: min(55vw, 400px);
-      max-height: 60vh;
-      object-fit: contain;
-      border-radius: 20px;
-      margin: 10px 0 16px 0;
-      box-shadow: 0 6px 28px 0 rgba(29,48,86, 0.25);
-      background: #181c25;
+    .album-era {
+      font-size: 0.93rem;
+      color: #8bc0ff;
+      text-align: center;
+      margin-bottom: 3px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 500;
     }
     .album-caption {
       font-size: 0.98rem;
@@ -98,13 +87,70 @@
       font-weight: 400;
       padding: 0 4px;
     }
-    .album-era {
-      font-size: 0.93rem;
+    /* 오버레이 (큰사진) */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(20,28,49, 0.92);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: fadeIn 0.23s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0;}
+      to { opacity: 1;}
+    }
+    .overlay-img {
+      width: min(95vw, 600px);
+      height: min(55vw, 400px);
+      max-height: 64vh;
+      object-fit: contain;
+      border-radius: 24px;
+      margin-bottom: 15px;
+      box-shadow: 0 6px 28px 0 rgba(29,48,86, 0.28);
+      background: #181c25;
+      display: block;
+    }
+    .overlay-era {
+      font-size: 1.15rem;
       color: #8bc0ff;
-      text-align: center;
-      margin-bottom: 3px;
       font-family: 'Noto Sans KR', sans-serif;
       font-weight: 500;
+      margin-bottom: 6px;
+      margin-top: 2px;
+      text-align: center;
+    }
+    .overlay-caption {
+      font-size: 1.04rem;
+      color: #e7ecfa;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 400;
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      margin-top: 3px;
+      max-width: 98vw;
+    }
+    .overlay-close {
+      background: #304872;
+      color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 500;
+      font-size: 1.02rem;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 32px;
+      margin-top: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px 0 rgba(16,34,63, 0.18);
+      transition: background 0.13s;
+    }
+    .overlay-close:hover {
+      background: #69a1e3;
+      color: #23457c;
     }
     .nav-btns {
       margin: 48px 0 16px 0;
@@ -129,15 +175,15 @@
     .nav-btn:hover { background: linear-gradient(90deg,#60b9ff 0%, #4be2ff 100%); color: #17305a;}
     @media (max-width: 800px) {
       .album-grid { padding: 0 1vw; gap: 11px;}
-      .album-thumb, .album-large { height: 34vw; min-height: 120px;}
-      .album-large { width: 97vw; min-width: 0; }
+      .album-thumb, .overlay-img { height: 34vw; min-height: 120px;}
+      .overlay-img { width: 97vw; min-width: 0; }
       .album-caption { font-size: 0.93rem;}
-      .album-era { font-size: 0.87rem;}
+      .album-era, .overlay-era { font-size: 1rem;}
     }
     @media (max-width: 480px) {
       .album-main-title { font-size: 1.32rem; margin-top: 24px;}
       .album-desc { font-size: 0.96rem;}
-      .album-caption { min-height: 24px;}
+      .album-caption, .overlay-caption { min-height: 24px;}
     }
   </style>
 </head>
@@ -155,192 +201,91 @@
     <a href="house_01_02.html" class="nav-btn">다음 사진 앨범으로</a>
     <a href="story.html" class="nav-btn">스토리로 돌아가기</a>
   </div>
+  <div id="overlay" style="display:none"></div>
   <script>
-    // 앨범 이미지 목록 및 설명
     const albumData = [
-      {
-        src: "img/house_01_01_01.jpg",
-        era: "초등학교 시절 증명사진",
-        caption: "어린 시절의 모습. 순수하고 맑았던 초등학교 시절 증명사진."
-      },
-      {
-        src: "img/house_01_01_02.jpg",
-        era: "중학교 시절 증명사진",
-        caption: "조금씩 성장해가던, 중학교 때의 풋풋함이 담긴 증명사진."
-      },
-      {
-        src: "img/house_01_01_03.jpg",
-        era: "고등학교 시절 증명사진",
-        caption: "자유와 청춘의 기운이 느껴지는 고등학교 시절의 모습."
-      },
-      {
-        src: "img/house_01_01_04.jpg",
-        era: "고등학교 졸업 후, 20대 초반",
-        caption: "졸업 후, 사회로 나가기 전의 설렘과 각오가 담긴 사진."
-      },
-      // ======= 고등학교 시절과 학창시절 추억 =======
-      {
-        src: "img/house_01_01_05.jpg",
-        era: "고등학교 시절",
-        caption: "집에서 친구와 함께 찍은 정겨운 한 컷. 1980년대 시골의 소박한 풍경과 따뜻함이 느껴진다."
-      },
-      {
-        src: "img/house_01_01_06.jpg",
-        era: "고등학교 시절",
-        caption: "평범한 일상 속에서의 나, 그 시절의 패션과 감성."
-      },
-      {
-        src: "img/house_01_01_07.jpg",
-        era: "고등학교 시절",
-        caption: "고향 들판에서 자유를 만끽하며. 푸른 자연이 배경이 되었던 소중한 시간."
-      },
-      {
-        src: "img/house_01_01_08.jpg",
-        era: "고등학교 시절",
-        caption: "자전거를 타며, 친구들과 함께 했던 즐거운 추억."
-      },
-      {
-        src: "img/house_01_01_09.jpg",
-        era: "고등학교 시절",
-        caption: "수학여행 또는 친구들과의 여행길, 명소에서의 단체 사진."
-      },
-      {
-        src: "img/house_01_01_10.jpg",
-        era: "고등학교 시절",
-        caption: "교복을 입고 버스에 기대어 선명한 청춘의 한 페이지."
-      },
-      {
-        src: "img/house_01_01_11.jpg",
-        era: "고등학교 시절",
-        caption: "맨발로 개울가에서, 우정으로 하나 되었던 학창시절."
-      },
-      {
-        src: "img/house_01_01_12.jpg",
-        era: "고등학교 시절",
-        caption: "봄이 오면, 들판과 숲에서 친구들과 함께한 시간."
-      },
-      {
-        src: "img/house_01_01_13.jpg",
-        era: "고등학교 시절",
-        caption: "군복 차림으로, 미래의 꿈을 품었던 순간."
-      },
-      {
-        src: "img/house_01_01_14.jpg",
-        era: "고등학교 시절",
-        caption: "친구와 함께한 봄날의 들판, 자연과 어우러진 우정."
-      },
-      {
-        src: "img/house_01_01_15.jpg",
-        era: "고등학교 시절",
-        caption: "오토바이 위에서 젊음을 즐기던 한때."
-      },
-      {
-        src: "img/house_01_01_16.jpg",
-        era: "고등학교 시절",
-        caption: "셋이 함께한 포즈, 변치 않는 우정과 추억의 시작."
-      },
-      {
-        src: "img/house_01_01_17.jpg",
-        era: "고등학교 시절",
-        caption: "황금 들녘, 친구들과의 미소 가득한 단체사진."
-      },
-      {
-        src: "img/house_01_01_18.jpg",
-        era: "고등학교 시절",
-        caption: "흙바닥 운동장에서 장난기 넘치던 씨름 한판!"
-      },
-      {
-        src: "img/house_01_01_19.jpg",
-        era: "고등학교 시절",
-        caption: "교복 입고 버스 앞에서, 늘 함께였던 친구들."
-      },
-      {
-        src: "img/house_01_01_20.jpg",
-        era: "고등학교 시절",
-        caption: "수련회 혹은 현장학습에서의 단체 포즈."
-      },
-      {
-        src: "img/house_01_01_21.jpg",
-        era: "고등학교 시절",
-        caption: "동물원 견학, 어린 시절의 호기심과 활력이 가득."
-      },
-      {
-        src: "img/house_01_01_22.jpg",
-        era: "고등학교 시절",
-        caption: "야외 단체사진, 친구들과 함께한 소중한 시간."
-      },
-      {
-        src: "img/house_01_01_23.jpg",
-        era: "고등학교 시절",
-        caption: "여행지에서 편안하게 기대어, 청춘의 여유와 낭만."
-      }
+      { src: "img/house_01_01_01.jpg", era: "초등학교 시절 증명사진", caption: "어린 시절의 모습. 순수하고 맑았던 초등학교 시절 증명사진." },
+      { src: "img/house_01_01_02.jpg", era: "중학교 시절 증명사진", caption: "조금씩 성장해가던, 중학교 때의 풋풋함이 담긴 증명사진." },
+      { src: "img/house_01_01_03.jpg", era: "고등학교 시절 증명사진", caption: "자유와 청춘의 기운이 느껴지는 고등학교 시절의 모습." },
+      { src: "img/house_01_01_04.jpg", era: "고등학교 졸업 후, 20대 초반", caption: "졸업 후, 사회로 나가기 전의 설렘과 각오가 담긴 사진." },
+      { src: "img/house_01_01_05.jpg", era: "고등학교 시절", caption: "집에서 친구와 함께 찍은 정겨운 한 컷. 1980년대 시골의 소박한 풍경과 따뜻함이 느껴진다." },
+      { src: "img/house_01_01_06.jpg", era: "고등학교 시절", caption: "평범한 일상 속에서의 나, 그 시절의 패션과 감성." },
+      { src: "img/house_01_01_07.jpg", era: "고등학교 시절", caption: "고향 들판에서 자유를 만끽하며. 푸른 자연이 배경이 되었던 소중한 시간." },
+      { src: "img/house_01_01_08.jpg", era: "고등학교 시절", caption: "자전거를 타며, 친구들과 함께 했던 즐거운 추억." },
+      { src: "img/house_01_01_09.jpg", era: "고등학교 시절", caption: "수학여행 또는 친구들과의 여행길, 명소에서의 단체 사진." },
+      { src: "img/house_01_01_10.jpg", era: "고등학교 시절", caption: "교복을 입고 버스에 기대어 선명한 청춘의 한 페이지." },
+      { src: "img/house_01_01_11.jpg", era: "고등학교 시절", caption: "맨발로 개울가에서, 우정으로 하나 되었던 학창시절." },
+      { src: "img/house_01_01_12.jpg", era: "고등학교 시절", caption: "봄이 오면, 들판과 숲에서 친구들과 함께한 시간." },
+      { src: "img/house_01_01_13.jpg", era: "고등학교 시절", caption: "군복 차림으로, 미래의 꿈을 품었던 순간." },
+      { src: "img/house_01_01_14.jpg", era: "고등학교 시절", caption: "친구와 함께한 봄날의 들판, 자연과 어우러진 우정." },
+      { src: "img/house_01_01_15.jpg", era: "고등학교 시절", caption: "오토바이 위에서 젊음을 즐기던 한때." },
+      { src: "img/house_01_01_16.jpg", era: "고등학교 시절", caption: "셋이 함께한 포즈, 변치 않는 우정과 추억의 시작." },
+      { src: "img/house_01_01_17.jpg", era: "고등학교 시절", caption: "황금 들녘, 친구들과의 미소 가득한 단체사진." },
+      { src: "img/house_01_01_18.jpg", era: "고등학교 시절", caption: "흙바닥 운동장에서 장난기 넘치던 씨름 한판!" },
+      { src: "img/house_01_01_19.jpg", era: "고등학교 시절", caption: "교복 입고 버스 앞에서, 늘 함께였던 친구들." },
+      { src: "img/house_01_01_20.jpg", era: "고등학교 시절", caption: "수련회 혹은 현장학습에서의 단체 포즈." },
+      { src: "img/house_01_01_21.jpg", era: "고등학교 시절", caption: "동물원 견학, 어린 시절의 호기심과 활력이 가득." },
+      { src: "img/house_01_01_22.jpg", era: "고등학교 시절", caption: "야외 단체사진, 친구들과 함께한 소중한 시간." },
+      { src: "img/house_01_01_23.jpg", era: "고등학교 시절", caption: "여행지에서 편안하게 기대어, 청춘의 여유와 낭만." }
     ];
-
-    // 앨범 뷰
     const albumGrid = document.getElementById("albumGrid");
-    let selectedIdx = null;
+    const overlay = document.getElementById("overlay");
 
     function renderAlbum() {
       albumGrid.innerHTML = "";
       albumData.forEach((item, idx) => {
         const albumItem = document.createElement("div");
-        albumItem.className = "album-item" + (selectedIdx === idx ? " selected" : "");
+        albumItem.className = "album-item";
         albumItem.tabIndex = 0;
-        albumItem.onclick = () => {
-          if (selectedIdx === idx) {
-            selectedIdx = null;
-          } else {
-            selectedIdx = idx;
-          }
-          renderAlbum();
-          if (selectedIdx !== null) {
-            albumGrid.scrollIntoView({behavior: "smooth"});
-          }
-        };
+        albumItem.onclick = () => showOverlay(idx);
 
-        // 사진 + 설명
-        if (selectedIdx === idx) {
-          // 큰사진 모드
-          const img = document.createElement("img");
-          img.src = item.src;
-          img.alt = item.caption;
-          img.className = "album-large";
-          albumItem.appendChild(img);
+        const img = document.createElement("img");
+        img.src = item.src;
+        img.alt = item.caption;
+        img.className = "album-thumb";
+        albumItem.appendChild(img);
 
-          const era = document.createElement("div");
-          era.className = "album-era";
-          era.textContent = item.era;
-          albumItem.appendChild(era);
+        const era = document.createElement("div");
+        era.className = "album-era";
+        era.textContent = item.era;
+        albumItem.appendChild(era);
 
-          const cap = document.createElement("div");
-          cap.className = "album-caption";
-          cap.textContent = item.caption;
-          albumItem.appendChild(cap);
+        const cap = document.createElement("div");
+        cap.className = "album-caption";
+        cap.textContent = item.caption;
+        albumItem.appendChild(cap);
 
-          // 큰사진 클릭시 축소
-          img.onclick = albumItem.onclick;
-        } else {
-          // 썸네일 모드
-          const img = document.createElement("img");
-          img.src = item.src;
-          img.alt = item.caption;
-          img.className = "album-thumb";
-          albumItem.appendChild(img);
-
-          const era = document.createElement("div");
-          era.className = "album-era";
-          era.textContent = item.era;
-          albumItem.appendChild(era);
-
-          const cap = document.createElement("div");
-          cap.className = "album-caption";
-          cap.textContent = item.caption;
-          albumItem.appendChild(cap);
-        }
         albumGrid.appendChild(albumItem);
       });
     }
+
+    function showOverlay(idx) {
+      const item = albumData[idx];
+      overlay.innerHTML = `
+        <img src="${item.src}" alt="${item.caption}" class="overlay-img">
+        <div class="overlay-era">${item.era}</div>
+        <div class="overlay-caption">${item.caption}</div>
+        <button class="overlay-close" onclick="hideOverlay()">닫기</button>
+      `;
+      overlay.style.display = "flex";
+      // 바깥 배경 클릭 시 닫기
+      overlay.onclick = function(e) {
+        if (e.target === overlay) hideOverlay();
+      }
+      document.body.style.overflow = 'hidden'; // 스크롤 잠금
+    }
+    function hideOverlay() {
+      overlay.style.display = "none";
+      overlay.innerHTML = "";
+      document.body.style.overflow = 'auto';
+    }
     renderAlbum();
+    // ESC 키로 닫기
+    window.addEventListener('keydown', function(e) {
+      if (overlay.style.display === "flex" && (e.key === "Escape" || e.key === "Esc")) {
+        hideOverlay();
+      }
+    });
   </script>
 </body>
 </html>
