@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>영원의 집 1호 – 할아버지와 가족 친구들 추억 사진</title>
+  <title>영원의 집 1호 – 할아버지와 가족, 친구들의 추억</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -14,247 +14,206 @@
       line-height: 1.75;
     }
     .container {
-      max-width: 1100px;
+      max-width: 960px;
       margin: 2.2rem auto 0 auto;
-      background: rgba(22,36,62,0.98);
+      background: rgba(22,36,62,0.96);
       border-radius: 2.2rem;
-      box-shadow: 0 6px 44px #021e3f70;
-      padding: 2.2rem 2.1rem 2.7rem 2.1rem;
+      box-shadow: 0 6px 44px #021e3f60;
+      padding: 2.2rem 1.6rem 2.4rem 1.6rem;
     }
-    h1, h2 {
+    h1 {
       color: #ffe37b;
       font-weight: 900;
-      font-size: 2.12rem;
+      font-size: 2.14rem;
       letter-spacing: -1.2px;
       text-align: center;
-      margin-bottom: 0.6rem;
+      margin-bottom: 1.6rem;
       text-shadow: 1px 2px 8px #1128;
     }
     .desc {
-      font-size: 1.05em;
-      color: #fffde8;
-      margin-bottom: 2.1rem;
+      font-size: 1.07em;
+      color: #fffded;
+      background: #27427099;
+      border-radius: 1.3em;
+      padding: 1em 1.4em;
+      margin-bottom: 2.2em;
+      box-shadow: 0 1px 8px #ffe37b22;
       text-align: center;
-      letter-spacing: -0.3px;
-      line-height: 1.7;
+      line-height: 1.8;
     }
     .media-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 2.1rem 1.6rem;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.45rem 2.2rem;
+      margin: 0 auto 2.5rem auto;
+      max-width: 830px;
     }
     .media-card {
-      background: #243b5cdd;
-      border-radius: 1.3em;
-      padding: 1.05em 1em 1.05em 1em;
+      background: #253a5e;
+      border-radius: 1.5em;
+      box-shadow: 0 2px 14px #ffe37b22;
+      padding: 1.1em 0.7em 1.1em 0.7em;
       text-align: center;
-      box-shadow: 0 2px 14px #0114;
-      position: relative;
-      transition: transform 0.14s, box-shadow 0.17s;
       cursor: pointer;
+      transition: transform 0.15s;
     }
     .media-card:hover {
-      transform: translateY(-5px) scale(1.04);
-      box-shadow: 0 7px 32px #ffe37b33;
-      background: #273d61ee;
+      background: #ffe37b44;
+      color: #1b273b;
+      transform: translateY(-4px) scale(1.04);
     }
     .media-thumb {
-      width: 140px; height: 140px;
-      border-radius: 1em;
+      width: 122px; height: 122px;
+      border-radius: 1.1em;
       object-fit: cover;
-      margin-bottom: 0.82em;
-      background: #fff2;
-      box-shadow: 0 2px 12px #ffe37b33;
-      border: 3px solid #ffe37b33;
-      transition: border-color 0.18s;
-    }
-    .media-card:hover .media-thumb {
-      border-color: #ffe37b;
+      box-shadow: 0 2px 16px #ffe37b33;
+      background: #fff1;
+      margin-bottom: 0.7em;
     }
     .media-title {
+      font-size: 1.07em;
       color: #ffe37b;
-      font-size: 1.05em;
-      font-weight: bold;
-      margin-bottom: 0.18em;
-      letter-spacing: -0.6px;
+      font-weight: 700;
+      margin-bottom: 0.4em;
     }
     .media-desc {
-      color: #fffde8;
-      font-size: 0.97em;
-      min-height: 2.1em;
-      margin-bottom: 0.04em;
+      font-size: 0.99em;
+      color: #fffded;
+      margin-bottom: 0.14em;
+      line-height: 1.7;
     }
-    .back-btn {
-      display: block;
-      width: max-content;
-      margin: 2.3rem auto 0 auto;
-      padding: 0.9em 2.2em;
-      background: #ffe37b;
-      color: #1b273b;
-      border: none;
-      border-radius: 1.2em;
-      font-size: 1.07em;
-      font-weight: 700;
-      box-shadow: 0 2px 14px #ffe37b22;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.16s, color 0.13s;
-      letter-spacing: -0.5px;
-      text-align: center;
+    @media (max-width: 700px) {
+      .container { padding: 0.5rem 0.2rem 1.3rem 0.2rem;}
+      h1 { font-size: 1.15rem;}
+      .media-grid { gap: 1rem 0.6rem;}
+      .media-thumb { width: 75px; height: 75px;}
     }
-    .back-btn:hover {
-      background: #1b273b;
-      color: #ffe37b;
-    }
-    .modal {
+    /* Modal Styles */
+    .modal-bg {
       display: none;
-      position: fixed;
-      z-index: 99;
-      left: 0; top: 0; right: 0; bottom: 0;
-      background: rgba(16,24,36,0.96);
-      align-items: center;
+      position: fixed; z-index: 9999;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: #09152aeb;
       justify-content: center;
+      align-items: center;
     }
     .modal-content {
-      background: #111d35;
-      padding: 2.1em 2.2em 1.7em 2.2em;
-      border-radius: 1.4em;
-      box-shadow: 0 2px 32px #ffe37b77;
+      background: #fff;
+      color: #222;
+      padding: 2em 1em 1.5em 1em;
+      border-radius: 1.8em;
+      max-width: 390px;
+      box-shadow: 0 8px 44px #0009;
       text-align: center;
-      max-width: 98vw;
-      max-height: 92vh;
+      position: relative;
     }
     .modal-img {
-      max-width: 56vw;
-      max-height: 46vh;
+      width: 270px; height: auto;
       border-radius: 1em;
-      box-shadow: 0 4px 32px #ffe37b22;
+      object-fit: cover;
       margin-bottom: 1em;
-      background: #fff2;
+      box-shadow: 0 2px 12px #ffe37b44;
+      background: #eee;
     }
     .modal-title {
-      color: #ffe37b;
-      font-size: 1.18em;
+      font-size: 1.13em;
+      color: #23457c;
       font-weight: bold;
-      margin-bottom: 0.16em;
+      margin-bottom: 0.4em;
+      letter-spacing: -1px;
     }
     .modal-desc {
-      color: #fff;
       font-size: 1em;
-      margin-bottom: 0.1em;
+      color: #222;
+      line-height: 1.7;
+      margin-bottom: 1em;
     }
-    .close-btn {
-      margin-top: 1.2em;
-      background: #ffe37b;
-      color: #1b273b;
-      border: none;
-      border-radius: 1.1em;
-      font-size: 1em;
-      padding: 0.5em 2em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.17s, color 0.12s;
-    }
-    .close-btn:hover {
-      background: #1b273b;
-      color: #ffe37b;
-    }
-    @media (max-width: 900px) {
-      .media-grid { grid-template-columns: repeat(2, 1fr);}
-    }
-    @media (max-width: 600px) {
-      .container { padding: 0.7rem 0.2rem 1.1rem 0.2rem;}
-      .media-grid { grid-template-columns: repeat(1, 1fr);}
-      .media-thumb { width: 100px; height: 100px;}
-      h1, h2 { font-size: 1.09rem;}
-      .modal-img { max-width: 92vw; max-height: 30vh;}
-      .modal-content { padding: 0.7em 0.6em 1em 0.6em;}
+    .modal-close {
+      position: absolute; top: 0.5em; right: 1em;
+      background: none; border: none;
+      font-size: 2em; color: #23457c; cursor: pointer;
     }
   </style>
-  <script>
-    function showModal(img, title, desc) {
-      document.getElementById('modal-img').src = img;
-      document.getElementById('modal-title').textContent = title;
-      document.getElementById('modal-desc').textContent = desc;
-      document.getElementById('media-modal').style.display = 'flex';
-    }
-    function closeModal() {
-      document.getElementById('media-modal').style.display = 'none';
-    }
-  </script>
 </head>
 <body>
   <div class="container">
-    <h2>할아버지와 가족, 친구들의 추억</h2>
+    <h1>할아버지와 가족, 친구들의 추억</h1>
     <div class="desc">
       살아생전 할아버지의 모습과, 그 곁을 함께 한 가족들과 친구분들의 소중한 순간들을 담았습니다.<br>
       가족 사진, 형제·자매, 부부 기념, 그리고 할아버지의 친구분들과의 옛날 사진들입니다.
     </div>
     <div class="media-grid">
       <!-- 1 -->
-      <div class="media-card" onclick="showModal('img/+2.jpg', '할아버지 초상', '할아버지 젊은 시절의 흑백 초상 사진입니다.')">
-        <img src="img/+2.jpg" alt="할아버지 초상" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-        <div class="media-title">할아버지 초상</div>
-        <div class="media-desc">할아버지 젊은 시절, 흑백 초상 사진</div>
+      <div class="media-card" onclick="showModal('img/+2_01.jpg', '할아버지 청년 시절', '젊은 시절의 할아버지 모습입니다.')">
+        <img src="img/+2_01.jpg" alt="할아버지 청년 시절" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">할아버지 청년 시절</div>
+        <div class="media-desc">젊은 시절의 할아버지 모습입니다.</div>
       </div>
       <!-- 2 -->
-      <div class="media-card" onclick="showModal('img/+2_01.jpg', '친구들과 야외 모임', '돗자리 위에서 친구분들과 함께 즐거운 한 때')">
-        <img src="img/+2_01.jpg" alt="친구들과 야외 모임" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-        <div class="media-title">친구들과 야외 모임</div>
-        <div class="media-desc">돗자리 위 친구들과의 소풍</div>
+      <div class="media-card" onclick="showModal('img/+2_02.jpg', '형제자매 단체사진', '형제자매들과 함께한 추억의 단체사진입니다.')">
+        <img src="img/+2_02.jpg" alt="형제자매 단체사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">형제자매 단체사진</div>
+        <div class="media-desc">형제자매들과 함께한 추억의 단체사진입니다.</div>
       </div>
       <!-- 3 -->
-      <div class="media-card" onclick="showModal('img/+2_02.jpg', '가족 단체사진(흑백)', '겨울 소나무 숲에서 찍은 가족 단체사진')">
-        <img src="img/+2_02.jpg" alt="가족 단체사진(흑백)" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-        <div class="media-title">가족 단체사진(흑백)</div>
-        <div class="media-desc">겨울 소나무 숲에서 찍은 가족 단체사진</div>
+      <div class="media-card" onclick="showModal('img/+2_03.jpg', '부부 기념사진', '할아버지와 할머니의 젊은 시절 부부 기념사진입니다.')">
+        <img src="img/+2_03.jpg" alt="부부 기념사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">부부 기념사진</div>
+        <div class="media-desc">할아버지와 할머니의 젊은 시절 부부 기념사진입니다.</div>
       </div>
       <!-- 4 -->
-      <div class="media-card" onclick="showModal('img/+2_03.jpg', '형제들과 함께', '형제자매들이 한자리에 모여 남긴 소중한 추억')">
-        <img src="img/+2_03.jpg" alt="형제들과 함께" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-        <div class="media-title">형제들과 함께</div>
-        <div class="media-desc">형제자매들과 모여 찍은 사진</div>
+      <div class="media-card" onclick="showModal('img/+2_04.jpg', '할아버지 친구분들과의 모임', '오랜 친구분들과 함께한 소중한 시간입니다.')">
+        <img src="img/+2_04.jpg" alt="할아버지 친구분들과의 모임" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">할아버지 친구분들과의 모임</div>
+        <div class="media-desc">오랜 친구분들과 함께한 소중한 시간입니다.</div>
       </div>
       <!-- 5 -->
-      <div class="media-card" onclick="showModal('img/+2_04.jpg', '부부 기념사진', '젊은 시절 부부가 함께한 흑백 사진')">
-        <img src="img/+2_04.jpg" alt="세째 아들 부부사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-        <div class="media-title">세째 아들 부부사진</div>
-        <div class="media-desc">젊은 시절 부부가 함께한 사진</div>
+      <div class="media-card" onclick="showModal('img/+2_05.jpg', '부부와 가족', '할아버지와 할머니, 그리고 자녀들과 함께한 가족사진입니다.')">
+        <img src="img/+2_05.jpg" alt="부부와 가족" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">부부와 가족</div>
+        <div class="media-desc">할아버지와 할머니, 그리고 자녀들과 함께한 가족사진입니다.</div>
       </div>
       <!-- 6 -->
-      <div class="media-card" onclick="showModal('img/+2_05.jpg', '가족 모임', '가족 모두가 함께 모여 남긴 소중한 순간')">
-        <img src="img/+2_05.jpg" alt="가족 모임" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-        <div class="media-title">가족 모임</div>
-        <div class="media-desc">아들 딸들이 모여 찍은 사진</div>
+      <div class="media-card" onclick="showModal('img/+2_06.jpg', '가족의 특별한 순간', '가족의 특별한 순간을 담은 사진입니다.')">
+        <img src="img/+2_06.jpg" alt="가족의 특별한 순간" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">가족의 특별한 순간</div>
+        <div class="media-desc">가족의 특별한 순간을 담은 사진입니다.</div>
       </div>
       <!-- 7 -->
-      <div class="media-card" onclick="showModal('img/+2_06.jpg', '가족·친척 단체사진', '가족, 친척이 한 자리에 모인 대가족 사진')">
-        <img src="img/+2_06.jpg" alt="가족·친척 단체사진" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
-        <div class="media-title">가족·친척 단체사진</div>
-        <div class="media-desc">아들 딸들이 함께한 소중한 순간</div>
+      <div class="media-card" onclick="showModal('img/+2_08.jpg', '할아버지와 친척 모임', '할아버지와 친척들이 모인 소중한 순간입니다.')">
+        <img src="img/+2_08.jpg" alt="할아버지와 친척 모임" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">할아버지와 친척 모임</div>
+        <div class="media-desc">할아버지와 친척들이 모인 소중한 순간입니다.</div>
+      </div>
+      <!-- 8 (추가) -->
+      <div class="media-card" onclick="showModal('img/+2_07.jpg', '막내 딸과 사위', '할아버지의 막내 딸과 사위의 젊은 시절, 약혼식 기념 흑백사진입니다.')">
+        <img src="img/+2_07.jpg" alt="막내 딸과 사위" class="media-thumb" onerror="this.src='https://dummyimage.com/140x140/333/fff&text=No+Image';">
+        <div class="media-title">막내 딸과 사위</div>
+        <div class="media-desc">할아버지 막내 딸과 사위의 약혼 기념사진</div>
       </div>
     </div>
-    <a href="house_01.html" class="back-btn">&larr; 영원의 집 1호 메인으로 돌아가기</a>
   </div>
-  <!-- 이미지 확대 모달 -->
-  <div class="modal" id="media-modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <img src="" alt="미리보기" class="modal-img" id="modal-img">
-      <div class="modal-title" id="modal-title"></div>
-      <div class="modal-desc" id="modal-desc"></div>
-      <button class="close-btn" onclick="closeModal()">닫기</button>
+  <!-- Modal viewer -->
+  <div id="modalBg" class="modal-bg" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation();">
+      <button class="modal-close" onclick="hideModal()">&times;</button>
+      <img id="modalImg" class="modal-img" src="" alt="미리보기">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-desc" id="modalDesc"></div>
     </div>
   </div>
   <script>
-    function showModal(img, title, desc) {
-      document.getElementById('modal-img').src = img;
-      document.getElementById('modal-title').textContent = title;
-      document.getElementById('modal-desc').textContent = desc;
-      document.getElementById('media-modal').style.display = 'flex';
+    function showModal(imgSrc, title, desc) {
+      document.getElementById('modalImg').src = imgSrc;
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalDesc').textContent = desc;
+      document.getElementById('modalBg').style.display = 'flex';
     }
-    function closeModal() {
-      document.getElementById('media-modal').style.display = 'none';
+    function hideModal() {
+      document.getElementById('modalBg').style.display = 'none';
+      document.getElementById('modalImg').src = '';
     }
   </script>
 </body>
 </html>
+
