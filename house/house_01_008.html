@@ -7,12 +7,10 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
       background: radial-gradient(circle at 60% 16%, #23457c 0%, #0d2945 100%);
       font-family: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
       color: #fff;
       min-height: 100vh;
-      box-sizing: border-box;
     }
     .container {
       max-width: 1100px;
@@ -24,7 +22,6 @@
       margin-bottom: 10px;
       font-size: 2.3rem;
       color: #5d87c4;
-      letter-spacing: 0.03em;
       font-weight: 700;
       text-align: center;
     }
@@ -34,28 +31,26 @@
       font-size: 1.2rem;
       font-weight: 400;
       margin-bottom: 32px;
-      letter-spacing: 0.01em;
     }
     .album-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 32px 20px;
-      justify-content: center;
       margin-bottom: 44px;
     }
     .photo-card {
-      background: rgba(10, 20, 40, 0.75);
+      background: rgba(10, 20, 40, 0.76);
       border-radius: 24px;
       box-shadow: 0 6px 18px 0 rgba(32,60,120,0.13);
       padding: 18px 12px 12px 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 290px;
+      min-height: 340px;
     }
     .thumb-bg {
-      width: 90px;
-      height: 150px;
+      width: 120px;
+      height: 160px;
       background: #12244a;
       border-radius: 16px;
       display: flex;
@@ -66,36 +61,34 @@
       overflow: hidden;
     }
     .thumb-bg img {
-      width: 100px;
-      height: 100px;
+      width: 116px;
+      height: 154px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 12px;
       background: #dedede;
       cursor: pointer;
       display: block;
       margin: 0 auto;
       transition: transform 0.15s;
     }
-    .thumb-bg img:active {
-      transform: scale(0.98);
-    }
+    .thumb-bg img:active { transform: scale(0.98);}
     .caption {
-      font-size: 1.06rem;
+      font-size: 1.08rem;
       color: #dbe5f0;
-      font-weight: 500;
-      margin-bottom: 2px;
+      font-weight: 600;
+      margin-bottom: 4px;
       text-align: center;
-      letter-spacing: 0.01em;
-      min-height: 30px;
     }
     .desc-detail {
-      font-size: 0.97rem;
-      color: #c4cfe0;
+      font-size: 0.98rem;
+      color: #c9ced8;
       font-weight: 300;
       text-align: center;
       line-height: 1.6;
-      min-height: 38px;
+      min-height: 40px;
       margin-bottom: 0;
+      margin-top: 2px;
+      letter-spacing: 0.01em;
     }
     .album-link {
       display: flex;
@@ -118,7 +111,6 @@
     .album-link a:hover {
       background: #1e3670;
     }
-    /* 팝업 레이어 */
     .popup-bg {
       position: fixed;
       z-index: 1000;
@@ -131,10 +123,7 @@
       flex-direction: column;
       animation: popupIn .18s;
     }
-    @keyframes popupIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
+    @keyframes popupIn { from { opacity: 0;} to {opacity: 1;}}
     .popup-img-wrap {
       max-width: 95vw;
       max-height: 72vh;
@@ -153,7 +142,6 @@
       margin: 0 auto 16px auto;
       background: #fff;
       object-fit: contain;
-      /* 꽉 채우고 비율 유지 */
     }
     .popup-caption {
       font-size: 1.18rem;
@@ -162,7 +150,6 @@
       font-weight: 300;
       text-align: center;
       margin-top: 6px;
-      letter-spacing: 0.01em;
       margin-bottom: 10px;
       max-width: 600px;
       line-height: 1.7;
@@ -170,14 +157,16 @@
     }
     @media (max-width: 1080px) {
       .container { max-width: 99vw; }
-      .album-grid { grid-template-columns: repeat(2, 1fr); }
+      .album-grid { grid-template-columns: repeat(2, 1fr);}
     }
     @media (max-width: 640px) {
-      .container { padding: 6vw 0 60px 0; }
+      .container { padding: 6vw 0 60px 0;}
       .album-grid { grid-template-columns: 1fr; gap: 26px 0;}
-      .popup-img-wrap { max-width: 100vw; }
-      .popup-img { max-width: 98vw; max-height: 60vw; }
-      .popup-caption { font-size: 1.02rem; max-width: 97vw; }
+      .thumb-bg { width: 90vw; height: 40vw; min-width: 150px; min-height: 120px; max-width: 240px; max-height: 260px;}
+      .thumb-bg img { width: 98%; height: 98%; min-width: 110px; min-height: 110px;}
+      .popup-img-wrap { max-width: 100vw;}
+      .popup-img { max-width: 98vw; max-height: 60vw;}
+      .popup-caption { font-size: 1.02rem; max-width: 97vw;}
     }
   </style>
 </head>
@@ -185,119 +174,153 @@
   <div class="container">
     <h1>할머니와 아들·딸·며느리들의 추억</h1>
     <div class="desc">
-      할머니, 아들·딸·며느리들의 다양한 순간들.<br>
-      졸업식, 결혼식, 가족 모임, 동네친구들과의 빛나는 기억을 담았습니다.
+      가족의 역사가 깃든 따스한 순간들.<br>
+      졸업식, 결혼식, 우정과 사랑이 담긴 특별한 이야기를 사진과 함께 돌아봅니다.
     </div>
     <div class="album-grid">
-      <!-- 썸네일+설명 (순서, 설명, 파일명 직접 매핑) -->
-      <!-- 각 img에 data-img="경로" data-caption="설명" 추가 -->
+      <!-- 1 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_01.jpg" data-img="img/+2_1_5_01.jpg" data-caption="큰며느리와 작은 셋째 아들과 막내아들, 막내딸 이야기" alt="">
+          <img src="img/+2_1_5_01.jpg" data-img="img/+2_1_5_01.jpg" data-caption="가족의 시작과 성장, 어린 시절의 순수함과 따뜻함이 고스란히 남아있는 한 컷. 서로를 바라보는 시선 속에 엄마의 사랑과 남매의 정이 녹아있습니다." alt="">
         </div>
-        <div class="caption">큰며느리와 작은 셋째 아들과 막내아들, 막내딸 이야기</div>
+        <div class="caption">큰며느리와 작은 셋째 아들, 막내아들, 막내딸</div>
+        <div class="desc-detail">가족의 시작과 성장, 어린 시절의 순수함과 따뜻함이 남아있는 한 컷. 서로를 바라보는 시선 속에 엄마의 사랑과 남매의 정이 녹아 있습니다.</div>
       </div>
+      <!-- 2 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_02.jpg" data-img="img/+2_1_5_02.jpg" data-caption="막내딸과 친구" alt="">
+          <img src="img/+2_1_5_02.jpg" data-img="img/+2_1_5_02.jpg" data-caption="교복을 입고 나란히 선 두 소녀의 모습. 풋풋한 우정과 청춘의 빛나는 하루를 함께한, 소중한 동행의 추억입니다." alt="">
         </div>
         <div class="caption">막내딸과 친구</div>
+        <div class="desc-detail">교복을 입고 나란히 선 두 소녀의 모습. 풋풋한 우정과 청춘의 빛나는 하루를 함께한 소중한 동행의 추억입니다.</div>
       </div>
+      <!-- 3 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_03.jpg" data-img="img/+2_1_5_03.jpg" data-caption="막내아들 고등학교 사진" alt="">
+          <img src="img/+2_1_5_03.jpg" data-img="img/+2_1_5_03.jpg" data-caption="교복을 입은 사내들의 늠름한 모습. 철길 앞에서 함께한 학창시절의 동료애, 꿈을 향해 나아가던 열정의 순간." alt="">
         </div>
-        <div class="caption">막내아들 고등학교 사진</div>
+        <div class="caption">막내아들 고등학교 시절</div>
+        <div class="desc-detail">교복을 입은 사내들의 늠름한 모습. 철길 앞에서 함께한 학창시절의 동료애, 꿈을 향해 나아가던 열정의 순간입니다.</div>
       </div>
+      <!-- 4 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_04.jpg" data-img="img/+2_1_5_04.jpg" data-caption="막내아들" alt="">
+          <img src="img/+2_1_5_04.jpg" data-img="img/+2_1_5_04.jpg" data-caption="강가 또는 들녘에서 친구들과 함께한 여유로운 시간. 맑은 미소와 자연의 풍경이 어우러진, 청춘의 한 페이지." alt="">
         </div>
         <div class="caption">막내아들</div>
+        <div class="desc-detail">강가 또는 들녘에서 친구들과 함께한 여유로운 시간. 맑은 미소와 자연의 풍경이 어우러진, 청춘의 한 페이지.</div>
       </div>
+      <!-- 5 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_05.jpg" data-img="img/+2_1_5_05.jpg" data-caption="셋째 아들 고등학교 사진" alt="">
+          <img src="img/+2_1_5_05.jpg" data-img="img/+2_1_5_05.jpg" data-caption="동복 교복을 차려입고 친구들과 나란히 선 소년들. 우정과 청춘, 함께 꿈꿨던 그 시절이 담긴 사진." alt="">
         </div>
-        <div class="caption">셋째 아들 고등학교 사진</div>
+        <div class="caption">셋째 아들 고등학교 시절</div>
+        <div class="desc-detail">동복 교복을 차려입고 친구들과 나란히 선 소년들. 우정과 청춘, 함께 꿈꿨던 그 시절이 담긴 사진.</div>
       </div>
+      <!-- 6 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_06.jpg" data-img="img/+2_1_5_06.jpg" data-caption="막내아들 대학교 졸업(중앙대학교)" alt="">
+          <img src="img/+2_1_5_06.jpg" data-img="img/+2_1_5_06.jpg" data-caption="학사모를 쓴 모습에서 뿌듯함과 설렘이 느껴지는 순간. 새로운 출발선에서 가족의 자랑이 되어준 막내아들." alt="">
         </div>
         <div class="caption">막내아들 대학교 졸업(중앙대학교)</div>
+        <div class="desc-detail">학사모를 쓴 모습에서 뿌듯함과 설렘이 느껴지는 순간. 새로운 출발선에서 가족의 자랑이 되어준 막내아들.</div>
       </div>
+      <!-- 7 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_07.jpg" data-img="img/+2_1_5_07.jpg" data-caption="큰아들과 막내동생" alt="">
+          <img src="img/+2_1_5_07.jpg" data-img="img/+2_1_5_07.jpg" data-caption="형제의 우애가 묻어나는 포즈. 진지하면서도 따뜻한 눈빛이 닮은 두 남매의 추억." alt="">
         </div>
         <div class="caption">큰아들과 막내동생</div>
+        <div class="desc-detail">형제의 우애가 묻어나는 포즈. 진지하면서도 따뜻한 눈빛이 닮은 두 남매의 추억입니다.</div>
       </div>
+            <!-- 8 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_08.jpg" data-img="img/+2_1_5_08.jpg" data-caption="막내아들 졸업, 교수와 함께" alt="">
+          <img src="img/+2_1_5_08.jpg" data-img="img/+2_1_5_08.jpg" data-caption="스승과 제자가 함께한 졸업식 풍경. 노력과 인내의 결실을 나누는 감동의 순간." alt="">
         </div>
         <div class="caption">막내아들 졸업, 교수와 함께</div>
+        <div class="desc-detail">스승과 제자가 함께한 졸업식 풍경. 노력과 인내의 결실을 나누는 감동의 순간.</div>
       </div>
+      <!-- 9 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_09.jpg" data-img="img/+2_1_5_09.jpg" data-caption="막내아들 결혼사진" alt="">
+          <img src="img/+2_1_5_09.jpg" data-img="img/+2_1_5_09.jpg" data-caption="인생의 새 출발점에서 찍은 기념사진. 신랑과 신부의 설렘과 축복의 분위기가 가득." alt="">
         </div>
         <div class="caption">막내아들 결혼사진</div>
+        <div class="desc-detail">인생의 새 출발점에서 찍은 기념사진. 신랑과 신부의 설렘과 축복의 분위기가 가득합니다.</div>
       </div>
+      <!-- 10 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_10.jpg" data-img="img/+2_1_5_10.jpg" data-caption="막내아들 대학졸업사진, 큰 형수와 함께" alt="">
+          <img src="img/+2_1_5_10.jpg" data-img="img/+2_1_5_10.jpg" data-caption="꽃다발을 들고 미소짓는 모습 뒤로 가족의 자부심이 느껴지는 한 컷. 뒷모습에 담긴 사랑과 응원." alt="">
         </div>
-        <div class="caption">막내아들 대학졸업사진, 큰 형수와 함께</div>
+        <div class="caption">막내아들 대학졸업, 큰 형수와 함께</div>
+        <div class="desc-detail">꽃다발을 들고 미소짓는 모습 뒤로 가족의 자부심이 느껴지는 한 컷. 뒷모습에 담긴 사랑과 응원입니다.</div>
       </div>
+      <!-- 11 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_11.jpg" data-img="img/+2_1_5_11.jpg" data-caption="막내아들 졸업, 큰형과 함께" alt="">
+          <img src="img/+2_1_5_11.jpg" data-img="img/+2_1_5_11.jpg" data-caption="형과 함께 선 졸업식 풍경. 가족의 우애와 기쁨이 교차하는 감격의 순간." alt="">
         </div>
         <div class="caption">막내아들 졸업, 큰형과 함께</div>
+        <div class="desc-detail">형과 함께 선 졸업식 풍경. 가족의 우애와 기쁨이 교차하는 감격의 순간입니다.</div>
       </div>
+      <!-- 12 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_12.jpg" data-img="img/+2_1_5_12.jpg" data-caption="막내아들 졸업, 막내 며느리, 큰아들, 큰 며느리" alt="">
+          <img src="img/+2_1_5_12.jpg" data-img="img/+2_1_5_12.jpg" data-caption="온 가족이 한자리에 모여 축하하는 졸업식. 서로의 기쁨을 함께 나누는 따뜻한 가족애." alt="">
         </div>
         <div class="caption">막내아들 졸업, 막내 며느리, 큰아들, 큰 며느리</div>
+        <div class="desc-detail">온 가족이 한자리에 모여 축하하는 졸업식. 서로의 기쁨을 함께 나누는 따뜻한 가족애가 느껴집니다.</div>
       </div>
+      <!-- 13 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_13.jpg" data-img="img/+2_1_5_13.jpg" data-caption="큰며느리, 막내며느리" alt="">
+          <img src="img/+2_1_5_13.jpg" data-img="img/+2_1_5_13.jpg" data-caption="가족의 소중한 두 며느리. 서로 다른 매력과 온기가 하나로 모인 사랑의 풍경." alt="">
         </div>
         <div class="caption">큰며느리, 막내며느리</div>
+        <div class="desc-detail">가족의 소중한 두 며느리. 서로 다른 매력과 온기가 하나로 모인 사랑의 풍경입니다.</div>
       </div>
+      <!-- 14 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_14.jpg" data-img="img/+2_1_5_14.jpg" data-caption="큰형내외, 막내아들 내외" alt="">
+          <img src="img/+2_1_5_14.jpg" data-img="img/+2_1_5_14.jpg" data-caption="형제와 부부가 함께 찍은 사진에서 가족의 끈끈한 정과 신뢰가 느껴집니다." alt="">
         </div>
         <div class="caption">큰형내외, 막내아들 내외</div>
+        <div class="desc-detail">형제와 부부가 함께 찍은 사진에서 가족의 끈끈한 정과 신뢰가 느껴집니다.</div>
       </div>
+      <!-- 15 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_15.jpg" data-img="img/+2_1_5_15.jpg" data-caption="큰며느리" alt="">
+          <img src="img/+2_1_5_15.jpg" data-img="img/+2_1_5_15.jpg" data-caption="따뜻한 미소와 단아한 자태가 인상적인 큰며느리의 일상. 집안의 든든한 기둥." alt="">
         </div>
         <div class="caption">큰며느리</div>
+        <div class="desc-detail">따뜻한 미소와 단아한 자태가 인상적인 큰며느리의 일상. 집안의 든든한 기둥입니다.</div>
       </div>
+      <!-- 16 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_16.jpg" data-img="img/+2_1_5_16.jpg" data-caption="큰며느리, 동네 친구들" alt="">
+          <img src="img/+2_1_5_16.jpg" data-img="img/+2_1_5_16.jpg" data-caption="웃음소리가 가득한 동네 친구들과의 모임. 순수하고 활기찬 우정의 시간." alt="">
         </div>
         <div class="caption">큰며느리, 동네 친구들</div>
+        <div class="desc-detail">웃음소리가 가득한 동네 친구들과의 모임. 순수하고 활기찬 우정의 시간입니다.</div>
       </div>
+      <!-- 17 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_17.jpg" data-img="img/+2_1_5_17.jpg" data-caption="큰며느리, 동네 친구들" alt="">
+          <img src="img/+2_1_5_17.jpg" data-img="img/+2_1_5_17.jpg" data-caption="마음이 맞는 이웃들과 함께한 소중한 추억. 젊은 날의 열정이 사진 속에 살아 있습니다." alt="">
         </div>
         <div class="caption">큰며느리, 동네 친구들</div>
+        <div class="desc-detail">마음이 맞는 이웃들과 함께한 소중한 추억. 젊은 날의 열정이 사진 속에 살아 있습니다.</div>
       </div>
+      <!-- 18 -->
       <div class="photo-card">
         <div class="thumb-bg">
-          <img src="img/+2_1_5_18.jpg" data-img="img/+2_1_5_18.jpg" data-caption="큰아들, 동네 친구들" alt="">
+          <img src="img/+2_1_5_18.jpg" data-img="img/+2_1_5_18.jpg" data-caption="청춘의 한가운데서 웃고 있는 친구들의 모습. 그 시절의 끈끈한 우정과 추억을 담아낸 사진." alt="">
         </div>
         <div class="caption">큰아들, 동네 친구들</div>
+        <div class="desc-detail">청춘의 한가운데서 웃고 있는 친구들의 모습. 그 시절의 끈끈한 우정과 추억을 담아낸 사진입니다.</div>
       </div>
     </div>
     <div class="album-link">
@@ -313,7 +336,7 @@
     </div>
   </div>
   <script>
-    // 모든 썸네일 클릭시 큰 이미지 & 설명 표시
+    // 팝업: 썸네일 클릭 시 큰사진 + 설명 출력
     document.querySelectorAll('.thumb-bg img').forEach(function(img) {
       img.addEventListener('click', function(e) {
         var popup = document.getElementById('popupBg');
@@ -322,10 +345,9 @@
         popupImg.src = img.getAttribute('data-img');
         popupCaption.textContent = img.getAttribute('data-caption');
         popup.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // 스크롤 막기
+        document.body.style.overflow = 'hidden';
       });
     });
-    // 팝업 닫기(어디든 클릭)
     document.getElementById('popupBg').addEventListener('click', function() {
       this.style.display = 'none';
       document.body.style.overflow = '';
@@ -333,3 +355,4 @@
   </script>
 </body>
 </html>
+
