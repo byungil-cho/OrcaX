@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>house_01_02 사진 앨범</title>
+  <title>"추억의 길목에서 – 고등학교 시절의 빛나는 순간들"</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -159,7 +159,12 @@
 <body>
   <div class="album-container">
     <h1>house_01_02 사진 앨범</h1>
-    <div class="desc">여기에 house_01_02 앨범에 대한 설명을 적어주세요.</div>
+    <div class="desc">
+  푸른 청춘의 한 페이지를 담은 사진들입니다.<br>
+  친구들과 함께했던 설레는 수학여행, 졸업식의 감동,<br>
+  그리고 잊지 못할 휴가의 기억까지,<br>
+  시간이 지나도 마음 깊이 남는 소중한 이야기들이 여기에 있습니다.
+</div>
     <div class="thumbnails" id="thumbnails"></div>
     <div class="nav-links">
       <a href="house_01_03.html">다음</a>
@@ -174,59 +179,57 @@
     </div>
   </div>
 
-  <script>
-    const images = [
-      { src: "img/house_01_02_01.jpg", caption: "사진 1 설명" },
-      { src: "img/house_01_02_02.jpg", caption: "사진 2 설명" },
-      { src: "img/house_01_02_03.jpg", caption: "사진 3 설명" },
-      { src: "img/house_01_02_04.jpg", caption: "사진 4 설명" },
-      { src: "img/house_01_02_05.jpg", caption: "사진 5 설명" },
-      { src: "img/house_01_02_06.jpg", caption: "사진 6 설명" },
-      { src: "img/house_01_02_07.jpg", caption: "사진 7 설명" },
-      { src: "img/house_01_02_08.jpg", caption: "사진 8 설명" },
-      { src: "img/house_01_02_09.jpg", caption: "사진 9 설명" },
-      { src: "img/house_01_02_10.jpg", caption: "사진 10 설명" },
-      { src: "img/house_01_02_11.jpg", caption: "사진 11 설명" },
-      { src: "img/house_01_02_12.jpg", caption: "사진 12 설명" },
-      { src: "img/house_01_02_13.jpg", caption: "사진 13 설명" },
-      { src: "img/house_01_02_14.jpg", caption: "사진 14 설명" },
-      { src: "img/house_01_02_15.jpg", caption: "사진 15 설명" },
-      { src: "img/house_01_02_16.jpg", caption: "사진 16 설명" },
-      { src: "img/house_01_02_17.jpg", caption: "사진 17 설명" },
-      { src: "img/house_01_02_18.jpg", caption: "사진 18 설명" },
-      { src: "img/house_01_02_19.jpg", caption: "사진 19 설명" },
-      { src: "img/house_01_02_20.jpg", caption: "사진 20 설명" },
-      { src: "img/house_01_02_21.jpg", caption: "사진 21 설명" },
-      { src: "img/house_01_02_22.jpg", caption: "사진 22 설명" },
-      { src: "img/house_01_02_23.jpg", caption: "사진 23 설명" }
-    ];
+  const images = [
+  { src: "img/house_01_02_01.jpg", caption: "고등학교 수학여행에서 찍은 소중한 독사진. 푸른 자연 속에서의 밝은 미소가 인상적입니다." },
+  { src: "img/house_01_02_02.jpg", caption: "설악산 수학여행 중 친구 3명과 함께 찍은 즐거운 추억의 한 장면." },
+  { src: "img/house_01_02_03.jpg", caption: "수학여행에서 혼자 찍은 독사진. 새로운 경험에 설레던 순간." },
+  { src: "img/house_01_02_04.jpg", caption: "수학여행 도중 관광버스에서 내려 친구들과 함께 싸온 도시락을 나누며 즐거운 시간을 보낸 모습." },
+  { src: "img/house_01_02_05.jpg", caption: "수학여행 중 반 전체가 함께한 단체사진. 모두의 웃음이 가득한 행복한 순간." },
+  { src: "img/house_01_02_06.jpg", caption: "숙소에서 웃음 가득, 같은 방 친구들과 우정을 나누던 시간." },
+  { src: "img/house_01_02_07.jpg", caption: "고등학교 졸업식 날, 친한 친구 4명과 함께 찍은 추억의 사진." },
+  { src: "img/house_01_02_08.jpg", caption: "졸업식 때 친구 4명과 함께한 또 다른 특별한 순간." },
+  { src: "img/house_01_02_09.jpg", caption: "졸업식 날 어머니와 막내 동생이 와서 함께한 가족의 따뜻한 한 컷." },
+  { src: "img/house_01_02_10.jpg", caption: "친구 누나 두 분과 친구들이 함께한 즐거운 모임 사진." },
+  { src: "img/house_01_02_11.jpg", caption: "졸업식 날 형과 함께 찍은 특별한 순간." },
+  { src: "img/house_01_02_12.jpg", caption: "졸업 후 동기들과 계곡에서 놀던 날, 내 생일에 친구가 물에 빠져 허우적대자 머리채를 잡아 구했던 극적인 순간." },
+  { src: "img/house_01_02_13.jpg", caption: "졸업 후 멀리서 찍은 장발 사진, 친구 집에서의 자유로운 하루." },
+  { src: "img/house_01_02_14.jpg", caption: "겨울 구정 명절, 친구 동네에서 악기를 들고 콩쿨 대회에 참가했던 모습." },
+  { src: "img/house_01_02_15.jpg", caption: "군대 첫 휴가 때 친구와 함께 찍은 따뜻한 추억." },
+  { src: "img/house_01_02_16.jpg", caption: "첫 휴가 때 철길에서 혼자 찍은 사진, 고요한 순간을 담다." },
+  { src: "img/house_01_02_17.jpg", caption: "휴가 때 참외밭에서 찍은 싱그러운 한 컷." },
+  { src: "img/house_01_02_18.jpg", caption: "휴가 중 밭에서 풀 뽑기 일을 하며 고된 하루를 보내는 모습." },
+  { src: "img/house_01_02_19.jpg", caption: "첫 휴가 나와 수인선 협궤 열차가 다니던 철로길에서 찍은 사진. 지금은 전철로 바뀌어 옛 모습을 찾기 힘들다." },
+  { src: "img/house_01_02_20.jpg", caption: "먼저 군대 간 친구는 제대 후, 나는 휴가 나와 학창시절 다니던 철길을 그리워하며 찍은 사진." },
+  { src: "img/house_01_02_21.jpg", caption: "휴가 때 동네 길에서 혼자 찍은 독사진. 지금은 주택들이 늘어선 모습이다." },
+  { src: "img/house_01_02_22.jpg", caption: "휴가 중 철로 위를 걸으며 옛 추억을 되새기는 모습." },
+  { src: "img/house_01_02_23.jpg", caption: "철로 위에서 먼 시골 풍경을 배경으로 찍은 사진. 시간이 흘러 지금은 거의 알아보기 어렵다." }
+];
 
-    const captions_sm = [
-      "사진 1 보조 설명",
-      "사진 2 보조 설명",
-      "사진 3 보조 설명",
-      "사진 4 보조 설명",
-      "사진 5 보조 설명",
-      "사진 6 보조 설명",
-      "사진 7 보조 설명",
-      "사진 8 보조 설명",
-      "사진 9 보조 설명",
-      "사진 10 보조 설명",
-      "사진 11 보조 설명",
-      "사진 12 보조 설명",
-      "사진 13 보조 설명",
-      "사진 14 보조 설명",
-      "사진 15 보조 설명",
-      "사진 16 보조 설명",
-      "사진 17 보조 설명",
-      "사진 18 보조 설명",
-      "사진 19 보조 설명",
-      "사진 20 보조 설명",
-      "사진 21 보조 설명",
-      "사진 22 보조 설명",
-      "사진 23 보조 설명"
-    ];
-
+const captions_sm = [
+  "고등학교 수학여행, 잊지 못할 순간",
+  "설악산 수학여행, 친구들과의 우정",
+  "수학여행의 특별한 독사진",
+  "친구들과 나눈 소중한 도시락 시간",
+  "반 전체가 함께한 즐거운 단체사진",
+  "같은 방 친구들과의 우정과 웃음",
+  "졸업식 날 특별했던 친구들과의 추억",
+  "졸업식의 또 다른 소중한 순간",
+  "가족과 함께한 따뜻한 졸업식",
+  "친구 누나들과의 즐거운 모임",
+  "형과 함께한 소중한 순간",
+  "생일날 친구 구한 극적인 계곡 이야기",
+  "장발과 자유가 가득했던 그 날",
+  "콩쿨 대회 준비로 분주했던 겨울",
+  "첫 휴가, 친구와의 따뜻한 만남",
+  "철길에서 맞이한 고요한 휴가",
+  "참외밭에서의 싱그러운 시간",
+  "밭일에 몰두했던 휴가의 하루",
+  "옛 협궤 열차와 추억의 철로길",
+  "친구와 함께한 철길 그리움",
+  "동네 길에서의 홀로 사진",
+  "철로 위에서 느낀 고향의 풍경",
+  "변해버린 시골 풍경의 쓸쓸함"
+];
     const thumbs = document.getElementById('thumbnails');
     images.forEach((img, idx) => {
       const el = document.createElement('div');
