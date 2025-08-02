@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>영원의 집 1호 – 우리의 신혼 그리고 가족의 추억</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 60% 16%, #23457c 0%, #0d2945 100%);
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.75;
+    }
+    .container {
+      max-width: 920px;
+      margin: 32px auto 48px auto;
+      background: rgba(16,36,64,0.88);
+      border-radius: 28px;
+      padding: 30px 20px 50px 20px;
+      box-shadow: 0 4px 32px 0 rgba(30,40,70,0.23);
+    }
+    h2 {
+      font-size: 2.1rem;
+      color: #9ecfff;
+      margin-bottom: 0.8em;
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+    .desc {
+      text-align: center;
+      color: #e6e6e6;
+      font-size: 1.15rem;
+      margin-bottom: 2.2em;
+      line-height: 1.8;
+    }
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 640px) {
+      .album-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .container {
+        padding: 12px 2vw 32px 2vw;
+      }
+    }
+    .thumb-box {
+      cursor: pointer;
+      background: #22395a;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 2px 14px 0 rgba(30,40,70,0.10);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.12s;
+      border: 1px solid #345888;
+      min-height: 140px;
+    }
+    .thumb-box:hover {
+      transform: translateY(-2px) scale(1.025);
+      box-shadow: 0 6px 20px 0 rgba(80,130,180,0.20);
+      border: 1.5px solid #6db0ff;
+    }
+    .thumb-box img {
+      width: 100%;
+      aspect-ratio: 3/2;
+      object-fit: cover;
+      background: #191e2d;
+      display: block;
+      transition: opacity 0.2s;
+    }
+    .thumb-caption {
+      color: #d2e7ff;
+      font-size: 0.98rem;
+      padding: 9px 7px 7px 7px;
+      text-align: center;
+      min-height: 38px;
+      background: none;
+      font-weight: 400;
+    }
+    /* 팝업 큰 사진 */
+    .popup-bg {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(24,32,54,0.84);
+      align-items: center; justify-content: center;
+      min-height: 100vh;
+      width: 100vw;
+    }
+    .popup-bg.active { display: flex; }
+    .popup {
+      background: #222e3e;
+      border-radius: 24px;
+      max-width: 94vw;
+      max-height: 92vh;
+      box-shadow: 0 4px 32px 0 rgba(60,70,110,0.36);
+      padding: 0 0 15px 0;
+      display: flex; flex-direction: column; align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .popup img {
+      display: block;
+      max-width: 86vw;
+      max-height: 60vh;
+      width: auto; height: auto;
+      margin: 0 auto 14px auto;
+      border-radius: 18px;
+      box-shadow: 0 2px 16px 0 rgba(30,40,70,0.18);
+      background: #111;
+    }
+    .popup-desc {
+      color: #e8f2ff;
+      font-size: 1.09rem;
+      text-align: center;
+      margin: 0 20px 12px 20px;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+    .close-btn {
+      position: absolute;
+      top: 14px; right: 18px;
+      font-size: 1.6rem;
+      color: #add6ff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 21;
+      transition: color 0.12s;
+    }
+    .close-btn:hover {
+      color: #fdc6c6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>우리의 신혼 그리고 가족의 추억</h2>
+    <div class="desc">
+      1990년 6월, 두 사람이 하나가 되어 시작한 새로운 여정.<br>
+      설렘과 사랑, 그리고 가족의 따뜻한 순간들이 담긴 신혼사진과<br>
+      가족, 여행, 일상의 추억을 소중하게 기록했습니다.<br>
+      예식장의 설렘, 전통혼례, 신혼여행, 가족들과의 따뜻한 시간까지.<br>
+      시간 속에 빛나는 소중한 첫 걸음을 함께 되새겨봅니다.
+    </div>
+    <div class="album-grid" id="album-grid">
+      <!-- 썸네일 이미지 + 캡션 자동생성 -->
+    </div>
+  </div>
+
+  <!-- 팝업 큰사진 -->
+  <div class="popup-bg" id="popup-bg">
+    <div class="popup">
+      <button class="close-btn" id="close-btn">&times;</button>
+      <img id="popup-img" src="" alt="큰사진" />
+      <div class="popup-desc" id="popup-desc"></div>
+    </div>
+  </div>
+  <script>
+    // 이미지 정보(파일명, 설명)
+    const album = [
+      {
+        src: "house_01_03_01.jpg",
+        cap: "신랑 신부의 첫 시작, 예식장에서의 두근거림 (1990년 6월 24일)"
+      },
+      {
+        src: "house_01_03_02.jpg",
+        cap: "주례와 함께한 결혼식장의 엄숙한 순간"
+      },
+      {
+        src: "house_01_03_03.jpg",
+        cap: "신부 대기실, 피아노와 함께 남긴 우아한 포즈"
+      },
+      {
+        src: "house_01_03_04.jpg",
+        cap: "가족, 친지들과 함께한 대가족 단체사진"
+      },
+      {
+        src: "house_01_03_05.jpg",
+        cap: "전통혼례 의상으로 남긴 영원한 맹세의 순간"
+      },
+      {
+        src: "house_01_03_06.jpg",
+        cap: "신랑의 환한 미소, 설레는 신혼의 시작"
+      },
+      {
+        src: "house_01_03_07.jpg",
+        cap: "신부의 단아한 모습, 제주도의 신혼여행길"
+      },
+      {
+        src: "house_01_03_08.jpg",
+        cap: "호텔에서 남긴 다정한 커플 사진"
+      },
+      {
+        src: "house_01_03_09.jpg",
+        cap: "호텔 프론트에서의 신부 단독 사진"
+      },
+      {
+        src: "house_01_03_10.jpg",
+        cap: "꽃 프레임 속 두 사람, 신혼의 설렘"
+      },
+      {
+        src: "house_01_03_11.jpg",
+        cap: "장엄한 절벽 아래, 여행의 추억 한 장"
+      },
+      {
+        src: "house_01_03_12.jpg",
+        cap: "자동차 사이드미러에 비친 신혼부부의 모습"
+      },
+      {
+        src: "house_01_03_13.jpg",
+        cap: "바다와 밭, 제주 풍경 속 신부의 모습"
+      },
+      {
+        src: "house_01_03_14.jpg",
+        cap: "꽃과 함께 웃는 신부의 행복한 순간"
+      },
+      {
+        src: "house_01_03_15.jpg",
+        cap: "돌담길에서 한복 차림 신부와 미소짓는 신랑"
+      },
+      {
+        src: "house_01_03_16.jpg",
+        cap: "청자켓과 모자로 꾸민 발랄한 신혼여행 스타일"
+      },
+      {
+        src: "house_01_03_17.jpg",
+        cap: "조용목 선생 진갑잔치, 가족 모두의 기념사진 (1991년 3월 16일)"
+      },
+      {
+        src: "house_01_03_18.jpg",
+        cap: "한복 입은 가족, 세대가 어우러진 따뜻한 가족사진"
+      },
+      {
+        src: "house_01_03_19.jpg",
+        cap: "1980~90년대 동네의 풍경, 시간 속 한 장면"
+      },
+      {
+        src: "house_01_03_20.jpg",
+        cap: "묘소에서 삼부자, 세대가 이어지는 가족의 대화"
+      }
+    ];
+
+    // 앨범 그리드 렌더링
+    const grid = document.getElementById('album-grid');
+    album.forEach((item, i) => {
+      const box = document.createElement('div');
+      box.className = 'thumb-box';
+      box.innerHTML = `
+        <img src="${item.src}" alt="썸네일${i+1}" loading="lazy" />
+        <div class="thumb-caption">${item.cap}</div>
+      `;
+      box.addEventListener('click', () => {
+        showPopup(item);
+      });
+      grid.appendChild(box);
+    });
+
+    // 팝업 제어
+    const popupBg = document.getElementById('popup-bg');
+    const popupImg = document.getElementById('popup-img');
+    const popupDesc = document.getElementById('popup-desc');
+    const closeBtn = document.getElementById('close-btn');
+    function showPopup(item) {
+      popupImg.src = item.src;
+      popupDesc.textContent = item.cap;
+      popupBg.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    closeBtn.onclick = hidePopup;
+    popupBg.onclick = function(e) { if (e.target === popupBg) hidePopup(); };
+    function hidePopup() {
+      popupBg.classList.remove('active');
+      popupImg.src = '';
+      document.body.style.overflow = '';
+    }
+  </script>
+</body>
+</html>
