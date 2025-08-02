@@ -156,29 +156,8 @@
       세상에서 가장 소중한 미소와 가족의 사랑을 한 장 한 장에 담았습니다.<br>
       모두의 추억이 담긴 따뜻한 성장앨범!
     </div>
-    <div class="photo-grid">
-      <!-- 썸네일 21장 반복 -->
-      <div class="photo-thumb-box"><img src="img/house_01_003_01.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_02.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_03.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_04.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_05.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_06.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_07.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_08.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_09.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_10.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_11.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_12.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_13.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_14.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_15.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_16.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_17.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_18.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_19.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_20.jpg" alt=""></div>
-      <div class="photo-thumb-box"><img src="img/house_01_003_21.jpg" alt=""></div>
+    <div class="photo-grid" id="photoGrid">
+      <!-- 썸네일 자동생성 -->
     </div>
   </div>
   <!-- 팝업/모달 -->
@@ -190,12 +169,12 @@
   </div>
   <!-- 네비게이션 -->
   <div class="nav-links">
-    <a href="story.html" class="nav-link-btn">◀ story보기</a>
+    <a href="story.html" class="nav-link-btn">◀story보러가기 </a>
     <a href="house_01.html" class="nav-link-btn">메인으로</a>
     <a href="house_01_003_01.html" class="nav-link-btn">다음페이지 ▶</a>
   </div>
   <script>
-    // 사진별 비율/설명(모두 vert로)
+    // 사진 설명/비율 데이터
     const photoList = [
       { src: 'img/house_01_003_01.jpg', ratio: 'vert', desc: "이 세상에 태어나자마자 반가운 인사!<br>우리 가족의 소중한 둘째 딸, 작고 귀여운 손과 발이 사랑스럽습니다." },
       { src: 'img/house_01_003_02.jpg', ratio: 'vert', desc: "포근한 이불 위, 해맑게 바라보는 아기의 맑은 눈동자.<br>천사 같은 미소가 집안을 가득 채웁니다." },
@@ -220,21 +199,25 @@
       { src: 'img/house_01_003_21.jpg', ratio: 'horiz', desc: "엄마와 함께한 바닷가 추억.<br>작은딸의 천진난만한 표정, 엄마의 따스한 미소가 어우러집니다." }
     ];
 
-    // 썸네일 클릭 이벤트
-    document.querySelectorAll('.photo-thumb-box').forEach((box, idx) => {
+    // 썸네일 자동 생성 + 클릭이벤트
+    const grid = document.getElementById('photoGrid');
+    photoList.forEach((p, i) => {
+      const box = document.createElement('div');
+      box.className = 'photo-thumb-box';
+      box.innerHTML = `<img src="${p.src}" alt="작은딸앨범${i+1}">`;
       box.onclick = function() {
-        const photo = photoList[idx];
         const img = document.getElementById('modalImg');
         const desc = document.getElementById('modalDesc');
         const wrap = document.getElementById('modalImgWrap');
-        img.src = photo.src;
-        desc.innerHTML = photo.desc;
-        wrap.className = 'modal-img-wrap ' + (photo.ratio === 'horiz' ? 'horiz' : 'vert');
+        img.src = p.src;
+        desc.innerHTML = p.desc;
+        wrap.className = 'modal-img-wrap ' + (p.ratio === 'horiz' ? 'horiz' : 'vert');
         document.getElementById('modalBg').classList.add('active');
         document.body.style.overflow = 'hidden';
       }
+      grid.appendChild(box);
     });
-    // 팝업 닫기(배경 또는 큰사진 클릭)
+    // 팝업 닫기
     document.getElementById('modalImgWrap').onclick = closeModal;
     document.getElementById('modalBg').onclick = function(e) {
       if (e.target === this) closeModal();
