@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>우리 작은딸 – 성장의 추억 앨범</title>
+  <title>우리 작은딸 성장앨범</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -59,7 +59,6 @@
       width: 100%; height: 100%; object-fit: cover;
       border-radius: 12px;
     }
-    /* 모달 스타일 */
     .modal-bg {
       display: none;
       position: fixed; z-index: 99;
@@ -110,7 +109,6 @@
       margin: 0;
       word-break: keep-all;
     }
-    /* 네비게이션 */
     .nav-links {
       width: 100%;
       max-width: 480px;
@@ -152,14 +150,35 @@
 </head>
 <body>
   <div class="album-box">
-    <div class="album-title">우리 작은딸의 성장기</div>
+    <div class="album-title">우리 작은딸의 성장기 <span style="font-size:1rem; color:#66aee9;">1/3</span></div>
     <div class="album-desc">
-      가족의 사랑과 웃음이 가득한<br>
-      소중한 작은딸의 성장 순간 21컷!<br>
-      첫 웃음, 첫걸음, 매일매일이 특별한 추억입니다.
+      작은딸이 태어난 순간부터 밝게 자라난 모습까지.<br>
+      세상에서 가장 소중한 미소와 가족의 사랑을 한 장 한 장에 담았습니다.<br>
+      모두의 추억이 담긴 따뜻한 성장앨범!
     </div>
-    <div class="photo-grid" id="photoGrid">
-      <!-- 21장 썸네일 자동생성 -->
+    <div class="photo-grid">
+      <!-- 썸네일 21장 반복 -->
+      <div class="photo-thumb-box"><img src="img/house_01_003_01.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_02.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_03.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_04.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_05.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_06.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_07.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_08.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_09.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_10.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_11.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_12.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_13.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_14.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_15.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_16.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_17.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_18.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_19.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_20.jpg" alt=""></div>
+      <div class="photo-thumb-box"><img src="img/house_01_003_21.jpg" alt=""></div>
     </div>
   </div>
   <!-- 팝업/모달 -->
@@ -171,53 +190,49 @@
   </div>
   <!-- 네비게이션 -->
   <div class="nav-links">
-    <a href="house_01_003_01.html" class="nav-link-btn">◀ 이전페이지</a>
+    <a href="story.html" class="nav-link-btn">◀ story보기</a>
     <a href="house_01.html" class="nav-link-btn">메인으로</a>
-    <a href="house_01_003_02.html" class="nav-link-btn">다음페이지 ▶</a>
+    <a href="house_01_003_01.html" class="nav-link-btn">다음페이지 ▶</a>
   </div>
   <script>
-    // 21장 이미지 정보(파일명/설명/비율)
+    // 사진별 비율/설명(모두 vert로)
     const photoList = [
-      { src: "img/house_01_003_01.jpg", ratio: "vert", desc: "첫돌 기념, 미소와 함께한 작은딸의 첫 성장사진." },
-      { src: "img/house_01_003_02.jpg", ratio: "vert", desc: "엄마와 함께한 행복한 오후, 사랑 가득한 눈빛." },
-      { src: "img/house_01_003_03.jpg", ratio: "horiz", desc: "가족 모두가 함께한 첫 가족사진, 추억의 시작." },
-      { src: "img/house_01_003_04.jpg", ratio: "vert", desc: "분홍 드레스에 반짝이는 미소, 예쁜 포즈." },
-      { src: "img/house_01_003_05.jpg", ratio: "vert", desc: "햇살 아래 잔디밭에서 뛰노는 모습." },
-      { src: "img/house_01_003_06.jpg", ratio: "vert", desc: "작은 손으로 들고있는 꽃, 맑은 표정." },
-      { src: "img/house_01_003_07.jpg", ratio: "vert", desc: "언니와 함께한 즐거운 놀이시간." },
-      { src: "img/house_01_003_08.jpg", ratio: "horiz", desc: "강아지와 교감하는 따뜻한 하루." },
-      { src: "img/house_01_003_09.jpg", ratio: "vert", desc: "할머니 품에서 포근히 잠든 모습." },
-      { src: "img/house_01_003_10.jpg", ratio: "vert", desc: "초등학교 입학식, 새로운 출발의 설렘." },
-      { src: "img/house_01_003_11.jpg", ratio: "vert", desc: "친구들과의 생일파티, 웃음꽃이 피었습니다." },
-      { src: "img/house_01_003_12.jpg", ratio: "horiz", desc: "여름 바닷가에서 뛰노는 순간." },
-      { src: "img/house_01_003_13.jpg", ratio: "vert", desc: "겨울 눈밭에서 만든 눈사람과 함께." },
-      { src: "img/house_01_003_14.jpg", ratio: "vert", desc: "피아노 앞에서 연습하는 진지한 표정." },
-      { src: "img/house_01_003_15.jpg", ratio: "vert", desc: "체육대회에서 친구와 다정하게." },
-      { src: "img/house_01_003_16.jpg", ratio: "vert", desc: "가족여행 중, 꽃밭에서의 한 컷." },
-      { src: "img/house_01_003_17.jpg", ratio: "horiz", desc: "케이크 앞에서 소원을 비는 생일." },
-      { src: "img/house_01_003_18.jpg", ratio: "vert", desc: "운동회에서 전력질주하는 힘찬 모습." },
-      { src: "img/house_01_003_19.jpg", ratio: "vert", desc: "엄마와 손잡고 걷는 따뜻한 오후." },
-      { src: "img/house_01_003_20.jpg", ratio: "vert", desc: "책을 읽으며 상상의 나라로." },
-      { src: "img/house_01_003_21.jpg", ratio: "horiz", desc: "온 가족이 함께한 마지막 기념사진." }
+      { src: 'img/house_01_003_01.jpg', ratio: 'vert', desc: "이 세상에 태어나자마자 반가운 인사!<br>우리 가족의 소중한 둘째 딸, 작고 귀여운 손과 발이 사랑스럽습니다." },
+      { src: 'img/house_01_003_02.jpg', ratio: 'vert', desc: "포근한 이불 위, 해맑게 바라보는 아기의 맑은 눈동자.<br>천사 같은 미소가 집안을 가득 채웁니다." },
+      { src: 'img/house_01_003_03.jpg', ratio: 'vert', desc: "고운 드레스와 꽃 장식, 작은 아기와 함께한 스튜디오 촬영.<br>순수한 표정에 엄마 아빠의 사랑이 가득 담겼습니다." },
+      { src: 'img/house_01_003_04.jpg', ratio: 'horiz', desc: "언니와 함께한 첫 수박파티!<br>수박보다 더 싱그럽고 발랄한 자매의 미소." },
+      { src: 'img/house_01_003_05.jpg', ratio: 'vert', desc: "아기 시절, 엄마의 따뜻한 품 대신 화분 옆에서의 포즈!<br>조그만 손짓과 호기심 가득한 눈빛이 귀엽습니다." },
+      { src: 'img/house_01_003_06.jpg', ratio: 'horiz', desc: "삼남매와 함께한 소파 위의 시간.<br>형, 언니와 나란히 앉아있는 모습이 정겹고 훈훈합니다." },
+      { src: 'img/house_01_003_07.jpg', ratio: 'vert', desc: "백일잔치의 주인공! 수박과 토마토가 가득한 식탁 앞에서 포즈.<br>조그만 손이 귀엽게 펼쳐져 있네요." },
+      { src: 'img/house_01_003_08.jpg', ratio: 'vert', desc: "할머니 품에 안겨 언니와 함께한 명절.<br>할머니의 사랑이 느껴지는 소중한 순간." },
+      { src: 'img/house_01_003_09.jpg', ratio: 'horiz', desc: "할머니 품에 안긴 삼남매, 활짝 웃는 가족의 모습.<br>가족 모두의 추억이 고스란히 담겼습니다." },
+      { src: 'img/house_01_003_10.jpg', ratio: 'horiz', desc: "형, 언니와 함께한 집안의 즐거운 시간.<br>사이좋은 삼남매의 미소가 흐뭇합니다." },
+      { src: 'img/house_01_003_11.jpg', ratio: 'vert', desc: "작은언니와 함께한 장난꾸러기 한 컷.<br>언니를 바라보는 모습이 사랑스럽습니다." },
+      { src: 'img/house_01_003_12.jpg', ratio: 'horiz', desc: "첫 돌잔치날, 고운 한복을 입고 과일과 돈다발 앞에서.<br>첫 생일을 축하하며 가족의 축복이 가득했던 날." },
+      { src: 'img/house_01_003_13.jpg', ratio: 'horiz', desc: "설날, 한복 입고 밝게 웃는 언니와 함께.<br>귀여운 미소와 해맑은 눈빛이 모두를 행복하게 만듭니다." },
+      { src: 'img/house_01_003_14.jpg', ratio: 'horiz', desc: "삼남매가 한자리에 모여 가족의 정을 느끼는 순간.<br>형, 언니와 함께한 사진이 특별합니다." },
+      { src: 'img/house_01_003_15.jpg', ratio: 'vert', desc: "귀여운 오렌지색 옷을 입고 벽에 기대 선 모습.<br>조금은 쑥스러운 듯한 표정이 더 사랑스럽습니다." },
+      { src: 'img/house_01_003_16.jpg', ratio: 'horiz', desc: "엄마와 삼남매가 함께한 일상 한 장면.<br>따뜻한 가족의 온기가 전해집니다." },
+      { src: 'img/house_01_003_17.jpg', ratio: 'vert', desc: "엄마 품에 안긴 귀여운 포즈.<br>엄마의 사랑을 듬뿍 받고 있는 모습이 행복해 보입니다." },
+      { src: 'img/house_01_003_18.jpg', ratio: 'horiz', desc: "언니와 함께한 여름날, 시원한 강가에서<br>선글라스를 낀 언니와 쿨하게 포즈!" },
+      { src: 'img/house_01_003_19.jpg', ratio: 'vert', desc: "노란 바지를 입고 바닷가에서 브이 포즈!<br>넓은 바다처럼 씩씩하게 자라길 바라며." },
+      { src: 'img/house_01_003_20.jpg', ratio: 'horiz', desc: "언니와 바닷가에서 손을 뻗어 즐거움을 표현.<br>자매의 우정이 느껴지는 장면입니다." },
+      { src: 'img/house_01_003_21.jpg', ratio: 'horiz', desc: "엄마와 함께한 바닷가 추억.<br>작은딸의 천진난만한 표정, 엄마의 따스한 미소가 어우러집니다." }
     ];
 
-    // 썸네일 자동 출력
-    const grid = document.getElementById('photoGrid');
-    photoList.forEach((p, i) => {
-      const el = document.createElement('div');
-      el.className = "photo-thumb-box";
-      el.innerHTML = `<img src="${p.src}" alt="작은딸사진${i+1}">`;
-      el.onclick = function() {
+    // 썸네일 클릭 이벤트
+    document.querySelectorAll('.photo-thumb-box').forEach((box, idx) => {
+      box.onclick = function() {
+        const photo = photoList[idx];
         const img = document.getElementById('modalImg');
         const desc = document.getElementById('modalDesc');
         const wrap = document.getElementById('modalImgWrap');
-        img.src = p.src;
-        desc.innerHTML = p.desc;
-        wrap.className = 'modal-img-wrap ' + (p.ratio === 'horiz' ? 'horiz' : 'vert');
+        img.src = photo.src;
+        desc.innerHTML = photo.desc;
+        wrap.className = 'modal-img-wrap ' + (photo.ratio === 'horiz' ? 'horiz' : 'vert');
         document.getElementById('modalBg').classList.add('active');
         document.body.style.overflow = 'hidden';
       }
-      grid.appendChild(el);
     });
     // 팝업 닫기(배경 또는 큰사진 클릭)
     document.getElementById('modalImgWrap').onclick = closeModal;
