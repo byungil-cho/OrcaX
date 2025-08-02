@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>나의 군 생활 – 추억의 사진 앨범</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #f8f7f5;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      margin: 0;
+      color: #222;
+    }
+    .album-container {
+      max-width: 900px;
+      margin: 24px auto 16px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.07), 0 1.5px 6px rgba(0,0,0,0.04);
+      padding: 32px 18px 32px 18px;
+    }
+    h1 {
+      text-align: center;
+      color: #3a5e9e;
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .desc {
+      text-align: center;
+      color: #999;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+    .thumbnails {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+    }
+    .thumb {
+      width: 100px;
+      height: 100px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(60,60,60,0.07);
+      cursor: pointer;
+      background: #f0f0f0;
+      border: 2px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border 0.2s;
+    }
+    .thumb:hover {
+      border: 2px solid #3a5e9e;
+    }
+    .thumb img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .overlay {
+      position: fixed;
+      top:0; left:0; width:100vw; height:100vh;
+      background: rgba(32,32,32,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      animation: fadeIn 0.2s;
+    }
+    @keyframes fadeIn {
+      from { opacity:0;}
+      to {opacity:1;}
+    }
+    .big-img-box {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.13);
+      max-width: 84vw;
+      max-height: 80vh;
+      padding: 16px 16px 8px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: popIn 0.2s;
+    }
+    @keyframes popIn {
+      from {transform: scale(0.94);}
+      to {transform: scale(1);}
+    }
+    .big-img {
+      width: auto;
+      height: auto;
+      max-width: 70vw;
+      max-height: 56vh;
+      display: block;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(40,40,40,0.14);
+      margin-bottom: 18px;
+      background: #f9f9f9;
+      cursor: pointer;
+    }
+    .caption {
+      color: #222;
+      font-size: 1.03rem;
+      text-align: center;
+      margin-bottom: 6px;
+      font-weight: 400;
+    }
+    .caption.sm {
+      font-size: 0.98rem;
+      color: #444;
+      margin-bottom: 0;
+      margin-top: 6px;
+    }
+    @media (max-width: 680px) {
+      .album-container {padding: 12px 4px;}
+      h1 {font-size: 1.17rem;}
+      .big-img-box {max-width: 99vw; max-height: 94vh;}
+      .big-img {max-width: 94vw; max-height: 60vh;}
+    }
+    .nav-links {
+      margin-top: 40px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+    }
+    .nav-links a {
+      color: #3a5e9e;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.03rem;
+      padding: 8px 20px;
+      border-radius: 14px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-links a:hover {
+      background: #e6f0ff;
+      color: #0d2345;
+    }
+  </style>
+</head>
+<body>
+  <div class="album-container">
+    <h1>나의 군 생활 – 추억의 사진 앨범</h1>
+    <div class="desc">
+      1984~1986년 청춘의 한가운데에서<br>
+      동기·선후임들과 함께했던 군 생활의 기록.<br>
+      훈련과 우정, 그리고 도전이 가득했던 그 시절을 돌아봅니다.
+    </div>
+    <div class="thumbnails" id="thumbnails">
+      <!-- 썸네일 자동삽입 -->
+    </div>
+    <div class="nav-links">
+      <a href="house_01_03.html">이전</a>
+      <a href="house_01_05.html">다음</a>
+    </div>
+  </div>
+  <!-- 오버레이/큰이미지 -->
+  <div class="overlay" id="overlay" style="display:none;">
+    <div class="big-img-box">
+      <img id="bigImg" class="big-img" src="" alt="" onclick="hideBig()">
+      <div id="bigCaption" class="caption"></div>
+      <div id="bigCaptionSm" class="caption sm"></div>
+    </div>
+  </div>
+  <script>
+    // 군생활 24장, 파일명/설명
+    const images = [
+      { src: "img/house_01_04_01.jpg", caption: "군복 차림 산길에서, 늠름했던 신병 시절." },
+      { src: "img/house_01_04_02.jpg", caption: "전우애와 우정, 청춘의 숲속에서." },
+      { src: "img/house_01_04_03.jpg", caption: "철길 옆 친구와 함께한 진솔한 청춘." },
+      { src: "img/house_01_04_04.jpg", caption: "혼자 앉아 사색에 잠긴 고독의 순간." },
+      { src: "img/house_01_04_05.jpg", caption: "실제 훈련 현장, 연막탄 실습의 열기." },
+      { src: "img/house_01_04_06.jpg", caption: "연막탄 속 동료들의 해맑은 미소." },
+      { src: "img/house_01_04_07.jpg", caption: "생활관에서의 편안한 일상과 동지애." },
+      { src: "img/house_01_04_08.jpg", caption: "초소에서, 경계근무의 책임감." },
+      { src: "img/house_01_04_09.jpg", caption: "산등성이 위, 든든함과 동료애." },
+      { src: "img/house_01_04_10.jpg", caption: "철책선과 바위, 분단의 현실을 지키며." },
+      { src: "img/house_01_04_11.jpg", caption: "바위 위에서, 도전정신과 패기." },
+      { src: "img/house_01_04_12.jpg", caption: "밧줄에 매달려, 강인한 체력과 용기." },
+      { src: "img/house_01_04_13.jpg", caption: "강변에서, 수색·도하 훈련의 기억." },
+      { src: "img/house_01_04_14.jpg", caption: "분대·소대 단체사진, 함께한 전우들." },
+      { src: "img/house_01_04_15.jpg", caption: "생활관, 동기들과 소박한 휴식." },
+      { src: "img/house_01_04_16.jpg", caption: "생활관, 동기들과 단체사진." },
+      { src: "img/house_01_04_17.jpg", caption: "기타와 함께, 소소한 군 생활의 낭만." },
+      { src: "img/house_01_04_18.jpg", caption: "기타와 동기들, 음악으로 이어진 우정." },
+      { src: "img/house_01_04_19.jpg", caption: "생활관, 유쾌하고 자연스러운 순간." },
+      { src: "img/house_01_04_20.jpg", caption: "동상 앞 거수경례, 군인정신과 자부심." },
+      { src: "img/house_01_04_21.jpg", caption: "기념상 앞, 동고동락의 전우애." },
+      { src: "img/house_01_04_22.jpg", caption: "전투기 앞, 국방의 최전선 자부심." },
+      { src: "img/house_01_04_23.jpg", caption: "동계훈련, 스케이트 위의 열정." },
+      { src: "img/house_01_04_24.jpg", caption: "스케이트 단체 우승, 모두의 뿌듯함." }
+    ];
+    // 추가 한줄 설명
+    const captions_sm = [
+      "늠름한 청춘, 신병 시절의 첫 발.",
+      "숲속에서 나눈 우정과 전우애.",
+      "철길 옆 그 시절 청춘의 기록.",
+      "고독도 사색도 군인의 몫.",
+      "실전 같은 훈련, 연막탄의 열기.",
+      "고된 훈련 속 동료들의 미소.",
+      "생활관, 동기들과의 따뜻한 일상.",
+      "초소에서의 책임과 긴장감.",
+      "산등성이 위의 동료애.",
+      "철책선 지키는 국토수호의 사명.",
+      "바위 위에 선 도전과 패기.",
+      "밧줄훈련, 군인의 용기와 근성.",
+      "강변 도하, 수색·도전의 순간.",
+      "전우들과 함께한 단체 기념.",
+      "편안한 생활관, 동기들과의 휴식.",
+      "동기들과 하나되는 단체샷.",
+      "기타와 함께한 낭만의 시간.",
+      "음악이 만들어준 군대의 우정.",
+      "유쾌하고 자연스러운 그 순간.",
+      "동상 앞, 군인정신으로 경례.",
+      "기념상 앞에서 다진 전우애.",
+      "전투기 앞 자부심 가득한 모습.",
+      "동계훈련, 스케이트 열정의 기록.",
+      "단체 우승, 모두의 자랑과 기쁨."
+    ];
+    const thumbs = document.getElementById('thumbnails');
+    images.forEach((img, idx) => {
+      const el = document.createElement('div');
+      el.className = "thumb";
+      el.innerHTML = `<img src="${img.src}" alt="군생활사진${idx+1}">`;
+      el.onclick = ()=>showBig(idx);
+      thumbs.appendChild(el);
+    });
+    // 큰 이미지 보여주기
+    function showBig(idx) {
+      document.getElementById('bigImg').src = images[idx].src;
+      document.getElementById('bigCaption').textContent = images[idx].caption;
+      document.getElementById('bigCaptionSm').textContent = captions_sm[idx];
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('bigImg').onclick = hideBig;
+      document.addEventListener('keydown', escHandler);
+    }
+    // 닫기
+    function hideBig() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('bigImg').onclick = null;
+      document.removeEventListener('keydown', escHandler);
+    }
+    // ESC 키 핸들러
+    function escHandler(e){
+      if(e.key === "Escape") hideBig();
+    }
+  </script>
+</body>
+</html>
