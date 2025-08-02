@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>우리 작은딸 – 성장의 추억 앨범</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0; padding: 0;
+      background: #f5fafd;
+      font-family: 'Pretendard','Noto Sans KR',sans-serif;
+      color: #23457c;
+    }
+    .album-box {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #eaf6ff;
+      display: flex; flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding-bottom: 90px;
+    }
+    .album-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 32px 0 14px 0;
+      letter-spacing: 2px;
+      color: #134c7f;
+      text-shadow: 0 1px 0 #fff;
+    }
+    .album-desc {
+      color: #5993c9;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-bottom: 18px;
+      padding: 0 12px;
+    }
+    .photo-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .photo-thumb-box {
+      width: 74px; height: 74px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 10px #c7eaff55;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid #d0e6f5;
+      transition: border-color 0.2s;
+    }
+    .photo-thumb-box:hover { border-color: #82c6fa; }
+    .photo-thumb-box img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: 12px;
+    }
+    /* 모달 스타일 */
+    .modal-bg {
+      display: none;
+      position: fixed; z-index: 99;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(36,56,100,0.65);
+      justify-content: center; align-items: center;
+    }
+    .modal-bg.active { display: flex; }
+    .modal-img-wrap {
+      position: relative;
+      background: #eaf6ff;
+      border-radius: 18px;
+      box-shadow: 0 6px 36px #23457c44;
+      max-width: 96vw;
+      max-height: 90vh;
+      width: 92vw; height: 66vw;
+      min-width: 320px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center;
+      padding: 1.5em 0 0.5em 0;
+    }
+    .modal-img-wrap.vert { height: 110vw; width: 70vw; max-width: 430px; max-height: 93vh;}
+    .modal-img-wrap.horiz { height: 66vw; width: 94vw; }
+    .modal-img-wrap .modal-img {
+      border-radius: 13px;
+      max-width: 98%; max-height: 57vw;
+      box-shadow: 0 2px 16px #6bc5e288;
+      background: #fff;
+      object-fit: contain;
+      margin: 0 auto 8px auto;
+      display: block;
+    }
+    .modal-img-wrap.vert .modal-img { 
+      max-height: 90vw;
+      aspect-ratio: 3/5;
+    }
+    .modal-img-wrap.horiz .modal-img {
+      max-height: 52vw;
+      aspect-ratio: 3/2;
+    }
+    .modal-desc {
+      font-size: 1.09em;
+      color: #23457c;
+      padding: 10px 14px 12px 14px;
+      background: #f5fafdcc;
+      border-radius: 12px;
+      text-align: center;
+      margin: 0;
+      word-break: keep-all;
+    }
+    /* 네비게이션 */
+    .nav-links {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      background: #d7ecfd;
+      border-top: 1px solid #bfe0fb;
+      padding: 12px 16px;
+      z-index: 100;
+      box-shadow: 0 -3px 24px #bad6f0bb;
+    }
+    .nav-link-btn {
+      color: #298bdb;
+      background: #f5fafd;
+      border: none;
+      border-radius: 10px;
+      padding: 7px 18px;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      cursor: pointer;
+      box-shadow: 0 1px 6px #bee3f8aa;
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none;
+      margin: 0 2px;
+    }
+    .nav-link-btn:hover {
+      background: #c8e6ff;
+      color: #176cbf;
+    }
+    @media (max-width: 520px) {
+      .album-title { font-size: 1.25rem;}
+      .modal-img-wrap { min-width: 0;}
+      .nav-links { padding: 7px 4px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="album-box">
+    <div class="album-title">우리 작은딸의 성장기</div>
+    <div class="album-desc">
+      가족의 사랑과 웃음이 가득한<br>
+      소중한 작은딸의 성장 순간 21컷!<br>
+      첫 웃음, 첫걸음, 매일매일이 특별한 추억입니다.
+    </div>
+    <div class="photo-grid" id="photoGrid">
+      <!-- 21장 썸네일 자동생성 -->
+    </div>
+  </div>
+  <!-- 팝업/모달 -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal-img-wrap vert" id="modalImgWrap">
+      <img id="modalImg" class="modal-img" src="" alt="">
+      <div class="modal-desc" id="modalDesc"></div>
+    </div>
+  </div>
+  <!-- 네비게이션 -->
+  <div class="nav-links">
+    <a href="house_01_003_01.html" class="nav-link-btn">◀ 이전페이지</a>
+    <a href="house_01.html" class="nav-link-btn">메인으로</a>
+    <a href="house_01_003_02.html" class="nav-link-btn">다음페이지 ▶</a>
+  </div>
+  <script>
+    // 21장 이미지 정보(파일명/설명/비율)
+    const photoList = [
+      { src: "img/house_01_003_01.jpg", ratio: "vert", desc: "첫돌 기념, 미소와 함께한 작은딸의 첫 성장사진." },
+      { src: "img/house_01_003_02.jpg", ratio: "vert", desc: "엄마와 함께한 행복한 오후, 사랑 가득한 눈빛." },
+      { src: "img/house_01_003_03.jpg", ratio: "horiz", desc: "가족 모두가 함께한 첫 가족사진, 추억의 시작." },
+      { src: "img/house_01_003_04.jpg", ratio: "vert", desc: "분홍 드레스에 반짝이는 미소, 예쁜 포즈." },
+      { src: "img/house_01_003_05.jpg", ratio: "vert", desc: "햇살 아래 잔디밭에서 뛰노는 모습." },
+      { src: "img/house_01_003_06.jpg", ratio: "vert", desc: "작은 손으로 들고있는 꽃, 맑은 표정." },
+      { src: "img/house_01_003_07.jpg", ratio: "vert", desc: "언니와 함께한 즐거운 놀이시간." },
+      { src: "img/house_01_003_08.jpg", ratio: "horiz", desc: "강아지와 교감하는 따뜻한 하루." },
+      { src: "img/house_01_003_09.jpg", ratio: "vert", desc: "할머니 품에서 포근히 잠든 모습." },
+      { src: "img/house_01_003_10.jpg", ratio: "vert", desc: "초등학교 입학식, 새로운 출발의 설렘." },
+      { src: "img/house_01_003_11.jpg", ratio: "vert", desc: "친구들과의 생일파티, 웃음꽃이 피었습니다." },
+      { src: "img/house_01_003_12.jpg", ratio: "horiz", desc: "여름 바닷가에서 뛰노는 순간." },
+      { src: "img/house_01_003_13.jpg", ratio: "vert", desc: "겨울 눈밭에서 만든 눈사람과 함께." },
+      { src: "img/house_01_003_14.jpg", ratio: "vert", desc: "피아노 앞에서 연습하는 진지한 표정." },
+      { src: "img/house_01_003_15.jpg", ratio: "vert", desc: "체육대회에서 친구와 다정하게." },
+      { src: "img/house_01_003_16.jpg", ratio: "vert", desc: "가족여행 중, 꽃밭에서의 한 컷." },
+      { src: "img/house_01_003_17.jpg", ratio: "horiz", desc: "케이크 앞에서 소원을 비는 생일." },
+      { src: "img/house_01_003_18.jpg", ratio: "vert", desc: "운동회에서 전력질주하는 힘찬 모습." },
+      { src: "img/house_01_003_19.jpg", ratio: "vert", desc: "엄마와 손잡고 걷는 따뜻한 오후." },
+      { src: "img/house_01_003_20.jpg", ratio: "vert", desc: "책을 읽으며 상상의 나라로." },
+      { src: "img/house_01_003_21.jpg", ratio: "horiz", desc: "온 가족이 함께한 마지막 기념사진." }
+    ];
+
+    // 썸네일 자동 출력
+    const grid = document.getElementById('photoGrid');
+    photoList.forEach((p, i) => {
+      const el = document.createElement('div');
+      el.className = "photo-thumb-box";
+      el.innerHTML = `<img src="${p.src}" alt="작은딸사진${i+1}">`;
+      el.onclick = function() {
+        const img = document.getElementById('modalImg');
+        const desc = document.getElementById('modalDesc');
+        const wrap = document.getElementById('modalImgWrap');
+        img.src = p.src;
+        desc.innerHTML = p.desc;
+        wrap.className = 'modal-img-wrap ' + (p.ratio === 'horiz' ? 'horiz' : 'vert');
+        document.getElementById('modalBg').classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+      grid.appendChild(el);
+    });
+    // 팝업 닫기(배경 또는 큰사진 클릭)
+    document.getElementById('modalImgWrap').onclick = closeModal;
+    document.getElementById('modalBg').onclick = function(e) {
+      if (e.target === this) closeModal();
+    };
+    window.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+    function closeModal() {
+      document.getElementById('modalBg').classList.remove('active');
+      document.getElementById('modalImg').src = '';
+      document.body.style.overflow = '';
+    }
+  </script>
+</body>
+</html>
