@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>작은딸의 성장앨범 – 밝은 순간들</title>
+  <title>작은딸 성장앨범 – 맞춤 설명 23장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -159,10 +159,10 @@
 </head>
 <body>
   <div class="album-container">
-    <h1>작은딸의 성장앨범 – 밝은 순간들</h1>
+    <h1>작은딸의 성장앨범 – 23장의 실제 추억</h1>
     <div class="desc">
-      사랑스러운 어린 시절의 추억과 가족의 따뜻한 시간이 담긴 사진 모음입니다.<br>
-      밝은 미소, 소중한 가족, 함께한 소소한 순간들이 모두 여기에!
+      실제 사진을 하나하나 보며, 기억과 상황에 맞는 설명을 정성스럽게 담았습니다.<br>
+      작은딸의 성장과 가족의 따뜻한 순간이 함께하는 앨범입니다.
     </div>
     <div class="thumbnails" id="thumbnails"></div>
     <div class="nav-links">
@@ -181,31 +181,31 @@
   </div>
 
   <script>
+    // 실제 올리신 파일명, 사진 내용에 맞춘 설명
     const images = [
-      { src: "img/house_01_003_22.jpg", caption: "한복을 곱게 차려입은 생일파티의 추억. 환한 미소가 돋보입니다.", sm: "생일파티, 한복입은 미소" },
-      { src: "img/house_01_003_23.jpg", caption: "작은 새와 함께한 유치원 체험학습. 호기심 어린 눈빛이 인상적이에요.", sm: "유치원 체험학습, 작은 새" },
-      { src: "img/house_01_003_24.jpg", caption: "놀이동산에서 가족과 함께한 겨울나들이. 모두의 미소가 따뜻합니다.", sm: "겨울, 가족과 놀이동산" },
-      { src: "img/house_01_003_25.jpg", caption: "엄마와 함께한 평범한 일상 속 소중한 추억.", sm: "엄마와 일상" },
-      { src: "img/house_01_003_26.jpg", caption: "벚꽃길에서 언니와 함께 환하게 웃던 봄날.", sm: "벚꽃길, 자매의 봄" },
-      { src: "img/house_01_003_27.jpg", caption: "해변에서 할머니와의 다정한 산책. 어린 시절의 따뜻함이 느껴져요.", sm: "해변, 할머니와 산책" },
-      { src: "img/house_01_003_28.jpg", caption: "생일케이크 앞에서 언니와 깔깔 웃던 순간.", sm: "생일케이크, 자매의 장난" },
-      { src: "img/house_01_003_29.jpg", caption: "해변가 소풍에서 엄마, 언니와 함께한 행복한 하루.", sm: "해변가 소풍, 가족" },
-      { src: "img/house_01_003_30.jpg", caption: "엄마 품에 안겨 함께한 봄날의 꽃길 산책.", sm: "꽃길, 엄마 품" },
-      { src: "img/house_01_003_31.jpg", caption: "산책길 벤치에서 아빠와 도란도란 나눈 대화.", sm: "산책길, 아빠와 대화" },
-      { src: "img/house_01_003_32.jpg", caption: "아빠 무릎에 앉아 든든함을 느끼던 어린 시절.", sm: "아빠 무릎, 든든함" },
-      { src: "img/house_01_003_33.jpg", caption: "아빠와 손잡고 산길을 오르내리며 자연을 만끽했던 날.", sm: "산길 산책, 아빠와 함께" },
-      { src: "img/house_01_003_34.jpg", caption: "가을 산책, 엄마와 단풍길을 거닐며 남긴 따스한 추억.", sm: "가을, 엄마와 산책" },
-      { src: "img/house_01_003_35.jpg", caption: "도자기 가마터에서 엄마, 언니와 특별한 체험.", sm: "도자기 가마, 가족 체험" },
-      { src: "img/house_01_003_36.jpg", caption: "생일케이크와 함께 온가족이 모여 깔깔대던 집안의 하루.", sm: "가족 생일, 웃음" },
-      { src: "img/house_01_003_37.jpg", caption: "꽃길을 배경으로 해맑게 웃던 나들이의 추억.", sm: "꽃길, 미소" },
-      { src: "img/house_01_003_38.jpg", caption: "귀여운 머리띠를 하고 의자에 앉은 순수한 시절.", sm: "머리띠, 순수함" },
-      { src: "img/house_01_003_39.jpg", caption: "나무 장작더미 옆에서 햇살을 받으며 환하게 웃던 그 때.", sm: "장작더미, 햇살" },
-      { src: "img/house_01_003_40.jpg", caption: "집안에서 장난치며 카메라를 바라보던 따뜻한 저녁.", sm: "집안, 장난스러움" },
-      { src: "img/house_01_003_41.jpg", caption: "파도 소리 가득한 바닷가에서 가족과 함께한 특별한 하루.", sm: "바닷가, 가족" },
-      { src: "img/house_01_003_42.jpg", caption: "도자기 가마 앞에서 엄마, 언니와 유쾌한 장난.", sm: "가마터, 가족" },
-      { src: "img/house_01_003_43.jpg", caption: "할머니와 손을 잡고 걸었던 바닷가, 잊지 못할 보호자의 따스함.", sm: "할머니, 바닷가" },
-      { src: "img/house_01_003_44.jpg", caption: "언니와 함께한 어린 시절, 든든하고 즐거웠던 하루.", sm: "언니와, 어린시절" }
-    ];
+      { src: "img/house_01_003_22.jpg", caption: "언니와 함께 한복을 곱게 차려입고 생일파티에서 환하게 웃는 모습.", sm: "생일날, 한복 차림 자매의 미소" },
+      { src: "img/house_01_003_23.jpg", caption: "작은 손 위에 앉은 새와 함께, 유치원 체험학습의 호기심 가득한 눈빛.", sm: "유치원 체험학습, 새와 만남" },
+      { src: "img/house_01_003_24.jpg", caption: "놀이동산에서 할머니, 언니와 함께 타는 썰매. 겨울의 설렘과 즐거움.", sm: "겨울 썰매, 가족과 함께" },
+      { src: "img/house_01_003_25.jpg", caption: "엄마 품에 안겨 밝게 웃는 일상. 가족의 사랑이 느껴지는 순간.", sm: "엄마 품, 평범한 일상의 행복" },
+      { src: "img/house_01_003_26.jpg", caption: "벚꽃길 아래에서 언니와 나란히, 봄날의 환한 미소가 가득한 모습.", sm: "벚꽃길, 자매의 봄 소풍" },
+      { src: "img/house_01_003_27.jpg", caption: "생일케이크와 함께 가족 모두가 환하게 웃던 집안의 소소한 파티.", sm: "생일파티, 온가족" },
+      { src: "img/house_01_003_28.jpg", caption: "엄마와 언니, 그리고 나.바닷가를 따라 가족과 함께 산책하며 평범한 일상 속 작은 행복을 느끼던 소중한 순간..", sm: "엄마와 두 딸이 바닷가를 산책하는 장면" },
+      { src: "img/house_01_003_29.jpg", caption: "유치원 선생님과 함께 추억 속에 담긴 사진.", sm: "유치원 선생님과 함께" },
+      { src: "img/house_01_003_30.jpg", caption: "돌 위에서 미소 짓는 어린 나의 겨울날 추억..", sm: "포근한 겨울날의 미소" },
+      { src: "img/house_01_003_31.jpg", caption: "아빠와 벤치에 앉아 도란도란 대화 나누던 여유로운 오후.", sm: "아빠와 벤치에서, 산책" },
+      { src: "img/house_01_003_32.jpg", caption: "아빠 무릎에 앉아 세상을 바라보는, 든든함과 사랑이 느껴지는 순간.", sm: "아빠 무릎, 든든한 가족" },
+      { src: "img/house_01_003_33.jpg", caption: "아빠와 손잡고 산길을 오르내리며 자연을 만끽하는 풍경.", sm: "산길 걷기, 아빠와 함께" },
+      { src: "img/house_01_003_34.jpg", caption: "엄마와 함께 가을길을 산책하며 단풍을 즐기는 따뜻한 시간.", sm: "가을 산책, 엄마와 추억" },
+      { src: "img/house_01_003_36.jpg", caption: "도자기 가마터에서 엄마, 언니와 특별한 체험을 하던 즐거운 하루.", sm: "도자기 체험, 가족" },
+      { src: "img/house_01_003_37.jpg", caption: "생일케이크와 함께 가족 모두가 환하게 웃던 집안의 소소한 파티.", sm: "생일파티, 온가족" },
+      { src: "img/house_01_003_38.jpg", caption: "봄꽃이 만발한 꽃길에서 해맑게 웃던, 순수한 나들이의 한 장면.", sm: "봄나들이, 꽃길 미소" },
+      { src: "img/house_01_003_35.jpg", caption: "귀여운 머리띠를 하고 의자에 앉아 순수하게 웃는 어린 시절.", sm: "머리띠, 어린이의 미소" },
+      { src: "img/house_01_003_40.jpg", caption: "나무 장작더미 옆에서 햇살을 맞으며 활짝 웃던 어린 시절의 밝은 모습.", sm: "장작더미, 햇살과 웃음" },
+      { src: "img/house_01_003_39.jpg", caption: "거실에서 장난치며 카메라를 바라보던, 가족과의 따뜻한 저녁시간.", sm: "집안에서, 장난꾸러기" },
+      { src: "img/house_01_003_42.jpg", caption: "파도가 넘실대는 바닷가에서 아빠, 언니와 함께한 추억의 순간.", sm: "바닷가, 가족과 추억" },
+      { src: "img/house_01_003_43.jpg", caption: "도자기 가마 앞에서 엄마, 언니와 함께 찍은 유쾌한 가족 사진.", sm: "도자기 가마, 가족" },
+      { src: "img/house_01_003_44.jpg", caption: "할머니와 손잡고 바닷가를 걸으며 나눈 소중한 교감.", sm: "할머니, 바닷가 산책" },
+     ];
 
     const thumbs = document.getElementById('thumbnails');
     images.forEach((img, idx) => {
