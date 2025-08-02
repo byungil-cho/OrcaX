@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>와이프의 옛 추억 – 가족앨범</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body {
+      background: #f8f7f5;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      margin: 0;
+      color: #222;
+    }
+    .album-container {
+      max-width: 900px;
+      margin: 24px auto 16px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.07), 0 1.5px 6px rgba(0,0,0,0.04);
+      padding: 32px 18px;
+    }
+    h1 {
+      text-align: center;
+      color: #3a5e9e;
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .desc {
+      text-align: center;
+      color: #999;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+    .thumbnails {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+    }
+    .thumb {
+      width: 100px;
+      height: 100px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(60,60,60,0.07);
+      cursor: pointer;
+      background: #f0f0f0;
+      border: 2px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border 0.2s;
+    }
+    .thumb:hover {
+      border: 2px solid #3a5e9e;
+    }
+    .thumb img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(32,32,32,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      animation: fadeIn 0.2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .big-img-box {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.13);
+      max-width: 95vw;
+      max-height: 90vh;
+      padding: 16px 16px 8px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: popIn 0.2s;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.94); }
+      to { transform: scale(1); }
+    }
+    .big-img {
+      width: auto;
+      height: auto;
+      max-width: 90vw;
+      max-height: 80vh;
+      display: block;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(40,40,40,0.14);
+      margin-bottom: 18px;
+      background: #f9f9f9;
+      cursor: pointer;
+    }
+    .caption {
+      color: #222;
+      font-size: 1.03rem;
+      text-align: center;
+      margin-bottom: 6px;
+      font-weight: 400;
+    }
+    .caption.sm {
+      font-size: 0.98rem;
+      color: #444;
+      margin-bottom: 0;
+      margin-top: 6px;
+    }
+    @media (max-width: 680px) {
+      .album-container { padding: 12px 4px; }
+      h1 { font-size: 1.3rem; }
+      .desc { font-size: 0.9rem; }
+      .big-img-box { max-width: 98vw; max-height: 90vh; padding: 12px; }
+      .big-img { max-width: 95vw; max-height: 60vh; }
+      .thumb {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+      }
+    }
+    .nav-links {
+      margin-top: 40px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      padding: 0 10px;
+    }
+    .nav-links a {
+      color: #3a5e9e;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.03rem;
+      padding: 8px 20px;
+      border-radius: 14px;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .nav-links a:hover {
+      background: #e6f0ff;
+      color: #0d2345;
+    }
+  </style>
+</head>
+<body>
+  <div class="album-container">
+    <h1>와이프의 옛 추억 앨범</h1>
+    <div class="desc">
+      사랑과 웃음이 가득했던 젊은 시절의 추억.<br>
+      가족, 친구, 소중한 순간이 담긴 한 장 한 장을 모았습니다.
+    </div>
+    <div class="thumbnails" id="thumbnails"></div>
+    <div class="nav-links">
+      <a href="0_0_01.html">이전</a>
+      <a href="0_0_01_02.html">다음</a>
+      <a href="house_01.html">메인으로</a>
+      <a href="house_01_004.html">손녀보러가기</a>
+    </div>
+  </div>
+  <div class="overlay" id="overlay" style="display:none;">
+    <div class="big-img-box">
+      <img id="bigImg" class="big-img" src="" alt="" onclick="hideBig()" />
+      <div id="bigCaption" class="caption"></div>
+      <div id="bigCaptionSm" class="caption sm"></div>
+    </div>
+  </div>
+  <script>
+    // img/파일명, 설명은 사진 분석으로 감성 작성
+    const images = [
+      { src: "img/0_0_01_01.jpg", caption: "봄 햇살 아래 활짝 웃는 와이프의 청순한 모습.", sm: "젊음의 싱그러움" },
+      { src: "img/0_0_01_02.jpg", caption: "교복 차림으로 친구와 나란히 선 따뜻한 교정의 추억.", sm: "고등학생 시절" },
+      { src: "img/0_0_01_03.jpg", caption: "미소가 가득한 얼굴로 친구들과 함께한 수학여행의 한 장면.", sm: "친구들과 함께" },
+      { src: "img/0_0_01_04.jpg", caption: "교실에서 밝은 표정으로 포즈를 취한 10대 시절의 와이프.", sm: "교실에서 추억" },
+      { src: "img/0_0_01_05.jpg", caption: "반 친구들과 함께한 수학여행 단체사진, 소중한 학창시절의 기록.", sm: "수학여행 단체" },
+      { src: "img/0_0_01_06.jpg", caption: "숙소에서 친구들과 장난스럽게, 편안한 분위기의 순간.", sm: "숙소의 밤" },
+      { src: "img/0_0_01_07.jpg", caption: "졸업식 날, 오랜 친구들과 다정하게 남긴 기념사진.", sm: "졸업식의 추억" },
+      { src: "img/0_0_01_08.jpg", caption: "졸업식 날, 환하게 웃는 친구 네 명과 함께한 한 컷.", sm: "졸업의 순간" },
+      { src: "img/0_0_01_09.jpg", caption: "졸업식에 참석한 어머니와 막내동생과 함께한 가족사진.", sm: "가족의 축하" },
+      { src: "img/0_0_01_10.jpg", caption: "친구의 누나들과 친구들이 함께 모여 밝게 웃는 단체사진.", sm: "따뜻한 모임" },
+      { src: "img/0_0_01_11.jpg", caption: "졸업식장에 찾아온 형과 함께한 다정한 남매의 모습.", sm: "형과 함께" },
+      { src: "img/0_0_01_12.jpg", caption: "졸업식에서 선생님과 함께한 감사와 존경의 순간.", sm: "선생님과 기념" },
+      { src: "img/0_0_01_13.jpg", caption: "졸업식장 복도에서 친구들과 다정하게 팔짱 낀 모습.", sm: "졸업식 복도에서" },
+      { src: "img/0_0_01_14.jpg", caption: "친구들과 운동장에서 자유롭게 웃고 떠드는 즐거운 한때.", sm: "운동장의 청춘" },
+      { src: "img/0_0_01_15.jpg", caption: "졸업식 후 가족과 함께한 따뜻한 집안의 풍경.", sm: "가족과의 기념" },
+      { src: "img/0_0_01_16.jpg", caption: "어릴 적 가족 사진, 형제들과 나란히 앉아 순수했던 시절.", sm: "어린 시절 형제" },
+      { src: "img/0_0_01_17.jpg", caption: "봄 소풍길, 친구들과 들판에서 자유롭게 즐기는 모습.", sm: "봄 소풍" },
+      { src: "img/0_0_01_18.jpg", caption: "도시의 골목길에서 친구와 함께한 유년시절의 추억.", sm: "골목길 친구" },
+      { src: "img/0_0_01_19.jpg", caption: "어릴 적 가족과 함께 한복을 입고 남긴 전통의 한 장면.", sm: "한복과 가족" },
+      { src: "img/0_0_01_20.jpg", caption: "동생과 손잡고 환하게 웃던 어린 시절의 모습.", sm: "형제애" },
+      { src: "img/0_0_01_21.jpg", caption: "작은 방에서 가족과 함께, 평범하지만 소중한 일상.", sm: "가족의 일상" },
+      { src: "img/0_0_01_22.jpg", caption: "친구와 함께한 마지막 학창시절의 추억.", sm: "학창시절의 끝" }
+    ];
+
+    const thumbs = document.getElementById('thumbnails');
+    images.forEach((img, idx) => {
+      const el = document.createElement('div');
+      el.className = "thumb";
+      el.innerHTML = `<img src="${img.src}" alt="photo${idx+1}">`;
+      el.onclick = () => showBig(idx);
+      thumbs.appendChild(el);
+    });
+
+    function showBig(idx) {
+      document.getElementById('bigImg').src = images[idx].src;
+      document.getElementById('bigCaption').textContent = images[idx].caption;
+      document.getElementById('bigCaptionSm').textContent = images[idx].sm;
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('bigImg').onclick = hideBig;
+      document.addEventListener('keydown', escHandler);
+    }
+
+    function hideBig() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('bigImg').onclick = null;
+      document.removeEventListener('keydown', escHandler);
+    }
+
+    function escHandler(e) {
+      if (e.key === "Escape") hideBig();
+    }
+  </script>
+</body>
+</html>
