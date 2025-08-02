@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>와이프의 옛 추억 – 가족앨범</title>
+  <title>우리 가족의 추억 앨범 – 엄마와 딸들</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -159,51 +159,50 @@
 </head>
 <body>
   <div class="album-container">
-    <h1>와이프의 옛 추억 앨범</h1>
+    <h1>엄마와 딸들의 시간 – 22장의 가족 기록</h1>
     <div class="desc">
-      사랑과 웃음이 가득했던 젊은 시절의 추억.<br>
-      가족, 친구, 소중한 순간이 담긴 한 장 한 장을 모았습니다.
+      엄마와 딸들, 그리고 가족이 함께한 소중한 일상.<br>
+      그 시절의 온기와 사랑이 담긴 사진들을 한 곳에 모았습니다.
     </div>
     <div class="thumbnails" id="thumbnails"></div>
     <div class="nav-links">
-      <a href="0_0_01.html">이전</a>
-      <a href="0_0_01_02.html">다음</a>
-      <a href="house_01.html">메인으로</a>
-      <a href="house_01_004.html">손녀보러가기</a>
+      <a href="house_01_002_01.html">이전</a>
+      <a href="house_01.html">메인</a>
+      <a href="house_01_003.html">동생 보러가기</a>
     </div>
   </div>
+
   <div class="overlay" id="overlay" style="display:none;">
     <div class="big-img-box">
       <img id="bigImg" class="big-img" src="" alt="" onclick="hideBig()" />
       <div id="bigCaption" class="caption"></div>
-      <div id="bigCaptionSm" class="caption sm"></div>
     </div>
   </div>
+
   <script>
-    // img/파일명, 설명은 사진 분석으로 감성 작성
     const images = [
-      { src: "img/0_0_01_01.jpg", caption: "청바지와 파마머리가 인상적인 젊은 시절의 아내. 맑은 햇살 아래 소녀처럼 수줍은 표정이 매력적이다.", sm: "밝은 자연 풍경 속" },
-      { src: "img/0_0_01_02.jpg", caption: "단정하게 앉은 모습에서 세련된 90년대의 분위기가 느껴진다. 고전적이고 도도한 느낌의 아내의 방 모습.", sm: "붉은 원피스와 흰 블라우스" },
-      { src: "img/0_0_01_03.jpg", caption: "봄 햇살 아래 활짝 웃는 와이프의 청순한 모습.", sm: "젊음의 싱그러움 " },
-      { src: "img/0_0_01_04.jpg", caption: "자연 속에서의 소탈한 미소와 편안한 분위기.", sm: "햇살 좋은 잔디밭에서 데님 재킷" },
-      { src: "img/0_0_01_05.jpg", caption: "바람에 흩날리는 머리와 청재킷. 젊은 날의 추억과 낭만이 담긴 한 장.", sm: "바닷가 모래사장" },
-      { src: "img/0_0_01_06.jpg", caption: "진한 모녀의 정이 느껴지는 사진. 아내와 장모님의 다정한 동행.", sm: "어머니와 함께한 소중한 한때" },
-      { src: "img/0_0_01_07.jpg", caption: "엄마, 딸들, 그리고 군인 가족의 힘찬 포즈.", sm: "군복을 입은 가족과 함께한 사진." },
-      { src: "img/0_0_01_08.jpg", caption: "벚꽃 아래 나란히 앉아 따뜻한 미소로 남긴 추억의 순간.", sm: "엄마와 딸의 봄 나들이" },
-      { src: "img/0_0_01_09.jpg", caption: "엄마와 두 딸이 환하게 웃으며 남긴 가족사진. 평화롭고 즐거운 가족의 표정.", sm: "큰 돌에 새겨진 글씨 앞에서" },
-      { src: "img/0_0_01_10.jpg", caption: "그리고 이모가 함께한 모습. 유쾌한 미소와 즐거운 분위기.", sm: "만개한 꽃을 배경으로 엄마와 세 명의 가족" },
-      { src: "img/0_0_01_11.jpg", caption: "딸이 함께한 집 앞 마당에서의 사진. 어린 딸의 해맑은 표정이 인상적이다.", sm: "아빠, 엄마" },
-      { src: "img/0_0_01_12.jpg", caption: "그리고 할머니까지 함께한 풍경. 따뜻한 가족애가 묻어난다.", sm: "겨울 외투를 입고 벤치에 앉아있는 가족" },
-      { src: "img/0_0_01_13.jpg", caption: "겨울옷과 사랑이 가득한 가족의 분위기.", sm: "아늑한 실내에서 아내와 두 딸이 함께한 모습" },
-      { src: "img/0_0_01_14.jpg", caption: "친구들과 운동장에서 자유롭게 웃고 떠드는 즐거운 한때.", sm: "밭에서 온 가족이 열심히 농작업을 하고 있는 장면" },
-      { src: "img/0_0_01_15.jpg", caption: "소녀들의 해맑은 모습과 엄마의 정성스러운 손길.", sm: "밭에서 온 가족이 냉일캐기" },
-      { src: "img/0_0_01_16.jpg", caption: "봄날 잔디밭에서 엄마와 두 딸이 포근하게 앉아 밝게 웃고 있는 순간.", sm: "유쾌한 가족의 미소" },
-      { src: "img/0_0_01_17.jpg", caption: "고택의 마루에 나란히 앉은 엄마와 두 딸.", sm: "자연과 함께한 한적한 시골 풍경." },
-      { src: "img/0_0_01_18.jpg", caption: "전통 가옥의 마당에서 엄마가 나무에 기대어 포즈를 취한 모습.", sm: "자연과 함께한 한적한 시골 풍경" },
-      { src: "img/0_0_01_19.jpg", caption: "엄마와 두 딸이 나란히 선 유치원 졸업식 날.", sm: "한복과 예쁜 미소로 특별한 날을 남겼다" },
-      { src: "img/0_0_01_20.jpg", caption: "막내 아기였던 시절, 엄마의 입마춤 따뜻하게 입마추는 딸의 모습.", sm: "사랑이 가득한 모녀의 첫 추억" },
-      { src: "img/0_0_01_21.jpg", caption: "벚꽃길에서 엄마와 두 딸이 손을 잡고 함께한 산책.", sm: "봄날의 평온한 가족 풍경" },
-      { src: "img/0_0_01_22.jpg", caption: "봄비 오는 계곡에서 엄마와 두 딸이 알록달록 비옷을 입고 해맑게 브이(V)를 그리며 찍은 사진.", sm: "여행의 추억이 가득하다." }
+      { src: "img/0_0_01_01.jpg", caption: "나무 그늘 아래 서 있는 엄마. 자연 속에서 조용히 생각에 잠긴 모습이 인상적입니다." },
+      { src: "img/0_0_01_02.jpg", caption: "집에서 단정하게 앉아있는 젊은 시절의 엄마. 진한 곱슬머리와 차분한 표정이 눈길을 끕니다." },
+      { src: "img/0_0_01_03.jpg", caption: "붉은 철쭉꽃 앞에서 앉아 있는 엄마. 꽃과 함께 편안한 봄날을 보내는 장면입니다." },
+      { src: "img/0_0_01_04.jpg", caption: "모자를 쓴 채 잔디밭에 앉아 쉬고 있는 엄마. 편안한 청자켓 차림이 인상적입니다." },
+      { src: "img/0_0_01_05.jpg", caption: "바닷가에서 푸른색 청자켓을 입고 서 있는 엄마. 잔잔한 파도와 함께 추억을 남깁니다." },
+      { src: "img/0_0_01_06.jpg", caption: "엄마와 할머니가 함께 앉아 있는 사진. 따뜻한 가족애가 느껴지는 한 컷입니다." },
+      { src: "img/0_0_01_07.jpg", caption: "군복을 입은 가족과 함께 야외에서 찍은 가족 사진. 단란한 분위기가 물씬 풍깁니다." },
+      { src: "img/0_0_01_08.jpg", caption: "난간 앞에서 엄마와 딸이 함께 있는 장면. 산책 중인 듯 자연스러운 모습입니다." },
+      { src: "img/0_0_01_09.jpg", caption: "엄마와 딸이 공원에서 벤치에 앉아 다정하게 포즈를 취했습니다. 봄날의 여유로움이 묻어납니다." },
+      { src: "img/0_0_01_10.jpg", caption: "돌에 새겨진 글씨 앞에서 엄마와 두 딸이 함께 찰칵. 가족의 유쾌한 표정이 포인트입니다." },
+      { src: "img/0_0_01_11.jpg", caption: "붉은 꽃나무 앞에서 엄마와 두 딸, 그리고 한 명의 친척이 함께한 사진. 모두가 화사하게 웃고 있습니다." },
+      { src: "img/0_0_01_12.jpg", caption: "아빠, 엄마, 딸이 집 앞에서 함께 찍은 가족 사진. 세 사람의 단란한 표정이 인상적입니다." },
+      { src: "img/0_0_01_13.jpg", caption: "짚단 앞에서 엄마와 할머니, 그리고 두 딸이 벤치에 나란히 앉아 있는 풍경. 시골의 정취가 살아 있습니다." },
+      { src: "img/0_0_01_14.jpg", caption: "커튼 앞에서 엄마가 두 딸을 품에 안고 있는 모습. 포근한 실내에서 가족의 온기가 전해집니다." },
+      { src: "img/0_0_01_15.jpg", caption: "밭에서 딸들과 함께 농작업을 하는 엄마. 어린 딸들과 함께 땅을 일구는 모습이 정겹습니다." },
+      { src: "img/0_0_01_16.jpg", caption: "잔디밭에서 엄마와 두 딸이 다정하게 앉아 웃고 있습니다. 밝은 미소가 행복을 전합니다." },
+      { src: "img/0_0_01_17.jpg", caption: "고택의 마루에 앉아 엄마와 두 딸이 함께 있는 장면. 진지한 표정에서 세월의 무게가 느껴집니다." },
+      { src: "img/0_0_01_18.jpg", caption: "나무 옆에 서 있는 엄마의 모습. 옛 시골마을의 고즈넉함이 담겨 있습니다." },
+      { src: "img/0_0_01_19.jpg", caption: "엄마와 두 딸이 놀이공원에서 함께한 날. 한복을 입은 딸과 엄마의 다정한 순간입니다." },
+      { src: "img/0_0_01_20.jpg", caption: "아기를 안고 있는 엄마. 사랑스러운 포옹과 엄마의 따뜻한 미소가 인상적입니다." },
+      { src: "img/0_0_01_21.jpg", caption: "벚꽃길에서 엄마와 두 딸이 함께 손을 잡고 있는 사진. 봄날의 따스함이 그대로 담겼습니다." },
+      { src: "img/0_0_01_22.jpg", caption: "비 오는 날 계곡에서 엄마와 두 딸이 알록달록 우비를 입고 환하게 웃고 있습니다. 해맑은 V 포즈가 귀엽습니다." }
     ];
 
     const thumbs = document.getElementById('thumbnails');
@@ -218,7 +217,6 @@
     function showBig(idx) {
       document.getElementById('bigImg').src = images[idx].src;
       document.getElementById('bigCaption').textContent = images[idx].caption;
-      document.getElementById('bigCaptionSm').textContent = images[idx].sm;
       document.getElementById('overlay').style.display = 'flex';
       document.getElementById('bigImg').onclick = hideBig;
       document.addEventListener('keydown', escHandler);
