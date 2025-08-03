@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>주말농장 파크골프 복합단지</title>
+  <style>
+    :root {
+      --main: #2a5c1f;
+      --accent: #ffc800;
+      --bg: #f6fff3;
+      --font: 'Pretendard', 'Noto Sans KR', sans-serif;
+      --shadow: 0 4px 20px rgba(42,92,31,0.10);
+    }
+    body {
+      font-family: var(--font);
+      margin: 0;
+      background: var(--bg);
+      color: #233016;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: linear-gradient(105deg, var(--main) 72%, var(--accent));
+      color: #fff;
+      padding: 34px 0 24px 0;
+      text-align: center;
+      box-shadow: var(--shadow);
+      letter-spacing: -1.2px;
+    }
+    header h1 {
+      font-size: 2.25rem;
+      margin-bottom: 9px;
+      font-weight: 900;
+    }
+    header .subtitle {
+      font-size: 1.14em;
+      opacity: 0.93;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .main-image {
+      width: 98%;
+      max-width: 790px;
+      margin: 28px auto 6px auto;
+      border-radius: 22px;
+      box-shadow: 0 4px 30px rgba(42,92,31,0.13);
+      display: block;
+    }
+    .container {
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 0 16px 18px 16px;
+      text-align: center;
+      flex: 1 0 auto;
+    }
+    .intro-box {
+      background: #fff;
+      border-radius: 17px;
+      box-shadow: var(--shadow);
+      margin: 34px auto 23px auto;
+      padding: 28px 18px 23px 18px;
+      max-width: 630px;
+      text-align: center;
+      font-size: 1.16em;
+    }
+    .main-btns {
+      margin: 33px 0 9px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+    }
+    .main-btns a {
+      display: inline-block;
+      background: var(--main);
+      color: #fff;
+      padding: 14px 34px;
+      border-radius: 11px;
+      font-size: 1.14em;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.18s;
+      box-shadow: 0 2px 18px rgba(42,92,31,0.13);
+      margin-top: 6px;
+      letter-spacing: -1px;
+    }
+    .main-btns a:hover { background: #528b36; }
+    .caption {
+      color: #3a5631;
+      font-size: 0.98em;
+      margin: 7px auto 0 auto;
+      opacity: .83;
+      text-align: center;
+      max-width: 600px;
+    }
+    footer {
+      background: #ecf6e6;
+      color: #67844a;
+      font-size: 0.98em;
+      padding: 13px 0 11px 0;
+      text-align: center;
+      margin-top: 30px;
+      border-top: 1px solid #e0e0e0;
+      letter-spacing: 0;
+      flex-shrink: 0;
+    }
+    @media (max-width: 900px) {
+      header h1 { font-size: 1.17em;}
+      .main-image { border-radius: 12px;}
+      .intro-box { padding: 13px 4vw 14px 4vw; font-size: 1em;}
+      .main-btns a { padding: 10px 18px; font-size: 1em;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>주말농장 파크골프 복합단지</h1>
+    <div class="subtitle">농장 · 레저 · 가족 · 커뮤니티를 한 번에!</div>
+  </header>
+  <div class="container">
+    <img src="img/img_jumalm_farm_2.jpg" alt="주말농장 파크골프장 조감도" class="main-image" />
+    <div class="caption">옥수수·수수로 둘러싸인 S자·직선 파크골프 코스와 5평 단위 주말 텃밭이 조화된 복합형 힐링 단지</div>
+
+    <div class="intro-box">
+      <b>자연이 살아있는 주말농장과<br>파크골프의 특별한 만남</b><br>
+      <br>
+      푸른 잔디 위 파크골프 코스,  
+      곳곳에 나누어진 5평 텃밭,<br>
+      외곽을 감싸는 옥수수·수수 생울타리,  
+      감자·보리밭 사계절 조경!<br>
+      <br>
+      가족, 친구, 이웃이 함께 어울리고  
+      농사·레저·힐링·커뮤니티를 모두 즐길 수 있는  
+      <b>신개념 농장형 복합레저단지</b>입니다.
+    </div>
+
+    <div class="main-btns">
+      <a href="farm/jumal_farm.html">분양/임대 안내</a>
+      <a href="farm/park_golf.html">파크골프/커뮤니티</a>
+      <a href="farm/location.html">오시는 길</a>
+    </div>
+  </div>
+  <footer>
+    &copy; 2024 주말농장 파크골프 복합단지. All rights reserved.
+  </footer>
+</body>
+</html>
