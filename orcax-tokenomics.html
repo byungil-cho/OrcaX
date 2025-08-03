@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX 토크노믹스 – 실물연동 자산형 토큰경제 백서</title>
+  <style>
+    :root {
+      --main: #003b6f;
+      --accent: #00b4d8;
+      --bg: #f7fafd;
+      --card: #fff;
+      --gray: #f2f2f7;
+      --font: 'Pretendard', 'Noto Sans KR', sans-serif;
+      --green: #00b894;
+      --red: #ff3860;
+      --orange: #ffaf40;
+      --shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: #1a222f;
+      margin: 0;
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+    header {
+      background: linear-gradient(105deg, var(--main) 70%, var(--accent));
+      color: #fff;
+      padding: 38px 0 24px 0;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    header h1 {
+      font-size: 2.35rem;
+      letter-spacing: -2px;
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+    header .subtitle {
+      font-size: 1.1em;
+      opacity: 0.93;
+      margin-bottom: 8px;
+    }
+    header .summary {
+      font-size: 1em;
+      font-weight: 400;
+      opacity: 0.90;
+      max-width: 650px;
+      margin: 0 auto 18px auto;
+    }
+    .container {
+      max-width: 950px;
+      margin: 32px auto 80px auto;
+      padding: 0 15px;
+    }
+    .section {
+      margin-bottom: 44px;
+    }
+    .section h2 {
+      color: var(--main);
+      margin-bottom: 10px;
+      font-size: 1.37em;
+      font-weight: 700;
+    }
+    .card-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 22px;
+      margin: 20px 0 0 0;
+    }
+    .card {
+      flex: 1 1 280px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border-radius: 16px;
+      padding: 24px 22px 18px 22px;
+      min-width: 260px;
+      max-width: 400px;
+      position: relative;
+    }
+    .card .card-title {
+      font-weight: 600;
+      font-size: 1.1em;
+      margin-bottom: 5px;
+      color: var(--main);
+    }
+    .card ul {
+      margin: 10px 0 0 14px;
+      padding: 0;
+      font-size: 1em;
+    }
+    .highlight {
+      color: var(--accent);
+      font-weight: bold;
+    }
+    .key-value-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .key-value-list li {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--gray);
+      padding: 8px 0 7px 0;
+      font-size: 1.03em;
+    }
+    .key-value-list li span:first-child {
+      color: var(--main);
+      font-weight: 500;
+      opacity: 0.98;
+    }
+    .key-value-list li span:last-child {
+      color: #222;
+      font-weight: 400;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      margin-top: 12px;
+      font-size: 1em;
+      margin-bottom: 8px;
+    }
+    th, td {
+      border: 1px solid #e2e2ea;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    th {
+      background: var(--main);
+      color: #fff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) td {
+      background: #f5f7fa;
+    }
+    .info-box {
+      background: var(--gray);
+      color: #26344a;
+      border-radius: 9px;
+      padding: 14px 19px;
+      font-size: 1em;
+      margin-bottom: 20px;
+      margin-top: 5px;
+      line-height: 1.7;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.94em;
+      background: var(--accent);
+      color: #fff;
+      padding: 2.5px 9px 2.5px 9px;
+      border-radius: 6px;
+      margin-right: 5px;
+      margin-bottom: 4px;
+    }
+    .main-btn-area {
+      text-align: center;
+      margin-top: 54px;
+    }
+    .main-btn-area a {
+      display: inline-block;
+      background: var(--main);
+      color: #fff;
+      padding: 13px 34px;
+      border-radius: 13px;
+      font-size: 1.17em;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.18s;
+      box-shadow: 0 2px 14px rgba(0,59,111,0.13);
+      margin-top: 6px;
+    }
+    .main-btn-area a:hover { background: var(--accent);}
+    /* 반응형 */
+    @media (max-width: 1000px) {.card-list {flex-direction: column;}}
+    @media (max-width: 700px) {
+      header h1 { font-size: 1.15em;}
+      .container { padding: 0 2vw; }
+      table, th, td { font-size: 0.97em;}
+      .card { padding: 19px 8px 14px 8px;}
+      .main-btn-area a { padding: 10px 16px; font-size: 1em;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>OrcaX 토크노믹스</h1>
+    <div class="subtitle">실물 자산 & 지역화폐 연동 토큰경제 백서</div>
+    <div class="summary">
+      <span class="tag">실물자산</span>
+      <span class="tag">NFT</span>
+      <span class="tag">지역화폐</span>
+      <span class="tag">참여보상</span>
+      <br>
+      OrcaX 토큰(ORCX)은 로얄스크린골프 건물·토지의 실제 가치를 담은 실물연동형 토큰으로,<br>
+      지역 상권 활성화와 NFT·마이닝·가맹점·공동등기 등 실경제와 직접 연결된<br>
+      진짜 ‘사용되는’ 미래형 Web3 토크노믹스입니다.
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- 섹션1: 토큰 총괄 표 -->
+    <div class="section">
+      <h2>토큰 발행 및 분배 구조</h2>
+      <div class="info-box">
+        <b>총 발행량:</b> <span class="highlight">50억 ORCX</span>  
+        <span style="margin-left:18px;"><b>1 ORCX = 1원(고정가)</b></span>
+        <br>총 토큰가치 50억 원. 실물 자산가치와 1:1 연동!
+      </div>
+      <table>
+        <tr>
+          <th>분배 대상</th>
+          <th>수량(ORCX)</th>
+          <th>비율</th>
+          <th>비고</th>
+        </tr>
+        <tr>
+          <td>팀/개발/운영</td>
+          <td>800,000,000</td>
+          <td>16%</td>
+          <td>초기 락업/지급별도관리</td>
+        </tr>
+        <tr>
+          <td>예비</td>
+          <td>200,000,000</td>
+          <td>4%</td>
+          <td>추후 필요시</td>
+        </tr>
+        <tr>
+          <td>투자자</td>
+          <td>2,000,000,000</td>
+          <td>40%</td>
+          <td>초기 투자자 및 파트너</td>
+        </tr>
+        <tr>
+          <td>일반 참여자</td>
+          <td>2,000,000,000</td>
+          <td>40%</td>
+          <td>상장 후 자율 유통, 채굴농장, 가맹점</td>
+        </tr>
+        <tr>
+          <th>합계</th>
+          <th>5,000,000,000</th>
+          <th>100%</th>
+          <th></th>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 섹션2: 실물연동 & 공동등기 구조 -->
+    <div class="section">
+      <h2>실물자산 & 공동등기 연동</h2>
+      <div class="card-list">
+        <div class="card">
+          <div class="card-title">실물자산 토큰화</div>
+          <ul>
+            <li>로얄스크린골프 <b>건물·토지·사업운영권</b> 토큰화</li>
+            <li><b>1 ORCX = 1원</b> (시가 고정, 50억 원 자산)</li>
+            <li>참여자는 토큰=실물 지분 권리</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">구좌 & 공동등기 시스템</div>
+          <ul>
+            <li>1구좌 = <b>2,000만 ORCX</b> (=2,000만 원)</li>
+            <li>구좌별 NFT 16개 완성 시 등기 참여 가능</li>
+            <li>보유자 100명 이상이면 <b>실제 공동등기</b> 실행</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">NFT 퍼즐 보상</div>
+          <ul>
+            <li>ORCX <b>125만 개당 NFT 1개</b> 지급(상장 전 수동지급)</li>
+            <li><b>2,000만 ORCX + 16개 NFT</b> = 1구좌</li>
+            <li>100구좌 완성 시 실물 공동등기</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 섹션3: 가맹점/지역화폐/유통정책 -->
+    <div class="section">
+      <h2>가맹점·지역화폐·상장 구조</h2>
+      <div class="info-box">
+        <b>상장 전:</b>  
+        <span style="color:var(--green);font-weight:600;">소비자 10% 보상(업)</span> &nbsp;|&nbsp; 
+        <span style="color:var(--red);font-weight:600;">가맹점 환전시 10% 차감</span> <br>
+        <b>가맹점 기준:</b> <span class="highlight">50만 ORCX</span> 이상 팬텀 솔라나 지갑에 보유해야 사용 가능(이후 초과분만 사용)
+      </div>
+      <ul class="key-value-list">
+        <li><span>실사용 예시</span><span>로얄스크린골프 게임비 결제 등</span></li>
+        <li><span>지역화폐 구조</span><span>가맹점/소비자 모두 직접 혜택</span></li>
+        <li><span>상장 이전 거래</span><span>P2P, 수동 지급(토큰·NFT)</span></li>
+        <li><span>상장 조건</span><span>지정 거래소, 커뮤니티 활성화 달성 시</span></li>
+        <li><span>상장 이후</span><span>일반 참여자 자율 유통</span></li>
+      </ul>
+    </div>
+
+    <!-- 섹션4: 채굴농장·출금·이자정책 -->
+    <div class="section">
+      <h2>채굴농장·참여보상·이자 정책</h2>
+      <div class="card-list">
+        <div class="card">
+          <div class="card-title">채굴농장 시스템</div>
+          <ul>
+            <li>5만 ORCX 이상일 때 출금 신청 가능</li>
+            <li>출금은 팬텀 솔라나 지갑으로 <b>수동 지급</b></li>
+            <li>참여형 마이닝, 유저 대량 확보용</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">연 5% 무상증식</div>
+          <ul>
+            <li>매년 <b>4월 1일 기준 보유수량의 5%</b> 무상증식(이자)</li>
+            <li>구좌/공동등기 참여자에게도 동일 적용</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">분기별 수익 배당</div>
+          <ul>
+            <li>목표달성(공동등기 100구좌)이후<br>
+              <b>분기별 지분 수익금</b> 지급</li>
+            <li>자산 가치 상승 시 토큰 가치도 동반 상승</li>
+          </ul>
+        </div>
+      </div>
+      <div class="info-box">
+        <b>토큰 소각</b>:  
+        목표 달성(등기, 유통, 마케팅 등) 상태에 따라 필요 시 일부 소각 진행
+      </div>
+    </div>
+
+    <!-- 섹션5: 주요 용어/Q&A -->
+    <div class="section">
+      <h2>OrcaX 토크노믹스 주요 Q&A</h2>
+      <div class="card-list">
+        <div class="card">
+          <div class="card-title">NFT는 어떻게 받나요?</div>
+          <ul>
+            <li>125만 ORCX마다 1개 NFT 지급(상장 전 수동, 이후 자동예정)</li>
+            <li>16개 NFT + 2,000만 ORCX = 1구좌</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">공동등기 참여 조건은?</div>
+          <ul>
+            <li>2,000만 ORCX + NFT 16개를 보유한<br>
+              <b>100명</b> 달성 시 공동등기 진행</li>
+            <li>참여자 전원 실물 등기 참여</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">가맹점은 어떻게 되나요?</div>
+          <ul>
+            <li>기본 50만 ORCX 보유 필요</li>
+            <li>초과분만 사용, 환전시 10% 차감</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">상장 전/후 차이점?</div>
+          <ul>
+            <li>상장 전: 모든 지급·정산 수동</li>
+            <li>상장 후: 자율 유통, 자동화 전환</li>
+            <li>일반 참여자 시장 진입 자유</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">토큰 소각/가치 방어?</div>
+          <ul>
+            <li>필요 시 유통량 일부 소각</li>
+            <li>실물 가치/참여 확대와 연동</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 섹션6: 핵심 아웃라인 요약 -->
+    <div class="section">
+      <h2>OrcaX 토크노믹스 구조 한눈에 보기</h2>
+      <div class="info-box">
+        <b>1. 실물자산 연동</b> → <b>2. NFT·구좌·공동등기</b> → <b>3. 지역화폐·가맹점 시스템</b> → <b>4. 채굴농장·이자·분기배당</b>  
+        <br>
+        <b>참여자가 늘수록 가치도 함께 성장!</b>
+      </div>
+    </div>
+
+    <div class="main-btn-area">
+      <a href="index.html">메인으로 가기</a>
+    </div>
+
+  </div>
+</body>
+</html>
