@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>엄마의 시간, 우리 가족의 순간들</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body {
+      background: #f8f7f5;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      margin: 0;
+      color: #222;
+    }
+    .album-container {
+      max-width: 900px;
+      margin: 24px auto 16px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.07), 0 1.5px 6px rgba(0,0,0,0.04);
+      padding: 32px 18px;
+    }
+    h1 {
+      text-align: center;
+      color: #3a5e9e;
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .desc {
+      text-align: center;
+      color: #999;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+    .thumbnails {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+    }
+    .thumb {
+      width: 100px;
+      height: 100px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(60,60,60,0.07);
+      cursor: pointer;
+      background: #f0f0f0;
+      border: 2px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border 0.2s;
+      position: relative;
+    }
+    .thumb:hover {
+      border: 2px solid #3a5e9e;
+    }
+    .thumb img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .empty-thumb {
+      width: 100px;
+      height: 100px;
+      border-radius: 16px;
+      background: #f4f4f4;
+      border: 2px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #bbb;
+      font-size: 1.02rem;
+      font-weight: 500;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(60,60,60,0.03);
+    }
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(32,32,32,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      animation: fadeIn 0.2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .big-img-box {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.13);
+      max-width: 95vw;
+      max-height: 90vh;
+      padding: 16px 16px 8px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: popIn 0.2s;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.94); }
+      to { transform: scale(1); }
+    }
+    .big-img {
+      width: auto;
+      height: auto;
+      max-width: 90vw;
+      max-height: 80vh;
+      display: block;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(40,40,40,0.14);
+      margin-bottom: 18px;
+      background: #f9f9f9;
+      cursor: pointer;
+    }
+    .caption {
+      color: #222;
+      font-size: 1.03rem;
+      text-align: center;
+      margin-bottom: 6px;
+      font-weight: 400;
+    }
+    @media (max-width: 680px) {
+      .album-container { padding: 12px 4px; }
+      h1 { font-size: 1.3rem; }
+      .desc { font-size: 0.9rem; }
+      .big-img-box { max-width: 98vw; max-height: 90vh; padding: 12px; }
+      .big-img { max-width: 95vw; max-height: 60vh; }
+      .thumb, .empty-thumb {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+      }
+    }
+    .nav-links {
+      margin-top: 40px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      padding: 0 10px;
+    }
+    .nav-links a {
+      color: #3a5e9e;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.03rem;
+      padding: 8px 20px;
+      border-radius: 14px;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .nav-links a:hover {
+      background: #e6f0ff;
+      color: #0d2345;
+    }
+  </style>
+</head>
+<body>
+  <div class="album-container">
+    <h1>엄마의 시간, 우리 가족의 순간들</h1>
+    <div class="desc">
+      엄마와 함께한 다양한 계절, 그리고 가족의 일상.<br>
+      오래 남기고 싶은 소중한 표정들과 순간들을 이 앨범에 모았습니다.
+    </div>
+    <div class="thumbnails" id="thumbnails"></div>
+    <div class="nav-links">
+      <a href="0_0_01_01.html">이전</a>
+      <a href="family.html">family가족</a>
+      <a href="house_01_01.html">내사람 보러가기</a>
+    </div>
+  </div>
+  <div class="overlay" id="overlay" style="display:none;">
+    <div class="big-img-box">
+      <img id="bigImg" class="big-img" src="" alt="" onclick="hideBig()" />
+      <div id="bigCaption" class="caption"></div>
+    </div>
+  </div>
+  <script>
+    // 17장 사진 설명(실제 판독본) + 5개 빈자리
+    const images = [
+      { src: "img/0_0_01_23.jpg", caption: "마루에 앉아 환하게 웃는 엄마와 두 딸, 소박한 시골집의 정겨운 한때." },
+      { src: "img/0_0_01_24.jpg", caption: "풀밭 위에서 엄마의 무릎에 안겨, 따스한 봄 햇살과 함께한 세 가족." },
+      { src: "img/0_0_01_25.jpg", caption: "데님 커플룩으로 환하게 웃는 세 사람, 봄꽃 가득한 정원에서 남긴 추억." },
+      { src: "img/0_0_01_26.jpg", caption: "한복과 꽃다발, 설레는 표정의 딸들과 엄마. 특별한 날의 기념사진." },
+      { src: "img/0_0_01_27.jpg", caption: "엄마와 두 딸, 그리고 가족 같은 이와 함께한 꽃밭 나들이." },
+      { src: "img/0_0_01_28.jpg", caption: "겨울 코트와 목도리, 따뜻한 집 안에서의 미소 가득한 겨울 가족사진." },
+      { src: "img/0_0_01_29.jpg", caption: "다른 각도에서 남긴 행사날, 엄마와 두 딸의 소중한 순간." },
+      { src: "img/0_0_01_30.jpg", caption: "봄날 벤치에 앉아 담소를 나누는 엄마와 딸, 산책길의 작은 행복." },
+      { src: "img/0_0_01_31.jpg", caption: "여름 햇살 아래에서 가족과의 자유로운 한때. 활기찬 웃음이 가득한 사진." },
+      { src: "img/0_0_01_32.jpg", caption: "꽃밭에서 엄마와 딸이 나눈 따뜻한 봄날의 추억." },
+      { src: "img/0_0_01_33.jpg", caption: "비 내리는 날 산에서 우비 입은 엄마와 딸. 함께여서 든든했던 모녀의 산행." },
+      { src: "img/0_0_01_34.jpg", caption: "할머니와 두 손녀, 놀이공원에서의 추억 가득한 하루." },
+      { src: "img/0_0_01_35.jpg", caption: "결혼식 날 신부와 두 명의 작은 화동, 특별한 하루를 기록하다." },
+      { src: "img/0_0_01_36.jpg", caption: "아빠와 두 딸, 집앞 정원 계단에서 포즈. 가족의 사랑이 느껴지는 순간." },
+      { src: "img/0_0_01_37.jpg", caption: "유치원 친구들과 함께한 생일파티, 케이크 앞에서 불어본 소원." },
+      { src: "img/0_0_01_38.jpg", caption: "2004년 슬기초등학교 수학여행 단체사진. 잊지 못할 추억의 한 페이지." },
+      { src: "img/0_0_01_39.jpg", caption: "정장 입은 아버지, 넓은 밭과 고향 풍경을 배경으로 선한 미소." },
+      // 5장 빈자리
+      { src: "", caption: "" },
+      { src: "", caption: "" },
+      { src: "", caption: "" },
+      { src: "", caption: "" },
+      { src: "", caption: "" }
+    ];
+    const thumbs = document.getElementById('thumbnails');
+    images.forEach((img, idx) => {
+      if(img.src) {
+        const el = document.createElement('div');
+        el.className = "thumb";
+        el.innerHTML = `<img src="${img.src}" alt="photo${idx+1}">`;
+        el.onclick = () => showBig(idx);
+        thumbs.appendChild(el);
+      } else {
+        // 빈자리
+        const empty = document.createElement('div');
+        empty.className = "empty-thumb";
+        empty.textContent = "사진 준비 중";
+        thumbs.appendChild(empty);
+      }
+    });
+    function showBig(idx) {
+      document.getElementById('bigImg').src = images[idx].src;
+      document.getElementById('bigCaption').textContent = images[idx].caption;
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('bigImg').onclick = hideBig;
+      document.addEventListener('keydown', escHandler);
+    }
+    function hideBig() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('bigImg').onclick = null;
+      document.removeEventListener('keydown', escHandler);
+    }
+    function escHandler(e) {
+      if (e.key === "Escape") hideBig();
+    }
+  </script>
+</body>
+</html>
