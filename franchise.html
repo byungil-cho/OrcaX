@@ -51,6 +51,7 @@
       display: inline-block;
     }
 
+    /* 모집중(3,4호)만 깜빡임 */
     .blink {
       color: #fff;
       background: linear-gradient(45deg, #ff3860, #ff6f61);
@@ -78,7 +79,6 @@
       font-weight: bold;
     }
 
-    /* 커서 포인터 스타일 */
     #admin-title {
       cursor: pointer;
     }
@@ -106,13 +106,11 @@
     <div class="store-item">
       <a href="Cargo/index.html">
         <img
-          id="store2-img"
           src="Cargo/img/log_01.jpg"
           alt="2호 가맹점 로고"
-          onmouseover="this.src='Cargo/img/log2.jpg'"
-          onmouseout="this.src='Cargo/img/log_01.jpg'"
+          id="franchise2"
         />
-        <p class="store-name ">2호 가맹점: OrcaX화물</p>
+        <p class="store-name">2호 가맹점: OrcaX화물</p>
       </a>
     </div>
 
@@ -133,8 +131,17 @@
     </div>
   </section>
 
-  <!-- 관리자 비밀번호 체크 스크립트 -->
   <script>
+    // 2호 가맹점만 마우스오버 시 이미지 변경
+    const store2 = document.getElementById("franchise2");
+    store2.addEventListener("mouseenter", () => {
+      store2.src = "Cargo/img/log2.jpg";
+    });
+    store2.addEventListener("mouseleave", () => {
+      store2.src = "Cargo/img/log_01.jpg";
+    });
+
+    // 관리자 이동
     document.getElementById("admin-title").addEventListener("click", () => {
       const pass = prompt("🔒 관리자 비밀번호를 입력하세요:");
       if (pass === "2025") {
