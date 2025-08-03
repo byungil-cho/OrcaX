@@ -7,6 +7,28 @@
   <style>
     body { font-family: sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
     header { background-color: #003b6f; color: white; padding: 30px; text-align: center; }
+    .main-link {
+      margin: 0 auto;
+      margin-top: 12px;
+      margin-bottom: -15px;
+      text-align: center;
+    }
+    .main-link a {
+      display: inline-block;
+      color: #003b6f;
+      background: #fff;
+      border-radius: 8px;
+      padding: 7px 22px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: background 0.2s;
+      border: 1px solid #e1e7f0;
+      font-size: 1em;
+    }
+    .main-link a:hover {
+      background: #e1e7f0;
+    }
     .store-banner { display: flex; flex-wrap: wrap; justify-content: center; padding: 40px 20px; gap: 30px; }
     .store-item { text-align: center; width: 220px; }
     .store-item img { width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
@@ -29,6 +51,11 @@
       </a>
     </p>
   </header>
+
+  <!-- 메인으로 가기 버튼 (여기 추가) -->
+  <div class="main-link">
+    <a href="index.html">메인으로 가기</a>
+  </div>
 
   <section class="store-banner">
     <div class="store-item">
