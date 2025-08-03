@@ -36,6 +36,7 @@
       width: 100%;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: 0.2s;
     }
 
     .store-name {
@@ -104,7 +105,13 @@
 
     <div class="store-item">
       <a href="Cargo/index.html">
-        <img src="Cargo/img/log_01.jpg" alt="2호 가맹점 로고" />
+        <img
+          id="store2-img"
+          src="Cargo/img/log_01.jpg"
+          alt="2호 가맹점 로고"
+          onmouseover="this.src='Cargo/img/log2.jpg'"
+          onmouseout="this.src='Cargo/img/log_01.jpg'"
+        />
         <p class="store-name ">2호 가맹점: OrcaX화물</p>
       </a>
     </div>
