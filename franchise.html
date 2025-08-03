@@ -5,83 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OrcaX 가맹점 안내</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f4f4f4;
-    }
-
-    header {
-      background-color: #003b6f;
-      color: white;
-      padding: 30px;
-      text-align: center;
-    }
-
-    .store-banner {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding: 40px 20px;
-      gap: 30px;
-    }
-
-    .store-item {
-      text-align: center;
-      width: 220px;
-    }
-
-    .store-item img {
-      width: 100%;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: 0.2s;
-    }
-
-    .store-name {
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-      display: inline-block;
-    }
-
-    /* 모집중(3,4호)만 깜빡임 */
-    .blink {
-      color: #fff;
-      background: linear-gradient(45deg, #ff3860, #ff6f61);
-      padding: 6px 12px;
-      border-radius: 10px;
-      display: inline-block;
-      font-weight: bold;
-      animation: blink 1.2s ease-in-out infinite;
-      box-shadow: 0 0 12px rgba(255, 56, 96, 0.6);
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.05); }
-    }
-
-    .inquiry {
-      font-size: 0.9em;
-      color: #555;
-      margin-top: 5px;
-    }
-
-    .inquiry a {
-      color: #003b6f;
-      font-weight: bold;
-    }
-
-    #admin-title {
-      cursor: pointer;
-    }
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    header { background-color: #003b6f; color: white; padding: 30px; text-align: center; }
+    .store-banner { display: flex; flex-wrap: wrap; justify-content: center; padding: 40px 20px; gap: 30px; }
+    .store-item { text-align: center; width: 220px; }
+    .store-item img { width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+    .store-name { margin-top: 10px; font-weight: bold; font-size: 1.1em; }
+    a { text-decoration: none; color: inherit; }
+    .blink { color: #fff; background: linear-gradient(45deg, #ff3860, #ff6f61); padding: 6px 12px; border-radius: 10px; font-weight: bold; animation: blink 1.2s ease-in-out infinite; box-shadow: 0 0 12px rgba(255, 56, 96, 0.6);}
+    @keyframes blink {0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.05);}}
+    .inquiry { font-size: 0.9em; color: #555; margin-top: 5px; }
+    .inquiry a { color: #003b6f; font-weight: bold; }
+    #admin-title { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -109,6 +44,7 @@
           src="Cargo/img/log_01.jpg"
           alt="2호 가맹점 로고"
           id="franchise2"
+          style="cursor:pointer;"
         />
         <p class="store-name">2호 가맹점: OrcaX화물</p>
       </a>
@@ -132,17 +68,17 @@
   </section>
 
   <script>
-    // 2호 가맹점만 마우스오버 시 이미지 변경
+    // 2호 가맹점 이미지 마우스 올릴 때만 변경
     const store2 = document.getElementById("franchise2");
-    store2.addEventListener("mouseenter", () => {
-      store2.src = "Cargo/img/log2.jpg";
+    store2.addEventListener("mouseenter", function() {
+      this.src = "Cargo/img/log_02.jpg";
     });
-    store2.addEventListener("mouseleave", () => {
-      store2.src = "Cargo/img/log_01.jpg";
+    store2.addEventListener("mouseleave", function() {
+      this.src = "Cargo/img/log_01.jpg";
     });
 
     // 관리자 이동
-    document.getElementById("admin-title").addEventListener("click", () => {
+    document.getElementById("admin-title").addEventListener("click", function() {
       const pass = prompt("🔒 관리자 비밀번호를 입력하세요:");
       if (pass === "2025") {
         window.location.href = "franchise-admin.html";
