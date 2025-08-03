@@ -1,1 +1,217 @@
-1
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>주말농장 – 자연형 파크골프 & 텃밭 복합 단지</title>
+  <style>
+    :root {
+      --main: #2a5c1f;
+      --accent: #ffc800;
+      --bg: #f6fff3;
+      --card: #fff;
+      --gray: #f1f5ef;
+      --font: 'Pretendard', 'Noto Sans KR', sans-serif;
+      --shadow: 0 4px 16px rgba(42,92,31,0.10);
+    }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: #202c16;
+      margin: 0;
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+    header {
+      background: linear-gradient(100deg, var(--main) 70%, var(--accent));
+      color: #fff;
+      padding: 34px 0 22px 0;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    header h1 {
+      font-size: 2.2rem;
+      letter-spacing: -2px;
+      margin-bottom: 9px;
+      font-weight: 800;
+    }
+    header .subtitle {
+      font-size: 1.13em;
+      opacity: 0.93;
+      margin-bottom: 7px;
+      font-weight: 500;
+    }
+    .container {
+      max-width: 970px;
+      margin: 32px auto 68px auto;
+      padding: 0 13px;
+    }
+    .main-image {
+      width: 100%;
+      max-width: 820px;
+      border-radius: 18px;
+      margin: 22px auto 8px auto;
+      box-shadow: 0 4px 24px rgba(42,92,31,0.15);
+      display: block;
+    }
+    .sub-image-area {
+      margin-top: 40px;
+      text-align: center;
+    }
+    .sub-image {
+      width: 100%;
+      max-width: 820px;
+      border-radius: 18px;
+      margin: 0 auto 8px auto;
+      box-shadow: 0 4px 24px rgba(42,92,31,0.15);
+      display: block;
+    }
+    .image-caption {
+      font-size: 0.97em;
+      color: #3a5631;
+      margin: 4px 0 16px 0;
+      text-align: center;
+    }
+    .card-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin: 27px 0 0 0;
+    }
+    .card {
+      flex: 1 1 270px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border-radius: 13px;
+      padding: 21px 19px 14px 19px;
+      min-width: 240px;
+      max-width: 400px;
+      position: relative;
+    }
+    .card .card-title {
+      font-weight: 700;
+      font-size: 1.09em;
+      margin-bottom: 7px;
+      color: var(--main);
+      letter-spacing: -1px;
+    }
+    .card ul {
+      margin: 10px 0 0 14px;
+      padding: 0;
+      font-size: 1em;
+    }
+    .highlight {
+      color: var(--accent);
+      font-weight: bold;
+    }
+    .info-box {
+      background: var(--gray);
+      color: #345524;
+      border-radius: 10px;
+      padding: 15px 20px;
+      font-size: 1em;
+      margin-bottom: 18px;
+      margin-top: 5px;
+      line-height: 1.7;
+      box-shadow: 0 2px 6px rgba(180,190,170,0.08);
+    }
+    .main-btn-area {
+      text-align: center;
+      margin-top: 46px;
+    }
+    .main-btn-area a {
+      display: inline-block;
+      background: var(--main);
+      color: #fff;
+      padding: 13px 34px;
+      border-radius: 11px;
+      font-size: 1.1em;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.18s;
+      box-shadow: 0 2px 14px rgba(42,92,31,0.13);
+      margin-top: 6px;
+    }
+    .main-btn-area a:hover { background: #528b36;}
+    @media (max-width: 900px) {.card-list {flex-direction: column;}}
+    @media (max-width: 700px) {
+      header h1 { font-size: 1.15em;}
+      .container { padding: 0 2vw; }
+      .card { padding: 14px 6px 10px 6px;}
+      .main-btn-area a { padding: 10px 16px; font-size: 1em;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>주말농장</h1>
+    <div class="subtitle">자연형 파크골프 & 텃밭 복합 단지</div>
+    <div style="font-size:1.02em;opacity:.90;margin-top:7px;">
+      옥수수·수수로 둘러싸인 자연 울타리,<br>
+      잔디와 텃밭, 파크골프 코스가 어우러진<br>
+      새로운 커뮤니티 농장 라이프를 경험하세요!
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- 메인 상단 이미지 -->
+    <img src="img/img_jumalm_farm_2.jpg" class="main-image" alt="파크골프장&텃밭 조감도">
+    <div class="image-caption">9홀 파크골프장&텃밭 복합형 자연 농장(조감도)</div>
+
+    <div class="info-box">
+      <b>“농장, 조경, 레저, 커뮤니티가 하나로!”</b><br>
+      외곽에는 옥수수·수수 자연 울타리,  
+      내부에는 S자·직선 잔디 파크골프 코스와  
+      5평 단위 주말 텃밭, 쉼터, 감자·보리밭 등  
+      사계절 변화하는 경관이  
+      가족과 이웃 모두의 힐링 공간이 됩니다.
+    </div>
+
+    <div class="card-list">
+      <div class="card">
+        <div class="card-title">자연형 파크골프 코스</div>
+        <ul>
+          <li>옥수수·수수로 S자·직선 그늘길 코스</li>
+          <li>9홀 구성, 깃대·티박스 자연 배치</li>
+          <li>잔디길 산책·파크골프 동시 활용</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">5평 단위 주말농장</div>
+        <ul>
+          <li>각 구획마다 텃밭 분양·임대</li>
+          <li>감자, 보리, 옥수수, 채소 자유 경작</li>
+          <li>이웃과 함께하는 가족형 커뮤니티</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">사계절 경관 조경</div>
+        <ul>
+          <li>봄: 푸른 보리, 여름: 황금 밭과 옥수수</li>
+          <li>가을: 수확 체험/옥수수 미로/수수꽃</li>
+          <li>겨울: 산책, 눈썰매장 등 다양한 활용</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 하단 추가 조감도 이미지 -->
+    <div class="sub-image-area">
+      <img src="img/img_jumalm_farm_1.jpg" class="sub-image" alt="주말농장 3D 조경 구상도">
+      <div class="image-caption">사계절 변화하는 조경&농장 풍경(배치 개념도)</div>
+    </div>
+
+    <div class="info-box" style="margin-top:18px;">
+      <b>이용 및 분양 안내</b><br>
+      <ul style="margin:7px 0 0 16px;">
+        <li>임대/분양 구획: 5평 단위(1가구 1구획 우선)</li>
+        <li>파크골프 코스/쉼터: 임차인·가족·이웃 모두 무료 개방</li>
+        <li>운영 규정: 친환경/자율관리/안전수칙 준수 필수</li>
+      </ul>
+    </div>
+
+    <div class="main-btn-area">
+      <a href="index.html">메인으로 가기</a>
+    </div>
+  </div>
+</body>
+</html>
