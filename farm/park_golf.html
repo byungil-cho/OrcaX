@@ -43,9 +43,13 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       margin-bottom: 10px;
     }
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 28px;
+    }
     .back {
       display: inline-block;
-      margin-top: 28px;
       text-decoration: none;
       background: #3290a6;
       color: #fff;
@@ -56,6 +60,12 @@
     }
     .back:hover {
       background: #24758a;
+    }
+    @media (max-width: 700px) {
+      .container { padding: 18px 8px 16px 8px; }
+      .images img { width: 100%; }
+      .button-row { flex-direction: column; gap: 12px; }
+      .back { width: 100%; text-align: center; }
     }
   </style>
 </head>
@@ -78,7 +88,10 @@
       <img src="img/park_golf_event.jpg" alt="파크골프 동호회 행사">
       <!-- 필요한 경우 이미지 더 추가 -->
     </div>
-    <a href="https://byungil-cho.github.io/OrcaX/index.html" class="back">메인으로 돌아가기</a>
+    <div class="button-row">
+      <a href="https://byungil-cho.github.io/OrcaX/index.html" class="back">메인으로 돌아가기</a>
+      <a href="farm_002.html" class="back">계절별 코스</a>
+    </div>
   </div>
 </body>
 </html>
