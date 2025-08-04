@@ -188,13 +188,13 @@
   <div class="album-container">
     <h1>영원의 집 – 가족 앨범 2</h1>
     <div class="desc">
-      가족의 시간과 추억의 사진에 담긴 소중한 이야기.<br>
-      각각의 순간을 클릭하면 더 크게 볼 수 있습니다.
+      가족과 아버지의 소중한 순간들, 21~40번 사진<br>
+      썸네일을 클릭하면 큰 사진과 설명이 나옵니다.
     </div>
     <div class="thumbnails" id="thumbnails"></div>
     <div class="nav-links">
-      <a href="index.html">메인으로</a>
-      <a href="house/house_01_005.html">아버지 보러가기</a>
+      <a href="house_01">메인으로</a>
+      <a href="house_01_005.html">아버지 보러가기</a>
     </div>
   </div>
   <div class="overlay" id="overlay" style="display:none;">
@@ -205,35 +205,34 @@
     </div>
   </div>
   <script>
-    // 40장 전체 파일명, 기본설명
     const images = [
-      { src: "img/+1_+1_02_21.jpg", caption: "부부의 다정함", sm: "동행의 의미" },
-      { src: "img/+1_+1_02_22.jpg", caption: "가족 여행중 독사진", sm: "사랑이 오가는 자리" },
-      { src: "img/+1_+1_02_23.jpg", caption: "아버지의 생신파티", sm: "축복받는 시간" },
-      { src: "img/+1_+1_02_24.jpg", caption: "어머니의 독서시간", sm: "지혜와 여유" },
-      { src: "img/+1_+1_02_25.jpg", caption: "정원 산책", sm: "꽃과 함께" },
-      { src: "img/+1_+1_02_26.jpg", caption: "아이들과 웃음", sm: "가족의 행복" },
-      { src: "img/+1_+1_02_27.jpg", caption: "어머니와 손자의 손", sm: "세대의 사랑" },
-      { src: "img/+1_+1_02_28.jpg", caption: "다함께 노을 아래서", sm: "저녁의 추억" },
-      { src: "img/+1_+1_02_29.jpg", caption: "겨울 산책", sm: "따뜻한 온기" },
-      { src: "img/+1_+1_02_30.jpg", caption: "꽃밭에서 미소짓는 어머니", sm: "자연과 조화" },
-      { src: "img/+1_+1_02_31.jpg", caption: "형제의 우애", sm: "든든한 버팀목" },
-      { src: "img/+1_+1_02_32.jpg", caption: "명절 가족사진", sm: "연휴의 즐거움" },
-      { src: "img/+1_+1_02_33.jpg", caption: "새벽 산책", sm: "고요한 시작" },
-      { src: "img/+1_+1_02_34.jpg", caption: "가을 하늘 아래", sm: "넓은 세상" },
-      { src: "img/+1_+1_02_35.jpg", caption: "부모님의 포옹", sm: "사랑의 표현" },
-      { src: "img/+1_+1_02_36.jpg", caption: "손주와 놀이시간", sm: "순수한 웃음" },
-      { src: "img/+1_+1_02_37.jpg", caption: "어머니의 소녀시절", sm: "청춘의 향기" },
-      { src: "img/+1_+1_02_38.jpg", caption: "눈 내리는 날의 산책", sm: "겨울 낭만" },
-      { src: "img/+1_+1_02_39.jpg", caption: "옛집 앞에서 가족사진", sm: "기억의 장소" },
-      { src: "img/+1_+1_02_40.jpg", caption: "함께한 모든 순간들", sm: "영원의 가족" }
+      { src: "img/+1_+1_02_21.jpg", caption: "부모님이 한복을 입고 남긴 대표 증명사진", sm: "" },
+      { src: "img/+1_+1_02_22.jpg", caption: "고즈넉한 정자 앞에서 포즈를 취한 아버지", sm: "" },
+      { src: "img/+1_+1_02_23.jpg", caption: "언덕(묘지) 앞 벤치에 앉아 여유를 즐기시는 아버지", sm: "" },
+      { src: "img/+1_+1_02_24.jpg", caption: "아버지와 자녀들이 함께한 야외 가족사진", sm: "" },
+      { src: "img/+1_+1_02_25.jpg", caption: "아버지와 딸(또는 며느리)의 다정한 모습", sm: "" },
+      { src: "img/+1_+1_02_26.jpg", caption: "사찰 앞, 아버지와 아들, 그리고 롤러스케이트 신은 손자", sm: "" },
+      { src: "img/+1_+1_02_27.jpg", caption: "언덕 벤치 앞에서 아버지, 아들, 딸 세 가족이 함께", sm: "" },
+      { src: "img/+1_+1_02_28.jpg", caption: "사찰 계단 앞, 아버지와 아들, 손자", sm: "" },
+      { src: "img/+1_+1_02_29.jpg", caption: "절 입구에서 가족 다섯 명이 남긴 단란한 순간", sm: "" },
+      { src: "img/+1_+1_02_30.jpg", caption: "어머니와 세 남매가 남긴 가족사진", sm: "" },
+      { src: "img/+1_+1_02_31.jpg", caption: "가족 모두 한복과 정장 차림으로 찍은 전통 가족사진", sm: "" },
+      { src: "img/+1_+1_02_32.jpg", caption: "온 가족이 모여 남긴 대가족 단체사진", sm: "" },
+      { src: "img/+1_+1_02_33.jpg", caption: "다른 구도의 대가족 단체사진", sm: "" },
+      { src: "img/+1_+1_02_34.jpg", caption: "형제들과 함께한 가족사진", sm: "" },
+      { src: "img/+1_+1_02_35.jpg", caption: "한복을 입고 남긴 또 다른 가족사진", sm: "" },
+      { src: "img/+1_+1_02_36.jpg", caption: "아버지와 자녀들이 정겹게 모인 사진", sm: "" },
+      { src: "img/+1_+1_02_37.jpg", caption: "어머니와 가족들의 다정한 한 컷", sm: "" },
+      { src: "img/+1_+1_02_38.jpg", caption: "형제자매가 한자리에 모인 소중한 순간", sm: "" },
+      { src: "img/+1_+1_02_39.jpg", caption: "온 가족이 함께한 따뜻한 대가족 사진", sm: "" },
+      { src: "img/+1_+1_02_40.jpg", caption: "여러 세대가 함께한 마지막 대가족 사진", sm: "" }
     ];
 
     const thumbs = document.getElementById('thumbnails');
     images.forEach((img, idx) => {
       let el = document.createElement('div');
       el.className = "thumb";
-      el.innerHTML = `<img src="${img.src}" alt="album${idx+1}">`;
+      el.innerHTML = `<img src="${img.src}" alt="album${idx+21}">`;
       el.onclick = () => showBig(idx);
       thumbs.appendChild(el);
     });
@@ -257,4 +256,3 @@
   </script>
 </body>
 </html>
-
