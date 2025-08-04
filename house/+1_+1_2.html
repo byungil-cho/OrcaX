@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>영원의 집 – 가족 앨범 2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body {
+      background: #f8f7f5;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      margin: 0;
+      color: #222;
+    }
+    .album-container {
+      max-width: 900px;
+      margin: 24px auto 16px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.07), 0 1.5px 6px rgba(0,0,0,0.04);
+      padding: 32px 18px;
+    }
+    h1 {
+      text-align: center;
+      color: #295cc6;
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .desc {
+      text-align: center;
+      color: #557;
+      font-size: 1rem;
+      margin-bottom: 22px;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+    .thumbnails {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+      min-height: 220px;
+    }
+    .thumb, .thumb-empty {
+      width: 100px;
+      height: 100px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(60,60,60,0.07);
+      background: #f0f0f0;
+      border: 2px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 5px;
+      cursor: pointer;
+      transition: border 0.2s;
+      position: relative;
+    }
+    .thumb:hover {
+      border: 2px solid #295cc6;
+    }
+    .thumb img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .thumb-empty {
+      cursor: default;
+      color: #b7b7b7;
+      font-size: 0.98rem;
+      justify-content: center;
+      align-items: center;
+      font-weight: 400;
+      border: 2px dashed #d0d0e2;
+      background: #f5f5fa;
+      text-align: center;
+    }
+    .thumb-empty::after {
+      content: '사진 자리 비움';
+      display: block;
+    }
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(32,32,32,0.87);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      animation: fadeIn 0.2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .big-img-box {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.13);
+      max-width: 95vw;
+      max-height: 90vh;
+      padding: 16px 16px 8px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: popIn 0.2s;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.94); }
+      to { transform: scale(1); }
+    }
+    .big-img {
+      width: auto;
+      height: auto;
+      max-width: 90vw;
+      max-height: 70vh;
+      display: block;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(40,40,40,0.14);
+      margin-bottom: 18px;
+      background: #f9f9f9;
+      cursor: pointer;
+    }
+    .caption {
+      color: #222;
+      font-size: 1.03rem;
+      text-align: center;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .caption.sm {
+      font-size: 0.97rem;
+      color: #6a7fa3;
+      margin-bottom: 0;
+      margin-top: 4px;
+      font-weight: 400;
+    }
+    @media (max-width: 680px) {
+      .album-container { padding: 12px 4px; }
+      h1 { font-size: 1.28rem; }
+      .desc { font-size: 0.91rem; }
+      .big-img-box { max-width: 99vw; max-height: 90vh; padding: 9px; }
+      .big-img { max-width: 97vw; max-height: 57vw; }
+      .thumb, .thumb-empty {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+      }
+      .thumbnails { gap: 10px; }
+    }
+    .nav-links {
+      margin-top: 36px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      padding: 0 10px;
+    }
+    .nav-links a {
+      color: #295cc6;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.03rem;
+      padding: 8px 20px;
+      border-radius: 14px;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+      background: #f0f6ff;
+    }
+    .nav-links a:hover {
+      background: #d2e3ff;
+      color: #0d2345;
+    }
+  </style>
+</head>
+<body>
+  <div class="album-container">
+    <h1>영원의 집 – 가족 앨범 2</h1>
+    <div class="desc">
+      가족과 아버지의 소중한 순간들, <br>
+      썸네일을 클릭하면 큰 사진과 설명이 나옵니다.
+    </div>
+    <div class="thumbnails" id="thumbnails"></div>
+    <div class="nav-links">
+      <a href="index.html">메인으로</a>
+      <a href="house/house_01_005.html">아버지 보러가기</a>
+    </div>
+  </div>
+  <div class="overlay" id="overlay" style="display:none;">
+    <div class="big-img-box">
+      <img id="bigImg" class="big-img" src="" alt="" onclick="hideBig()" />
+      <div id="bigCaption" class="caption"></div>
+      <div id="bigCaptionSm" class="caption sm"></div>
+    </div>
+  </div>
+  <script>
+    const images = [
+      { src: "img/+1_+1_02_21.jpg", caption: "부모님이 한복을 입고 남긴 대표 증명사진", sm: "" },
+      { src: "img/+1_+1_02_22.jpg", caption: "고즈넉한 정자 앞에서 포즈를 취한 아버지", sm: "" },
+      { src: "img/+1_+1_02_23.jpg", caption: "언덕(묘지) 앞 벤치에 앉아 여유를 즐기시는 아버지", sm: "" },
+      { src: "img/+1_+1_02_24.jpg", caption: "아버지와 자녀들이 함께한 야외 가족사진", sm: "" },
+      { src: "img/+1_+1_02_25.jpg", caption: "아버지와 딸(또는 며느리)의 다정한 모습", sm: "" },
+      { src: "img/+1_+1_02_26.jpg", caption: "사찰 앞, 아버지와 아들, 그리고 롤러스케이트 신은 손자", sm: "" },
+      { src: "img/+1_+1_02_27.jpg", caption: "언덕 벤치 앞에서 아버지, 아들, 딸 세 가족이 함께", sm: "" },
+      { src: "img/+1_+1_02_28.jpg", caption: "사찰 계단 앞, 아버지와 아들, 손자", sm: "" },
+      { src: "img/+1_+1_02_29.jpg", caption: "절 입구에서 가족 다섯 명이 남긴 단란한 순간", sm: "" },
+      { src: "img/+1_+1_02_30.jpg", caption: "어머니와 세 남매가 남긴 가족사진", sm: "" },
+      { src: "img/+1_+1_02_31.jpg", caption: "가족 모두 한복과 정장 차림으로 찍은 전통 가족사진", sm: "" },
+      { src: "img/+1_+1_02_32.jpg", caption: "온 가족이 모여 남긴 대가족 단체사진", sm: "" },
+      { src: "img/+1_+1_02_33.jpg", caption: "다른 구도의 대가족 단체사진", sm: "" },
+      { src: "img/+1_+1_02_34.jpg", caption: "형제들과 함께한 가족사진", sm: "" },
+      { src: "img/+1_+1_02_35.jpg", caption: "한복을 입고 남긴 또 다른 가족사진", sm: "" },
+      { src: "img/+1_+1_02_36.jpg", caption: "아버지와 자녀들이 정겹게 모인 사진", sm: "" },
+      { src: "img/+1_+1_02_37.jpg", caption: "어머니와 가족들의 다정한 한 컷", sm: "" },
+      { src: "img/+1_+1_02_38.jpg", caption: "형제자매가 한자리에 모인 소중한 순간", sm: "" },
+      { src: "img/+1_+1_02_39.jpg", caption: "온 가족이 함께한 따뜻한 대가족 사진", sm: "" },
+      { src: "img/+1_+1_02_40.jpg", caption: "여러 세대가 함께한 마지막 대가족 사진", sm: "" }
+    ];
+
+    const thumbs = document.getElementById('thumbnails');
+    images.forEach((img, idx) => {
+      let el = document.createElement('div');
+      el.className = "thumb";
+      el.innerHTML = `<img src="${img.src}" alt="album${idx+21}">`;
+      el.onclick = () => showBig(idx);
+      thumbs.appendChild(el);
+    });
+
+    function showBig(idx) {
+      document.getElementById('bigImg').src = images[idx].src;
+      document.getElementById('bigCaption').textContent = images[idx].caption;
+      document.getElementById('bigCaptionSm').textContent = images[idx].sm;
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('bigImg').onclick = hideBig;
+      document.addEventListener('keydown', escHandler);
+    }
+    function hideBig() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('bigImg').onclick = null;
+      document.removeEventListener('keydown', escHandler);
+    }
+    function escHandler(e) {
+      if (e.key === "Escape") hideBig();
+    }
+  </script>
+</body>
+</html>
