@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>주말농장 & 파크골프 조감도</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #f7f7f2;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 18px 0 44px 0;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(60,70,80,0.10);
+    }
+    h1 {
+      text-align: center;
+      color: #357a38;
+      margin-bottom: 24px;
+    }
+    .main-link {
+      display: block;
+      text-align: right;
+      margin: 10px 28px 18px 0;
+      font-size: 16px;
+      color: #458bff;
+      text-decoration: underline;
+    }
+    .img-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px 16px;
+      justify-items: center;
+      align-items: start;
+    }
+    .img-item {
+      width: 98%;
+      background: #eefbe8;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(120,120,120,0.09);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: box-shadow 0.18s;
+      cursor: pointer;
+    }
+    .img-item img {
+      max-width: 100%;
+      width: 220px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1.5px solid #b9e1c0;
+      transition: box-shadow 0.13s;
+    }
+    .img-item:hover img {
+      box-shadow: 0 0 12px #8fd19e77;
+    }
+    .img-desc {
+      margin-top: 10px;
+      font-size: 15px;
+      color: #3a593a;
+      text-align: center;
+      min-height: 36px;
+      font-weight: 500;
+    }
+    @media (max-width: 900px) {
+      .img-grid { grid-template-columns: 1fr; }
+      .img-item img { width: 96vw; max-width: 96vw; height: 28vw; min-height: 160px;}
+    }
+    @media (max-width: 600px) {
+      .container { border-radius: 0; }
+      .img-grid { grid-template-columns: 1fr; }
+      .img-item img { width: 98vw; max-width: 98vw; height: 37vw; min-height: 170px;}
+    }
+    /* 팝업용 오버레이 */
+    .modal-overlay {
+      position: fixed; z-index: 1999;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(30,45,70,0.84);
+      display: flex; justify-content: center; align-items: center;
+      visibility: hidden; opacity: 0;
+      transition: opacity 0.18s;
+    }
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .modal-img-wrap {
+      background: #fff; padding: 18px 18px 8px 18px;
+      border-radius: 14px; box-shadow: 0 0 22px #13351544;
+      display: flex; flex-direction: column; align-items: center;
+      animation: popIn 0.28s;
+      cursor: pointer;
+    }
+    .modal-img-wrap img {
+      width: 68vw; max-width: 820px; max-height: 74vh; border-radius: 10px; object-fit: contain;
+      border: 2px solid #62b57a;
+      background: #f9fff2;
+    }
+    .modal-desc {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #184f22;
+      font-weight: 600;
+      text-align: center;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0.5;}
+      to   { transform: scale(1); opacity: 1;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="main-link">메인으로</a>
+    <h1>주말농장 & 파크골프 파크 조감도</h1>
+    <div class="img-grid">
+      <!-- 4번(첫 번째) -->
+      <div class="img-item" data-src="img/park_overview4.jpg" data-desc="실제 경계선 항공사진을 기반으로 한<br>주말농장 전체 부지 조감도">
+        <img src="img/park_overview4.jpg" alt="실제 항공경계 기반 농장조감도">
+        <div class="img-desc">실제 경계선 항공사진 기반 주말농장 조감도</div>
+      </div>
+      <!-- 1번 -->
+      <div class="img-item" data-src="img/park_overview1.jpg" data-desc="파크골프장과 텃밭이 결합된<br>농장&여가 공간 컨셉">
+        <img src="img/park_overview1.jpg" alt="파크골프+텃밭 조감도">
+        <div class="img-desc">파크골프장과 텃밭이 결합된 농장&여가 공간</div>
+      </div>
+      <!-- 2번 -->
+      <div class="img-item" data-src="img/park_overview2.jpg" data-desc="파크골프장, 주차장, 텃밭이<br>구획된 전체 평면 배치도">
+        <img src="img/park_overview2.jpg" alt="파크골프&주차장&텃밭 평면도">
+        <div class="img-desc">파크골프장·주차장·텃밭 구획 평면도</div>
+      </div>
+      <!-- 3번 -->
+      <div class="img-item" data-src="img/park_overview3.jpg" data-desc="파크골프장과 온실, 텃밭 등<br>다양한 부대시설 배치도">
+        <img src="img/park_overview3.jpg" alt="파크골프와 온실&텃밭 조감도">
+        <div class="img-desc">파크골프장, 온실, 텃밭 부대시설 배치도</div>
+      </div>
+      <!-- 5번 -->
+      <div class="img-item" data-src="img/park_overview5.jpg" data-desc="정원과 농장, 파크골프장이<br>융합된 조경형 전경">
+        <img src="img/park_overview5.jpg" alt="조경 및 골프장+텃밭 융합 전경">
+        <div class="img-desc">정원·농장·파크골프 융합형 전경</div>
+      </div>
+      <!-- 6번 -->
+      <div class="img-item" data-src="img/park_overview6.jpg" data-desc="주변 마을과 밭 풍경이<br>연계된 융합 조감도">
+        <img src="img/park_overview6.jpg" alt="주변 마을 및 밭 연계 컨셉">
+        <div class="img-desc">주변 마을·밭 풍경 연계 조감도</div>
+      </div>
+      <!-- 7번 -->
+      <div class="img-item" data-src="img/park_overview7.jpg" data-desc="가을(추수철) 테마로<br>표현된 주말농장&골프장 전경">
+        <img src="img/park_overview7.jpg" alt="가을 풍경 조감도">
+        <div class="img-desc">가을(추수철) 테마 주말농장&골프장</div>
+      </div>
+      <!-- 8번 -->
+      <div class="img-item" data-src="img/park_overview8.jpg" data-desc="겨울 설경 속<br>파크골프장과 텃밭 배치">
+        <img src="img/park_overview8.jpg" alt="겨울 풍경 조감도">
+        <div class="img-desc">겨울 설경 속 파크골프장/텃밭</div>
+      </div>
+      <!-- 9번 -->
+      <div class="img-item" data-src="img/park_overview9.jpg" data-desc="봄, 벚꽃 테마의<br>주말농장&파크골프장 조감도">
+        <img src="img/park_overview9.jpg" alt="봄 풍경 조감도">
+        <div class="img-desc">봄·벚꽃 테마 주말농장/파크골프장</div>
+      </div>
+      <!-- 10번 -->
+      <div class="img-item" data-src="img/park_overview10.jpg" data-desc="봄·초여름 분위기의<br>파크골프와 농장 융합형 전경">
+        <img src="img/park_overview10.jpg" alt="봄/초여름 조감도">
+        <div class="img-desc">봄·초여름 파크골프/농장 융합 전경</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 팝업 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-img-wrap" id="modalImgWrap">
+      <img id="modalImg" src="" alt="">
+      <div class="modal-desc" id="modalDesc"></div>
+    </div>
+  </div>
+
+  <script>
+    // 이미지 클릭 → 모달 오픈
+    document.querySelectorAll('.img-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        var src = this.getAttribute('data-src');
+        var desc = this.getAttribute('data-desc');
+        document.getElementById('modalImg').src = src;
+        document.getElementById('modalDesc').innerHTML = desc;
+        document.getElementById('modalOverlay').classList.add('active');
+      });
+    });
+    // 모달 클릭 → 닫기
+    document.getElementById('modalOverlay').addEventListener('click', function() {
+      this.classList.remove('active');
+      document.getElementById('modalImg').src = '';
+      document.getElementById('modalDesc').innerHTML = '';
+    });
+  </script>
+</body>
+</html>
