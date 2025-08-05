@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>2025 파크골프 & 주말농장 사계절 카렌다</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 0;
+      color: #222;
+    }
+    .calendar-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 10px;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 6px 24px rgba(80,120,180,0.10);
+    }
+    .calendar-title {
+      text-align: center;
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      color: #24486c;
+      font-weight: bold;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 28px;
+      padding: 24px;
+    }
+    .month-cell {
+      background: #f8fafc;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(110,140,180,0.08);
+      padding: 14px 10px 22px 10px;
+      text-align: center;
+      transition: box-shadow .2s;
+      cursor: pointer;
+      border: 2px solid transparent;
+      position: relative;
+    }
+    .month-cell:hover {
+      border: 2px solid #4d83c7;
+      box-shadow: 0 8px 24px rgba(76, 125, 194, 0.10);
+    }
+    .month-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 7px;
+      color: #3a65b4;
+      letter-spacing: 1px;
+    }
+    .month-thumb {
+      width: 100%;
+      max-width: 220px;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(60,100,180,0.10);
+      margin-bottom: 10px;
+      transition: transform .2s;
+    }
+    .month-cell:hover .month-thumb {
+      transform: scale(1.04);
+    }
+    .month-desc {
+      font-size: 0.98rem;
+      color: #555;
+      min-height: 32px;
+    }
+    /* 팝업 */
+    .popup-bg {
+      display: none;
+      position: fixed;
+      z-index: 50;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(30, 40, 60, 0.45);
+      align-items: center; justify-content: center;
+    }
+    .popup-content {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 12px 40px rgba(30,50,100,0.23);
+      padding: 16px 20px 18px 20px;
+      max-width: 98vw;
+      max-height: 94vh;
+      text-align: center;
+      position: relative;
+      animation: popIn .27s cubic-bezier(.71,.14,.49,1.36);
+    }
+    @keyframes popIn {
+      0% {transform: scale(0.8);}
+      100% {transform: scale(1);}
+    }
+    .popup-img {
+      width: 94vw; max-width: 740px;
+      max-height: 65vh;
+      border-radius: 14px;
+      object-fit: contain;
+      box-shadow: 0 4px 20px rgba(60,80,130,0.13);
+      margin-bottom: 18px;
+    }
+    .popup-title {
+      font-size: 1.23rem;
+      font-weight: bold;
+      color: #3779bf;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+    .popup-desc {
+      color: #333;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+    .popup-close {
+      position: absolute;
+      top: 14px; right: 24px;
+      font-size: 1.8rem;
+      color: #6a6e7b;
+      cursor: pointer;
+      background: none;
+      border: none;
+      z-index: 11;
+    }
+    @media (max-width: 1024px) {
+      .calendar-grid {grid-template-columns: repeat(3, 1fr);}
+    }
+    @media (max-width: 800px) {
+      .calendar-grid {grid-template-columns: repeat(2, 1fr);}
+      .calendar-container {padding: 0;}
+    }
+    @media (max-width: 600px) {
+      .calendar-title {font-size: 1.2rem;}
+      .calendar-grid {grid-template-columns: 1fr;}
+      .month-thumb {height: 34vw;}
+      .popup-img {max-width: 96vw; max-height: 60vw;}
+      .popup-content {padding: 5vw 1vw;}
+    }
+  </style>
+</head>
+<body>
+  <div class="calendar-container">
+    <div class="calendar-title">2025 파크골프 & 주말농장 사계절 카렌다</div>
+    <div class="calendar-grid">
+      <!-- 1월~12월 셀 자동 생성 -->
+      <div class="month-cell" data-idx="0">
+        <div class="month-title">1월 (JAN)</div>
+        <img src="img/farm_01.png" alt="1월 이미지" class="month-thumb">
+        <div class="month-desc">겨울, 설원과 스케이트, 눈 덮인 풍경</div>
+      </div>
+      <div class="month-cell" data-idx="1">
+        <div class="month-title">2월 (FEB)</div>
+        <img src="img/farm_02.png" alt="2월 이미지" class="month-thumb">
+        <div class="month-desc">겨울 끝자락, 눈 녹는 밭, 일하는 사람들</div>
+      </div>
+      <div class="month-cell" data-idx="2">
+        <div class="month-title">3월 (MAR)</div>
+        <img src="img/farm_03.png" alt="3월 이미지" class="month-thumb">
+        <div class="month-desc">초봄, 밭일 시작, 옥수수 새싹</div>
+      </div>
+      <div class="month-cell" data-idx="3">
+        <div class="month-title">4월 (APR)</div>
+        <img src="img/farm_04.png" alt="4월 이미지" class="month-thumb">
+        <div class="month-desc">봄, 파릇파릇한 밭, 벚꽃, 신선한 초목</div>
+      </div>
+      <div class="month-cell" data-idx="4">
+        <div class="month-title">5월 (MAY)</div>
+        <img src="img/farm_05.png" alt="5월 이미지" class="month-thumb">
+        <div class="month-desc">봄, 농장 일손, 싱그러운 초록</div>
+      </div>
+      <div class="month-cell" data-idx="5">
+        <div class="month-title">6월 (JUN)</div>
+        <img src="img/farm_06.png" alt="6월 이미지" class="month-thumb">
+        <div class="month-desc">초여름, 꽃 피는 나무, 본격적 밭 관리</div>
+      </div>
+      <div class="month-cell" data-idx="6">
+        <div class="month-title">7월 (JUL)</div>
+        <img src="img/farm_07.png" alt="7월 이미지" class="month-thumb">
+        <div class="month-desc">여름, 활기찬 농장, 해 질 무렵의 풍경</div>
+      </div>
+      <div class="month-cell" data-idx="7">
+        <div class="month-title">8월 (AUG)</div>
+        <img src="img/farm_08.png" alt="8월 이미지" class="month-thumb">
+        <div class="month-desc">여름, 일하는 사람들, 완전히 녹음 짙은 풍경</div>
+      </div>
+      <div class="month-cell" data-idx="8">
+        <div class="month-title">9월 (SEP)</div>
+        <img src="img/farm_09.png" alt="9월 이미지" class="month-thumb">
+        <div class="month-desc">가을 시작, 작물 무르익는 모습</div>
+      </div>
+      <div class="month-cell" data-idx="9">
+        <div class="month-title">10월 (OCT)</div>
+        <img src="img/farm_10.png" alt="10월 이미지" class="month-thumb">
+        <div class="month-desc">가을, 단풍 든 나무, 추수 풍경</div>
+      </div>
+      <div class="month-cell" data-idx="10">
+        <div class="month-title">11월 (NOV)</div>
+        <img src="img/farm_11.png" alt="11월 이미지" class="month-thumb">
+        <div class="month-desc">늦가을, 농장 정리, 갈색의 논밭</div>
+      </div>
+      <div class="month-cell" data-idx="11">
+        <div class="month-title">12월 (DEC)</div>
+        <img src="img/farm_12.png" alt="12월 이미지" class="month-thumb">
+        <div class="month-desc">겨울, 눈 내린 풍경, 농장과 사람들</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 팝업 -->
+  <div class="popup-bg" id="popupBg">
+    <div class="popup-content" id="popupContent">
+      <button class="popup-close" onclick="closePopup()">&times;</button>
+      <div class="popup-title" id="popupTitle"></div>
+      <img src="" alt="확대 이미지" class="popup-img" id="popupImg">
+      <div class="popup-desc" id="popupDesc"></div>
+    </div>
+  </div>
+  <script>
+    // 월별 데이터
+    const months = [
+      { title: "1월 (JAN)", img: "img/farm_01.png", desc: "겨울, 설원과 스케이트, 눈 덮인 풍경" },
+      { title: "2월 (FEB)", img: "img/farm_02.png", desc: "겨울 끝자락, 눈 녹는 밭, 일하는 사람들" },
+      { title: "3월 (MAR)", img: "img/farm_03.png", desc: "초봄, 밭일 시작, 옥수수 새싹" },
+      { title: "4월 (APR)", img: "img/farm_04.png", desc: "봄, 파릇파릇한 밭, 벚꽃, 신선한 초목" },
+      { title: "5월 (MAY)", img: "img/farm_05.png", desc: "봄, 농장 일손, 싱그러운 초록" },
+      { title: "6월 (JUN)", img: "img/farm_06.png", desc: "초여름, 꽃 피는 나무, 본격적 밭 관리" },
+      { title: "7월 (JUL)", img: "img/farm_07.png", desc: "여름, 활기찬 농장, 해 질 무렵의 풍경" },
+      { title: "8월 (AUG)", img: "img/farm_08.png", desc: "여름, 일하는 사람들, 완전히 녹음 짙은 풍경" },
+      { title: "9월 (SEP)", img: "img/farm_09.png", desc: "가을 시작, 작물 무르익는 모습" },
+      { title: "10월 (OCT)", img: "img/farm_10.png", desc: "가을, 단풍 든 나무, 추수 풍경" },
+      { title: "11월 (NOV)", img: "img/farm_11.png", desc: "늦가을, 농장 정리, 갈색의 논밭" },
+      { title: "12월 (DEC)", img: "img/farm_12.png", desc: "겨울, 눈 내린 풍경, 농장과 사람들" }
+    ];
+    // 클릭 이벤트
+    document.querySelectorAll('.month-cell').forEach(function(cell, idx){
+      cell.addEventListener('click', function(){
+        const m = months[idx];
+        document.getElementById('popupTitle').innerText = m.title;
+        document.getElementById('popupImg').src = m.img;
+        document.getElementById('popupDesc').innerText = m.desc;
+        document.getElementById('popupBg').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    function closePopup(){
+      document.getElementById('popupBg').style.display = 'none';
+      document.body.style.overflow = '';
+      document.getElementById('popupImg').src = "";
+    }
+    // 바깥 클릭 시 팝업 닫기
+    document.getElementById('popupBg').addEventListener('click', function(e){
+      if(e.target === this) closePopup();
+    });
+    // ESC로 닫기
+    window.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') closePopup();
+    });
+  </script>
+</body>
+</html>
