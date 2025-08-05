@@ -141,7 +141,7 @@
   <div class="container">
     <div class="link-row">
       <a href="index.html" class="main-link">메인으로</a>
-      <a href="park_golf.html" class="season-link">골프커뮤니티</a>
+      <a href="farm_002.html" class="season-link">계절별 코스</a>
     </div>
     <h1>주말농장 & 파크골프 파크 조감도</h1>
     <div class="img-grid">
@@ -209,6 +209,7 @@
   <script>
     // DOMContentLoaded로 전체 요소 준비 후 이벤트 부여
     document.addEventListener('DOMContentLoaded', function() {
+      // 썸네일 클릭 → 모달 오픈
       document.querySelectorAll('.img-item').forEach(function(item) {
         item.addEventListener('click', function() {
           var src = this.getAttribute('data-src');
@@ -218,15 +219,18 @@
           document.getElementById('modalOverlay').classList.add('active');
         });
       });
-      // 모달 클릭 → 닫기
-      document.getElementById('modalOverlay').addEventListener('click', function(e) {
-        // 이미지만 클릭한 경우 닫히지 않도록
-        if(e.target === this) {
-          this.classList.remove('active');
-          document.getElementById('modalImg').src = '';
-          document.getElementById('modalDesc').innerHTML = '';
-        }
-      });
+
+      // 모달(바탕/흰배경/이미지 어디든) 클릭 → 닫기
+      document.getElementById('modalOverlay').addEventListener('click', closeModal);
+      document.getElementById('modalImgWrap').addEventListener('click', closeModal);
+      document.getElementById('modalImg').addEventListener('click', closeModal);
+
+      function closeModal(e) {
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.getElementById('modalImg').src = '';
+        document.getElementById('modalDesc').innerHTML = '';
+        e.stopPropagation(); // 이벤트 전파 막기 (한 번만 닫힘)
+      }
     });
   </script>
 </body>
