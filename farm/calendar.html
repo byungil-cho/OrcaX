@@ -105,6 +105,7 @@
       object-fit: contain;
       box-shadow: 0 4px 20px rgba(60,80,130,0.13);
       margin-bottom: 18px;
+      cursor: pointer;
     }
     .popup-title {
       font-size: 1.23rem;
@@ -248,19 +249,17 @@
         document.body.style.overflow = 'hidden';
       });
     });
+    // 팝업 닫기: 바깥/×/ESC/큰사진(이미지) 클릭 모두 닫힘!
+    document.getElementById('popupBg').addEventListener('click', closePopup);
+    document.getElementById('popupImg').addEventListener('click', closePopup);
+    window.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') closePopup();
+    });
     function closePopup(){
       document.getElementById('popupBg').style.display = 'none';
       document.body.style.overflow = '';
       document.getElementById('popupImg').src = "";
     }
-    // 바깥 클릭 시 팝업 닫기
-    document.getElementById('popupBg').addEventListener('click', function(e){
-      if(e.target === this) closePopup();
-    });
-    // ESC로 닫기
-    window.addEventListener('keydown', function(e){
-      if(e.key === 'Escape') closePopup();
-    });
   </script>
 </body>
 </html>
