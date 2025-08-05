@@ -5,50 +5,146 @@
   <title>OrcaX 감자/보리 식품 가공공장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    body { font-family:'Do Hyeon',sans-serif; background:#f5fbf7; margin:0; }
-    .wrap { max-width: 490px; margin:2.3rem auto; background:rgba(0,0,0,0.07); border-radius:20px; padding:2.5rem 1.1rem 1.8rem 1.1rem; box-shadow:0 4px 18px rgba(40,160,90,0.07);}
-    h1 { color:#17a651; margin-bottom:1.4rem; text-align:center; }
+    body {
+      font-family:'Do Hyeon',sans-serif;
+      /* 배경 이미지를 절대경로로 적용 */
+      background: url('https://byungil-cho.github.io/OrcaX/farm-101.png') no-repeat center center fixed;
+      background-size: cover;
+      margin:0;
+      color: #fff; /* 모든 텍스트 흰색 */
+      text-shadow: 0 1px 6px rgba(30,40,70,0.18), 0 1px 8px #0008;
+    }
+    .wrap {
+      max-width: 490px;
+      margin:2.3rem auto;
+      background:rgba(15,25,34,0.70); /* 더 진하게 가독성↑ */
+      border-radius:20px;
+      padding:2.5rem 1.1rem 1.8rem 1.1rem;
+      box-shadow:0 4px 18px rgba(40,160,90,0.10);
+    }
+    h1 {
+      color:#ffe166;
+      margin-bottom:1.4rem;
+      text-align:center;
+      text-shadow: 0 4px 16px #23457c, 0 2px 16px #000c;
+    }
     .menu { text-align:center; margin-bottom:1.6rem;}
-    .menu a { color:#189747; text-decoration:underline; margin:0 10px; font-size:1.1rem;}
-    .sys { margin-bottom:0.9rem; background:#e8ffe5; border-radius:10px; padding:0.6rem 1rem; font-size:1.08rem;}
+    .menu a {
+      color:#f7e61e;
+      text-decoration:underline;
+      margin:0 10px;
+      font-size:1.1rem;
+      text-shadow: 0 1px 8px #233a50;
+    }
+    .sys {
+      margin-bottom:0.9rem;
+      background:rgba(255,255,255,0.13);
+      border-radius:10px;
+      padding:0.6rem 1rem;
+      font-size:1.08rem;
+      color: #fff;
+    }
     .sys span { margin-right:1.3rem;}
     .market-board-box {
-      background:#eef6fb;
+      background:rgba(255,255,255,0.13);
       border-radius:13px;
       margin-bottom:1.2rem;
       padding:1.1rem 1rem 0.6rem 1rem;
       box-shadow:0 2px 8px #c5e8e84b;
     }
-    .market-board-title { font-size:1.11rem; color:#217bb3; font-weight:bold; margin-bottom:0.7rem;}
+    .market-board-title { font-size:1.11rem; color:#ffe166; font-weight:bold; margin-bottom:0.7rem;}
     .market-board-list { display:flex; flex-wrap:wrap; gap:1.1rem;}
     .market-board-item {
-      background:#fff;
+      background:rgba(0,0,0,0.12);
       border-radius:10px;
       box-shadow:0 1px 7px #ddebe855;
       min-width:108px; text-align:center;
       padding:0.58rem 0.5rem 0.75rem 0.5rem;
       font-size:1.01rem;
+      color: #fff;
     }
-    .market-board-name { font-weight:bold; color:#20764f;}
-    .market-board-price { color:#cf7b13; font-weight:600;}
-    .asset { background:#fff; border-radius:10px; padding:0.6rem 1.1rem; margin:0.6rem 0 1.2rem 0;}
+    .market-board-name { font-weight:bold; color:#ffe166;}
+    .market-board-price { color:#ffe166; font-weight:600;}
+    .asset {
+      background:rgba(255,255,255,0.10);
+      border-radius:10px;
+      padding:0.6rem 1.1rem;
+      margin:0.6rem 0 1.2rem 0;
+    }
     .asset-row { display:flex; justify-content:space-between; margin-bottom:0.3rem;}
-    .asset-row b { color:#17a651;}
-    .products-box { background:#f7fafc; border-radius:13px; padding:0.8rem 0.8rem 1.2rem 0.8rem; margin:0.5rem 0 1.4rem 0;}
-    .products-box h3 { margin-top:0.5rem; color:#166099; }
+    .asset-row b { color:#ffe166;}
+    .products-box {
+      background:rgba(255,255,255,0.10);
+      border-radius:13px;
+      padding:0.8rem 0.8rem 1.2rem 0.8rem;
+      margin:0.5rem 0 1.4rem 0;
+    }
+    .products-box h3 {
+      margin-top:0.5rem;
+      color:#ffe166;
+      text-shadow: 0 2px 12px #233a50;
+    }
     .prod-list { display:flex; flex-wrap:wrap; gap:1.1rem; margin-top:0.5rem; }
-    .prod-card { background:#fff; border-radius:8px; box-shadow:0 1px 7px #eee; min-width:108px; text-align:center; padding:0.6rem 0.5rem 0.9rem 0.5rem;}
-    .prod-name { font-size:1.04rem; color:#1a8a34; margin-bottom:0.18rem;}
-    .prod-count { font-weight:bold; color:#de8511;}
-    .make-box { background:#f7ffe9; border-radius:13px; padding:1.5rem 1.3rem; box-shadow:0 1px 6px #f0efea;}
+    .prod-card {
+      background:rgba(0,0,0,0.11);
+      border-radius:8px;
+      box-shadow:0 1px 7px #eee;
+      min-width:108px; text-align:center;
+      padding:0.6rem 0.5rem 0.9rem 0.5rem;
+      color: #fff;
+    }
+    .prod-name { font-size:1.04rem; color:#ffe166; margin-bottom:0.18rem;}
+    .prod-count { font-weight:bold; color:#f7e61e;}
+    .make-box {
+      background:rgba(255,255,255,0.12);
+      border-radius:13px;
+      padding:1.5rem 1.3rem;
+      box-shadow:0 1px 6px #f0efea;
+    }
     .make-row { margin-bottom:1.2rem; }
     label { font-size:1.06rem;}
-    input[type="text"] { padding:0.7rem; font-size:1.1rem; border-radius:7px; border:1px solid #ddd; margin-top:0.5rem; width:97%;}
-    select { padding:0.5rem; font-size:1.1rem; border-radius:6px;}
-    button { background:#14c064; color:#fff; border:none; border-radius:8px; font-size:1.12rem; font-family:inherit; padding:0.7rem 2.1rem; cursor:pointer; margin-top:0.7rem;}
-    .log { text-align:center; color:#1b9e43; margin-top:1.3rem;}
-    @media (max-width:600px){ .wrap{margin:0.4rem;padding:0.7rem 0.18rem;} }
-    .gray { color: #aaa; }
+    input[type="text"] {
+      padding:0.7rem;
+      font-size:1.1rem;
+      border-radius:7px;
+      border:1px solid #888;
+      margin-top:0.5rem;
+      width:97%;
+      background:rgba(0,0,0,0.12);
+      color:#fff;
+    }
+    select {
+      padding:0.5rem;
+      font-size:1.1rem;
+      border-radius:6px;
+      background:rgba(0,0,0,0.10);
+      color: #fff;
+      border:1px solid #888;
+    }
+    button {
+      background:#ffe166;
+      color:#23457c;
+      border:none;
+      border-radius:8px;
+      font-size:1.12rem;
+      font-family:inherit;
+      padding:0.7rem 2.1rem;
+      cursor:pointer;
+      margin-top:0.7rem;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #233a5033;
+    }
+    button:disabled { opacity: 0.7; }
+    .log {
+      text-align:center;
+      color:#ffe166;
+      margin-top:1.3rem;
+      text-shadow:0 1px 8px #23457c88;
+    }
+    @media (max-width:600px){
+      .wrap{margin:0.4rem;padding:0.7rem 0.18rem;}
+    }
+    .gray { color: #ddd; }
   </style>
 </head>
 <body>
@@ -71,7 +167,6 @@
       <div class="market-board-title">감자/보리 가공식품 시세 전광판</div>
       <div class="market-board-list" id="priceBoard">-</div>
     </div>
-    <!-- -------------------- -->
 
     <div class="asset">
       <div class="asset-row"><b>ORCX</b>: <span id="orcx">0</span></div>
@@ -139,7 +234,6 @@
 
     // 서버/DB 인벤토리+제품 불러오기
     async function fetchUser() {
-      // 닉네임/카카오ID 등 서버 연동용
       const kid = localStorage.getItem("kakaoId");
       const farmName = localStorage.getItem("farmName") || "-";
       document.getElementById("farm").textContent = farmName;
@@ -243,13 +337,11 @@
       }catch{
         document.getElementById("log").innerHTML = "서버 연결 실패";
       }
-      // 여기서 즉시 버튼 활성화!
       makeBtn.disabled = false;
       makeBtn.textContent = "가공하기";
       document.getElementById("productName").focus();
     };
 
-    // 최초 실행
     window.onload = function() {
       fetchUser();
       loadPriceBoard();
@@ -257,4 +349,6 @@
   </script>
 </body>
 </html>
+
+
 
