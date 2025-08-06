@@ -1,168 +1,45 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>OrcaX 가맹점 신청</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Pretendard:400,700&display=swap" />
   <style>
-    body {
-      margin: 0; padding: 0;
-      background: linear-gradient(135deg, #e3f0ff 0%, #c1e0ff 100%);
-      font-family: 'Pretendard','Noto Sans KR',sans-serif;
-      min-height: 100vh;
+    body { background: #e3f0fd; font-family: 'Pretendard', sans-serif; margin:0; }
+    .container {
+      max-width: 400px;
+      margin: 60px auto; padding: 32px 24px;
+      background: #fff; border-radius: 20px; box-shadow: 0 4px 24px rgba(40,80,160,0.09);
+      min-height: 80vh;
     }
-    .apply-bg {
-      max-width: 480px;
-      margin: 48px auto;
-      padding: 24px 16px 32px 16px;
-      background: #f3f8ff;
-      border-radius: 22px;
-      box-shadow: 0 2px 18px 0 rgba(60,110,180,0.08);
-    }
-    .apply-title {
-      text-align: center;
-      font-size: 2em;
-      font-weight: 700;
-      margin: 0 0 12px 0;
-      color: #2181c2;
-      letter-spacing: -1px;
-    }
-    .info-message {
-      background: #e3f2fd;
-      color: #2773aa;
-      border-radius: 11px;
-      padding: 12px 15px;
-      margin-bottom: 18px;
-      text-align: center;
-      font-size: 1.06em;
-    }
-    .server-status {
-      text-align:center; font-weight:600; margin-bottom:18px;
-    }
-    .server-ok { color: #198754;}
-    .server-bad { color: #b23c3c;}
-    .apply-form label {
-      font-weight: 600;
-      color: #217ab6;
-      font-size: 1.05em;
-    }
-    .apply-form input, .apply-form textarea {
-      width: 100%;
-      padding: 12px;
-      font-size: 1.1em;
-      border: 1.5px solid #bcdff6;
-      border-radius: 8px;
-      margin: 6px 0 20px 0;
-      background: #f6fbff;
-      transition: border .2s;
-    }
-    .apply-form input:focus, .apply-form textarea:focus {
-      outline: none;
-      border: 1.5px solid #37a1ff;
-    }
-    .apply-form button {
-      width: 100%;
-      background: linear-gradient(90deg, #6fd3f7, #2692e7 70%);
-      color: #fff;
-      font-size: 1.2em;
-      padding: 12px 0;
-      border: none;
-      border-radius: 9px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: box-shadow .18s;
-      box-shadow: 0 2px 8px 0 rgba(36,110,195,0.09);
-    }
-    .apply-form button:active {
-      box-shadow: none;
-      background: #2692e7;
-    }
-    @media (max-width:600px) {
-      .apply-bg { margin: 16px 0; }
-    }
+    h2 { color: #2196f3; text-align: center; font-size: 2rem; margin-bottom: 8px;}
+    #server-status { text-align:center; margin-bottom:24px; font-weight:600; }
+    label { display: block; margin:18px 0 8px; color:#247bb7; font-weight:700; }
+    input { width:100%; padding:10px; border-radius:8px; border:1px solid #d4e6f9; font-size:1rem; background:#f6fbff; }
+    button { width:100%; margin-top:24px; background:linear-gradient(90deg,#5ec3ff,#2196f3); color:#fff; font-size:1.2rem; border:0; border-radius:10px; padding:12px 0; font-weight:700; cursor:pointer; }
+    button:active { background: #1976d2;}
   </style>
 </head>
 <body>
-  <div class="apply-bg">
-    <div class="apply-title">OrcaX 가맹점 신청</div>
-    <div class="server-status" id="serverStatus">
-      <span class="server-bad">● 서버 접속 불가 / 점검 중</span>
-    </div>
-    <div class="info-message" id="loginInfo">
-      가맹점 신청은 <b>카카오 로그인 후</b> 이용 가능합니다.<br>
-      <a href="index9.html" style="color:#2181c2;">[로그인 하러가기]</a>
-    </div>
-    <form class="apply-form" id="applyForm" style="display:none">
-      <label>대표자명*</label>
-      <input type="text" name="owner" id="owner" required>
-      <label>전화번호*</label>
-      <input type="text" name="phone" id="phone" required>
-      <label>사업자번호*</label>
-      <input type="text" name="biznum" id="biznum" required>
-      <label>지역</label>
-      <input type="text" name="region" id="region">
-      <label>주소*</label>
-      <input type="text" name="addr" id="addr" required>
-      <label>업종*</label>
-      <input type="text" name="biztype" id="biztype" required>
+  <div class="container">
+    <h2>OrcaX 가맹점 신청</h2>
+    <div id="server-status">● 서버 상태 확인 중...</div>
+    <form id="applyForm">
+      <label for="name">대표자명*</label>
+      <input type="text" id="name" required>
+      <label for="phone">전화번호*</label>
+      <input type="text" id="phone" required>
+      <label for="bizNo">사업자번호*</label>
+      <input type="text" id="bizNo" required>
+      <label for="region">지역</label>
+      <input type="text" id="region">
+      <label for="address">주소*</label>
+      <input type="text" id="address" required>
+      <label for="category">업종*</label>
+      <input type="text" id="category" required>
       <button type="submit">가맹점 신청</button>
     </form>
-    <div id="resultMessage" style="display:none; margin-top:24px;text-align:center;font-weight:600;font-size:1.11em;"></div>
   </div>
-  <script>
-    // 서버 상태 체크 (Render/3070 예시)
-    fetch('https://orcax-franchise-backend.onrender.com/api/apply/status')
-      .then(res=>res.json())
-      .then(data=>{
-        if(data && data.status === "OK") {
-          document.getElementById('serverStatus').innerHTML = '<span class="server-ok">● 서버 접속 정상</span>';
-        }
-      })
-      .catch(()=>{});
-
-    // 로그인 체크: localStorage에 nickname/kakaoId 있는지
-    const nickname = localStorage.getItem('nickname');
-    const kakaoId = localStorage.getItem('kakaoId');
-    if (nickname && kakaoId) {
-      document.getElementById('loginInfo').style.display = 'none';
-      document.getElementById('applyForm').style.display = '';
-      // 자동 입력(필요 시)
-      document.getElementById('owner').value = nickname;
-    }
-
-    // 신청 폼 제출
-    document.getElementById('applyForm').onsubmit = async function(e){
-      e.preventDefault();
-      const form = e.target;
-      const body = {
-        owner: form.owner.value.trim(),
-        phone: form.phone.value.trim(),
-        biznum: form.biznum.value.trim(),
-        region: form.region.value.trim(),
-        addr: form.addr.value.trim(),
-        biztype: form.biztype.value.trim(),
-        kakaoId, nickname
-      };
-      // 서버 제출
-      const res = await fetch('https://orcax-franchise-backend.onrender.com/api/apply', {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(body)
-      });
-      const result = await res.json();
-      if (result && result.success) {
-        document.getElementById('applyForm').style.display='none';
-        document.getElementById('resultMessage').innerHTML = '✅ 신청이 정상적으로 접수되었습니다!';
-        document.getElementById('resultMessage').style.color = "#2181c2";
-        document.getElementById('resultMessage').style.display = "";
-      } else {
-        document.getElementById('resultMessage').innerHTML = '❌ 신청 실패: ' + (result.message||'서버 오류');
-        document.getElementById('resultMessage').style.color = "#b23c3c";
-        document.getElementById('resultMessage').style.display = "";
-      }
-    }
-  </script>
+  <script src="/js/apply.js"></script>
 </body>
 </html>
