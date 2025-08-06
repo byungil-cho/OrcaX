@@ -106,6 +106,7 @@
     <div class="bottom-links">
       <a href="index.html">⬅ 농장 밖으로</a>
       <a href="auction-house.html">📊 경매장 입장</a>
+      <a href="game.html" target="_blank">🎮 게임설명(Game Guide)</a>
     </div>
 
     <button id="loginBtn" class="kakao-btn" onclick="goKakaoLogin()">카카오 로그인</button>
@@ -129,9 +130,7 @@
 
     function enterFarm(url) {
       const nickname = localStorage.getItem("nickname");
-      const kakaoId = localStorage.getItem("kakaoId");
-
-      if (!nickname || !kakaoId || kakaoId === "null") {
+      if (!nickname) {
         alert("로그인 후 입장하실 수 있습니다.");
         goKakaoLogin();
       } else {
@@ -189,4 +188,3 @@
   </script>
 </body>
 </html>
-
