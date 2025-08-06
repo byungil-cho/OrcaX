@@ -2,44 +2,109 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OrcaX 가맹점 신청</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Pretendard:400,700&display=swap" />
   <style>
-    body { background: #e3f0fd; font-family: 'Pretendard', sans-serif; margin:0; }
-    .container {
-      max-width: 400px;
-      margin: 60px auto; padding: 32px 24px;
-      background: #fff; border-radius: 20px; box-shadow: 0 4px 24px rgba(40,80,160,0.09);
-      min-height: 80vh;
+    body { font-family: 'Segoe UI', sans-serif; background: #e3f2fd; margin:0; padding:0; }
+    .container { max-width: 500px; margin: 30px auto; background: #fff; border-radius: 18px; box-shadow: 0 4px 24px #8ecae633; padding: 36px 24px 30px 24px; }
+    h2 { color: #217ab6; text-align: center; margin-bottom: 20px; }
+    .status { text-align:center; margin-bottom:18px; }
+    .status-ok { color: #198754; }
+    .status-bad { color: #b23c3c; }
+    .form-row { margin-bottom: 16px; }
+    label { display: block; font-weight: 600; margin-bottom: 5px; color: #00497b; }
+    input, select, textarea { width: 100%; padding: 9px; font-size: 1rem; border: 1px solid #d2e5f8; border-radius: 6px; background: #f6fbff; }
+    button { width: 100%; background: #217ab6; color: #fff; padding: 13px 0; font-size: 1.08rem; font-weight: 700; border: none; border-radius: 7px; cursor: pointer; margin-top: 10px; }
+    button:hover { background: #18548e; }
+    .msg { margin: 18px 0 0 0; text-align: center; font-size: 1.03em;}
+    @media (max-width: 600px) {
+      .container { padding:18px 5vw 24px 5vw; }
+      h2 { font-size: 1.2rem; }
     }
-    h2 { color: #2196f3; text-align: center; font-size: 2rem; margin-bottom: 8px;}
-    #server-status { text-align:center; margin-bottom:24px; font-weight:600; }
-    label { display: block; margin:18px 0 8px; color:#247bb7; font-weight:700; }
-    input { width:100%; padding:10px; border-radius:8px; border:1px solid #d4e6f9; font-size:1rem; background:#f6fbff; }
-    button { width:100%; margin-top:24px; background:linear-gradient(90deg,#5ec3ff,#2196f3); color:#fff; font-size:1.2rem; border:0; border-radius:10px; padding:12px 0; font-weight:700; cursor:pointer; }
-    button:active { background: #1976d2;}
   </style>
 </head>
 <body>
   <div class="container">
     <h2>OrcaX 가맹점 신청</h2>
-    <div id="server-status">● 서버 상태 확인 중...</div>
-    <form id="applyForm">
-      <label for="name">대표자명*</label>
-      <input type="text" id="name" required>
-      <label for="phone">전화번호*</label>
-      <input type="text" id="phone" required>
-      <label for="bizNo">사업자번호*</label>
-      <input type="text" id="bizNo" required>
-      <label for="region">지역</label>
-      <input type="text" id="region">
-      <label for="address">주소*</label>
-      <input type="text" id="address" required>
-      <label for="category">업종*</label>
-      <input type="text" id="category" required>
-      <button type="submit">가맹점 신청</button>
+    <div class="status" id="serverStatus">서버 상태 확인 중...</div>
+    <form id="applyForm" autocomplete="off">
+      <div class="form-row">
+        <label for="name">대표자명</label>
+        <input type="text" id="name" name="name" required maxlength="20">
+      </div>
+      <div class="form-row">
+        <label for="phone">전화번호</label>
+        <input type="tel" id="phone" name="phone" required maxlength="20" placeholder="010-0000-0000">
+      </div>
+      <div class="form-row">
+        <label for="corpnum">사업자번호</label>
+        <input type="text" id="corpnum" name="corpnum" maxlength="20">
+      </div>
+      <div class="form-row">
+        <label for="region">지역</label>
+        <input type="text" id="region" name="region" maxlength="20">
+      </div>
+      <div class="form-row">
+        <label for="address">주소</label>
+        <input type="text" id="address" name="address" maxlength="100">
+      </div>
+      <div class="form-row">
+        <label for="type">업종</label>
+        <input type="text" id="type" name="type" maxlength="20">
+      </div>
+      <div class="form-row">
+        <label for="note">비고</label>
+        <textarea id="note" name="note" rows="2" maxlength="80"></textarea>
+      </div>
+      <button type="submit">신청하기</button>
     </form>
+    <div class="msg" id="msg"></div>
   </div>
-  <script src="/js/apply.js"></script>
+  <script>
+    // 서버 상태 체크
+    fetch('https://orcax-franchise-backend.onrender.com/api/apply/status')
+      .then(res=>res.json())
+      .then(data=>{
+        if(data && data.status==="OK") {
+          document.getElementById('serverStatus').innerHTML = '<span class="status-ok">● 서버 접속 정상</span>';
+        } else {
+          document.getElementById('serverStatus').innerHTML = '<span class="status-bad">● 서버 접속 불가 / 점검 중</span>';
+        }
+      })
+      .catch(()=>{
+        document.getElementById('serverStatus').innerHTML = '<span class="status-bad">● 서버 접속 불가 / 점검 중</span>';
+      });
+
+    // 신청서 제출
+    document.getElementById('applyForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('msg').textContent = "⏳ 신청중...";
+      fetch('https://orcax-franchise-backend.onrender.com/api/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: this.name.value.trim(),
+          phone: this.phone.value.trim(),
+          corpnum: this.corpnum.value.trim(),
+          region: this.region.value.trim(),
+          address: this.address.value.trim(),
+          type: this.type.value.trim(),
+          note: this.note.value.trim()
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success) {
+          document.getElementById('msg').textContent = "✅ 신청이 정상적으로 접수되었습니다!";
+          this.reset();
+        } else {
+          document.getElementById('msg').textContent = "❌ 신청 실패: " + (data && data.message ? data.message : "서버 오류");
+        }
+      })
+      .catch(() => {
+        document.getElementById('msg').textContent = "❌ 서버 연결 실패 (다시 시도해 주세요)";
+      });
+    });
+  </script>
 </body>
 </html>

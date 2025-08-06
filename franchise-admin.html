@@ -94,7 +94,7 @@
     let currentIndex = 0;
     const itemsPerPage = 5;
 
-    // 1. 서버 연결 상태 확인
+    // 서버 연결 상태 확인
     fetch("https://orcax-franchise-backend.onrender.com/api/apply/status")
       .then(res => res.json())
       .then(data => {
@@ -108,7 +108,7 @@
         document.getElementById('serverStatus').innerHTML = '<span class="status-bad">● 서버 접속 불가 / 점검 중</span>';
       });
 
-    // 2. 신청 리스트 불러오기
+    // 신청 리스트 불러오기
     fetch("https://orcax-franchise-backend.onrender.com/api/apply")
       .then(res => res.json())
       .then(data => {
@@ -116,7 +116,7 @@
         const emptyMsg = document.querySelector(".empty");
         const loadMoreBtn = document.getElementById("loadMore");
 
-        if (!data || data.length === 0) {
+        if (!data || !data.length) {
           emptyMsg.textContent = "📭 아직 접수된 신청서가 없습니다.";
           return;
         }
