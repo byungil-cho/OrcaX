@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaX 가맹점 신청관리(관리자)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <style>
+    body { background:#e3f2fd; font-family:'Pretendard',sans-serif; margin:0; padding:0;}
+    .admin-wrap { max-width:700px; margin:32px auto; background:#fff; border-radius:16px; box-shadow:0 2px 18px #9ec9ee33; padding:30px 18px 32px 18px;}
+    h2 { color:#217ab6; margin-bottom:16px; text-align:center;}
+    .server-status { text-align:center; font-weight:700; margin-bottom:18px;}
+    .server-ok { color:#198754;}
+    .server-bad { color:#b23c3c;}
+    table { width:100%; border-collapse:collapse; background:#f9fcff;}
+    th,td { border:1px solid #d0e2f8; padding:10px 6px; font-size:1em;}
+    th { background:#bde3fb; color:#18548e;}
+    tr:nth-child(even) { background:#e8f4ff;}
+    .no-data { text-align:center; color:#af0e2e; padding:48px 0 30px 0;}
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <h2>OrcaX 가맹점 신청 관리(관리자)</h2>
+    <div class="server-status" id="serverStatus">
+      <span class="server-bad">● 서버 접속 불가 / 점검 중</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>신청일</th>
+          <th>대표자명</th>
+          <th>전화번호</th>
+          <th>사업자번호</th>
+          <th>지역</th>
+          <th>주소</th>
+          <th>업종</th>
+          <th>닉네임</th>
+        </tr>
+      </thead>
+      <tbody id="applyList"></tbody>
+    </table>
+    <div id="emptyMsg" class="no-data" style="display:none;">신청내역이 없습니다.</div>
+  </div>
+  <script>
+    // 서버 연결상태 헬스체크
+    fetch('https://orcax-franchise-backend.onrender.com/api/apply/status')
+      .then(res=>res.json())
+      .then(data=>{
+        if(data && data.status === "OK") {
+          document.getElementById('serverStatus').innerHTML = '<span class="server-ok">● 서버 접속 정상</span>';
+        }
+      })
+      .catch(()=>{
+        document.getElementById('serverStatus').innerHTML =
+          '<span class="server-bad">● 서버 접속 불가 / 점검 중</span>';
+      });
+
+    // 신청 리스트
+    fetch('https://orcax-franchise-backend.onrender.com/api/apply/list')
+      .then(res=>res.json())
+      .then(data=>{
+        const tbody = document.getElementById('applyList');
+        if(!data || !data.length) {
+          document.getElementById('emptyMsg').style.display = '';
+          return;
+        }
+        tbody.innerHTML = data.map(a=>`
+          <tr>
+            <td>${a.createdAt ? new Date(a.createdAt).toLocaleString('ko-KR') : '-'}</td>
+            <td>${a.owner||'-'}</td>
+            <td>${a.phone||'-'}</td>
+            <td>${a.biznum||'-'}</td>
+            <td>${a.region||'-'}</td>
+            <td>${a.addr||'-'}</td>
+            <td>${a.biztype||'-'}</td>
+            <td>${a.nickname||'-'}</td>
+          </tr>
+        `).join('');
+      })
+      .catch(()=>{
+        document.getElementById('applyList').innerHTML =
+          '<tr><td colspan="8" style="color:#b23c3c">서버 연결 실패!</td></tr>';
+      });
+  </script>
+</body>
+</html>
