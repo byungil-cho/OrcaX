@@ -1,230 +1,168 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>OrcaX 가맹점 신청</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css">
   <style>
     body {
+      margin: 0; padding: 0;
+      background: linear-gradient(135deg, #e3f0ff 0%, #c1e0ff 100%);
+      font-family: 'Pretendard','Noto Sans KR',sans-serif;
       min-height: 100vh;
-      background: linear-gradient(135deg, #23336c 0%, #141925 100%);
-      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
-      margin: 0;
-      color: #ffe164;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
-    .apply-container {
-      background: rgba(27,32,58,0.97);
+    .apply-bg {
+      max-width: 480px;
+      margin: 48px auto;
+      padding: 24px 16px 32px 16px;
+      background: #f3f8ff;
       border-radius: 22px;
-      box-shadow: 0 8px 36px #0008;
-      padding: 42px 32px 34px 32px;
-      max-width: 450px;
-      width: 96vw;
-      margin: 28px 0;
+      box-shadow: 0 2px 18px 0 rgba(60,110,180,0.08);
+    }
+    .apply-title {
       text-align: center;
-    }
-    .server-status {
-      display: inline-block;
-      padding: 7px 18px;
-      margin-bottom: 18px;
-      border-radius: 12px;
-      font-size: 1.05em;
+      font-size: 2em;
       font-weight: 700;
-      letter-spacing: 0.01em;
-      background: #232c47;
-      color: #fffad5;
-      box-shadow: 0 2px 6px #0002;
-      transition: background .2s;
-    }
-    .server-status.ok { background: #234d3c; color: #b5ffce;}
-    .server-status.fail { background: #473232; color: #ffd2d2;}
-    h2 {
-      color: #ffe164;
-      font-size: 1.7rem;
-      margin-bottom: 1.3rem;
-      font-weight: 800;
+      margin: 0 0 12px 0;
+      color: #2181c2;
       letter-spacing: -1px;
     }
+    .info-message {
+      background: #e3f2fd;
+      color: #2773aa;
+      border-radius: 11px;
+      padding: 12px 15px;
+      margin-bottom: 18px;
+      text-align: center;
+      font-size: 1.06em;
+    }
+    .server-status {
+      text-align:center; font-weight:600; margin-bottom:18px;
+    }
+    .server-ok { color: #198754;}
+    .server-bad { color: #b23c3c;}
     .apply-form label {
-      display: block;
-      margin-bottom: 0.35em;
-      margin-top: 1.3em;
-      color: #fff6ce;
-      text-align: left;
       font-weight: 600;
+      color: #217ab6;
+      font-size: 1.05em;
     }
     .apply-form input, .apply-form textarea {
       width: 100%;
-      border-radius: 10px;
-      border: none;
-      margin-bottom: 0.2em;
       padding: 12px;
-      font-size: 1.08em;
-      background: #222d4d;
-      color: #ffe164;
-      outline: none;
-      box-sizing: border-box;
-      border-bottom: 2px solid #28326b;
+      font-size: 1.1em;
+      border: 1.5px solid #bcdff6;
+      border-radius: 8px;
+      margin: 6px 0 20px 0;
+      background: #f6fbff;
       transition: border .2s;
     }
     .apply-form input:focus, .apply-form textarea:focus {
-      border-bottom: 2px solid #ffe164;
-      background: #28326b;
+      outline: none;
+      border: 1.5px solid #37a1ff;
     }
-    .apply-form textarea {
-      min-height: 70px;
-      resize: vertical;
-    }
-    .apply-form input[type="file"] {
-      background: none;
-      color: #fff6ce;
-      border: none;
-      padding: 0;
-    }
-    .file-preview {
-      margin-top: 7px;
-      margin-bottom: 8px;
-      text-align: left;
-      color: #ffe164;
-      font-size: 0.95em;
-    }
-    .submit-btn {
+    .apply-form button {
       width: 100%;
-      margin-top: 1.8em;
-      font-size: 1.13em;
-      background: linear-gradient(90deg, #ffe164 30%, #ffd700 90%);
-      color: #253056;
-      font-weight: bold;
+      background: linear-gradient(90deg, #6fd3f7, #2692e7 70%);
+      color: #fff;
+      font-size: 1.2em;
+      padding: 12px 0;
       border: none;
-      padding: 13px 0;
-      border-radius: 11px;
+      border-radius: 9px;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 2px 16px #ffe16440;
-      transition: background .17s, color .17s;
+      margin-top: 10px;
+      transition: box-shadow .18s;
+      box-shadow: 0 2px 8px 0 rgba(36,110,195,0.09);
     }
-    .submit-btn:active {
-      background: #ffd700;
-      color: #222;
+    .apply-form button:active {
+      box-shadow: none;
+      background: #2692e7;
     }
-    #result {
-      margin-top: 24px;
-      font-weight: bold;
-      font-size: 1.08em;
-      min-height: 36px;
-      color: #ffe164;
-      text-shadow: 0 1px 4px #000a;
-      word-break: keep-all;
-    }
-    @media (max-width: 560px) {
-      .apply-container { padding: 19vw 3vw 7vw 3vw; }
-      h2 { font-size: 1.28rem; }
-      .submit-btn { font-size: 1em; padding: 10px 0;}
+    @media (max-width:600px) {
+      .apply-bg { margin: 16px 0; }
     }
   </style>
 </head>
 <body>
-  <div class="apply-container">
-    <div class="server-status" id="serverStatus">서버 상태 확인 중...</div>
-    <h2>OrcaX 가맹점 신청</h2>
-    <form class="apply-form" id="applyForm" enctype="multipart/form-data" autocomplete="off">
-      <label for="name">대표자명*</label>
-      <input name="name" id="name" placeholder="대표자명" required />
-      <label for="phone">전화번호*</label>
-      <input name="phone" id="phone" placeholder="전화번호" required />
-      <label for="corpnum">사업자번호*</label>
-      <input name="corpnum" id="corpnum" placeholder="사업자번호" required />
-      <label for="region">지역*</label>
-      <input name="region" id="region" placeholder="지역" required />
-      <label for="address">주소*</label>
-      <input name="address" id="address" placeholder="주소" required />
-      <label for="type">업종*</label>
-      <input name="type" id="type" placeholder="업종" required />
-      <label for="note">비고사항</label>
-      <textarea name="note" id="note" placeholder="비고사항 (선택)"></textarea>
-      <label for="file">첨부파일</label>
-      <input type="file" name="file" id="file" accept="image/*,.pdf,.doc,.docx" />
-      <div class="file-preview" id="filePreview"></div>
-      <button class="submit-btn" type="submit" id="submitBtn">신청하기</button>
+  <div class="apply-bg">
+    <div class="apply-title">OrcaX 가맹점 신청</div>
+    <div class="server-status" id="serverStatus">
+      <span class="server-bad">● 서버 접속 불가 / 점검 중</span>
+    </div>
+    <div class="info-message" id="loginInfo">
+      가맹점 신청은 <b>카카오 로그인 후</b> 이용 가능합니다.<br>
+      <a href="index9.html" style="color:#2181c2;">[로그인 하러가기]</a>
+    </div>
+    <form class="apply-form" id="applyForm" style="display:none">
+      <label>대표자명*</label>
+      <input type="text" name="owner" id="owner" required>
+      <label>전화번호*</label>
+      <input type="text" name="phone" id="phone" required>
+      <label>사업자번호*</label>
+      <input type="text" name="biznum" id="biznum" required>
+      <label>지역</label>
+      <input type="text" name="region" id="region">
+      <label>주소*</label>
+      <input type="text" name="addr" id="addr" required>
+      <label>업종*</label>
+      <input type="text" name="biztype" id="biztype" required>
+      <button type="submit">가맹점 신청</button>
     </form>
-    <div id="result"></div>
+    <div id="resultMessage" style="display:none; margin-top:24px;text-align:center;font-weight:600;font-size:1.11em;"></div>
   </div>
   <script>
-    // ---------- 서버 상태 체크 ----------
-    const serverStatusEl = document.getElementById('serverStatus');
-    (async function checkServer() {
-      // 현재 onrender.com 서버 사용
-      const API_URL = "https://orcax-franchise-backend.onrender.com/api/apply";
-      let ok = false;
-      try {
-        // 단순 GET 호출 (응답오면 OK, 아니면 fail)
-        const res = await fetch(API_URL, { method: "GET" });
-        if (res.ok) {
-          ok = true;
+    // 서버 상태 체크 (Render/3070 예시)
+    fetch('https://orcax-franchise-backend.onrender.com/api/apply/status')
+      .then(res=>res.json())
+      .then(data=>{
+        if(data && data.status === "OK") {
+          document.getElementById('serverStatus').innerHTML = '<span class="server-ok">● 서버 접속 정상</span>';
         }
-      } catch (e) {}
-      if (ok) {
-        serverStatusEl.textContent = "🟢 서버 정상 / 접속 가능";
-        serverStatusEl.classList.add('ok');
-        serverStatusEl.classList.remove('fail');
-      } else {
-        serverStatusEl.textContent = "🔴 서버 접속 불가 / 점검 중";
-        serverStatusEl.classList.remove('ok');
-        serverStatusEl.classList.add('fail');
-      }
-    })();
+      })
+      .catch(()=>{});
 
-    // 파일 미리보기
-    document.getElementById('file').addEventListener('change', function() {
-      const file = this.files[0];
-      const preview = document.getElementById('filePreview');
-      if (file) {
-        preview.textContent = '첨부파일: ' + file.name;
-      } else {
-        preview.textContent = '';
-      }
-    });
+    // 로그인 체크: localStorage에 nickname/kakaoId 있는지
+    const nickname = localStorage.getItem('nickname');
+    const kakaoId = localStorage.getItem('kakaoId');
+    if (nickname && kakaoId) {
+      document.getElementById('loginInfo').style.display = 'none';
+      document.getElementById('applyForm').style.display = '';
+      // 자동 입력(필요 시)
+      document.getElementById('owner').value = nickname;
+    }
 
-    // 폼 전송
-    document.getElementById("applyForm").addEventListener("submit", async function (e) {
+    // 신청 폼 제출
+    document.getElementById('applyForm').onsubmit = async function(e){
       e.preventDefault();
-
       const form = e.target;
-      const formData = new FormData(form);
-
-      // 카카오 로그인 정보(선택)
-      const nickname = localStorage.getItem("nickname") || "";
-      const kakaoId = localStorage.getItem("kakaoId") || "";
-      formData.append("nickname", nickname);
-      formData.append("kakaoId", kakaoId);
-
-      const resultDiv = document.getElementById("result");
-      const btn = document.getElementById("submitBtn");
-      resultDiv.innerHTML = "<span style='color:#ffd700;'>🚀 신청 정보를 전송 중입니다...</span>";
-      btn.disabled = true;
-      btn.textContent = "전송 중...";
-
-      try {
-        const res = await fetch("https://orcax-franchise-backend.onrender.com/api/apply", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!res.ok) {
-          throw new Error("서버 응답 오류 (" + res.status + ")");
-        }
-
-        const data = await res.json();
-        resultDiv.innerHTML = "✅ <b>신청이 접수되었습니다!</b><br><span style='font-size:0.95em;color:#ffe164'>" + (data.message || "곧 확인 후 연락드리겠습니다.") + "</span>";
-        form.reset();
-        document.getElementById("filePreview").textContent = "";
-      } catch (err) {
-        resultDiv.innerHTML = "❌ <b>전송 실패!</b><br><span style='color:#ffb999;'>" + err.message + "</span>";
+      const body = {
+        owner: form.owner.value.trim(),
+        phone: form.phone.value.trim(),
+        biznum: form.biznum.value.trim(),
+        region: form.region.value.trim(),
+        addr: form.addr.value.trim(),
+        biztype: form.biztype.value.trim(),
+        kakaoId, nickname
+      };
+      // 서버 제출
+      const res = await fetch('https://orcax-franchise-backend.onrender.com/api/apply', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body)
+      });
+      const result = await res.json();
+      if (result && result.success) {
+        document.getElementById('applyForm').style.display='none';
+        document.getElementById('resultMessage').innerHTML = '✅ 신청이 정상적으로 접수되었습니다!';
+        document.getElementById('resultMessage').style.color = "#2181c2";
+        document.getElementById('resultMessage').style.display = "";
+      } else {
+        document.getElementById('resultMessage').innerHTML = '❌ 신청 실패: ' + (result.message||'서버 오류');
+        document.getElementById('resultMessage').style.color = "#b23c3c";
+        document.getElementById('resultMessage').style.display = "";
       }
-      btn.disabled = false;
-      btn.textContent = "신청하기";
-    });
+    }
   </script>
 </body>
 </html>
