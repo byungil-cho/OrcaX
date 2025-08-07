@@ -33,6 +33,10 @@
         <input type="text" id="name" name="name" required maxlength="20">
       </div>
       <div class="form-row">
+        <label for="storeName">매장명</label>
+        <input type="text" id="storeName" name="storeName" required maxlength="30">
+      </div>
+      <div class="form-row">
         <label for="phone">전화번호</label>
         <input type="tel" id="phone" name="phone" required maxlength="20" placeholder="010-0000-0000">
       </div>
@@ -84,6 +88,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: this.name.value.trim(),
+          storeName: this.storeName.value.trim(),
           phone: this.phone.value.trim(),
           corpnum: this.corpnum.value.trim(),
           region: this.region.value.trim(),
@@ -108,4 +113,3 @@
   </script>
 </body>
 </html>
-
