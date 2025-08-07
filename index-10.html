@@ -50,7 +50,7 @@
     }
 
     // (2) 최초 신규 등록 및 정보 불러오기 (POST → GET 필요시)
-    fetch('https://[서버주소]:3070/api/me', {
+    fetch('https://climbing-wholly-grouper.jp.ngrok.io/api/userdata', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ kakaoId, nickname })
