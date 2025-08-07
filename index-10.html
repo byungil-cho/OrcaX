@@ -1,286 +1,303 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐋 OrcaX 실시간 채팅</title>
+  <meta charset="UTF-8">
+  <title>OrcaX 실시간 채팅</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #f2fcfe, #e0f1ff);
+      background: #e9f4fd;
+      font-family: 'Jua', 'Noto Sans KR', sans-serif;
       margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       min-height: 100vh;
     }
     .chat-container {
-      background-color: #fff;
-      padding: 2rem;
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      max-width: 600px;
-      width: 90%;
+      max-width: 450px;
+      background: #fff;
+      margin: 38px auto 0;
+      border-radius: 22px;
+      box-shadow: 0 6px 40px 0 #bae2ff88;
+      padding: 32px 28px 30px 28px;
     }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 1.1rem;
-    }
-    #server-status {
-      text-align: center;
-      font-size: 1.01em;
+    .logo {
+      font-size: 2.3rem;
       font-weight: bold;
-      margin-bottom: 0.7rem;
-      padding: 0.5em;
+      letter-spacing: 1px;
+      display: flex; align-items: center; gap: 8px;
+      color: #1c3e7a;
+      justify-content: center;
+      margin-bottom: 5px;
+    }
+    .logo img {
+      width: 40px; vertical-align: middle;
+    }
+    .server-status {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.07em;
+      padding: 7px 0 2px;
       border-radius: 9px;
-      letter-spacing: 0.5px;
-      background: #f5fafe;
-      border: 1px solid #c8e5f7;
-    }
-    .status-ok { color: #198754; }
-    .status-bad { color: #b23c3c; }
-    #online-users {
-      margin-bottom: 8px;
-      color: #176210;
+      background: #f7f8fa;
+      color: #19b360;
       font-weight: bold;
-      text-align: left;
-      font-size: 1em;
-      background: #f6ffef;
-      padding: 6px 10px;
-      border-radius: 7px;
-      border: 1px solid #c8e5c7;
+      border: 1.3px solid #d6f7ea;
     }
-    input, textarea, button {
-      width: 100%;
-      padding: 12px;
-      margin: 0.5rem 0;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 1rem;
+    .server-status.offline {
+      color: #c41c1c; border: 1.3px solid #ffd5d5; background: #fff6f6;
     }
-    textarea {
-      resize: none;
-      height: 80px;
-    }
-    button {
-      background: linear-gradient(90deg, #3498db, #2ecc71);
-      color: white;
+    .entrance-banner {
+      margin: 14px 0 16px 0;
+      background: linear-gradient(90deg,#f6fbff 10%,#e7f4ff 90%);
+      color: #2186d6;
+      border-radius: 12px;
+      padding: 11px;
+      font-size: 1.1em;
       font-weight: bold;
-      cursor: pointer;
-      transition: opacity 0.2s ease;
-    }
-    button:hover {
-      opacity: 0.9;
-    }
-    .delete-btn {
-      background: #e74c3c !important;
-      margin-bottom: 8px;
-      color: #fff !important;
-      font-weight: bold;
-    }
-    #chat-log {
-      margin-top: 1rem;
-      max-height: 250px;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 1rem;
-      background: #f9f9f9;
-    }
-    .message {
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      color: #333;
-    }
-    .message.self {
-      background-color: #e0f7da;
-      padding: 8px;
-      border-radius: 8px;
-    }
-    .scroll-toggle {
-      margin-top: 0.3rem;
-      font-size: 0.9rem;
-      text-align: right;
-      cursor: pointer;
-      color: #3498db;
-    }
-    .back-button {
-      margin-top: 1rem;
       text-align: center;
+      border: 1.5px solid #e7f0ff;
+      box-shadow: 0 2px 8px 0 #c5e5ff2b;
+      letter-spacing: 0.01em;
     }
-    .back-button a {
-      color: #fff;
-      background-color: #3498db;
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      text-decoration: none;
-      display: inline-block;
+    .user-list {
+      margin-bottom: 6px;
+      font-size: 1.04em;
+      color: #54667d;
+      background: #eaf6ff;
+      border-radius: 7px;
+      padding: 6px 12px;
+      min-height: 28px;
+      margin-top: 0;
+      font-weight: 500;
+      text-align: left;
+    }
+    .user-list strong { color: #1ca8ec; }
+    .nickname-box {
+      margin-bottom: 7px;
+      width: 100%;
       font-weight: bold;
+      color: #28a084;
+      background: #e6fff0;
+      border-radius: 7px;
+      padding: 7px 13px;
+      border: 1.2px solid #c2fbe2;
+      font-size: 1em;
     }
-    .back-button a:hover {
-      background-color: #2980b9;
+    .input {
+      width: 100%;
+      padding: 11px 15px;
+      margin-bottom: 12px;
+      border: 1.3px solid #d9e7ef;
+      border-radius: 10px;
+      font-size: 1.04em;
+      outline: none;
+      background: #f6fbff;
+      transition: border .18s;
+    }
+    .input:focus { border: 1.5px solid #67cbfc; }
+    #messages {
+      width: 100%;
+      min-height: 60px;
+      max-height: 190px;
+      overflow-y: auto;
+      background: #f5fff7;
+      border: 1.3px solid #e3f5e9;
+      border-radius: 10px;
+      padding: 13px 10px;
+      margin-bottom: 13px;
+      margin-top: 8px;
+      box-sizing: border-box;
+      font-size: 1.05em;
+    }
+    .msg-item {
+      margin-bottom: 8px;
+      padding: 7px 10px 7px 10px;
+      border-radius: 9px;
+      background: #e7faff;
+      border-left: 4px solid #21bdcb;
+      color: #205570;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      word-break: break-all;
+      display: block;
+    }
+    .msg-item.system {
+      background: #e0f7e6; border-left: 4px solid #6ad96a; color: #1e7e3b;
+      font-style: italic;
+    }
+    .msg-item.me { background: #fffbe5; border-left: 4px solid #ffc126; color: #9e7e1e; }
+    .chat-form-btn, .clear-btn {
+      width: 100%;
+      font-size: 1.11em;
+      border: none;
+      border-radius: 11px;
+      padding: 13px 0 11px;
+      margin-bottom: 10px;
+      font-family: 'Jua','Noto Sans KR',sans-serif;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.15s;
+      box-shadow: 0 3px 13px 0 #dbefff1c;
+      letter-spacing: 0.03em;
+    }
+    .chat-form-btn {
+      background: linear-gradient(90deg,#0bbd9d 0%,#24b9e4 100%);
+      color: #fff;
+    }
+    .chat-form-btn:hover { background: linear-gradient(90deg,#0c8d90,#1189d8 100%); }
+    .clear-btn {
+      background: #fa2a2a;
+      color: #fff;
+      margin-bottom: 0;
+      margin-top: -3px;
+    }
+    .clear-btn:hover { background: #ce1818; }
+    .footer-link {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 1.02em;
+      color: #4299e1;
+      opacity: 0.7;
+    }
+    @media (max-width:600px) {
+      .chat-container { padding: 13px 3vw 17px 3vw; margin: 0.7em auto 0; }
+      .logo { font-size: 1.5em; }
+      .input, #messages { font-size: 0.98em; }
     }
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <h1>🐋 OrcaX 실시간 채팅</h1>
-    <div id="server-status">서버 상태 확인 중...</div>
-    <div id="online-users">
-      <b>대화방 입장자:</b> <span id="user-list">-</span>
+    <div class="logo">
+      <img src="https://cdn-icons-png.flaticon.com/512/616/616494.png" alt="orca" style="width:38px;">
+      OrcaX 실시간 채팅
     </div>
-    <input type="text" id="sender" placeholder="닉네임을 입력하세요" />
-    <textarea id="message" placeholder="메시지를 입력하세요"></textarea>
-    <button onclick="sendMessage()">전송하기</button>
-    <button class="delete-btn" onclick="deleteAllMessages()">💣 전체 메시지 삭제</button>
-    <div class="scroll-toggle" onclick="toggleScroll()">📌 자동 스크롤: <span id="scroll-state">켜짐</span></div>
-    <div id="chat-log"></div>
-    <div class="back-button">
-      <a href="index.html">← 대화방 나가기</a>
+    <div id="serverStatus" class="server-status">• 서버 접속 정상</div>
+    <div class="entrance-banner">
+      발자꾹! 찍고 가세요 😊  한마디 남기면 모두가 즐겁습니다!
     </div>
+    <div id="userList" class="user-list"></div>
+    <div id="nicknameBox" class="nickname-box" style="display:none"></div>
+    <form id="chatForm" autocomplete="off">
+      <input type="text" id="nickname" class="input" placeholder="닉네임을 입력하세요" maxlength="16" required>
+      <textarea id="message" class="input" placeholder="메시지를 입력하세요" rows="2" maxlength="200"></textarea>
+      <button type="submit" class="chat-form-btn">전송하기</button>
+      <button type="button" id="clearBtn" class="clear-btn">전체 메시지 삭제</button>
+    </form>
+    <div id="messages"></div>
+    <button onclick="window.location.href='index.html'" class="chat-form-btn" style="margin-top:8px;background:#b8c5ff;color:#143879;">← 대화방 나가기</button>
   </div>
-
+  <div class="footer-link">
+    © 2025 OrcaX | 실장 제작 | 문의: byungil-cho@hanmail.net
+  </div>
   <script>
-    const apiUrl = "https://orcax-franchise-backend.onrender.com/api/messages";
-    const usersApi = "https://orcax-franchise-backend.onrender.com/api/online-users";
-    let autoScroll = true;
-    let currentNickname = "";
+    // ============================
+    // 실시간 접속자 표시/채팅 연결 (간단 소켓 흉내, fetch poll)
+    // ============================
+    const API = "https://orcax-franchise-backend.onrender.com";
+    const userListBox = document.getElementById('userList');
+    const serverStatus = document.getElementById('serverStatus');
+    const nicknameBox = document.getElementById('nicknameBox');
+    let nickname = localStorage.getItem('chat_nick') || '';
+    let users = [];
+    let pollTimer, pollUserTimer;
 
     // 서버 상태 체크
-    function checkServerStatus() {
-      fetch(apiUrl, { method: "GET" })
-        .then(res => {
-          if (res.ok) {
-            document.getElementById("server-status").innerHTML =
-              '<span class="status-ok">● 서버 접속 정상</span>';
-          } else {
-            document.getElementById("server-status").innerHTML =
-              '<span class="status-bad">● 서버 접속 불가 (응답 오류)</span>';
-          }
-        })
-        .catch(() => {
-          document.getElementById("server-status").innerHTML =
-            '<span class="status-bad">● 서버 접속 불가 (오프라인)</span>';
-        });
-    }
-
-    // 내 닉네임 서버에 등록 (입장)
-    function registerUser() {
-      const sender = document.getElementById('sender').value.trim();
-      if (!sender) return;
-      fetch(usersApi, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname: sender })
-      });
-    }
-
-    // 실시간 접속자 리스트 불러오기
-    function loadUsers() {
-      fetch(usersApi)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById('user-list').innerText =
-            (data.users && data.users.length) ? data.users.join(", ") : "없음";
-        });
-    }
-
-    // 채팅 메시지 전송
-    function sendMessage() {
-      const sender = document.getElementById("sender").value.trim();
-      const message = document.getElementById("message").value.trim();
-      if (!sender || !message) {
-        alert("닉네임과 메시지를 모두 입력해주세요!");
-        return;
+    async function checkServer() {
+      try {
+        let r = await fetch(API + "/api/ping"); // /ping에 응답하도록 서버.js에서 구현
+        if (r.ok) {
+          serverStatus.textContent = '• 서버 접속 정상';
+          serverStatus.classList.remove('offline');
+        } else throw new Error();
+      } catch {
+        serverStatus.textContent = '• 서버 접속 불가 (오프라인)';
+        serverStatus.classList.add('offline');
       }
-      currentNickname = sender;
-      localStorage.setItem("nickname", sender);
-
-      fetch(apiUrl, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender, content: message })
-      })
-      .then(res => res.json())
-      .then(() => {
-        document.getElementById("message").value = '';
-        loadMessages();
-      })
-      .catch(err => {
-        alert("⚠️ 메시지 전송 실패!");
-        console.error("전송 에러:", err);
-      });
     }
+    checkServer(); setInterval(checkServer, 9000);
 
-    // 전체 메시지 삭제
-    function deleteAllMessages() {
-      if (!confirm("정말 전체 대화내용을 모두 삭제하시겠습니까? (모두에게 적용됨)")) return;
-      fetch(apiUrl, { method: "DELETE" })
-        .then(res => res.json())
-        .then(data => {
-          alert(data.message || "모든 메시지 삭제 완료!");
-          loadMessages();
-        })
-        .catch(err => {
-          alert("메시지 삭제 실패!");
-          console.error(err);
-        });
+    // 유저 리스트 불러오기 (서버에서 구현 필요)
+    async function fetchUsers() {
+      try {
+        let res = await fetch(API + "/api/users");
+        let data = await res.json();
+        users = Array.isArray(data) ? data : [];
+      } catch { users = []; }
+      userListBox.innerHTML =
+        users.length
+          ? `입장자: <strong>${users.map(u=>u.nick).join(", ")}</strong>`
+          : "입장한 사용자가 없습니다.";
     }
+    fetchUsers(); setInterval(fetchUsers, 4000);
 
-    document.getElementById("message").addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+    // 메시지 불러오기
+    async function fetchMessages() {
+      try {
+        let res = await fetch(API + "/api/messages");
+        let data = await res.json();
+        document.getElementById('messages').innerHTML = data.map(msg => 
+          `<div class="msg-item${msg.nick === nickname ? ' me' : ''}">
+            <strong>[${msg.nick}]</strong> ${msg.text}
+          </div>`
+        ).join('');
+      } catch {
+        document.getElementById('messages').innerHTML = 
+          '<div class="msg-item system">메시지를 불러올 수 없습니다.</div>';
       }
-    });
-
-    // 채팅 메시지 불러오기
-    function loadMessages() {
-      fetch(apiUrl)
-        .then(res => res.json())
-        .then(data => {
-          const messages = Array.isArray(data) ? data : data.messages;
-          if (!Array.isArray(messages)) return;
-          const log = document.getElementById("chat-log");
-          log.innerHTML = messages.map(msg =>
-            `<div class="message${msg.sender === currentNickname ? ' self' : ''}">
-              <strong>[${msg.sender}]</strong> ${msg.content || msg.message}
-            </div>`
-          ).join('');
-          if (autoScroll) log.scrollTop = log.scrollHeight;
-        })
-        .catch(err => console.error("불러오기 에러:", err));
     }
+    fetchMessages(); setInterval(fetchMessages, 2100);
 
-    function toggleScroll() {
-      autoScroll = !autoScroll;
-      document.getElementById("scroll-state").innerText = autoScroll ? "켜짐" : "꺼짐";
+    // 닉네임 처리
+    const nickInput = document.getElementById('nickname');
+    if (nickname) {
+      nickInput.value = nickname;
+      nicknameBox.style.display = '';
+      nicknameBox.textContent = `대화방 입장자: ${nickname}`;
     }
-
-    // 브라우저 닫을 때 퇴장 통보
-    window.addEventListener("beforeunload", function() {
-      const sender = document.getElementById('sender').value.trim();
-      if (!sender) return;
-      navigator.sendBeacon(usersApi + "/exit", JSON.stringify({ nickname: sender }));
-    });
-
-    // 최초 진입 시 입장/유저 표시 주기적 호출
-    window.onload = () => {
-      const saved = localStorage.getItem('nickname');
-      if (saved) {
-        document.getElementById('sender').value = saved;
-        currentNickname = saved;
-      }
-      checkServerStatus();
-      loadMessages();
-      loadUsers();
-      setInterval(loadMessages, 5000);
-      setInterval(loadUsers, 4000);
-      setInterval(checkServerStatus, 7000); // 상태 주기적으로 체크
-      setTimeout(registerUser, 700); // 입장 0.7초 후 내 닉네임 등록
+    nickInput.oninput = e => {
+      nickname = e.target.value.trim();
+      localStorage.setItem('chat_nick', nickname);
+      nicknameBox.style.display = nickname ? '' : 'none';
+      nicknameBox.textContent = nickname ? `대화방 입장자: ${nickname}` : '';
     };
+
+    // 메시지 전송
+    document.getElementById('chatForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const text = document.getElementById('message').value.trim();
+      if (!nickname) { alert("닉네임을 입력하세요!"); return; }
+      if (!text) return;
+      try {
+        await fetch(API + "/api/messages", {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nick: nickname, text })
+        });
+        document.getElementById('message').value = '';
+        fetchMessages();
+        fetchUsers();
+      } catch {
+        alert("메시지 전송 실패: 서버 에러");
+      }
+    };
+
+    // 전체 메시지 삭제 (관리자만 가능하게 하려면 추가 조건 필요)
+    document.getElementById('clearBtn').onclick = async function() {
+      if (!confirm("전체 메시지를 정말 삭제할까요?")) return;
+      try {
+        await fetch(API + "/api/messages", { method: "DELETE" });
+        fetchMessages();
+      } catch {
+        alert("삭제 실패: 서버 에러");
+      }
+    };
+
+    // 최초 자동 스크롤(가장 아래로)
+    setInterval(() => {
+      const msgBox = document.getElementById('messages');
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }, 1000);
   </script>
 </body>
 </html>
