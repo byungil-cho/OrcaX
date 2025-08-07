@@ -6,72 +6,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      background: #f7f7f7;
+      background: #fafafa;
       font-family: 'Noto Sans KR', sans-serif;
       margin: 0;
       padding: 0;
     }
     .container {
-      max-width: 700px;
-      margin: 40px auto 0 auto;
+      max-width: 950px;
+      margin: 40px auto;
       background: #fff;
       border-radius: 18px;
       box-shadow: 0 6px 32px 0 rgba(32,80,110,0.09);
-      padding: 32px 26px 40px 32px;
+      padding: 30px 30px 50px 30px;
+      text-align: center;
     }
     h2 {
-      color: #2162b0;
-      margin-bottom: 8px;
-      font-size: 2.1em;
-      font-weight: 800;
+      color: #2263a8;
+      font-size: 2.4em;
+      margin-bottom: 0.5em;
+      font-weight: bold;
+      letter-spacing: -1px;
+      word-break: keep-all;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .status {
+      font-size: 1.2em;
+      color: #20b15a;
+      font-weight: bold;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    .franchise-card {
+      display: inline-block;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px 0 rgba(40,90,180,0.06);
+      padding: 32px 40px 22px 40px;
+      margin: 0 auto;
+      margin-bottom: 28px;
+      text-align: left;
+      font-size: 1.18em;
+      border-left: 7px solid #2985f3;
+    }
+    .info-item {
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       gap: 10px;
-      letter-spacing: -1px;
+      font-size: 1.11em;
     }
-    .status {
-      font-size: 1.1em;
-      color: #1ca144;
+    .info-label {
       font-weight: bold;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-    .card {
-      background: #fafcff;
-      border-radius: 14px;
-      margin-bottom: 26px;
-      padding: 28px 24px 24px 24px;
-      box-shadow: 0 2px 14px 0 rgba(40,90,180,0.05);
-      font-size: 1.15em;
-    }
-    .info-item {
-      margin-bottom: 7px;
-      font-size: 1.07em;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-    .info-item span {
-      font-weight: 700;
-      color: #1a3864;
-      min-width: 72px;
+      min-width: 100px;
+      color: #183d80;
       display: inline-block;
     }
-    .info-item em {
-      font-style: normal;
+    .info-value {
       font-weight: 400;
-      color: #444;
-      letter-spacing: 0.01em;
+      color: #333;
+      word-break: break-all;
     }
-    .info-item svg {
-      width: 1.25em; height: 1.25em; vertical-align: middle;
+    .info-icon {
+      font-size: 1.1em;
+      min-width: 24px;
+      text-align: center;
+      opacity: 0.9;
     }
-    @media (max-width: 700px) {
-      .container { padding: 12px 3vw; }
+    @media (max-width: 800px) {
+      .container { padding: 10px 1vw; }
+      .franchise-card { padding: 12px 6vw 12px 8vw; }
       h2 { font-size: 1.2em; }
-      .card { padding: 18px 6px 14px 9px; }
     }
   </style>
 </head>
@@ -79,22 +89,22 @@
   <div class="container">
     <h2>📋 OrcaX 가맹 신청서 접수 목록</h2>
     <div class="status"><span style="font-size:1.4em;">●</span> 서버 접속 정상</div>
-    <div id="error" style="display:none; color:#e25252; font-weight:600; margin-bottom:16px"></div>
+    <div id="error" style="display:none; color:#e25252; font-weight:600; margin-bottom:18px"></div>
     <div id="cards"></div>
   </div>
 
   <script>
     const API_URL = 'https://orcax-franchise-backend.onrender.com/api/apply';
 
-    // 아이콘 SVG 리스트 (필요시 추가/변경 가능)
+    // 진짜 컬러 아이콘
     const ICONS = {
       name: "📝",
       storeName: "🏢",
       phone: "📞",
-      corpnum: "💼",
+      corpnum: "🧾",
       region: "📍",
-      address: "📬",
-      type: "🧾",
+      address: "🏠",
+      type: "💼",
       note: "🗒️",
       createdAt: "📅"
     };
@@ -102,7 +112,16 @@
     function formatDate(isoStr) {
       if (!isoStr) return "";
       const d = new Date(isoStr);
-      return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()} ${d.toLocaleTimeString('ko-KR')}`;
+      // "2025. 8. 7. 오전 11:33:11" 형태
+      const y = d.getFullYear();
+      const m = d.getMonth() + 1;
+      const day = d.getDate();
+      let h = d.getHours();
+      const min = (""+d.getMinutes()).padStart(2,"0");
+      const sec = (""+d.getSeconds()).padStart(2,"0");
+      const ampm = h < 12 ? "오전" : "오후";
+      if (h > 12) h -= 12;
+      return `${y}. ${m}. ${day}. ${ampm} ${h}:${min}:${sec}`;
     }
 
     async function loadCards() {
@@ -122,17 +141,17 @@
         // 최신순
         data.forEach(f => {
           const card = document.createElement('div');
-          card.className = "card";
+          card.className = "franchise-card";
           card.innerHTML = `
-            <div class="info-item">${ICONS.name} <span>이름:</span> <em>${f.name || ''}</em></div>
-            <div class="info-item">${ICONS.storeName} <span>매장명:</span> <em>${f.storeName || ''}</em></div>
-            <div class="info-item">${ICONS.phone} <span>전화:</span> <em>${f.phone || ''}</em></div>
-            <div class="info-item">${ICONS.corpnum} <span>사업자번호:</span> <em>${f.corpnum || ''}</em></div>
-            <div class="info-item">${ICONS.region} <span>지역:</span> <em>${f.region || ''}</em></div>
-            <div class="info-item">${ICONS.address} <span>주소:</span> <em>${f.address || ''}</em></div>
-            <div class="info-item">${ICONS.type} <span>업종:</span> <em>${f.type || ''}</em></div>
-            <div class="info-item">${ICONS.note} <span>비고:</span> <em>${f.note || ''}</em></div>
-            <div class="info-item">${ICONS.createdAt} <span>신청일:</span> <em>${formatDate(f.createdAt)}</em></div>
+            <div class="info-item"><span class="info-icon">${ICONS.name}</span><span class="info-label">이름:</span> <span class="info-value">${f.name || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.storeName}</span><span class="info-label">매장명:</span> <span class="info-value">${f.storeName || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.phone}</span><span class="info-label">전화:</span> <span class="info-value">${f.phone || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.corpnum}</span><span class="info-label">사업자번호:</span> <span class="info-value">${f.corpnum || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.region}</span><span class="info-label">지역:</span> <span class="info-value">${f.region || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.address}</span><span class="info-label">주소:</span> <span class="info-value">${f.address || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.type}</span><span class="info-label">업종:</span> <span class="info-value">${f.type || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.note}</span><span class="info-label">비고:</span> <span class="info-value">${f.note || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.createdAt}</span><span class="info-label">신청일:</span> <span class="info-value">${formatDate(f.createdAt)}</span></div>
           `;
           cardsDiv.appendChild(card);
         });
@@ -141,7 +160,6 @@
         errorDiv.style.display = 'block';
       }
     }
-
     loadCards();
   </script>
 </body>
