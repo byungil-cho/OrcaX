@@ -2,124 +2,132 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OrcaX 가맹 신청서 접수 목록</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px; color: #333; text-align: center; }
-    h1 { color: #003b6f; font-size: 1.6rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-    #serverStatus { font-weight: 700; margin-bottom: 18px; text-align: center; }
-    .status-ok { color: #198754; }
-    .status-bad { color: #b23c3c; }
-    ul { list-style: none; padding: 0; margin: 0 auto; max-width: 700px; text-align: left; }
-    li { background: #fff; margin: 10px auto; padding: 15px; border-left: 4px solid #0077cc; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 0.95rem; word-break: break-word; }
-    .empty { font-size: 1.05rem; color: #666; margin-top: 20px; }
-    a { color: #0077cc; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    #loadMore { background-color: #0077cc; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 0.95rem; cursor: pointer; margin: 20px auto; }
-    #loadMore:hover { background-color: #005fa3; }
-    @media (max-width: 600px) {
-      body { padding: 10px; }
-      h1 { font-size: 1.3rem; flex-direction: column; }
-      li { font-size: 0.9rem; padding: 12px; }
+    body {
+      background: #e9f3fa;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      background: #fff;
+      max-width: 700px;
+      margin: 40px auto 0 auto;
+      border-radius: 12px;
+      padding: 40px 24px 32px 24px;
+      box-shadow: 0 6px 32px 0 rgba(32,80,110,0.09);
+    }
+    h2 {
+      text-align: left;
+      color: #224b85;
+      font-size: 2em;
+      margin-top: 0;
+      margin-bottom: 0.6em;
+    }
+    .status {
+      font-size: 1.15em;
+      margin-bottom: 20px;
+      color: #23af50;
+      font-weight: 600;
+    }
+    .error {
+      color: #e25252;
+      font-size: 1.1em;
+      margin-bottom: 22px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .list-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      font-size: 1.03em;
+    }
+    .list-table th, .list-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e2e7ee;
+      text-align: left;
+    }
+    .list-table th {
+      background: #f4f8fb;
+      color: #1a3864;
+      font-weight: 700;
+    }
+    .list-table tr:last-child td {
+      border-bottom: 0;
+    }
+    @media (max-width: 700px) {
+      .container { max-width: 100%; padding: 16px; }
+      h2 { font-size: 1.3em; }
+      .list-table th, .list-table td { padding: 7px 4px; font-size: 0.95em; }
     }
   </style>
 </head>
 <body>
-  <h1>📋 OrcaX 가맹 신청서 접수 목록</h1>
-  <div id="serverStatus"><span style="color:#666">● 서버 상태 확인 중...</span></div>
-  <p class="empty">🔄 데이터를 불러오는 중입니다...</p>
-  <ul id="list"></ul>
-  <button id="loadMore" style="display:none;">더보기</button>
+  <div class="container">
+    <h2>📝 OrcaX 가맹 신청서 접수 목록</h2>
+    <div id="status" class="status">● 서버 접속 정상</div>
+    <div id="error" class="error" style="display:none;"></div>
+    <table class="list-table" id="franchiseTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>상호명</th>
+          <th>연락처</th>
+          <th>지역</th>
+          <th>주소</th>
+          <th>신청일</th>
+        </tr>
+      </thead>
+      <tbody id="franchiseList">
+        <!-- 데이터 삽입 -->
+      </tbody>
+    </table>
+  </div>
+
   <script>
-    let allData = [];
-    let currentIndex = 0;
-    const itemsPerPage = 5;
+    const API_URL = 'https://orcax-franchise-backend.onrender.com/api/apply'; // 정확한 주소
 
-    // 사업자번호 포맷
-    function formatCorpNum(num) {
-      num = (num + '').replace(/\D/g, '');
-      if(num.length !== 10) return num;
-      return num.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3');
-    }
-    // 전화번호 포맷
-    function formatPhone(num) {
-      num = (num + '').replace(/\D/g, '');
-      if(num.length === 11) return num.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-      if(num.length === 10) return num.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
-      return num;
-    }
-
-    // 서버 연결 상태 확인
-    fetch("https://orcax-franchise-backend.onrender.com/api/apply/status")
-      .then(res => res.json())
-      .then(data => {
-        if(data && data.status === "OK") {
-          document.getElementById('serverStatus').innerHTML = '<span class="status-ok">● 서버 접속 정상</span>';
-        } else {
-          document.getElementById('serverStatus').innerHTML = '<span class="status-bad">● 서버 접속 불가 / 점검 중</span>';
-        }
-      })
-      .catch(() => {
-        document.getElementById('serverStatus').innerHTML = '<span class="status-bad">● 서버 접속 불가 / 점검 중</span>';
-      });
-
-    // 신청 리스트 불러오기
-    fetch("https://orcax-franchise-backend.onrender.com/api/apply/all")
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById("list");
-        const emptyMsg = document.querySelector(".empty");
-        const loadMoreBtn = document.getElementById("loadMore");
-
-        if (!data || !data.length) {
-          emptyMsg.textContent = "📭 아직 접수된 신청서가 없습니다.";
+    async function loadFranchises() {
+      const table = document.getElementById('franchiseTable');
+      const list = document.getElementById('franchiseList');
+      const errorDiv = document.getElementById('error');
+      table.style.display = 'none';
+      errorDiv.style.display = 'none';
+      list.innerHTML = '';
+      try {
+        const res = await fetch(API_URL, { credentials: 'include' });
+        if (!res.ok) throw new Error('서버 응답 실패');
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          errorDiv.innerText = "등록된 신청서가 없습니다.";
+          errorDiv.style.display = 'block';
           return;
         }
-
-        emptyMsg.remove();
-        allData = data;
-        renderItems();
-
-        if (allData.length > itemsPerPage) {
-          loadMoreBtn.style.display = "inline-block";
-        }
-
-        loadMoreBtn.addEventListener("click", () => {
-          renderItems();
+        // 최신 신청서부터 출력
+        data.forEach(f => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${f.name || ''}</td>
+            <td>${f.storeName || ''}</td>
+            <td>${f.phone || ''}</td>
+            <td>${f.region || ''}</td>
+            <td>${f.address || ''}</td>
+            <td>${(f.createdAt || '').split('T')[0]}</td>
+          `;
+          list.appendChild(tr);
         });
-      })
-      .catch(err => {
-        document.querySelector(".empty").textContent = "❌ 데이터를 불러오지 못했습니다.";
-        console.error("데이터 요청 실패:", err);
-      });
-
-    function renderItems() {
-      const list = document.getElementById("list");
-      const nextItems = allData.slice(currentIndex, currentIndex + itemsPerPage);
-
-      nextItems.forEach(item => {
-        const time = new Date(item.createdAt).toLocaleString("ko-KR");
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>🏷️ 이름:</strong> ${item.name || ""}<br>
-          <strong>🏢 매장명:</strong> ${item.storeName || ""}<br>
-          <strong>📞 전화:</strong> ${formatPhone(item.phone) || ""}<br>
-          <strong>📛 사업자번호:</strong> ${formatCorpNum(item.corpnum) || ""}<br>
-          <strong>📍 지역:</strong> ${item.region || ""}<br>
-          <strong>🏠 주소:</strong> ${item.address || ""}<br>
-          <strong>📂 업종:</strong> ${item.type || ""}<br>
-          <strong>📝 비고:</strong> ${item.note || "(없음)"}<br>
-          <strong>📅 신청일:</strong> ${time}
-        `;
-        list.appendChild(li);
-      });
-
-      currentIndex += itemsPerPage;
-
-      if (currentIndex >= allData.length) {
-        document.getElementById("loadMore").style.display = "none";
+        table.style.display = 'table';
+      } catch (e) {
+        errorDiv.innerText = "❌ 데이터를 불러오지 못했습니다.";
+        errorDiv.style.display = 'block';
       }
     }
+
+    loadFranchises();
   </script>
 </body>
 </html>
