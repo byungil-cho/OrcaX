@@ -23,6 +23,15 @@
       h2 { font-size: 1.2rem; }
     }
   </style>
+  <script>
+    // ✅ 로그인 정보 없으면 바로 로그인 페이지로 튕김
+    let kakaoId = localStorage.getItem('kakaoId');
+    let nickname = localStorage.getItem('nickname');
+    if (!kakaoId || !nickname) {
+      alert('로그인이 필요합니다!');
+      window.location.href = '/OrcaX/index9.html'; // 카카오 로그인 페이지로 이동
+    }
+  </script>
 </head>
 <body>
   <div class="container">
@@ -94,10 +103,14 @@
     document.getElementById('applyForm').addEventListener('submit', function(e) {
       e.preventDefault();
       document.getElementById('msg').textContent = "⏳ 신청중...";
+
+      // ✅ 로그인 정보도 함께 전송 (필수)
       fetch('https://orcax-franchise-backend.onrender.com/api/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          kakaoId: localStorage.getItem('kakaoId'),
+          nickname: localStorage.getItem('nickname'),
           name: this.name.value.trim(),
           storeName: this.storeName.value.trim(),
           phone: this.phone.value.replace(/\D/g,''),
