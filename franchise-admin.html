@@ -6,97 +6,143 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      background: #e9f3fa;
+      background: #f7f7f7;
       font-family: 'Noto Sans KR', sans-serif;
-      color: #222;
       margin: 0;
       padding: 0;
     }
     .container {
-      background: #fff;
       max-width: 700px;
       margin: 40px auto 0 auto;
-      border-radius: 12px;
-      padding: 40px 24px 32px 24px;
+      background: #fff;
+      border-radius: 18px;
       box-shadow: 0 6px 32px 0 rgba(32,80,110,0.09);
+      padding: 32px 26px 40px 32px;
     }
-    h2 { text-align: left; color: #224b85; font-size: 2em; margin-top: 0; margin-bottom: 0.6em; }
-    .status { font-size: 1.15em; margin-bottom: 20px; color: #23af50; font-weight: 600; }
-    .error { color: #e25252; font-size: 1.1em; margin-bottom: 22px; font-weight: bold; text-align: center; }
-    .list-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 1.03em; }
-    .list-table th, .list-table td { padding: 10px 8px; border-bottom: 1px solid #e2e7ee; text-align: left; }
-    .list-table th { background: #f4f8fb; color: #1a3864; font-weight: 700; }
-    .list-table tr:last-child td { border-bottom: 0; }
+    h2 {
+      color: #2162b0;
+      margin-bottom: 8px;
+      font-size: 2.1em;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -1px;
+    }
+    .status {
+      font-size: 1.1em;
+      color: #1ca144;
+      font-weight: bold;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .card {
+      background: #fafcff;
+      border-radius: 14px;
+      margin-bottom: 26px;
+      padding: 28px 24px 24px 24px;
+      box-shadow: 0 2px 14px 0 rgba(40,90,180,0.05);
+      font-size: 1.15em;
+    }
+    .info-item {
+      margin-bottom: 7px;
+      font-size: 1.07em;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .info-item span {
+      font-weight: 700;
+      color: #1a3864;
+      min-width: 72px;
+      display: inline-block;
+    }
+    .info-item em {
+      font-style: normal;
+      font-weight: 400;
+      color: #444;
+      letter-spacing: 0.01em;
+    }
+    .info-item svg {
+      width: 1.25em; height: 1.25em; vertical-align: middle;
+    }
     @media (max-width: 700px) {
-      .container { max-width: 100%; padding: 16px; }
-      h2 { font-size: 1.3em; }
-      .list-table th, .list-table td { padding: 7px 4px; font-size: 0.95em; }
+      .container { padding: 12px 3vw; }
+      h2 { font-size: 1.2em; }
+      .card { padding: 18px 6px 14px 9px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>📝 OrcaX 가맹 신청서 접수 목록</h2>
-    <div id="status" class="status">● 서버 접속 정상</div>
-    <div id="error" class="error" style="display:none;"></div>
-   <!-- 표 헤더/본문 모두, 원하는 모든 컬럼 추가 -->
-<table class="list-table" id="franchiseTable" style="display:none;">
-  <thead>
-    <tr>
-      <th>이름</th>
-      <th>상호명</th>
-      <th>연락처</th>
-      <th>사업자번호</th>
-      <th>지역</th>
-      <th>주소</th>
-      <th>업종</th>
-      <th>비고</th>
-      <th>신청일</th>
-    </tr>
-  </thead>
-  <tbody id="franchiseList"></tbody>
-</table>
-<script>
-  const API_URL = 'https://orcax-franchise-backend.onrender.com/api/apply';
-  async function loadFranchises() {
-    const table = document.getElementById('franchiseTable');
-    const list = document.getElementById('franchiseList');
-    const errorDiv = document.getElementById('error');
-    table.style.display = 'none';
-    errorDiv.style.display = 'none';
-    list.innerHTML = '';
-    try {
-      const res = await fetch(API_URL, { credentials: 'include' });
-      if (!res.ok) throw new Error('서버 응답 실패');
-      const data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) {
-        errorDiv.innerText = "등록된 신청서가 없습니다.";
-        errorDiv.style.display = 'block';
-        return;
-      }
-      data.forEach(f => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${f.name || ''}</td>
-          <td>${f.storeName || ''}</td>
-          <td>${f.phone || ''}</td>
-          <td>${f.corpnum || ''}</td>
-          <td>${f.region || ''}</td>
-          <td>${f.address || ''}</td>
-          <td>${f.type || ''}</td>
-          <td>${f.note || ''}</td>
-          <td>${(f.createdAt || '').split('T')[0]}</td>
-        `;
-        list.appendChild(tr);
-      });
-      table.style.display = 'table';
-    } catch (e) {
-      errorDiv.innerText = "❌ 데이터를 불러오지 못했습니다.";
-      errorDiv.style.display = 'block';
-    }
-  }
-  loadFranchises();
-</script>
+    <h2>📋 OrcaX 가맹 신청서 접수 목록</h2>
+    <div class="status"><span style="font-size:1.4em;">●</span> 서버 접속 정상</div>
+    <div id="error" style="display:none; color:#e25252; font-weight:600; margin-bottom:16px"></div>
+    <div id="cards"></div>
+  </div>
 
+  <script>
+    const API_URL = 'https://orcax-franchise-backend.onrender.com/api/apply';
+
+    // 아이콘 SVG 리스트 (필요시 추가/변경 가능)
+    const ICONS = {
+      name: "📝",
+      storeName: "🏢",
+      phone: "📞",
+      corpnum: "💼",
+      region: "📍",
+      address: "📬",
+      type: "🧾",
+      note: "🗒️",
+      createdAt: "📅"
+    };
+
+    function formatDate(isoStr) {
+      if (!isoStr) return "";
+      const d = new Date(isoStr);
+      return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()} ${d.toLocaleTimeString('ko-KR')}`;
+    }
+
+    async function loadCards() {
+      const cardsDiv = document.getElementById('cards');
+      const errorDiv = document.getElementById('error');
+      cardsDiv.innerHTML = "";
+      errorDiv.style.display = 'none';
+      try {
+        const res = await fetch(API_URL, { credentials: 'include' });
+        if (!res.ok) throw new Error('서버 응답 실패');
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          errorDiv.innerText = "등록된 신청서가 없습니다.";
+          errorDiv.style.display = 'block';
+          return;
+        }
+        // 최신순
+        data.forEach(f => {
+          const card = document.createElement('div');
+          card.className = "card";
+          card.innerHTML = `
+            <div class="info-item">${ICONS.name} <span>이름:</span> <em>${f.name || ''}</em></div>
+            <div class="info-item">${ICONS.storeName} <span>매장명:</span> <em>${f.storeName || ''}</em></div>
+            <div class="info-item">${ICONS.phone} <span>전화:</span> <em>${f.phone || ''}</em></div>
+            <div class="info-item">${ICONS.corpnum} <span>사업자번호:</span> <em>${f.corpnum || ''}</em></div>
+            <div class="info-item">${ICONS.region} <span>지역:</span> <em>${f.region || ''}</em></div>
+            <div class="info-item">${ICONS.address} <span>주소:</span> <em>${f.address || ''}</em></div>
+            <div class="info-item">${ICONS.type} <span>업종:</span> <em>${f.type || ''}</em></div>
+            <div class="info-item">${ICONS.note} <span>비고:</span> <em>${f.note || ''}</em></div>
+            <div class="info-item">${ICONS.createdAt} <span>신청일:</span> <em>${formatDate(f.createdAt)}</em></div>
+          `;
+          cardsDiv.appendChild(card);
+        });
+      } catch (e) {
+        errorDiv.innerText = "❌ 데이터를 불러오지 못했습니다.";
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    loadCards();
+  </script>
 </body>
 </html>
