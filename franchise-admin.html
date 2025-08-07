@@ -20,45 +20,13 @@
       padding: 40px 24px 32px 24px;
       box-shadow: 0 6px 32px 0 rgba(32,80,110,0.09);
     }
-    h2 {
-      text-align: left;
-      color: #224b85;
-      font-size: 2em;
-      margin-top: 0;
-      margin-bottom: 0.6em;
-    }
-    .status {
-      font-size: 1.15em;
-      margin-bottom: 20px;
-      color: #23af50;
-      font-weight: 600;
-    }
-    .error {
-      color: #e25252;
-      font-size: 1.1em;
-      margin-bottom: 22px;
-      font-weight: bold;
-      text-align: center;
-    }
-    .list-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 24px;
-      font-size: 1.03em;
-    }
-    .list-table th, .list-table td {
-      padding: 10px 8px;
-      border-bottom: 1px solid #e2e7ee;
-      text-align: left;
-    }
-    .list-table th {
-      background: #f4f8fb;
-      color: #1a3864;
-      font-weight: 700;
-    }
-    .list-table tr:last-child td {
-      border-bottom: 0;
-    }
+    h2 { text-align: left; color: #224b85; font-size: 2em; margin-top: 0; margin-bottom: 0.6em; }
+    .status { font-size: 1.15em; margin-bottom: 20px; color: #23af50; font-weight: 600; }
+    .error { color: #e25252; font-size: 1.1em; margin-bottom: 22px; font-weight: bold; text-align: center; }
+    .list-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 1.03em; }
+    .list-table th, .list-table td { padding: 10px 8px; border-bottom: 1px solid #e2e7ee; text-align: left; }
+    .list-table th { background: #f4f8fb; color: #1a3864; font-weight: 700; }
+    .list-table tr:last-child td { border-bottom: 0; }
     @media (max-width: 700px) {
       .container { max-width: 100%; padding: 16px; }
       h2 { font-size: 1.3em; }
@@ -82,14 +50,11 @@
           <th>신청일</th>
         </tr>
       </thead>
-      <tbody id="franchiseList">
-        <!-- 데이터 삽입 -->
-      </tbody>
+      <tbody id="franchiseList"></tbody>
     </table>
   </div>
-
   <script>
-    const API_URL = 'https://orcax-franchise-backend.onrender.com/api/apply'; // 정확한 주소
+    const API_URL = 'https://orcax-franchise-backend.onrender.com/api/apply';
 
     async function loadFranchises() {
       const table = document.getElementById('franchiseTable');
@@ -107,7 +72,6 @@
           errorDiv.style.display = 'block';
           return;
         }
-        // 최신 신청서부터 출력
         data.forEach(f => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
