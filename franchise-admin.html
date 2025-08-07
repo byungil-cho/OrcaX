@@ -10,7 +10,6 @@
       font-family: 'Noto Sans KR', sans-serif;
       margin: 0;
       padding: 0;
-      font-size: 0.5em; /* 모든 글씨를 절반 크기로 */
     }
     .container {
       max-width: 950px;
@@ -23,7 +22,7 @@
     }
     h2 {
       color: #2263a8;
-      font-size: 1.2em;  /* 원래 2.4em → 절반 */
+      font-size: 2.2em;
       margin-bottom: 0.5em;
       font-weight: bold;
       letter-spacing: -1px;
@@ -32,9 +31,10 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      line-height: 1.3;
     }
     .status {
-      font-size: 0.6em;   /* 원래 1.2em → 절반 */
+      font-size: 1.1em;
       color: #20b15a;
       font-weight: bold;
       margin-bottom: 28px;
@@ -48,11 +48,11 @@
       background: #fff;
       border-radius: 18px;
       box-shadow: 0 2px 12px 0 rgba(40,90,180,0.06);
-      padding: 16px 20px 11px 20px;  /* 원래 padding 절반 */
+      padding: 16px 20px 11px 20px;
       margin: 0 auto;
       margin-bottom: 14px;
       text-align: left;
-      font-size: 0.59em;  /* 원래 1.18em → 절반 */
+      font-size: 0.59em;  /* 본문만 절반 */
       border-left: 7px solid #2985f3;
     }
     .info-item {
@@ -60,7 +60,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.56em;  /* 원래 1.11em → 절반 */
+      font-size: 1em;
     }
     .info-label {
       font-weight: bold;
@@ -84,7 +84,7 @@
     @media (max-width: 800px) {
       .container { padding: 6px 0.5vw; }
       .franchise-card { padding: 6px 3vw 6px 4vw; }
-      h2 { font-size: 0.6em; }
+      h2 { font-size: 1.25em; }
     }
   </style>
 </head>
