@@ -10,6 +10,7 @@
       font-family: 'Noto Sans KR', sans-serif;
       margin: 0;
       padding: 0;
+      font-size: 0.5em; /* 모든 글씨를 절반 크기로 */
     }
     .container {
       max-width: 950px;
@@ -22,7 +23,7 @@
     }
     h2 {
       color: #2263a8;
-      font-size: 2.4em;
+      font-size: 1.2em;  /* 원래 2.4em → 절반 */
       margin-bottom: 0.5em;
       font-weight: bold;
       letter-spacing: -1px;
@@ -33,7 +34,7 @@
       gap: 10px;
     }
     .status {
-      font-size: 1.2em;
+      font-size: 0.6em;   /* 원래 1.2em → 절반 */
       color: #20b15a;
       font-weight: bold;
       margin-bottom: 28px;
@@ -47,41 +48,43 @@
       background: #fff;
       border-radius: 18px;
       box-shadow: 0 2px 12px 0 rgba(40,90,180,0.06);
-      padding: 32px 40px 22px 40px;
+      padding: 16px 20px 11px 20px;  /* 원래 padding 절반 */
       margin: 0 auto;
-      margin-bottom: 28px;
+      margin-bottom: 14px;
       text-align: left;
-      font-size: 1.18em;
+      font-size: 0.59em;  /* 원래 1.18em → 절반 */
       border-left: 7px solid #2985f3;
     }
     .info-item {
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 1.11em;
+      gap: 6px;
+      font-size: 0.56em;  /* 원래 1.11em → 절반 */
     }
     .info-label {
       font-weight: bold;
-      min-width: 100px;
+      min-width: 50px;
       color: #183d80;
       display: inline-block;
+      font-size: 1em;
     }
     .info-value {
       font-weight: 400;
       color: #333;
       word-break: break-all;
+      font-size: 1em;
     }
     .info-icon {
-      font-size: 1.1em;
-      min-width: 24px;
+      font-size: 1em;
+      min-width: 13px;
       text-align: center;
       opacity: 0.9;
     }
     @media (max-width: 800px) {
-      .container { padding: 10px 1vw; }
-      .franchise-card { padding: 12px 6vw 12px 8vw; }
-      h2 { font-size: 1.2em; }
+      .container { padding: 6px 0.5vw; }
+      .franchise-card { padding: 6px 3vw 6px 4vw; }
+      h2 { font-size: 0.6em; }
     }
   </style>
 </head>
@@ -96,7 +99,6 @@
   <script>
     const API_URL = 'https://orcax-franchise-backend.onrender.com/api/apply';
 
-    // 진짜 컬러 아이콘
     const ICONS = {
       name: "📝",
       storeName: "🏢",
@@ -112,7 +114,6 @@
     function formatDate(isoStr) {
       if (!isoStr) return "";
       const d = new Date(isoStr);
-      // "2025. 8. 7. 오전 11:33:11" 형태
       const y = d.getFullYear();
       const m = d.getMonth() + 1;
       const day = d.getDate();
@@ -138,7 +139,6 @@
           errorDiv.style.display = 'block';
           return;
         }
-        // 최신순
         data.forEach(f => {
           const card = document.createElement('div');
           card.className = "franchise-card";
