@@ -1,80 +1,25 @@
+<!-- franchise-admin.html (실장 수정본) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OrcaX 가맹 신청서 접수 목록</title>
+  <!-- (스타일 동일) -->
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-      text-align: center;
-    }
-    h1 {
-      color: #003b6f;
-      font-size: 1.6rem;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    #serverStatus {
-      font-weight: 700;
-      margin-bottom: 18px;
-      text-align: center;
-    }
-    .status-ok {
-      color: #198754;
-    }
-    .status-bad {
-      color: #b23c3c;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0 auto;
-      max-width: 700px;
-      text-align: left;
-    }
-    li {
-      background: #fff;
-      margin: 10px auto;
-      padding: 15px;
-      border-left: 4px solid #0077cc;
-      border-radius: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      font-size: 0.95rem;
-      word-break: break-word;
-    }
-    .empty {
-      font-size: 1.05rem;
-      color: #666;
-      margin-top: 20px;
-    }
-    a {
-      color: #0077cc;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    #loadMore {
-      background-color: #0077cc;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      margin: 20px auto;
-    }
-    #loadMore:hover {
-      background-color: #005fa3;
-    }
+    /* ... 기존 style 그대로 ... */
+    body { font-family: 'Segoe UI', sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px; color: #333; text-align: center; }
+    h1 { color: #003b6f; font-size: 1.6rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    #serverStatus { font-weight: 700; margin-bottom: 18px; text-align: center; }
+    .status-ok { color: #198754; }
+    .status-bad { color: #b23c3c; }
+    ul { list-style: none; padding: 0; margin: 0 auto; max-width: 700px; text-align: left; }
+    li { background: #fff; margin: 10px auto; padding: 15px; border-left: 4px solid #0077cc; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 0.95rem; word-break: break-word; }
+    .empty { font-size: 1.05rem; color: #666; margin-top: 20px; }
+    a { color: #0077cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    #loadMore { background-color: #0077cc; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 0.95rem; cursor: pointer; margin: 20px auto; }
+    #loadMore:hover { background-color: #005fa3; }
     @media (max-width: 600px) {
       body { padding: 10px; }
       h1 { font-size: 1.3rem; flex-direction: column; }
@@ -108,8 +53,8 @@
         document.getElementById('serverStatus').innerHTML = '<span class="status-bad">● 서버 접속 불가 / 점검 중</span>';
       });
 
-    // 신청 리스트 불러오기
-    fetch("https://orcax-franchise-backend.onrender.com/api/apply")
+    // 신청 리스트 불러오기 (수정!)
+    fetch("https://orcax-franchise-backend.onrender.com/api/apply/all")
       .then(res => res.json())
       .then(data => {
         const list = document.getElementById("list");
@@ -146,12 +91,12 @@
         const time = new Date(item.createdAt).toLocaleString("ko-KR");
         const li = document.createElement("li");
         li.innerHTML = `
-          <strong>🏷️ 이름:</strong> ${item.name}<br>
-          <strong>📞 전화:</strong> ${item.phone}<br>
+          <strong>🏷️ 이름:</strong> ${item.name || ""}<br>
+          <strong>📞 전화:</strong> ${item.phone || ""}<br>
           <strong>📛 사업자번호:</strong> ${item.corpnum || "없음"}<br>
-          <strong>📍 지역:</strong> ${item.region}<br>
-          <strong>🏠 주소:</strong> ${item.address}<br>
-          <strong>📂 업종:</strong> ${item.type}<br>
+          <strong>📍 지역:</strong> ${item.region || ""}<br>
+          <strong>🏠 주소:</strong> ${item.address || ""}<br>
+          <strong>📂 업종:</strong> ${item.type || ""}<br>
           <strong>📝 비고:</strong> ${item.note || "(없음)"}<br>
           ${item.fileUrl ? `<strong>🖼️ 파일:</strong> <a href="https://orcax-franchise-backend.onrender.com${item.fileUrl}" target="_blank">[보기]</a><br>` : ""}
           <strong>📅 신청일:</strong> ${time}
