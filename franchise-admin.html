@@ -1,13 +1,10 @@
-<!-- franchise-admin.html (실장 수정본) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OrcaX 가맹 신청서 접수 목록</title>
-  <!-- (스타일 동일) -->
   <style>
-    /* ... 기존 style 그대로 ... */
     body { font-family: 'Segoe UI', sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px; color: #333; text-align: center; }
     h1 { color: #003b6f; font-size: 1.6rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
     #serverStatus { font-weight: 700; margin-bottom: 18px; text-align: center; }
@@ -33,11 +30,24 @@
   <p class="empty">🔄 데이터를 불러오는 중입니다...</p>
   <ul id="list"></ul>
   <button id="loadMore" style="display:none;">더보기</button>
-
   <script>
     let allData = [];
     let currentIndex = 0;
     const itemsPerPage = 5;
+
+    // 사업자번호 포맷
+    function formatCorpNum(num) {
+      num = (num + '').replace(/\D/g, '');
+      if(num.length !== 10) return num;
+      return num.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3');
+    }
+    // 전화번호 포맷
+    function formatPhone(num) {
+      num = (num + '').replace(/\D/g, '');
+      if(num.length === 11) return num.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+      if(num.length === 10) return num.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
+      return num;
+    }
 
     // 서버 연결 상태 확인
     fetch("https://orcax-franchise-backend.onrender.com/api/apply/status")
@@ -53,7 +63,7 @@
         document.getElementById('serverStatus').innerHTML = '<span class="status-bad">● 서버 접속 불가 / 점검 중</span>';
       });
 
-    // 신청 리스트 불러오기 (수정!)
+    // 신청 리스트 불러오기
     fetch("https://orcax-franchise-backend.onrender.com/api/apply/all")
       .then(res => res.json())
       .then(data => {
@@ -92,13 +102,13 @@
         const li = document.createElement("li");
         li.innerHTML = `
           <strong>🏷️ 이름:</strong> ${item.name || ""}<br>
-          <strong>📞 전화:</strong> ${item.phone || ""}<br>
-          <strong>📛 사업자번호:</strong> ${item.corpnum || "없음"}<br>
+          <strong>🏢 매장명:</strong> ${item.storeName || ""}<br>
+          <strong>📞 전화:</strong> ${formatPhone(item.phone) || ""}<br>
+          <strong>📛 사업자번호:</strong> ${formatCorpNum(item.corpnum) || ""}<br>
           <strong>📍 지역:</strong> ${item.region || ""}<br>
           <strong>🏠 주소:</strong> ${item.address || ""}<br>
           <strong>📂 업종:</strong> ${item.type || ""}<br>
           <strong>📝 비고:</strong> ${item.note || "(없음)"}<br>
-          ${item.fileUrl ? `<strong>🖼️ 파일:</strong> <a href="https://orcax-franchise-backend.onrender.com${item.fileUrl}" target="_blank">[보기]</a><br>` : ""}
           <strong>📅 신청일:</strong> ${time}
         `;
         list.appendChild(li);

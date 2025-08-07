@@ -17,6 +17,7 @@
     button { width: 100%; background: #217ab6; color: #fff; padding: 13px 0; font-size: 1.08rem; font-weight: 700; border: none; border-radius: 7px; cursor: pointer; margin-top: 10px; }
     button:hover { background: #18548e; }
     .msg { margin: 18px 0 0 0; text-align: center; font-size: 1.03em;}
+    .hint { color: #888; font-size: 0.95em; margin: 2px 0 8px 2px;}
     @media (max-width: 600px) {
       .container { padding:18px 5vw 24px 5vw; }
       h2 { font-size: 1.2rem; }
@@ -38,11 +39,13 @@
       </div>
       <div class="form-row">
         <label for="phone">전화번호</label>
-        <input type="tel" id="phone" name="phone" required maxlength="20" placeholder="010-0000-0000">
+        <input type="text" id="phone" name="phone" required maxlength="11" pattern="\d*" placeholder="01012345678 (숫자만 입력)">
+        <div class="hint">숫자만 입력 (예: 01012345678)</div>
       </div>
       <div class="form-row">
         <label for="corpnum">사업자번호</label>
-        <input type="text" id="corpnum" name="corpnum" maxlength="20">
+        <input type="text" id="corpnum" name="corpnum" maxlength="10" pattern="\d*" placeholder="1340180677 (숫자만)">
+        <div class="hint">숫자만 입력 (예: 1340180677)</div>
       </div>
       <div class="form-row">
         <label for="region">지역</label>
@@ -65,6 +68,14 @@
     <div class="msg" id="msg"></div>
   </div>
   <script>
+    // 숫자만 입력 강제 (전화, 사업자)
+    document.getElementById('phone').addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g,'').slice(0,11);
+    });
+    document.getElementById('corpnum').addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g,'').slice(0,10);
+    });
+
     // 서버 상태 체크
     fetch('https://orcax-franchise-backend.onrender.com/api/apply/status')
       .then(res=>res.json())
@@ -89,8 +100,8 @@
         body: JSON.stringify({
           name: this.name.value.trim(),
           storeName: this.storeName.value.trim(),
-          phone: this.phone.value.trim(),
-          corpnum: this.corpnum.value.trim(),
+          phone: this.phone.value.replace(/\D/g,''),
+          corpnum: this.corpnum.value.replace(/\D/g,''),
           region: this.region.value.trim(),
           address: this.address.value.trim(),
           type: this.type.value.trim(),
