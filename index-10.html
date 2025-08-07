@@ -1,303 +1,264 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>OrcaX 실시간 채팅</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
     body {
-      background: #e9f4fd;
-      font-family: 'Jua', 'Noto Sans KR', sans-serif;
-      margin: 0;
-      min-height: 100vh;
+      background: #e7f3fb;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
     }
-    .chat-container {
+    .chat-wrap {
       max-width: 450px;
+      margin: 40px auto 0;
       background: #fff;
-      margin: 38px auto 0;
-      border-radius: 22px;
-      box-shadow: 0 6px 40px 0 #bae2ff88;
-      padding: 32px 28px 30px 28px;
+      border-radius: 20px;
+      box-shadow: 0 6px 36px rgba(0,0,0,0.07);
+      padding: 32px 32px 24px 32px;
     }
-    .logo {
-      font-size: 2.3rem;
-      font-weight: bold;
-      letter-spacing: 1px;
-      display: flex; align-items: center; gap: 8px;
-      color: #1c3e7a;
-      justify-content: center;
-      margin-bottom: 5px;
-    }
-    .logo img {
-      width: 40px; vertical-align: middle;
-    }
-    .server-status {
+    .chat-title {
       text-align: center;
-      margin-bottom: 20px;
-      font-size: 1.07em;
-      padding: 7px 0 2px;
-      border-radius: 9px;
-      background: #f7f8fa;
-      color: #19b360;
-      font-weight: bold;
-      border: 1.3px solid #d6f7ea;
-    }
-    .server-status.offline {
-      color: #c41c1c; border: 1.3px solid #ffd5d5; background: #fff6f6;
-    }
-    .entrance-banner {
-      margin: 14px 0 16px 0;
-      background: linear-gradient(90deg,#f6fbff 10%,#e7f4ff 90%);
-      color: #2186d6;
-      border-radius: 12px;
-      padding: 11px;
-      font-size: 1.1em;
-      font-weight: bold;
-      text-align: center;
-      border: 1.5px solid #e7f0ff;
-      box-shadow: 0 2px 8px 0 #c5e5ff2b;
-      letter-spacing: 0.01em;
-    }
-    .user-list {
-      margin-bottom: 6px;
-      font-size: 1.04em;
-      color: #54667d;
-      background: #eaf6ff;
-      border-radius: 7px;
-      padding: 6px 12px;
-      min-height: 28px;
-      margin-top: 0;
-      font-weight: 500;
-      text-align: left;
-    }
-    .user-list strong { color: #1ca8ec; }
-    .nickname-box {
-      margin-bottom: 7px;
-      width: 100%;
-      font-weight: bold;
-      color: #28a084;
-      background: #e6fff0;
-      border-radius: 7px;
-      padding: 7px 13px;
-      border: 1.2px solid #c2fbe2;
-      font-size: 1em;
-    }
-    .input {
-      width: 100%;
-      padding: 11px 15px;
-      margin-bottom: 12px;
-      border: 1.3px solid #d9e7ef;
-      border-radius: 10px;
-      font-size: 1.04em;
-      outline: none;
-      background: #f6fbff;
-      transition: border .18s;
-    }
-    .input:focus { border: 1.5px solid #67cbfc; }
-    #messages {
-      width: 100%;
-      min-height: 60px;
-      max-height: 190px;
-      overflow-y: auto;
-      background: #f5fff7;
-      border: 1.3px solid #e3f5e9;
-      border-radius: 10px;
-      padding: 13px 10px;
-      margin-bottom: 13px;
-      margin-top: 8px;
-      box-sizing: border-box;
-      font-size: 1.05em;
-    }
-    .msg-item {
-      margin-bottom: 8px;
-      padding: 7px 10px 7px 10px;
-      border-radius: 9px;
-      background: #e7faff;
-      border-left: 4px solid #21bdcb;
-      color: #205570;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      word-break: break-all;
-      display: block;
-    }
-    .msg-item.system {
-      background: #e0f7e6; border-left: 4px solid #6ad96a; color: #1e7e3b;
-      font-style: italic;
-    }
-    .msg-item.me { background: #fffbe5; border-left: 4px solid #ffc126; color: #9e7e1e; }
-    .chat-form-btn, .clear-btn {
-      width: 100%;
-      font-size: 1.11em;
-      border: none;
-      border-radius: 11px;
-      padding: 13px 0 11px;
+      font-size: 2.1rem;
       margin-bottom: 10px;
-      font-family: 'Jua','Noto Sans KR',sans-serif;
+      font-weight: bold;
+      color: #23395d;
+      letter-spacing: 1px;
+    }
+    .status-bar {
+      margin: 0 auto 15px auto;
+      text-align: center;
+      padding: 6px 0;
+      border-radius: 7px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      background: #f5fcf8;
+      border: 1.5px solid #e2ebe6;
+      color: #21b573;
+    }
+    .notice {
+      background: #eaf3ff;
+      border-radius: 9px;
+      text-align: center;
+      padding: 10px 0 7px 0;
+      margin-bottom: 13px;
+      font-weight: 700;
+      color: #1a61bc;
+      font-size: 1.08rem;
+      letter-spacing: 1.2px;
+    }
+    .joiners {
+      background: #f3f6fa;
+      padding: 5px 0 5px 7px;
+      border-radius: 7px;
+      margin-bottom: 9px;
+      color: #45749d;
+      font-size: 1.01rem;
+    }
+    .joiners .me {
+      color: #0d6d17; font-weight: bold;
+    }
+    .input-label {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.98rem;
+      color: #314564;
+      font-weight: 600;
+    }
+    #nicknameInput[readonly] {
+      background: #f6f6f6;
+      color: #297000;
+      font-weight: bold;
+      border: 1px solid #b5cfbc;
+    }
+    #nicknameInput {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 7px;
+      border: 1.5px solid #dde5ef;
+      font-size: 1.07rem;
+      outline: none;
+    }
+    #msgInput {
+      width: 100%;
+      min-height: 70px;
+      padding: 10px 8px;
+      border-radius: 7px;
+      border: 1.5px solid #d0e4fa;
+      margin-bottom: 12px;
+      font-size: 1.04rem;
+      resize: vertical;
+    }
+    .btn-main, .btn-delete {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      font-size: 1.25rem;
+      border-radius: 9px;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.15s;
-      box-shadow: 0 3px 13px 0 #dbefff1c;
-      letter-spacing: 0.03em;
+      margin-bottom: 12px;
+      transition: box-shadow 0.15s;
     }
-    .chat-form-btn {
-      background: linear-gradient(90deg,#0bbd9d 0%,#24b9e4 100%);
+    .btn-main {
+      background: linear-gradient(90deg, #11c9da 0%, #2ad984 100%);
       color: #fff;
+      box-shadow: 0 2px 8px #0001;
     }
-    .chat-form-btn:hover { background: linear-gradient(90deg,#0c8d90,#1189d8 100%); }
-    .clear-btn {
-      background: #fa2a2a;
+    .btn-main:hover { filter: brightness(0.98); }
+    .btn-delete {
+      background: linear-gradient(90deg, #fa4848 0%, #d067a2 100%);
       color: #fff;
-      margin-bottom: 0;
-      margin-top: -3px;
+      font-size: 1.06rem;
+      margin-bottom: 13px;
     }
-    .clear-btn:hover { background: #ce1818; }
-    .footer-link {
-      text-align: center;
-      margin-top: 32px;
-      font-size: 1.02em;
-      color: #4299e1;
-      opacity: 0.7;
+    .chat-msgs {
+      margin: 10px 0 13px 0;
+      min-height: 40px;
+      padding: 0 2px;
     }
-    @media (max-width:600px) {
-      .chat-container { padding: 13px 3vw 17px 3vw; margin: 0.7em auto 0; }
-      .logo { font-size: 1.5em; }
-      .input, #messages { font-size: 0.98em; }
+    .msg-box {
+      background: #f8ffe9;
+      border-radius: 7px;
+      padding: 9px 12px 9px 13px;
+      margin-bottom: 5px;
+      font-size: 1.05rem;
+      color: #164300;
+      border: 1px solid #dcf9d9;
+    }
+    .msg-nick {
+      color: #0a5cb3;
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .btn-exit {
+      width: 100%;
+      padding: 11px 0;
+      background: #cfd8fd;
+      color: #173f79;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      font-size: 1.15rem;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .btn-exit:hover { background: #bacaf9; }
+    .auto-scroll {
+      float: right;
+      font-size: 0.96rem;
+      color: #1971e6;
+      margin-top: 1px;
+      user-select: none;
     }
   </style>
 </head>
 <body>
-  <div class="chat-container">
-    <div class="logo">
-      <img src="https://cdn-icons-png.flaticon.com/512/616/616494.png" alt="orca" style="width:38px;">
-      OrcaX 실시간 채팅
+  <div class="chat-wrap">
+    <div class="chat-title">⚡️ OrcaX 실시간 채팅</div>
+    <div id="statusBar" class="status-bar">• 서버 접속 정상</div>
+    <div class="notice">
+      <span>발자꾹! 찍고 가세요 😊 한마디 남기면 모두가 즐겁습니다!</span>
     </div>
-    <div id="serverStatus" class="server-status">• 서버 접속 정상</div>
-    <div class="entrance-banner">
-      발자꾹! 찍고 가세요 😊  한마디 남기면 모두가 즐겁습니다!
-    </div>
-    <div id="userList" class="user-list"></div>
-    <div id="nicknameBox" class="nickname-box" style="display:none"></div>
-    <form id="chatForm" autocomplete="off">
-      <input type="text" id="nickname" class="input" placeholder="닉네임을 입력하세요" maxlength="16" required>
-      <textarea id="message" class="input" placeholder="메시지를 입력하세요" rows="2" maxlength="200"></textarea>
-      <button type="submit" class="chat-form-btn">전송하기</button>
-      <button type="button" id="clearBtn" class="clear-btn">전체 메시지 삭제</button>
-    </form>
-    <div id="messages"></div>
-    <button onclick="window.location.href='index.html'" class="chat-form-btn" style="margin-top:8px;background:#b8c5ff;color:#143879;">← 대화방 나가기</button>
-  </div>
-  <div class="footer-link">
-    © 2025 OrcaX | 실장 제작 | 문의: byungil-cho@hanmail.net
+    <div id="joiners" class="joiners"></div>
+    <label for="nicknameInput" class="input-label">닉네임</label>
+    <input id="nicknameInput" type="text" readonly />
+    <textarea id="msgInput" placeholder="메시지를 입력하세요"></textarea>
+    <button class="btn-main" id="sendBtn">전송하기</button>
+    <button class="btn-delete" id="clearBtn">전체 메시지 삭제</button>
+    <div class="chat-msgs" id="chatMsgs"></div>
+    <span class="auto-scroll">📌 자동 스크롤: <span id="scrollState">켜짐</span></span>
+    <button class="btn-exit" onclick="window.location.href='/OrcaX/index.html'">&larr; 대화방 나가기</button>
   </div>
   <script>
-    // ============================
-    // 실시간 접속자 표시/채팅 연결 (간단 소켓 흉내, fetch poll)
-    // ============================
-    const API = "https://orcax-franchise-backend.onrender.com";
-    const userListBox = document.getElementById('userList');
-    const serverStatus = document.getElementById('serverStatus');
-    const nicknameBox = document.getElementById('nicknameBox');
-    let nickname = localStorage.getItem('chat_nick') || '';
-    let users = [];
-    let pollTimer, pollUserTimer;
-
-    // 서버 상태 체크
-    async function checkServer() {
-      try {
-        let r = await fetch(API + "/api/ping"); // /ping에 응답하도록 서버.js에서 구현
-        if (r.ok) {
-          serverStatus.textContent = '• 서버 접속 정상';
-          serverStatus.classList.remove('offline');
-        } else throw new Error();
-      } catch {
-        serverStatus.textContent = '• 서버 접속 불가 (오프라인)';
-        serverStatus.classList.add('offline');
+    // 1. 닉네임 로컬스토리지 체크
+    document.addEventListener('DOMContentLoaded', function() {
+      const nickname = localStorage.getItem('kakaoNickname');
+      if (!nickname) {
+        alert('로그인이 필요합니다. 먼저 로그인해 주세요!');
+        window.location.href = "/OrcaX/index9.html";
+        return;
       }
-    }
-    checkServer(); setInterval(checkServer, 9000);
+      document.getElementById('nicknameInput').value = nickname;
+      updateJoiners([nickname]); // 기본 내 닉네임만 입장자로 표시
+      getMessages();
+      checkServer();
+    });
 
-    // 유저 리스트 불러오기 (서버에서 구현 필요)
-    async function fetchUsers() {
-      try {
-        let res = await fetch(API + "/api/users");
-        let data = await res.json();
-        users = Array.isArray(data) ? data : [];
-      } catch { users = []; }
-      userListBox.innerHTML =
-        users.length
-          ? `입장자: <strong>${users.map(u=>u.nick).join(", ")}</strong>`
-          : "입장한 사용자가 없습니다.";
-    }
-    fetchUsers(); setInterval(fetchUsers, 4000);
-
-    // 메시지 불러오기
-    async function fetchMessages() {
-      try {
-        let res = await fetch(API + "/api/messages");
-        let data = await res.json();
-        document.getElementById('messages').innerHTML = data.map(msg => 
-          `<div class="msg-item${msg.nick === nickname ? ' me' : ''}">
-            <strong>[${msg.nick}]</strong> ${msg.text}
-          </div>`
-        ).join('');
-      } catch {
-        document.getElementById('messages').innerHTML = 
-          '<div class="msg-item system">메시지를 불러올 수 없습니다.</div>';
-      }
-    }
-    fetchMessages(); setInterval(fetchMessages, 2100);
-
-    // 닉네임 처리
-    const nickInput = document.getElementById('nickname');
-    if (nickname) {
-      nickInput.value = nickname;
-      nicknameBox.style.display = '';
-      nicknameBox.textContent = `대화방 입장자: ${nickname}`;
-    }
-    nickInput.oninput = e => {
-      nickname = e.target.value.trim();
-      localStorage.setItem('chat_nick', nickname);
-      nicknameBox.style.display = nickname ? '' : 'none';
-      nicknameBox.textContent = nickname ? `대화방 입장자: ${nickname}` : '';
-    };
-
-    // 메시지 전송
-    document.getElementById('chatForm').onsubmit = async function(e) {
-      e.preventDefault();
-      const text = document.getElementById('message').value.trim();
-      if (!nickname) { alert("닉네임을 입력하세요!"); return; }
-      if (!text) return;
-      try {
-        await fetch(API + "/api/messages", {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nick: nickname, text })
+    // 2. 서버상태 체크 (간단 ping)
+    function checkServer() {
+      fetch("https://orcax-franchise-backend.onrender.com/api/messages/status")
+        .then(res => res.json())
+        .then(data => {
+          if(data && data.status === "OK") {
+            document.getElementById('statusBar').innerHTML = '• 서버 접속 정상';
+            document.getElementById('statusBar').style.color = "#21b573";
+          } else {
+            document.getElementById('statusBar').innerHTML = '• 서버 접속 불가 (오프라인)';
+            document.getElementById('statusBar').style.color = "#d42d2d";
+          }
+        }).catch(e => {
+          document.getElementById('statusBar').innerHTML = '• 서버 접속 불가 (오프라인)';
+          document.getElementById('statusBar').style.color = "#d42d2d";
         });
-        document.getElementById('message').value = '';
-        fetchMessages();
-        fetchUsers();
-      } catch {
-        alert("메시지 전송 실패: 서버 에러");
-      }
-    };
+    }
 
-    // 전체 메시지 삭제 (관리자만 가능하게 하려면 추가 조건 필요)
-    document.getElementById('clearBtn').onclick = async function() {
-      if (!confirm("전체 메시지를 정말 삭제할까요?")) return;
-      try {
-        await fetch(API + "/api/messages", { method: "DELETE" });
-        fetchMessages();
-      } catch {
-        alert("삭제 실패: 서버 에러");
+    // 3. 메시지 불러오기/입장자 표시
+    function getMessages() {
+      fetch('https://orcax-franchise-backend.onrender.com/api/messages')
+        .then(r => r.json()).then(data => {
+          let html = '';
+          const joiners = new Set();
+          data.forEach(msg => {
+            html += `<div class="msg-box"><span class="msg-nick">[${msg.nickname}]</span>${msg.message}</div>`;
+            joiners.add(msg.nickname);
+          });
+          document.getElementById('chatMsgs').innerHTML = html;
+          updateJoiners(Array.from(joiners));
+          scrollToEnd();
+        });
+    }
+    function updateJoiners(list) {
+      const mynick = localStorage.getItem('kakaoNickname');
+      let jstr = '';
+      if(list && list.length > 0) {
+        jstr = list.map(nick =>
+          `<span class="${nick === mynick ? 'me' : ''}">${nick === mynick ? '대화방 입장자: ' : ''}${nick}</span>`
+        ).join(', ');
+      } else {
+        jstr = "입장한 사용자가 없습니다.";
       }
+      document.getElementById('joiners').innerHTML = jstr;
+    }
+    // 4. 메시지 전송
+    document.getElementById('sendBtn').onclick = function() {
+      const nickname = localStorage.getItem('kakaoNickname');
+      const msg = document.getElementById('msgInput').value.trim();
+      if (!msg) return;
+      fetch('https://orcax-franchise-backend.onrender.com/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname, message: msg })
+      }).then(() => {
+        document.getElementById('msgInput').value = '';
+        getMessages();
+      });
     };
-
-    // 최초 자동 스크롤(가장 아래로)
-    setInterval(() => {
-      const msgBox = document.getElementById('messages');
-      msgBox.scrollTop = msgBox.scrollHeight;
-    }, 1000);
+    // 5. 전체 메시지 삭제
+    document.getElementById('clearBtn').onclick = function() {
+      if (!confirm('정말 모든 메시지를 삭제할까요?')) return;
+      fetch('https://orcax-franchise-backend.onrender.com/api/messages', {
+        method: 'DELETE'
+      }).then(getMessages);
+    };
+    // 6. 자동 스크롤
+    function scrollToEnd() {
+      document.getElementById('chatMsgs').scrollTop = 99999;
+    }
+    // 자동 새로고침(신규 메시지 polling, 실제 소켓쓰면 필요없음)
+    setInterval(getMessages, 2500);
   </script>
 </body>
 </html>
