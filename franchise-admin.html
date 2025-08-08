@@ -37,23 +37,59 @@
       font-size: 1.1em;
       color: #20b15a;
       font-weight: bold;
-      margin-bottom: 28px;
+      margin-bottom: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 7px;
     }
+    .toolbar {
+      display:flex;
+      justify-content: flex-end;
+      gap:10px;
+      margin: 0 0 12px 0;
+    }
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-refresh { background: #eef6ff; color:#1964d6; border:1px solid #d7e9ff; }
+    .btn-bulkdel { background: #ffe9e9; color:#a21919; border:1px solid #ffcccc; }
+
     .franchise-card {
+      position: relative;
       display: inline-block;
       background: #fff;
       border-radius: 18px;
       box-shadow: 0 2px 12px 0 rgba(40,90,180,0.06);
       padding: 16px 20px 11px 20px;
-      margin: 0 auto;
-      margin-bottom: 14px;
+      margin: 0 auto 14px;
       text-align: left;
       font-size: 0.59em;  /* 본문만 절반 */
       border-left: 7px solid #2985f3;
+      width: 280px;
+      vertical-align: top;
+    }
+    .card-actions {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      display: flex;
+      gap: 6px;
+    }
+    .btn-del {
+      background: #ff4d6d;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(255,77,109,0.3);
     }
     .info-item {
       margin-bottom: 5px;
@@ -81,9 +117,23 @@
       text-align: center;
       opacity: 0.9;
     }
+    #toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 24px;
+      background: #222;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity .25s ease;
+      pointer-events: none;
+    }
     @media (max-width: 800px) {
-      .container { padding: 6px 0.5vw; }
-      .franchise-card { padding: 6px 3vw 6px 4vw; }
+      .container { padding: 12px 2vw; }
+      .franchise-card { padding: 12px 3vw 10px 4vw; width: calc(50% - 12px); }
       h2 { font-size: 1.25em; }
     }
   </style>
@@ -92,9 +142,17 @@
   <div class="container">
     <h2>📋 OrcaX 가맹 신청서 접수 목록</h2>
     <div class="status"><span style="font-size:1.4em;">●</span> 서버 접속 정상</div>
+
+    <div class="toolbar">
+      <button class="btn btn-refresh" id="refreshBtn">새로고침</button>
+      <button class="btn btn-bulkdel" id="bulkDelBtn">선택 삭제</button>
+    </div>
+
     <div id="error" style="display:none; color:#e25252; font-weight:600; margin-bottom:18px"></div>
     <div id="cards"></div>
   </div>
+
+  <div id="toast"></div>
 
   <script>
     const API_URL = 'https://orcax-franchise-backend.onrender.com/api/apply';
@@ -111,6 +169,14 @@
       createdAt: "📅"
     };
 
+    function toast(msg, ok=true){
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.background = ok ? '#222' : '#b3261e';
+      t.style.opacity = '1';
+      setTimeout(()=> t.style.opacity='0', 1400);
+    }
+
     function formatDate(isoStr) {
       if (!isoStr) return "";
       const d = new Date(isoStr);
@@ -123,6 +189,41 @@
       const ampm = h < 12 ? "오전" : "오후";
       if (h > 12) h -= 12;
       return `${y}. ${m}. ${day}. ${ampm} ${h}:${min}:${sec}`;
+    }
+
+    async function deleteOne(id, el){
+      if (!confirm('정말 삭제하시겠습니까?')) return;
+      try{
+        const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+        const data = await res.json().catch(()=>({}));
+        if (!res.ok || !data.ok) throw new Error(data.error||'삭제 실패');
+        el.remove();
+        toast('삭제 완료');
+      }catch(e){
+        toast('삭제 실패: ' + e.message, false);
+      }
+    }
+
+    async function bulkDelete(){
+      const checked = [...document.querySelectorAll('.chk:checked')].map(c => c.value);
+      if (!checked.length) { toast('선택된 항목이 없습니다', false); return; }
+      if (!confirm(`${checked.length}건 삭제할까요?`)) return;
+      try{
+        const res = await fetch(API_URL, {
+          method:'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: checked })
+        });
+        const data = await res.json().catch(()=>({}));
+        if (!res.ok || !data.ok) throw new Error(data.error||'삭제 실패');
+        checked.forEach(id => {
+          const el = document.getElementById('card-' + id);
+          if (el) el.remove();
+        });
+        toast('일괄 삭제 완료');
+      }catch(e){
+        toast('삭제 실패: ' + e.message, false);
+      }
     }
 
     async function loadCards() {
@@ -140,9 +241,15 @@
           return;
         }
         data.forEach(f => {
+          const id = f._id || '';
           const card = document.createElement('div');
           card.className = "franchise-card";
+          card.id = 'card-' + id;
           card.innerHTML = `
+            <div class="card-actions">
+              <input type="checkbox" class="chk" value="${id}" title="선택">
+              <button class="btn-del" data-id="${id}">삭제</button>
+            </div>
             <div class="info-item"><span class="info-icon">${ICONS.name}</span><span class="info-label">이름:</span> <span class="info-value">${f.name || ''}</span></div>
             <div class="info-item"><span class="info-icon">${ICONS.storeName}</span><span class="info-label">매장명:</span> <span class="info-value">${f.storeName || ''}</span></div>
             <div class="info-item"><span class="info-icon">${ICONS.phone}</span><span class="info-label">전화:</span> <span class="info-value">${f.phone || ''}</span></div>
@@ -155,11 +262,25 @@
           `;
           cardsDiv.appendChild(card);
         });
+
+        // 개별 삭제 이벤트 바인딩
+        cardsDiv.addEventListener('click', (e)=>{
+          const btn = e.target.closest('.btn-del');
+          if (!btn) return;
+          const id = btn.getAttribute('data-id');
+          const el = document.getElementById('card-' + id);
+          deleteOne(id, el);
+        });
+
       } catch (e) {
         errorDiv.innerText = "❌ 데이터를 불러오지 못했습니다.";
         errorDiv.style.display = 'block';
       }
     }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadCards);
+    document.getElementById('bulkDelBtn').addEventListener('click', bulkDelete);
+
     loadCards();
   </script>
 </body>
