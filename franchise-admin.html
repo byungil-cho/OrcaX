@@ -1,158 +1,166 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>OrcaX 가맹 신청서 접수 목록</title>
-<style>
-  :root { --bg:#eaf3fb; --card:#fff; --ink:#233; --muted:#678; --ok:#20c77a; --danger:#ff5d5d; --line:#e6eef7; }
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,sans-serif;color:var(--ink)}
-  .wrap{max-width:1160px;margin:40px auto;padding:0 18px}
-  .title{display:flex;align-items:center;gap:12px;font-size:36px;font-weight:800;margin:0 0 18px}
-  .title i{font-size:32px}
-  .status{display:inline-flex;align-items:center;gap:8px;background:#e9fff5;color:#0c8d58;border:1px solid #bdf3d7;border-radius:999px;padding:6px 12px;font-weight:700}
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:18px}
-  @media (max-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
-  @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
-  @media (max-width:580px){.grid{grid-template-columns:1fr}}
-
-  .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;box-shadow:0 2px 8px rgba(0,30,60,0.05)}
-  .card h3{margin:2px 0 10px;font-size:16px}
-  .row{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start;margin:6px 0}
-  .k{color:var(--muted);font-size:13px}
-  .v{font-weight:600}
-  .muted{color:var(--muted)}
-  .time{font-size:12px;color:#597}
-  .badge{display:inline-flex;gap:6px;align-items:center}
-  .del{position:absolute;right:10px;top:10px;border:0;background:#ffeaea;color:#b71d1d;border:1px solid #ffc7c7;padding:6px 9px;border-radius:10px;cursor:pointer;font-weight:700}
-  .del:hover{background:#ffdede}
-  .toast{position:fixed;right:16px;bottom:16px;background:#1f2937;color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);opacity:0;transform:translateY(10px);transition:.25s}
-  .toast.show{opacity:1;transform:translateY(0)}
-  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-  .small{font-size:12px}
-</style>
+  <meta charset="UTF-8" />
+  <title>OrcaX 가맹 신청서 접수 목록</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #fafafa;
+      font-family: 'Noto Sans KR', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 950px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px 0 rgba(32,80,110,0.09);
+      padding: 30px 30px 50px 30px;
+      text-align: center;
+    }
+    h2 {
+      color: #2263a8;
+      font-size: 2.2em;
+      margin-bottom: 0.5em;
+      font-weight: bold;
+      letter-spacing: -1px;
+      word-break: keep-all;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      line-height: 1.3;
+    }
+    .status {
+      font-size: 1.1em;
+      color: #20b15a;
+      font-weight: bold;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    .franchise-card {
+      display: inline-block;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px 0 rgba(40,90,180,0.06);
+      padding: 16px 20px 11px 20px;
+      margin: 0 auto;
+      margin-bottom: 14px;
+      text-align: left;
+      font-size: 0.59em;  /* 본문만 절반 */
+      border-left: 7px solid #2985f3;
+    }
+    .info-item {
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1em;
+    }
+    .info-label {
+      font-weight: bold;
+      min-width: 50px;
+      color: #183d80;
+      display: inline-block;
+      font-size: 1em;
+    }
+    .info-value {
+      font-weight: 400;
+      color: #333;
+      word-break: break-all;
+      font-size: 1em;
+    }
+    .info-icon {
+      font-size: 1em;
+      min-width: 13px;
+      text-align: center;
+      opacity: 0.9;
+    }
+    @media (max-width: 800px) {
+      .container { padding: 6px 0.5vw; }
+      .franchise-card { padding: 6px 3vw 6px 4vw; }
+      h2 { font-size: 1.25em; }
+    }
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <h1 class="title"><i>📄</i> OrcaX 가맹 신청서 접수 목록</h1>
-      <div id="status" class="status">● 서버 접속 확인중…</div>
-    </div>
-    <div id="empty" class="muted" style="display:none;margin:22px 0;font-weight:700">등록된 신청서가 없습니다.</div>
-    <div id="grid" class="grid"></div>
+  <div class="container">
+    <h2>📋 OrcaX 가맹 신청서 접수 목록</h2>
+    <div class="status"><span style="font-size:1.4em;">●</span> 서버 접속 정상</div>
+    <div id="error" style="display:none; color:#e25252; font-weight:600; margin-bottom:18px"></div>
+    <div id="cards"></div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <script>
+    const API_URL = 'https://orcax-franchise-backend.onrender.com/api/apply';
 
-<script>
-const BACKEND = 'https://orcax-franchise-backend.onrender.com';
-const $ = (q,el=document)=>el.querySelector(q);
-const $$ = (q,el=document)=>[...el.querySelectorAll(q)];
+    const ICONS = {
+      name: "📝",
+      storeName: "🏢",
+      phone: "📞",
+      corpnum: "🧾",
+      region: "📍",
+      address: "🏠",
+      type: "💼",
+      note: "🗒️",
+      createdAt: "📅"
+    };
 
-function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800);}
+    function formatDate(isoStr) {
+      if (!isoStr) return "";
+      const d = new Date(isoStr);
+      const y = d.getFullYear();
+      const m = d.getMonth() + 1;
+      const day = d.getDate();
+      let h = d.getHours();
+      const min = (""+d.getMinutes()).padStart(2,"0");
+      const sec = (""+d.getSeconds()).padStart(2,"0");
+      const ampm = h < 12 ? "오전" : "오후";
+      if (h > 12) h -= 12;
+      return `${y}. ${m}. ${day}. ${ampm} ${h}:${min}:${sec}`;
+    }
 
-async function ping(){
-  try{
-    const r = await fetch(`${BACKEND}/api/apply/status`, {cache:'no-store'});
-    if(!r.ok) throw new Error(r.status);
-    $("#status").textContent = '● 서버 접속 정상';
-  }catch(e){
-    $("#status").textContent = '● 서버 접속 실패';
-    $("#status").style.background = '#fff1f1';
-    $("#status").style.color = '#a31212';
-  }
-}
-
-function fmtWhen(v){
-  if(!v) return '';
-  const d = new Date(v);
-  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
-  const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0'), ss=String(d.getSeconds()).padStart(2,'0');
-  return `${y}. ${m}. ${dd}. ${hh}:${mm}:${ss}`;
-}
-
-function card(doc){
-  const li = document.createElement('div');
-  li.className='card';
-  li.dataset.id = doc._id;
-
-  const rows = [
-    ['이름', doc.name || doc.nickname || '-'],
-    ['매장명', doc.storeName || '-'],
-    ['전화', doc.phone || '-'],
-    ['사업자번호', doc.corpnum || '-'],
-    ['지역', doc.region || '-'],
-    ['주소', doc.address || '-'],
-    ['업종', doc.type || '-'],
-    ['비고', doc.note || '-']
-  ].map(([k,v]) => `
-    <div class="row">
-      <div class="k muted">• ${k}</div>
-      <div class="v">${escapeHtml(String(v))}</div>
-    </div>
-  `).join('');
-
-  li.innerHTML = `
-    <button class="del" title="삭제">삭제</button>
-    ${rows}
-    <div class="row">
-      <div class="k muted">• 신청일</div>
-      <div class="time">${fmtWhen(doc.createdAt)}</div>
-    </div>
-  `;
-
-  // 삭제 버튼 핸들러
-  $('.del', li).addEventListener('click', async () => {
-    const id = li.dataset.id;
-    const ok = confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');
-    if(!ok) return;
-    try {
-      const res = await fetch(`${BACKEND}/api/apply/delete/${id}`, { method:'DELETE' });
-      const data = await res.json().catch(()=>({}));
-      if(!res.ok || !data.success){
-        throw new Error(data.message || res.status);
+    async function loadCards() {
+      const cardsDiv = document.getElementById('cards');
+      const errorDiv = document.getElementById('error');
+      cardsDiv.innerHTML = "";
+      errorDiv.style.display = 'none';
+      try {
+        const res = await fetch(API_URL, { credentials: 'include' });
+        if (!res.ok) throw new Error('서버 응답 실패');
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          errorDiv.innerText = "등록된 신청서가 없습니다.";
+          errorDiv.style.display = 'block';
+          return;
+        }
+        data.forEach(f => {
+          const card = document.createElement('div');
+          card.className = "franchise-card";
+          card.innerHTML = `
+            <div class="info-item"><span class="info-icon">${ICONS.name}</span><span class="info-label">이름:</span> <span class="info-value">${f.name || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.storeName}</span><span class="info-label">매장명:</span> <span class="info-value">${f.storeName || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.phone}</span><span class="info-label">전화:</span> <span class="info-value">${f.phone || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.corpnum}</span><span class="info-label">사업자번호:</span> <span class="info-value">${f.corpnum || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.region}</span><span class="info-label">지역:</span> <span class="info-value">${f.region || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.address}</span><span class="info-label">주소:</span> <span class="info-value">${f.address || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.type}</span><span class="info-label">업종:</span> <span class="info-value">${f.type || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.note}</span><span class="info-label">비고:</span> <span class="info-value">${f.note || ''}</span></div>
+            <div class="info-item"><span class="info-icon">${ICONS.createdAt}</span><span class="info-label">신청일:</span> <span class="info-value">${formatDate(f.createdAt)}</span></div>
+          `;
+          cardsDiv.appendChild(card);
+        });
+      } catch (e) {
+        errorDiv.innerText = "❌ 데이터를 불러오지 못했습니다.";
+        errorDiv.style.display = 'block';
       }
-      li.remove();
-      if(!$('#grid').children.length) $('#empty').style.display='block';
-      toast('삭제 완료');
-    } catch (e) {
-      console.error(e);
-      toast('삭제 실패: ' + e.message);
-      alert('삭제 실패\n\n' + (e.message || 'unknown error'));
     }
-  });
-
-  return li;
-}
-
-function escapeHtml(s){
-  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-
-async function load(){
-  $("#status").textContent = '● 서버 접속 정상';
-  try{
-    const r = await fetch(`${BACKEND}/api/apply`, {cache:'no-store'});
-    const list = await r.json();
-    const grid = $("#grid");
-    grid.innerHTML='';
-    if(!Array.isArray(list) || list.length===0){
-      $('#empty').style.display='block';
-      return;
-    }
-    $('#empty').style.display='none';
-    list.forEach(doc => grid.appendChild(card(doc)));
-  }catch(e){
-    console.error(e);
-    $('#empty').style.display='block';
-    $('#empty').textContent='목록을 불러오지 못했습니다.';
-  }
-}
-
-(async function init(){
-  await ping();
-  await load();
-})();
-</script>
+    loadCards();
+  </script>
 </body>
 </html>
