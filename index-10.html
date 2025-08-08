@@ -30,7 +30,7 @@
     .foot { display:flex; gap:8px; align-items:center; justify-content:space-between; margin-top:10px }
     .auto { font-size:.92rem; color:#1971e6; user-select:none }
     .exit { padding:10px 12px; background:#cfd8fd; color:#173f79; border-radius:8px; border:none; font-weight:800; font-size:1.03rem; cursor:pointer }
-    .dbg { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space:pre-wrap; font-size:.88rem; background:#0b1524; color:#bfe3ff; padding:10px; border-radius:8px; margin-top:8px; max-height:200px; overflow:auto; display:none }
+    .dbg { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space:pre-wrap; font-size:.88rem; background:#0b1524; color:#bfe3ff; padding:10px; border-radius:8px; margin-top:8px; max-height:220px; overflow:auto; display:none }
   </style>
 </head>
 <body>
@@ -61,8 +61,7 @@
 
 <script>
 /** ========= CONFIG ========= **/
-const BASE = "https://orcax-franchise-backend.onrender.com";
-const API  = BASE + "/api/apply";  // 어드민과 동일 루트
+const BASE = "https://orcax-franchise-backend.onrender.com"; // 호스트만
 const AUTH_TOKEN = localStorage.getItem('authToken') || "";
 
 // 로그인 확인
@@ -74,6 +73,10 @@ if (!kakaoId || !nickname) {
   throw new Error('로그인 안됨');
 }
 
+/** ========= PATH HELPER (자동 경로 탐색) ========= **/
+const bases = [ `${BASE}/api/apply`, `${BASE}/api`, `${BASE}` ];
+function paths(rel){ const clean = rel.replace(/^\/+/,''); return bases.map(b => `${b}/${clean}`); }
+
 /** ========= UTIL ========= **/
 const $ = (id)=>document.getElementById(id);
 const show = (id, on=true)=>{ $(id).style.display = on ? '' : 'none'; }
@@ -84,6 +87,8 @@ function logDebug(title, payload){
   d.textContent += `[${new Date().toLocaleTimeString()}] ${title}\n` +
     (typeof payload==='string' ? payload : JSON.stringify(payload,null,2)) + "\n";
 }
+
+/** fetchJSON: JSON만 허용 + HTML 주입 차단 **/
 async function fetchJSON(urls, opt={}){
   const list = Array.isArray(urls) ? urls : [urls];
   let last=null;
@@ -92,6 +97,7 @@ async function fetchJSON(urls, opt={}){
       const res = await fetch(u, {
         method: opt.method || 'GET',
         headers: {
+          'Accept': 'application/json',
           'Content-Type':'application/json',
           ...(AUTH_TOKEN ? {'Authorization':`Bearer ${AUTH_TOKEN}`} : {}),
           ...(opt.headers || {})
@@ -100,64 +106,84 @@ async function fetchJSON(urls, opt={}){
         credentials: 'include',
         mode: 'cors'
       });
-      const txt = await res.text();
-      let data = null; try{ data = txt ? JSON.parse(txt) : {}; }catch(e){}
-      if (!res.ok){ last={url:u,status:res.status,statusText:res.statusText,body:txt}; logDebug('HTTP오류', last); continue; }
-      return {ok:true, url:u, data: data ?? txt};
-    }catch(e){ last={url:u,error:String(e)}; logDebug('네트워크예외', last); }
+
+      const ct = res.headers.get('content-type') || '';
+      const isJSON = ct.includes('application/json');
+
+      const raw = await res.text();
+      let data = null; if (isJSON) { try { data = raw ? JSON.parse(raw) : {}; } catch(e){} }
+
+      if (!res.ok || !isJSON){
+        last = { url: u, status: res.status, statusText: res.statusText, contentType: ct, bodyPreview: raw.slice(0, 400) };
+        logDebug('응답 오류/비JSON', last);
+        continue;
+      }
+      return { ok:true, url:u, data };
+    }catch(e){
+      last = { url:u, error:String(e) };
+      logDebug('네트워크 예외', last);
+    }
   }
-  return {ok:false, error:last};
+  return { ok:false, error:last };
 }
 
 /** ========= 1) 서버 상태 ========= **/
 (async()=>{
-  const r = await fetchJSON(`${API}/status`);
+  const r = await fetchJSON(paths('status'));
   if (r.ok && r.data?.status==='OK') setStatus('serverStatus','ok','✅ 서버 연결 정상');
   else setStatus('serverStatus','bad','❌ 서버 연결 실패');
 })();
 
-/** ========= 2) 접속자(나) 프로필 & 자산 ========= **/
+/** ========= 2) 자산(내 프로필) 로드 ========= **/
 (async()=>{
-  // 자산 로드
-  const payload = { kakaoId, nickname };
-  const r = await fetchJSON([`${API}/me`, `${API}/user/me`, `${API}/profile`], {method:'POST', body:payload});
-  if (!r.ok) { setStatus('assetStatus','bad','❌ 자산 로드 실패'); }
-  else { setStatus('assetStatus','ok','✅ 자산 로드 완료'); }
+  const body = { kakaoId, nickname, id: kakaoId, userId: kakaoId }; // 호환키 동시 전송
 
-  const user = r.ok ? r.data : { nickname };
-  $('profileBar').innerHTML = `
-    <span class="nickname">${user?.nickname ?? nickname}</span>
-    <span class="me-badge">내 계정</span>
-    <span class="asset">💧${user?.water ?? 0}</span>
-    <span class="asset">🌱${user?.fertilizer ?? 0}</span>
-    <span class="asset">🪙${user?.token ?? 0}</span>
-    <span class="asset">🥔${user?.potato ?? 0}</span>
-    <span class="asset">🌾${user?.barley ?? 0}</span>
-    <span class="asset">🥔🌱${user?.seedPotato ?? 0}</span>
-    <span class="asset">🌾🌱${user?.seedBarley ?? 0}</span>
-  `;
-})();
-
-/** ========= 3) Presence: 입장/퇴장 등록 + 목록 ========= **/
-async function registerJoin(){
-  const body = { kakaoId, nickname };
-  const r = await fetchJSON(
-    [`${API}/presence/join`, `${API}/chat/join`],
+  // POST 후보들
+  let r = await fetchJSON(
+    [ ...paths('me'), ...paths('user/me'), ...paths('profile') ],
     { method:'POST', body }
   );
+
+  // GET 폴백
+  if (!r.ok){
+    const q = `?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}&id=${encodeURIComponent(kakaoId)}&userId=${encodeURIComponent(kakaoId)}`;
+    r = await fetchJSON(
+      [ ...paths(`me${q}`), ...paths(`user/me${q}`), ...paths(`profile${q}`) ],
+      { method:'GET' }
+    );
+  }
+
+  if (!r.ok) { setStatus('assetStatus','bad','❌ 자산 로드 실패 (DEBUG 확인)'); return; }
+
+  const u = r.data || {};
+  $('profileBar').innerHTML = `
+    <span class="nickname">${u.nickname ?? nickname}</span>
+    <span class="me-badge">내 계정</span>
+    <span class="asset">💧${u.water ?? 0}</span>
+    <span class="asset">🌱${u.fertilizer ?? 0}</span>
+    <span class="asset">🪙${u.token ?? 0}</span>
+    <span class="asset">🥔${u.potato ?? 0}</span>
+    <span class="asset">🌾${u.barley ?? 0}</span>
+    <span class="asset">🥔🌱${u.seedPotato ?? 0}</span>
+    <span class="asset">🌾🌱${u.seedBarley ?? 0}</span>
+  `;
+  setStatus('assetStatus','ok','✅ 자산 로드 완료');
+})();
+
+/** ========= 3) Presence: 입장/퇴장/목록 ========= **/
+async function registerJoin(){
+  const body = { kakaoId, nickname };
+  const r = await fetchJSON([ ...paths('presence/join'), ...paths('chat/join') ], { method:'POST', body });
   if (!r.ok) logDebug('JOIN 실패', r.error);
 }
 async function registerLeave(){
   const body = { kakaoId, nickname };
-  // DELETE 또는 POST 폴백
-  let r = await fetchJSON(`${API}/presence/leave`, { method:'DELETE', body });
-  if (!r.ok) r = await fetchJSON(`${API}/chat/leave`, { method:'POST', body });
+  let r = await fetchJSON(paths('presence/leave'), { method:'DELETE', body });
+  if (!r.ok) r = await fetchJSON(paths('chat/leave'), { method:'POST', body });
   if (!r.ok) logDebug('LEAVE 실패', r.error);
 }
 async function loadJoiners(){
-  const r = await fetchJSON(
-    [`${API}/presence/list`, `${API}/chat/joiners`]
-  );
+  const r = await fetchJSON([ ...paths('presence/list'), ...paths('chat/joiners') ]);
   if (!r.ok){ $('joiners').textContent='참여자 정보를 불러올 수 없습니다.'; return; }
   const arr = r.data?.joiners || r.data || [];
   $('joiners').innerHTML = (arr.length? arr:[]).map(n=>{
@@ -165,47 +191,63 @@ async function loadJoiners(){
     return `<span class="pill ${isMe?'me':''}">${isMe?'나 · ':''}${n}</span>`;
   }).join('') || '현재 접속자 없음';
 }
-// 페이지 이탈 시 퇴장 등록
 window.addEventListener('beforeunload', registerLeave);
 window.addEventListener('pagehide', registerLeave);
 
-/** ========= 4) 채팅(리스트/전송/삭제) ========= **/
+/** ========= 4) 채팅(목록/전송/삭제) ========= **/
 async function loadMessages(){
-  const r = await fetchJSON([`${API}/chat`, `${API}/chat/list`]);
-  if (!r.ok){ setStatus('chatStatus','bad','❌ 채팅 불러오기 실패'); return; }
+  const r = await fetchJSON([ ...paths('chat'), ...paths('chat/list') ]);
+  if (!r.ok){
+    setStatus('chatStatus','bad','❌ 채팅 불러오기 실패 (DEBUG 확인)');
+    return;
+  }
+
+  const arr = Array.isArray(r.data) ? r.data
+            : Array.isArray(r.data?.items) ? r.data.items
+            : null;
+
+  if (!arr){
+    setStatus('chatStatus','bad','⚠️ 채팅 응답 형식이 올바르지 않습니다');
+    logDebug('채팅 응답 비배열', r.data);
+    return;
+  }
+
   setStatus('chatStatus','ok','✅ 채팅 연결 OK');
   const box = $('chatMsgs'); box.innerHTML='';
-  (r.data||[]).forEach(m=>{
+  arr.forEach(m=>{
     const isMe = (m.nickname===nickname);
     const d = document.createElement('div');
     d.className='msg';
-    d.innerHTML = `<span class="nick">${isMe?'나':(m.nickname||'익명')}</span>${m.message||''}`;
+    d.textContent = `${isMe?'나':(m.nickname||'익명')}  ${m.message||''}`; // innerText로 안전 렌더
     box.appendChild(d);
   });
   box.scrollTop = box.scrollHeight;
 }
+
 $('sendBtn').addEventListener('click', async ()=>{
   const message = $('msgInput').value.trim();
   if (!message) return;
   const payload = { kakaoId, nickname, message };
-  const r = await fetchJSON([`${API}/chat`, `${API}/chat/send`], {method:'POST', body:payload});
+
+  const r = await fetchJSON([ ...paths('chat'), ...paths('chat/send') ], { method:'POST', body:payload });
   if (!r.ok){ setStatus('chatStatus','bad','❌ 메시지 전송 실패 (DEBUG 참고)'); return; }
   $('msgInput').value = '';
   await loadMessages();
 });
+
 $('clearBtn').addEventListener('click', async ()=>{
   if (!confirm('전체 메시지를 삭제하시겠습니까?')) return;
-  let r = await fetchJSON(`${API}/chat/clear`, { method:'DELETE' });
-  if (!r.ok) r = await fetchJSON(`${API}/chat/clear`, { method:'POST' });
+  let r = await fetchJSON(paths('chat/clear'), { method:'DELETE' });
+  if (!r.ok) r = await fetchJSON(paths('chat/clear'), { method:'POST' });
   if (!r.ok){ setStatus('chatStatus','bad','❌ 전체 삭제 실패 (권한/라우터 확인)'); return; }
   await loadMessages();
 });
 
-/** ========= 5) 주기 갱신 & 초기화 ========= **/
+/** ========= 5) 초기화 & 주기 갱신 ========= **/
 (async function init(){
-  await registerJoin();      // 입장 등록
-  await loadJoiners();       // 현재 접속자
-  await loadMessages();      // 채팅 목록
+  await registerJoin();
+  await loadJoiners();
+  await loadMessages();
   setInterval(loadJoiners, 3000);
   setInterval(loadMessages, 3000);
 })();
