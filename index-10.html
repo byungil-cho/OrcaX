@@ -44,7 +44,8 @@
     <button class="btn-exit" onclick="window.location.href='/OrcaX/index.html'">&larr; 대화방 나가기</button>
   </div>
 <script>
-  const API_URL = "https://orcax-franchise-backend.onrender.com";
+  // ✅ 어드민과 동일하게 API 경로 설정
+  const API_URL = "https://orcax-franchise-backend.onrender.com/api/apply";
 
   // 로그인 확인
   let kakaoId = localStorage.getItem('kakaoId');
@@ -56,7 +57,7 @@
   }
 
   // 서버 상태 체크
-  fetch(`${API_URL}/api/status`)
+  fetch(`${API_URL}/status`)
     .then(res => res.json())
     .then(data => {
       if (data.status === "OK") {
@@ -73,7 +74,7 @@
     });
 
   // 자산 정보 로드
-  fetch(`${API_URL}/api/me`, {
+  fetch(`${API_URL}/me`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ kakaoId, nickname })
@@ -91,13 +92,13 @@
       <span class="asset">🌾🌱${user.seedBarley ?? 0}</span>
     `;
   })
-  .catch(err => {
+  .catch(() => {
     document.getElementById('profileBar').innerHTML = "자산 정보를 불러올 수 없습니다.";
   });
 
   // 채팅 불러오기
   function loadMessages() {
-    fetch(`${API_URL}/api/chat`)
+    fetch(`${API_URL}/chat`)
       .then(res => res.json())
       .then(data => {
         const chatBox = document.getElementById('chatMsgs');
@@ -116,7 +117,7 @@
   document.getElementById('sendBtn').addEventListener('click', () => {
     const message = document.getElementById('msgInput').value.trim();
     if (!message) return;
-    fetch(`${API_URL}/api/chat`, {
+    fetch(`${API_URL}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ kakaoId, nickname, message })
@@ -129,13 +130,13 @@
   // 전체 메시지 삭제
   document.getElementById('clearBtn').addEventListener('click', () => {
     if (!confirm("전체 메시지를 삭제하시겠습니까?")) return;
-    fetch(`${API_URL}/api/chat/clear`, { method: 'DELETE' })
+    fetch(`${API_URL}/chat/clear`, { method: 'DELETE' })
       .then(() => loadMessages());
   });
 
   // 참여자 표시
   function loadJoiners() {
-    fetch(`${API_URL}/api/chat/joiners`)
+    fetch(`${API_URL}/chat/joiners`)
       .then(res => res.json())
       .then(data => {
         document.getElementById('joiners').textContent = "참여자: " + data.join(', ');
