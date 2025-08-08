@@ -2,154 +2,250 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaX 실시간 채팅</title>
+  <title>OrcaX 실시간 채팅 (진단/폴백 통합)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    body { background: #e7f3fb; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; }
-    .chat-wrap { max-width: 480px; margin: 40px auto 0; background: #fff; border-radius: 20px; box-shadow: 0 6px 36px #bae2ff2b; padding: 30px 22px 22px 22px; }
-    .status-bar { padding: 6px 10px; font-size: 0.95rem; border-radius: 7px; margin-bottom: 10px; }
-    .status-ok { background: #e2ffe6; color: #116622; border: 1px solid #b3f0b9; }
-    .status-fail { background: #ffe2e2; color: #991111; border: 1px solid #f0b3b3; }
-    .profile-bar { display: flex; gap: 13px; align-items: center; justify-content: flex-start; background: #e6f7ff; padding: 10px 13px; border-radius: 10px; font-size: 1.1em; font-weight: bold; margin-bottom: 15px; border: 1.5px solid #d2edff; }
-    .nickname { color: #2186d6; margin-right: 16px; font-size: 1.16em; }
-    .asset { color: #236b2c; background:#fff; border-radius:5px; padding:3px 7px; margin-right:4px; min-width:36px; text-align:center; }
-    .chat-title { text-align: center; font-size: 2.1rem; font-weight: bold; color: #23395d; margin-bottom: 8px; }
-    .notice { background: #eaf3ff; border-radius: 9px; text-align: center; padding: 10px 0 7px 0; margin-bottom: 13px; font-weight: 700; color: #1a61bc; font-size: 1.08rem;}
-    .joiners { background: #f3f6fa; padding: 5px 0 5px 7px; border-radius: 7px; margin-bottom: 9px; color: #45749d; font-size: 1.01rem; }
-    #msgInput { width: 100%; min-height: 70px; padding: 10px 8px; border-radius: 7px; border: 1.5px solid #d0e4fa; margin-bottom: 12px; font-size: 1.04rem; resize: vertical; }
-    .btn-main, .btn-delete { width: 100%; padding: 12px; border: none; font-size: 1.2rem; border-radius: 9px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
-    .btn-main { background: linear-gradient(90deg, #11c9da 0%, #2ad984 100%); color: #fff;}
-    .btn-main:hover { filter: brightness(0.98);}
-    .btn-delete { background: linear-gradient(90deg, #fa4848 0%, #d067a2 100%); color: #fff; font-size: 1.05rem;}
-    .chat-msgs { margin: 10px 0 13px 0; min-height: 40px; padding: 0 2px; max-height: 300px; overflow-y: auto; }
-    .msg-box { background: #f8ffe9; border-radius: 7px; padding: 9px 12px 9px 13px; margin-bottom: 5px; font-size: 1.05rem; color: #164300; border: 1px solid #dcf9d9;}
-    .msg-nick { color: #0a5cb3; font-weight: bold; margin-right: 5px; }
-    .btn-exit { width: 100%; padding: 11px 0; background: #cfd8fd; color: #173f79; border-radius: 8px; border: none; font-weight: bold; font-size: 1.15rem; margin-top: 12px; cursor: pointer;}
-    .btn-exit:hover { background: #bacaf9; }
-    .auto-scroll { float: right; font-size: 0.96rem; color: #1971e6; margin-top: 1px; user-select: none;}
+    body { background: #e7f3fb; font-family: 'Pretendard','Noto Sans KR',sans-serif; }
+    .chat-wrap { max-width: 520px; margin: 28px auto; background:#fff; border-radius:20px; box-shadow:0 6px 36px #bae2ff2b; padding:24px; }
+    .status { padding:8px 10px; border-radius:8px; margin-bottom:10px; font-size:.95rem }
+    .ok{background:#e2ffe6;color:#116622;border:1px solid #b3f0b9}
+    .bad{background:#ffe2e2;color:#7a1010;border:1px solid #f0b3b3}
+    .warn{background:#fff7e2;color:#7a5a10;border:1px solid #f0e0b3}
+    .profile-bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; background:#e6f7ff; padding:10px 12px; border-radius:10px; border:1.5px solid #d2edff; margin:10px 0 14px }
+    .nickname { color:#2186d6; font-weight:700; margin-right:8px }
+    .asset { color:#236b2c; background:#fff; border-radius:5px; padding:3px 7px; min-width:36px; text-align:center; border:1px solid #dfeee3 }
+    .chat-title { text-align:center; font-size:1.9rem; font-weight:800; color:#23395d; margin:6px 0 8px }
+    .notice { background:#eaf3ff; border-radius:9px; text-align:center; padding:10px 8px; margin-bottom:10px; font-weight:700; color:#1a61bc; font-size:1.02rem;}
+    .joiners { background:#f3f6fa; padding:6px 8px; border-radius:7px; margin:8px 0; color:#45749d; font-size:.98rem }
+    #msgInput { width:100%; min-height:70px; padding:10px 8px; border-radius:7px; border:1.5px solid #d0e4fa; margin:10px 0; font-size:1.04rem; resize:vertical }
+    .btn { width:100%; padding:11px; border:none; border-radius:9px; font-weight:800; cursor:pointer; margin:6px 0 }
+    .btn-send { background:linear-gradient(90deg,#11c9da 0%,#2ad984 100%); color:#fff; }
+    .btn-del { background:linear-gradient(90deg,#fa4848 0%,#d067a2 100%); color:#fff; font-size:.98rem }
+    .chat-msgs { margin:8px 0 6px; max-height:320px; overflow-y:auto; border:1px dashed #e1ecff; border-radius:8px; padding:8px }
+    .msg { background:#f8ffe9; border-radius:7px; padding:8px 10px; margin-bottom:5px; font-size:1.02rem; color:#164300; border:1px solid #dcf9d9;}
+    .nick { color:#0a5cb3; font-weight:800; margin-right:6px }
+    .foot { display:flex; gap:8px; align-items:center; justify-content:space-between; margin-top:10px }
+    .auto { font-size:.92rem; color:#1971e6; user-select:none }
+    .exit { padding:10px 12px; background:#cfd8fd; color:#173f79; border-radius:8px; border:none; font-weight:800; font-size:1.03rem; cursor:pointer }
+    .dbg { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space:pre-wrap; font-size:.88rem; background:#0b1524; color:#bfe3ff; padding:10px; border-radius:8px; margin-top:8px; max-height:200px; overflow:auto }
+    .row { display:flex; gap:8px; }
   </style>
 </head>
 <body>
-  <div class="chat-wrap">
-    <div id="serverStatus" class="status-bar">서버 상태 확인중...</div>
-    <div id="profileBar" class="profile-bar">자산 정보 로딩중...</div>
-    <div class="chat-title">⚡️ OrcaX 실시간 채팅</div>
-    <div class="notice"><span>발자꾹! 찍고 가세요 😊 한마디 남기면 모두가 즐겁습니다!</span></div>
-    <div id="joiners" class="joiners"></div>
-    <textarea id="msgInput" placeholder="메시지를 입력하세요"></textarea>
-    <button class="btn-main" id="sendBtn">전송하기</button>
-    <button class="btn-delete" id="clearBtn">전체 메시지 삭제</button>
-    <div class="chat-msgs" id="chatMsgs"></div>
-    <span class="auto-scroll">📌 자동 스크롤: <span id="scrollState">켜짐</span></span>
-    <button class="btn-exit" onclick="window.location.href='/OrcaX/index.html'">&larr; 대화방 나가기</button>
+<div class="chat-wrap">
+  <div id="serverStatus" class="status warn">서버 상태 확인중...</div>
+  <div id="assetStatus" class="status warn" style="display:none"></div>
+  <div id="chatStatus" class="status warn" style="display:none"></div>
+
+  <div id="profileBar" class="profile-bar">자산 정보 로딩중...</div>
+
+  <div class="chat-title">⚡️ OrcaX 실시간 채팅</div>
+  <div class="notice">발자꾹! 찍고 가세요 😊 한마디 남기면 모두가 즐겁습니다!</div>
+  <div id="joiners" class="joiners">참여자 로딩중...</div>
+
+  <textarea id="msgInput" placeholder="메시지를 입력하세요"></textarea>
+  <div class="row">
+    <button class="btn btn-send" id="sendBtn">전송하기</button>
+    <button class="btn btn-del" id="clearBtn">전체 메시지 삭제</button>
   </div>
+
+  <div id="chatMsgs" class="chat-msgs"></div>
+
+  <div class="foot">
+    <span class="auto">📌 자동 새로고침: <span id="scrollState">켜짐</span></span>
+    <button class="exit" onclick="window.location.href='/OrcaX/index.html'">&larr; 대화방 나가기</button>
+  </div>
+
+  <div id="debug" class="dbg" style="display:none"></div>
+</div>
+
 <script>
-  // ✅ 어드민과 동일하게 API 경로 설정
-  const API_URL = "https://orcax-franchise-backend.onrender.com/api/apply";
+/** ========= CONFIG ========= **/
+const BASE = "https://orcax-franchise-backend.onrender.com";
+const API = BASE + "/api/apply";           // 어드민과 동일 루트
+const AUTH_TOKEN = localStorage.getItem('authToken') || ""; // 있으면 자동 부착
 
-  // 로그인 확인
-  let kakaoId = localStorage.getItem('kakaoId');
-  let nickname = localStorage.getItem('nickname');
-  if (!kakaoId || !nickname) {
-    alert('카카오 로그인 필요!');
-    window.location.href = "/OrcaX/index9.html";
-    throw new Error('로그인 안됨');
-  }
+// 로그인 확인
+const kakaoId = localStorage.getItem('kakaoId');
+const nickname = localStorage.getItem('nickname');
+if (!kakaoId || !nickname) {
+  alert('카카오 로그인 필요!');
+  location.href = "/OrcaX/index9.html";
+  throw new Error('로그인 안됨');
+}
 
-  // 서버 상태 체크
-  fetch(`${API_URL}/status`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === "OK") {
-        document.getElementById('serverStatus').textContent = "✅ 서버 연결 정상";
-        document.getElementById('serverStatus').className = "status-bar status-ok";
-      } else {
-        document.getElementById('serverStatus').textContent = "⚠️ 서버 연결 불안정";
-        document.getElementById('serverStatus').className = "status-bar status-fail";
+/** ========= UTIL ========= **/
+const el = (id)=>document.getElementById(id);
+const show = (id, on=true)=>{ el(id).style.display = on ? '' : 'none'; }
+
+function setStatus(id, type, msg){
+  const m = el(id);
+  m.className = `status ${type}`;
+  m.textContent = msg;
+  show(id, true);
+}
+function logDebug(title, err){
+  const box = el('debug');
+  const txt = `[${new Date().toLocaleTimeString()}] ${title}\n` + (typeof err === 'string' ? err : JSON.stringify(err, null, 2)) + '\n';
+  box.textContent = (box.textContent || '') + txt;
+  show('debug', true);
+}
+
+// 공통 fetch(JSON) with 폴백 & 상세오류
+async function fetchJSON(paths, {method='GET', body=null, headers={}} = {}){
+  const list = Array.isArray(paths) ? paths : [paths];
+  let lastErr = null;
+
+  for (const p of list){
+    try{
+      const res = await fetch(p, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(AUTH_TOKEN ? {'Authorization': `Bearer ${AUTH_TOKEN}`} : {}),
+          ...headers
+        },
+        body: body ? JSON.stringify(body) : null,
+        credentials: 'include',   // 쿠키 세션 대응
+        mode: 'cors'              // CORS
+      });
+      const text = await res.text(); // 먼저 raw text
+      let data = null;
+      try { data = text ? JSON.parse(text) : {}; } catch(e){ /* not json */ }
+
+      if (!res.ok){
+        lastErr = { url:p, status:res.status, statusText:res.statusText, body:text };
+        logDebug('HTTP 오류', lastErr);
+        continue;
       }
-    })
-    .catch(() => {
-      document.getElementById('serverStatus').textContent = "❌ 서버 연결 실패";
-      document.getElementById('serverStatus').className = "status-bar status-fail";
-    });
+      return { ok:true, url:p, data: data ?? text };
+    }catch(e){
+      lastErr = { url:p, error: String(e) };
+      logDebug('네트워크 예외', lastErr);
+    }
+  }
+  return { ok:false, error:lastErr };
+}
 
-  // 자산 정보 로드
-  fetch(`${API_URL}/me`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ kakaoId, nickname })
-  })
-  .then(res => res.json())
-  .then(user => {
-    document.getElementById('profileBar').innerHTML = `
-      <span class="nickname">${user.nickname}</span>
-      <span class="asset">💧${user.water ?? 0}</span>
-      <span class="asset">🌱${user.fertilizer ?? 0}</span>
-      <span class="asset">🪙${user.token ?? 0}</span>
-      <span class="asset">🥔${user.potato ?? 0}</span>
-      <span class="asset">🌾${user.barley ?? 0}</span>
-      <span class="asset">🥔🌱${user.seedPotato ?? 0}</span>
-      <span class="asset">🌾🌱${user.seedBarley ?? 0}</span>
+/** ========= 1) 서버 상태 체크 ========= **/
+(async()=>{
+  const r = await fetchJSON(`${API}/status`);
+  if (r.ok) {
+    if (r.data?.status === 'OK') setStatus('serverStatus','ok','✅ 서버 연결 정상');
+    else setStatus('serverStatus','warn','⚠️ 서버 연결 불안정');
+  } else {
+    setStatus('serverStatus','bad','❌ 서버 연결 실패');
+  }
+})();
+
+/** ========= 2) 자산 정보 로드 (여러 엔드포인트 폴백) ========= **/
+(async()=>{
+  const payload = { kakaoId, nickname };
+
+  const candidates = [
+    `${API}/me`,           // POST /api/apply/me
+    `${API}/user/me`,      // POST /api/apply/user/me
+    `${API}/profile`,      // POST /api/apply/profile
+    `${API}/me?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}` // GET 폴백
+  ];
+
+  const r = await fetchJSON(candidates, { method: 'POST', body: payload });
+  if (!r.ok) {
+    // GET 폴백 시도(일부 서버는 GET만 허용)
+    const r2 = await fetchJSON(candidates[candidates.length-1], { method:'GET' });
+    if (!r2.ok){
+      setStatus('assetStatus','bad','❌ 자산 로드 실패 (상세내용은 DEBUG 참고)');
+      return;
+    } else buildProfile(r2.data);
+  } else buildProfile(r.data);
+
+  function buildProfile(user){
+    setStatus('assetStatus','ok','✅ 자산 로드 완료');
+    el('profileBar').innerHTML = `
+      <span class="nickname">${user?.nickname ?? nickname}</span>
+      <span class="asset">💧${user?.water ?? 0}</span>
+      <span class="asset">🌱${user?.fertilizer ?? 0}</span>
+      <span class="asset">🪙${user?.token ?? 0}</span>
+      <span class="asset">🥔${user?.potato ?? 0}</span>
+      <span class="asset">🌾${user?.barley ?? 0}</span>
+      <span class="asset">🥔🌱${user?.seedPotato ?? 0}</span>
+      <span class="asset">🌾🌱${user?.seedBarley ?? 0}</span>
     `;
-  })
-  .catch(() => {
-    document.getElementById('profileBar').innerHTML = "자산 정보를 불러올 수 없습니다.";
-  });
-
-  // 채팅 불러오기
-  function loadMessages() {
-    fetch(`${API_URL}/chat`)
-      .then(res => res.json())
-      .then(data => {
-        const chatBox = document.getElementById('chatMsgs');
-        chatBox.innerHTML = "";
-        data.forEach(msg => {
-          const div = document.createElement('div');
-          div.className = 'msg-box';
-          div.innerHTML = `<span class="msg-nick">${msg.nickname}</span>${msg.message}`;
-          chatBox.appendChild(div);
-        });
-        chatBox.scrollTop = chatBox.scrollHeight;
-      });
   }
+})();
 
-  // 메시지 전송
-  document.getElementById('sendBtn').addEventListener('click', () => {
-    const message = document.getElementById('msgInput').value.trim();
-    if (!message) return;
-    fetch(`${API_URL}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kakaoId, nickname, message })
-    }).then(() => {
-      document.getElementById('msgInput').value = "";
-      loadMessages();
-    });
-  });
-
-  // 전체 메시지 삭제
-  document.getElementById('clearBtn').addEventListener('click', () => {
-    if (!confirm("전체 메시지를 삭제하시겠습니까?")) return;
-    fetch(`${API_URL}/chat/clear`, { method: 'DELETE' })
-      .then(() => loadMessages());
-  });
-
-  // 참여자 표시
-  function loadJoiners() {
-    fetch(`${API_URL}/chat/joiners`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('joiners').textContent = "참여자: " + data.join(', ');
-      });
+/** ========= 3) 채팅(리스트/전송/삭제/참여자) ========= **/
+async function loadMessages(){
+  const r = await fetchJSON([
+    `${API}/chat`,        // GET
+    `${API}/chat/list`    // GET 폴백
+  ]);
+  if (!r.ok){
+    setStatus('chatStatus','bad','❌ 채팅 불러오기 실패');
+    return;
   }
+  setStatus('chatStatus','ok','✅ 채팅 연결 OK');
+  const box = el('chatMsgs');
+  box.innerHTML = '';
+  (r.data || []).forEach(m=>{
+    const d = document.createElement('div');
+    d.className = 'msg';
+    d.innerHTML = `<span class="nick">${m.nickname ?? '익명'}</span>${m.message ?? ''}`;
+    box.appendChild(d);
+  });
+  box.scrollTop = box.scrollHeight;
+}
 
-  setInterval(() => {
-    loadMessages();
-    loadJoiners();
-  }, 3000);
+async function loadJoiners(){
+  const r = await fetchJSON([
+    `${API}/chat/joiners`,
+    `${API}/joiners`
+  ]);
+  if (r.ok) el('joiners').textContent = '참여자: ' + (r.data?.join?.(', ') || r.data?.joiners?.join(', ') || '정보 없음');
+  else el('joiners').textContent = '참여자 정보를 불러올 수 없습니다.';
+}
 
+el('sendBtn').addEventListener('click', async ()=>{
+  const message = el('msgInput').value.trim();
+  if (!message) return;
+  const payload = { kakaoId, nickname, message };
+
+  const r = await fetchJSON([
+    `${API}/chat`,          // POST
+    `${API}/chat/send`      // POST 폴백
+  ], { method:'POST', body: payload });
+
+  if (!r.ok){
+    setStatus('chatStatus','bad','❌ 메시지 전송 실패 (DEBUG 참고)');
+    return;
+  }
+  el('msgInput').value = '';
+  await loadMessages();
+});
+
+el('clearBtn').addEventListener('click', async ()=>{
+  if (!confirm('전체 메시지를 삭제하시겠습니까?')) return;
+
+  // DELETE 또는 POST clear 폴백
+  let r = await fetchJSON(`${API}/chat/clear`, { method:'DELETE' });
+  if (!r.ok){
+    r = await fetchJSON(`${API}/chat/clear`, { method:'POST' });
+  }
+  if (!r.ok){
+    setStatus('chatStatus','bad','❌ 전체 삭제 실패 (권한/CORS/라우터 확인)');
+    return;
+  }
+  await loadMessages();
+});
+
+// 주기 로딩
+setInterval(()=>{
   loadMessages();
   loadJoiners();
+}, 3000);
+
+loadMessages();
+loadJoiners();
 </script>
 </body>
 </html>
