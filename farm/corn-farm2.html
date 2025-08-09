@@ -1,70 +1,119 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>옥수수 농장 성장 스토리</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🌽 옥수수 농장 성장 스토리</title>
 <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; background-color: #fdfaf5; padding: 20px; }
-    h1 { color: #ff9800; text-align: center; }
-    .stage { margin-bottom: 30px; }
-    .stage img { display: block; margin: 10px auto; max-width: 300px; border: 1px solid #ccc; border-radius: 8px; }
-    .gauge { height: 20px; background-color: #eee; border-radius: 10px; overflow: hidden; margin: 10px auto; max-width: 300px; }
-    .fill { height: 100%; background-color: #4caf50; transition: width 0.5s; }
-    p { text-align: center; }
+  :root{
+    --primary:#ff9800;
+    --gauge-bg:#eee;
+    --gauge-fill:#4caf50;
+    --card-bg:#fff;
+    --text:#222;
+    --muted:#666;
+    --border:#ddd;
+  }
+  body{margin:0;font-family:Arial,system-ui,sans-serif;line-height:1.6;background:#fdfaf5;color:var(--text)}
+  header{
+    position:sticky;top:0;background:#fff;border-bottom:1px solid var(--border);
+    display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 14px;z-index:10
+  }
+  header h1{margin:0;font-size:18px;color:var(--primary)}
+  nav{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{
+    display:inline-block;padding:8px 12px;border:1px solid var(--border);border-radius:999px;
+    text-decoration:none;color:#222;background:#fff
+  }
+  .btn:focus,.btn:hover{outline:none;border-color:#bbb}
+  main{max-width:980px;margin:0 auto;padding:16px}
+  .stage{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px}
+  .stage h2{margin:0 0 8px;font-size:18px}
+  .stage p{text-align:center;color:var(--muted);margin:8px 0 0}
+  .imgwrap{display:flex;justify-content:center}
+  .stage img{
+    display:block;margin:10px auto;max-width:300px;width:100%;
+    border:1px solid #ccc;border-radius:8px;aspect-ratio:4/3;object-fit:cover;background:#fafafa
+  }
+  .gauge{height:20px;background:var(--gauge-bg);border-radius:10px;overflow:hidden;margin:10px auto;max-width:300px;border:1px solid #e6e6e6}
+  .fill{height:100%;background:var(--gauge-fill);transition:width .4s}
+  footer{padding:18px;text-align:center;color:#888}
 </style>
 </head>
 <body>
+  <header>
+    <h1>🌽 옥수수 농장 성장 스토리</h1>
+    <nav>
+      <a class="btn" href="../index9.html">메인으로</a>
+      <a class="btn" href="corn-farm3.html">다음: 저하/회복 보기</a>
+    </nav>
+  </header>
 
-<h1>🌽 옥수수 농장 성장 스토리</h1>
+  <main>
+    <section class="stage">
+      <h2>1단계 - 씨앗 심기 (0~29%)</h2>
+      <div class="imgwrap">
+        <img src="img/farm_03.png" alt="씨앗 심기" loading="lazy" decoding="async" />
+      </div>
+      <div class="gauge"><div class="fill" style="width:0%"></div></div>
+      <p>옥수수 씨앗을 심은 상태. 아직 발아 전입니다.</p>
+    </section>
 
-<div class="stage">
-    <h2>1단계 - 씨앗 심기 (0~29%)</h2>
-    <img src="img/farm_03.png" alt="씨앗 심기">
-    <div class="gauge"><div class="fill" style="width:0%"></div></div>
-    <p>옥수수 씨앗을 심은 상태. 아직 발아 전입니다.</p>
-</div>
+    <section class="stage">
+      <h2>2단계 - 새싹 (30~49%)</h2>
+      <div class="imgwrap">
+        <img src="img/farm_05.png" alt="새싹" loading="lazy" decoding="async" />
+      </div>
+      <div class="gauge"><div class="fill" style="width:30%"></div></div>
+      <p>성장 포인트 30% 도달. 건강하게 자라려면 물과 거름이 필요합니다.</p>
+    </section>
 
-<div class="stage">
-    <h2>2단계 - 새싹 (30~49%)</h2>
-    <img src="img/farm_05.png" alt="새싹">
-    <div class="gauge"><div class="fill" style="width:30%"></div></div>
-    <p>성장 포인트 30% 도달. 건강하게 자라려면 물과 거름이 필요합니다.</p>
-</div>
+    <section class="stage">
+      <h2>3단계 - 줄기 성장 (50~69%)</h2>
+      <div class="imgwrap">
+        <img src="img/farm_07.png" alt="줄기 성장" loading="lazy" decoding="async" />
+      </div>
+      <div class="gauge"><div class="fill" style="width:50%"></div></div>
+      <p>성장 포인트 50% 도달. 옥수수 줄기가 튼튼해집니다.</p>
+    </section>
 
-<div class="stage">
-    <h2>3단계 - 줄기 성장 (50~69%)</h2>
-    <img src="img/farm_07.png" alt="줄기 성장">
-    <div class="gauge"><div class="fill" style="width:50%"></div></div>
-    <p>성장 포인트 50% 도달. 옥수수 줄기가 튼튼해집니다.</p>
-</div>
+    <section class="stage">
+      <h2>4단계 - 이삭 형성 (70~89%)</h2>
+      <div class="imgwrap">
+        <img src="img/farm_09.png" alt="옥수수 이삭 형성" loading="lazy" decoding="async" />
+      </div>
+      <div class="gauge"><div class="fill" style="width:70%"></div></div>
+      <p>성장 포인트 70% 도달. 이삭이 맺히기 시작합니다.</p>
+    </section>
 
-<div class="stage">
-    <h2>4단계 - 옥수수 이삭 형성 (70~89%)</h2>
-    <img src="img/farm_09.png" alt="옥수수 이삭 형성">
-    <div class="gauge"><div class="fill" style="width:70%"></div></div>
-    <p>성장 포인트 70% 도달. 이삭이 맺히기 시작합니다.</p>
-</div>
+    <section class="stage">
+      <h2>5단계 - 수확 직전 (90~100%)</h2>
+      <div class="imgwrap">
+        <img src="img/farm_10.png" alt="수확 직전" loading="lazy" decoding="async" />
+      </div>
+      <div class="gauge"><div class="fill" style="width:100%"></div></div>
+      <p>성장 포인트 90% 이상. 곧 수확할 수 있습니다.</p>
+    </section>
 
-<div class="stage">
-    <h2>5단계 - 수확 시작하기 (90~100%)</h2>
-    <img src="img/farm_10.png" alt="수확 직전">
-    <div class="gauge"><div class="fill" style="width:100%"></div></div>
-    <p>성장 포인트 90% 이상. 곧 수확할 수 있습니다.</p>
-</div>
+    <section class="stage">
+      <h2>6단계 - 수확 완료</h2>
+      <div class="imgwrap">
+        <img src="img/farm_12.png" alt="수확 완료" loading="lazy" decoding="async" />
+      </div>
+      <p>옥수수를 수확한 상태입니다.</p>
+    </section>
 
-<div class="stage">
-    <h2>6단계 - 수확 완료</h2>
-    <img src="img/farm_12.png" alt="수확 완료">
-    <p>옥수수를 수확한  상태입니다.</p>
-</div>
+    <section class="stage">
+      <h2>7단계 - 방치 시 시듦</h2>
+      <div class="imgwrap">
+        <img src="img/farm_01.png" alt="방치 상태" loading="lazy" decoding="async" />
+      </div>
+      <p>수확 후 24시간 이상 방치하면 이 상태로 돌아갑니다.</p>
+    </section>
+  </main>
 
-<div class="stage">
-    <h2>7단계 - 방치 시 시듦</h2>
-    <img src="img/farm_01.png" alt="방치 상태">
-    <p>수확 후 24시간 이상 방치하면 이 상태로 돌아갑니다.</p>
-</div>
-
+  <footer>
+    <a class="btn" href="corn-farm3.html">다음: 저하/회복 보기</a>
+  </footer>
 </body>
 </html>
-
