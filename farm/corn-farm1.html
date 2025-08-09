@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>옥수수 농장 상태 변화 로직</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; background: #f8f9fa; }
+        h1 { color: #2c3e50; }
+        h2 { color: #16a085; }
+        .stage { margin: 15px 0; padding: 15px; background: #ffffff; border-left: 5px solid #16a085; }
+        ul { margin: 0; padding-left: 20px; }
+        code { background: #f1f1f1; padding: 2px 6px; border-radius: 4px; }
+        .note { background: #fff3cd; padding: 10px; border: 1px solid #ffeeba; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>옥수수 농장 - 물/거름 부족 시 상태 변화 로직</h1>
+    <p>아래는 옥수수 농장의 성장 상태가 물과 거름의 부족 상황에 따라 어떻게 변화하는지에 대한 설계입니다.</p>
+
+    <div class="stage">
+        <h2>1. 기본 개념</h2>
+        <ul>
+            <li>옥수수 성장 상태는 <strong>100% → 70% → 50% → 30%</strong> 단계로 하락.</li>
+            <li>물과 거름이 모두 정상(>0)이면 감소 없음.</li>
+            <li>부족 시 일정 주기(예: 10분)에 따라 단계적으로 상태 이미지 변경.</li>
+        </ul>
+    </div>
+
+    <div class="stage">
+        <h2>2. 상태 하락 속도</h2>
+        <ul>
+            <li><strong>물=0, 거름>0</strong> → 저하 속도 = 1배 (기본 저하)</li>
+            <li><strong>물>0, 거름=0</strong> → 저하 속도 = 1배 (기본 저하)</li>
+            <li><strong>물=0, 거름=0</strong> → 저하 속도 = 2배 (가속 저하)</li>
+        </ul>
+    </div>
+
+    <div class="stage">
+        <h2>3. 이미지 변화 규칙</h2>
+        <ul>
+            <li>100% 상태 → 물·거름 부족 시 <strong>70%</strong> 이미지로 변경</li>
+            <li>70% 상태 → 계속 부족 시 <strong>50%</strong> 이미지로 변경</li>
+            <li>50% 상태 → 계속 부족 시 <strong>30%</strong> 이미지로 변경</li>
+            <li>물/거름 다시 채우면 해당 %구간에 맞는 <strong>상승 이미지</strong> 표시</li>
+        </ul>
+    </div>
+
+    <div class="stage">
+        <h2>4. 회복 로직</h2>
+        <ul>
+            <li>물과 거름 모두 1 이상 채워짐 → 성장 속도 정상화</li>
+            <li>상태 %구간에 맞춰 해당 구간의 이미지를 즉시 표시</li>
+            <li>다음 성장 주기마다 상위 단계로 회복 (예: 50% → 70% → 100%)</li>
+        </ul>
+    </div>
+
+    <div class="note">
+        <strong>참고:</strong> 이 로직은 기존 감자/보리 농장 로직과 독립적으로 운영되며, 
+        로그인 시 유저 데이터는 공통으로 불러오되 옥수수 전용 성장 상태와 이미지는 별도로 관리됩니다.
+    </div>
+
+</body>
+</html>
