@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>옥수수 농장 – 개인 농장</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root{--ink:#eef6ee;--panel:rgba(0,0,0,.45);--bd:rgba(255,255,255,.16);--ok:#25d366;--accent:#8ed36b}
+    html,body{height:100%;margin:0;color:var(--ink);background:transparent;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif}
+    #bg{position:fixed;inset:0;z-index:-2;background:#000 center/cover no-repeat;pointer-events:none}
+    #todTint{position:fixed;inset:0;z-index:-1;pointer-events:none}
+    .tod-1{background:rgba(255,210,120,.08);} .tod-2{background:rgba(255,255,255,0);}
+    .tod-3{background:rgba(255,170,70,.06);}  .tod-4{background:rgba(80,120,220,.10);} .tod-5{background:rgba(30,50,120,.12);}
+    .glass{backdrop-filter:saturate(1.05) blur(6px);background:var(--panel);border:1px solid var(--bd);border-radius:14px}
+    .top{position:fixed;left:12px;right:12px;top:12px;display:flex;gap:10px;align-items:center;padding:10px 12px;z-index:3}
+    .title{margin:0;font-size:16px}.status{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px}
+    .dot{width:10px;height:10px;border-radius:999px;background:#ef4444}.dot.ok{background:var(--ok)}
+    .bank{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:4;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .pill{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.55);font-size:13px}
+    .pill .cnt{font-variant-numeric:tabular-nums}.pill.btn{cursor:pointer}
+    .hud-left,.hud-right{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));z-index:2}
+    .hud-left{left:12px;display:flex;gap:10px;align-items:flex-end}.hud-right{right:12px;min-width:min(300px,92vw)}
+    .gauge{width:110px;height:110px;border-radius:999px;display:grid;place-items:center;color:#fff;position:relative}
+    .gauge .v{font-weight:700;font-variant-numeric:tabular-nums;font-size:22px}.gauge .s{position:absolute;bottom:8px;font-size:12px;opacity:.9}
+    .panel{padding:10px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0}
+    .row-col{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+    .btn{cursor:pointer;padding:6px 10px;border-radius:10px;border:1px solid var(--bd);background:rgba(255,255,255,.08);color:#fff}
+    .btn[disabled]{opacity:.55;pointer-events:none}
+    .count{font-variant-numeric:tabular-nums}.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.5);color:#fff;font-size:12px;cursor:pointer}
+    .chip.sel{outline:2px solid rgba(255,255,255,.35)}
+    .mini-wrap{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));display:grid;grid-template-columns:auto auto auto;gap:10px;align-items:center;z-index:2}
+    .nav{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;text-decoration:none;color:#fff;border:1px solid var(--bd);background:var(--panel)}
+    .mini{width:140px;aspect-ratio:1/1;border-radius:12px;border:1px solid var(--bd);object-fit:cover;background:#000}
+    .mini-cap{grid-column:1/span 3;text-align:center;font-size:12px;opacity:.9;margin-top:4px}
+    .gate-dock{display:flex;flex-direction:column;gap:6px;align-items:flex-start;margin-right:6px}
+    .chip-thin{padding:3px 8px;font-size:12px}
+    .gate{position:fixed;left:12px;bottom:calc(160px + env(safe-area-inset-bottom));z-index:10;display:none}
+    .gate.open{display:block}.gate .card{min-width:min(360px,92vw);padding:10px;position:relative}
+    .gate .close{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.45);color:#fff;cursor:pointer}
+    .bars{display:flex;gap:8px;align-items:flex-end}.bar{position:relative;width:48px;height:160px;border:1px solid var(--bd);border-radius:10px;background:rgba(0,0,0,.35);overflow:hidden}
+    .fill{position:absolute;left:0;bottom:0;width:100%}.bar.w .fill{background:#60a5fa}.bar.f .fill{background:#65a30d}.bar.g .fill{background:#f59e0b}
+    .gate-line{position:absolute;left:0;right:0;height:1px;background:rgba(255,255,255,.35)}.gl70{bottom:70%} .gl50{bottom:50%} .gl30{bottom:30%}
+    .legend{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;font-size:11px;opacity:.9}.legend .tag{border:1px solid var(--bd);border-radius:999px;padding:3px 6px;background:rgba(0,0,0,.35)}
+    .backdrop{position:fixed;inset:0;z-index:9;display:none;background:transparent}.backdrop.show{display:block}
+    .toast{position:fixed;left:50%;transform:translateX(-50%);top:58px;z-index:5;background:rgba(0,0,0,.65);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;display:none}
+    .toast.show{display:block}#pauseBanner{top:auto;bottom:72px;display:none}
+    @media (max-width:420px){.nav{width:44px;height:44px}.mini{width:120px}.gauge{width:100px;height:100px}.chip,.btn{padding:8px 12px}.gate .card{min-width:min(280px, 96vw)}.bar{width:40px;height:140px}.bank .pill{font-size:12px;padding:5px 9px}}
+  </style>
+</head>
+<body>
+  <div id="bg" aria-hidden="true"></div>
+  <div id="todTint" aria-hidden="true"></div>
+  <header class="top glass">
+    <h1 class="title" id="title">(농장이름 미설정) – 옥수수 농장</h1>
+    <div class="status"><span id="netDot" class="dot"></span><span id="netTxt">연결 확인 중…</span></div>
+  </header>
+  <div class="bank" aria-label="보관함">
+    <div class="pill"><span>🪙 토큰</span><b id="bankToken" class="cnt">0</b></div>
+    <div class="pill"><span>🍿 팝콘</span><b id="bankPop" class="cnt">0</b></div>
+    <button id="btnOffline" class="pill btn" title="이미지 오프라인 저장">⬇️ 오프라인 저장</button>
+  </div>
+  <aside class="hud-left">
+    <div class="gate-dock">
+      <button id="btnGate" class="chip chip-thin" type="button" aria-expanded="false" aria-controls="gate">성장게이트</button>
+      <div id="gauge" class="gauge glass" role="img" aria-label="성장 게이지">
+        <div class="v" id="gVal">70</div>
+        <div class="s" id="gState">HEALTHY</div>
+      </div>
+    </div>
+    <div class="panel glass">
+      <div style="font-size:13px;opacity:.92">성장 게이지</div>
+      <div style="font-size:12px;opacity:.8">자원 상태로 5초마다 변화 · 운휴 23:00~07:59</div>
+      <div class="row"><button class="btn" id="tick">수동 갱신</button><button class="btn" id="harv" disabled>수확</button></div>
+    </div>
+  </aside>
+  <aside class="hud-right">
+    <div class="panel glass">
+      <div class="row"><span>물</span><span><b id="w" class="count">3</b> <button class="btn" id="btnW">물 주기</button></span></div>
+      <div class="row"><span>거름</span><span><b id="f" class="count">3</b> <button class="btn" id="btnF">거름 주기</button></span></div>
+      <div class="row"><span>옥수수</span><span><b id="c" class="count">0</b></span></div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.15);margin:8px 0" />
+      <div class="row-col">
+        <div>
+          <div style="font-size:13px;opacity:.92;margin-bottom:6px">첨가물</div>
+          <div class="row" style="gap:8px;justify-content:flex-start">
+            <button id="pickSalt" class="chip">소금 <span id="saltCount" class="count">0</span></button>
+            <button id="pickSugar" class="chip">설탕 <span id="sugarCount" class="count">0</span></button>
+          </div>
+        </div>
+        <button class="btn" id="syncPotato" title="감자 저장소 불러오기">동기화</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <span>뻥튀기</span>
+        <button class="btn" id="pop" disabled>튀기기</button>
+      </div>
+    </div>
+  </aside>
+  <div class="mini-wrap" aria-label="작은 상태 이미지 및 바로가기">
+    <a class="nav" title="메인으로" href="corn-index.html">🏠</a>
+    <img id="mini" class="mini" alt="작물 상태" />
+    <a class="nav" title="감자 농장" href="https://byungil-cho.github.io/OrcaX/index9.html">🥔</a>
+    <div id="miniCap" class="mini-cap">상태 확인 중…</div>
+  </div>
+  <div id="gateBackdrop" class="backdrop"></div>
+  <div id="gate" class="gate">
+    <div class="card glass">
+      <button id="closeGate" class="close" type="button" aria-label="닫기">×</button>
+      <h3 style="margin:0 0 6px;font-size:13px">성장게이트 — 물/거름/성장</h3>
+      <div class="bars">
+        <div class="bar w"><div class="gate-line gl70"></div><div class="gate-line gl50"></div><div class="gate-line gl30"></div><div id="fillW" class="fill" style="height:0%"></div></div>
+        <div class="bar f"><div class="gate-line gl70"></div><div class="gate-line gl50"></div><div class="gate-line gl30"></div><div id="fillF" class="fill" style="height:0%"></div></div>
+        <div class="bar g"><div class="gate-line gl70"></div><div class="gate-line gl50"></div><div class="gate-line gl30"></div><div id="fillG" class="fill" style="height:0%"></div></div>
+      </div>
+      <div class="legend">
+        <span class="tag">정상(+): 물≥50 & 거름≥50 → 상승</span>
+        <span class="tag">경고(-1): 둘 중 하나<50 → 완만 하락</span>
+        <span class="tag">위험(-2): 둘 다<50 → 빠른 하락</span>
+      </div>
+    </div>
+  </div>
+  <div id="toast" class="toast"></div>
+  <div id="pauseBanner" class="toast">지금은 휴면 시간입니다. 08:00에 자동 재개됩니다.</div>
+  <script src="js/app.js"></script>
+  <script src="js/sw-register.js"></script>
+</body>
+</html>
