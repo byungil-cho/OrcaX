@@ -111,7 +111,18 @@
 
     <button id="loginBtn" class="kakao-btn" onclick="goKakaoLogin()">카카오 로그인</button>
     <button id="logoutBtn" class="kakao-btn" style="display: none; background-color: #ff4d4d;" onclick="logout()">로그아웃</button>
-  </div>
+  
+    <!-- 옥수수 농장 빠른입장 (이미지 로테이션) -->
+    <div id="cornTeaser" style="margin-top: 1.5rem;">
+      <a id="cornLink" href="corn-farm.html" style="display:inline-block">
+        <img id="cornRot" src="img/farm_01.png" alt="옥수수 농장" 
+             style="width:220px;height:auto;border-radius:10px;box-shadow:0 0 10px black;">
+      </a>
+      <div style="margin-top:0.4rem;font-weight:bold;background:rgba(0,0,0,0.5);display:inline-block;padding:0.2rem 0.6rem;border-radius:6px;">
+        🌽 옥수수 농장
+      </div>
+    </div>
+
 
   <script>
     const BASE_URL = "https://climbing-wholly-grouper.jp.ngrok.io";
@@ -183,6 +194,19 @@
         location.reload(); // 뒤로가기 캐시 대응
       }
     });
+
+
+    // 옥수수 농장 이미지 로테이션 (01 → 03 → 05 → 09)
+    (function(){
+      const seq = ['img/farm_01.png','img/farm_03.png','img/farm_05.png','img/farm_09.png'];
+      let i = 0;
+      setInterval(()=>{
+        i = (i + 1) % seq.length;
+        const el = document.getElementById('cornRot');
+        if (el) el.src = seq[i];
+      }, 2500);
+    })();
+
 
     window.onload = init;
   </script>
