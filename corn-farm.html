@@ -70,6 +70,26 @@
       .gate-preview img{width:96px;height:96px}
     }
 
+  
+    /* === ADD-ONLY: 스마트폰 전체배경(Contain) + 겹침 해소 === */
+    @media (max-width: 740px){
+      html, body{
+        background-size: contain !important;     /* 배경을 전체가 보이도록 축소 */
+        background-position: center top !important;
+        background-attachment: scroll !important;
+        background-repeat: no-repeat !important;
+      }
+      .top{left:8px;right:8px;top:8px;padding:8px 10px}
+      .bank{top:8px;transform:translateX(-50%) scale(.9);gap:6px}
+      .hud-left, .hud-right{position:static !important;left:auto;right:auto;bottom:auto;width:auto;margin:8px}
+      .mini-wrap{position:static;margin:10px auto 0;display:block;text-align:center}
+      .mini{width:120px;height:120px}
+      #gate .panel, #gate .card{max-width:92vw;width:92vw}
+      .gate-preview{position:static;margin-top:8px}
+      .gate-preview img{width:96px;height:96px}
+      body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+    }
+
   </style>
 </head>
 <body>
