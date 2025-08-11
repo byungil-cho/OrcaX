@@ -3,199 +3,215 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>옥수수 농장 메인</title>
+  <title>옥수수 농장 입구</title>
   <style>
-    html,body{height:100%;margin:0;background:#000;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;overflow:hidden}
-    /* 배경은 그대로(절대경로) */
-    .wrap{position:fixed;inset:0;background:url('https://byungil-cho.github.io/OrcaX/img/farm_00.png') center/cover no-repeat;}
-    .hud{position:fixed;left:12px;top:12px;z-index:20;color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:10px 12px;backdrop-filter:blur(6px);max-width:min(92vw,620px)}
-    .nick{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:6px}
-    .status{width:8px;height:8px;border-radius:999px;background:#e23}
-    .online .status{background:#3ecf8e}
-    .lvl{display:flex;align-items:center;gap:6px}
-    .lvl img{width:24px;height:24px;border-radius:999px;display:block}
-    .res{display:flex;flex-wrap:wrap;gap:8px}
-    .tag{font-size:12px;line-height:1;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
-    .tag b{font-weight:700}
-    .actions{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-    .btn{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);color:#fff;cursor:pointer}
-    .diag{font-size:11px;opacity:.85;margin-left:auto}
-    .scrollbox{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:min(40vw,260px);height:min(60vh,460px);border-radius:14px;background:transparent;border:1px solid rgba(255,255,255,.25);box-shadow:0 20px 40px rgba(0,0,0,.45);overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    .scrollbox::-webkit-scrollbar{display:none}
-    .spacer{height:85vh}
-    .link{display:block;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.25);box-shadow:0 8px 24px rgba(0,0,0,.35)}
-    .link img{width:100%;height:100%;object-fit:cover;display:block}
-    .caption{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);padding:8px 12px;border-radius:999px;font-size:14px;z-index:10;pointer-events:none}
+    html,body{height:100%;margin:0;background:#000;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif}
+    .bg{position:fixed;inset:0;background:url('img/entrance.jpg') center/cover no-repeat;filter:brightness(1)}
+    .top{position:fixed;left:16px;top:16px;right:16px;display:flex;gap:10px;align-items:center;z-index:3}
+    .hud{display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:16px;
+         background:rgba(0,0,0,.55);backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,.15)}
+    .nick{display:flex;gap:8px;align-items:center;font-weight:700}
+    .nick img{width:24px;height:24px;border-radius:50%}
+    .badges{display:flex;gap:8px;flex-wrap:wrap}
+    .badge{display:flex;gap:6px;align-items:center;background:rgba(255,255,255,.1);padding:6px 10px;border-radius:999px;font-size:13px}
+    .ok{color:#7CFF7C}.err{color:#ff7b7b}
+    .btns{display:flex;gap:8px;margin-left:auto}
+    .btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);padding:6px 10px;border-radius:10px;font-size:13px;text-decoration:none}
+    .wrap{position:fixed;inset:0;display:grid;place-items:center;z-index:2}
+    .card{width:min(56vw,420px);aspect-ratio:9/16;border-radius:20px;border:1px solid rgba(255,255,255,.25);
+          background:rgba(0,0,0,.35);backdrop-filter:blur(6px);overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .thumb{width:88%;border-radius:14px;display:block;box-shadow:0 16px 40px rgba(0,0,0,.45)}
+    .caption{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+             color:#fff;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);padding:8px 12px;border-radius:999px;font-size:13px;z-index:2}
   </style>
-  <!-- 필요시 유지: <link rel="manifest" href="https://byungil-cho.github.io/OrcaX/manifest.webmanifest" /> -->
 </head>
 <body>
-  <div class="wrap">
-    <div class="hud" id="hudRoot">
-      <div class="nick" id="hudNick">
-        <span class="status"></span>
-        <span id="nickText">(로그인 확인 중)</span>
-        <span class="lvl" id="lvlWrap" style="display:none">
-          <img id="lvlIcon" src="https://byungil-cho.github.io/OrcaX/img/mark_01.png" alt="레벨 아이콘" />
-          <span id="lvlText">Lv.1</span>
-        </span>
+  <div class="bg" aria-hidden="true"></div>
+
+  <div class="top">
+    <div class="hud">
+      <div class="nick">
+        <img id="mark" alt="레벨마크" src="img/mark_01.png">
+        <span id="nickname">로그인 확인 중</span>
       </div>
-      <div class="res">
-        <span class="tag">💧 물 <b id="r-water">0</b></span>
-        <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
-        <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
-        <span class="tag">🍿 팝콘 <b id="r-pop">0</b></span>
-        <span class="tag">🧂 소금 <b id="r-salt">0</b></span>
-        <span class="tag">🍬 설탕 <b id="r-sugar">0</b></span>
-        <span class="tag">🪙 토큰 <b id="r-orcx">0</b></span>
-      </div>
-      <div class="actions">
-        <button class="btn" id="btnRefresh">새로고침</button>
-        <a class="btn" href="https://byungil-cho.github.io/OrcaX/index9.html">감자 농장 가기</a>
-        <span class="diag" id="diag">API 확인 중…</span>
+      <div class="badges">
+        <div class="badge">💧 물 <b id="water">0</b></div>
+        <div class="badge">🧺 거름 <b id="fert">0</b></div>
+        <div class="badge">🌽 씨앗 <b id="seed">0</b></div>
+        <div class="badge">🌽 옥수수 <b id="corn">0</b></div>
+        <div class="badge">🧂 소금 <b id="salt">0</b></div>
+        <div class="badge">🍬 설탕 <b id="sugar">0</b></div>
+        <div class="badge">🪙 토큰 <b id="token">0</b></div>
+        <div class="badge">🍿 팝콘 <b id="pop">0</b></div>
       </div>
     </div>
 
-    <div class="scrollbox" aria-label="농장 입구 썸네일">
-      <div class="spacer"></div>
-      <a class="link" href="https://byungil-cho.github.io/OrcaX/corn-farm.html" title="내 옥수수 농장으로">
-        <img id="farmThumb" src="https://byungil-cho.github.io/OrcaX/img/farm_01.png" alt="계절 썸네일" />
-      </a>
-      <div class="spacer"></div>
+    <div class="hud">
+      <span id="statusDot" class="err">●</span>
+      <span id="statusText">오프라인</span>
+      <span style="opacity:.6;font-size:12px" id="apiInfo"></span>
     </div>
 
-    <div class="caption">박스 안에서 위/아래 스크롤 · 이미지를 누르면 농장으로 이동</div>
+    <div class="btns">
+      <a class="btn" href="https://byungil-cho.github.io/OrcaX/index9.html">감자 농장 가기</a>
+      <button class="btn" id="btnRefresh">새로고침</button>
+    </div>
   </div>
 
-  <script>
-  'use strict';
-  var ORIGIN = 'https://byungil-cho.github.io/OrcaX';
-  var BASE_API = (localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
-  var URL_USERDATA = BASE_API + '/api/userdata';
+  <div class="wrap">
+    <a class="card" id="goFarm" href="corn-farm.html" title="옥수수 농장으로">
+      <img id="thumb" class="thumb" alt="현재 시즌 썸네일" src="img/farm_01.png"/>
+    </a>
+  </div>
 
-  var diagEl   = document.getElementById('diag');
-  var hudNick  = document.getElementById('hudNick');
-  var nickText = document.getElementById('nickText');
-  var lvlWrap  = document.getElementById('lvlWrap');
-  var lvlIcon  = document.getElementById('lvlIcon');
-  var lvlText  = document.getElementById('lvlText');
-  var resEl = {
-    water: document.getElementById('r-water'),
-    fert : document.getElementById('r-fert'),
-    corn : document.getElementById('r-corn'),
-    pop  : document.getElementById('r-pop'),
-    salt : document.getElementById('r-salt'),
-    sugar: document.getElementById('r-sugar'),
-    orcx : document.getElementById('r-orcx')
+  <div class="caption">박스 안에서 위/아래 스크롤 · 이미지를 누르면 농장으로 이동</div>
+
+<script>
+(() => {
+  // --- 기본 설정 ------------------------------------------------------------
+  const ORIGIN = location.origin + (location.pathname.includes('/OrcaX/') ? '/OrcaX' : '');
+  const API_HOST = localStorage.getItem('API_HOST')
+                  || localStorage.getItem('KIT_HOST')
+                  || 'https://climbing-wholly-grouperjr.ngrok.io'; // 필요시 바꿔도 됨
+  const TOKEN = localStorage.getItem('kakaold') || localStorage.getItem('token') || '';
+
+  // 썸네일 시즌 ↔ 이미지 매핑
+  const THUMBS = {
+    winter     : 'img/farm_01.png',
+    lateWinter : 'img/farm_03.png',
+    spring     : 'img/farm_05.png',
+    summer     : 'img/farm_07.png',
+    lateSummer : 'img/farm_09.png',
+    autumn     : 'img/farm_10.png',
+    deepWinter : 'img/farm_12.png'
   };
-  var thumbEl = document.getElementById('farmThumb');
 
-  function setOnline(on){ hudNick.classList.toggle('online', !!on); }
-  function setNick(name){ nickText.textContent = name || '(로그인 필요)'; }
-  function setRes(x){
-    resEl.water.textContent = (x.water != null ? x.water : 0);
-    resEl.fert .textContent = (x.fertilizer != null ? x.fertilizer : 0);
-    resEl.corn .textContent = (x.corn != null ? x.corn : 0);
-    resEl.pop  .textContent = (x.popcorn != null ? x.popcorn : 0);
-    resEl.salt .textContent = (x.salt != null ? x.salt : 0);
-    resEl.sugar.textContent = (x.sugar != null ? x.sugar : 0);
-    resEl.orcx .textContent = (x.orcx != null ? x.orcx : 0);
-  }
-  function markPathByLevel(lv){
-    if(lv >= 10) return ORIGIN + '/img/mark_10.png';
-    var n = Math.max(1, Math.min(9, Math.floor(lv || 1)));
-    return ORIGIN + '/img/mark_0' + n + '.png';
-  }
-  function showLevel(lv){
-    if(!lv || lv<1){ lvlWrap.style.display='none'; return; }
-    lvlIcon.src = markPathByLevel(lv);
-    lvlText.textContent = 'Lv.' + lv;
-    lvlWrap.style.display = 'inline-flex';
-  }
-
-  var THUMBS = {
-    winter     : ORIGIN + '/img/farm_01.png',
-    lateWinter : ORIGIN + '/img/farm_03.png',
-    spring     : ORIGIN + '/img/farm_05.png',
-    summer     : ORIGIN + '/img/farm_07.png',
-    lateSummer : ORIGIN + '/img/farm_09.png',
-    autumn     : ORIGIN + '/img/farm_10.png',
-    deepWinter : ORIGIN + '/img/farm_12.png'
+  // 레벨에 따른 마크
+  const levelToMark = (lv=1) => {
+    if (lv >= 60) return 'img/mark_10.png';
+    if (lv >= 50) return 'img/mark_09.png';
+    if (lv >= 40) return 'img/mark_08.png';
+    if (lv >= 35) return 'img/mark_07.png';
+    if (lv >= 30) return 'img/mark_06.png';
+    if (lv >= 25) return 'img/mark_05.png';
+    if (lv >= 20) return 'img/mark_04.png';
+    if (lv >= 15) return 'img/mark_03.png';
+    if (lv >= 10) return 'img/mark_02.png';
+    return 'img/mark_01.png';
   };
-  function applySeasonThumb(){
-    var key = localStorage.getItem('farmSeason');
-    if(key && THUMBS[key]) thumbEl.src = THUMBS[key];
-  }
 
-  async function loadUserData(){
-    var kakaoId  = localStorage.getItem('kakaoId');
-    var nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
-    setNick(nickname);
-    diagEl.textContent = 'POST ' + URL_USERDATA;
+  // --- DOM 참조 -------------------------------------------------------------
+  const el = {
+    nickname: document.getElementById('nickname'),
+    mark: document.getElementById('mark'),
+    water: document.getElementById('water'),
+    fert: document.getElementById('fert'),
+    seed: document.getElementById('seed'),
+    corn: document.getElementById('corn'),
+    salt: document.getElementById('salt'),
+    sugar: document.getElementById('sugar'),
+    token: document.getElementById('token'),
+    pop: document.getElementById('pop'),
+    statusDot: document.getElementById('statusDot'),
+    statusText: document.getElementById('statusText'),
+    apiInfo: document.getElementById('apiInfo'),
+    thumb: document.getElementById('thumb'),
+    btnRefresh: document.getElementById('btnRefresh'),
+  };
 
-    if(!kakaoId || !nickname){
-      setOnline(false);
-      diagEl.textContent = '로그인 정보(kakaoId/nickname) 없음';
-      alert('로그인이 필요합니다. 감자 농장으로 이동합니다.');
-      window.location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
-      return;
+  el.apiInfo.textContent = ` API:${API_HOST}${TOKEN ? ' / token:있음' : ''}`;
+
+  // --- 헬퍼 ------------------------------------------------------------------
+  function setStatus(ok){
+    if(ok){
+      el.statusDot.classList.remove('err'); el.statusDot.classList.add('ok');
+      el.statusText.textContent = '연결됨';
+    }else{
+      el.statusDot.classList.remove('ok'); el.statusDot.classList.add('err');
+      el.statusText.textContent = '오프라인';
     }
+  }
 
+  function applySeasonThumb(fromServerKey){
+    const saved = localStorage.getItem('farmSeason');
+    const key = fromServerKey || saved || 'winter';
+    const src = THUMBS[key] || THUMBS.winter;
+    el.thumb.src = src;
+  }
+
+  // --- 데이터 로딩 -----------------------------------------------------------
+  async function load(){
     try{
-      var r = await fetch(URL_USERDATA, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kakaoId: kakaoId }),
-        mode: 'cors',
-        cache: 'no-store'
+      const res = await fetch(`${API_HOST}/api/userdata`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          ...(TOKEN ? {'Authorization': `Bearer ${TOKEN}`} : {})
+        },
+        credentials: 'include'
       });
-      if(!r.ok){
-        setOnline(false);
-        diagEl.textContent = '오류: HTTP ' + r.status + ' (' + r.statusText + ')';
-        throw new Error('HTTP ' + r.status);
-      }
-      var data = await r.json();
-      var user = data && data.user;
-      if(!user){
-        setOnline(false);
-        diagEl.textContent = '오류: user 필드 없음';
-        alert('유저 정보를 찾을 수 없습니다.');
-        return;
-      }
-      setOnline(true);
-      diagEl.textContent = '연결됨 ✓';
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
 
-      setRes({
-        orcx: (user.orcx != null ? user.orcx : (user.wallet && user.wallet.orcx)),
-        water: user.inventory && user.inventory.water,
-        fertilizer: user.inventory && user.inventory.fertilizer,
-        corn: user.agri && user.agri.corn,
-        popcorn: user.food && user.food.popcorn,
-        salt: user.additives && user.additives.salt,
-        sugar: user.additives && user.additives.sugar
-      });
+      // 닉네임/레벨
+      const nick = data.nick || data.nickname || '농부';
+      const level = data.level ?? data.lv ?? 1;
+      el.nickname.textContent = `${nick}`;
+      el.mark.src = levelToMark(level);
 
-      var level = Number(user.level != null ? user.level :
-                         (user.profile && user.profile.level) ||
-                         localStorage.getItem('orcax:level') || 0);
-      showLevel(level);
+      // 자원
+      const r = data.resources || data.res || {};
+      el.water.textContent = r.water ?? r.w ?? 0;
+      el.fert.textContent  = r.fertilizer ?? r.fert ?? 0;
+      el.seed.textContent  = r.cornSeed ?? r.seed ?? 0;
+      el.corn.textContent  = r.corn ?? 0;
+      el.salt.textContent  = r.salt ?? 0;
+      el.sugar.textContent = r.sugar ?? 0;
+      el.token.textContent = (data.tokens ?? data.token ?? 0).toLocaleString();
+      el.pop.textContent   = data.popcon ?? data.pop ?? 0;
 
-      // 데이터 성공 후 썸네일 적용
-      applySeasonThumb();
-    }catch(e){
-      setOnline(false);
-      alert('서버 연결 실패 또는 CORS 문제입니다. Network 탭에서 /api/userdata 상태를 확인하세요.');
-      console.warn('userdata error:', e);
+      // 시즌 동기화 (서버 → 로컬 → 썸네일)
+      const seasonFromServer = (data.env && data.env.season)
+                            || (data.farm && data.farm.season)
+                            || (data.ui && data.ui.seasonKey);
+      if(seasonFromServer) localStorage.setItem('farmSeason', seasonFromServer);
+      applySeasonThumb(seasonFromServer);
+
+      // 캐시
+      localStorage.setItem('cachedUser', JSON.stringify(data));
+      setStatus(true);
+    }catch(err){
+      setStatus(false);
+      // 캐시로 표시
+      try{
+        const cached = JSON.parse(localStorage.getItem('cachedUser')||'{}');
+        if(cached.nick || cached.resources){ // 어느정도 형태면 표시
+          el.nickname.textContent = cached.nick || '농부';
+          el.mark.src = levelToMark(cached.level ?? 1);
+          const r = cached.resources || {};
+          el.water.textContent = r.water ?? 0;
+          el.fert.textContent  = r.fertilizer ?? 0;
+          el.seed.textContent  = r.cornSeed ?? 0;
+          el.corn.textContent  = r.corn ?? 0;
+          el.salt.textContent  = r.salt ?? 0;
+          el.sugar.textContent = r.sugar ?? 0;
+          el.token.textContent = (cached.tokens ?? 0).toLocaleString();
+          el.pop.textContent   = cached.popcon ?? 0;
+        }
+      }catch(_){}
+      applySeasonThumb(); // 최소 썸네일은 반영
     }
   }
 
-  window.onload = loadUserData;
-  document.getElementById('btnRefresh').addEventListener('click', loadUserData);
-  // 서비스워커는 잠시 비활성화 (간섭 방지)
-  // if('serviceWorker' in navigator){
-  //   window.addEventListener('load', function(){ navigator.serviceWorker.register(ORIGIN + '/service-worker.js'); });
-  // }
-</script>
+  // 이벤트
+  el.btnRefresh.addEventListener('click', ()=>location.reload());
+  // 첫 표시
+  applySeasonThumb(); // 최초 로컬 상태 우선
+  load();
 
+  // 3분마다 갱신(너무 빈번하지 않게)
+  setInterval(load, 180000);
+})();
+</script>
 </body>
 </html>
