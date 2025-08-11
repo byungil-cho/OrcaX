@@ -75,188 +75,174 @@
     <div class="caption">박스 안에서 위/아래 스크롤 · 이미지를 누르면 농장으로 이동</div>
   </div>
 
-  <script>
-    /* ================== 설정 ================== */
-    const urlApi = new URLSearchParams(location.search).get('api');
-    const BASE_API =
-      (urlApi && decodeURIComponent(urlApi)) ||
-      localStorage.getItem('orcax:BASE_API') ||
-      'https://<KIT-HOST>:3060'; // ★ 실제 HTTPS API로 교체
+ <script>
+  // ===== 공통 설정 =====
+  const BASE_API = localStorage.getItem('orcax:BASE_API') || new URLSearchParams(location.search).get('api') || '';
+  const token = localStorage.getItem('orcax:token') || '';
 
-    const tokenKeys = ['orcax:token','token','authToken','jwt'];
-    const nickKeys  = ['orcax:nick','orcax:nickname','nickname','userNickname','kakaoNickname'];
-    const getFirst  = (keys, d='') => { for(const k of keys){ const v=localStorage.getItem(k); if(v) return v; } return d; };
-    const authToken = getFirst(tokenKeys, '');
-    const localNick = getFirst(nickKeys, '');
+  const H = {
+    water: document.querySelector('#r-water'),
+    fert:  document.querySelector('#r-fert'),
+    orcx:  document.querySelector('#r-orcx'),
+    corn:  document.querySelector('#r-corn'),
+    pop:   document.querySelector('#r-pop'),
+    salt:  document.querySelector('#r-salt'),
+    sugar: document.querySelector('#r-sugar'),
+    nick:  document.querySelector('#nickText'),
+    lvlW:  document.querySelector('#lvlWrap'),
+    lvlI:  document.querySelector('#lvlIcon'),
+    lvlT:  document.querySelector('#lvlText'),
+    status: document.querySelector('#hudNick')
+  };
 
-    /* ================== HUD helpers ================== */
-    const nickText = document.getElementById('nickText');
-    const hudNick  = document.getElementById('hudNick');
-    const lvlWrap  = document.getElementById('lvlWrap');
-    const lvlIcon  = document.getElementById('lvlIcon');
-    const lvlText  = document.getElementById('lvlText');
+  const THUMBS = {
+    winter:'img/farm_01.png', lateWinter:'img/farm_03.png', spring:'img/farm_05.png',
+    summer:'img/farm_07.png', lateSummer:'img/farm_09.png', autumn:'img/farm_10.png', deepWinter:'img/farm_12.png'
+  };
+  const thumbEl = document.getElementById('farmThumb');
 
-    const resEl = {
-      water: document.getElementById('r-water'),
-      fert : document.getElementById('r-fert'),
-      corn : document.getElementById('r-corn'),
-      pop  : document.getElementById('r-pop'),
-      salt : document.getElementById('r-salt'),
-      sugar: document.getElementById('r-sugar'),
-      orcx : document.getElementById('r-orcx'),
+  function setOnline(on){ H.status.classList.toggle('online', !!on); }
+  function setNick(n){ H.nick.textContent = n || '(로그인 필요)'; }
+  function setRes(x={}) {
+    H.water.textContent = x.water ?? 0;
+    H.fert.textContent  = x.fertilizer ?? x.fert ?? 0;
+    H.orcx.textContent  = x.orcx ?? x.token ?? x.tokens ?? 0;
+    H.corn.textContent  = x.corn ?? 0;
+    H.pop.textContent   = x.popcorn ?? x.pop ?? 0;
+    H.salt.textContent  = x.salt ?? 0;
+    H.sugar.textContent = x.sugar ?? 0;
+  }
+  function showLevel(lv){
+    if(!lv){ H.lvlW.style.display='none'; return; }
+    const n = lv>=10 ? '10' : ('0'+Math.max(1,Math.min(9,lv)));
+    H.lvlI.src = `img/mark_${n}.png`;
+    H.lvlT.textContent = `Lv.${lv}`;
+    H.lvlW.style.display='inline-flex';
+  }
+  function seasonKey(s=''){
+    s = (s||'').toString().toLowerCase();
+    if(/deep|snowman/.test(s)) return 'deepWinter';
+    if(/late ?winter|thaw|melt/.test(s)) return 'lateWinter';
+    if(/winter|snow|ice/.test(s)) return 'winter';
+    if(/spring|seed|plow/.test(s)) return 'spring';
+    if(/late ?summer/.test(s)) return 'lateSummer';
+    if(/summer|lush|green/.test(s)) return 'summer';
+    if(/autumn|fall|harvest|brown/.test(s)) return 'autumn';
+    return '';
+  }
+  function thumbByMonth(d=new Date()){
+    const m=d.getMonth()+1;
+    return m===12||m===1 ? THUMBS.winter
+      : m===2 ? THUMBS.lateWinter
+      : (m===3||m===4) ? THUMBS.spring
+      : (m>=5&&m<=7) ? THUMBS.summer
+      : m===8 ? THUMBS.lateSummer
+      : (m===9||m===10) ? THUMBS.autumn
+      : THUMBS.deepWinter;
+  }
+  function setThumbBySeason(s){ thumbEl.src = THUMBS[seasonKey(s)] || thumbByMonth(); }
+
+  async function j(path, opt={}) {
+    const url = path.startsWith('http') ? path : (BASE_API + path);
+    const headers = {'Content-Type':'application/json', ...(token?{Authorization:`Bearer ${token}`}:{}) , ...(opt.headers||{})};
+    const r = await fetch(url, {method: opt.method||'GET', headers,
+      body: opt.body?JSON.stringify(opt.body):undefined,
+      mode:'cors', credentials:'include', cache:'no-store'});
+    if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+    return r.json();
+  }
+  async function firstOk(tasks){ // [{fn,parse,tag}]
+    let lastErr;
+    for(const t of tasks){
+      try{ const data = await t.fn(); return t.parse? t.parse(data):data; }
+      catch(e){ lastErr=e; console.debug('[miss]', t.tag||'', e.message); }
+    }
+    throw lastErr||new Error('No endpoint matched');
+  }
+
+  // 다양한 서버 스키마를 커버하는 파서
+  function pick(obj, paths=[]){
+    for(const p of paths){
+      const v = p.split('.').reduce((a,k)=>a?.[k], obj);
+      if(v!==undefined) return v;
+    }
+    return undefined;
+  }
+  function parseMe(me={}){
+    return {
+      nickname: pick(me, ['nickname','nick','profile.nickname','user.nickname']),
+      level: Number(pick(me, ['level','profile.level','stats.level','agri.level']))||0,
+      inv: {
+        water: Number(pick(me, ['inventory.water','inv.water','water']))||0,
+        fertilizer: Number(pick(me, ['inventory.fertilizer','inv.fertilizer','fert','manure']))||0,
+        orcx: Number(pick(me, ['wallet.orcx','wallet.token','token','tokens']))||0,
+        corn: Number(pick(me, ['agri.corn','inventory.corn']))||0,
+        popcorn: Number(pick(me, ['food.popcorn','inventory.popcorn']))||0,
+        salt: Number(pick(me, ['additives.salt','inventory.salt']))||0,
+        sugar: Number(pick(me, ['additives.sugar','inventory.sugar']))||0,
+      },
+      season: pick(me, ['ui.season','ui.corn.season','farm.season','agri.season','environment.season'])
     };
+  }
 
-    function setOnline(on){ hudNick.classList.toggle('online', !!on); }
-    function setNick(name){ nickText.textContent = name || '(로그인 필요)'; }
-    function setRes(x){
-      resEl.water.textContent = x.water ?? 0;
-      resEl.fert .textContent = x.fertilizer ?? 0;
-      resEl.corn .textContent = x.corn ?? 0;
-      resEl.pop  .textContent = x.popcorn ?? 0;
-      resEl.salt .textContent = x.salt ?? 0;
-      resEl.sugar.textContent = x.sugar ?? 0;
-      resEl.orcx .textContent = x.orcx ?? 0;
-    }
-    function levelFrom(me){
-      return Number(
-        me?.level ?? me?.profile?.level ?? me?.stats?.level ?? me?.agri?.level ?? me?.corn?.level ?? 0
-      ) || 0;
-    }
-    function levelIconPath(lv){
-      if(lv >= 10) return 'img/mark_10.png';
-      const n = Math.max(1, Math.min(9, lv||1));
-      return `img/mark_0${n}.png`;
-    }
-    function showLevel(lv){
-      if(!lv || lv<1){ lvlWrap.style.display='none'; return; }
-      lvlIcon.src = levelIconPath(lv);
-      lvlText.textContent = `Lv.${lv}`;
-      lvlWrap.style.display = 'inline-flex';
-    }
+  async function loadAll(){
+    try{
+      // 1) 환경/자원 한 번에 주는 서버가 있다면 우선
+      const envRes = await firstOk([
+        { tag:'/api/summary', fn:()=>j('/api/summary') },
+        { tag:'/api/env', fn:()=>j('/api/env') },
+        { tag:'/env', fn:()=>j('/env') },
+        // 마지막 폴백: me에서 추출
+        { tag:'/api/user/me', fn:()=>j('/api/user/me'), parse: d => ({me:d}) },
+        { tag:'/me', fn:()=>j('/me'), parse: d => ({me:d}) },
+      ]);
 
-    /* ========== 썸네일(배경 유지, 썸네일만 계절 반영) ========== */
-    const THUMBS = {
-      winter:      'img/farm_01.png',
-      lateWinter:  'img/farm_03.png',
-      spring:      'img/farm_05.png',
-      summer:      'img/farm_07.png',
-      lateSummer:  'img/farm_09.png',
-      autumn:      'img/farm_10.png',
-      deepWinter:  'img/farm_12.png'
-    };
-    const thumbEl = document.getElementById('farmThumb');
-    function setThumb(url){ if(url) thumbEl.src = url; }
-    function normalizeSeason(s=''){
-      s = String(s||'').toLowerCase();
-      if(/deep|snowman/.test(s)) return 'deepWinter';
-      if(/latewinter|thaw|melt/.test(s)) return 'lateWinter';
-      if(/winter|snow|ice/.test(s)) return 'winter';
-      if(/spring|seed|plow/.test(s)) return 'spring';
-      if(/late ?summer/.test(s)) return 'lateSummer';
-      if(/summer|lush|green/.test(s)) return 'summer';
-      if(/autumn|fall|harvest|brown/.test(s)) return 'autumn';
-      return '';
-    }
-    function thumbByMonth(d=new Date()){
-      const m=d.getMonth()+1;
-      if(m===12||m===1) return THUMBS.winter;
-      if(m===2) return THUMBS.lateWinter;
-      if(m===3||m===4) return THUMBS.spring;
-      if(m>=5&&m<=7) return THUMBS.summer;
-      if(m===8) return THUMBS.lateSummer;
-      if(m===9||m===10) return THUMBS.autumn;
-      if(m===11) return THUMBS.deepWinter;
-      return THUMBS.spring;
-    }
-    setThumb(thumbByMonth());
+      let meParsed, season;
+      if(envRes?.me){ meParsed = parseMe(envRes.me); season = meParsed.season; }
+      else{
+        // 별도 리소스라면 병렬로 시도
+        const meData = await firstOk([
+          { tag:'/api/user/me', fn:()=>j('/api/user/me') },
+          { tag:'/me', fn:()=>j('/me') },
+          { tag:'/api/profile', fn:()=>j('/api/profile') },
+        ]).catch(()=>null);
+        meParsed = meData ? parseMe(meData) : {inv:{}};
 
-    /* ================== 서버 ================== */
-    async function fetchJSON(path, opt={}){
-      const url = path.startsWith('http') ? path : `${BASE_API}${path}`;
-      const headers = {'Content-Type':'application/json', ...(opt.headers||{})};
-      const r = await fetch(url, {
-        method: opt.method||'GET',
-        headers,
-        body: opt.body ? JSON.stringify(opt.body) : undefined,
-        mode:'cors',
-        cache:'no-store',
-        credentials:'include'  // ★ 쿠키 세션 지원
-      });
-      if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-      return r.json();
-    }
-
-    function serverAuthHeaders(){
-      return authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
-    }
-
-    function seasonFromMe(me={}){
-      const cand = [
-        me.ui?.corn?.bg, me.ui?.farm?.bg, me.ui?.season, me.ui?.corn?.season,
-        me.farm?.bg, me.farm?.season, me.agri?.season, me.environment?.season,
-        me.world?.season, me.scene?.season
-      ].filter(Boolean);
-      for(const c of cand){ const n = normalizeSeason(c); if(n) return n; }
-      return '';
-    }
-
-    async function loadAll(){
-      try{
-        // 헬스체크
-        await fetchJSON('/api/health');
-        // 유저
-        const me = await fetchJSON('/api/user/me', { headers: serverAuthHeaders() });
-        setOnline(true);
-        setNick(me.nickname || me.nick || localNick || '(알 수 없음)');
-        setRes({
-          water      : me.inventory?.water ?? 0,
-          fertilizer : me.inventory?.fertilizer ?? 0,
-          corn       : me.agri?.corn ?? 0,
-          popcorn    : me.food?.popcorn ?? 0,
-          salt       : me.additives?.salt ?? 0,
-          sugar      : me.additives?.sugar ?? 0,
-          orcx       : me.wallet?.orcx ?? 0,
-        });
-
-        // 레벨/아이콘
-        showLevel(levelFrom(me));
-
-        // 시즌 → 썸네일
-        const key = seasonFromMe(me);
-        if(key && THUMBS[key]) setThumb(THUMBS[key]);
-        else setThumb(thumbByMonth());
-
-      }catch(err){
-        console.warn('서버 연결 실패:', err);
-        setOnline(false);
-        setNick(localNick || '(오프라인)');
-        // 로컬 폴백 자원
-        const gv = k=>Number(localStorage.getItem(k)||0);
-        setRes({
-          water: gv('orcax:inv:water'),
-          fertilizer: gv('orcax:inv:fertilizer'),
-          corn: gv('orcax:agri:corn'),
-          popcorn: gv('orcax:food:popcorn'),
-          salt: gv('orcax:add:salt'),
-          sugar: gv('orcax:add:sugar'),
-          orcx: gv('orcax:wallet:orcx'),
-        });
-        // 레벨 폴백(없으면 숨김)
-        const lv = Number(localStorage.getItem('orcax:level')||0);
-        showLevel(lv);
+        const envData = await firstOk([
+          { tag:'/api/env', fn:()=>j('/api/env') },
+          { tag:'/env', fn:()=>j('/env') },
+          { tag:'/api/farm/env', fn:()=>j('/api/farm/env') },
+        ]).catch(()=>null);
+        season = pick(envData||{}, ['season','farm.season','environment.season']) || meParsed.season;
       }
-    }
-    setNick(localNick || '(로그인 필요)');
-    setRes({});
-    loadAll();
 
-    document.getElementById('btnRefresh').addEventListener('click', loadAll);
-    document.getElementById('btnGoFarm').addEventListener('click', ()=>location.href='https://byungil-cho.github.io/OrcaX/index9.html');
+      // 표시
+      setOnline(true);
+      setNick(meParsed?.nickname || localStorage.getItem('orcax:nickname') || '(알 수 없음)');
+      setRes(meParsed?.inv || {});
+      showLevel(meParsed?.level || Number(localStorage.getItem('orcax:level')||0));
+      setThumbBySeason(season);
 
-    // SW: 정적만 캐시, /api/* 네트워크 우선
-    if('serviceWorker' in navigator){
-      window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js'));
+    }catch(e){
+      console.warn('서버 연결 실패:', e.message);
+      setOnline(false);
+      // 완전 오프라인 폴백
+      setNick(localStorage.getItem('orcax:nickname') || '(오프라인)');
+      setRes({
+        water: Number(localStorage.getItem('orcax:inv:water')||0),
+        fertilizer: Number(localStorage.getItem('orcax:inv:fertilizer')||0),
+        orcx: Number(localStorage.getItem('orcax:wallet:orcx')||0),
+        corn: Number(localStorage.getItem('orcax:agri:corn')||0)
+      });
+      setThumbBySeason(''); // 월별 기본
+      showLevel(Number(localStorage.getItem('orcax:level')||0));
     }
-  </script>
+  }
+
+  // 초기 호출 + 버튼들
+  loadAll();
+  document.getElementById('btnRefresh')?.addEventListener('click', loadAll);
+</script>
+
 </body>
 </html>
