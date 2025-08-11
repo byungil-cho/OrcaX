@@ -5,64 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장 메인</title>
   <style>
-    html, body { height:100%; margin:0; background:#000;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; overflow:hidden; }
+    html,body{height:100%;margin:0;background:#000;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;overflow:hidden}
+    .wrap{position:fixed;inset:0;background:url('img/farm_00.png') center/cover no-repeat}
 
-    /* 배경 고정(그대로 유지) */
-    .wrap{ position:fixed; inset:0; background:url('img/farm_00.png') center/cover no-repeat; }
+    /* HUD */
+    .hud{position:fixed;left:12px;top:12px;z-index:20;color:#fff;background:rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:10px 12px;backdrop-filter:blur(6px);max-width:min(92vw,560px)}
+    .nick{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:6px}
+    .status{width:8px;height:8px;border-radius:999px;background:#e23}
+    .online .status{background:#3ecf8e}
+    .lvl{display:flex;align-items:center;gap:6px}
+    .lvl img{width:24px;height:24px;border-radius:999px;display:block}
+    .res{display:flex;flex-wrap:wrap;gap:8px}
+    .tag{font-size:12px;line-height:1;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+    .tag b{font-weight:700}
+    .actions{margin-top:8px;display:flex;gap:6px}
+    .btn{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);color:#fff;cursor:pointer}
 
-    /* 가운데 스크롤 박스(썸네일만 위/아래 이동) */
-    .scrollbox{
-      position:absolute; left:50%; top:55%; transform:translate(-50%,-50%);
-      width:min(40vw,260px); height:min(60vh,460px);
-      border-radius:14px; background:transparent;
-      border:1px solid rgba(255,255,255,.25); box-shadow:0 20px 40px rgba(0,0,0,.45);
-      overflow-y:auto; -webkit-overflow-scrolling:touch;
-      scrollbar-width:none; -ms-overflow-style:none;
-    }
-    .scrollbox::-webkit-scrollbar{ display:none; }
-    .spacer{ height:85vh; }
-
-    .link{ display:block; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden;
-      border:1px solid rgba(255,255,255,.25); box-shadow:0 8px 24px rgba(0,0,0,.35); }
-    .link img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-    /* 안내 캡션(하단 고정) */
-    .caption{
-      position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
-      color:#fff; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2);
-      padding:8px 12px; border-radius:999px; font-size:14px; z-index:10; pointer-events:none;
-    }
-
-    /* ===== 상단 HUD : 닉네임/자원 ===== */
-    .hud{
-      position:fixed; left:12px; top:12px; z-index:20; color:#fff;
-      background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2);
-      border-radius:14px; padding:10px 12px; backdrop-filter:blur(6px);
-      max-width:min(92vw, 540px);
-    }
-    .hud .nick{ font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
-    .hud .nick .status{ width:8px; height:8px; border-radius:999px; background:#e23; }
-    .hud .nick.online .status{ background:#3ecf8e; }
-    .hud .res{ display:flex; flex-wrap:wrap; gap:8px; }
-    .tag{ font-size:12px; line-height:1; padding:6px 8px; border-radius:999px;
-      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); }
-    .tag b{ font-weight:700; }
-    .hud .actions{ margin-top:8px; display:flex; gap:6px; }
-    .btn{
-      font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.25);
-      background:rgba(0,0,0,.35); color:#fff; cursor:pointer;
-    }
+    /* 가운데 썸네일 전용 스크롤 */
+    .scrollbox{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:min(40vw,260px);height:min(60vh,460px);
+      border-radius:14px;background:transparent;border:1px solid rgba(255,255,255,.25);box-shadow:0 20px 40px rgba(0,0,0,.45);
+      overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .scrollbox::-webkit-scrollbar{display:none}
+    .spacer{height:85vh}
+    .link{display:block;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.25);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .link img{width:100%;height:100%;object-fit:cover;display:block}
+    .caption{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.2);padding:8px 12px;border-radius:999px;font-size:14px;z-index:10;pointer-events:none}
   </style>
   <link rel="manifest" href="manifest.webmanifest" />
 </head>
 <body>
   <div class="wrap">
 
-    <!-- 상단 HUD (닉네임 + 자원) -->
-    <div class="hud" id="hud">
-      <div class="nick" id="hudNick"><span class="status"></span><span>(로그인 확인 중)</span></div>
-      <div class="res" id="hudRes">
+    <!-- HUD -->
+    <div class="hud" id="hudRoot">
+      <div class="nick" id="hudNick">
+        <span class="status"></span>
+        <span id="nickText">(로그인 확인 중)</span>
+        <span class="lvl" id="lvlWrap" style="display:none">
+          <img id="lvlIcon" src="img/mark_01.png" alt="레벨 아이콘" />
+          <span id="lvlText">Lv.1</span>
+        </span>
+      </div>
+      <div class="res">
         <span class="tag">💧 물 <b id="r-water">0</b></span>
         <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
         <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
@@ -77,12 +63,11 @@
       </div>
     </div>
 
-    <!-- 내부 전용 스크롤 영역 (썸네일) -->
-    <div class="scrollbox" aria-label="농장 입구 썸네일 스크롤 영역">
+    <!-- 썸네일 스크롤 -->
+    <div class="scrollbox" aria-label="농장 입구 썸네일">
       <div class="spacer"></div>
       <a class="link" href="corn-farm.html" title="내 옥수수 농장으로">
-        <!-- 썸네일은 동적으로 교체됨 -->
-        <img id="farmThumb" src="img/farm_01.png" alt="계절 썸네일(클릭하여 농장으로 이동)" />
+        <img id="farmThumb" src="img/farm_01.png" alt="계절 썸네일" />
       </a>
       <div class="spacer"></div>
     </div>
@@ -91,25 +76,27 @@
   </div>
 
   <script>
-    // ===== 0) 베이스 설정 =====
-    // GitHub → 3060 연동 시 여기만 바꾸면 됩니다.
+    /* ================== 설정 ================== */
+    const urlApi = new URLSearchParams(location.search).get('api');
     const BASE_API =
-      localStorage.getItem('orcax:BASE_API')
-      || 'https://<KIT-HOST>:3060'; // ← 실제 3060 HTTPS 주소로 교체
+      (urlApi && decodeURIComponent(urlApi)) ||
+      localStorage.getItem('orcax:BASE_API') ||
+      'https://<KIT-HOST>:3060'; // ★ 실제 HTTPS API로 교체
 
-    // 토큰/닉네임 후보키 (감자농장에서 넘어온 것 활용)
     const tokenKeys = ['orcax:token','token','authToken','jwt'];
     const nickKeys  = ['orcax:nick','orcax:nickname','nickname','userNickname','kakaoNickname'];
-    const guess = (keys, d='')=>{
-      for(const k of keys){ const v=localStorage.getItem(k); if(v) return v; }
-      return d;
-    };
-    const authToken = guess(tokenKeys, '');
-    const localNick = guess(nickKeys, '(로그인 필요)');
+    const getFirst  = (keys, d='') => { for(const k of keys){ const v=localStorage.getItem(k); if(v) return v; } return d; };
+    const authToken = getFirst(tokenKeys, '');
+    const localNick = getFirst(nickKeys, '');
 
-    // ===== 1) HUD 초기 표시 =====
-    const hudNick = document.getElementById('hudNick');
-    const hudRes  = {
+    /* ================== HUD helpers ================== */
+    const nickText = document.getElementById('nickText');
+    const hudNick  = document.getElementById('hudNick');
+    const lvlWrap  = document.getElementById('lvlWrap');
+    const lvlIcon  = document.getElementById('lvlIcon');
+    const lvlText  = document.getElementById('lvlText');
+
+    const resEl = {
       water: document.getElementById('r-water'),
       fert : document.getElementById('r-fert'),
       corn : document.getElementById('r-corn'),
@@ -118,102 +105,109 @@
       sugar: document.getElementById('r-sugar'),
       orcx : document.getElementById('r-orcx'),
     };
-    function setNick(name, online=false){
-      hudNick.classList.toggle('online', !!online);
-      hudNick.innerHTML = `<span class="status"></span><span>${name||'(로그인 필요)'}</span>`;
-    }
+
+    function setOnline(on){ hudNick.classList.toggle('online', !!on); }
+    function setNick(name){ nickText.textContent = name || '(로그인 필요)'; }
     function setRes(x){
-      hudRes.water.textContent = x.water ?? 0;
-      hudRes.fert .textContent = x.fertilizer ?? 0;
-      hudRes.corn .textContent = x.corn ?? 0;
-      hudRes.pop  .textContent = x.popcorn ?? 0;
-      hudRes.salt .textContent = x.salt ?? 0;
-      hudRes.sugar.textContent = x.sugar ?? 0;
-      hudRes.orcx .textContent = x.orcx ?? 0;
+      resEl.water.textContent = x.water ?? 0;
+      resEl.fert .textContent = x.fertilizer ?? 0;
+      resEl.corn .textContent = x.corn ?? 0;
+      resEl.pop  .textContent = x.popcorn ?? 0;
+      resEl.salt .textContent = x.salt ?? 0;
+      resEl.sugar.textContent = x.sugar ?? 0;
+      resEl.orcx .textContent = x.orcx ?? 0;
     }
-    setNick(localNick,false);
-    setRes({});
+    function levelFrom(me){
+      return Number(
+        me?.level ?? me?.profile?.level ?? me?.stats?.level ?? me?.agri?.level ?? me?.corn?.level ?? 0
+      ) || 0;
+    }
+    function levelIconPath(lv){
+      if(lv >= 10) return 'img/mark_10.png';
+      const n = Math.max(1, Math.min(9, lv||1));
+      return `img/mark_0${n}.png`;
+    }
+    function showLevel(lv){
+      if(!lv || lv<1){ lvlWrap.style.display='none'; return; }
+      lvlIcon.src = levelIconPath(lv);
+      lvlText.textContent = `Lv.${lv}`;
+      lvlWrap.style.display = 'inline-flex';
+    }
 
-    // ===== 1-1) 썸네일 선택 로직(배경은 그대로, 썸네일만 계절에 맞춰 교체) =====
-    const thumbEl = document.getElementById('farmThumb');
-
+    /* ========== 썸네일(배경 유지, 썸네일만 계절 반영) ========== */
     const THUMBS = {
-      winter:      'img/farm_01.png', // 한겨울
-      lateWinter:  'img/farm_03.png', // 해빙기
-      spring:      'img/farm_05.png', // 봄
-      summer:      'img/farm_07.png', // 초여름~여름
-      lateSummer:  'img/farm_09.png', // 한여름 후반
-      autumn:      'img/farm_10.png', // 가을
-      deepWinter:  'img/farm_12.png'  // 초겨울/눈
+      winter:      'img/farm_01.png',
+      lateWinter:  'img/farm_03.png',
+      spring:      'img/farm_05.png',
+      summer:      'img/farm_07.png',
+      lateSummer:  'img/farm_09.png',
+      autumn:      'img/farm_10.png',
+      deepWinter:  'img/farm_12.png'
     };
-
+    const thumbEl = document.getElementById('farmThumb');
     function setThumb(url){ if(url) thumbEl.src = url; }
-
-    // 서버 응답에서 시즌/배경 키를 최대한 유연하게 해석
     function normalizeSeason(s=''){
       s = String(s||'').toLowerCase();
       if(/deep|snowman/.test(s)) return 'deepWinter';
-      if(/winter|snow|ice/.test(s)) return 'winter';
       if(/latewinter|thaw|melt/.test(s)) return 'lateWinter';
+      if(/winter|snow|ice/.test(s)) return 'winter';
       if(/spring|seed|plow/.test(s)) return 'spring';
-      if(/late?spring|earlysummer/.test(s)) return 'spring';
+      if(/late ?summer/.test(s)) return 'lateSummer';
       if(/summer|lush|green/.test(s)) return 'summer';
-      if(/late ?summer|harshsun/.test(s)) return 'lateSummer';
       if(/autumn|fall|harvest|brown/.test(s)) return 'autumn';
       return '';
     }
-
-    // 월별 폴백
     function thumbByMonth(d=new Date()){
-      const m = d.getMonth()+1; // 1~12
-      if(m===12 || m===1) return THUMBS.winter;
-      if(m===2)           return THUMBS.lateWinter;
-      if(m===3 || m===4)  return THUMBS.spring;
-      if(m>=5 && m<=7)    return THUMBS.summer;
-      if(m===8)           return THUMBS.lateSummer;
-      if(m===9 || m===10) return THUMBS.autumn;
-      if(m===11)          return THUMBS.deepWinter;
+      const m=d.getMonth()+1;
+      if(m===12||m===1) return THUMBS.winter;
+      if(m===2) return THUMBS.lateWinter;
+      if(m===3||m===4) return THUMBS.spring;
+      if(m>=5&&m<=7) return THUMBS.summer;
+      if(m===8) return THUMBS.lateSummer;
+      if(m===9||m===10) return THUMBS.autumn;
+      if(m===11) return THUMBS.deepWinter;
       return THUMBS.spring;
     }
-
-    // 먼저 월별 폴백으로 즉시 표시
     setThumb(thumbByMonth());
 
-    // ===== 2) 서버에서 최신값 불러오기 =====
-    async function fetchJSON(url, opt={}){
+    /* ================== 서버 ================== */
+    async function fetchJSON(path, opt={}){
+      const url = path.startsWith('http') ? path : `${BASE_API}${path}`;
       const headers = {'Content-Type':'application/json', ...(opt.headers||{})};
-      const o = { method:'GET', mode:'cors', ...opt, headers };
-      const r = await fetch(url, o);
-      if(!r.ok) throw new Error(`${r.status}`);
+      const r = await fetch(url, {
+        method: opt.method||'GET',
+        headers,
+        body: opt.body ? JSON.stringify(opt.body) : undefined,
+        mode:'cors',
+        cache:'no-store',
+        credentials:'include'  // ★ 쿠키 세션 지원
+      });
+      if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
       return r.json();
     }
 
-    function pickSeasonFromMe(me={}){
-      // 가능한 모든 위치를 시도(서버 스키마가 달라도 최대한 매칭)
+    function serverAuthHeaders(){
+      return authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+    }
+
+    function seasonFromMe(me={}){
       const cand = [
         me.ui?.corn?.bg, me.ui?.farm?.bg, me.ui?.season, me.ui?.corn?.season,
         me.farm?.bg, me.farm?.season, me.agri?.season, me.environment?.season,
         me.world?.season, me.scene?.season
       ].filter(Boolean);
-      for(const c of cand){
-        const n = normalizeSeason(c);
-        if(n) return n;
-      }
-      return ''; // 없으면 빈 문자열
+      for(const c of cand){ const n = normalizeSeason(c); if(n) return n; }
+      return '';
     }
 
-    async function loadFromServer(){
+    async function loadAll(){
       try{
-        // 1) 헬스체크
-        await fetchJSON(`${BASE_API}/api/health`, {cache:'no-store'});
-
-        // 2) 유저/자원
-        const me = await fetchJSON(`${BASE_API}/api/user/me`, {
-          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
-        });
-
-        const name = me.nickname || me.nick || localNick || '(알 수 없음)';
-        setNick(name, true);
+        // 헬스체크
+        await fetchJSON('/api/health');
+        // 유저
+        const me = await fetchJSON('/api/user/me', { headers: serverAuthHeaders() });
+        setOnline(true);
+        setNick(me.nickname || me.nick || localNick || '(알 수 없음)');
         setRes({
           water      : me.inventory?.water ?? 0,
           fertilizer : me.inventory?.fertilizer ?? 0,
@@ -224,19 +218,20 @@
           orcx       : me.wallet?.orcx ?? 0,
         });
 
-        // 3) 시즌 감지 → 썸네일 교체
-        const seasonKey = pickSeasonFromMe(me);
-        if(seasonKey && THUMBS[seasonKey]){
-          setThumb(THUMBS[seasonKey]);
-        }else{
-          // 별도 시즌 정보가 없으면, 월별 폴백 유지
-          setThumb(thumbByMonth());
-        }
+        // 레벨/아이콘
+        showLevel(levelFrom(me));
 
-      }catch(e){
-        // 서버 연결 실패 시, 로컬의 임시 값(있다면)으로 보조
-        setNick(localNick || '(오프라인)', false);
-        const gv = k=>Number(localStorage.getItem(k) || 0);
+        // 시즌 → 썸네일
+        const key = seasonFromMe(me);
+        if(key && THUMBS[key]) setThumb(THUMBS[key]);
+        else setThumb(thumbByMonth());
+
+      }catch(err){
+        console.warn('서버 연결 실패:', err);
+        setOnline(false);
+        setNick(localNick || '(오프라인)');
+        // 로컬 폴백 자원
+        const gv = k=>Number(localStorage.getItem(k)||0);
         setRes({
           water: gv('orcax:inv:water'),
           fertilizer: gv('orcax:inv:fertilizer'),
@@ -246,20 +241,21 @@
           sugar: gv('orcax:add:sugar'),
           orcx: gv('orcax:wallet:orcx'),
         });
-        // 썸네일은 이미 월별 폴백으로 세팅됨
+        // 레벨 폴백(없으면 숨김)
+        const lv = Number(localStorage.getItem('orcax:level')||0);
+        showLevel(lv);
       }
     }
-    loadFromServer();
+    setNick(localNick || '(로그인 필요)');
+    setRes({});
+    loadAll();
 
-    // 수동 새로고침 / 감자농장 링크
-    document.getElementById('btnRefresh').addEventListener('click', loadFromServer);
-    document.getElementById('btnGoFarm').addEventListener('click', ()=>{
-      location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
-    });
+    document.getElementById('btnRefresh').addEventListener('click', loadAll);
+    document.getElementById('btnGoFarm').addEventListener('click', ()=>location.href='https://byungil-cho.github.io/OrcaX/index9.html');
 
-    // ===== 3) 서비스워커 등록 (정적만 캐시, /api/는 네트워크) =====
+    // SW: 정적만 캐시, /api/* 네트워크 우선
     if('serviceWorker' in navigator){
-      window.addEventListener('load', ()=>navigator.serviceWorker.register('service-worker.js'));
+      window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js'));
     }
   </script>
 </body>
