@@ -4,13 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장</title>
-  <!-- GitHub Pages에서 /OrcaX/ 아래에서 열리므로 모든 상대경로의 기준을 고정 -->
+  <!-- GitHub Pages 하위 경로 기준 고정 -->
   <base href="/OrcaX/">
   <meta name="theme-color" content="#000000" />
   <style>
     :root{--ink:#eef6ee;--panel:rgba(0,0,0,.45);--bd:rgba(255,255,255,.16);--ok:#25d366;--accent:#8ed36b}
-    html,body{height:100%;margin:0;color:var(--ink);background:#000;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif}
-    #bg{position:fixed;inset:0;z-index:-1;background:#000 center/cover no-repeat;pointer-events:none}
+    /* 배경을 body에 직접 적용 (검은 화면 방지) */
+    html,body{
+      height:100%; margin:0; color:var(--ink);
+      background:#000 center/cover no-repeat fixed;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif
+    }
+    #bg{display:none}
 
     .glass{backdrop-filter:saturate(1.05) blur(6px);background:var(--panel);border:1px solid var(--bd);border-radius:14px}
     .top{position:fixed;left:12px;right:12px;top:12px;display:flex;gap:10px;align-items:center;padding:10px 12px;z-index:3}
@@ -184,7 +189,7 @@
     const authToken = guess(tokenKeys,'');
     const localNick = guess(nickKeys,'(로그인 필요)');
 
-    /* ====== 이미지 맵 (모두 img/파일명) ====== */
+    /* ====== 이미지 (모두 img/파일명) ====== */
     const IMG = name => `img/${name}`;
     const BG_BY_GAUGE = [
       {max:29,  file:'farm_05.png', label:'이른 봄(해빙)'},
@@ -204,8 +209,8 @@
 
     /* ====== 상태 ====== */
     const $ = id=>document.getElementById(id);
-    const $bg=$('bg'), $gVal=$('gVal'), $gState=$('gState'), $harv=$('harv'), $tick=$('tick');
-    const $w=$('w'), $f=$('f'), $c=$('c'), $btnW=$('btnW'), $btnF=$('btnF');
+    const $gVal=$('gVal'), $gState=$('gState'), $harv=$('harv'), $tick=$('tick');
+    const $w=$('w'), $f=$('f'), $c=$('c');
     const $mini=$('mini'), $miniCap=$('miniCap');
     const $fillW=$('fillW'), $fillF=$('fillF'), $fillG=$('fillG');
     const $pop=$('pop'), $saltCount=$('saltCount'), $sugarCount=$('sugarCount');
@@ -214,7 +219,7 @@
     const $netDot=$('netDot'), $netTxt=$('netTxt'), $title=$('title'), $diag=$('diag');
 
     let NET_OK=false;
-    let PRICE = { salt:10, sugar:20, currency:'ORCX' }; // 서버 실패 대비
+    let PRICE = { salt:10, sugar:20, currency:'ORCX' };
     let S = (()=>{try{
       return Object.assign({g:70,w:3,f:3,c:0,phase:'GROW',salt:0,sugar:0,sel:'salt'},
         JSON.parse(localStorage.getItem('corn_state')||'{}'));
@@ -227,7 +232,7 @@
 
     /* ====== 렌더 ====== */
     function setNet(ok, text){ NET_OK=!!ok; $netDot.classList.toggle('ok', ok); $netTxt.textContent = text || (ok?'온라인':'오프라인/연결 실패'); }
-    function applyBG(){ const row = BG_BY_GAUGE.find(r=>S.g<=r.max) || BG_BY_GAUGE.at(-1); $bg.style.backgroundImage = `url('${IMG(row.file)}')`; $gState.textContent = row.label.toUpperCase(); }
+    function applyBG(){ const row = BG_BY_GAUGE.find(r=>S.g<=r.max) || BG_BY_GAUGE.at(-1); document.body.style.backgroundImage = `url('${IMG(row.file)}')`; $gState.textContent = row.label.toUpperCase(); }
     function applyMini(){ const row = MINI_BY_GAUGE.find(r=>S.g<=r.max) || MINI_BY_GAUGE.at(-1); $mini.src = IMG(row.file); $mini.alt = row.cap; $miniCap.textContent = `${row.cap} · Lv.1`; }
     function renderGate(){ $fillW.style.height=resPct(S.w)+'%'; $fillF.style.height=resPct(S.f)+'%'; $fillG.style.height=Math.max(0,Math.min(100,S.g))+'%'; }
     function renderRes(){
@@ -243,15 +248,24 @@
       applyBG(); applyMini(); renderGate(); renderRes(); renderBank();
     }
 
-    /* ====== 서버 ====== */
-    async function fetchJSON(url,opt={}){ const headers={'Content-Type':'application/json',...(opt.headers||{})}; const o={method:'GET',mode:'cors',...opt,headers}; const r=await fetch(url,o); if(!r.ok) throw new Error(`${r.status}`); return r.json(); }
+    /* ====== 서버 (Bearer or Cookie) ====== */
+    function reqOpts(method='GET', body){
+      const headers = {'Content-Type':'application/json'};
+      if(authToken) headers['Authorization'] = `Bearer ${authToken}`;
+      return {
+        method, mode:'cors', credentials:'include', // 쿠키 허용
+        headers, ...(body?{body:JSON.stringify(body)}:{})
+      };
+    }
+    async function j(url, opt){ const r = await fetch(url, opt); const d = await r.json().catch(()=>({})); if(!r.ok) throw d; return d; }
 
     async function loadFromServer(){
       try{
-        $diag.textContent = `API:${BASE_API} / token:${authToken? '있음':'없음'}`;
-        await fetchJSON(`${BASE_API}/api/health`, {cache:'no-store'});
+        $diag.textContent = `API:${BASE_API} / token:${authToken? '있음':'없음'} / cookie:include`;
+        await j(`${BASE_API}/api/health`, reqOpts('GET'));
         setNet(true,'온라인');
-        const me = await fetchJSON(`${BASE_API}/api/user/me`, { headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {} });
+
+        const me = await j(`${BASE_API}/api/user/me`, reqOpts('GET'));
         const nick = me.nickname || me.nick || localNick;
         $title.textContent = `${nick} – 옥수수 농장`;
 
@@ -262,10 +276,11 @@
         inv.sugar   = me.additives?.sugar ?? inv.sugar;
         setPotatoInv(inv);
 
-        S.w     = me.inventory?.water ?? S.w;
-        S.f     = me.inventory?.fertilizer ?? S.f;
-        S.c     = me.agri?.corn ?? S.c;
-        S.salt  = inv.salt; S.sugar = inv.sugar;
+        S.w = me.inventory?.water ?? S.w;
+        S.f = me.inventory?.fertilizer ?? S.f;
+        S.c = me.agri?.corn ?? S.c;
+        S.salt=inv.salt; S.sugar=inv.sugar;
+
         save(); renderAll();
       }catch(e){
         setNet(false,'오프라인/연결 실패');
@@ -277,10 +292,9 @@
     async function loadPriceBoard(){
       if(!NET_OK) return;
       try{
-        const pb = await fetchJSON(`${BASE_API}/api/corn/priceboard`, { headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {} });
+        const pb = await j(`${BASE_API}/api/corn/priceboard`, reqOpts('GET'));
         if(pb?.salt!=null)  PRICE.salt  = pb.salt;
         if(pb?.sugar!=null) PRICE.sugar = pb.sugar;
-        if(pb?.currency)    PRICE.currency = pb.currency;
         updateShopCalc();
       }catch(e){}
     }
@@ -301,12 +315,7 @@
       if(S.g<100) return;
       if(NET_OK){
         try{
-          const r = await fetch(`${BASE_API}/api/corn/harvest`, {
-            method:'POST', mode:'cors',
-            headers:{ 'Content-Type':'application/json', ...(authToken?{'Authorization':`Bearer ${authToken}`}:{}) }
-          });
-          const data = await r.json();
-          if(!r.ok) throw new Error(data?.error||('HTTP '+r.status));
+          const data = await j(`${BASE_API}/api/corn/harvest`, reqOpts('POST'));
           const inv=getPotatoInv();
           S.c = (data.agri?.corn!=null) ? data.agri.corn : (S.c + (data.gain||0));
           inv.popcorn = data.food?.popcorn ?? inv.popcorn;
@@ -332,12 +341,7 @@
 
       if(NET_OK){
         try{
-          const r = await fetch(`${BASE_API}/api/corn/pop`, {
-            method:'POST', mode:'cors',
-            headers:{ 'Content-Type':'application/json', ...(authToken?{'Authorization':`Bearer ${authToken}`}:{}) }
-          });
-          const data = await r.json();
-          if(!r.ok) throw new Error(data?.error||('HTTP '+r.status));
+          const data = await j(`${BASE_API}/api/corn/pop`, reqOpts('POST'));
           const inv=getPotatoInv();
           S.c = (data.agri?.corn!=null) ? data.agri.corn : Math.max(0,S.c-1);
           if(data.additives){ S.salt=data.additives.salt ?? S.salt; S.sugar=data.additives.sugar ?? S.sugar; inv.salt=S.salt; inv.sugar=S.sugar; }
@@ -382,13 +386,7 @@
 
       if(NET_OK){
         try{
-          const r = await fetch(`${BASE_API}/api/corn/buy-additive`, {
-            method:'POST', mode:'cors',
-            headers:{ 'Content-Type':'application/json', ...(authToken?{'Authorization':`Bearer ${authToken}`}:{}) },
-            body: JSON.stringify({ item, qty })
-          });
-          const data = await r.json();
-          if(!r.ok) throw new Error(data?.error||('HTTP '+r.status));
+          const data = await j(`${BASE_API}/api/corn/buy-additive`, reqOpts('POST', {item, qty}));
           if(data.wallet?.orcx!=null) inv.token = data.wallet.orcx;
           if(data.additives){ inv.salt=data.additives.salt ?? inv.salt; inv.sugar=data.additives.sugar ?? inv.sugar; }
           else{ inv[item]+=qty; inv.token-=need; }
@@ -419,7 +417,7 @@
     /* ====== 시작 ====== */
     (function boot(){
       // 초기 배경/미니
-      $bg.style.backgroundImage = `url('${IMG('farm_05.png')}')`;
+      document.body.style.backgroundImage = `url('${IMG('farm_05.png')}')`;
       $mini.src = IMG('corn_06_02.png'); $mini.alt='발아'; $miniCap.textContent='발아 · Lv.1';
       renderAll();
       setInterval(tick, 5000);
