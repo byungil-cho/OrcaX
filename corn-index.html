@@ -5,73 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장 메인</title>
   <style>
-    html, body { height:100%; margin:0; background:#000;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; overflow:hidden; }
-
-    /* 배경 고정 */
-    .wrap{ position:fixed; inset:0; background:url('img/farm_00.png') center/cover no-repeat; }
-
-    /* 가운데 투명 필름(이미지만 위/아래 이동) */
-    .scrollbox{
-      position:absolute; left:50%; top:55%; transform:translate(-50%,-50%);
-      width:min(40vw,260px); height:min(60vh,460px);
-      border-radius:14px; background:transparent;
-      border:1px solid rgba(255,255,255,.25); box-shadow:0 20px 40px rgba(0,0,0,.45);
-      overflow-y:auto; -webkit-overflow-scrolling:touch;
-      scrollbar-width:none; -ms-overflow-style:none;
-    }
+    html, body { height:100%; margin:0; background:#000; font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; overflow:hidden; }
+    .wrap{ position:fixed; inset:0; background:#000 center/cover no-repeat; }
+    .scrollbox{ position:absolute; left:50%; top:55%; transform:translate(-50%,-50%); width:min(40vw,260px); height:min(60vh,460px);
+      border-radius:14px; background:transparent; border:1px solid rgba(255,255,255,.25); box-shadow:0 20px 40px rgba(0,0,0,.45);
+      overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; }
     .scrollbox::-webkit-scrollbar{ display:none; }
     .spacer{ height:85vh; }
-    .link{ display:block; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden;
-      border:1px solid rgba(255,255,255,.25); box-shadow:0 8px 24px rgba(0,0,0,.35); }
+    .link{ display:block; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.25); box-shadow:0 8px 24px rgba(0,0,0,.35); }
     .link img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-    /* 안내 캡션(하단 고정) */
-    .caption{
-      position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
-      color:#fff; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2);
-      padding:8px 12px; border-radius:999px; font-size:14px; z-index:10; pointer-events:none;
-    }
-
-    /* ===== 상단 HUD : 닉네임/자원 ===== */
-    .hud{
-      position:fixed; left:12px; top:12px; z-index:20; color:#fff;
-      background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2);
-      border-radius:14px; padding:10px 12px; backdrop-filter:blur(6px);
-      max-width:min(92vw, 540px);
-    }
+    .caption{ position:fixed; left:50%; bottom:20px; transform:translateX(-50%); color:#fff; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2); padding:8px 12px; border-radius:999px; font-size:14px; z-index:10; pointer-events:none; }
+    .hud{ position:fixed; left:12px; top:12px; z-index:20; color:#fff; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2); border-radius:14px; padding:10px 12px; backdrop-filter:blur(6px); max-width:min(92vw, 540px); }
     .hud .nick{ font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
     .hud .nick .status{ width:8px; height:8px; border-radius:999px; background:#e23; }
     .hud .nick.online .status{ background:#3ecf8e; }
     .hud .res{ display:flex; flex-wrap:wrap; gap:8px; }
-    .tag{ font-size:12px; line-height:1; padding:6px 8px; border-radius:999px;
-      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); }
+    .tag{ font-size:12px; line-height:1; padding:6px 8px; border-radius:999px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); }
     .tag b{ font-weight:700; }
     .tag.action{ cursor:pointer; }
     .hud .actions{ margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
-    .btn{
-      font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.25);
-      background:rgba(0,0,0,.35); color:#fff; cursor:pointer;
-    }
-
-    /* 미니 팝업 */
-    #shop{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:50; }
-    #shop .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.45); }
-    #shop .panel{
-      position:relative; min-width:280px; max-width:92vw; background:rgba(20,20,20,.95);
-      border:1px solid rgba(255,255,255,.18); border-radius:16px; padding:14px 16px; color:#fff;
-    }
+    .btn{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.25); background:rgba(0,0,0,.35); color:#fff; cursor:pointer; }
+    .diag{ font-size:11px; opacity:.8; margin-left:8px; }
+    #shop{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:50 }
+    #shop .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.45) }
+    #shop .panel{ position:relative; min-width:280px; max-width:92vw; background:rgba(20,20,20,.95); border:1px solid rgba(255,255,255,.18); border-radius:16px; padding:14px 16px; color:#fff }
   </style>
-  <!-- (선택) PWA 사용 시 -->
-  <link rel="manifest" href="manifest.webmanifest" />
 </head>
 <body>
-  <div class="wrap">
-
-    <!-- 상단 HUD (닉네임 + 자원) -->
+  <div class="wrap" id="wrap">
     <div class="hud" id="hud">
-      <div class="nick" id="hudNick"><span class="status"></span><span>(로그인 확인 중)</span></div>
-      <div class="res" id="hudRes">
+      <div class="nick" id="hudNick"><span class="status"></span><span>(로그인 확인 중)</span><span class="diag" id="diag"></span></div>
+      <div class="res">
         <span class="tag">💧 물 <b id="r-water">0</b></span>
         <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
         <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
@@ -87,29 +51,24 @@
       </div>
     </div>
 
-    <!-- 내부 전용 스크롤 영역 (이미지만 상하 이동) -->
     <div class="scrollbox" aria-label="겨울 이미지 스크롤 영역">
       <div class="spacer"></div>
       <a class="link" href="corn-farm.html" title="내 옥수수 농장으로">
-        <img src="img/farm_01.png" alt="겨울 이미지(클릭하여 농장으로 이동)" />
+        <img id="thumb" src="" alt="겨울 이미지(클릭하여 농장으로 이동)" />
       </a>
       <div class="spacer"></div>
     </div>
-
     <div class="caption">박스 안에서 위/아래 스크롤 · 이미지를 누르면 농장으로 이동</div>
   </div>
 
-  <!-- Additive Shop Modal -->
+  <!-- 구매 모달(간단) -->
   <div id="shop">
     <div class="backdrop" onclick="closeShop()"></div>
     <div class="panel">
-      <div style="font-weight:700;margin-bottom:8px;">첨가물 구매</div>
+      <div style="font-weight:700;margin-bottom:8px">첨가물 구매</div>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
         <label>종류</label>
-        <select id="shopItem">
-          <option value="salt">소금</option>
-          <option value="sugar">설탕</option>
-        </select>
+        <select id="shopItem"><option value="salt">소금</option><option value="sugar">설탕</option></select>
         <label style="margin-left:8px;">수량</label>
         <input id="shopQty" type="number" min="1" value="1" style="width:80px;padding:4px 6px;">
       </div>
@@ -118,197 +77,89 @@
         <span style="margin-left:8px;opacity:.7;">(보유: <b id="shopOrcx">0</b>)</span>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button onclick="closeShop()" class="btn">취소</button>
+        <button onclick="closeShop()" class="btn" id="shopCancel">취소</button>
         <button onclick="confirmBuy()" class="btn" id="shopBuyBtn">구매</button>
       </div>
     </div>
   </div>
 
   <script>
-    // ===== 0) 베이스 설정 =====
-    const BASE_API =
-      localStorage.getItem('orcax:BASE_API') ||
-      'https://<KIT-HOST>:3060'; // ← 실제 3060 HTTPS 주소로 교체
+    const BASE_API = localStorage.getItem('orcax:BASE_API') || 'https://<KIT-HOST>:3060';
+    const tokenKeys=['orcax:token','token','authToken','jwt']; const nickKeys=['orcax:nick','orcax:nickname','nickname','userNickname','kakaoNickname'];
+    const guess=(ks,d='')=>{for(const k of ks){const v=localStorage.getItem(k);if(v)return v;}return d;}
+    const authToken=guess(tokenKeys,''); const localNick=guess(nickKeys,'(로그인 필요)');
+    const hudRes={ water:document.getElementById('r-water'), fert:document.getElementById('r-fert'), corn:document.getElementById('r-corn'),
+      pop:document.getElementById('r-pop'), salt:document.getElementById('r-salt'), sugar:document.getElementById('r-sugar'), orcx:document.getElementById('r-orcx') };
+    const PRICE={salt:10,sugar:20,currency:'ORCX'};
+    const IMG_CANDIDATES=(p)=>[`img/${p}`,`/OrcaX/img/${p}`,`/img/${p}`,`../img/${p}`];
+    async function resolveImg(p){for(const u of IMG_CANDIDATES(p)){try{const r=await fetch(u,{method:'HEAD',cache:'no-store'});if(r.ok)return u;}catch(_){}}return null;}
+    const diag=(m)=>document.getElementById('diag').textContent=m;
+    function setNick(n,online){const el=document.getElementById('hudNick'); el.classList.toggle('online',!!online); el.innerHTML=`<span class="status"></span><span>${n}</span><span class="diag" id="diag"></span>`;}
+    function setRes(x){hudRes.water.textContent=x.water??0;hudRes.fert.textContent=x.fertilizer??0;hudRes.corn.textContent=x.corn??0;hudRes.pop.textContent=x.popcorn??0;hudRes.salt.textContent=x.salt??0;hudRes.sugar.textContent=x.sugar??0;hudRes.orcx.textContent=x.orcx??0;}
 
-    // 토큰/닉네임 후보키 (감자농장에서 넘어온 값 활용)
-    const tokenKeys = ['orcax:token','token','authToken','jwt'];
-    const nickKeys  = ['orcax:nick','orcax:nickname','nickname','userNickname','kakaoNickname'];
-    const guess = (keys, d='')=>{ for(const k of keys){ const v=localStorage.getItem(k); if(v) return v; } return d; };
-    const authToken = guess(tokenKeys, '');
-    const localNick = guess(nickKeys, '(로그인 필요)');
+    async function fetchJSON(url,opt={}){const headers={'Content-Type':'application/json',...(opt.headers||{})}; const o={method:'GET',mode:'cors',...opt,headers}; const r=await fetch(url,o); if(!r.ok) throw new Error(`${r.status}`); return r.json();}
 
-    // ===== HUD DOM =====
-    const hudNick = document.getElementById('hudNick');
-    const hudRes  = {
-      water: document.getElementById('r-water'),
-      fert : document.getElementById('r-fert'),
-      corn : document.getElementById('r-corn'),
-      pop  : document.getElementById('r-pop'),
-      salt : document.getElementById('r-salt'),
-      sugar: document.getElementById('r-sugar'),
-      orcx : document.getElementById('r-orcx'),
-    };
-    function setNick(name, online=false){
-      hudNick.classList.toggle('online', !!online);
-      hudNick.innerHTML = `<span class="status"></span><span>${name||'(로그인 필요)'}</span>`;
-    }
-    function setRes(x){
-      hudRes.water.textContent = x.water ?? 0;
-      hudRes.fert .textContent = x.fertilizer ?? 0;
-      hudRes.corn .textContent = x.corn ?? 0;
-      hudRes.pop  .textContent = x.popcorn ?? 0;
-      hudRes.salt .textContent = x.salt ?? 0;
-      hudRes.sugar.textContent = x.sugar ?? 0;
-      hudRes.orcx .textContent = x.orcx ?? 0;
-    }
-    setNick(localNick,false); setRes({});
-
-    // ===== 가격판(서버 권위) =====
-    const PRICE = { salt:10, sugar:20, currency:'ORCX' }; // 기본값(서버 실패 대비)
-    async function loadPriceBoard(){
-      try{
-        const pb = await fetchJSON(`${BASE_API}/api/corn/priceboard`, { cache:'no-store' });
-        if(pb?.salt!=null)  PRICE.salt  = pb.salt;
-        if(pb?.sugar!=null) PRICE.sugar = pb.sugar;
-        if(pb?.currency)    PRICE.currency = pb.currency;
-        updateShopCalc();
-      }catch(e){}
-    }
-
-    // ===== 서버에서 유저정보 로드 =====
-    async function fetchJSON(url, opt={}){
-      const headers = {'Content-Type':'application/json', ...(opt.headers||{})};
-      const o = { method:'GET', mode:'cors', ...opt, headers };
-      const r = await fetch(url, o);
-      if(!r.ok) throw new Error(`${r.status}`);
-      return r.json();
-    }
     async function loadFromServer(){
       try{
-        await fetchJSON(`${BASE_API}/api/health`, {cache:'no-store'});
-        const me = await fetchJSON(`${BASE_API}/api/user/me`, {
-          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
-        });
-        const name = me.nickname || me.nick || localNick || '(알 수 없음)';
-        setNick(name, true);
-        setRes({
-          water      : me.inventory?.water ?? 0,
-          fertilizer : me.inventory?.fertilizer ?? 0,
-          corn       : me.agri?.corn ?? 0,
-          popcorn    : me.food?.popcorn ?? 0,
-          salt       : me.additives?.salt ?? 0,
-          sugar      : me.additives?.sugar ?? 0,
-          orcx       : me.wallet?.orcx ?? 0,
-        });
-        // 관리자 버튼 노출
-        if(me.role === 'admin') document.getElementById('btnAdmin').style.display = 'inline-block';
+        diag(`API:${BASE_API} / token:${authToken? '있음':'없음'}`);
+        await fetchJSON(`${BASE_API}/api/health`,{cache:'no-store'});
+        const me=await fetchJSON(`${BASE_API}/api/user/me`,{headers:authToken?{'Authorization':`Bearer ${authToken}`}:{}} );
+        const name=me.nickname||me.nick||localNick; setNick(name,true);
+        setRes({water:me.inventory?.water,fertilizer:me.inventory?.fertilizer,corn:me.agri?.corn,popcorn:me.food?.popcorn,salt:me.additives?.salt,sugar:me.additives?.sugar,orcx:me.wallet?.orcx});
+        const adminBtn=document.getElementById('btnAdmin'); if(me.role==='admin') adminBtn.style.display='inline-block';
       }catch(e){
-        setNick(localNick || '(오프라인)', false);
-        const gv = k=>Number(localStorage.getItem(k) || 0);
-        setRes({
-          water: gv('orcax:inv:water'),
-          fertilizer: gv('orcax:inv:fertilizer'),
-          corn: gv('orcax:agri:corn'),
-          popcorn: gv('orcax:food:popcorn'),
-          salt: gv('orcax:add:salt'),
-          sugar: gv('orcax:add:sugar'),
-          orcx: gv('orcax:wallet:orcx'),
-        });
+        setNick(localNick,false);
+        const gv=k=>Number(localStorage.getItem(k)||0);
+        setRes({water:gv('orcax:inv:water'),fertilizer:gv('orcax:inv:fertilizer'),corn:gv('orcax:agri:corn'),popcorn:gv('orcax:food:popcorn'),salt:gv('orcax:add:salt'),sugar:gv('orcax:add:sugar'),orcx:gv('orcax:wallet:orcx')});
       }
     }
 
-    document.getElementById('btnRefresh').addEventListener('click', ()=>{ loadFromServer(); loadPriceBoard(); });
-    document.getElementById('btnGoFarm').addEventListener('click', ()=>{
-      location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
-    });
+    // 배경/썸네일 이미지 경로 자동 해결
+    (async ()=>{
+      const bg=await resolveImg('farm_00.png'); if(bg) document.getElementById('wrap').style.backgroundImage=`url('${bg}')`;
+      const th=await resolveImg('farm_01.png'); if(th) document.getElementById('thumb').src=th;
+    })();
 
-    // ===== 소금/설탕 구매 팝업 =====
-    const shop = {
-      el: document.getElementById('shop'),
-      item: document.getElementById('shopItem'),
-      qty: document.getElementById('shopQty'),
-      pricePer: document.getElementById('shopPricePer'),
-      total: document.getElementById('shopTotal'),
-      orcx: document.getElementById('shopOrcx'),
-      btn: document.getElementById('shopBuyBtn')
-    };
-    function openShop(defaultItem){
-      shop.el.style.display = 'flex';
-      if(defaultItem) shop.item.value = defaultItem;
-      shop.orcx.textContent = hudRes.orcx.textContent || 0;
-      updateShopCalc();
-      shop.btn.disabled = false;
-    }
-    function closeShop(){ shop.el.style.display = 'none'; }
-    function updateShopCalc(){
-      const p = PRICE[shop.item.value] || 0;
-      const q = Math.max(1, Number(shop.qty.value||1));
-      shop.pricePer.textContent = p;
-      shop.total.textContent = p * q;
-    }
-    shop.item.addEventListener('change', updateShopCalc);
-    shop.qty.addEventListener('input', ()=>{ shop.qty.value = Math.max(1, Math.floor(Number(shop.qty.value||1))); updateShopCalc(); });
+    // 구매 팝업(소금/설탕)
+    const shop={ el:document.getElementById('shop'), item:document.getElementById('shopItem'), qty:document.getElementById('shopQty'),
+      pricePer:document.getElementById('shopPricePer'), total:document.getElementById('shopTotal'), orcx:document.getElementById('shopOrcx'), btn:document.getElementById('shopBuyBtn') };
+    function openShop(def){ shop.el.style.display='flex'; if(def) shop.item.value=def; shop.orcx.textContent=hudRes.orcx.textContent||0; shop.qty.value=1; updateShopCalc(); shop.btn.disabled=false; }
+    function closeShop(){ shop.el.style.display='none'; }
+    function updateShopCalc(){ const p=(shop.item.value==='salt')?PRICE.salt:PRICE.sugar; const q=Math.max(1,Number(shop.qty.value||1)); shop.pricePer.textContent=p; shop.total.textContent=p*q; }
     document.getElementById('tag-salt').addEventListener('click', ()=>openShop('salt'));
     document.getElementById('tag-sugar').addEventListener('click', ()=>openShop('sugar'));
-
+    shop.item.addEventListener('change', updateShopCalc); shop.qty.addEventListener('input', ()=>{shop.qty.value=Math.max(1,Math.floor(Number(shop.qty.value||1))); updateShopCalc();});
     async function confirmBuy(){
-      const item = shop.item.value;
-      const qty  = Math.max(1, Number(shop.qty.value||1));
-      const unit = PRICE[item] || 0;
-      const need = unit * qty;
-      const have = Number(hudRes.orcx.textContent||0);
-      if(have < need){ alert('토큰이 부족합니다.'); return; }
-      shop.btn.disabled = true;
+      const item=shop.item.value, qty=Math.max(1,Number(shop.qty.value||1)); const unit=(item==='salt')?PRICE.salt:PRICE.sugar; const need=unit*qty; const have=Number(hudRes.orcx.textContent||0);
+      if(have<need){ alert('토큰이 부족합니다.'); return; }
+      shop.btn.disabled=true;
       try{
-        const r = await fetch(`${BASE_API}/api/corn/buy-additive`, {
-          method:'POST', mode:'cors',
-          headers:{ 'Content-Type':'application/json', ...(authToken?{'Authorization':`Bearer ${authToken}`}:{}) },
-          body: JSON.stringify({ item, qty })
-        });
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        const data = await r.json();
-        // 서버 응답으로 HUD 갱신
-        if(data.wallet?.orcx!=null) hudRes.orcx.textContent = data.wallet.orcx;
-        if(item === 'salt'){
-          if(data.additives?.salt!=null) hudRes.salt.textContent = data.additives.salt;
-          else hudRes.salt.textContent = Number(hudRes.salt.textContent||0) + qty;
-        }else{
-          if(data.additives?.sugar!=null) hudRes.sugar.textContent = data.additives.sugar;
-          else hudRes.sugar.textContent = Number(hudRes.sugar.textContent||0) + qty;
-        }
+        const r=await fetch(`${BASE_API}/api/corn/buy-additive`,{method:'POST',mode:'cors',headers:{'Content-Type':'application/json',...(authToken?{'Authorization':`Bearer ${authToken}`}:{})},body:JSON.stringify({item,qty})});
+        const data=await r.json(); if(!r.ok) throw new Error();
+        if(data.wallet?.orcx!=null) hudRes.orcx.textContent=data.wallet.orcx;
+        if(item==='salt'){ hudRes.salt.textContent = data.additives?.salt ?? (Number(hudRes.salt.textContent||0)+qty); }
+        else              { hudRes.sugar.textContent= data.additives?.sugar?? (Number(hudRes.sugar.textContent||0)+qty); }
         closeShop();
-      }catch(e){
-        shop.btn.disabled = false;
-        alert('구매 요청 실패: 서버/CORS를 확인하세요.');
+      }catch(_){
+        // 로컬 폴백
+        hudRes.orcx.textContent = String(have-need);
+        if(item==='salt') hudRes.salt.textContent = String(Number(hudRes.salt.textContent||0)+qty);
+        else hudRes.sugar.textContent = String(Number(hudRes.sugar.textContent||0)+qty);
+        closeShop();
       }
     }
-    window.closeShop = closeShop; window.confirmBuy = confirmBuy;
+    window.closeShop=closeShop; window.confirmBuy=confirmBuy;
 
-    // ===== 관리자 가격 수정(간단 prompt) =====
+    document.getElementById('btnGoFarm').addEventListener('click', ()=>location.href='https://byungil-cho.github.io/OrcaX/index9.html'));
+    document.getElementById('btnRefresh').addEventListener('click', loadFromServer);
     document.getElementById('btnAdmin').addEventListener('click', async ()=>{
-      const ns = prompt(`소금 단가(현재 ${PRICE.salt})`, PRICE.salt);
-      const nj = prompt(`설탕 단가(현재 ${PRICE.sugar})`, PRICE.sugar);
-      if(ns==null || nj==null) return;
-      const salt  = Math.max(0, Number(ns||PRICE.salt));
-      const sugar = Math.max(0, Number(nj||PRICE.sugar));
-      const r = await fetch(`${BASE_API}/api/corn/priceboard`, {
-        method:'PATCH',
-        headers:{ 'Content-Type':'application/json', ...(authToken?{'Authorization':`Bearer ${authToken}`}:{}) },
-        body: JSON.stringify({ salt, sugar })
-      });
-      if(!r.ok){ alert('가격 수정 실패'); return; }
-      await loadPriceBoard();
-      alert('가격이 갱신되었습니다.');
+      const ns=prompt(`소금 단가(현재 ${PRICE.salt})`, PRICE.salt); const nj=prompt(`설탕 단가(현재 ${PRICE.sugar})`, PRICE.sugar);
+      if(ns==null||nj==null) return; const salt=Math.max(0,Number(ns||PRICE.salt)); const sugar=Math.max(0,Number(nj||PRICE.sugar));
+      const r=await fetch(`${BASE_API}/api/corn/priceboard`,{method:'PATCH',headers:{'Content-Type':'application/json',...(authToken?{'Authorization':`Bearer ${authToken}`}:{})},body:JSON.stringify({salt,sugar})});
+      if(r.ok){ alert('가격 갱신 완료'); } else { alert('가격 갱신 실패'); }
     });
 
-    // ===== 초기 로드 =====
     loadFromServer();
-    loadPriceBoard();
-
-    // ===== (선택) 서비스워커 등록: 정적만 캐시, /api/는 가로채지 않음 =====
-    if('serviceWorker' in navigator){
-      window.addEventListener('load', ()=>navigator.serviceWorker.register('service-worker.js'));
-    }
   </script>
 </body>
 </html>
