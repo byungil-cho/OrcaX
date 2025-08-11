@@ -60,70 +60,53 @@
     #shop .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45)}
     #shop .panel{position:relative;min-width:280px;max-width:92vw;background:rgba(20,20,20,.95);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:14px 16px;color:#fff}
   
-    /* === ADD-ONLY: hide long diagnostics next to online dot === */
+    /* === ADD-ONLY: hide verbose diagnostics; show only ONLINE/OFFLINE === */
     .status .diag{ display:none !important; }
 
-    /* === ADD-ONLY: Mobile 'mirror' container with sticky header and scrollable body === */
+    /* === ADD-ONLY: Mirror box tune — narrower cards, no horizontal scroll, visible background === */
     @media (max-width: 740px){
-      /* Keep the same background, duplicated top/bottom and fixed */
-      html, body{ height:100%; }
+      html, body{ height:100%; overflow-x:hidden; }
       body{
+        /* duplicate same farm image top/bottom, fixed */
         background-image: var(--bg-url), var(--bg-url) !important;
         background-position: center top, center bottom !important;
         background-repeat: no-repeat, no-repeat !important;
         background-size: contain, contain !important;
         background-attachment: fixed, fixed !important;
       }
-      /* Make glass a bit lighter so field is visible */
-      .glass{ background: rgba(0,0,0,.28) !important; }
-
-      /* We will show content inside #mirror; hide top header/bank to avoid duplication */
-      .top, .bank{ display:none !important; }
+      .glass{ background: rgba(0,0,0,.22) !important; } /* 더 투명하게 */
+      .top, .bank{ display:none !important; }          /* 상단 중복바 제거 */
 
       /* Mirror container */
-      #mirror{
-        position: fixed; inset: 10px;
-        display: flex; flex-direction: column;
-        border-radius: 18px;
-        border: 1px solid rgba(255,255,255,.22);
-        background: rgba(0,0,0,.22);
-        backdrop-filter: saturate(1.05) blur(8px);
-        box-shadow: 0 18px 40px rgba(0,0,0,.45);
-        overflow: hidden; z-index: 60;
-      }
-      #mirrorHeader{
-        flex: 0 0 auto;
-        padding: 8px 10px;
-        border-bottom: 1px solid rgba(255,255,255,.18);
-        display: flex; align-items: center; justify-content: space-between; gap: 10px;
-        color: #fff; font-size: 14px;
-      }
+      #mirror{ position:fixed; inset:10px; display:flex; flex-direction:column;
+               border-radius:18px; border:1px solid rgba(255,255,255,.22);
+               background:rgba(0,0,0,.18); backdrop-filter:saturate(1.05) blur(8px);
+               box-shadow:0 18px 40px rgba(0,0,0,.45); overflow:hidden; z-index:60; }
+      #mirrorHeader{ flex:0 0 auto; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.18);
+                     display:flex; align-items:center; justify-content:space-between; gap:10px; color:#fff; font-size:14px; }
       #mirrorHeader .who{ font-weight:700; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:46vw; }
       #mirrorHeader .line{ display:flex; gap:8px; align-items:center; font-variant-numeric:tabular-nums; }
       #mirrorHeader .pill{ display:inline-flex; gap:6px; align-items:center; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
-      #mirrorHeader .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 }
-      #mirrorHeader .dot.ok{ background:#25d366 }
+      #mirrorHeader .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 } .dot.ok{ background:#25d366 }
 
-      #mirrorBody{
-        flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
-        padding: 10px; display: grid; gap: 12px;
+      #mirrorBody{ flex:1 1 auto; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding:10px; display:grid; gap:12px; }
+      #mirrorBody::-webkit-scrollbar{ display:none; }
+      .m-sec{ border:1px solid rgba(255,255,255,.22); border-radius:14px; background:rgba(0,0,0,.14); padding:8px; }
+
+      /* 내부 카드 폭을 더 좁게(글자 벌어짐 해소) */
+      #mSec2 .panel, #mSec3 .panel, #mSec4 .gate-dock, #mSec4 .gate .card{
+        max-width: 480px; width:100%; margin:0 auto; box-sizing:border-box;
       }
-      #mirrorBody::-webkit-scrollbar{ display: none; }
+      #mSec5 .mini-wrap{
+        position:static !important; transform:none !important; bottom:auto !important; left:auto !important;
+        display:flex !important; gap:10px; justify-content:center; align-items:center;
+        max-width: 480px; margin: 0 auto;
+      }
 
-      /* Sections */
-      .m-sec{ border:1px solid rgba(255,255,255,.22); border-radius:14px; background:rgba(0,0,0,.18); padding:10px; }
-
-      /* Narrow inner widths for readability */
-      #mSec2 .panel{ max-width:560px; margin:0 auto; } /* right panel */
-      #mSec3 .panel{ max-width:560px; margin:0 auto; } /* left panel */
-      #mSec4 .gate-dock, #mSec4 .gate .card{ max-width:560px; margin:0 auto; }
-      #mSec5 .mini-wrap{ position:static !important; transform:none !important; bottom:auto !important; left:auto !important;
-                         display:flex !important; gap:12px; justify-content:center; align-items:center; }
-
-      /* Gate behaves in-flow inside section */
-      #mSec4 #gate{ position: static !important; display:none; }
+      /* Gate는 흐름 내에 표시 */
+      #mSec4 #gate{ position:static !important; display:none; }
       #mSec4 #gate.open{ display:block; }
-      .backdrop.show{ display:none !important; } /* no dark overlay on mobile */
+      .backdrop.show{ display:none !important; }
     }
 
   </style>
@@ -510,72 +493,88 @@
     function toast(msg){ $toast.textContent=msg; $toast.classList.add('show'); setTimeout(()=>{$toast.classList.remove('show')},1400); }
 
     
-    /* ====== ADD-ONLY: Mirror box mobile UI (moves existing panels into a translucent, scrollable container) ====== */
+    /* ====== ADD-ONLY: mirror box v3 — online sync, level face in gate, mini stays dynamic, vertical-only scroll ====== */
     window.addEventListener('load', function(){
-      if(window.innerWidth > 740) return; // mobile only
+      if(window.innerWidth > 740) return;
 
-      // Keep CSS var --bg-url synced with current body background (seasonal changes)
-      function syncBgVar(){
-        try{
-          var bg = getComputedStyle(document.body).backgroundImage; // url("img/farm_xx.png")
-          if(bg && bg !== 'none'){ document.documentElement.style.setProperty('--bg-url', bg); }
-        }catch(e){}
-      }
-      syncBgVar(); setInterval(syncBgVar, 1000);
+      // 0) Background var: default, then sync with body's background as seasons change
+      document.documentElement.style.setProperty('--bg-url', 'url("img/farm_05.png")');
+      function syncBg(){ try{ var bg=getComputedStyle(document.body).backgroundImage; if(bg && bg!=='none'){ document.documentElement.style.setProperty('--bg-url', bg); } }catch(e){} }
+      let t=0, bgTimer=setInterval(function(){ syncBg(); if((t+=1)>10){ clearInterval(bgTimer); setInterval(syncBg, 1200); } }, 300);
 
-      // Build mirror container
-      var mirror = document.createElement('div'); mirror.id = 'mirror';
-      var header = document.createElement('div'); header.id = 'mirrorHeader';
+      // 1) Build mirror container (header + body)
+      var mirror=document.createElement('div'); mirror.id='mirror';
+      var header=document.createElement('div'); header.id='mirrorHeader';
       header.innerHTML = '<span class="who" id="mWho"></span>'
         + '<span class="line">'
         +   '<span class="pill">🪙 <b id="mTok">0</b></span>'
         +   '<span class="pill">🍿 <b id="mPop">0</b></span>'
         +   '<span class="pill"><span id="mDot" class="dot"></span> <span id="mNet">오프라인</span></span>'
         + '</span>';
-      var body = document.createElement('div'); body.id = 'mirrorBody';
-
-      // Sections 2..5
-      var s2 = document.createElement('div'); s2.id='mSec2'; s2.className='m-sec';
-      var s3 = document.createElement('div'); s3.id='mSec3'; s3.className='m-sec';
-      var s4 = document.createElement('div'); s4.id='mSec4'; s4.className='m-sec';
-      var s5 = document.createElement('div'); s5.id='mSec5'; s5.className='m-sec';
+      var body=document.createElement('div'); body.id='mirrorBody';
+      var s2=document.createElement('div'); s2.id='mSec2'; s2.className='m-sec';
+      var s3=document.createElement('div'); s3.id='mSec3'; s3.className='m-sec';
+      var s4=document.createElement('div'); s4.id='mSec4'; s4.className='m-sec';
+      var s5=document.createElement('div'); s5.id='mSec5'; s5.className='m-sec';
       body.appendChild(s2); body.appendChild(s3); body.appendChild(s4); body.appendChild(s5);
-
       mirror.appendChild(header); mirror.appendChild(body);
       document.body.appendChild(mirror);
+      document.documentElement.style.overflowX = 'hidden'; document.body.style.overflowX = 'hidden';
 
-      // Move existing parts into sections (appendChild preserves event handlers)
-      var rightPanel = document.querySelector('.hud-right .panel'); if(rightPanel) s2.appendChild(rightPanel);
-      var leftPanel  = document.querySelector('.hud-left .panel');  if(leftPanel)  s3.appendChild(leftPanel);
-      var gateDock   = document.querySelector('.hud-left .gate-dock'); if(gateDock) s4.appendChild(gateDock);
-      var gate       = document.getElementById('gate'); if(gate) s4.appendChild(gate);
-      var miniWrap   = document.querySelector('.mini-wrap'); if(miniWrap) s5.appendChild(miniWrap);
+      // 2) Move existing pieces into sections
+      var rightPanel=document.querySelector('.hud-right .panel'); if(rightPanel) s2.appendChild(rightPanel);
+      var leftPanel=document.querySelector('.hud-left .panel'); if(leftPanel) s3.appendChild(leftPanel);
+      var gateDock=document.querySelector('.hud-left .gate-dock'); if(gateDock) s4.appendChild(gateDock);
+      var gate=document.getElementById('gate'); if(gate) s4.appendChild(gate);
+      var miniWrap=document.querySelector('.mini-wrap'); if(miniWrap) s5.appendChild(miniWrap);
 
-      // Sync header values
+      // 3) Sticky header sync (nickname/token/pop/online)
       function syncHeader(){
         try{
-          var name = (window.nickname || localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '(로그인 필요)');
-          var inv  = (typeof getPotatoInv==='function') ? getPotatoInv() : {token:0,popcorn:0};
-          var ok   = !!window.NET_OK;
-          document.getElementById('mWho').textContent = name;
-          document.getElementById('mTok').textContent = inv.token || 0;
-          document.getElementById('mPop').textContent = inv.popcorn || 0;
+          var name=(window.nickname || localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '(로그인 필요)');
+          var inv=(typeof getPotatoInv==='function')? getPotatoInv():{token:0,popcorn:0};
+          var ok=!!window.NET_OK;
+          document.getElementById('mWho').textContent=name;
+          document.getElementById('mTok').textContent=inv.token||0;
+          document.getElementById('mPop').textContent=inv.popcorn||0;
           document.getElementById('mDot').classList.toggle('ok', ok);
-          document.getElementById('mNet').textContent = ok ? '온라인' : '오프라인';
+          document.getElementById('mNet').textContent=ok?'온라인':'오프라인';
         }catch(e){}
       }
-      syncHeader(); setInterval(syncHeader, 1000);
+      syncHeader(); setInterval(syncHeader, 800);
 
-      // Ensure gate stays in section 4 when toggled open/close
-      function ensureGateInFlow(){
-        var g = document.getElementById('gate');
-        if(g && g.parentNode !== s4){ s4.appendChild(g); }
+      // 4) Level character face inside gate (face-only preview)
+      function levelToTier(level){
+        if(typeof level!=='number'){ var g=(window.S&&S.g)||0; level = Math.floor(g/10)*5 + 1; }
+        var t=Math.floor(level/5)+1; if(t<1)t=1; if(t>10)t=10; return t;
       }
-      var btnGate = document.getElementById('btnGate'); if(btnGate){ btnGate.addEventListener('click', function(){ setTimeout(ensureGateInFlow, 0); }); }
-      try{
-        var g = document.getElementById('gate');
-        if(g){ new MutationObserver(ensureGateInFlow).observe(g, {attributes:true, attributeFilter:['class','style']}); }
-      }catch(e){}
+      function ensureGateFace(){
+        var card = document.querySelector('#mSec4 .gate .card') || document.querySelector('#gate .card');
+        if(!card || document.getElementById('gateFace')) return;
+        var box=document.createElement('div');
+        box.style.cssText='position:absolute;right:10px;top:42px;display:flex;flex-direction:column;align-items:center;gap:4px';
+        box.innerHTML='<img id="gateFace" src="'+(window.IMG?IMG('mark_01.png'):'img/mark_01.png')+'" alt="레벨 캐릭터" style="width:96px;height:96px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:#000;object-fit:cover">'
+                     +'<div id="gateLv" style="font-size:12px;font-weight:700;opacity:.95">1v</div>';
+        card.appendChild(box);
+      }
+      function updateGateFace(){
+        ensureGateFace();
+        var img=document.getElementById('gateFace'); var lv=document.getElementById('gateLv'); if(!img||!lv) return;
+        var vt=levelToTier(window.S && S.level);
+        img.src = (window.IMG? IMG('mark_'+String(vt).padStart(2,'0')+'.png') : 'img/mark_01.png');
+        lv.textContent = vt+'v';
+      }
+      setInterval(updateGateFace, 1200);
+
+      // 5) Keep mini dynamic even after DOM move (call original applyMini if available)
+      setInterval(function(){ if(window.applyMini) try{ applyMini(); }catch(e){} }, 1200);
+
+      // 6) Ensure gate is kept inside section 4 and displayed in-flow
+      function keepGateInFlow(){
+        var g=document.getElementById('gate'); if(g && g.parentNode!==s4) s4.appendChild(g);
+      }
+      var btnGate=document.getElementById('btnGate'); if(btnGate){ btnGate.addEventListener('click', function(){ setTimeout(keepGateInFlow,0); }); }
+      try{ var g=document.getElementById('gate'); if(g){ new MutationObserver(keepGateInFlow).observe(g,{attributes:true,attributeFilter:['class','style']}); } }catch(e){}
     });
 
 
