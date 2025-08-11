@@ -4,50 +4,67 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장 메인</title>
+  <!-- GitHub Pages 하위 경로 고정 -->
+  <base href="/OrcaX/">
   <style>
     html, body { height:100%; margin:0; background:#000; font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; overflow:hidden; }
     .wrap{ position:fixed; inset:0; background:url('img/farm_00.png') center/cover no-repeat; }
-    .scrollbox{ position:absolute; left:50%; top:55%; transform:translate(-50%,-50%); width:min(40vw,260px); height:min(60vh,460px);
-      border-radius:14px; background:transparent; border:1px solid rgba(255,255,255,.25); box-shadow:0 20px 40px rgba(0,0,0,.45);
-      overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; }
+    /* 내부 스크롤 박스 (바는 숨김) */
+    .scrollbox{ position:absolute; left:50%; top:55%; transform:translate(-50%,-50%);
+      width:min(40vw,260px); height:min(60vh,460px);
+      border-radius:14px; background:transparent; border:1px solid rgba(255,255,255,.25);
+      box-shadow:0 20px 40px rgba(0,0,0,.45); overflow-y:auto; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; -ms-overflow-style:none; }
     .scrollbox::-webkit-scrollbar{ display:none; }
     .spacer{ height:85vh; }
-    .link{ display:block; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.25); box-shadow:0 8px 24px rgba(0,0,0,.35); }
+    .link{ display:block; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.25); box-shadow:0 8px 24px rgba(0,0,0,.35); }
     .link img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .caption{ position:fixed; left:50%; bottom:20px; transform:translateX(-50%); color:#fff; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2); padding:8px 12px; border-radius:999px; font-size:14px; z-index:10; pointer-events:none; }
-    .hud{ position:fixed; left:12px; top:12px; z-index:20; color:#fff; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2); border-radius:14px; padding:10px 12px; backdrop-filter:blur(6px); max-width:min(92vw, 540px); }
+    .caption{ position:fixed; left:50%; bottom:20px; transform:translateX(-50%); color:#fff;
+      background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2); padding:8px 12px;
+      border-radius:999px; font-size:14px; z-index:10; pointer-events:none; }
+
+    /* HUD(서버 연결/자원) */
+    .hud{ position:fixed; left:12px; top:12px; z-index:20; color:#fff; background:rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.2); border-radius:14px; padding:10px 12px; backdrop-filter:blur(6px);
+      max-width:min(92vw, 560px); }
     .hud .nick{ font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
     .hud .nick .status{ width:8px; height:8px; border-radius:999px; background:#e23; }
     .hud .nick.online .status{ background:#3ecf8e; }
-    .hud .res{ display:flex; flex-wrap:wrap; gap:8px; }
-    .tag{ font-size:12px; line-height:1; padding:6px 8px; border-radius:999px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); }
-    .tag b{ font-weight:700; }
-    .tag.action{ cursor:pointer; }
-    .hud .actions{ margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
-    .btn{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.25); background:rgba(0,0,0,.35); color:#fff; cursor:pointer; }
     .diag{ font-size:11px; opacity:.8; margin-left:8px; }
+    .hud .res{ display:flex; flex-wrap:wrap; gap:8px; }
+    .tag{ font-size:12px; line-height:1; padding:6px 8px; border-radius:999px;
+      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); }
+    .tag b{ font-weight:700; }
+    .hud .actions{ margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
+    .btn{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.25);
+      background:rgba(0,0,0,.35); color:#fff; cursor:pointer; }
   </style>
 </head>
 <body>
   <div class="wrap" id="wrap">
-    <div class="hud" id="hud">
-      <div class="nick" id="hudNick"><span class="status"></span><span>(로그인 확인 중)</span><span class="diag" id="diag"></span></div>
+    <!-- HUD (닉네임/연결상태/자원표시) -->
+    <div class="hud">
+      <div class="nick" id="hudNick">
+        <span class="status"></span><span>(로그인 확인 중)</span>
+        <span class="diag" id="diag"></span>
+      </div>
       <div class="res">
         <span class="tag">💧 물 <b id="r-water">0</b></span>
         <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
         <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
         <span class="tag">🍿 팝콘 <b id="r-pop">0</b></span>
-        <span class="tag action" id="tag-salt">🧂 소금 <b id="r-salt">0</b></span>
-        <span class="tag action" id="tag-sugar">🍬 설탕 <b id="r-sugar">0</b></span>
+        <span class="tag">🧂 소금 <b id="r-salt">0</b></span>
+        <span class="tag">🍬 설탕 <b id="r-sugar">0</b></span>
         <span class="tag">🪙 토큰 <b id="r-orcx">0</b></span>
       </div>
       <div class="actions">
         <button class="btn" id="btnRefresh">새로고침</button>
         <button class="btn" id="btnGoFarm">감자 농장 가기</button>
-        <button class="btn" id="btnAdmin" style="display:none">관리자: 가격</button>
       </div>
     </div>
 
+    <!-- 겨울 이미지 내부 스크롤 -->
     <div class="scrollbox" aria-label="겨울 이미지 스크롤 영역">
       <div class="spacer"></div>
       <a class="link" href="corn-farm.html" title="내 옥수수 농장으로">
@@ -59,68 +76,87 @@
   </div>
 
   <script>
-    const BASE_API = localStorage.getItem('orcax:BASE_API') || 'https://<KIT-HOST>:3060';
-    const tokenKeys=['orcax:token','token','authToken','jwt']; const nickKeys=['orcax:nick','orcax:nickname','nickname','userNickname','kakaoNickname'];
-    const guess=(ks,d='')=>{for(const k of ks){const v=localStorage.getItem(k);if(v)return v;}return d;}
-    const authToken=guess(tokenKeys,''); const localNick=guess(nickKeys,'(로그인 필요)');
-    const hudRes={ water:document.getElementById('r-water'), fert:document.getElementById('r-fert'), corn:document.getElementById('r-corn'),
-      pop:document.getElementById('r-pop'), salt:document.getElementById('r-salt'), sugar:document.getElementById('r-sugar'), orcx:document.getElementById('r-orcx') };
-    const PRICE={salt:10,sugar:20,currency:'ORCX'};
-    const diag=(m)=>document.getElementById('diag').textContent=m;
-    function setNick(n,online){const el=document.getElementById('hudNick'); el.classList.toggle('online',!!online); el.innerHTML=`<span class="status"></span><span>${n}</span><span class="diag" id="diag"></span>`;}
-    function setRes(x){hudRes.water.textContent=x.water??0;hudRes.fert.textContent=x.fertilizer??0;hudRes.corn.textContent=x.corn??0;hudRes.pop.textContent=x.popcorn??0;hudRes.salt.textContent=x.salt??0;hudRes.sugar.textContent=x.sugar??0;hudRes.orcx.textContent=x.orcx??0;}
+    /* ========= 환경 ========= */
+    const BASE_API = localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '(로그인 필요)';
+    const kakaoId  = localStorage.getItem('kakaoId') || '';
 
-    async function fetchJSON(url,opt={}){const headers={'Content-Type':'application/json',...(opt.headers||{})}; const o={method:'GET',mode:'cors',...opt,headers}; const r=await fetch(url,o); if(!r.ok) throw new Error(`${r.status}`); return r.json();}
-    async function loadFromServer(){
+    /* ========= DOM ========= */
+    const diagEl = document.getElementById('diag');
+    const hudNick = document.getElementById('hudNick');
+    const resEl = {
+      water: document.getElementById('r-water'),
+      fert:  document.getElementById('r-fert'),
+      corn:  document.getElementById('r-corn'),
+      pop:   document.getElementById('r-pop'),
+      salt:  document.getElementById('r-salt'),
+      sugar: document.getElementById('r-sugar'),
+      orcx:  document.getElementById('r-orcx'),
+    };
+
+    function setNick(name, online){
+      hudNick.classList.toggle('online', !!online);
+      hudNick.innerHTML = '<span class="status"></span><span>'+ name +'</span><span class="diag" id="diag">'+ (diagEl?.textContent||'') +'</span>';
+    }
+    function setRes(x){
+      resEl.water.textContent = x.water ?? 0;
+      resEl.fert.textContent  = x.fertilizer ?? 0;
+      resEl.corn.textContent  = x.corn ?? 0;
+      resEl.pop.textContent   = x.popcorn ?? 0;
+      resEl.salt.textContent  = x.salt ?? 0;
+      resEl.sugar.textContent = x.sugar ?? 0;
+      resEl.orcx.textContent  = x.orcx ?? 0;
+    }
+
+    /* ========= 감자 방식 /api/userdata ========= */
+    async function fetchUser(){
+      if(!kakaoId) throw new Error('kakaoId 없음 (감자에서 로그인 필요)');
+      diagEl.textContent = ' API: '+BASE_API+' / kakaoId:'+kakaoId;
+      const r = await fetch(BASE_API + '/api/userdata', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ kakaoId })
+      });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    }
+
+    async function load(){
       try{
-        diag(`API:${BASE_API} / token:${authToken? '있음':'없음'}`);
-        await fetchJSON(`${BASE_API}/api/health`,{cache:'no-store'});
-        const me=await fetchJSON(`${BASE_API}/api/user/me`,{headers:authToken?{'Authorization':`Bearer ${authToken}`}:{}} );
-        const name=me.nickname||me.nick||localNick; setNick(name,true);
-        setRes({water:me.inventory?.water,fertilizer:me.inventory?.fertilizer,corn:me.agri?.corn,popcorn:me.food?.popcorn,salt:me.additives?.salt,sugar:me.additives?.sugar,orcx:me.wallet?.orcx});
-        if(me.role==='admin') document.getElementById('btnAdmin').style.display='inline-block';
+        const res = await fetchUser();
+        const u = (res && (res.user || res.data?.user)) || {};
+        setNick(nickname, true);
+        setRes({
+          water: u.inventory?.water,
+          fertilizer: u.inventory?.fertilizer,
+          corn: u.agri?.corn,                 // 있으면 표시
+          popcorn: u.food?.popcorn,
+          salt: u.additives?.salt,
+          sugar: u.additives?.sugar,
+          orcx: u.wallet?.orcx
+        });
       }catch(e){
-        setNick(localNick,false);
-        const gv=k=>Number(localStorage.getItem(k)||0);
-        setRes({water:gv('orcax:inv:water'),fertilizer:gv('orcax:inv:fertilizer'),corn:gv('orcax:agri:corn'),popcorn:gv('orcax:food:popcorn'),salt:gv('orcax:add:salt'),sugar:gv('orcax:add:sugar'),orcx:gv('orcax:wallet:orcx')});
+        setNick(nickname, false);
+        // 로컬 폴백(감자에서 쓰던 저장 키들)
+        const gv = k => Number(localStorage.getItem(k)||0);
+        setRes({
+          water: gv('orcax:inv:water'),
+          fertilizer: gv('orcax:inv:fertilizer'),
+          corn: gv('orcax:agri:corn'),
+          popcorn: gv('orcax:food:popcorn'),
+          salt: gv('orcax:add:salt'),
+          sugar: gv('orcax:add:sugar'),
+          orcx: gv('orcax:wallet:orcx')
+        });
       }
     }
 
-    // 소금/설탕 구매 팝업(간단)
-    function openShop(def){ const qty=prompt(`${def==='salt'?'소금':'설탕'} 수량(단가 ${def==='salt'?PRICE.salt:PRICE.sugar} 토큰)`, '1'); if(!qty) return;
-      const n=Math.max(1,Number(qty)); const need=(def==='salt'?PRICE.salt:PRICE.sugar)*n; const have=Number(hudRes.orcx.textContent||0);
-      if(have<need){ alert('토큰이 부족합니다.'); return; }
-      fetch(`${BASE_API}/api/corn/buy-additive`,{method:'POST',mode:'cors',headers:{'Content-Type':'application/json',...(authToken?{'Authorization':`Bearer ${authToken}`}:{})},body:JSON.stringify({item:def,qty:n})})
-        .then(r=>r.json().then(d=>({ok:r.ok,d}))).then(({ok,d})=>{
-          if(ok){
-            if(d.wallet?.orcx!=null) hudRes.orcx.textContent=d.wallet.orcx;
-            if(def==='salt') hudRes.salt.textContent = d.additives?.salt ?? (Number(hudRes.salt.textContent||0)+n);
-            else             hudRes.sugar.textContent= d.additives?.sugar?? (Number(hudRes.sugar.textContent||0)+n);
-          }else{
-            // 로컬 폴백
-            hudRes.orcx.textContent = String(have-need);
-            if(def==='salt') hudRes.salt.textContent = String(Number(hudRes.salt.textContent||0)+n);
-            else             hudRes.sugar.textContent = String(Number(hudRes.sugar.textContent||0)+n);
-          }
-        }).catch(()=>{
-          hudRes.orcx.textContent = String(have-need);
-          if(def==='salt') hudRes.salt.textContent = String(Number(hudRes.salt.textContent||0)+n);
-          else             hudRes.sugar.textContent = String(Number(hudRes.sugar.textContent||0)+n);
-        });
-    }
-    document.getElementById('tag-salt').addEventListener('click', ()=>openShop('salt'));
-    document.getElementById('tag-sugar').addEventListener('click', ()=>openShop('sugar'));
-
+    document.getElementById('btnRefresh').addEventListener('click', load);
     document.getElementById('btnGoFarm').addEventListener('click', ()=>location.href='https://byungil-cho.github.io/OrcaX/index9.html'));
-    document.getElementById('btnRefresh').addEventListener('click', loadFromServer);
-    document.getElementById('btnAdmin').addEventListener('click', async ()=>{
-      const ns=prompt(`소금 단가(현재 ${PRICE.salt})`, PRICE.salt); const nj=prompt(`설탕 단가(현재 ${PRICE.sugar})`, PRICE.sugar);
-      if(ns==null||nj==null) return; const salt=Math.max(0,Number(ns||PRICE.salt)); const sugar=Math.max(0,Number(nj||PRICE.sugar));
-      const r=await fetch(`${BASE_API}/api/corn/priceboard`,{method:'PATCH',headers:{'Content-Type':'application/json',...(authToken?{'Authorization':`Bearer ${authToken}`}:{})},body:JSON.stringify({salt,sugar})});
-      alert(r.ok?'가격 갱신 완료':'가격 갱신 실패');
-    });
 
-    loadFromServer();
+    // 첫 진입시 로딩
+    setNick('(로그인 확인 중)', false);
+    load();
   </script>
 </body>
 </html>
