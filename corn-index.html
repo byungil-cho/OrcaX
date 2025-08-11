@@ -6,8 +6,8 @@
   <title>옥수수 농장 메인</title>
   <style>
     html,body{height:100%;margin:0;background:#000;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;overflow:hidden}
-    /* 배경은 그대로 유지 */
-    .wrap{position:fixed;inset:0;background:url('img/farm_00.png') center/cover no-repeat;}
+    /* 배경은 그대로(절대경로) */
+    .wrap{position:fixed;inset:0;background:url('https://byungil-cho.github.io/OrcaX/img/farm_00.png') center/cover no-repeat;}
 
     /* 상단 HUD */
     .hud{position:fixed;left:12px;top:12px;z-index:20;color:#fff;background:rgba(0,0,0,.45);
@@ -35,7 +35,8 @@
     .caption{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,.45);
       border:1px solid rgba(255,255,255,.2);padding:8px 12px;border-radius:999px;font-size:14px;z-index:10;pointer-events:none}
   </style>
-  <link rel="manifest" href="manifest.webmanifest" />
+  <!-- 절대경로 manifest -->
+  <link rel="manifest" href="https://byungil-cho.github.io/OrcaX/manifest.webmanifest" />
 </head>
 <body>
   <div class="wrap">
@@ -46,7 +47,7 @@
         <span class="status"></span>
         <span id="nickText">(로그인 확인 중)</span>
         <span class="lvl" id="lvlWrap" style="display:none">
-          <img id="lvlIcon" src="img/mark_01.png" alt="레벨 아이콘" />
+          <img id="lvlIcon" src="https://byungil-cho.github.io/OrcaX/img/mark_01.png" alt="레벨 아이콘" />
           <span id="lvlText">Lv.1</span>
         </span>
       </div>
@@ -61,8 +62,8 @@
       </div>
       <div class="actions">
         <button class="btn" id="btnRefresh">새로고침</button>
-        <!-- 절대경로 고정 -->
-        <a class="btn" id="btnGoFarm" href="https://byungil-cho.github.io/OrcaX/index9.html">감자 농장 가기</a>
+        <!-- 감자농장: 절대경로 고정 -->
+        <a class="btn" href="https://byungil-cho.github.io/OrcaX/index9.html" target="_self" rel="noopener">감자 농장 가기</a>
         <span class="diag" id="diag">API 확인 중…</span>
       </div>
     </div>
@@ -70,8 +71,8 @@
     <!-- 썸네일 스크롤 (배경은 그대로, 썸네일만 계절에 맞게 바꿈) -->
     <div class="scrollbox" aria-label="농장 입구 썸네일">
       <div class="spacer"></div>
-      <a class="link" href="corn-farm.html" title="내 옥수수 농장으로">
-        <img id="farmThumb" src="img/farm_01.png" alt="계절 썸네일" />
+      <a class="link" href="https://byungil-cho.github.io/OrcaX/corn-farm.html" title="내 옥수수 농장으로">
+        <img id="farmThumb" src="https://byungil-cho.github.io/OrcaX/img/farm_01.png" alt="계절 썸네일" />
       </a>
       <div class="spacer"></div>
     </div>
@@ -80,9 +81,9 @@
   </div>
 
   <script>
-    /* ================== 서버 설정 (감자 방식 그대로) ================== */
-    // gamja-farm.html과 같은 주소 사용. 필요하면 아래 한 줄로 지정하고 새로고침.
-    // localStorage.setItem('orcax:BASE_API','https://<HTTPS-API>:3060')
+    /* ================== 절대경로 상수 ================== */
+    const ORIGIN = 'https://byungil-cho.github.io/OrcaX';
+    // 감자 방식대로 절대 URL로 고정. 필요시 localStorage('orcax:BASE_API')로 덮어쓰기 가능.
     const BASE_API = localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io';
 
     const diagEl   = document.getElementById('diag');
@@ -114,9 +115,9 @@
       resEl.orcx .textContent = x.orcx ?? 0;
     }
     function markPathByLevel(lv){
-      if(lv >= 10) return 'img/mark_10.png';
+      if(lv >= 10) return `${ORIGIN}/img/mark_10.png`;
       const n = Math.max(1, Math.min(9, Math.floor(lv||1)));
-      return `img/mark_0${n}.png`;
+      return `${ORIGIN}/img/mark_0${n}.png`;
     }
     function showLevel(lv){
       if(!lv || lv<1){ lvlWrap.style.display='none'; return; }
@@ -125,23 +126,27 @@
       lvlWrap.style.display = 'inline-flex';
     }
 
-    // 시즌 썸네일(선택)
+    // 시즌 썸네일(절대경로)
     const THUMBS = {
-      winter:'img/farm_01.png', lateWinter:'img/farm_03.png', spring:'img/farm_05.png',
-      summer:'img/farm_07.png', lateSummer:'img/farm_09.png', autumn:'img/farm_10.png', deepWinter:'img/farm_12.png'
+      winter:     `${ORIGIN}/img/farm_01.png`,
+      lateWinter: `${ORIGIN}/img/farm_03.png`,
+      spring:     `${ORIGIN}/img/farm_05.png`,
+      summer:     `${ORIGIN}/img/farm_07.png`,
+      lateSummer: `${ORIGIN}/img/farm_09.png`,
+      autumn:     `${ORIGIN}/img/farm_10.png`,
+      deepWinter: `${ORIGIN}/img/farm_12.png`
     };
     function setThumbBySeasonKey(key){ if(THUMBS[key]) thumbEl.src = THUMBS[key]; }
-    // corn-farm에서 저장해둘 수 있음
-    const seasonKey = localStorage.getItem('farmSeason');
-    if(seasonKey) setThumbBySeasonKey(seasonKey);
+    const seasonKey = localStorage.getItem('farmSeason'); if(seasonKey) setThumbBySeasonKey(seasonKey);
 
-    /* =============== 감자 방식 그대로: /api/userdata POST =============== */
+    /* =============== 감자 방식 그대로: /api/userdata POST(절대 URL) =============== */
     async function loadUserData() {
       const kakaoId  = localStorage.getItem("kakaoId");
       const nickname = localStorage.getItem("nickname") || localStorage.getItem("kakaoNickname");
       setNick(nickname);
 
-      diagEl.textContent = `API: ${BASE_API} / /api/userdata 호출 중…`;
+      const url = `${BASE_API}/api/userdata`;
+      diagEl.textContent = `POST ${url}`;
 
       if (!kakaoId || !nickname) {
         setOnline(false);
@@ -152,8 +157,7 @@
       }
 
       try {
-        // gamja-farm.html 과 동일: 단순 POST(JSON)
-        const r = await fetch(`${BASE_API}/api/userdata`, {
+        const r = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ kakaoId })
@@ -192,7 +196,6 @@
 
       } catch (err) {
         setOnline(false);
-        // 여기선 오프라인 폴백 없이 바로 알림
         alert("서버 연결 실패 또는 CORS 문제입니다. 콘솔(Network)에서 /api/userdata 상태를 확인하세요.");
         console.warn('userdata error:', err);
       }
@@ -201,9 +204,9 @@
     window.onload = loadUserData;
     document.getElementById('btnRefresh').addEventListener('click', loadUserData);
 
-    // 서비스워커(정적 캐시)
+    // 서비스워커(절대경로) — 정적만 캐시
     if('serviceWorker' in navigator){
-      window.addEventListener('load', ()=>navigator.serviceWorker.register('service-worker.js'));
+      window.addEventListener('load', ()=>navigator.serviceWorker.register('https://byungil-cho.github.io/OrcaX/service-worker.js'));
     }
   </script>
 </body>
