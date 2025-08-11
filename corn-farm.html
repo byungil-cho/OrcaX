@@ -66,6 +66,9 @@
     .gate-preview .cap{font-size:12px;opacity:.9}
     .gate-preview .lv{font-size:12px;font-weight:700;opacity:.95}
     .gate-preview .mark{width:28px;height:auto;display:block;margin-top:2px;opacity:.95}
+.gate-preview.only-face .cap{display:none}
+.gate-preview.only-face .mark{display:none}
+
 
   </style>
 </head>
@@ -295,197 +298,11 @@
     /* ====== 성장 로직 ====== */
     const RATE_GROW=+1.0, RATE_WARN=-1.0, RATE_DANGER=-2.0;
     function tick(){
-      if(S.phase!=='GROW'){ renderAll(); return; }
-      const wPct=resPct(S.w), fPct=resPct(S.f);
-      let d=RATE_GROW; if(wPct<50 && fPct<50) d=RATE_DANGER; else if(wPct<50 || fPct<50) d=RATE_WARN;
-      S.g=Math.max(0,Math.min(100,S.g+d)); save(); renderAll();
-    }
-
-    async function plant(){
-      if(S.phase==='GROW') return;
-      if(S.seed<1){ if(confirm('씨앗이 없습니다. 구매하시겠어요?')) openShop('seed'); return; }
-      if(NET_OK){
-        try{
-          const data = await j('/api/corn/plant', { kakaoId });
-          if(Number.isFinite(data?.seeds)) S.seed = data.seeds; else S.seed = Math.max(0,S.seed-1);
-          S.g=0; S.phase='GROW'; save(); renderAll(); toast('씨앗을 심었습니다'); return;
-        }catch(e){}
-      }
-      S.seed = Math.max(0,S.seed-1); S.g=0; S.phase='GROW'; save(); renderAll(); toast('씨앗을 심었습니다(로컬)');
-    }
-
-    async function harvest(){
-      if(!(S.phase==='GROW' && S.g>=100)) return;
-      if(NET_OK){
-        try{
-          const data = await j('/api/corn/harvest', { kakaoId });
-          S.c = (data.agri?.corn!=null) ? data.agri.corn : (S.c + (data.gain||0));
-          S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(`수확 완료 (서버)`); return;
-        }catch(e){}
-      }
-      S.c += 5 + Math.floor(Math.random()*3); S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast('수확 완료(로컬)');
-    }
-
-    // *** 핵심: 물/거름은 서버에 먼저 차감, 성공 시 재조회
-    async function give(kind){
-      const field = kind==='w' ? 'water' : 'fertilizer';
-      const have  = kind==='w' ? S.w : S.f;
-      if(have<=0) return;
-
-      try{
-        const data = await j('/api/user/inventory/use', { kakaoId, type: field, amount: 1 });
-        if (typeof data?.inventory?.water === 'number') S.w = data.inventory.water;
-        if (typeof data?.inventory?.fertilizer === 'number') S.f = data.inventory.fertilizer;
-
-        // 로컬 저장소도 동기화
-        const inv = getPotatoInv();
-        inv.water = S.w; inv.fertilizer = S.f; setPotatoInv(inv);
-
-        S.g = Math.min(100, S.g + 5);
-        save(); renderAll();
-
-        // 확정 재조회
-        await loadFromServer();
-        toast(`서버 차감 완료: ${field==='water'?'물':'거름'} -1`);
-      }catch(e){
-        if (NET_OK) {
-          toast('서버 차감 실패: /api/user/inventory/use 확인 필요');
-          console.warn('inventory/use error:', e);
-          return;
-        }
-        // 완전 오프라인일 때만 임시 폴백
-        if(kind==='w') S.w--; else S.f--;
-        const inv = getPotatoInv(); inv.water=S.w; inv.fertilizer=S.f; setPotatoInv(inv);
-        S.g = Math.min(100, S.g + 5);
-        save(); renderAll();
-        toast('오프라인 임시 차감');
-      }
-    }
-
-    const POP_RATE=0.6, TOKEN_DROP=[1,2,3,5], POP_DROP=[1,2];
-    const rndPick = a => a[Math.floor(Math.random()*a.length)];
-    async function popCorn(){
-      if(S.c<1){ alert('옥수수가 없습니다.'); return; }
-      const need=S.sel, other=need==='salt'?'sugar':'salt';
-      if(S[need]<1){
-        if(S[other]>=1){ S.sel=other; renderRes(); alert('선택한 첨가물이 없어 다른 첨가물을 사용합니다.'); }
-        else{ if(confirm('첨가물이 없습니다. 감자 농장으로 이동할까요?')) location.href='https://byungil-cho.github.io/OrcaX/index9.html'; return; }
-      }
-      if(NET_OK){
-        try{
-          const data = await j('/api/corn/pop', { kakaoId, use:S.sel });
-          const inv=getPotatoInv();
-          S.c = (data.agri?.corn!=null) ? data.agri.corn : Math.max(0,S.c-1);
-          if(data.additives){ S.salt=data.additives.salt ?? S.salt; S.sugar=data.additives.sugar ?? S.sugar; inv.salt=S.salt; inv.sugar=S.sugar; }
-          if(data.result==='popcorn'){ inv.popcorn = data.food?.popcorn ?? (inv.popcorn + (data.qty||0)); toast(`🍿 팝콘 +${data.qty||'?'} (서버)`); }
-          else if(data.result==='token'){ inv.token = data.wallet?.orcx ?? (inv.token + (data.qty||0)); toast(`🪙 토큰 +${data.qty||'?'} (서버)`); }
-          setPotatoInv(inv); save(); renderAll(); return;
-        }catch(e){}
-      }
-      // 로컬
-      const inv=getPotatoInv();
-      S.c -= 1; S[need] -= 1;
-      if(Math.random()<POP_RATE){ const amt=rndPick(POP_DROP); inv.popcorn+=amt; toast(`🍿 팝콘 +${amt}`); }
-      else{ const amt=rndPick(TOKEN_DROP); inv.token+=amt; toast(`🪙 토큰 +${amt}`); }
-      inv[need]=Math.max(0,(inv[need]||0)-1);
-      setPotatoInv(inv); save(); renderAll();
-    }
-
-    function syncFromPotato(){
-      const inv=getPotatoInv();
-      S.w=inv.water??S.w; S.f=inv.fertilizer??S.f; S.salt=inv.salt??S.salt; S.sugar=inv.sugar??S.sugar; S.seed=inv.seed??S.seed;
-      save(); renderAll(); toast('감자 저장소와 동기화 완료');
-    }
-
-    /* ====== 구매 팝업 ====== */
-    const shop = { el:$('shop'), item:$('shopItem'), qty:$('shopQty'), pricePer:$('shopPricePer'), total:$('shopTotal'), orcx:$('shopOrcx'), btn:$('shopBuyBtn') };
-    function openShop(def){ shop.el.style.display='flex'; if(def) shop.item.value=def; const inv=getPotatoInv(); shop.orcx.textContent=inv.token; shop.qty.value=1; updateShopCalc(); shop.btn.disabled=false; }
-    function closeShop(){ shop.el.style.display='none'; }
-    function unitPrice(kind){ return (kind==='seed')?PRICE.seed:(kind==='salt')?PRICE.salt:PRICE.sugar; }
-    function updateShopCalc(){ const p=unitPrice(shop.item.value); const q=Math.max(1,Number(shop.qty.value||1)); shop.pricePer.textContent=p; shop.total.textContent=p*q; }
-    $('shopItem').addEventListener('change', updateShopCalc);
-    $('shopQty').addEventListener('input', ()=>{ shop.qty.value=Math.max(1,Math.floor(Number(shop.qty.value||1))); updateShopCalc(); });
-
-    async function confirmBuy(){
-      const item = shop.item.value, qty=Math.max(1,Number(shop.qty.value||1));
-      const unit=unitPrice(item), need=unit*qty;
-      const inv = getPotatoInv();
-      if(inv.token < need){ alert('토큰이 부족합니다.'); return; }
-      shop.btn.disabled=true;
-
-      if(NET_OK){
-        try{
-          const data = await j('/api/corn/buy-additive', { kakaoId, item, qty });
-          if(data.wallet?.orcx!=null) inv.token = data.wallet.orcx;
-          if(item==='seed'){
-            inv.seed = data.seeds ?? (inv.seed + qty);
-            S.seed = inv.seed;
-          }else{
-            if(data.additives){ inv.salt=data.additives.salt ?? inv.salt; inv.sugar=data.additives.sugar ?? inv.sugar; }
-            S.salt=inv.salt; S.sugar=inv.sugar;
-          }
-          setPotatoInv(inv); save(); renderAll(); closeShop(); toast('구매 완료'); return;
-        }catch(e){}
-      }
-      // 로컬 폴백
-      inv[item] = (inv[item]||0) + qty; inv.token -= need;
-      setPotatoInv(inv);
-      if(item==='seed') S.seed=inv.seed; else if(item==='salt') S.salt=inv.salt; else S.sugar=inv.sugar;
-      save(); renderAll(); closeShop(); toast('구매 완료(로컬)');
-    }
-
-    /* ====== UI 바인딩 ====== */
-    $('btnW').onclick=()=>give('w'); $('btnF').onclick=()=>give('f'); $('tick').onclick=tick; $('harv').onclick=harvest; $('plant').onclick=plant; $('pop').onclick=popCorn;
-    $('pickSalt').onclick=()=>{ if(S.sel==='salt') openShop('salt'); else { S.sel='salt'; renderRes(); save(); } };
-    $('pickSugar').onclick=()=>{ if(S.sel==='sugar') openShop('sugar'); else { S.sel='sugar'; renderRes(); save(); } };
-    $('syncPotato').onclick=syncFromPotato; $('buySeed').onclick=()=>openShop('seed');
-
-    const $btnGate=$('btnGate'), $gate=$('gate'), $gateBackdrop=$('gateBackdrop'), $closeGate=$('closeGate');
-    function openGate(){ $gate.classList.add('open'); $gateBackdrop.classList.add('show'); $btnGate.setAttribute('aria-expanded','true'); }
-    function closeGate(){ $gate.classList.remove('open'); $gateBackdrop.classList.remove('show'); $btnGate.setAttribute('aria-expanded','false'); }
-    $btnGate.onclick=()=>($gate.classList.contains('open')?closeGate():openGate());
-    $closeGate.onclick=closeGate; $gateBackdrop.onclick=closeGate; window.addEventListener('keydown',e=>{ if(e.key==='Escape') closeGate(); });
-
-    document.getElementById('navBack').addEventListener('click', (e)=>{ e.preventDefault(); history.back(); });
-
-    function toast(msg){ $toast.textContent=msg; $toast.classList.add('show'); setTimeout(()=>{$toast.classList.remove('show')},1400); }
-
-    
-    /* ====== add-only: gate preview, level mark, and popcorn→fertilizer exchange ====== */
-    (function AddOns(){
-      /* Gate Preview: DOM append (no source HTML edits) */
-      function ensureGatePreview(){
-        var card = document.querySelector('#gate .card');
-        if(!card || document.getElementById('gatePreview')) return;
-        var box = document.createElement('div');
-        box.className = 'gate-preview';
-        box.innerHTML = '<img id="gatePreview" src="'+IMG('corn_06_02.png')+'" alt="미리보기">'+
-                        '<div id="gatePreviewCap" class="cap">휴경지</div>'+
-                        '<div id="gateLv" class="lv">1v</div>'+
-                        '<img id="gateMark" class="mark" src="'+IMG('mark_01.png')+'" alt="레벨 마크">';
-        card.appendChild(box);
-      }
-      function levelToTier(level){
-        var lv = (typeof level==='number')? level : 1;
-        var t = Math.floor(lv/5)+1; if(t<1) t=1; if(t>10) t=10; return t;
-      }
-      function applyGatePreview(){
-        ensureGatePreview();
-        var img=document.getElementById('gatePreview');
-        var cap=document.getElementById('gatePreviewCap');
-        var lvEl=document.getElementById('gateLv');
-        var mk=document.getElementById('gateMark');
-        if(!img||!cap) return;
-        if(S.phase!=='GROW'){
-          img.src = IMG('corn_06_02.png');
-          cap.textContent = (S.phase==='STUBBLE')?'수확 완료(휴경지)':'씨앗 필요';
-        }else{
-          var row = (MINI_BY_GAUGE.find(function(r){ return S.g<=r.max; }) || MINI_BY_GAUGE[MINI_BY_GAUGE.length-1]);
-          img.src = IMG(row.file);
-          cap.textContent = row.cap;
-        }
+      /* always show level character face; ignore growth stage image */
         var vtier = levelToTier(S.level||1);
-        if(lvEl) lvEl.textContent = vtier + 'v';
+        img.src = IMG('mark_'+String(vtier).padStart(2,'0')+'.png');
+        cap.textContent = '';
+        if(lvEl) lvEl.textContent = (levelToTier(S.level||1)) + 'v';
         if(mk) mk.src = IMG('mark_'+String(vtier).padStart(2,'0')+'.png');
       }
       // Update preview periodically (no changes to renderAll)
