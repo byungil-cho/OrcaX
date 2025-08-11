@@ -4,37 +4,31 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장</title>
-  <!-- GitHub Pages 하위 경로 기준 고정 -->
   <base href="/OrcaX/">
   <meta name="theme-color" content="#000000" />
   <style>
     :root{--ink:#eef6ee;--panel:rgba(0,0,0,.45);--bd:rgba(255,255,255,.16);--ok:#25d366;--accent:#8ed36b}
-    /* 배경을 body에 직접 적용 (검은 화면 방지) */
     html,body{
       height:100%; margin:0; color:var(--ink);
       background:#000 center/cover no-repeat fixed;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif
     }
     #bg{display:none}
-
     .glass{backdrop-filter:saturate(1.05) blur(6px);background:var(--panel);border:1px solid var(--bd);border-radius:14px}
     .top{position:fixed;left:12px;right:12px;top:12px;display:flex;gap:10px;align-items:center;padding:10px 12px;z-index:3}
     .title{margin:0;font-size:16px}
     .status{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px}
     .dot{width:10px;height:10px;border-radius:999px;background:#ef4444}.dot.ok{background:var(--ok)}
     .diag{font-size:11px;opacity:.8}
-
     .bank{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:4;display:flex;gap:8px}
     .pill{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.55);font-size:13px}
     .pill .cnt{font-variant-numeric:tabular-nums}
-
     .hud-left,.hud-right{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));z-index:2}
     .hud-left{left:12px;display:flex;gap:10px;align-items:flex-end}
     .hud-right{right:12px;min-width:min(300px,92vw)}
     .gauge{width:110px;height:110px;border-radius:999px;display:grid;place-items:center;color:#fff;position:relative}
     .gauge .v{font-weight:700;font-variant-numeric:tabular-nums;font-size:22px}
     .gauge .s{position:absolute;bottom:8px;font-size:12px;opacity:.9}
-
     .panel{padding:10px}
     .row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0}
     .row-col{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
@@ -43,12 +37,10 @@
     .count{font-variant-numeric:tabular-nums}
     .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.5);color:#fff;font-size:12px;cursor:pointer}
     .chip.sel{outline:2px solid rgba(255,255,255,.35)}
-
-    .mini-wrap{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));display:grid;grid-template-columns:auto auto auto;gap:10px;align-items:center;z-index:2}
+    .mini-wrap{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));display:grid;grid-template-columns:auto auto auto auto;gap:10px;align-items:center;z-index:2}
     .nav{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;text-decoration:none;color:#fff;border:1px solid var(--bd);background:var(--panel)}
     .mini{width:140px;aspect-ratio:1/1;border-radius:12px;border:1px solid var(--bd);object-fit:cover;background:#000}
-    .mini-cap{grid-column:1/span 3;text-align:center;font-size:12px;opacity:.9;margin-top:4px}
-
+    .mini-cap{grid-column:1/span 4;text-align:center;font-size:12px;opacity:.9;margin-top:4px}
     .gate-dock{display:flex;flex-direction:column;gap:6px;align-items:flex-start;margin-right:6px}
     .chip-thin{padding:3px 8px;font-size:12px}
     .gate{position:fixed;left:12px;bottom:calc(160px + env(safe-area-inset-bottom));z-index:10;display:none}
@@ -67,10 +59,8 @@
     .legend .tag{border:1px solid var(--bd);border-radius:999px;padding:3px 6px;background:rgba(0,0,0,.35)}
     .backdrop{position:fixed;inset:0;z-index:9;display:none;background:transparent}
     .backdrop.show{display:block}
-
     .toast{position:fixed;left:50%;transform:translateX(-50%);top:58px;z-index:5;background:rgba(0,0,0,.65);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;display:none}
     .toast.show{display:block}
-
     #shop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50}
     #shop .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45)}
     #shop .panel{position:relative;min-width:280px;max-width:92vw;background:rgba(20,20,20,.95);
@@ -78,8 +68,6 @@
   </style>
 </head>
 <body>
-  <div id="bg" aria-hidden="true"></div>
-
   <header class="top glass">
     <h1 class="title" id="title">(농장이름 미설정) – 옥수수 농장</h1>
     <div class="status">
@@ -132,6 +120,7 @@
   </aside>
 
   <div class="mini-wrap">
+    <a class="nav" href="#" id="navBack" title="이전">⬅️</a>
     <a class="nav" title="메인으로" href="corn-index.html">🏠</a>
     <img id="mini" class="mini" alt="작물 상태" />
     <a class="nav" title="감자 농장" href="https://byungil-cho.github.io/OrcaX/index9.html">🥔</a>
@@ -181,16 +170,13 @@
   </div>
 
   <script>
-    /* ====== 환경 & 인증 ====== */
-    const BASE_API = localStorage.getItem('orcax:BASE_API') || 'https://<KIT-HOST>:3060'; // ← 실제 3060 HTTPS로 교체
-    const tokenKeys = ['orcax:token','token','authToken','jwt'];
-    const nickKeys  = ['orcax:nick','orcax:nickname','nickname','userNickname','kakaoNickname'];
-    const guess = (keys,d='')=>{ for(const k of keys){ const v=localStorage.getItem(k); if(v) return v; } return d; };
-    const authToken = guess(tokenKeys,'');
-    const localNick = guess(nickKeys,'(로그인 필요)');
+    /* ====== 환경 ====== */
+    const BASE_API = localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '(로그인 필요)';
+    const kakaoId  = localStorage.getItem('kakaoId') || '';
 
-    /* ====== 이미지 (모두 img/파일명) ====== */
-    const IMG = name => `img/${name}`;
+    /* ====== 이미지 맵 (모두 img/파일명) ====== */
+    const IMG = f => `img/${f}`;
     const BG_BY_GAUGE = [
       {max:29,  file:'farm_05.png', label:'이른 봄(해빙)'},
       {max:59,  file:'farm_07.png', label:'봄 · 초록'},
@@ -207,7 +193,7 @@
       {max:100,file:'corn_01_01.png',cap:'수확 직전'}
     ];
 
-    /* ====== 상태 ====== */
+    /* ====== DOM & 상태 ====== */
     const $ = id=>document.getElementById(id);
     const $gVal=$('gVal'), $gState=$('gState'), $harv=$('harv'), $tick=$('tick');
     const $w=$('w'), $f=$('f'), $c=$('c');
@@ -225,13 +211,12 @@
         JSON.parse(localStorage.getItem('corn_state')||'{}'));
     }catch(e){return {g:70,w:3,f:3,c:0,phase:'GROW',salt:0,sugar:0,sel:'salt'}}})();
     const resPct = x => Math.max(0, Math.min(100, x*20));
-
     function getPotatoInv(){let inv={water:0,fertilizer:0,salt:0,sugar:0,token:0,popcorn:0};try{inv=Object.assign(inv, JSON.parse(localStorage.getItem('potato_inv')||'{}'));}catch(e){};for(const k of Object.keys(inv)){if(typeof inv[k]!=='number') inv[k]=0;}return inv;}
     function setPotatoInv(inv){try{localStorage.setItem('potato_inv', JSON.stringify(inv));}catch(e){}}
     function save(){try{localStorage.setItem('corn_state', JSON.stringify(S));}catch(e){}}
 
     /* ====== 렌더 ====== */
-    function setNet(ok, text){ NET_OK=!!ok; $netDot.classList.toggle('ok', ok); $netTxt.textContent = text || (ok?'온라인':'오프라인/연결 실패'); }
+    function setNet(ok, text){ NET_OK=!!ok; $netDot.classList.toggle('ok', ok); $netTxt.textContent = text || (ok?'온라인':'오프라인'); }
     function applyBG(){ const row = BG_BY_GAUGE.find(r=>S.g<=r.max) || BG_BY_GAUGE.at(-1); document.body.style.backgroundImage = `url('${IMG(row.file)}')`; $gState.textContent = row.label.toUpperCase(); }
     function applyMini(){ const row = MINI_BY_GAUGE.find(r=>S.g<=r.max) || MINI_BY_GAUGE.at(-1); $mini.src = IMG(row.file); $mini.alt = row.cap; $miniCap.textContent = `${row.cap} · Lv.1`; }
     function renderGate(){ $fillW.style.height=resPct(S.w)+'%'; $fillF.style.height=resPct(S.f)+'%'; $fillG.style.height=Math.max(0,Math.min(100,S.g))+'%'; }
@@ -243,60 +228,58 @@
     }
     function renderBank(){ const inv=getPotatoInv(); $bankToken.textContent=inv.token; $bankPop.textContent=inv.popcorn; }
     function renderAll(){
+      $title.textContent = `${nickname} – 옥수수 농장`;
       $gVal.textContent=S.g.toFixed(0);
       $('gauge').style.background=`conic-gradient(var(--accent) ${Math.max(0,Math.min(100,S.g))}%, rgba(255,255,255,.15) 0)`;
       applyBG(); applyMini(); renderGate(); renderRes(); renderBank();
     }
 
-    /* ====== 서버 (Bearer or Cookie) ====== */
-    function reqOpts(method='GET', body){
-      const headers = {'Content-Type':'application/json'};
-      if(authToken) headers['Authorization'] = `Bearer ${authToken}`;
-      return {
-        method, mode:'cors', credentials:'include', // 쿠키 허용
-        headers, ...(body?{body:JSON.stringify(body)}:{})
-      };
+    /* ====== 서버 호출 헬퍼 ====== */
+    async function j(path, body={}, method='POST'){
+      const r = await fetch(`${BASE_API}${path}`, {
+        method, headers:{'Content-Type':'application/json'},
+        body: method==='GET'?undefined:JSON.stringify(body)
+      });
+      const d = await r.json().catch(()=> ({}));
+      if(!r.ok) throw d;
+      return d;
     }
-    async function j(url, opt){ const r = await fetch(url, opt); const d = await r.json().catch(()=>({})); if(!r.ok) throw d; return d; }
 
+    /* ====== 초기 로드: 감자 방식 /api/userdata ====== */
     async function loadFromServer(){
       try{
-        $diag.textContent = `API:${BASE_API} / token:${authToken? '있음':'없음'} / cookie:include`;
-        await j(`${BASE_API}/api/health`, reqOpts('GET'));
+        if(!kakaoId) throw new Error('kakaoId 없음');
+        $diag.textContent = `API:${BASE_API} / kakaoId:${kakaoId}`;
+        const res = await j('/api/userdata', { kakaoId });
+        const u = (res && (res.user || res.data?.user)) || {};
         setNet(true,'온라인');
 
-        const me = await j(`${BASE_API}/api/user/me`, reqOpts('GET'));
-        const nick = me.nickname || me.nick || localNick;
-        $title.textContent = `${nick} – 옥수수 농장`;
-
+        // 지갑/인벤토리/식품/첨가물 매핑
         const inv = getPotatoInv();
-        inv.token   = me.wallet?.orcx ?? inv.token;
-        inv.popcorn = me.food?.popcorn ?? inv.popcorn;
-        inv.salt    = me.additives?.salt ?? inv.salt;
-        inv.sugar   = me.additives?.sugar ?? inv.sugar;
+        inv.token    = (u.wallet && u.wallet.orcx) ?? u.orcx ?? inv.token;
+        inv.popcorn  = (u.food && u.food.popcorn) ?? inv.popcorn;
+        inv.salt     = (u.additives && u.additives.salt) ?? inv.salt;
+        inv.sugar    = (u.additives && u.additives.sugar) ?? inv.sugar;
         setPotatoInv(inv);
 
-        S.w = me.inventory?.water ?? S.w;
-        S.f = me.inventory?.fertilizer ?? S.f;
-        S.c = me.agri?.corn ?? S.c;
-        S.salt=inv.salt; S.sugar=inv.sugar;
-
+        S.w = (u.inventory && u.inventory.water) ?? S.w;
+        S.f = (u.inventory && u.inventory.fertilizer) ?? S.f;
+        S.c = (u.agri && u.agri.corn) ?? S.c;
+        S.salt = inv.salt; S.sugar = inv.sugar;
         save(); renderAll();
+
+        // 가격표 로드
+        try{
+          const pb = await j('/api/corn/priceboard', {}, 'GET');
+          if(pb?.salt!=null)  PRICE.salt  = pb.salt;
+          if(pb?.sugar!=null) PRICE.sugar = pb.sugar;
+          if(pb?.currency)    PRICE.currency = pb.currency;
+          updateShopCalc();
+        }catch(e){}
       }catch(e){
         setNet(false,'오프라인/연결 실패');
-        $title.textContent = `${localNick} – 옥수수 농장`;
         renderAll();
       }
-    }
-
-    async function loadPriceBoard(){
-      if(!NET_OK) return;
-      try{
-        const pb = await j(`${BASE_API}/api/corn/priceboard`, reqOpts('GET'));
-        if(pb?.salt!=null)  PRICE.salt  = pb.salt;
-        if(pb?.sugar!=null) PRICE.sugar = pb.sugar;
-        updateShopCalc();
-      }catch(e){}
     }
 
     /* ====== 게임 로직 ====== */
@@ -311,15 +294,14 @@
       save(); renderAll();
     }
 
+    /* ====== 수확/뻥튀기(서버 우선, 실패시 로컬) ====== */
     async function harvest(){
       if(S.g<100) return;
       if(NET_OK){
         try{
-          const data = await j(`${BASE_API}/api/corn/harvest`, reqOpts('POST'));
+          const data = await j('/api/corn/harvest', { kakaoId });
           const inv=getPotatoInv();
           S.c = (data.agri?.corn!=null) ? data.agri.corn : (S.c + (data.gain||0));
-          inv.popcorn = data.food?.popcorn ?? inv.popcorn;
-          inv.token   = data.wallet?.orcx   ?? inv.token;
           setPotatoInv(inv);
           S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(`수확 성공: +${data.gain||'?'} (서버)`); return;
         }catch(e){ /* 폴백 */ }
@@ -330,7 +312,6 @@
 
     const POP_RATE=0.6, TOKEN_DROP=[1,2,3,5], POP_DROP=[1,2];
     const rndPick = a => a[Math.floor(Math.random()*a.length)];
-
     async function popCorn(){
       if(S.c<1){ alert('옥수수가 없습니다.'); return; }
       const need=S.sel, other=need==='salt'?'sugar':'salt';
@@ -338,20 +319,17 @@
         if(S[other]>=1){ S.sel=other; renderRes(); alert('선택한 첨가물이 없어 다른 첨가물을 사용합니다.'); }
         else{ if(confirm('첨가물이 없습니다. 감자 농장으로 이동할까요?')) location.href='https://byungil-cho.github.io/OrcaX/index9.html'; return; }
       }
-
       if(NET_OK){
         try{
-          const data = await j(`${BASE_API}/api/corn/pop`, reqOpts('POST'));
+          const data = await j('/api/corn/pop', { kakaoId, use:S.sel });
           const inv=getPotatoInv();
           S.c = (data.agri?.corn!=null) ? data.agri.corn : Math.max(0,S.c-1);
           if(data.additives){ S.salt=data.additives.salt ?? S.salt; S.sugar=data.additives.sugar ?? S.sugar; inv.salt=S.salt; inv.sugar=S.sugar; }
-          else { S[need]--; inv[need]=Math.max(0,(inv[need]||0)-1); }
           if(data.result==='popcorn'){ inv.popcorn = data.food?.popcorn ?? (inv.popcorn + (data.qty||0)); toast(`🍿 팝콘 +${data.qty||'?'} (서버)`); }
           else if(data.result==='token'){ inv.token = data.wallet?.orcx ?? (inv.token + (data.qty||0)); toast(`🪙 토큰 +${data.qty||'?'} (서버)`); }
           setPotatoInv(inv); save(); renderAll(); return;
         }catch(e){ /* 폴백 */ }
       }
-
       // 로컬 폴백
       const inv=getPotatoInv();
       S.c -= 1; S[need] -= 1;
@@ -368,7 +346,7 @@
       save(); renderAll(); toast('감자 저장소와 동기화 완료');
     }
 
-    /* ====== 구매 팝업 ====== */
+    /* ====== 구매 팝업 (서버 우선, 실패시 로컬) ====== */
     const shop = { el:$('shop'), item:$('shopItem'), qty:$('shopQty'),
       pricePer:$('shopPricePer'), total:$('shopTotal'), orcx:$('shopOrcx'), btn:$('shopBuyBtn') };
     function openShop(def){ shop.el.style.display='flex'; if(def) shop.item.value=def; const inv=getPotatoInv(); shop.orcx.textContent=inv.token; shop.qty.value=1; updateShopCalc(); shop.btn.disabled=false; }
@@ -386,23 +364,20 @@
 
       if(NET_OK){
         try{
-          const data = await j(`${BASE_API}/api/corn/buy-additive`, reqOpts('POST', {item, qty}));
+          const data = await j('/api/corn/buy-additive', { kakaoId, item, qty });
           if(data.wallet?.orcx!=null) inv.token = data.wallet.orcx;
           if(data.additives){ inv.salt=data.additives.salt ?? inv.salt; inv.sugar=data.additives.sugar ?? inv.sugar; }
-          else{ inv[item]+=qty; inv.token-=need; }
           setPotatoInv(inv);
-          if(item==='salt') S.salt=inv.salt; else S.sugar=inv.sugar;
-          save(); renderAll(); closeShop(); toast('구매 완료'); return;
+          S.salt=inv.salt; S.sugar=inv.sugar; save(); renderAll(); closeShop(); toast('구매 완료'); return;
         }catch(e){ /* 폴백 */ }
       }
-
-      inv[item]+=qty; inv.token-=need; setPotatoInv(inv);
+      // 로컬 폴백
+      inv[item]=(inv[item]||0)+qty; inv.token-=need; setPotatoInv(inv);
       if(item==='salt') S.salt=inv.salt; else S.sugar=inv.sugar;
       save(); renderAll(); closeShop(); toast('구매 완료(로컬)');
     }
 
-    /* ====== UI ====== */
-    function toast(msg){ $toast.textContent=msg; $toast.classList.add('show'); setTimeout(()=>{$toast.classList.remove('show')},1400); }
+    /* ====== UI 바인딩 ====== */
     $('btnW').onclick=()=>give('w'); $('btnF').onclick=()=>give('f'); $('tick').onclick=tick; $('harv').onclick=harvest; $('pop').onclick=popCorn;
     $('pickSalt').onclick=()=>{ if(S.sel==='salt') openShop('salt'); else { S.sel='salt'; renderRes(); save(); } };
     $('pickSugar').onclick=()=>{ if(S.sel==='sugar') openShop('sugar'); else { S.sel='sugar'; renderRes(); save(); } };
@@ -414,18 +389,21 @@
     $btnGate.onclick=()=>($gate.classList.contains('open')?closeGate():openGate());
     $closeGate.onclick=closeGate; $gateBackdrop.onclick=closeGate; window.addEventListener('keydown',e=>{ if(e.key==='Escape') closeGate(); });
 
-    /* ====== 시작 ====== */
+    // 이전(뒤로가기) 네비
+    document.getElementById('navBack').addEventListener('click', (e)=>{ e.preventDefault(); history.back(); });
+
+    /* ====== 부팅 ====== */
     (function boot(){
-      // 초기 배경/미니
       document.body.style.backgroundImage = `url('${IMG('farm_05.png')}')`;
       $mini.src = IMG('corn_06_02.png'); $mini.alt='발아'; $miniCap.textContent='발아 · Lv.1';
       renderAll();
       setInterval(tick, 5000);
-      loadFromServer().then(loadPriceBoard);
+      loadFromServer();
     })();
 
-    // 전역 노출(모달)
+    // 전역(모달용)
     window.closeShop = closeShop; window.confirmBuy = confirmBuy;
+    function toast(msg){ $toast.textContent=msg; $toast.classList.add('show'); setTimeout(()=>{$toast.classList.remove('show')},1400); }
   </script>
 </body>
 </html>
