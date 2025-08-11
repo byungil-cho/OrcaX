@@ -90,6 +90,24 @@
       body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
     }
 
+  
+    /* === ADD-ONLY PATCH: make phone background match PC (cover) + prevent panels from filling screen === */
+    @media (max-width: 740px){
+      /* PC와 동일하게 배경을 cover로 통일 */
+      html, body{ background-size: cover !important; }
+
+      /* 우측/좌측 패널이 화면을 꽉 채우지 않도록 높이 제한 + 내부 스크롤 */
+      .hud-right .panel, .hud-left .panel{ max-height: 68vh; overflow:auto; }
+      #gate .panel{ max-height: 72vh; overflow:auto; }
+
+      /* gate 내부 컬럼은 한 줄로 쌓기 */
+      #gate .grid2{ grid-template-columns: 1fr; }
+
+      /* 상단 요소 살짝 축소 */
+      .top{ left:8px; right:8px; top:8px; padding:8px 10px }
+      .bank{ top:8px; transform:translateX(-50%) scale(.9) }
+    }
+
   </style>
 </head>
 <body>
