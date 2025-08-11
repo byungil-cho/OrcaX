@@ -70,6 +70,26 @@
 .gate-preview.only-face .mark{display:none}
 
 
+  
+    /* === add-only: mobile responsive fixes === */
+    @media (max-width: 640px){
+      .top{left:8px;right:8px;padding:8px 10px}
+      .bank{top:8px;transform:translateX(-50%) scale(.92);gap:6px}
+      .hud-left,.hud-right{position:static;left:auto;right:auto;bottom:auto;width:auto;margin:8px}
+      .mini-wrap{position:static;margin:8px auto 0;display:block;text-align:center}
+      .mini{width:120px;height:120px}
+      .gauge{width:90px;height:90px}
+      #gate .card, #gate .panel{max-width:92vw;width:92vw}
+      .gate-preview{position:static;margin-top:8px}
+      .gate-preview img{width:96px;height:96px}
+      body{padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+    }
+    @media (max-width: 380px){
+      .mini{width:102px;height:102px}
+      .gate-preview img{width:88px;height:88px}
+      .gauge{width:84px;height:84px}
+    }
+
   </style>
 </head>
 <body>
