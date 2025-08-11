@@ -68,135 +68,134 @@
   </div>
 
   <script>
-    const ORIGIN   = 'https://byungil-cho.github.io/OrcaX';
-    const BASE_API = (localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
-    const URL_USERDATA = BASE_API + '/api/userdata';
+  'use strict';
+  var ORIGIN = 'https://byungil-cho.github.io/OrcaX';
+  var BASE_API = (localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
+  var URL_USERDATA = BASE_API + '/api/userdata';
 
-    const diagEl   = document.getElementById('diag');
-    const hudNick  = document.getElementById('hudNick');
-    const nickText = document.getElementById('nickText');
-    const lvlWrap  = document.getElementById('lvlWrap');
-    const lvlIcon  = document.getElementById('lvlIcon');
-    const lvlText  = document.getElementById('lvlText');
-    const resEl = {
-      water: document.getElementById('r-water'),
-      fert : document.getElementById('r-fert'),
-      corn : document.getElementById('r-corn'),
-      pop  : document.getElementById('r-pop'),
-      salt : document.getElementById('r-salt'),
-      sugar: document.getElementById('r-sugar'),
-      orcx : document.getElementById('r-orcx'),
-    };
-    const thumbEl = document.getElementById('farmThumb');
+  var diagEl   = document.getElementById('diag');
+  var hudNick  = document.getElementById('hudNick');
+  var nickText = document.getElementById('nickText');
+  var lvlWrap  = document.getElementById('lvlWrap');
+  var lvlIcon  = document.getElementById('lvlIcon');
+  var lvlText  = document.getElementById('lvlText');
+  var resEl = {
+    water: document.getElementById('r-water'),
+    fert : document.getElementById('r-fert'),
+    corn : document.getElementById('r-corn'),
+    pop  : document.getElementById('r-pop'),
+    salt : document.getElementById('r-salt'),
+    sugar: document.getElementById('r-sugar'),
+    orcx : document.getElementById('r-orcx')
+  };
+  var thumbEl = document.getElementById('farmThumb');
 
-    function setOnline(on){ hudNick.classList.toggle('online', !!on); }
-    function setNick(name){ nickText.textContent = name || '(로그인 필요)'; }
-    function setRes(x){
-      resEl.water.textContent = x.water ?? 0;
-      resEl.fert .textContent = x.fertilizer ?? 0;
-      resEl.corn .textContent = x.corn ?? 0;
-      resEl.pop  .textContent = x.popcorn ?? 0;
-      resEl.salt .textContent = x.salt ?? 0;
-      resEl.sugar.textContent = x.sugar ?? 0;
-      resEl.orcx .textContent = x.orcx ?? 0;
+  function setOnline(on){ hudNick.classList.toggle('online', !!on); }
+  function setNick(name){ nickText.textContent = name || '(로그인 필요)'; }
+  function setRes(x){
+    resEl.water.textContent = (x.water != null ? x.water : 0);
+    resEl.fert .textContent = (x.fertilizer != null ? x.fertilizer : 0);
+    resEl.corn .textContent = (x.corn != null ? x.corn : 0);
+    resEl.pop  .textContent = (x.popcorn != null ? x.popcorn : 0);
+    resEl.salt .textContent = (x.salt != null ? x.salt : 0);
+    resEl.sugar.textContent = (x.sugar != null ? x.sugar : 0);
+    resEl.orcx .textContent = (x.orcx != null ? x.orcx : 0);
+  }
+  function markPathByLevel(lv){
+    if(lv >= 10) return ORIGIN + '/img/mark_10.png';
+    var n = Math.max(1, Math.min(9, Math.floor(lv || 1)));
+    return ORIGIN + '/img/mark_0' + n + '.png';
+  }
+  function showLevel(lv){
+    if(!lv || lv<1){ lvlWrap.style.display='none'; return; }
+    lvlIcon.src = markPathByLevel(lv);
+    lvlText.textContent = 'Lv.' + lv;
+    lvlWrap.style.display = 'inline-flex';
+  }
+
+  var THUMBS = {
+    winter     : ORIGIN + '/img/farm_01.png',
+    lateWinter : ORIGIN + '/img/farm_03.png',
+    spring     : ORIGIN + '/img/farm_05.png',
+    summer     : ORIGIN + '/img/farm_07.png',
+    lateSummer : ORIGIN + '/img/farm_09.png',
+    autumn     : ORIGIN + '/img/farm_10.png',
+    deepWinter : ORIGIN + '/img/farm_12.png'
+  };
+  function applySeasonThumb(){
+    var key = localStorage.getItem('farmSeason');
+    if(key && THUMBS[key]) thumbEl.src = THUMBS[key];
+  }
+
+  async function loadUserData(){
+    var kakaoId  = localStorage.getItem('kakaoId');
+    var nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
+    setNick(nickname);
+    diagEl.textContent = 'POST ' + URL_USERDATA;
+
+    if(!kakaoId || !nickname){
+      setOnline(false);
+      diagEl.textContent = '로그인 정보(kakaoId/nickname) 없음';
+      alert('로그인이 필요합니다. 감자 농장으로 이동합니다.');
+      window.location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
+      return;
     }
-    function markPathByLevel(lv){
-      if(lv >= 10) return `${ORIGIN}/img/mark_10.png`;
-      const n = Math.max(1, Math.min(9, Math.floor(lv||1)));
-      return `${ORIGIN}/img/mark_0${n}.png`;
-    }
-    function showLevel(lv){
-      if(!lv || lv<1){ lvlWrap.style.display='none'; return; }
-      lvlIcon.src = markPathByLevel(lv);
-      lvlText.textContent = `Lv.${lv}`;
-      lvlWrap.style.display = 'inline-flex';
-    }
 
-    const THUMBS = {
-      winter:     `${ORIGIN}/img/farm_01.png`,
-      lateWinter: `${ORIGIN}/img/farm_03.png`,
-      spring:     `${ORIGIN}/img/farm_05.png`,
-      summer:     `${ORIGIN}/img/farm_07.png`,
-      lateSummer: `${ORIGIN}/img/farm_09.png`,
-      autumn:     `${ORIGIN}/img/farm_10.png`,
-      deepWinter: `${ORIGIN}/img/farm_12.png`
-    };
-    function applySeasonThumb(){
-      const key = localStorage.getItem('farmSeason');
-      if(key && THUMBS[key]) thumbEl.src = THUMBS[key];
-    }
-
-    async function loadUserData() {
-      const kakaoId  = localStorage.getItem("kakaoId");
-      const nickname = localStorage.getItem("nickname") || localStorage.getItem("kakaoNickname");
-      setNick(nickname);
-      diagEl.textContent = `POST ${URL_USERDATA}`;
-
-      if (!kakaoId || !nickname) {
+    try{
+      var r = await fetch(URL_USERDATA, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kakaoId: kakaoId }),
+        mode: 'cors',
+        cache: 'no-store'
+      });
+      if(!r.ok){
         setOnline(false);
-        diagEl.textContent = `로그인 정보(kakaoId/nickname) 없음`;
-        alert("로그인이 필요합니다. 감자 농장으로 이동합니다.");
-        window.location.href = "https://byungil-cho.github.io/OrcaX/index9.html";
+        diagEl.textContent = '오류: HTTP ' + r.status + ' (' + r.statusText + ')';
+        throw new Error('HTTP ' + r.status);
+      }
+      var data = await r.json();
+      var user = data && data.user;
+      if(!user){
+        setOnline(false);
+        diagEl.textContent = '오류: user 필드 없음';
+        alert('유저 정보를 찾을 수 없습니다.');
         return;
       }
+      setOnline(true);
+      diagEl.textContent = '연결됨 ✓';
 
-      try {
-        const r = await fetch(URL_USERDATA, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId }),
-          mode: 'cors',
-          cache: 'no-store'
-        });
+      setRes({
+        orcx: (user.orcx != null ? user.orcx : (user.wallet && user.wallet.orcx)),
+        water: user.inventory && user.inventory.water,
+        fertilizer: user.inventory && user.inventory.fertilizer,
+        corn: user.agri && user.agri.corn,
+        popcorn: user.food && user.food.popcorn,
+        salt: user.additives && user.additives.salt,
+        sugar: user.additives && user.additives.sugar
+      });
 
-        if (!r.ok) {
-          setOnline(false);
-          diagEl.textContent = `오류: HTTP ${r.status} (${r.statusText})`;
-          throw new Error(`HTTP ${r.status}`);
-        }
+      var level = Number(user.level != null ? user.level :
+                         (user.profile && user.profile.level) ||
+                         localStorage.getItem('orcax:level') || 0);
+      showLevel(level);
 
-        const data = await r.json();
-        const user = data.user;
-        if (!user) {
-          setOnline(false);
-          diagEl.textContent = `오류: user 필드 없음`;
-          alert("유저 정보를 찾을 수 없습니다.");
-          return;
-        }
-
-        setOnline(true);
-        diagEl.textContent = `연결됨 ✓`;
-
-        setRes({
-          orcx: user.orcx ?? user.wallet?.orcx ?? 0,
-          water: user.inventory?.water ?? 0,
-          fertilizer: user.inventory?.fertilizer ?? 0,
-          corn: user.agri?.corn ?? 0,
-          popcorn: user.food?.popcorn ?? 0,
-          salt: user.additives?.salt ?? 0,
-          sugar: user.additives?.sugar ?? 0
-        });
-
-        const level = Number(user.level ?? user.profile?.level ?? localStorage.getItem('orcax:level') || 0);
-        showLevel(level);
-
-        // ✅ 데이터까지 성공한 뒤에만 썸네일 교체
-        applySeasonThumb();
-
-      } catch (err) {
-        setOnline(false);
-        alert("서버 연결 실패 또는 CORS 문제입니다. 콘솔(Network)에서 /api/userdata 상태를 확인하세요.");
-        console.warn('userdata error:', err);
-      }
+      // 데이터 성공 후 썸네일 적용
+      applySeasonThumb();
+    }catch(e){
+      setOnline(false);
+      alert('서버 연결 실패 또는 CORS 문제입니다. Network 탭에서 /api/userdata 상태를 확인하세요.');
+      console.warn('userdata error:', e);
     }
+  }
 
-    window.onload = loadUserData;
-    document.getElementById('btnRefresh').addEventListener('click', loadUserData);
+  window.onload = loadUserData;
+  document.getElementById('btnRefresh').addEventListener('click', loadUserData);
+  // 서비스워커는 잠시 비활성화 (간섭 방지)
+  // if('serviceWorker' in navigator){
+  //   window.addEventListener('load', function(){ navigator.serviceWorker.register(ORIGIN + '/service-worker.js'); });
+  // }
+</script>
 
-    // ⚠️ 간섭 방지 위해 잠시 비활성화. 필요 시 주석 해제.
-    // if('serviceWorker' in navigator){
-    //   window.addEventListener('load', ()=>navigator.serviceWorker.register('https://byungil-cho.github.io/OrcaX/service-worker.js'));
-    // }
-  </script>
 </body>
 </html>
