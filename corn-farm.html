@@ -109,12 +109,12 @@
     }
 
   
-    /* === ADD-ONLY: hide API/Kakao diag next to online status === */
+    /* === ADD-ONLY FIX: hide API/Kakao details; keep only online text === */
     .status .diag{ display:none !important; }
 
-    /* === ADD-ONLY: mobile stacked layout & sticky mobile bar === */
+    /* === ADD-ONLY FIX: Mobile layout + single status line + lighter film + fixed background (dual) === */
     @media (max-width: 740px){
-      /* background: two copies (top/bottom), fixed, filled until full height */
+      /* Background: same image fixed at top & bottom to fill tall screens */
       body{
         background-image: var(--bg-url), var(--bg-url) !important;
         background-position: center top, center bottom !important;
@@ -122,12 +122,14 @@
         background-size: contain, contain !important;
         background-attachment: fixed, fixed !important;
       }
-      /* original fixed elements become flow items */
-      .hud-left, .hud-right, .mini-wrap, .bank{ position: static !important; transform:none !important; left:auto; right:auto; bottom:auto; }
-      .gate{ position: static !important; }
-      .top{ position: static !important; }
+      /* Lighter glass film on mobile */
+      .glass{ background: rgba(0,0,0,.28) !important; }
 
-      /* mobile stack container */
+      /* Use a single status line in sticky bar; hide header status+bank to avoid duplicates */
+      .status{ display:none !important; }
+      .bank{ display:none !important; }
+
+      /* Put everything into a stacked flow container */
       #mStack{ display:flex; flex-direction:column; gap:12px; padding:8px 8px 96px; }
       #mBar{ position: sticky; top: 0; z-index: 60; }
       #mBar .bar-inner{
@@ -139,13 +141,15 @@
       #mBar .bankline{ display:flex; gap:8px; align-items:center; font-variant-numeric:tabular-nums; }
       #mBar .pilllite{ display:inline-flex; gap:6px; align-items:center; padding:4px 8px; border-radius:999px; border:1px solid var(--bd); background:rgba(0,0,0,.35); font-size:12px; }
 
-      /* panels narrower and centered */
-      #mStack .panel, #mStack .gate-dock, #mStack .mini-wrap{
-        max-width: 92vw; margin: 0 auto;
-      }
+      /* Original fixed elements become flow items */
+      .hud-left, .hud-right, .mini-wrap{ position: static !important; left:auto; right:auto; bottom:auto; width:auto; margin: 10px 8px; }
+      .gate{ position: static !important; }
 
-      /* order blocks */
-      #mBlock2, #mBlock3, #mBlock4, #mBlock5{ }
+      /* Narrow and centered */
+      #mStack .panel, #mStack .gate-dock, #mStack .mini-wrap, #mStack .card{ max-width: 92vw; margin: 0 auto; }
+
+      /* Disable dark backdrop film on mobile */
+      .backdrop.show{ display:none !important; }
     }
 
   </style>
@@ -564,21 +568,20 @@
 
 
     
-    /* ====== ADD-ONLY: Mobile stack layout + sticky bar + dual fixed background ====== */
+    /* ====== ADD-ONLY FIX: Mobile stacked layout + single status + in-flow gate + bg var sync ====== */
     window.addEventListener('load', function(){
-      if(window.innerWidth > 740) return;  // mobile only
+      if(window.innerWidth > 740) return; // mobile only
 
-      // 0) Dual fixed background uses CSS var --bg-url; keep it in sync with current body background
-      function updateBgVar(){
+      /* 0) Keep CSS var --bg-url synced with current body background so dual layers use the same file */
+      function syncBgVar(){
         try{
-          var bg = getComputedStyle(document.body).backgroundImage; // e.g., url("...farm_07.png")
+          var bg = getComputedStyle(document.body).backgroundImage; // url("...farm_xx.png")
           if(bg && bg !== 'none'){ document.documentElement.style.setProperty('--bg-url', bg); }
         }catch(e){}
       }
-      updateBgVar();
-      setInterval(updateBgVar, 1200);
+      syncBgVar(); setInterval(syncBgVar, 1000);
 
-      // 1) Build sticky top mobile bar (#1)
+      /* 1) Build sticky top bar (#1): nickname | token | popcorn | online */
       var mBar = document.createElement('div');
       mBar.id = 'mBar';
       mBar.innerHTML = '<div class="bar-inner">'
@@ -587,53 +590,56 @@
         +   '<span class="pilllite">🪙 <b id="mTok">0</b></span>'
         +   '<span class="pilllite">🍿 <b id="mPop">0</b></span>'
         +   '<span class="pilllite"><span id="mNetDot" style="display:inline-block;width:8px;height:8px;border-radius:999px;background:#ef4444;margin-right:6px"></span><span id="mNetTxt">오프라인</span></span>'
-        + '</span>'
-        + '</div>';
+        + '</span></div>';
 
-      // 2) Make stack container and slots
-      var mStack = document.createElement('div');
-      mStack.id = 'mStack';
+      /* 2) Stack container & slots (#2~#5) */
+      var mStack = document.createElement('div'); mStack.id = 'mStack';
       var b2 = document.createElement('div'); b2.id='mBlock2';
       var b3 = document.createElement('div'); b3.id='mBlock3';
       var b4 = document.createElement('div'); b4.id='mBlock4';
       var b5 = document.createElement('div'); b5.id='mBlock5';
-      mStack.appendChild(mBar);  // #1 top bar
-      mStack.appendChild(b2);    // #2 right panel
-      mStack.appendChild(b3);    // #3 left 성장게이지 박스
-      mStack.appendChild(b4);    // #4 원형게이지+게이트 버튼
-      mStack.appendChild(b5);    // #5 미니/링크
-
-      // 3) Inject at the top of body (before content for clarity)
+      mStack.appendChild(mBar); mStack.appendChild(b2); mStack.appendChild(b3); mStack.appendChild(b4); mStack.appendChild(b5);
       document.body.insertBefore(mStack, document.body.firstChild);
 
-      // 4) Move existing pieces into slots (appendChild moves nodes; no source edit)
-      var rightPanel = document.querySelector('.hud-right .panel');
-      if(rightPanel) b2.appendChild(rightPanel);
+      /* 3) Move existing parts (appendChild moves the nodes; original code stays intact) */
+      var rightPanel = document.querySelector('.hud-right .panel'); if(rightPanel) b2.appendChild(rightPanel);
+      var leftPanel  = document.querySelector('.hud-left .panel');  if(leftPanel)  b3.appendChild(leftPanel);
+      var gateDock   = document.querySelector('.hud-left .gate-dock'); if(gateDock) b4.appendChild(gateDock);
+      var miniWrap   = document.querySelector('.mini-wrap'); if(miniWrap) b5.appendChild(miniWrap);
 
-      var leftPanel = document.querySelector('.hud-left .panel');
-      if(leftPanel) b3.appendChild(leftPanel);
-
-      var gateDock = document.querySelector('.hud-left .gate-dock');
-      if(gateDock) b4.appendChild(gateDock);
-
-      var miniWrap = document.querySelector('.mini-wrap');
-      if(miniWrap) b5.appendChild(miniWrap);
-
-      // 5) Keep bar values synced
+      /* 4) Keep the sticky bar values in sync */
       function syncBar(){
         try{
           var name = (window.nickname || '(로그인 필요)');
-          document.getElementById('mWho').textContent = name;
           var inv = (typeof getPotatoInv==='function')? getPotatoInv() : {token:0,popcorn:0};
-          document.getElementById('mTok').textContent = inv.token||0;
-          document.getElementById('mPop').textContent = inv.popcorn||0;
-          var ok = !!window.NET_OK;
-          document.getElementById('mNetDot').style.background = ok ? '#25d366' : '#ef4444';
-          document.getElementById('mNetTxt').textContent = ok ? '온라인' : '오프라인';
+          var ok  = !!window.NET_OK;
+          var $ = (id)=>document.getElementById(id);
+          $('mWho').textContent = name;
+          $('mTok').textContent = inv.token||0;
+          $('mPop').textContent = inv.popcorn||0;
+          $('mNetDot').style.background = ok ? '#25d366' : '#ef4444';
+          $('mNetTxt').textContent = ok ? '온라인' : '오프라인';
         }catch(e){}
       }
-      syncBar();
-      setInterval(syncBar, 1200);
+      syncBar(); setInterval(syncBar, 800);
+
+      /* 5) Ensure gate opens in-flow (no overlay). When gate is opened, bring #gate into #mBlock4. */
+      function bringGateIntoFlow(){
+        var gate = document.getElementById('gate');
+        if(gate && gate.parentNode !== b4){ b4.appendChild(gate); }
+      }
+      var btnGate = document.getElementById('btnGate');
+      if(btnGate){
+        btnGate.addEventListener('click', function(){ setTimeout(bringGateIntoFlow, 0); });
+      }
+      /* Also observe class changes to #gate and keep it inside b4 while open */
+      var gate = document.getElementById('gate');
+      if(gate){
+        try{
+          var mo = new MutationObserver(function(){ bringGateIntoFlow(); });
+          mo.observe(gate, { attributes:true, attributeFilter:['class'] });
+        }catch(e){}
+      }
     });
 
 
