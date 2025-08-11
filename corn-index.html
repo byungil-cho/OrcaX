@@ -71,6 +71,7 @@
     <!-- 썸네일 스크롤 (배경은 그대로, 썸네일만 계절에 맞게 바꿈) -->
     <div class="scrollbox" aria-label="농장 입구 썸네일">
       <div class="spacer"></div>
+      <!-- 옥수수 농장으로: 절대경로 -->
       <a class="link" href="https://byungil-cho.github.io/OrcaX/corn-farm.html" title="내 옥수수 농장으로">
         <img id="farmThumb" src="https://byungil-cho.github.io/OrcaX/img/farm_01.png" alt="계절 썸네일" />
       </a>
@@ -82,16 +83,17 @@
 
   <script>
     /* ================== 절대경로 상수 ================== */
-    const ORIGIN = 'https://byungil-cho.github.io/OrcaX';
-    // 감자 방식대로 절대 URL로 고정. 필요시 localStorage('orcax:BASE_API')로 덮어쓰기 가능.
-    const BASE_API = localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const ORIGIN   = 'https://byungil-cho.github.io/OrcaX';
+    const BASE_API = (localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
+    const URL_USERDATA = BASE_API + '/api/userdata';
 
     const diagEl   = document.getElementById('diag');
-    const nickText = document.getElementById('nickText');
     const hudNick  = document.getElementById('hudNick');
+    const nickText = document.getElementById('nickText');
     const lvlWrap  = document.getElementById('lvlWrap');
     const lvlIcon  = document.getElementById('lvlIcon');
     const lvlText  = document.getElementById('lvlText');
+
     const resEl = {
       water: document.getElementById('r-water'),
       fert : document.getElementById('r-fert'),
@@ -101,7 +103,6 @@
       sugar: document.getElementById('r-sugar'),
       orcx : document.getElementById('r-orcx'),
     };
-    const thumbEl = document.getElementById('farmThumb');
 
     function setOnline(on){ hudNick.classList.toggle('online', !!on); }
     function setNick(name){ nickText.textContent = name || '(로그인 필요)'; }
@@ -126,7 +127,7 @@
       lvlWrap.style.display = 'inline-flex';
     }
 
-    // 시즌 썸네일(절대경로)
+    // 썸네일 시즌 키(있으면 반영)
     const THUMBS = {
       winter:     `${ORIGIN}/img/farm_01.png`,
       lateWinter: `${ORIGIN}/img/farm_03.png`,
@@ -136,8 +137,11 @@
       autumn:     `${ORIGIN}/img/farm_10.png`,
       deepWinter: `${ORIGIN}/img/farm_12.png`
     };
-    function setThumbBySeasonKey(key){ if(THUMBS[key]) thumbEl.src = THUMBS[key]; }
-    const seasonKey = localStorage.getItem('farmSeason'); if(seasonKey) setThumbBySeasonKey(seasonKey);
+    const thumbEl = document.getElementById('farmThumb');
+    (function(){
+      const key = localStorage.getItem('farmSeason');
+      if(key && THUMBS[key]) thumbEl.src = THUMBS[key];
+    })();
 
     /* =============== 감자 방식 그대로: /api/userdata POST(절대 URL) =============== */
     async function loadUserData() {
@@ -145,8 +149,7 @@
       const nickname = localStorage.getItem("nickname") || localStorage.getItem("kakaoNickname");
       setNick(nickname);
 
-      const url = `${BASE_API}/api/userdata`;
-      diagEl.textContent = `POST ${url}`;
+      diagEl.textContent = `POST ${URL_USERDATA}`;
 
       if (!kakaoId || !nickname) {
         setOnline(false);
@@ -157,10 +160,12 @@
       }
 
       try {
-        const r = await fetch(url, {
+        const r = await fetch(URL_USERDATA, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kakaoId })
+          body: JSON.stringify({ kakaoId }),
+          mode: 'cors',
+          cache: 'no-store'
         });
 
         if (!r.ok) {
@@ -204,8 +209,9 @@
     window.onload = loadUserData;
     document.getElementById('btnRefresh').addEventListener('click', loadUserData);
 
-    // 서비스워커(절대경로) — 정적만 캐시
+    // 서비스워커(절대경로) — 정적만 캐시. API는 항상 네트워크.
     if('serviceWorker' in navigator){
+      // 필요시 주석처리해도 됨. 캐시 간섭 의심되면 임시로 꺼보자.
       window.addEventListener('load', ()=>navigator.serviceWorker.register('https://byungil-cho.github.io/OrcaX/service-worker.js'));
     }
   </script>
