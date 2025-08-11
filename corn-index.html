@@ -5,100 +5,186 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장 메인</title>
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: #000;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', sans-serif;
-      overflow: hidden; /* 페이지 자체 스크롤 금지 */
-    }
+    html, body { height:100%; margin:0; background:#000;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; overflow:hidden; }
 
-    /* 배경 이미지는 화면에 고정 */
-    .wrap{
-      position: fixed;
-      inset: 0;
-      background: url('img/farm_00.png') center/cover no-repeat;
-    }
+    /* 배경 고정 */
+    .wrap{ position:fixed; inset:0; background:url('img/farm_00.png') center/cover no-repeat; }
 
-    /* 내부 전용 스크롤 영역 (투명 필름, 스크롤바 숨김) */
+    /* 가운데 투명 필름(이미지만 위/아래 이동) */
     .scrollbox{
-      position: absolute;
-      left: 50%;
-      top: 55%;
-      transform: translate(-50%, -50%);
-      width: min(40vw, 260px);
-      height: min(60vh, 460px);
-      border-radius: 14px;
-      /* 필름 투명 처리 */
-      background: transparent;
-      border: 1px solid rgba(255,255,255,.25);
-      box-shadow: 0 20px 40px rgba(0,0,0,.45);
-
-      overflow-y: auto;                 /* 내부만 스크롤 */
-      -webkit-overflow-scrolling: touch;
-
-      /* 스크롤바 완전 숨김 */
-      scrollbar-width: none;            /* Firefox */
-      -ms-overflow-style: none;         /* IE/Edge legacy */
+      position:absolute; left:50%; top:55%; transform:translate(-50%,-50%);
+      width:min(40vw,260px); height:min(60vh,460px);
+      border-radius:14px; background:transparent;
+      border:1px solid rgba(255,255,255,.25); box-shadow:0 20px 40px rgba(0,0,0,.45);
+      overflow-y:auto; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; -ms-overflow-style:none;
     }
-    .scrollbox::-webkit-scrollbar{ display: none; } /* WebKit */
+    .scrollbox::-webkit-scrollbar{ display:none; }
+    .spacer{ height:85vh; }
+    .link{ display:block; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.25); box-shadow:0 8px 24px rgba(0,0,0,.35); }
+    .link img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-    /* 위/아래로 이동할 여백 */
-    .spacer{ height: 85vh; flex: 0 0 auto; }
-
-    /* 링크 걸린 겨울 이미지 (이것만 위아래로 이동) */
-    .link{
-      display: block;
-      width: 100%;
-      aspect-ratio: 16/9;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,.25);
-      box-shadow: 0 8px 24px rgba(0,0,0,.35);
-    }
-    .link img{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* 안내 캡션은 화면에 고정 */
+    /* 안내 캡션(하단 고정) */
     .caption{
-      position: fixed;
-      left: 50%;
-      bottom: 20px;
-      transform: translateX(-50%);
-      color: #fff;
-      background: rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.2);
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 14px;
-      z-index: 10;
-      pointer-events: none;
-      user-select: none;
+      position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
+      color:#fff; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2);
+      padding:8px 12px; border-radius:999px; font-size:14px; z-index:10; pointer-events:none;
+    }
+
+    /* ===== 상단 HUD : 닉네임/자원 ===== */
+    .hud{
+      position:fixed; left:12px; top:12px; z-index:20; color:#fff;
+      background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2);
+      border-radius:14px; padding:10px 12px; backdrop-filter:blur(6px);
+      max-width:min(92vw, 540px);
+    }
+    .hud .nick{ font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+    .hud .nick .status{ width:8px; height:8px; border-radius:999px; background:#e23; }
+    .hud .nick.online .status{ background:#3ecf8e; }
+    .hud .res{ display:flex; flex-wrap:wrap; gap:8px; }
+    .tag{ font-size:12px; line-height:1; padding:6px 8px; border-radius:999px;
+      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); }
+    .tag b{ font-weight:700; }
+    .hud .actions{ margin-top:8px; display:flex; gap:6px; }
+    .btn{
+      font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.25);
+      background:rgba(0,0,0,.35); color:#fff; cursor:pointer;
     }
   </style>
   <link rel="manifest" href="manifest.webmanifest" />
 </head>
 <body>
   <div class="wrap">
+
+    <!-- 상단 HUD (닉네임 + 자원) -->
+    <div class="hud" id="hud">
+      <div class="nick" id="hudNick"><span class="status"></span><span>(로그인 확인 중)</span></div>
+      <div class="res" id="hudRes">
+        <span class="tag">💧 물 <b id="r-water">0</b></span>
+        <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
+        <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
+        <span class="tag">🍿 팝콘 <b id="r-pop">0</b></span>
+        <span class="tag">🧂 소금 <b id="r-salt">0</b></span>
+        <span class="tag">🍬 설탕 <b id="r-sugar">0</b></span>
+        <span class="tag">🪙 토큰 <b id="r-orcx">0</b></span>
+      </div>
+      <div class="actions">
+        <button class="btn" id="btnRefresh">새로고침</button>
+        <button class="btn" id="btnGoFarm">감자 농장 가기</button>
+      </div>
+    </div>
+
+    <!-- 내부 전용 스크롤 영역 (이미지만 상하 이동) -->
     <div class="scrollbox" aria-label="겨울 이미지 스크롤 영역">
       <div class="spacer"></div>
-
-      <!-- 이미지만 위/아래로 이동 (클릭 시 농장으로 이동) -->
       <a class="link" href="corn-farm.html" title="내 옥수수 농장으로">
         <img src="img/farm_01.png" alt="겨울 이미지(클릭하여 농장으로 이동)" />
       </a>
-
       <div class="spacer"></div>
     </div>
 
-    <div class="caption"></div>
+    <div class="caption">박스 안에서 위/아래 스크롤 · 이미지를 누르면 농장으로 이동</div>
   </div>
 
   <script>
+    // ===== 0) 베이스 설정 =====
+    // GitHub → 3060 연동 시 여기만 바꾸면 됩니다.
+    const BASE_API =
+      localStorage.getItem('orcax:BASE_API')
+      || 'https://<KIT-HOST>:3060'; // ← 실제 3060 HTTPS 주소로 교체
+
+    // 토큰/닉네임 후보키 (감자농장에서 넘어온 것 활용)
+    const tokenKeys = ['orcax:token','token','authToken','jwt'];
+    const nickKeys  = ['orcax:nick','orcax:nickname','nickname','userNickname','kakaoNickname'];
+    const guess = (keys, d='')=>{
+      for(const k of keys){ const v=localStorage.getItem(k); if(v) return v; }
+      return d;
+    };
+    const authToken = guess(tokenKeys, '');
+    const localNick = guess(nickKeys, '(로그인 필요)');
+
+    // ===== 1) HUD 초기 표시 (오프라인/무토큰 대비 즉시) =====
+    const hudNick = document.getElementById('hudNick');
+    const hudRes  = {
+      water: document.getElementById('r-water'),
+      fert : document.getElementById('r-fert'),
+      corn : document.getElementById('r-corn'),
+      pop  : document.getElementById('r-pop'),
+      salt : document.getElementById('r-salt'),
+      sugar: document.getElementById('r-sugar'),
+      orcx : document.getElementById('r-orcx'),
+    };
+    function setNick(name, online=false){
+      hudNick.classList.toggle('online', !!online);
+      hudNick.innerHTML = `<span class="status"></span><span>${name||'(로그인 필요)'}</span>`;
+    }
+    function setRes(x){
+      hudRes.water.textContent = x.water ?? 0;
+      hudRes.fert .textContent = x.fertilizer ?? 0;
+      hudRes.corn .textContent = x.corn ?? 0;
+      hudRes.pop  .textContent = x.popcorn ?? 0;
+      hudRes.salt .textContent = x.salt ?? 0;
+      hudRes.sugar.textContent = x.sugar ?? 0;
+      hudRes.orcx .textContent = x.orcx ?? 0;
+    }
+    setNick(localNick,false);
+    setRes({});
+
+    // ===== 2) 서버에서 최신값 불러오기 (있으면 우선) =====
+    async function fetchJSON(url, opt={}){
+      const headers = {'Content-Type':'application/json', ...(opt.headers||{})};
+      const o = { method:'GET', mode:'cors', ...opt, headers };
+      const r = await fetch(url, o);
+      if(!r.ok) throw new Error(`${r.status}`);
+      return r.json();
+    }
+    async function loadFromServer(){
+      try{
+        // 헬스체크로 CORS/HTTPS 확인
+        await fetchJSON(`${BASE_API}/api/health`, {cache:'no-store'});
+        // 유저 정보
+        const me = await fetchJSON(`${BASE_API}/api/user/me`, {
+          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+        });
+        // me 예시 가정: { nickname, inventory:{water,fertilizer}, agri:{corn}, food:{popcorn}, additives:{salt,sugar}, wallet:{orcx} }
+        const name = me.nickname || me.nick || localNick || '(알 수 없음)';
+        setNick(name, true);
+        setRes({
+          water      : me.inventory?.water ?? 0,
+          fertilizer : me.inventory?.fertilizer ?? 0,
+          corn       : me.agri?.corn ?? 0,
+          popcorn    : me.food?.popcorn ?? 0,
+          salt       : me.additives?.salt ?? 0,
+          sugar      : me.additives?.sugar ?? 0,
+          orcx       : me.wallet?.orcx ?? 0,
+        });
+      }catch(e){
+        // 서버 연결 실패 시, 로컬의 임시 값(있다면)으로 보조
+        setNick(localNick || '(오프라인)', false);
+        // 자원 키 추정 로딩(옵션)
+        const gv = k=>Number(localStorage.getItem(k) || 0);
+        setRes({
+          water: gv('orcax:inv:water'),
+          fertilizer: gv('orcax:inv:fertilizer'),
+          corn: gv('orcax:agri:corn'),
+          popcorn: gv('orcax:food:popcorn'),
+          salt: gv('orcax:add:salt'),
+          sugar: gv('orcax:add:sugar'),
+          orcx: gv('orcax:wallet:orcx'),
+        });
+      }
+    }
+    loadFromServer();
+
+    // 수동 새로고침
+    document.getElementById('btnRefresh').addEventListener('click', loadFromServer);
+    document.getElementById('btnGoFarm').addEventListener('click', ()=>{
+      location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
+    });
+
+    // ===== 3) 서비스워커 등록 (정적만 캐시, /api/는 그대로 네트워크) =====
     if('serviceWorker' in navigator){
       window.addEventListener('load', ()=>navigator.serviceWorker.register('service-worker.js'));
     }
