@@ -60,15 +60,12 @@
     #shop .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45)}
     #shop .panel{position:relative;min-width:280px;max-width:92vw;background:rgba(20,20,20,.95);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:14px 16px;color:#fff}
   
-    /* admin-only panel (hidden unless ?admin=1 or localStorage flag) */
-    .admin-panel{position:fixed;right:12px;bottom:12px;z-index:60;display:none;
-      background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.18);border-radius:12px;
-      padding:10px 12px;color:#fff;min-width:240px}
-    .admin-panel h4{margin:0 0 8px 0;font-size:13px}
-    .admin-panel .row{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:center}
-    .admin-panel input{width:100%;background:#111;border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:6px 8px}
-    .admin-panel .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
-    .admin-panel button{cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.08);color:#fff}
+    /* === add-only: gate preview & mark === */
+    .gate-preview{position:absolute; right:10px; top:42px; display:flex; flex-direction:column; align-items:center; gap:4px}
+    .gate-preview img{width:120px;height:120px;border-radius:12px;border:1px solid var(--bd);background:#000;object-fit:cover}
+    .gate-preview .cap{font-size:12px;opacity:.9}
+    .gate-preview .lv{font-size:12px;font-weight:700;opacity:.95}
+    .gate-preview .mark{width:28px;height:auto;display:block;margin-top:2px;opacity:.95}
 
   </style>
 </head>
@@ -224,7 +221,7 @@
     let NET_OK=false;
     let PRICE = { seed:30, salt:10, sugar:20, currency:'ORCX' };
     let S = (()=>{try{
-      return Object.assign({phase:'IDLE',g:0,w:0,f:0,c:0,seed:0,salt:0,sugar:0,sel:'salt',grades:{A:0,B:0,C:0,D:0,E:0,F:0},daysLate:0,harvests:0},
+      return Object.assign({phase:'IDLE',g:0,w:0,f:0,c:0,seed:0,salt:0,sugar:0,sel:'salt'},
         JSON.parse(localStorage.getItem('corn_state')||'{}'));
     }catch(e){return {phase:'IDLE',g:0,w:0,f:0,c:0,seed:0,salt:0,sugar:0,sel:'salt'}}})();
     const resPct = x => Math.max(0, Math.min(100, x*20));
@@ -234,28 +231,14 @@
     function save(){try{localStorage.setItem('corn_state', JSON.stringify(S));}catch(e){}}
 
     /* ====== 렌더 ====== */
-    
-    function computeGrade(daysLate){
-      if (daysLate<=0) return 'A';
-      if (daysLate===1) return 'B';
-      if (daysLate===2) return 'C';
-      if (daysLate===3) return 'D';
-      if (daysLate===4) return 'E';
-      return 'F';
-    }
-    function gradesLineText(g){
-      return `A급 ${g.A||0} · B급 ${g.B||0} · C급 ${g.C||0} · D급 ${g.D||0} · E급 ${g.E||0} · F급 ${g.F||0}`;
-    }
-
     function setNet(ok, text){ NET_OK=!!ok; $netDot.classList.toggle('ok', ok); $netTxt.textContent = text || (ok?'온라인':'오프라인'); }
     function applyBG(){ const row = BG_BY_GAUGE.find(r=>S.g<=r.max) || BG_BY_GAUGE.at(-1); document.body.style.backgroundImage = `url('${IMG(row.file)}')`; $gState.textContent = (S.phase==='GROW'?row.label.toUpperCase():S.phase); }
     function applyMini(){ const row = MINI_BY_GAUGE.find(r=>S.g<=r.max) || MINI_BY_GAUGE.at(-1); $mini.src = IMG(row.file); $mini.alt = row.cap; $miniCap.textContent = (S.phase==='GROW')?`${row.cap} · Lv.1`:(S.phase==='STUBBLE'?'수확 완료(휴경지)':'씨앗 필요'); }
     function renderGate(){ $fillW.style.height=resPct(S.w)+'%'; $fillF.style.height=resPct(S.f)+'%'; $fillG.style.height=Math.max(0,Math.min(100,S.g))+'%'; }
     function renderRes(){ $w.textContent=S.w; $f.textContent=S.f; $c.textContent=S.c; $seed.textContent=S.seed;
-      var gl=document.getElementById('cornGradesLine'); if(gl) gl.textContent = gradesLineText(S.grades||{});
       $saltCount.textContent=S.salt; $sugarCount.textContent=S.sugar;
       $pickSalt.classList.toggle('sel', S.sel==='salt'); $pickSugar.classList.toggle('sel', S.sel==='sugar');
-      var _invForPop = getPotatoInv(); $pop.disabled = !(_invForPop.popcorn>=1);
+      $pop.disabled = !( S.c>=1 && (S.salt>=1 || S.sugar>=1) );
       $plant.disabled = !(S.phase!=='GROW' && S.seed>=1);
       $harv.disabled = !(S.phase==='GROW' && S.g>=100);
     }
@@ -336,16 +319,11 @@
       if(NET_OK){
         try{
           const data = await j('/api/corn/harvest', { kakaoId });
-          var serverGain = (typeof data.gain==='number') ? data.gain : 0;
-          S.c = (data.agri?.corn!=null) ? data.agri.corn : (S.c + serverGain);
-          var grade = data.grade || computeGrade(S.daysLate||0);
-          S.grades = S.grades||{A:0,B:0,C:0,D:0,E:0,F:0}; S.grades[grade] = (S.grades[grade]||0) + serverGain; S.harvests = (S.harvests||0)+1; S.level = S.harvests;
-          S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(grade+'급 옥수수 +' + serverGain + ' (서버)'); return;
+          S.c = (data.agri?.corn!=null) ? data.agri.corn : (S.c + (data.gain||0));
+          S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(`수확 완료 (서버)`); return;
         }catch(e){}
       }
-      var gain = 5 + Math.floor(Math.random()*3); var grade = computeGrade(S.daysLate||0);
-      S.c += gain; S.grades = S.grades||{A:0,B:0,C:0,D:0,E:0,F:0}; S.grades[grade] = (S.grades[grade]||0) + gain; S.harvests = (S.harvests||0)+1; S.level = S.harvests;
-      S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(grade+'급 옥수수 +' + gain);
+      S.c += 5 + Math.floor(Math.random()*3); S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast('수확 완료(로컬)');
     }
 
     // *** 핵심: 물/거름은 서버에 먼저 차감, 성공 시 재조회
@@ -386,43 +364,8 @@
 
     const POP_RATE=0.6, TOKEN_DROP=[1,2,3,5], POP_DROP=[1,2];
     const rndPick = a => a[Math.floor(Math.random()*a.length)];
-    const PROB={A:{token:.7,pop:.3},B:{token:.6,pop:.4},C:{token:.5,pop:.5},D:{token:.35,pop:.65},E:{token:.25,pop:.75},F:{token:.15,pop:.85}};
-    function pickGradeForPop(g){ const order=['A','B','C','D','E','F']; for(const k of order){ if((g[k]||0)>0) return k; } return null; }
     async function popCorn(){
-      const inv = getPotatoInv();
-      if((inv.popcorn||0) < 1){ alert('팝콘이 없습니다.'); return; }
-      const qty = 1; // 1:1 교환 (필요 시 다중 교환으로 확장 가능)
-      // 서버 시도
-      if(NET_OK){
-        try{
-          const data = await j('/api/exchange/popcorn-to-fertilizer', { kakaoId, qty });
-          // 서버가 최신 재고를 내려주는 경우
-          if(data.inventory){
-            if(typeof data.inventory.popcorn==='number') inv.popcorn = data.inventory.popcorn;
-            if(typeof data.inventory.fertilizer==='number') inv.fertilizer = data.inventory.fertilizer;
-          }else{
-            // 응답에 명시가 없으면 로컬로 반영
-            inv.popcorn = Math.max(0,(inv.popcorn||0) - qty);
-            inv.fertilizer = (inv.fertilizer||0) + qty;
-          }
-          setPotatoInv(inv);
-          // 로컬 상태도 맞춰줌
-          S.f = inv.fertilizer;
-          save(); renderAll();
-          toast('팝콘 → 거름 1:1 교환 완료 (서버)');
-          return;
-        }catch(e){
-          // 서버 실패 시 로컬 폴백으로 진행
-        }
-      }
-      // 로컬 폴백
-      inv.popcorn = Math.max(0,(inv.popcorn||0) - qty);
-      inv.fertilizer = (inv.fertilizer||0) + qty;
-      setPotatoInv(inv);
-      S.f = inv.fertilizer;
-      save(); renderAll();
-      toast('팝콘 → 거름 1:1 교환 완료');
-    }
+      if(S.c<1){ alert('옥수수가 없습니다.'); return; }
       const need=S.sel, other=need==='salt'?'sugar':'salt';
       if(S[need]<1){
         if(S[other]>=1){ S.sel=other; renderRes(); alert('선택한 첨가물이 없어 다른 첨가물을 사용합니다.'); }
@@ -432,22 +375,18 @@
         try{
           const data = await j('/api/corn/pop', { kakaoId, use:S.sel });
           const inv=getPotatoInv();
-          var gUsed = data.grade || pickGradeForPop(S.grades||{});
           S.c = (data.agri?.corn!=null) ? data.agri.corn : Math.max(0,S.c-1);
-          if(gUsed){ S.grades[gUsed] = Math.max(0,(S.grades[gUsed]||0)-1); }
           if(data.additives){ S.salt=data.additives.salt ?? S.salt; S.sugar=data.additives.sugar ?? S.sugar; inv.salt=S.salt; inv.sugar=S.sugar; }
-          if(data.result==='popcorn'){ inv.popcorn = data.food?.popcorn ?? (inv.popcorn + (data.qty||0)); toast(`🍿 (${gUsed||'?'}급) +${data.qty||'?'} (서버)`); }
-          else if(data.result==='token'){ inv.token = data.wallet?.orcx ?? (inv.token + (data.qty||0)); toast(`🪙 (${gUsed||'?'}급) +${data.qty||'?'} (서버)`); }
+          if(data.result==='popcorn'){ inv.popcorn = data.food?.popcorn ?? (inv.popcorn + (data.qty||0)); toast(`🍿 팝콘 +${data.qty||'?'} (서버)`); }
+          else if(data.result==='token'){ inv.token = data.wallet?.orcx ?? (inv.token + (data.qty||0)); toast(`🪙 토큰 +${data.qty||'?'} (서버)`); }
           setPotatoInv(inv); save(); renderAll(); return;
         }catch(e){}
       }
       // 로컬
       const inv=getPotatoInv();
-      var gUsed = pickGradeForPop(S.grades||{}); if(!gUsed){ alert('등급 옥수수가 없습니다.'); return; }
-      S.c -= 1; S.grades[gUsed] = Math.max(0,(S.grades[gUsed]||0)-1); S[need] -= 1;
-      var p = PROB[gUsed]||PROB.F; var r=Math.random();
-      if(r < p.pop){ const amt=rndPick(POP_DROP); inv.popcorn+=amt; toast(`🍿 (${gUsed}급) 팝콘 +${amt}`); }
-      else{ const amt=rndPick(TOKEN_DROP); inv.token+=amt; toast(`🪙 (${gUsed}급) 토큰 +${amt}`); }
+      S.c -= 1; S[need] -= 1;
+      if(Math.random()<POP_RATE){ const amt=rndPick(POP_DROP); inv.popcorn+=amt; toast(`🍿 팝콘 +${amt}`); }
+      else{ const amt=rndPick(TOKEN_DROP); inv.token+=amt; toast(`🪙 토큰 +${amt}`); }
       inv[need]=Math.max(0,(inv[need]||0)-1);
       setPotatoInv(inv); save(); renderAll();
     }
@@ -512,53 +451,90 @@
     function toast(msg){ $toast.textContent=msg; $toast.classList.add('show'); setTimeout(()=>{$toast.classList.remove('show')},1400); }
 
     
-    // ========== 관리자: 등급별 토큰 지급 설정 ==========
-    var TOKEN_REWARD = {A:100,B:80,C:60,D:40,E:20,F:10};
-    function showAdminIfAny(){
-      var isAdmin = /[?&]admin=1/.test(location.search) || localStorage.getItem('orcax:isAdmin')==='1';
-      var el = document.getElementById('adminPanel');
-      if(el) el.style.display = isAdmin ? 'block' : 'none';
-    }
-    async function apiGetTokenReward(){
-      try{ return await j('/api/corn/token-reward', {}, 'GET'); }catch(e){ return null; }
-    }
-    async function apiSaveTokenReward(payload){
-      return j('/api/admin/token-reward', payload, 'POST');
-    }
-    function fillAdminInputs(obj){
-      var m = Object.assign({}, TOKEN_REWARD, obj||{});
-      var map = {A:'rA',B:'rB',C:'rC',D:'rD',E:'rE',F:'rF'};
-      for(var k in map){ var el=document.getElementById(map[k]); if(el) el.value = m[k]||0; }
-    }
-    function readAdminInputs(){
-      var map = {A:'rA',B:'rB',C:'rC',D:'rD',E:'rE',F:'rF'}; var out={};
-      for(var k in map){ var el=document.getElementById(map[k]); out[k]=Math.max(0, parseInt(el && el.value || '0',10)||0); }
-      return out;
-    }
-    async function bindAdminPanel(){
-      showAdminIfAny();
-      var btnL=document.getElementById('adminLoad'), btnS=document.getElementById('adminSave');
-      if(btnL) btnL.onclick = async function(){
-        var r = await apiGetTokenReward();
-        if(r && r.rewards){ TOKEN_REWARD = Object.assign({}, TOKEN_REWARD, r.rewards); S.tokenReward = TOKEN_REWARD; fillAdminInputs(TOKEN_REWARD); toast('불러오기 완료'); }
-        else { toast('서버 값이 없어 기본값을 사용합니다.'); fillAdminInputs(TOKEN_REWARD); }
-      };
-      if(btnS) btnS.onclick = async function(){
-        var payload = { rewards: readAdminInputs() };
-        try{ await apiSaveTokenReward(payload); TOKEN_REWARD = Object.assign({}, TOKEN_REWARD, payload.rewards); S.tokenReward = TOKEN_REWARD; toast('저장 완료'); }
-        catch(e){ toast('저장 실패'); }
-      };
-      // 최초 1회 시도
-      try{ var r = await apiGetTokenReward(); if(r && r.rewards){ TOKEN_REWARD = Object.assign({}, TOKEN_REWARD, r.rewards); S.tokenReward = TOKEN_REWARD; } }catch(e){}
-      fillAdminInputs(TOKEN_REWARD);
-    }
-    // loadFromServer에도 반영 (유저 조회시 보드에 있으면 사용)
-    (function extendLoadTokenBoard(){
-      var _orig = loadFromServer;
-      loadFromServer = async function(){
-        await _orig();
-        try{ var tb = await j('/api/corn/token-reward', {}, 'GET'); if(tb && tb.rewards){ TOKEN_REWARD = Object.assign({}, TOKEN_REWARD, tb.rewards); S.tokenReward = TOKEN_REWARD; } }catch(e){}
-      };
+    /* ====== add-only: gate preview, level mark, and popcorn→fertilizer exchange ====== */
+    (function AddOns(){
+      /* Gate Preview: DOM append (no source HTML edits) */
+      function ensureGatePreview(){
+        var card = document.querySelector('#gate .card');
+        if(!card || document.getElementById('gatePreview')) return;
+        var box = document.createElement('div');
+        box.className = 'gate-preview';
+        box.innerHTML = '<img id="gatePreview" src="'+IMG('corn_06_02.png')+'" alt="미리보기">'+
+                        '<div id="gatePreviewCap" class="cap">휴경지</div>'+
+                        '<div id="gateLv" class="lv">1v</div>'+
+                        '<img id="gateMark" class="mark" src="'+IMG('mark_01.png')+'" alt="레벨 마크">';
+        card.appendChild(box);
+      }
+      function levelToTier(level){
+        var lv = (typeof level==='number')? level : 1;
+        var t = Math.floor(lv/5)+1; if(t<1) t=1; if(t>10) t=10; return t;
+      }
+      function applyGatePreview(){
+        ensureGatePreview();
+        var img=document.getElementById('gatePreview');
+        var cap=document.getElementById('gatePreviewCap');
+        var lvEl=document.getElementById('gateLv');
+        var mk=document.getElementById('gateMark');
+        if(!img||!cap) return;
+        if(S.phase!=='GROW'){
+          img.src = IMG('corn_06_02.png');
+          cap.textContent = (S.phase==='STUBBLE')?'수확 완료(휴경지)':'씨앗 필요';
+        }else{
+          var row = (MINI_BY_GAUGE.find(function(r){ return S.g<=r.max; }) || MINI_BY_GAUGE[MINI_BY_GAUGE.length-1]);
+          img.src = IMG(row.file);
+          cap.textContent = row.cap;
+        }
+        var vtier = levelToTier(S.level||1);
+        if(lvEl) lvEl.textContent = vtier + 'v';
+        if(mk) mk.src = IMG('mark_'+String(vtier).padStart(2,'0')+'.png');
+      }
+      // Update preview periodically (no changes to renderAll)
+      setInterval(applyGatePreview, 800);
+
+      /* Popcorn→Fertilizer(1:1) exchange: add new button next to existing pop button */
+      function ensureExchangeBtn(){
+        if(document.getElementById('exchangePop')) return;
+        var popBtn = document.getElementById('pop');
+        if(popBtn && popBtn.parentNode){
+          var ex = document.createElement('button');
+          ex.className = 'btn';
+          ex.id = 'exchangePop';
+          ex.textContent = '팝콘→거름(1:1)';
+          ex.onclick = exchangePop1to1;
+          popBtn.parentNode.appendChild(ex);
+        }
+      }
+      async function exchangePop1to1(){
+        var inv = getPotatoInv();
+        if((inv.popcorn||0) < 1){ alert('팝콘이 없습니다.'); return; }
+        var qty = 1;
+        if(NET_OK){
+          try{
+            var data = await j('/api/exchange/popcorn-to-fertilizer', { kakaoId, qty });
+            if(data && data.inventory){
+              if(typeof data.inventory.popcorn==='number') inv.popcorn = data.inventory.popcorn;
+              if(typeof data.inventory.fertilizer==='number') inv.fertilizer = data.inventory.fertilizer;
+            }else{
+              inv.popcorn = Math.max(0,(inv.popcorn||0)-qty);
+              inv.fertilizer = (inv.fertilizer||0) + qty;
+            }
+            setPotatoInv(inv); S.f = inv.fertilizer; save(); renderAll(); toast('팝콘→거름 교환 완료 (서버)');
+            return;
+          }catch(e){ /* fallback below */ }
+        }
+        inv.popcorn = Math.max(0,(inv.popcorn||0)-qty);
+        inv.fertilizer = (inv.fertilizer||0) + qty;
+        setPotatoInv(inv); S.f = inv.fertilizer; save(); renderAll(); toast('팝콘→거름 교환 완료');
+      }
+      // keep button state synced with inventory
+      setInterval(function(){
+        ensureExchangeBtn();
+        var btn=document.getElementById('exchangePop');
+        if(btn){
+          var inv=getPotatoInv();
+          btn.disabled = !((inv.popcorn||0)>=1);
+        }
+      }, 1000);
     })();
 
 
@@ -568,24 +544,8 @@
       $mini.src = IMG('corn_06_02.png'); $mini.alt='발아'; $miniCap.textContent='씨앗 필요';
       renderAll();
       setInterval(tick, 5000);
-      loadFromServer(); bindAdminPanel();
+      loadFromServer();
     })();
   </script>
-
-  <!-- 관리자: 등급별 토큰 지급 설정 (A~F) -->
-  <div id="adminPanel" class="admin-panel" aria-hidden="true">
-    <h4>관리자 · 등급별 토큰 지급</h4>
-    <div class="row"><label>A</label><input id="rA" type="number" min="0" step="1" value="100"></div>
-    <div class="row"><label>B</label><input id="rB" type="number" min="0" step="1" value="80"></div>
-    <div class="row"><label>C</label><input id="rC" type="number" min="0" step="1" value="60"></div>
-    <div class="row"><label>D</label><input id="rD" type="number" min="0" step="1" value="40"></div>
-    <div class="row"><label>E</label><input id="rE" type="number" min="0" step="1" value="20"></div>
-    <div class="row"><label>F</label><input id="rF" type="number" min="0" step="1" value="10"></div>
-    <div class="btns">
-      <button id="adminLoad">불러오기</button>
-      <button id="adminSave">저장</button>
-    </div>
-  </div>
-
 </body>
 </html>
