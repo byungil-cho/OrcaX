@@ -180,24 +180,24 @@
     const kakaoId  = localStorage.getItem('kakaoId') || '';
 
     /* ====== 이미지 맵 ====== */
-    const IMG = f => `img/${f}`;
-    const BG_BY_GAUGE = [
-      {max:0,   file:'farm_05.png', label:'IDLE'},
-      {max:29,  file:'farm_05.png', label:'이른 봄(해빙)'},
-      {max:59,  file:'farm_07.png', label:'봄 · 초록'},
-      {max:79,  file:'farm_09.png', label:'초여름'},
-      {max:94,  file:'farm_10.png', label:'한창 성장'},
-      {max:100, file:'farm_12.png', label:'수확 준비'}
-    ];
-    const MINI_BY_GAUGE = [
-      {max:0,  file:'corn_06_02.png',cap:'휴경지'},
-      {max:19, file:'corn_06_02.png',cap:'발아'},
-      {max:39, file:'corn_04_02.png',cap:'유묘'},
-      {max:59, file:'corn_02_02.png',cap:'생장'},
-      {max:79, file:'corn_03_01.png',cap:'성숙 전'},
-      {max:94, file:'corn_03_03.png',cap:'이삭'},
-      {max:100,file:'corn_01_01.png',cap:'수확 직전'}
-    ];
+const IMG = f => `img/${f}`;
+const BG_BY_GAUGE = [
+  {max:0,   file:'farm_05.png', label:'IDLE'},
+  {max:29,  file:'farm_05.png', label:'이른 봄(해빙)'},
+  {max:59,  file:'farm_07.png', label:'봄 · 초록'},
+  {max:79,  file:'farm_09.png', label:'초여름'},
+  {max:94,  file:'farm_10.png', label:'한창 성장'},
+  {max:100, file:'farm_12.png', label:'수확 준비'}
+];
+const MINI_BY_GAUGE = [
+  {max:0,  file:'corn_0_01_03.png', cap:'휴경지'},     // ✅ 휴경 대표 이미지
+  {max:19, file:'corn_06_02.png',    cap:'발아'},
+  {max:39, file:'corn_04_02.png',    cap:'유묘'},
+  {max:59, file:'corn_02_02.png',    cap:'생장'},
+  {max:79, file:'corn_02_04.png',    cap:'성숙 전'},   // ✅ 늦은 생장(결실 직전)
+  {max:94, file:'corn_03_03.png',    cap:'이삭'},
+  {max:100,file:'corn_01_01.png',    cap:'수확 직전'}
+];
 
     /* ====== DOM & 상태 ====== */
     const $ = id=>document.getElementById(id);
