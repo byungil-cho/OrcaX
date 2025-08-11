@@ -47,12 +47,22 @@
     .tag{ font-size:12px; line-height:1; padding:6px 8px; border-radius:999px;
       background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); }
     .tag b{ font-weight:700; }
-    .hud .actions{ margin-top:8px; display:flex; gap:6px; }
+    .tag.action{ cursor:pointer; }
+    .hud .actions{ margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
     .btn{
       font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.25);
       background:rgba(0,0,0,.35); color:#fff; cursor:pointer;
     }
+
+    /* 미니 팝업 */
+    #shop{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:50; }
+    #shop .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.45); }
+    #shop .panel{
+      position:relative; min-width:280px; max-width:92vw; background:rgba(20,20,20,.95);
+      border:1px solid rgba(255,255,255,.18); border-radius:16px; padding:14px 16px; color:#fff;
+    }
   </style>
+  <!-- (선택) PWA 사용 시 -->
   <link rel="manifest" href="manifest.webmanifest" />
 </head>
 <body>
@@ -66,13 +76,14 @@
         <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
         <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
         <span class="tag">🍿 팝콘 <b id="r-pop">0</b></span>
-        <span class="tag">🧂 소금 <b id="r-salt">0</b></span>
-        <span class="tag">🍬 설탕 <b id="r-sugar">0</b></span>
+        <span class="tag action" id="tag-salt">🧂 소금 <b id="r-salt">0</b></span>
+        <span class="tag action" id="tag-sugar">🍬 설탕 <b id="r-sugar">0</b></span>
         <span class="tag">🪙 토큰 <b id="r-orcx">0</b></span>
       </div>
       <div class="actions">
         <button class="btn" id="btnRefresh">새로고침</button>
         <button class="btn" id="btnGoFarm">감자 농장 가기</button>
+        <button class="btn" id="btnAdmin" style="display:none">관리자: 가격</button>
       </div>
     </div>
 
@@ -88,24 +99,45 @@
     <div class="caption">박스 안에서 위/아래 스크롤 · 이미지를 누르면 농장으로 이동</div>
   </div>
 
+  <!-- Additive Shop Modal -->
+  <div id="shop">
+    <div class="backdrop" onclick="closeShop()"></div>
+    <div class="panel">
+      <div style="font-weight:700;margin-bottom:8px;">첨가물 구매</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+        <label>종류</label>
+        <select id="shopItem">
+          <option value="salt">소금</option>
+          <option value="sugar">설탕</option>
+        </select>
+        <label style="margin-left:8px;">수량</label>
+        <input id="shopQty" type="number" min="1" value="1" style="width:80px;padding:4px 6px;">
+      </div>
+      <div style="font-size:13px;opacity:.9;margin-bottom:12px;">
+        단가 <b id="shopPricePer">10</b> 토큰 × 수량 = 합계 <b id="shopTotal">10</b> 토큰
+        <span style="margin-left:8px;opacity:.7;">(보유: <b id="shopOrcx">0</b>)</span>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button onclick="closeShop()" class="btn">취소</button>
+        <button onclick="confirmBuy()" class="btn" id="shopBuyBtn">구매</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== 0) 베이스 설정 =====
-    // GitHub → 3060 연동 시 여기만 바꾸면 됩니다.
     const BASE_API =
-      localStorage.getItem('orcax:BASE_API')
-      || 'https://<KIT-HOST>:3060'; // ← 실제 3060 HTTPS 주소로 교체
+      localStorage.getItem('orcax:BASE_API') ||
+      'https://<KIT-HOST>:3060'; // ← 실제 3060 HTTPS 주소로 교체
 
-    // 토큰/닉네임 후보키 (감자농장에서 넘어온 것 활용)
+    // 토큰/닉네임 후보키 (감자농장에서 넘어온 값 활용)
     const tokenKeys = ['orcax:token','token','authToken','jwt'];
     const nickKeys  = ['orcax:nick','orcax:nickname','nickname','userNickname','kakaoNickname'];
-    const guess = (keys, d='')=>{
-      for(const k of keys){ const v=localStorage.getItem(k); if(v) return v; }
-      return d;
-    };
+    const guess = (keys, d='')=>{ for(const k of keys){ const v=localStorage.getItem(k); if(v) return v; } return d; };
     const authToken = guess(tokenKeys, '');
     const localNick = guess(nickKeys, '(로그인 필요)');
 
-    // ===== 1) HUD 초기 표시 (오프라인/무토큰 대비 즉시) =====
+    // ===== HUD DOM =====
     const hudNick = document.getElementById('hudNick');
     const hudRes  = {
       water: document.getElementById('r-water'),
@@ -129,10 +161,21 @@
       hudRes.sugar.textContent = x.sugar ?? 0;
       hudRes.orcx .textContent = x.orcx ?? 0;
     }
-    setNick(localNick,false);
-    setRes({});
+    setNick(localNick,false); setRes({});
 
-    // ===== 2) 서버에서 최신값 불러오기 (있으면 우선) =====
+    // ===== 가격판(서버 권위) =====
+    const PRICE = { salt:10, sugar:20, currency:'ORCX' }; // 기본값(서버 실패 대비)
+    async function loadPriceBoard(){
+      try{
+        const pb = await fetchJSON(`${BASE_API}/api/corn/priceboard`, { cache:'no-store' });
+        if(pb?.salt!=null)  PRICE.salt  = pb.salt;
+        if(pb?.sugar!=null) PRICE.sugar = pb.sugar;
+        if(pb?.currency)    PRICE.currency = pb.currency;
+        updateShopCalc();
+      }catch(e){}
+    }
+
+    // ===== 서버에서 유저정보 로드 =====
     async function fetchJSON(url, opt={}){
       const headers = {'Content-Type':'application/json', ...(opt.headers||{})};
       const o = { method:'GET', mode:'cors', ...opt, headers };
@@ -142,13 +185,10 @@
     }
     async function loadFromServer(){
       try{
-        // 헬스체크로 CORS/HTTPS 확인
         await fetchJSON(`${BASE_API}/api/health`, {cache:'no-store'});
-        // 유저 정보
         const me = await fetchJSON(`${BASE_API}/api/user/me`, {
           headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
         });
-        // me 예시 가정: { nickname, inventory:{water,fertilizer}, agri:{corn}, food:{popcorn}, additives:{salt,sugar}, wallet:{orcx} }
         const name = me.nickname || me.nick || localNick || '(알 수 없음)';
         setNick(name, true);
         setRes({
@@ -160,10 +200,10 @@
           sugar      : me.additives?.sugar ?? 0,
           orcx       : me.wallet?.orcx ?? 0,
         });
+        // 관리자 버튼 노출
+        if(me.role === 'admin') document.getElementById('btnAdmin').style.display = 'inline-block';
       }catch(e){
-        // 서버 연결 실패 시, 로컬의 임시 값(있다면)으로 보조
         setNick(localNick || '(오프라인)', false);
-        // 자원 키 추정 로딩(옵션)
         const gv = k=>Number(localStorage.getItem(k) || 0);
         setRes({
           water: gv('orcax:inv:water'),
@@ -176,15 +216,96 @@
         });
       }
     }
-    loadFromServer();
 
-    // 수동 새로고침
-    document.getElementById('btnRefresh').addEventListener('click', loadFromServer);
+    document.getElementById('btnRefresh').addEventListener('click', ()=>{ loadFromServer(); loadPriceBoard(); });
     document.getElementById('btnGoFarm').addEventListener('click', ()=>{
       location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
     });
 
-    // ===== 3) 서비스워커 등록 (정적만 캐시, /api/는 그대로 네트워크) =====
+    // ===== 소금/설탕 구매 팝업 =====
+    const shop = {
+      el: document.getElementById('shop'),
+      item: document.getElementById('shopItem'),
+      qty: document.getElementById('shopQty'),
+      pricePer: document.getElementById('shopPricePer'),
+      total: document.getElementById('shopTotal'),
+      orcx: document.getElementById('shopOrcx'),
+      btn: document.getElementById('shopBuyBtn')
+    };
+    function openShop(defaultItem){
+      shop.el.style.display = 'flex';
+      if(defaultItem) shop.item.value = defaultItem;
+      shop.orcx.textContent = hudRes.orcx.textContent || 0;
+      updateShopCalc();
+      shop.btn.disabled = false;
+    }
+    function closeShop(){ shop.el.style.display = 'none'; }
+    function updateShopCalc(){
+      const p = PRICE[shop.item.value] || 0;
+      const q = Math.max(1, Number(shop.qty.value||1));
+      shop.pricePer.textContent = p;
+      shop.total.textContent = p * q;
+    }
+    shop.item.addEventListener('change', updateShopCalc);
+    shop.qty.addEventListener('input', ()=>{ shop.qty.value = Math.max(1, Math.floor(Number(shop.qty.value||1))); updateShopCalc(); });
+    document.getElementById('tag-salt').addEventListener('click', ()=>openShop('salt'));
+    document.getElementById('tag-sugar').addEventListener('click', ()=>openShop('sugar'));
+
+    async function confirmBuy(){
+      const item = shop.item.value;
+      const qty  = Math.max(1, Number(shop.qty.value||1));
+      const unit = PRICE[item] || 0;
+      const need = unit * qty;
+      const have = Number(hudRes.orcx.textContent||0);
+      if(have < need){ alert('토큰이 부족합니다.'); return; }
+      shop.btn.disabled = true;
+      try{
+        const r = await fetch(`${BASE_API}/api/corn/buy-additive`, {
+          method:'POST', mode:'cors',
+          headers:{ 'Content-Type':'application/json', ...(authToken?{'Authorization':`Bearer ${authToken}`}:{}) },
+          body: JSON.stringify({ item, qty })
+        });
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const data = await r.json();
+        // 서버 응답으로 HUD 갱신
+        if(data.wallet?.orcx!=null) hudRes.orcx.textContent = data.wallet.orcx;
+        if(item === 'salt'){
+          if(data.additives?.salt!=null) hudRes.salt.textContent = data.additives.salt;
+          else hudRes.salt.textContent = Number(hudRes.salt.textContent||0) + qty;
+        }else{
+          if(data.additives?.sugar!=null) hudRes.sugar.textContent = data.additives.sugar;
+          else hudRes.sugar.textContent = Number(hudRes.sugar.textContent||0) + qty;
+        }
+        closeShop();
+      }catch(e){
+        shop.btn.disabled = false;
+        alert('구매 요청 실패: 서버/CORS를 확인하세요.');
+      }
+    }
+    window.closeShop = closeShop; window.confirmBuy = confirmBuy;
+
+    // ===== 관리자 가격 수정(간단 prompt) =====
+    document.getElementById('btnAdmin').addEventListener('click', async ()=>{
+      const ns = prompt(`소금 단가(현재 ${PRICE.salt})`, PRICE.salt);
+      const nj = prompt(`설탕 단가(현재 ${PRICE.sugar})`, PRICE.sugar);
+      if(ns==null || nj==null) return;
+      const salt  = Math.max(0, Number(ns||PRICE.salt));
+      const sugar = Math.max(0, Number(nj||PRICE.sugar));
+      const r = await fetch(`${BASE_API}/api/corn/priceboard`, {
+        method:'PATCH',
+        headers:{ 'Content-Type':'application/json', ...(authToken?{'Authorization':`Bearer ${authToken}`}:{}) },
+        body: JSON.stringify({ salt, sugar })
+      });
+      if(!r.ok){ alert('가격 수정 실패'); return; }
+      await loadPriceBoard();
+      alert('가격이 갱신되었습니다.');
+    });
+
+    // ===== 초기 로드 =====
+    loadFromServer();
+    loadPriceBoard();
+
+    // ===== (선택) 서비스워커 등록: 정적만 캐시, /api/는 가로채지 않음 =====
     if('serviceWorker' in navigator){
       window.addEventListener('load', ()=>navigator.serviceWorker.register('service-worker.js'));
     }
