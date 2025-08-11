@@ -46,7 +46,8 @@
     <!-- HUD (닉네임/연결상태/자원표시) -->
     <div class="hud">
       <div class="nick" id="hudNick">
-        <span class="status"></span><span>(로그인 확인 중)</span>
+        <span class="status"></span>
+        <span id="nickText">(로그인 확인 중)</span>
         <span class="diag" id="diag"></span>
       </div>
       <div class="res">
@@ -59,7 +60,8 @@
         <span class="tag">🪙 토큰 <b id="r-orcx">0</b></span>
       </div>
       <div class="actions">
-        <button class="btn" id="btnRefresh">새로고침</button>
+        <button class="btn" id="btnRefresh">데이터 새로고침</button>
+        <button class="btn" id="btnHardReload">페이지 새로고침</button>
         <button class="btn" id="btnGoFarm">감자 농장 가기</button>
       </div>
     </div>
@@ -82,8 +84,9 @@
     const kakaoId  = localStorage.getItem('kakaoId') || '';
 
     /* ========= DOM ========= */
-    const diagEl = document.getElementById('diag');
-    const hudNick = document.getElementById('hudNick');
+    const diagEl   = document.getElementById('diag');
+    const hudNick  = document.getElementById('hudNick');
+    const nickText = document.getElementById('nickText');
     const resEl = {
       water: document.getElementById('r-water'),
       fert:  document.getElementById('r-fert'),
@@ -96,7 +99,7 @@
 
     function setNick(name, online){
       hudNick.classList.toggle('online', !!online);
-      hudNick.innerHTML = '<span class="status"></span><span>'+ name +'</span><span class="diag" id="diag">'+ (diagEl?.textContent||'') +'</span>';
+      nickText.textContent = name;
     }
     function setRes(x){
       resEl.water.textContent = x.water ?? 0;
@@ -129,11 +132,11 @@
         setRes({
           water: u.inventory?.water,
           fertilizer: u.inventory?.fertilizer,
-          corn: u.agri?.corn,                 // 있으면 표시
+          corn: u.agri?.corn,
           popcorn: u.food?.popcorn,
           salt: u.additives?.salt,
           sugar: u.additives?.sugar,
-          orcx: u.wallet?.orcx
+          orcx: u.wallet?.orcx ?? u.orcx
         });
       }catch(e){
         setNick(nickname, false);
@@ -151,8 +154,10 @@
       }
     }
 
-    document.getElementById('btnRefresh').addEventListener('click', load);
-    document.getElementById('btnGoFarm').addEventListener('click', ()=>location.href='https://byungil-cho.github.io/OrcaX/index9.html'));
+    // 버튼들
+    document.getElementById('btnRefresh').addEventListener('click', () => { load(); });
+    document.getElementById('btnHardReload').addEventListener('click', () => { location.reload(); });
+    document.getElementById('btnGoFarm').addEventListener('click', () => { location.href = 'https://byungil-cho.github.io/OrcaX/index9.html'; });
 
     // 첫 진입시 로딩
     setNick('(로그인 확인 중)', false);
