@@ -180,24 +180,24 @@
     const kakaoId  = localStorage.getItem('kakaoId') || '';
 
     /* ====== 이미지 맵 ====== */
-const IMG = f => `img/${f}`;
-const BG_BY_GAUGE = [
-  {max:0,   file:'farm_05.png', label:'IDLE'},
-  {max:29,  file:'farm_05.png', label:'이른 봄(해빙)'},
-  {max:59,  file:'farm_07.png', label:'봄 · 초록'},
-  {max:79,  file:'farm_09.png', label:'초여름'},
-  {max:94,  file:'farm_10.png', label:'한창 성장'},
-  {max:100, file:'farm_12.png', label:'수확 준비'}
-];
-const MINI_BY_GAUGE = [
-  {max:0,  file:'corn_0_01_03.png', cap:'휴경지'},     // ✅ 휴경 대표 이미지
-  {max:19, file:'corn_06_02.png',    cap:'발아'},
-  {max:39, file:'corn_04_02.png',    cap:'유묘'},
-  {max:59, file:'corn_02_02.png',    cap:'생장'},
-  {max:79, file:'corn_02_04.png',    cap:'성숙 전'},   // ✅ 늦은 생장(결실 직전)
-  {max:94, file:'corn_03_03.png',    cap:'이삭'},
-  {max:100,file:'corn_01_01.png',    cap:'수확 직전'}
-];
+    const IMG = f => `img/${f}`;
+    const BG_BY_GAUGE = [
+      {max:0,   file:'farm_05.png', label:'IDLE'},
+      {max:29,  file:'farm_05.png', label:'이른 봄(해빙)'},
+      {max:59,  file:'farm_07.png', label:'봄 · 초록'},
+      {max:79,  file:'farm_09.png', label:'초여름'},
+      {max:94,  file:'farm_10.png', label:'한창 성장'},
+      {max:100, file:'farm_12.png', label:'수확 준비'}
+    ];
+    const MINI_BY_GAUGE = [
+      {max:0,  file:'corn_06_02.png',cap:'휴경지'},
+      {max:19, file:'corn_06_02.png',cap:'발아'},
+      {max:39, file:'corn_04_02.png',cap:'유묘'},
+      {max:59, file:'corn_02_02.png',cap:'생장'},
+      {max:79, file:'corn_03_01.png',cap:'성숙 전'},
+      {max:94, file:'corn_03_03.png',cap:'이삭'},
+      {max:100,file:'corn_01_01.png',cap:'수확 직전'}
+    ];
 
     /* ====== DOM & 상태 ====== */
     const $ = id=>document.getElementById(id);
@@ -213,7 +213,7 @@ const MINI_BY_GAUGE = [
     let NET_OK=false;
     let PRICE = { seed:30, salt:10, sugar:20, currency:'ORCX' };
     let S = (()=>{try{
-      return Object.assign({phase:'IDLE',g:0,w:0,f:0,c:0,seed:0,salt:0,sugar:0,sel:'salt'},
+      return Object.assign({phase:'IDLE',g:0,w:0,f:0,c:0,seed:0,salt:0,sugar:0,sel:'salt',grades:{A:0,B:0,C:0,D:0,E:0,F:0},daysLate:0,harvests:0},
         JSON.parse(localStorage.getItem('corn_state')||'{}'));
     }catch(e){return {phase:'IDLE',g:0,w:0,f:0,c:0,seed:0,salt:0,sugar:0,sel:'salt'}}})();
     const resPct = x => Math.max(0, Math.min(100, x*20));
@@ -223,11 +223,25 @@ const MINI_BY_GAUGE = [
     function save(){try{localStorage.setItem('corn_state', JSON.stringify(S));}catch(e){}}
 
     /* ====== 렌더 ====== */
+    
+    function computeGrade(daysLate){
+      if (daysLate<=0) return 'A';
+      if (daysLate===1) return 'B';
+      if (daysLate===2) return 'C';
+      if (daysLate===3) return 'D';
+      if (daysLate===4) return 'E';
+      return 'F';
+    }
+    function gradesLineText(g){
+      return `A급 ${g.A||0} · B급 ${g.B||0} · C급 ${g.C||0} · D급 ${g.D||0} · E급 ${g.E||0} · F급 ${g.F||0}`;
+    }
+
     function setNet(ok, text){ NET_OK=!!ok; $netDot.classList.toggle('ok', ok); $netTxt.textContent = text || (ok?'온라인':'오프라인'); }
     function applyBG(){ const row = BG_BY_GAUGE.find(r=>S.g<=r.max) || BG_BY_GAUGE.at(-1); document.body.style.backgroundImage = `url('${IMG(row.file)}')`; $gState.textContent = (S.phase==='GROW'?row.label.toUpperCase():S.phase); }
     function applyMini(){ const row = MINI_BY_GAUGE.find(r=>S.g<=r.max) || MINI_BY_GAUGE.at(-1); $mini.src = IMG(row.file); $mini.alt = row.cap; $miniCap.textContent = (S.phase==='GROW')?`${row.cap} · Lv.1`:(S.phase==='STUBBLE'?'수확 완료(휴경지)':'씨앗 필요'); }
     function renderGate(){ $fillW.style.height=resPct(S.w)+'%'; $fillF.style.height=resPct(S.f)+'%'; $fillG.style.height=Math.max(0,Math.min(100,S.g))+'%'; }
     function renderRes(){ $w.textContent=S.w; $f.textContent=S.f; $c.textContent=S.c; $seed.textContent=S.seed;
+      var gl=document.getElementById('cornGradesLine'); if(gl) gl.textContent = gradesLineText(S.grades||{});
       $saltCount.textContent=S.salt; $sugarCount.textContent=S.sugar;
       $pickSalt.classList.toggle('sel', S.sel==='salt'); $pickSugar.classList.toggle('sel', S.sel==='sugar');
       $pop.disabled = !( S.c>=1 && (S.salt>=1 || S.sugar>=1) );
@@ -311,11 +325,16 @@ const MINI_BY_GAUGE = [
       if(NET_OK){
         try{
           const data = await j('/api/corn/harvest', { kakaoId });
-          S.c = (data.agri?.corn!=null) ? data.agri.corn : (S.c + (data.gain||0));
-          S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(`수확 완료 (서버)`); return;
+          var serverGain = (typeof data.gain==='number') ? data.gain : 0;
+          S.c = (data.agri?.corn!=null) ? data.agri.corn : (S.c + serverGain);
+          var grade = data.grade || computeGrade(S.daysLate||0);
+          S.grades = S.grades||{A:0,B:0,C:0,D:0,E:0,F:0}; S.grades[grade] = (S.grades[grade]||0) + serverGain; S.harvests = (S.harvests||0)+1; S.level = S.harvests;
+          S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(grade+'급 옥수수 +' + serverGain + ' (서버)'); return;
         }catch(e){}
       }
-      S.c += 5 + Math.floor(Math.random()*3); S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast('수확 완료(로컬)');
+      var gain = 5 + Math.floor(Math.random()*3); var grade = computeGrade(S.daysLate||0);
+      S.c += gain; S.grades = S.grades||{A:0,B:0,C:0,D:0,E:0,F:0}; S.grades[grade] = (S.grades[grade]||0) + gain; S.harvests = (S.harvests||0)+1; S.level = S.harvests;
+      S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(grade+'급 옥수수 +' + gain);
     }
 
     // *** 핵심: 물/거름은 서버에 먼저 차감, 성공 시 재조회
@@ -356,6 +375,8 @@ const MINI_BY_GAUGE = [
 
     const POP_RATE=0.6, TOKEN_DROP=[1,2,3,5], POP_DROP=[1,2];
     const rndPick = a => a[Math.floor(Math.random()*a.length)];
+    const PROB={A:{token:.7,pop:.3},B:{token:.6,pop:.4},C:{token:.5,pop:.5},D:{token:.35,pop:.65},E:{token:.25,pop:.75},F:{token:.15,pop:.85}};
+    function pickGradeForPop(g){ const order=['A','B','C','D','E','F']; for(const k of order){ if((g[k]||0)>0) return k; } return null; }
     async function popCorn(){
       if(S.c<1){ alert('옥수수가 없습니다.'); return; }
       const need=S.sel, other=need==='salt'?'sugar':'salt';
@@ -367,18 +388,22 @@ const MINI_BY_GAUGE = [
         try{
           const data = await j('/api/corn/pop', { kakaoId, use:S.sel });
           const inv=getPotatoInv();
+          var gUsed = data.grade || pickGradeForPop(S.grades||{});
           S.c = (data.agri?.corn!=null) ? data.agri.corn : Math.max(0,S.c-1);
+          if(gUsed){ S.grades[gUsed] = Math.max(0,(S.grades[gUsed]||0)-1); }
           if(data.additives){ S.salt=data.additives.salt ?? S.salt; S.sugar=data.additives.sugar ?? S.sugar; inv.salt=S.salt; inv.sugar=S.sugar; }
-          if(data.result==='popcorn'){ inv.popcorn = data.food?.popcorn ?? (inv.popcorn + (data.qty||0)); toast(`🍿 팝콘 +${data.qty||'?'} (서버)`); }
-          else if(data.result==='token'){ inv.token = data.wallet?.orcx ?? (inv.token + (data.qty||0)); toast(`🪙 토큰 +${data.qty||'?'} (서버)`); }
+          if(data.result==='popcorn'){ inv.popcorn = data.food?.popcorn ?? (inv.popcorn + (data.qty||0)); toast(`🍿 (${gUsed||'?'}급) +${data.qty||'?'} (서버)`); }
+          else if(data.result==='token'){ inv.token = data.wallet?.orcx ?? (inv.token + (data.qty||0)); toast(`🪙 (${gUsed||'?'}급) +${data.qty||'?'} (서버)`); }
           setPotatoInv(inv); save(); renderAll(); return;
         }catch(e){}
       }
       // 로컬
       const inv=getPotatoInv();
-      S.c -= 1; S[need] -= 1;
-      if(Math.random()<POP_RATE){ const amt=rndPick(POP_DROP); inv.popcorn+=amt; toast(`🍿 팝콘 +${amt}`); }
-      else{ const amt=rndPick(TOKEN_DROP); inv.token+=amt; toast(`🪙 토큰 +${amt}`); }
+      var gUsed = pickGradeForPop(S.grades||{}); if(!gUsed){ alert('등급 옥수수가 없습니다.'); return; }
+      S.c -= 1; S.grades[gUsed] = Math.max(0,(S.grades[gUsed]||0)-1); S[need] -= 1;
+      var p = PROB[gUsed]||PROB.F; var r=Math.random();
+      if(r < p.pop){ const amt=rndPick(POP_DROP); inv.popcorn+=amt; toast(`🍿 (${gUsed}급) 팝콘 +${amt}`); }
+      else{ const amt=rndPick(TOKEN_DROP); inv.token+=amt; toast(`🪙 (${gUsed}급) 토큰 +${amt}`); }
       inv[need]=Math.max(0,(inv[need]||0)-1);
       setPotatoInv(inv); save(); renderAll();
     }
