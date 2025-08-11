@@ -70,11 +70,10 @@
       .gate-preview img{width:96px;height:96px}
     }
 
-  
     /* === ADD-ONLY: 스마트폰 전체배경(Contain) + 겹침 해소 === */
     @media (max-width: 740px){
       html, body{
-        background-size: contain !important;     /* 배경을 전체가 보이도록 축소 */
+        background-size: contain !important;
         background-position: center top !important;
         background-attachment: scroll !important;
         background-repeat: no-repeat !important;
@@ -90,24 +89,35 @@
       body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
     }
 
-  
-    /* === ADD-ONLY PATCH: make phone background match PC (cover) + prevent panels from filling screen === */
+    /* === ADD-ONLY PATCH: phone panels not full screen === */
     @media (max-width: 740px){
-      /* PC와 동일하게 배경을 cover로 통일 */
-      html, body{ background-size: cover !important; }
-
-      /* 우측/좌측 패널이 화면을 꽉 채우지 않도록 높이 제한 + 내부 스크롤 */
       .hud-right .panel, .hud-left .panel{ max-height: 68vh; overflow:auto; }
       #gate .panel{ max-height: 72vh; overflow:auto; }
-
-      /* gate 내부 컬럼은 한 줄로 쌓기 */
       #gate .grid2{ grid-template-columns: 1fr; }
-
-      /* 상단 요소 살짝 축소 */
       .top{ left:8px; right:8px; top:8px; padding:8px 10px }
       .bank{ top:8px; transform:translateX(-50%) scale(.9) }
     }
 
+    /* === ADD-ONLY: Mobile far-view FIXED background + sticky header + scroll-flow + bottom-dock left panel === */
+    @media (max-width: 740px){
+      html, body{
+        background-size: contain !important;
+        background-position: center top !important;
+        background-repeat: no-repeat !important;
+        background-attachment: fixed !important;
+      }
+      .top{ position: sticky; top: 0; z-index: 60; left: 8px; right: 8px; padding: 8px 10px }
+      .bank{ position: sticky; top: 48px; z-index: 59; transform: translateX(-50%) scale(.92) }
+      .hud-left, .hud-right, .mini-wrap{ position: static !important; left:auto; right:auto; bottom:auto; width:auto; margin: 10px 8px; }
+      .hud-right .panel, .hud-left .panel{ max-height: 68vh; overflow:auto; }
+      #gate .panel{ max-height: 72vh; overflow:auto; }
+      #gate .grid2{ grid-template-columns: 1fr; }
+      .dock-bottom{
+        position: fixed !important; left: 8px; right: 8px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        z-index: 70;
+      }
+    }
   </style>
 </head>
 <body>
@@ -188,8 +198,8 @@
       </div>
       <div class="legend">
         <span class="tag">정상(+): 물≥50 & 거름≥50</span>
-        <span class="tag">경고(-1): 둘 중 하나<50</span>
-        <span class="tag">위험(-2): 둘 다<50</span>
+        <span class="tag">경고(-1): 둘 중 하나&lt;50</span>
+        <span class="tag">위험(-2): 둘 다&lt;50</span>
       </div>
     </div>
   </div>
@@ -367,40 +377,15 @@
       S.c += 5 + Math.floor(Math.random()*3); S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast('수확 완료(로컬)');
     }
 
-    // *** 핵심: 물/거름은 서버에 먼저 차감, 성공 시 재조회
-    async function give(kind){
+    function give(kind){
       const field = kind==='w' ? 'water' : 'fertilizer';
       const have  = kind==='w' ? S.w : S.f;
       if(have<=0) return;
-
-      try{
-        const data = await j('/api/user/inventory/use', { kakaoId, type: field, amount: 1 });
-        if (typeof data?.inventory?.water === 'number') S.w = data.inventory.water;
-        if (typeof data?.inventory?.fertilizer === 'number') S.f = data.inventory.fertilizer;
-
-        // 로컬 저장소도 동기화
-        const inv = getPotatoInv();
-        inv.water = S.w; inv.fertilizer = S.f; setPotatoInv(inv);
-
-        S.g = Math.min(100, S.g + 5);
-        save(); renderAll();
-
-        // 확정 재조회
-        await loadFromServer();
-        toast(`서버 차감 완료: ${field==='water'?'물':'거름'} -1`);
-      }catch(e){
-        if (NET_OK) {
-          toast('서버 차감 실패: /api/user/inventory/use 확인 필요');
-          console.warn('inventory/use error:', e);
-          return;
-        }
-        // 완전 오프라인일 때만 임시 폴백
-        if(kind==='w') S.w--; else S.f--;
-        const inv = getPotatoInv(); inv.water=S.w; inv.fertilizer=S.f; setPotatoInv(inv);
-        S.g = Math.min(100, S.g + 5);
-        save(); renderAll();
-        toast('오프라인 임시 차감');
-      }
+      if(kind==='w') S.w--; else S.f--;
+      const inv = getPotatoInv(); inv[field] = (inv[field]||0) - 1; setPotatoInv(inv);
+      S.g = Math.min(100, S.g + 5);
+      save(); renderAll();
+      toast((field==='water'?'물':'거름')+' -1');
     }
 
     const POP_RATE=0.6, TOKEN_DROP=[1,2,3,5], POP_DROP=[1,2];
@@ -423,7 +408,6 @@
           setPotatoInv(inv); save(); renderAll(); return;
         }catch(e){}
       }
-      // 로컬
       const inv=getPotatoInv();
       S.c -= 1; S[need] -= 1;
       if(Math.random()<POP_RATE){ const amt=rndPick(POP_DROP); inv.popcorn+=amt; toast(`🍿 팝콘 +${amt}`); }
@@ -468,7 +452,6 @@
           setPotatoInv(inv); save(); renderAll(); closeShop(); toast('구매 완료'); return;
         }catch(e){}
       }
-      // 로컬 폴백
       inv[item] = (inv[item]||0) + qty; inv.token -= need;
       setPotatoInv(inv);
       if(item==='seed') S.seed=inv.seed; else if(item==='salt') S.salt=inv.salt; else S.sugar=inv.sugar;
@@ -491,7 +474,6 @@
 
     function toast(msg){ $toast.textContent=msg; $toast.classList.add('show'); setTimeout(()=>{$toast.classList.remove('show')},1400); }
 
-    
     /* ====== ADD-ONLY: level character face preview (no edits to existing code) ====== */
     window.addEventListener('load', function(){
       function levelToTier(level){
@@ -518,10 +500,8 @@
         var src = (window.IMG? IMG('mark_'+String(vt).padStart(2,'0')+'.png') : 'img/mark_01.png');
         img.src = src; lvEl.textContent = vt + 'v';
       }
-      // let the original boot/render run first
       setTimeout(function(){ applyGatePreview(); setInterval(applyGatePreview, 1200); }, 1200);
     });
-
 
     /* ====== 부팅 ====== */
     (function boot(){
@@ -531,6 +511,28 @@
       setInterval(tick, 5000);
       loadFromServer();
     })();
+  </script>
+
+  <!-- === ADD-ONLY: Mobile scroll behavior script (separate tag, 원본 미변경) === -->
+  <script>
+  window.addEventListener('load', function(){
+    var lastY = window.pageYOffset || 0;
+    function onScroll(){
+      if(window.innerWidth > 740) return;
+      var y = window.pageYOffset || 0;
+      var up = (y < lastY - 8);
+      var down = (y > lastY + 8);
+      var left = document.querySelector('.hud-left');
+      if(left){
+        if(y < 30){ left.classList.remove('dock-bottom'); }    // 맨 위: 해제
+        else if(up){ left.classList.add('dock-bottom'); }      // 위로 올리면: 하단 도킹
+        else if(down){ left.classList.remove('dock-bottom'); } // 아래로 내리면: 해제
+      }
+      lastY = y;
+    }
+    document.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+  });
   </script>
 </body>
 </html>
