@@ -1,167 +1,95 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장 메인</title>
-  <!-- GitHub Pages 하위 경로 고정 -->
-  <base href="/OrcaX/">
   <style>
-    html, body { height:100%; margin:0; background:#000; font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; overflow:hidden; }
-    .wrap{ position:fixed; inset:0; background:url('img/farm_00.png') center/cover no-repeat; }
-    /* 내부 스크롤 박스 (바는 숨김) */
-    .scrollbox{ position:absolute; left:50%; top:55%; transform:translate(-50%,-50%);
-      width:min(40vw,260px); height:min(60vh,460px);
-      border-radius:14px; background:transparent; border:1px solid rgba(255,255,255,.25);
-      box-shadow:0 20px 40px rgba(0,0,0,.45); overflow-y:auto; -webkit-overflow-scrolling:touch;
-      scrollbar-width:none; -ms-overflow-style:none; }
-    .scrollbox::-webkit-scrollbar{ display:none; }
-    .spacer{ height:85vh; }
-    .link{ display:block; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden;
-      border:1px solid rgba(255,255,255,.25); box-shadow:0 8px 24px rgba(0,0,0,.35); }
-    .link img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .caption{ position:fixed; left:50%; bottom:20px; transform:translateX(-50%); color:#fff;
-      background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.2); padding:8px 12px;
-      border-radius:999px; font-size:14px; z-index:10; pointer-events:none; }
-
-    /* HUD(서버 연결/자원) */
-    .hud{ position:fixed; left:12px; top:12px; z-index:20; color:#fff; background:rgba(0,0,0,.45);
-      border:1px solid rgba(255,255,255,.2); border-radius:14px; padding:10px 12px; backdrop-filter:blur(6px);
-      max-width:min(92vw, 560px); }
-    .hud .nick{ font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
-    .hud .nick .status{ width:8px; height:8px; border-radius:999px; background:#e23; }
-    .hud .nick.online .status{ background:#3ecf8e; }
-    .diag{ font-size:11px; opacity:.8; margin-left:8px; }
-    .hud .res{ display:flex; flex-wrap:wrap; gap:8px; }
-    .tag{ font-size:12px; line-height:1; padding:6px 8px; border-radius:999px;
-      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); }
-    .tag b{ font-weight:700; }
-    .hud .actions{ margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
-    .btn{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.25);
-      background:rgba(0,0,0,.35); color:#fff; cursor:pointer; }
+    html,body{height:100%;margin:0;background:#000;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif}
+    /* 입구 표지 배경은 고정(원하면 교체 가능) */
+    .wrap{position:fixed;inset:0;background:url('img/farm_05.png') center/cover no-repeat;}
+    .link{
+      position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);
+      display:block;width:min(40vw,260px);aspect-ratio:16/9;border-radius:14px;
+      border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);
+      backdrop-filter:blur(4px);box-shadow:0 20px 40px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+    .link img{width:100%;height:100%;object-fit:cover;display:block}
+    .caption{
+      position:absolute;left:50%;top:calc(55% + min(22vw,160px));transform:translateX(-50%);
+      color:#fff;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);
+      padding:8px 12px;border-radius:999px;font-size:14px
+    }
   </style>
+  <link rel="manifest" href="manifest.webmanifest" />
 </head>
 <body>
-  <div class="wrap" id="wrap">
-    <!-- HUD (닉네임/연결상태/자원표시) -->
-    <div class="hud">
-      <div class="nick" id="hudNick">
-        <span class="status"></span>
-        <span id="nickText">(로그인 확인 중)</span>
-        <span class="diag" id="diag"></span>
-      </div>
-      <div class="res">
-        <span class="tag">💧 물 <b id="r-water">0</b></span>
-        <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
-        <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
-        <span class="tag">🍿 팝콘 <b id="r-pop">0</b></span>
-        <span class="tag">🧂 소금 <b id="r-salt">0</b></span>
-        <span class="tag">🍬 설탕 <b id="r-sugar">0</b></span>
-        <span class="tag">🪙 토큰 <b id="r-orcx">0</b></span>
-      </div>
-      <div class="actions">
-        <button class="btn" id="btnRefresh">데이터 새로고침</button>
-        <button class="btn" id="btnHardReload">페이지 새로고침</button>
-        <button class="btn" id="btnGoFarm">감자 농장 가기</button>
-      </div>
-    </div>
-
-    <!-- 겨울 이미지 내부 스크롤 -->
-    <div class="scrollbox" aria-label="겨울 이미지 스크롤 영역">
-      <div class="spacer"></div>
-      <a class="link" href="corn-farm.html" title="내 옥수수 농장으로">
-        <img id="thumb" src="img/farm_01.png" alt="겨울 이미지(클릭하여 농장으로 이동)" />
-      </a>
-      <div class="spacer"></div>
-    </div>
-    <div class="caption">박스 안에서 위/아래 스크롤 · 이미지를 누르면 농장으로 이동</div>
+  <div class="wrap">
+    <a class="link" href="corn-farm.html" title="내 옥수수 농장으로">
+      <!-- 시즌에 따라 이 썸네일이 자동 교체됩니다 -->
+      <img id="entrance-thumb" src="img/farm_01.png" alt="농장 썸네일(시즌 자동 반영)" />
+    </a>
+    <div class="caption">이미지를 눌러 내 옥수수 농장으로 이동</div>
   </div>
 
   <script>
-    /* ========= 환경 ========= */
-    const BASE_API = localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io';
-    const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '(로그인 필요)';
-    const kakaoId  = localStorage.getItem('kakaoId') || '';
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', ()=>navigator.serviceWorker.register('service-worker.js'));
+    }
 
-    /* ========= DOM ========= */
-    const diagEl   = document.getElementById('diag');
-    const hudNick  = document.getElementById('hudNick');
-    const nickText = document.getElementById('nickText');
-    const resEl = {
-      water: document.getElementById('r-water'),
-      fert:  document.getElementById('r-fert'),
-      corn:  document.getElementById('r-corn'),
-      pop:   document.getElementById('r-pop'),
-      salt:  document.getElementById('r-salt'),
-      sugar: document.getElementById('r-sugar'),
-      orcx:  document.getElementById('r-orcx'),
+    /* 시즌→배경 이미지 매핑 (img/파일명 사용) */
+    const FARM_BG = {
+      winterDeep:  'img/farm_01.png', // 한겨울
+      thaw:        'img/farm_03.png', // 해빙기
+      spring:      'img/farm_05.png', // 봄
+      summer:      'img/farm_07.png', // 여름
+      autumn:      'img/farm_09.png', // 가을
+      earlySnow:   'img/farm_10.png', // 초설
+      winterField: 'img/farm_12.png', // 설경 들판
     };
-
-    function setNick(name, online){
-      hudNick.classList.toggle('online', !!online);
-      nickText.textContent = name;
-    }
-    function setRes(x){
-      resEl.water.textContent = x.water ?? 0;
-      resEl.fert.textContent  = x.fertilizer ?? 0;
-      resEl.corn.textContent  = x.corn ?? 0;
-      resEl.pop.textContent   = x.popcorn ?? 0;
-      resEl.salt.textContent  = x.salt ?? 0;
-      resEl.sugar.textContent = x.sugar ?? 0;
-      resEl.orcx.textContent  = x.orcx ?? 0;
-    }
-
-    /* ========= 감자 방식 /api/userdata ========= */
-    async function fetchUser(){
-      if(!kakaoId) throw new Error('kakaoId 없음 (감자에서 로그인 필요)');
-      diagEl.textContent = ' API: '+BASE_API+' / kakaoId:'+kakaoId;
-      const r = await fetch(BASE_API + '/api/userdata', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ kakaoId })
-      });
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.json();
-    }
-
-    async function load(){
-      try{
-        const res = await fetchUser();
-        const u = (res && (res.user || res.data?.user)) || {};
-        setNick(nickname, true);
-        setRes({
-          water: u.inventory?.water,
-          fertilizer: u.inventory?.fertilizer,
-          corn: u.agri?.corn,
-          popcorn: u.food?.popcorn,
-          salt: u.additives?.salt,
-          sugar: u.additives?.sugar,
-          orcx: u.wallet?.orcx ?? u.orcx
-        });
-      }catch(e){
-        setNick(nickname, false);
-        // 로컬 폴백(감자에서 쓰던 저장 키들)
-        const gv = k => Number(localStorage.getItem(k)||0);
-        setRes({
-          water: gv('orcax:inv:water'),
-          fertilizer: gv('orcax:inv:fertilizer'),
-          corn: gv('orcax:agri:corn'),
-          popcorn: gv('orcax:food:popcorn'),
-          salt: gv('orcax:add:salt'),
-          sugar: gv('orcax:add:sugar'),
-          orcx: gv('orcax:wallet:orcx')
-        });
+    function pickFarmBgBySeason(season='SUMMER'){
+      switch(String(season).toUpperCase()){
+        case 'WINTER':  return FARM_BG.winterDeep;
+        case 'SPRING':  return FARM_BG.spring;
+        case 'SUMMER':  return FARM_BG.summer;
+        case 'AUTUMN':  return FARM_BG.autumn;
+        default:        return FARM_BG.summer;
       }
     }
 
-    // 버튼들
-    document.getElementById('btnRefresh').addEventListener('click', () => { load(); });
-    document.getElementById('btnHardReload').addEventListener('click', () => { location.reload(); });
-    document.getElementById('btnGoFarm').addEventListener('click', () => { location.href = 'https://byungil-cho.github.io/OrcaX/index9.html'; });
+    // 서버가 있으면 서버에서, 없으면 최근 기록/월로 시즌 추정
+    const API_HOST = localStorage.getItem('API_HOST') ||
+                     new URLSearchParams(location.search).get('api') || ''; // 선택사항
 
-    // 첫 진입시 로딩
-    setNick('(로그인 확인 중)', false);
-    load();
+    async function getSeasonFromServer(){
+      if(!API_HOST) return null;
+      try{
+        const r = await fetch(API_HOST + '/farm/state', { credentials:'include' });
+        if(!r.ok) return null;
+        const j = await r.json();
+        return j.season || null; // 'WINTER'|'SPRING'|'SUMMER'|'AUTUMN'
+      }catch(e){ return null; }
+    }
+
+    function guessSeasonByMonth(m=(new Date).getMonth()){ // 0=Jan
+      if(m===11 || m<=1) return 'WINTER';
+      if(m>=2 && m<=4)   return 'SPRING';
+      if(m>=5 && m<=7)   return 'SUMMER';
+      return 'AUTUMN';
+    }
+
+    (async ()=>{
+      const season =
+        await getSeasonFromServer() ||
+        localStorage.getItem('farmSeason') ||  // 농장 화면에서 저장해 둔 최근 시즌
+        guessSeasonByMonth();
+
+      const src = pickFarmBgBySeason(season);
+      const img = document.getElementById('entrance-thumb');
+      img.src = src + '?v=' + season; // 캐시 무효화
+      img.alt = `농장 썸네일 (${season})`;
+    })();
   </script>
 </body>
 </html>
