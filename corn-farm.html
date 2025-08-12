@@ -495,45 +495,49 @@
     })();
   </script>
 
-<!-- === ADD-ONLY: Mobile 'Header+Stage+BottomBar' (no edits to existing code) === -->
+<!-- === ADD-ONLY: Mobile Header + Stage + BottomBar (INIT HIDE) === -->
 <style>
 @media (max-width: 900px){
-  /* 0) Hide original fixed bars on mobile */
+  /* Hide original fixed UI in mobile; keep background logic intact */
   .top, .bank { display:none !important; }
+  #gateBackdrop{ display:none !important; }
 
-  /* 1) Main mobile frame: left/right 10px margins (width = vw - 20) */
-  #mWrap{
-    position:fixed; left:10px; right:10px; top:10px; bottom:74px; /* leave space for bottom bar (64+10) */
-    display:flex; flex-direction:column;
-    z-index: 9998;
-    pointer-events:auto;
-  }
-
-  /* 2) Fixed header (like PC one-liner) */
+  /* Fixed Top Header (PC-like, single line) */
   #mHdr{
-    position:sticky; top:0; z-index:2;
+    position:fixed; left:10px; right:10px; top:10px; z-index:9999;
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:8px 10px;
-    border-radius:14px;
-    background:rgba(0,0,0,.32); border:1px solid rgba(255,255,255,.22);
-    white-space:nowrap; color:#fff; font-size:14px;
-    backdrop-filter:none; /* background stays sharp */
+    padding:8px 12px; border-radius:14px;
+    background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
+    color:#fff; font-size:14px; white-space:nowrap;
   }
   #mHdr .who{ font-weight:800; overflow:hidden; text-overflow:ellipsis; max-width:48vw; }
   #mHdr .pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px;
                border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
   #mHdr .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 } #mHdr .dot.ok{ background:#25d366 }
 
-  /* 3) Scrollable body between header and bottom bar */
-  #mBody{
-    position:relative; flex:1 1 auto; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
-    padding:8px 0 8px 0;
+  /* Fixed Bottom Menu Bar */
+  #mBar{
+    position:fixed; left:10px; right:10px; bottom:10px; z-index:9999;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+    padding:10px; border-radius:16px;
+    background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
+  }
+  #mBar .mbtn{
+    border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); color:#fff;
+    border-radius:12px; padding:10px 8px; font-size:14px; line-height:1.1;
   }
 
-  /* Mini image centered */
+  /* Middle scroll area (hidden initially) */
+  #mBody{
+    position:fixed; left:10px; right:10px; top:64px; bottom:68px; /* header ~ bottom space */
+    overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+    display:none; /* show only after user taps a menu */
+  }
+
+  /* Mini centered */
   #mMini{
     display:grid; justify-items:center; gap:8px;
-    margin: 4px auto 10px auto; width:min(420px, 92%); /* central width */
+    margin: 4px auto 10px auto; width:min(440px, 96%);
   }
   #mMini .mini-wrap{
     position:static !important; margin:0 auto; display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
@@ -544,9 +548,9 @@
   #mMini .mini{ width:160px; height:160px; object-fit:cover; border-radius:12px; }
   #mMini .mini-cap{ grid-column:1/-1; text-align:center; opacity:.9; }
 
-  /* Stage where panels are inserted under the mini */
+  /* Stage: where the selected panel appears under the mini */
   #mStage{
-    margin:0 auto; width:min(520px, 98%); /* a bit wider than mini */
+    margin:0 auto; width:min(520px, 98%);
     display:flex; flex-direction:column; gap:12px;
   }
   #mStage .panel, #mStage .gate .card, #mStage #shop{
@@ -554,7 +558,6 @@
     width:100% !important;
     left:auto !important; right:auto !important; top:auto !important; bottom:auto !important; transform:none !important;
   }
-  /* make shop look like a card when inside stage */
   #mStage #shop{
     display:block !important;
     border-radius:16px; border:1px solid rgba(255,255,255,.22);
@@ -562,22 +565,8 @@
     padding:10px;
   }
 
-  /* 4) Bottom menu bar: fixed */
-  #mBar{
-    position:fixed; left:10px; right:10px; bottom:10px; z-index:9999;
-    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
-    padding:10px; border-radius:16px;
-    background:rgba(0,0,0,.32); border:1px solid rgba(255,255,255,.22);
-  }
-  #mBar .mbtn{
-    border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); color:#fff;
-    border-radius:12px; padding:10px 8px; font-size:14px; line-height:1.1;
-  }
-
-  /* Reset original HUD panels positioning when moved into stage */
+  /* Reset original HUD positions when moved into stage */
   .hud-left, .hud-right { position:static !important; bottom:auto; left:auto; right:auto; }
-  /* Disable PC backdrops on mobile stage view */
-  #gateBackdrop{ display:none !important; }
 }
 </style>
 
@@ -585,11 +574,10 @@
 (function(){
   const mq = window.matchMedia('(max-width: 900px)');
   if(!mq.matches) return;
-  if(document.getElementById('mWrap')) return; // once
+  if(document.getElementById('mHdr')) return; // once
 
-  // Build scaffolding
-  const wrap = document.createElement('div'); wrap.id='mWrap';
-  const hdr  = document.createElement('div'); hdr.id='mHdr';
+  // 1) Build Top Header + Bottom Bar
+  const hdr = document.createElement('div'); hdr.id='mHdr';
   hdr.innerHTML =
     '<span class="who" id="mWho"></span>' +
     '<span style="display:flex;gap:8px;align-items:center">' +
@@ -597,65 +585,26 @@
       '<span class="pill">🍿 <b id="mPop">0</b></span>' +
       '<span class="pill"><span id="mDot" class="dot"></span> <span id="mNet">오프라인</span></span>' +
     '</span>';
-  const body = document.createElement('div'); body.id='mBody';
-  const mMini = document.createElement('div'); mMini.id = 'mMini';
-  const stage = document.createElement('div'); stage.id = 'mStage';
-  body.appendChild(mMini); body.appendChild(stage);
+  document.body.appendChild(hdr);
 
-  const bar  = document.createElement('div'); bar.id='mBar';
+  const bar = document.createElement('div'); bar.id='mBar';
   bar.innerHTML =
     '<button class="mbtn" data-tgt="FARM">농사짓기</button>'+
     '<button class="mbtn" data-tgt="GATE">성장게이트</button>'+
     '<button class="mbtn" data-tgt="SHOP">구매/첨가물</button>'+
     '<button class="mbtn" data-tgt="SYNC">동기화</button>';
-
-  wrap.appendChild(hdr); wrap.appendChild(body);
-  document.body.appendChild(wrap);
   document.body.appendChild(bar);
 
-  // Move the existing mini block into #mMini
-  const miniWrap = document.querySelector('.mini-wrap');
-  if(miniWrap){ mMini.appendChild(miniWrap); }
+  // 2) Build middle scroll container (hidden initially)
+  const body = document.createElement('div'); body.id='mBody';
+  const mMini = document.createElement('div'); mMini.id='mMini';
+  const stage = document.createElement('div'); stage.id='mStage';
+  body.appendChild(mMini); body.appendChild(stage);
+  document.body.appendChild(body);
 
-  // Helper to clear stage
-  function clearStage(){
-    while(stage.firstChild){ stage.appendChild(document.createComment('')); stage.removeChild(stage.firstChild); }
-  }
-
-  // View builders (move existing nodes, no clone)
-  function viewFarm(){
-    clearStage();
-    const L = document.querySelector('.hud-left .panel');
-    const R = document.querySelector('.hud-right .panel');
-    if(L) stage.appendChild(L);
-    if(R) stage.appendChild(R);
-    body.scrollTo({top: mMini.offsetTop - 8, behavior:'instant'});
-  }
-  function viewGate(){
-    clearStage();
-    // gate dock + gate card
-    const dock = document.querySelector('.hud-left .gate-dock');
-    const gate = document.getElementById('gate');
-    if(dock) stage.appendChild(dock);
-    if(gate) stage.appendChild(gate);
-    try{ if(typeof updateGateFace==='function') updateGateFace(); }catch(e){}
-    body.scrollTo({top: mMini.offsetTop - 8, behavior:'instant'});
-  }
-  function viewShop(){
-    clearStage();
-    const shop = document.getElementById('shop');
-    if(shop){
-      stage.appendChild(shop);
-      shop.style.display='block';
-    }
-    body.scrollTo({top: mMini.offsetTop - 8, behavior:'instant'});
-  }
-
-  // Header sync from existing storage / DOM
+  // 3) Header sync from existing storage/state
   function readInv(){
-    try{
-      return JSON.parse(localStorage.getItem('potato_inv')||localStorage.getItem('potatoInv')||'{}');
-    }catch(e){ return {}; }
+    try{ return JSON.parse(localStorage.getItem('potato_inv')||localStorage.getItem('potatoInv')||'{}'); }catch(e){ return {}; }
   }
   function syncHdr(){
     const name = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '';
@@ -669,27 +618,60 @@
   }
   syncHdr(); setInterval(syncHdr, 800);
 
-  // Bottom bar actions
+  // 4) Helpers
+  function ensureMiniIn(mMini){
+    const mw = document.querySelector('.mini-wrap');
+    if(mw && mw.parentElement !== mMini){ mMini.appendChild(mw); }
+  }
+  function clearStage(){
+    while(stage.firstChild){ stage.appendChild(document.createComment('')); stage.removeChild(stage.firstChild); }
+  }
+  function showBody(){ if(body.style.display!=='block'){ body.style.display='block'; } }
+
+  // 5) Views (move nodes on demand only)
+  function viewFarm(){
+    clearStage(); ensureMiniIn(mMini);
+    const L = document.querySelector('.hud-left .panel');
+    const R = document.querySelector('.hud-right .panel');
+    if(L) stage.appendChild(L);
+    if(R) stage.appendChild(R);
+    showBody();
+  }
+  function viewGate(){
+    clearStage(); ensureMiniIn(mMini);
+    const dock = document.querySelector('.hud-left .gate-dock');
+    const gate = document.getElementById('gate');
+    if(dock) stage.appendChild(dock);
+    if(gate) stage.appendChild(gate);
+    try{ if(typeof updateGateFace==='function') updateGateFace(); }catch(e){}
+    showBody();
+  }
+  function viewShop(){
+    clearStage(); ensureMiniIn(mMini);
+    const shop = document.getElementById('shop');
+    if(shop){ stage.appendChild(shop); shop.style.display = 'block'; }
+    showBody();
+  }
+
+  // 6) Bottom bar actions
   bar.addEventListener('click', async (e)=>{
     const btn = e.target.closest('.mbtn'); if(!btn) return;
     const tgt = btn.getAttribute('data-tgt');
-    if(tgt==='SYNC'){
-      if(typeof loadFromServer==='function'){ try{ await loadFromServer(); }catch(e){} }
-      return;
-    }
+    if(tgt==='SYNC'){ if(typeof loadFromServer==='function'){ try{ await loadFromServer(); }catch(e){} } return; }
     if(tgt==='FARM') viewFarm();
     if(tgt==='GATE') viewGate();
     if(tgt==='SHOP') viewShop();
   });
 
-  // Default view: FARM
-  viewFarm();
+  // Initial state: ONLY header and bottom bar (background visible)
+  // mBody remains hidden until a menu is tapped.
 })();
 </script>
 <!-- === /ADD-ONLY === -->
 
 </body>
 </html>
+
 
 
 
