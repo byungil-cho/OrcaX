@@ -495,26 +495,17 @@
     })();
   </script>
 
-<!-- === ADD-ONLY (v9): Sharp Glass Rail (mobile default, desktop toggle) === -->
+<!-- === ADD-ONLY (v10): Transparent Glass Rail + Single Popup + Sticky Mini + Gate Bars 50% === -->
 <script>
 (function(){
-  // Feature flags
   const isMobile = window.matchMedia('(max-width: 900px)').matches;
   const params = new URLSearchParams(location.search);
   const glassFlag = params.has('glass');
   if(!isMobile && !glassFlag) return; // desktop off by default
 
-  // In-app detection for safe mode
   var inapp = /KAKAO|KAKAOTALK|NAVER|NAVER\(inapp\)|FBAV|Instagram|Line/i.test(navigator.userAgent);
   if(inapp) document.documentElement.classList.add('inapp');
 
-  // Create fallback bg if none
-  if(isMobile){
-    var bg = document.getElementById('mBgFallback');
-    if(!bg){ bg = document.createElement('div'); bg.id='mBgFallback'; document.body.prepend(bg); }
-  }
-
-  // Build header/top + bottom bar if not present
   if(!document.getElementById('mHdr')){
     const hdr = document.createElement('div'); hdr.id='mHdr';
     hdr.innerHTML =
@@ -535,13 +526,11 @@
     document.body.appendChild(bar);
   }
 
-  // Build sharp glass rail
-  if(document.getElementById('glassRail')) return; // once
+  if(document.getElementById('glassRail')) return;
   const rail = document.createElement('div'); rail.id='glassRail';
-  rail.innerHTML = '<div id=\"glassInner\"><div id=\"gMini\"></div><div id=\"gStage\"></div></div>';
+  rail.innerHTML = '<div id="glassBackdrop" tabindex="-1"></div><div id="glassInner"><button id="glassClose" aria-label="닫기">✕</button><div id="gMini"></div><div id="gStage"></div></div>';
   document.body.appendChild(rail);
 
-  // Header data sync
   function readInv(){ try{ return JSON.parse(localStorage.getItem('potato_inv')||localStorage.getItem('potatoInv')||'{}'); }catch(e){ return {}; } }
   function syncHdr(){
     const name = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '';
@@ -555,35 +544,44 @@
   }
   syncHdr(); setInterval(syncHdr, 1000);
 
-  // Helpers (move nodes without cloning)
   const gMini = document.getElementById('gMini');
   const gStage = document.getElementById('gStage');
-  function ensureMini(){ const mw=document.querySelector('.mini-wrap'); if(mw && mw.parentElement!==gMini){ gMini.appendChild(mw); } }
-  function clearStage(){ while(gStage.firstChild){ gStage.appendChild(document.createComment('')); gStage.removeChild(gStage.firstChild); } }
-  function showRail(){ document.documentElement.classList.add('glass-on'); }
+  function ensureMini(){ const mw = document.querySelector('.mini-wrap'); if(mw && mw.parentElement!==gMini){ gMini.appendChild(mw); } }
+  function clearStage(){
+    const shop = document.getElementById('shop'); if(shop) shop.style.display='none';
+    const gate = document.getElementById('gate'); if(gate) gate.style.display='none';
+    while(gStage.firstChild){ gStage.appendChild(document.createComment('')); gStage.removeChild(gStage.firstChild); }
+  }
+  function openRail(){ document.documentElement.classList.add('glass-on'); }
+  function closeRail(){ document.documentElement.classList.remove('glass-on'); currentView=null; clearStage(); }
 
-  // Views
-  function viewFarm(){ try{
+  document.getElementById('glassClose').addEventListener('click', closeRail);
+  document.getElementById('glassBackdrop').addEventListener('click', closeRail);
+
+  let currentView = null;
+  function viewFarm(){
+    if(currentView==='FARM'){ closeRail(); return; }
     clearStage(); ensureMini();
     const L=document.querySelector('.hud-left .panel'); const R=document.querySelector('.hud-right .panel');
     if(L) gStage.appendChild(L); if(R) gStage.appendChild(R);
-    showRail();
-  }catch(e){} }
-  function viewGate(){ try{
+    currentView='FARM'; openRail();
+  }
+  function viewGate(){
+    if(currentView==='GATE'){ closeRail(); return; }
     clearStage(); ensureMini();
     const dock=document.querySelector('.hud-left .gate-dock'); const gate=document.getElementById('gate');
     if(dock) gStage.appendChild(dock);
     if(gate){ gStage.appendChild(gate); gate.style.display='block'; }
-    if(typeof updateGateFace==='function'){ try{ updateGateFace(); }catch(_){} }
-    showRail();
-  }catch(e){} }
-  function viewShop(){ try{
+    try{ if(typeof updateGateFace==='function') updateGateFace(); }catch(e){}
+    currentView='GATE'; openRail();
+  }
+  function viewShop(){
+    if(currentView==='SHOP'){ closeRail(); return; }
     clearStage(); ensureMini();
     const shop=document.getElementById('shop'); if(shop){ gStage.appendChild(shop); shop.style.display='block'; }
-    showRail();
-  }catch(e){} }
+    currentView='SHOP'; openRail();
+  }
 
-  // Bottom bar actions (reuse if already bound)
   document.getElementById('mBar').addEventListener('click', async (e)=>{
     const btn = e.target.closest('.mbtn'); if(!btn) return;
     const tgt = btn.getAttribute('data-tgt');
@@ -593,29 +591,15 @@
     if(tgt==='SHOP') viewShop();
   }, {passive:true});
 
-  // Desktop toggle shortcut
   window.addEventListener('keydown', (e)=>{ if(!isMobile && e.key.toLowerCase()==='g'){ document.documentElement.classList.toggle('glass-on'); } });
-
-  // Initial state: only header & bottom bar visible
-  // rail appears only after first menu click
 })();
 </script>
 <style>
-/* Common tokens */
-:root{
-  --glass-bg: rgba(18,18,18,.34);
-  --glass-bd: rgba(255,255,255,.20);
-  --glass-sh: 0 18px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
-}
+:root{ --glass-bd: rgba(255,255,255,.14); }
 @media (max-width:900px){
-  /* Hide original fixed bars on mobile */
   .top, .bank { display:none !important; }
   #gateBackdrop{ display:none !important; }
-  body{ background-color:transparent !important; }
-  #mBgFallback{ position:fixed; inset:0; z-index:0;
-    background: radial-gradient(1200px 800px at 50% 40%, rgba(255,255,255,.08), rgba(0,0,0,0) 60%), linear-gradient(180deg, #0b3a1a, #1e5f2e 55%, #0b3a1a); }
 
-  /* Header / Bottom Bar */
   #mHdr{
     position:fixed; left:10px; right:10px; top:10px; z-index:9999;
     display:flex; align-items:center; justify-content:space-between; gap:8px;
@@ -624,43 +608,54 @@
   #mHdr .who{ font-weight:800; overflow:hidden; text-overflow:ellipsis; max-width:48vw; }
   #mHdr .pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
   #mHdr .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 } #mHdr .dot.ok{ background:#25d366 }
+
   #mBar{
     position:fixed; left:10px; right:10px; bottom:10px; z-index:9999;
-    display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:10px; border-radius:16px; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:10px; border-radius:16px;
+    background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
   }
-  #mBar .mbtn{ border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); color:#fff; border-radius:12px; padding:10px 8px; font-size:14px; line-height:1.1; }
+  #mBar .mbtn{ border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.20); color:#fff; border-radius:12px; padding:10px 8px; font-size:14px; line-height:1.1; }
 
-  /* Sharp Glass Rail (central column) */
-  #glassRail{ position:fixed; left:10px; right:10px; top:64px; bottom:68px; z-index:9998; display:none; }
+  #glassRail{ position:fixed; left:10px; right:10px; top:64px; bottom:70px; z-index:9998; display:none; }
   html.glass-on #glassRail{ display:block; }
-  #glassInner{ position:absolute; left:50%; transform:translateX(-50%); width:min(560px, 96%); height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
-    background:var(--glass-bg); border:1px solid var(--glass-bd); border-radius:18px; box-shadow:var(--glass-sh); }
-  html.inapp #glassInner{ background:rgba(0,0,0,.26); box-shadow:0 12px 24px rgba(0,0,0,.25); } /* safe for in-app */
-
-  /* Mini at top */
-  #gMini{ display:grid; justify-items:center; gap:8px; padding:12px 12px 6px 12px; }
+  #glassBackdrop{ position:absolute; inset:0; background:transparent; }
+  #glassInner{
+    position:absolute; left:50%; transform:translateX(-50%);
+    width:min(560px, 96%); height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+    background:transparent; border:1px solid var(--glass-bd); border-radius:18px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset;
+    padding:8px 10px 90px 10px; pointer-events:auto;
+  }
+  #glassClose{
+    position:sticky; top:8px; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
+    border-radius:999px; border:1px solid rgba(255,255,255,.22);
+    background:rgba(0,0,0,.25); color:#fff; z-index:2;
+  }
+  #gMini{ position:sticky; top:8px; z-index:1; display:grid; justify-items:center; padding:6px 4px; }
   #gMini .mini-wrap{ position:static !important; display:grid !important; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; width:100%;
-    border:1px solid rgba(255,255,255,.20); border-radius:14px; background:rgba(0,0,0,.18); padding:10px; }
+    border:1px solid rgba(255,255,255,.18); border-radius:14px; background:rgba(0,0,0,.18); padding:10px; }
   #gMini .mini{ width:160px; height:160px; object-fit:cover; border-radius:12px; }
 
-  /* Stage below mini */
-  #gStage{ padding:8px 12px 14px 12px; display:flex; flex-direction:column; gap:12px; }
+  #gStage{ display:flex; flex-direction:column; gap:12px; padding-top:8px; }
   #gStage .panel, #gStage #gate .card, #gStage #shop{ position:static !important; width:100% !important; left:auto !important; right:auto !important; top:auto !important; bottom:auto !important; transform:none !important; display:block !important; }
+
+  /* Gate layout: bars slimmer (50%), keep preview on the side */
+  #gStage #gate .card{ display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap:12px; align-items:center; }
+  #gStage #gate .bars{ max-width:50%; }
+  #gStage #gate .bar{ width:50% !important; max-width:12px; }
+  #gStage #gate .gate-preview, #gStage #gate #gatePreview{ justify-self:stretch; }
 }
-/* Desktop toggle look (when ?glass=1) */
 @media (min-width:901px){
-  :root{ --glass-bg: rgba(18,18,18,.30); }
   html.glass-on #glassRail{ display:block; }
   #glassRail{ position:fixed; left:0; right:0; top:84px; bottom:24px; z-index:9998; display:none; }
-  #glassInner{ position:absolute; left:50%; transform:translateX(-50%); width:min(720px, 72%); height:100%; overflow:auto;
-    background:var(--glass-bg); border:1px solid var(--glass-bd); border-radius:18px; box-shadow:var(--glass-sh); }
+  #glassInner{ position:absolute; left:50%; transform:translateX(-50%); width:min(720px, 72%); height:100%; overflow:auto; background:transparent; border:1px solid var(--glass-bd); border-radius:18px; padding:10px 12px 100px 12px; }
   #gMini .mini{ width:200px; height:200px; }
-  #gStage{ padding:12px 16px 18px 16px; gap:14px; }
 }
 </style>
 
 </body>
 </html>
+
 
 
 
