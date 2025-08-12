@@ -60,14 +60,84 @@
     #shop .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45)}
     #shop .panel{position:relative;min-width:280px;max-width:92vw;background:rgba(20,20,20,.95);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:14px 16px;color:#fff}
   
-    /* === ADD-ONLY: mobile responsive + gate face preview === */
-    .gate-preview{position:absolute; right:10px; top:42px; display:flex; flex-direction:column; align-items:center; gap:4px}
-    .gate-preview img{width:120px;height:120px;border-radius:12px;border:1px solid var(--bd);background:#000;object-fit:cover}
-    .gate-preview .lv{font-size:12px;font-weight:700;opacity:.95}
-    @media (max-width:640px){
-      #gate .card{max-width:92vw;width:92vw}
-      .gate-preview{position:static;margin-top:8px}
-      .gate-preview img{width:96px;height:96px}
+    /* admin-only panel (hidden unless ?admin=1 or localStorage flag) */
+    .admin-panel{position:fixed;right:12px;bottom:12px;z-index:60;display:none;
+      background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.18);border-radius:12px;
+      padding:10px 12px;color:#fff;min-width:240px}
+    .admin-panel h4{margin:0 0 8px 0;font-size:13px}
+    .admin-panel .row{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:center}
+    .admin-panel input{width:100%;background:#111;border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:6px 8px}
+    .admin-panel .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+    .admin-panel button{cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.08);color:#fff}
+
+  
+    /* === ADD-ONLY: hide API/Kakao diag text; keep only simple status === */
+    .status .diag{ display:none !important; }
+
+    /* === ADD-ONLY: Mobile "transparent mirror box" container === */
+    @media (max-width: 740px){
+      /* Background: same image fixed at top & bottom to fill tall screens; non-moving */
+      body{
+        background-image: var(--bg-url), var(--bg-url) !important;
+        background-position: center top, center bottom !important;
+        background-repeat: no-repeat, no-repeat !important;
+        background-size: contain, contain !important;
+        background-attachment: fixed, fixed !important;
+      }
+      /* Lighter glass to reveal background */
+      .glass{ background: rgba(0,0,0,.30) !important; }
+
+      /* Original fixed HUDs are hidden from view; we'll use the mirror container */
+      .top, .bank, .hud-left, .hud-right, .mini-wrap{ display:none !important; }
+      .backdrop.show{ display:none !important; } /* prevent dark overlay on mobile */
+
+      /* Mirror container */
+      #mirror{
+        position: fixed; inset: 10px 10px 10px 10px;
+        display: flex; flex-direction: column;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,.22);
+        background: rgba(0,0,0,.28);
+        backdrop-filter: saturate(1.05) blur(8px);
+        box-shadow: 0 18px 40px rgba(0,0,0,.45);
+        overflow: hidden; z-index: 60;
+      }
+      #mirrorHeader{
+        flex: 0 0 auto;
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255,255,255,.18);
+        display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        color: #fff; font-size: 14px;
+      }
+      #mirrorHeader .who{ font-weight: 700; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:48vw; }
+      #mirrorHeader .line{ display:flex; gap:10px; align-items:center; font-variant-numeric: tabular-nums; }
+      #mirrorHeader .pill{ display:inline-flex; gap:6px; align-items:center; padding:5px 9px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.30); font-size:12px; }
+      #mirrorHeader .dot{ width:9px; height:9px; border-radius:999px; background:#ef4444; }
+      #mirrorHeader .dot.ok{ background:#25d366; }
+
+      #mirrorBody{
+        flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        padding: 10px; display: grid; gap: 12px;
+      }
+      #mirrorBody::-webkit-scrollbar{ display: none; }
+
+      /* Section wrappers (wide vertical boxes) */
+      .m-sec{
+        border: 1px solid rgba(255,255,255,.22);
+        border-radius: 14px;
+        background: rgba(0,0,0,.22);
+        padding: 10px;
+      }
+      /* Narrow the #2 (right panel) a bit inside to feel tighter */
+      #mSec2 .panel{ max-width: 560px; margin: 0 auto; }
+      #mSec3 .panel{ max-width: 560px; margin: 0 auto; }
+      #mSec4 .gate-dock{ max-width: 560px; margin: 0 auto; }
+      #mSec5 .mini-wrap{ display:flex !important; gap:10px; justify-content:center; }
+
+      /* Ensure #gate shows in-flow when opened */
+      #mSec4 #gate{ position: static !important; display: none; }
+      #mSec4 #gate.open{ display: block; }
+      #mSec4 .gate .card{ max-width: 560px; margin: 0 auto; }
     }
 
   </style>
@@ -224,7 +294,7 @@
     let NET_OK=false;
     let PRICE = { seed:30, salt:10, sugar:20, currency:'ORCX' };
     let S = (()=>{try{
-      return Object.assign({phase:'IDLE',g:0,w:0,f:0,c:0,seed:0,salt:0,sugar:0,sel:'salt'},
+      return Object.assign({phase:'IDLE',g:0,w:0,f:0,c:0,seed:0,salt:0,sugar:0,sel:'salt',grades:{A:0,B:0,C:0,D:0,E:0,F:0},daysLate:0,harvests:0},
         JSON.parse(localStorage.getItem('corn_state')||'{}'));
     }catch(e){return {phase:'IDLE',g:0,w:0,f:0,c:0,seed:0,salt:0,sugar:0,sel:'salt'}}})();
     const resPct = x => Math.max(0, Math.min(100, x*20));
@@ -234,14 +304,28 @@
     function save(){try{localStorage.setItem('corn_state', JSON.stringify(S));}catch(e){}}
 
     /* ====== 렌더 ====== */
+    
+    function computeGrade(daysLate){
+      if (daysLate<=0) return 'A';
+      if (daysLate===1) return 'B';
+      if (daysLate===2) return 'C';
+      if (daysLate===3) return 'D';
+      if (daysLate===4) return 'E';
+      return 'F';
+    }
+    function gradesLineText(g){
+      return `A급 ${g.A||0} · B급 ${g.B||0} · C급 ${g.C||0} · D급 ${g.D||0} · E급 ${g.E||0} · F급 ${g.F||0}`;
+    }
+
     function setNet(ok, text){ NET_OK=!!ok; $netDot.classList.toggle('ok', ok); $netTxt.textContent = text || (ok?'온라인':'오프라인'); }
     function applyBG(){ const row = BG_BY_GAUGE.find(r=>S.g<=r.max) || BG_BY_GAUGE.at(-1); document.body.style.backgroundImage = `url('${IMG(row.file)}')`; $gState.textContent = (S.phase==='GROW'?row.label.toUpperCase():S.phase); }
     function applyMini(){ const row = MINI_BY_GAUGE.find(r=>S.g<=r.max) || MINI_BY_GAUGE.at(-1); $mini.src = IMG(row.file); $mini.alt = row.cap; $miniCap.textContent = (S.phase==='GROW')?`${row.cap} · Lv.1`:(S.phase==='STUBBLE'?'수확 완료(휴경지)':'씨앗 필요'); }
     function renderGate(){ $fillW.style.height=resPct(S.w)+'%'; $fillF.style.height=resPct(S.f)+'%'; $fillG.style.height=Math.max(0,Math.min(100,S.g))+'%'; }
     function renderRes(){ $w.textContent=S.w; $f.textContent=S.f; $c.textContent=S.c; $seed.textContent=S.seed;
+      var gl=document.getElementById('cornGradesLine'); if(gl) gl.textContent = gradesLineText(S.grades||{});
       $saltCount.textContent=S.salt; $sugarCount.textContent=S.sugar;
       $pickSalt.classList.toggle('sel', S.sel==='salt'); $pickSugar.classList.toggle('sel', S.sel==='sugar');
-      $pop.disabled = !( S.c>=1 && (S.salt>=1 || S.sugar>=1) );
+      var _invForPop = getPotatoInv(); $pop.disabled = !(_invForPop.popcorn>=1);
       $plant.disabled = !(S.phase!=='GROW' && S.seed>=1);
       $harv.disabled = !(S.phase==='GROW' && S.g>=100);
     }
@@ -322,11 +406,16 @@
       if(NET_OK){
         try{
           const data = await j('/api/corn/harvest', { kakaoId });
-          S.c = (data.agri?.corn!=null) ? data.agri.corn : (S.c + (data.gain||0));
-          S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(`수확 완료 (서버)`); return;
+          var serverGain = (typeof data.gain==='number') ? data.gain : 0;
+          S.c = (data.agri?.corn!=null) ? data.agri.corn : (S.c + serverGain);
+          var grade = data.grade || computeGrade(S.daysLate||0);
+          S.grades = S.grades||{A:0,B:0,C:0,D:0,E:0,F:0}; S.grades[grade] = (S.grades[grade]||0) + serverGain; S.harvests = (S.harvests||0)+1; S.level = S.harvests;
+          S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(grade+'급 옥수수 +' + serverGain + ' (서버)'); return;
         }catch(e){}
       }
-      S.c += 5 + Math.floor(Math.random()*3); S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast('수확 완료(로컬)');
+      var gain = 5 + Math.floor(Math.random()*3); var grade = computeGrade(S.daysLate||0);
+      S.c += gain; S.grades = S.grades||{A:0,B:0,C:0,D:0,E:0,F:0}; S.grades[grade] = (S.grades[grade]||0) + gain; S.harvests = (S.harvests||0)+1; S.level = S.harvests;
+      S.g=0; S.phase='STUBBLE'; save(); renderAll(); toast(grade+'급 옥수수 +' + gain);
     }
 
     // *** 핵심: 물/거름은 서버에 먼저 차감, 성공 시 재조회
@@ -367,8 +456,43 @@
 
     const POP_RATE=0.6, TOKEN_DROP=[1,2,3,5], POP_DROP=[1,2];
     const rndPick = a => a[Math.floor(Math.random()*a.length)];
+    const PROB={A:{token:.7,pop:.3},B:{token:.6,pop:.4},C:{token:.5,pop:.5},D:{token:.35,pop:.65},E:{token:.25,pop:.75},F:{token:.15,pop:.85}};
+    function pickGradeForPop(g){ const order=['A','B','C','D','E','F']; for(const k of order){ if((g[k]||0)>0) return k; } return null; }
     async function popCorn(){
-      if(S.c<1){ alert('옥수수가 없습니다.'); return; }
+      const inv = getPotatoInv();
+      if((inv.popcorn||0) < 1){ alert('팝콘이 없습니다.'); return; }
+      const qty = 1; // 1:1 교환 (필요 시 다중 교환으로 확장 가능)
+      // 서버 시도
+      if(NET_OK){
+        try{
+          const data = await j('/api/exchange/popcorn-to-fertilizer', { kakaoId, qty });
+          // 서버가 최신 재고를 내려주는 경우
+          if(data.inventory){
+            if(typeof data.inventory.popcorn==='number') inv.popcorn = data.inventory.popcorn;
+            if(typeof data.inventory.fertilizer==='number') inv.fertilizer = data.inventory.fertilizer;
+          }else{
+            // 응답에 명시가 없으면 로컬로 반영
+            inv.popcorn = Math.max(0,(inv.popcorn||0) - qty);
+            inv.fertilizer = (inv.fertilizer||0) + qty;
+          }
+          setPotatoInv(inv);
+          // 로컬 상태도 맞춰줌
+          S.f = inv.fertilizer;
+          save(); renderAll();
+          toast('팝콘 → 거름 1:1 교환 완료 (서버)');
+          return;
+        }catch(e){
+          // 서버 실패 시 로컬 폴백으로 진행
+        }
+      }
+      // 로컬 폴백
+      inv.popcorn = Math.max(0,(inv.popcorn||0) - qty);
+      inv.fertilizer = (inv.fertilizer||0) + qty;
+      setPotatoInv(inv);
+      S.f = inv.fertilizer;
+      save(); renderAll();
+      toast('팝콘 → 거름 1:1 교환 완료');
+    }
       const need=S.sel, other=need==='salt'?'sugar':'salt';
       if(S[need]<1){
         if(S[other]>=1){ S.sel=other; renderRes(); alert('선택한 첨가물이 없어 다른 첨가물을 사용합니다.'); }
@@ -378,18 +502,22 @@
         try{
           const data = await j('/api/corn/pop', { kakaoId, use:S.sel });
           const inv=getPotatoInv();
+          var gUsed = data.grade || pickGradeForPop(S.grades||{});
           S.c = (data.agri?.corn!=null) ? data.agri.corn : Math.max(0,S.c-1);
+          if(gUsed){ S.grades[gUsed] = Math.max(0,(S.grades[gUsed]||0)-1); }
           if(data.additives){ S.salt=data.additives.salt ?? S.salt; S.sugar=data.additives.sugar ?? S.sugar; inv.salt=S.salt; inv.sugar=S.sugar; }
-          if(data.result==='popcorn'){ inv.popcorn = data.food?.popcorn ?? (inv.popcorn + (data.qty||0)); toast(`🍿 팝콘 +${data.qty||'?'} (서버)`); }
-          else if(data.result==='token'){ inv.token = data.wallet?.orcx ?? (inv.token + (data.qty||0)); toast(`🪙 토큰 +${data.qty||'?'} (서버)`); }
+          if(data.result==='popcorn'){ inv.popcorn = data.food?.popcorn ?? (inv.popcorn + (data.qty||0)); toast(`🍿 (${gUsed||'?'}급) +${data.qty||'?'} (서버)`); }
+          else if(data.result==='token'){ inv.token = data.wallet?.orcx ?? (inv.token + (data.qty||0)); toast(`🪙 (${gUsed||'?'}급) +${data.qty||'?'} (서버)`); }
           setPotatoInv(inv); save(); renderAll(); return;
         }catch(e){}
       }
       // 로컬
       const inv=getPotatoInv();
-      S.c -= 1; S[need] -= 1;
-      if(Math.random()<POP_RATE){ const amt=rndPick(POP_DROP); inv.popcorn+=amt; toast(`🍿 팝콘 +${amt}`); }
-      else{ const amt=rndPick(TOKEN_DROP); inv.token+=amt; toast(`🪙 토큰 +${amt}`); }
+      var gUsed = pickGradeForPop(S.grades||{}); if(!gUsed){ alert('등급 옥수수가 없습니다.'); return; }
+      S.c -= 1; S.grades[gUsed] = Math.max(0,(S.grades[gUsed]||0)-1); S[need] -= 1;
+      var p = PROB[gUsed]||PROB.F; var r=Math.random();
+      if(r < p.pop){ const amt=rndPick(POP_DROP); inv.popcorn+=amt; toast(`🍿 (${gUsed}급) 팝콘 +${amt}`); }
+      else{ const amt=rndPick(TOKEN_DROP); inv.token+=amt; toast(`🪙 (${gUsed}급) 토큰 +${amt}`); }
       inv[need]=Math.max(0,(inv[need]||0)-1);
       setPotatoInv(inv); save(); renderAll();
     }
@@ -454,34 +582,132 @@
     function toast(msg){ $toast.textContent=msg; $toast.classList.add('show'); setTimeout(()=>{$toast.classList.remove('show')},1400); }
 
     
-    /* ====== ADD-ONLY: level character face preview (no edits to existing code) ====== */
+    // ========== 관리자: 등급별 토큰 지급 설정 ==========
+    var TOKEN_REWARD = {A:100,B:80,C:60,D:40,E:20,F:10};
+    function showAdminIfAny(){
+      var isAdmin = /[?&]admin=1/.test(location.search) || localStorage.getItem('orcax:isAdmin')==='1';
+      var el = document.getElementById('adminPanel');
+      if(el) el.style.display = isAdmin ? 'block' : 'none';
+    }
+    async function apiGetTokenReward(){
+      try{ return await j('/api/corn/token-reward', {}, 'GET'); }catch(e){ return null; }
+    }
+    async function apiSaveTokenReward(payload){
+      return j('/api/admin/token-reward', payload, 'POST');
+    }
+    function fillAdminInputs(obj){
+      var m = Object.assign({}, TOKEN_REWARD, obj||{});
+      var map = {A:'rA',B:'rB',C:'rC',D:'rD',E:'rE',F:'rF'};
+      for(var k in map){ var el=document.getElementById(map[k]); if(el) el.value = m[k]||0; }
+    }
+    function readAdminInputs(){
+      var map = {A:'rA',B:'rB',C:'rC',D:'rD',E:'rE',F:'rF'}; var out={};
+      for(var k in map){ var el=document.getElementById(map[k]); out[k]=Math.max(0, parseInt(el && el.value || '0',10)||0); }
+      return out;
+    }
+    async function bindAdminPanel(){
+      showAdminIfAny();
+      var btnL=document.getElementById('adminLoad'), btnS=document.getElementById('adminSave');
+      if(btnL) btnL.onclick = async function(){
+        var r = await apiGetTokenReward();
+        if(r && r.rewards){ TOKEN_REWARD = Object.assign({}, TOKEN_REWARD, r.rewards); S.tokenReward = TOKEN_REWARD; fillAdminInputs(TOKEN_REWARD); toast('불러오기 완료'); }
+        else { toast('서버 값이 없어 기본값을 사용합니다.'); fillAdminInputs(TOKEN_REWARD); }
+      };
+      if(btnS) btnS.onclick = async function(){
+        var payload = { rewards: readAdminInputs() };
+        try{ await apiSaveTokenReward(payload); TOKEN_REWARD = Object.assign({}, TOKEN_REWARD, payload.rewards); S.tokenReward = TOKEN_REWARD; toast('저장 완료'); }
+        catch(e){ toast('저장 실패'); }
+      };
+      // 최초 1회 시도
+      try{ var r = await apiGetTokenReward(); if(r && r.rewards){ TOKEN_REWARD = Object.assign({}, TOKEN_REWARD, r.rewards); S.tokenReward = TOKEN_REWARD; } }catch(e){}
+      fillAdminInputs(TOKEN_REWARD);
+    }
+    // loadFromServer에도 반영 (유저 조회시 보드에 있으면 사용)
+    (function extendLoadTokenBoard(){
+      var _orig = loadFromServer;
+      loadFromServer = async function(){
+        await _orig();
+        try{ var tb = await j('/api/corn/token-reward', {}, 'GET'); if(tb && tb.rewards){ TOKEN_REWARD = Object.assign({}, TOKEN_REWARD, tb.rewards); S.tokenReward = TOKEN_REWARD; } }catch(e){}
+      };
+    })();
+
+
+    
+    /* ====== ADD-ONLY: Mobile mirror-box layout (no changes to existing code) ====== */
     window.addEventListener('load', function(){
-      function levelToTier(level){
-        if(typeof level !== 'number'){ var g=(window.S&&S.g)||0; level = Math.floor(g/10)*5 + 1; }
-        var t = Math.floor(level/5)+1; if(t<1) t=1; if(t>10) t=10; return t;
+      if(window.innerWidth > 740) return; // mobile only
+
+      // Keep CSS var --bg-url synced with body's backgroundImage (seasonal changes)
+      function syncBgVar(){
+        try{
+          var bg = getComputedStyle(document.body).backgroundImage; // e.g., url("img/farm_09.png")
+          if(bg && bg !== 'none'){ document.documentElement.style.setProperty('--bg-url', bg); }
+        }catch(e){}
       }
-      function ensureGatePreview(){
-        var card = document.querySelector('#gate .card');
-        if(!card || document.getElementById('gatePreview')) return;
-        var box = document.createElement('div');
-        box.className = 'gate-preview';
-        var vt = levelToTier(window.S&&S.level);
-        var imgSrc = (window.IMG? IMG('mark_'+String(vt).padStart(2,'0')+'.png') : 'img/mark_01.png');
-        box.innerHTML = '<img id="gatePreview" src="'+imgSrc+'" alt="레벨 캐릭터">'+
-                        '<div id="gateLv" class="lv">'+vt+'v</div>';
-        card.appendChild(box);
+      syncBgVar(); setInterval(syncBgVar, 1000);
+
+      // Build mirror container skeleton
+      var mirror = document.createElement('div');
+      mirror.id = 'mirror';
+
+      var header = document.createElement('div');
+      header.id = 'mirrorHeader';
+      header.innerHTML = '<span class="who" id="mWho"></span>'
+        + '<span class="line">'
+        +   '<span class="pill">🪙 <b id="mTok">0</b></span>'
+        +   '<span class="pill">🍿 <b id="mPop">0</b></span>'
+        +   '<span class="pill"><span id="mDot" class="dot"></span> <span id="mNet">오프라인</span></span>'
+        + '</span>';
+
+      var body = document.createElement('div'); body.id = 'mirrorBody';
+
+      // Sections (#2..#5). #1 is header line above.
+      var s2 = document.createElement('div'); s2.id='mSec2'; s2.className='m-sec';
+      var s3 = document.createElement('div'); s3.id='mSec3'; s3.className='m-sec';
+      var s4 = document.createElement('div'); s4.id='mSec4'; s4.className='m-sec';
+      var s5 = document.createElement('div'); s5.id='mSec5'; s5.className='m-sec';
+
+      body.appendChild(s2); body.appendChild(s3); body.appendChild(s4); body.appendChild(s5);
+      mirror.appendChild(header); mirror.appendChild(body);
+
+      // Place mirror as the first element inside <body>
+      document.body.insertBefore(mirror, document.body.firstChild);
+
+      // Move existing parts into sections (appendChild moves nodes; original bindings preserved)
+      var rightPanel = document.querySelector('.hud-right .panel'); if(rightPanel) s2.appendChild(rightPanel);
+      var leftPanel  = document.querySelector('.hud-left .panel');  if(leftPanel)  s3.appendChild(leftPanel);
+      var gateDock   = document.querySelector('.hud-left .gate-dock'); if(gateDock) s4.appendChild(gateDock);
+      var gate       = document.getElementById('gate'); if(gate) s4.appendChild(gate);
+      var miniWrap   = document.querySelector('.mini-wrap'); if(miniWrap) s5.appendChild(miniWrap);
+
+      // Keep header values synced
+      function syncHeader(){
+        try{
+          var name = (window.nickname || localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '(로그인 필요)');
+          var inv  = (typeof getPotatoInv==='function') ? getPotatoInv() : {token:0,popcorn:0};
+          var ok   = !!window.NET_OK;
+          var $ = id => document.getElementById(id);
+          $('mWho').textContent = name;
+          $('mTok').textContent = inv.token || 0;
+          $('mPop').textContent = inv.popcorn || 0;
+          $('mDot').classList.toggle('ok', ok);
+          $('mNet').textContent = ok ? '온라인' : '오프라인';
+        }catch(e){}
       }
-      function applyGatePreview(){
-        ensureGatePreview();
-        var img=document.getElementById('gatePreview');
-        var lvEl=document.getElementById('gateLv');
-        if(!img||!lvEl) return;
-        var vt = levelToTier(window.S&&S.level);
-        var src = (window.IMG? IMG('mark_'+String(vt).padStart(2,'0')+'.png') : 'img/mark_01.png');
-        img.src = src; lvEl.textContent = vt + 'v';
+      syncHeader(); setInterval(syncHeader, 1000);
+
+      // Ensure gate stays inside section 4 when opened/closed
+      function ensureGateInFlow(){
+        var g = document.getElementById('gate');
+        if(g && g.parentNode !== s4){ s4.appendChild(g); }
       }
-      // let the original boot/render run first
-      setTimeout(function(){ applyGatePreview(); setInterval(applyGatePreview, 1200); }, 1200);
+      var btnGate = document.getElementById('btnGate');
+      if(btnGate){ btnGate.addEventListener('click', function(){ setTimeout(ensureGateInFlow, 0); }); }
+      try{
+        var mo = new MutationObserver(ensureGateInFlow);
+        var g = document.getElementById('gate');
+        if(g) mo.observe(g, { attributes:true, attributeFilter:['class','style'] });
+      }catch(e){}
     });
 
 
@@ -491,186 +717,28 @@
       $mini.src = IMG('corn_06_02.png'); $mini.alt='발아'; $miniCap.textContent='씨앗 필요';
       renderAll();
       setInterval(tick, 5000);
-      loadFromServer();
+      loadFromServer(); bindAdminPanel();
     })();
   </script>
 
-<!-- === ADD-ONLY: Mobile Header + Stage + BottomBar (INIT HIDE) === -->
-<style>
-@media (max-width: 900px){
-  /* Hide original fixed UI in mobile; keep background logic intact */
-  .top, .bank { display:none !important; }
-  #gateBackdrop{ display:none !important; }
-
-  /* Fixed Top Header (PC-like, single line) */
-  #mHdr{
-    position:fixed; left:10px; right:10px; top:10px; z-index:9999;
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:8px 12px; border-radius:14px;
-    background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
-    color:#fff; font-size:14px; white-space:nowrap;
-  }
-  #mHdr .who{ font-weight:800; overflow:hidden; text-overflow:ellipsis; max-width:48vw; }
-  #mHdr .pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px;
-               border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
-  #mHdr .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 } #mHdr .dot.ok{ background:#25d366 }
-
-  /* Fixed Bottom Menu Bar */
-  #mBar{
-    position:fixed; left:10px; right:10px; bottom:10px; z-index:9999;
-    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
-    padding:10px; border-radius:16px;
-    background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
-  }
-  #mBar .mbtn{
-    border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); color:#fff;
-    border-radius:12px; padding:10px 8px; font-size:14px; line-height:1.1;
-  }
-
-  /* Middle scroll area (hidden initially) */
-  #mBody{
-    position:fixed; left:10px; right:10px; top:64px; bottom:68px; /* header ~ bottom space */
-    overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
-    display:none; /* show only after user taps a menu */
-  }
-
-  /* Mini centered */
-  #mMini{
-    display:grid; justify-items:center; gap:8px;
-    margin: 4px auto 10px auto; width:min(440px, 96%);
-  }
-  #mMini .mini-wrap{
-    position:static !important; margin:0 auto; display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
-    width:100%;
-    border-radius:16px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.18);
-    padding:10px;
-  }
-  #mMini .mini{ width:160px; height:160px; object-fit:cover; border-radius:12px; }
-  #mMini .mini-cap{ grid-column:1/-1; text-align:center; opacity:.9; }
-
-  /* Stage: where the selected panel appears under the mini */
-  #mStage{
-    margin:0 auto; width:min(520px, 98%);
-    display:flex; flex-direction:column; gap:12px;
-  }
-  #mStage .panel, #mStage .gate .card, #mStage #shop{
-    position:static !important;
-    width:100% !important;
-    left:auto !important; right:auto !important; top:auto !important; bottom:auto !important; transform:none !important;
-  }
-  #mStage #shop{
-    display:block !important;
-    border-radius:16px; border:1px solid rgba(255,255,255,.22);
-    background:rgba(0,0,0,.28);
-    padding:10px;
-  }
-
-  /* Reset original HUD positions when moved into stage */
-  .hud-left, .hud-right { position:static !important; bottom:auto; left:auto; right:auto; }
-}
-</style>
-
-<script>
-(function(){
-  const mq = window.matchMedia('(max-width: 900px)');
-  if(!mq.matches) return;
-  if(document.getElementById('mHdr')) return; // once
-
-  // 1) Build Top Header + Bottom Bar
-  const hdr = document.createElement('div'); hdr.id='mHdr';
-  hdr.innerHTML =
-    '<span class="who" id="mWho"></span>' +
-    '<span style="display:flex;gap:8px;align-items:center">' +
-      '<span class="pill">🪙 <b id="mTok">0</b></span>' +
-      '<span class="pill">🍿 <b id="mPop">0</b></span>' +
-      '<span class="pill"><span id="mDot" class="dot"></span> <span id="mNet">오프라인</span></span>' +
-    '</span>';
-  document.body.appendChild(hdr);
-
-  const bar = document.createElement('div'); bar.id='mBar';
-  bar.innerHTML =
-    '<button class="mbtn" data-tgt="FARM">농사짓기</button>'+
-    '<button class="mbtn" data-tgt="GATE">성장게이트</button>'+
-    '<button class="mbtn" data-tgt="SHOP">구매/첨가물</button>'+
-    '<button class="mbtn" data-tgt="SYNC">동기화</button>';
-  document.body.appendChild(bar);
-
-  // 2) Build middle scroll container (hidden initially)
-  const body = document.createElement('div'); body.id='mBody';
-  const mMini = document.createElement('div'); mMini.id='mMini';
-  const stage = document.createElement('div'); stage.id='mStage';
-  body.appendChild(mMini); body.appendChild(stage);
-  document.body.appendChild(body);
-
-  // 3) Header sync from existing storage/state
-  function readInv(){
-    try{ return JSON.parse(localStorage.getItem('potato_inv')||localStorage.getItem('potatoInv')||'{}'); }catch(e){ return {}; }
-  }
-  function syncHdr(){
-    const name = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '';
-    const inv  = readInv();
-    document.getElementById('mWho').textContent = name || '(로그인 필요)';
-    document.getElementById('mTok').textContent = inv.token ?? 0;
-    document.getElementById('mPop').textContent = inv.popcorn ?? 0;
-    const ok = document.getElementById('netDot')?.classList.contains('ok') || false;
-    document.getElementById('mDot').classList.toggle('ok', !!ok);
-    document.getElementById('mNet').textContent = ok ? '온라인' : '오프라인';
-  }
-  syncHdr(); setInterval(syncHdr, 800);
-
-  // 4) Helpers
-  function ensureMiniIn(mMini){
-    const mw = document.querySelector('.mini-wrap');
-    if(mw && mw.parentElement !== mMini){ mMini.appendChild(mw); }
-  }
-  function clearStage(){
-    while(stage.firstChild){ stage.appendChild(document.createComment('')); stage.removeChild(stage.firstChild); }
-  }
-  function showBody(){ if(body.style.display!=='block'){ body.style.display='block'; } }
-
-  // 5) Views (move nodes on demand only)
-  function viewFarm(){
-    clearStage(); ensureMiniIn(mMini);
-    const L = document.querySelector('.hud-left .panel');
-    const R = document.querySelector('.hud-right .panel');
-    if(L) stage.appendChild(L);
-    if(R) stage.appendChild(R);
-    showBody();
-  }
-  function viewGate(){
-    clearStage(); ensureMiniIn(mMini);
-    const dock = document.querySelector('.hud-left .gate-dock');
-    const gate = document.getElementById('gate');
-    if(dock) stage.appendChild(dock);
-    if(gate) stage.appendChild(gate);
-    try{ if(typeof updateGateFace==='function') updateGateFace(); }catch(e){}
-    showBody();
-  }
-  function viewShop(){
-    clearStage(); ensureMiniIn(mMini);
-    const shop = document.getElementById('shop');
-    if(shop){ stage.appendChild(shop); shop.style.display = 'block'; }
-    showBody();
-  }
-
-  // 6) Bottom bar actions
-  bar.addEventListener('click', async (e)=>{
-    const btn = e.target.closest('.mbtn'); if(!btn) return;
-    const tgt = btn.getAttribute('data-tgt');
-    if(tgt==='SYNC'){ if(typeof loadFromServer==='function'){ try{ await loadFromServer(); }catch(e){} } return; }
-    if(tgt==='FARM') viewFarm();
-    if(tgt==='GATE') viewGate();
-    if(tgt==='SHOP') viewShop();
-  });
-
-  // Initial state: ONLY header and bottom bar (background visible)
-  // mBody remains hidden until a menu is tapped.
-})();
-</script>
-<!-- === /ADD-ONLY === -->
+  <!-- 관리자: 등급별 토큰 지급 설정 (A~F) -->
+  <div id="adminPanel" class="admin-panel" aria-hidden="true">
+    <h4>관리자 · 등급별 토큰 지급</h4>
+    <div class="row"><label>A</label><input id="rA" type="number" min="0" step="1" value="100"></div>
+    <div class="row"><label>B</label><input id="rB" type="number" min="0" step="1" value="80"></div>
+    <div class="row"><label>C</label><input id="rC" type="number" min="0" step="1" value="60"></div>
+    <div class="row"><label>D</label><input id="rD" type="number" min="0" step="1" value="40"></div>
+    <div class="row"><label>E</label><input id="rE" type="number" min="0" step="1" value="20"></div>
+    <div class="row"><label>F</label><input id="rF" type="number" min="0" step="1" value="10"></div>
+    <div class="btns">
+      <button id="adminLoad">불러오기</button>
+      <button id="adminSave">저장</button>
+    </div>
+  </div>
 
 </body>
 </html>
+
 
 
 
