@@ -110,6 +110,82 @@
     }
 
   </style>
+<style>
+/* === OrcaX Mobile Menu & Popup Patch (2025-08-12) === */
+@media (max-width: 900px){
+  /* Background stays fixed */
+  body{
+    background-attachment: fixed;
+  }
+  /* Mirror container centered with fixed max width */
+  #mirror{
+    inset: auto !important;
+    top: 10px; bottom: 10px; left: 50%; right: auto;
+    transform: translateX(-50%);
+    width: min(480px, calc(100vw - 20px));
+  }
+  #mirrorHeader{
+    white-space: nowrap;
+  }
+  /* Button bar under header */
+  #mirrorBar{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 8px 10px 0 10px;
+  }
+  #mirrorBar .mbtn{
+    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(0,0,0,.28);
+    color: #fff;
+    border-radius: 12px;
+    padding: 8px 6px;
+    font-size: 13px;
+    line-height: 1.1;
+  }
+  #mirrorBody{ padding-top: 8px; }
+
+  /* Popup shell inside mirror */
+  #mOverlay{ position: absolute; inset: 0; background: rgba(0,0,0,.35);
+             opacity: 0; pointer-events: none; transition: .18s ease; }
+  #mirror.pop #mOverlay{ opacity: 1; pointer-events: auto; }
+
+  .m-sec{ display: none; }
+  .m-sec.pop{
+    display: block;
+    position: absolute;
+    left: 50%; transform: translateX(-50%);
+    top: 56px; bottom: 60px;
+    width: min(460px, 94vw);
+    overflow-y: auto; overflow-x: hidden;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(0,0,0,.28);
+    backdrop-filter: saturate(1.05) blur(8px);
+    padding: 10px;
+    box-shadow: 0 18px 40px rgba(0,0,0,.45);
+  }
+  /* When gate is inside mobile section, make its internals look nice */
+  #mSec4 #gate{ position: static !important; display: block !important; }
+  #mSec4 .gate .card{ min-width: auto; width: 100%; }
+
+  /* Sticky mini at bottom center that follows scroll (always visible) */
+  #mSec5{ position: sticky; bottom: 8px; z-index: 3; }
+  #mSec5 .mini-wrap{
+    position: static !important;
+    display: grid;
+    justify-items: center;
+    background: rgba(0,0,0,.28);
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 16px;
+    padding: 8px;
+    width: 100%;
+  }
+  /* Ensure only vertical scroll; lock horizontal width */
+  html, body{ overflow-x: hidden; }
+}
+
+</style>
 </head>
 <body>
   <header class="top glass">
@@ -587,5 +663,98 @@
       loadFromServer();
     })();
   </script>
+<script>
+/* === OrcaX Mobile Menu & Popup Patch (2025-08-12) === */
+(function(){
+  const mq = window.matchMedia('(max-width: 900px)');
+  function initMobileMenu(){
+    if(!mq.matches) return;
+    const mirror = document.getElementById('mirror');
+    if(!mirror || document.getElementById('mirrorBar')) return; // once
+
+    const bar = document.createElement('div');
+    bar.id = 'mirrorBar';
+    bar.innerHTML = [
+      '<button class="mbtn" data-target="#mSec3">농사짓기</button>',
+      '<button class="mbtn" data-target="#mSec4">성장게이트</button>',
+      '<button class="mbtn" data-target="#shop">구매/첨가물</button>',
+      '<button class="mbtn" data-target="SYNC">동기화</button>'
+    ].join('');
+    const body = document.getElementById('mirrorBody');
+    mirror.insertBefore(bar, body);
+
+    // Overlay for popups
+    const ov = document.createElement('div'); ov.id='mOverlay';
+    mirror.appendChild(ov);
+
+    function closeAll(){
+      mirror.classList.remove('pop');
+      document.querySelectorAll('.m-sec.pop').forEach(el=>el.classList.remove('pop'));
+      const shop = document.getElementById('shop');
+      if(shop){ shop.classList.remove('open'); } // ensure shop modal closed
+    }
+    ov.addEventListener('click', closeAll);
+
+    bar.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('.mbtn'); if(!btn) return;
+      const tgt = btn.getAttribute('data-target');
+      if(tgt === 'SYNC'){
+        if(typeof loadFromServer === 'function'){ try{ await loadFromServer(); toast && toast('동기화 완료'); }catch{} }
+        return;
+      }
+      closeAll();
+      if(tgt === '#shop'){
+        // open existing shop pop
+        const shop = document.getElementById('shop');
+        if(shop){
+          mirror.classList.add('pop');
+          // Force as section-like pop in mobile
+          shop.classList.add('open');
+          shop.style.position = 'absolute';
+          shop.style.left = '50%';
+          shop.style.transform = 'translateX(-50%)';
+          shop.style.top = '56px'; shop.style.bottom = '60px';
+          shop.style.width = 'min(460px,94vw)';
+          shop.style.overflowY = 'auto';
+          // Close handlers
+          const c1 = document.getElementById('shopCancel');
+          if(c1){ c1.onclick = closeAll; }
+        }
+        return;
+      }
+      const panel = document.querySelector(tgt);
+      if(panel){
+        panel.classList.add('pop');
+        mirror.classList.add('pop');
+        // Ensure gate face updates when opening 성장게이트
+        if(tgt==='#mSec4' && typeof updateGateFace==='function'){ updateGateFace(); }
+      }
+    });
+
+    // Esc key close
+    document.addEventListener('keydown', function(e){
+      if(e.key==='Escape'){ closeAll(); }
+    });
+  }
+  // Ensure PC gate shows character face
+  const $btnGate = document.getElementById('btnGate');
+  if($btnGate){
+    const old = $btnGate.onclick;
+    $btnGate.onclick = function(ev){
+      if(typeof updateGateFace==='function'){ try{ updateGateFace(); }catch(e){} }
+      if(typeof old === 'function'){ old.call(this, ev); }
+    }
+  }
+  // Also update face on initial render
+  document.addEventListener('DOMContentLoaded', function(){
+    if(typeof updateGateFace==='function'){ try{ updateGateFace(); }catch(e){} }
+    initMobileMenu();
+  });
+  // Late init if mirror appears after ready
+  setTimeout(initMobileMenu, 600);
+  setTimeout(initMobileMenu, 1500);
+})();
+
+</script>
 </body>
 </html>
