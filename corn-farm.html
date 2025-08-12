@@ -6,7 +6,7 @@
   <title>옥수수 농장</title>
   <style>
     :root{
-      --panel: rgba(0,0,0,.45);
+      --panel: rgba(0,0,0,.25);
       --bd: rgba(255,255,255,.18);
       --ink:#eef6ee;
       --ok:#25d366;
@@ -26,7 +26,7 @@
     .linkbtn{padding:6px 10px;border-radius:10px;border:1px solid var(--bd);background:rgba(255,255,255,.08);color:#fff;text-decoration:none;font-size:12px}
     .nick{display:flex;align-items:center;gap:8px}
     .res{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px}
-    .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.38)}
+    .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.18)}
     .lvl{display:inline-flex;align-items:center;gap:6px}
     .lvl img{width:22px;height:22px;border-radius:999px;display:block}
     .exp{display:flex;align-items:center;gap:6px;margin-left:6px}
@@ -35,10 +35,10 @@
 
     /* 미니 성장 카드(중앙 하단) */
     .miniWrap{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;z-index:5;text-align:center}
-    .mini{width:min(34vw,220px);aspect-ratio:3/4;border-radius:14px;border:1px solid var(--bd);background:rgba(0,0,0,.25);overflow:hidden;position:relative}
+    .mini{width:min(34vw,220px);aspect-ratio:3/4;border-radius:14px;border:1px solid var(--bd);background:rgba(0,0,0,.15);overflow:hidden;position:relative}
     .mini img{width:100%;height:100%;object-fit:cover;display:block}
     .miniCap{margin-top:6px;font-size:12px;opacity:.95}
-    .miniBadge{position:absolute;left:8px;bottom:8px;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;background:rgba(0,0,0,.55);border:1px solid var(--bd)}
+    .miniBadge{position:absolute;left:8px;bottom:8px;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid var(--bd)}
     .miniBadge img{width:18px;height:18px;border-radius:999px}
 
     /* 하단 액션바 */
