@@ -132,61 +132,7 @@
   </div>
 
   <div id="toast"></div>
-
   <!-- API/로직 -->
   <script src="js/corn-api.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const netDot = document.getElementById("netDot");
-      const netTxt = document.getElementById("netTxt");
-      const nickEl = document.getElementById("nick");
-
-      // 리소스 표시 엘리먼트
-      const rWater = document.getElementById("r-water");
-      const rFert  = document.getElementById("r-fert");
-      const rCorn  = document.getElementById("r-corn");
-      const rPop   = document.getElementById("r-pop");
-      const rSalt  = document.getElementById("r-salt");
-      const rSugar = document.getElementById("r-sugar");
-      const rOrcx  = document.getElementById("r-orcx");
-
-      try {
-        // 로컬스토리지에서 카카오 ID 확인
-        const kakaoId = localStorage.getItem("kakaoId");
-        if (!kakaoId) {
-          netTxt.textContent = "로그인 필요";
-          netDot.classList.remove("ok");
-          return;
-        }
-
-        // 서버 API 호출
-        const res = await fetch(`https://farm.orcax.co.kr/api/user/${kakaoId}`);
-        if (!res.ok) throw new Error("서버 응답 오류");
-        const data = await res.json();
-
-        // 연결 상태 표시
-        netDot.classList.add("ok");
-        netTxt.textContent = "연결됨";
-
-        // 닉네임 표시
-        nickEl.textContent = data.nickname || "(닉네임 없음)";
-
-        // 리소스 값 표시
-        rWater.textContent = data.inventory?.water ?? 0;
-        rFert.textContent  = data.inventory?.fertilizer ?? 0;
-        rCorn.textContent  = data.inventory?.corn ?? 0;
-        rPop.textContent   = data.inventory?.popcorn ?? 0;
-        rSalt.textContent  = data.inventory?.salt ?? 0;
-        rSugar.textContent = data.inventory?.sugar ?? 0;
-        rOrcx.textContent  = data.wallet?.orcx ?? 0;
-
-      } catch (err) {
-        console.error(err);
-        netTxt.textContent = "서버 연결 실패";
-        netDot.classList.remove("ok");
-      }
-    });
-  </script>
 </body>
-
 </html>
