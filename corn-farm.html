@@ -495,42 +495,16 @@
     })();
   </script>
 
-<!-- === ADD-ONLY (v10): Transparent Glass Rail + Single Popup + Sticky Mini + Gate Bars 50% === -->
+<!-- === ADD-ONLY (v11): Mobile Glass Rail + Desktop Farm Modal === -->
 <script>
 (function(){
   const isMobile = window.matchMedia('(max-width: 900px)').matches;
   const params = new URLSearchParams(location.search);
-  const glassFlag = params.has('glass');
-  if(!isMobile && !glassFlag) return; // desktop off by default
-
-  var inapp = /KAKAO|KAKAOTALK|NAVER|NAVER\(inapp\)|FBAV|Instagram|Line/i.test(navigator.userAgent);
+  const glassFlag = params.has('glass'); // allow desktop preview
+  const inapp = /KAKAO|KAKAOTALK|NAVER|NAVER\(inapp\)|FBAV|Instagram|Line/i.test(navigator.userAgent);
   if(inapp) document.documentElement.classList.add('inapp');
 
-  if(!document.getElementById('mHdr')){
-    const hdr = document.createElement('div'); hdr.id='mHdr';
-    hdr.innerHTML =
-      '<span class="who" id="mWho"></span>' +
-      '<span style="display:flex;gap:8px;align-items:center">' +
-        '<span class="pill">🪙 <b id="mTok">0</b></span>' +
-        '<span class="pill">🍿 <b id="mPop">0</b></span>' +
-        '<span class="pill"><span id="mDot" class="dot"></span> <span id="mNet">오프라인</span></span>' +
-      '</span>';
-    document.body.appendChild(hdr);
-
-    const bar = document.createElement('div'); bar.id='mBar';
-    bar.innerHTML =
-      '<button class="mbtn" data-tgt="FARM">농사짓기</button>'+
-      '<button class="mbtn" data-tgt="GATE">성장게이트</button>'+
-      '<button class="mbtn" data-tgt="SHOP">구매/첨가물</button>'+
-      '<button class="mbtn" data-tgt="SYNC">동기화</button>';
-    document.body.appendChild(bar);
-  }
-
-  if(document.getElementById('glassRail')) return;
-  const rail = document.createElement('div'); rail.id='glassRail';
-  rail.innerHTML = '<div id="glassBackdrop" tabindex="-1"></div><div id="glassInner"><button id="glassClose" aria-label="닫기">✕</button><div id="gMini"></div><div id="gStage"></div></div>';
-  document.body.appendChild(rail);
-
+  /* ---------- COMMON HELPERS ---------- */
   function readInv(){ try{ return JSON.parse(localStorage.getItem('potato_inv')||localStorage.getItem('potatoInv')||'{}'); }catch(e){ return {}; } }
   function syncHdr(){
     const name = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '';
@@ -542,60 +516,135 @@
     const dot = document.getElementById('mDot'); if(dot) dot.classList.toggle('ok', !!ok);
     const net = document.getElementById('mNet'); if(net) net.textContent = ok ? '온라인' : '오프라인';
   }
-  syncHdr(); setInterval(syncHdr, 1000);
 
-  const gMini = document.getElementById('gMini');
-  const gStage = document.getElementById('gStage');
-  function ensureMini(){ const mw = document.querySelector('.mini-wrap'); if(mw && mw.parentElement!==gMini){ gMini.appendChild(mw); } }
-  function clearStage(){
-    const shop = document.getElementById('shop'); if(shop) shop.style.display='none';
-    const gate = document.getElementById('gate'); if(gate) gate.style.display='none';
-    while(gStage.firstChild){ gStage.appendChild(document.createComment('')); gStage.removeChild(gStage.firstChild); }
+  /* ---------- MOBILE LAYER ---------- */
+  if (isMobile || glassFlag){
+    // Build header / bar if missing
+    if(!document.getElementById('mHdr')){
+      const hdr = document.createElement('div'); hdr.id='mHdr';
+      hdr.innerHTML =
+        '<span class="who" id="mWho"></span>' +
+        '<span style="display:flex;gap:8px;align-items:center">' +
+          '<span class="pill">🪙 <b id="mTok">0</b></span>' +
+          '<span class="pill">🍿 <b id="mPop">0</b></span>' +
+          '<span class="pill"><span id="mDot" class="dot"></span> <span id="mNet">오프라인</span></span>' +
+        '</span>';
+      document.body.appendChild(hdr);
+
+      const bar = document.createElement('div'); bar.id='mBar';
+      bar.innerHTML =
+        '<button class="mbtn" data-tgt="FARM">농사짓기</button>'+
+        '<button class="mbtn" data-tgt="GATE">성장게이트</button>'+
+        '<button class="mbtn" data-tgt="SHOP">구매/첨가물</button>'+
+        '<button class="mbtn" data-tgt="SYNC">동기화</button>';
+      document.body.appendChild(bar);
+    }
+
+    // Build glass rail
+    if(!document.getElementById('glassRail')){
+      const rail = document.createElement('div'); rail.id='glassRail';
+      rail.innerHTML = '<div id="glassBackdrop" tabindex="-1"></div><div id="glassInner"><button id="glassClose" aria-label="닫기">✕</button><div id="gMini"></div><div id="gStage"></div></div>';
+      document.body.appendChild(rail);
+    }
+
+    syncHdr(); setInterval(syncHdr, 1000);
+
+    const gMini = document.getElementById('gMini');
+    const gStage = document.getElementById('gStage');
+    let currentView = null;
+
+    function ensureMini(){ const mw=document.querySelector('.mini-wrap'); if(mw && mw.parentElement!==gMini){ gMini.appendChild(mw); } }
+    function clearStage(){
+      const shop = document.getElementById('shop'); if(shop) shop.style.display='none';
+      const gate = document.getElementById('gate'); if(gate) gate.style.display='none';
+      while(gStage.firstChild){ gStage.appendChild(document.createComment('')); gStage.removeChild(gStage.firstChild); }
+    }
+    function openRail(){ document.documentElement.classList.add('glass-on'); }
+    function closeRail(){ document.documentElement.classList.remove('glass-on'); currentView=null; clearStage(); }
+
+    if(!document.getElementById('glassClose')._bind){
+      document.getElementById('glassClose').addEventListener('click', closeRail);
+      document.getElementById('glassBackdrop').addEventListener('click', closeRail);
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeRail(); }}, {passive:true});
+      document.getElementById('glassClose')._bind=true;
+    }
+
+    function viewFarm(){
+      if(currentView==='FARM'){ closeRail(); return; }
+      clearStage(); ensureMini();
+      const L=document.querySelector('.hud-left .panel'); const R=document.querySelector('.hud-right .panel');
+      if(L) gStage.appendChild(L); if(R) gStage.appendChild(R);
+      currentView='FARM'; openRail();
+    }
+    function viewGate(){
+      if(currentView==='GATE'){ closeRail(); return; }
+      clearStage(); ensureMini();
+      const dock=document.querySelector('.hud-left .gate-dock'); const gate=document.getElementById('gate');
+      if(dock) gStage.appendChild(dock);
+      if(gate){ gStage.appendChild(gate); gate.style.display='block'; }
+      try{ if(typeof updateGateFace==='function') updateGateFace(); }catch(e){}
+      currentView='GATE'; openRail();
+    }
+    function viewShop(){
+      if(currentView==='SHOP'){ closeRail(); return; }
+      clearStage(); ensureMini();
+      const shop=document.getElementById('shop'); if(shop){ gStage.appendChild(shop); shop.style.display='block'; }
+      currentView='SHOP'; openRail();
+    }
+
+    document.getElementById('mBar').addEventListener('click', async (e)=>{
+      const btn = e.target.closest('.mbtn'); if(!btn) return;
+      const tgt = btn.getAttribute('data-tgt');
+      if(tgt==='SYNC'){ if(typeof loadFromServer==='function'){ try{ await loadFromServer(); }catch(e){} } return; }
+      if(tgt==='FARM') viewFarm();
+      if(tgt==='GATE') viewGate();
+      if(tgt==='SHOP') viewShop();
+    }, {passive:true});
   }
-  function openRail(){ document.documentElement.classList.add('glass-on'); }
-  function closeRail(){ document.documentElement.classList.remove('glass-on'); currentView=null; clearStage(); }
 
-  document.getElementById('glassClose').addEventListener('click', closeRail);
-  document.getElementById('glassBackdrop').addEventListener('click', closeRail);
+  /* ---------- DESKTOP FARM MODAL ---------- */
+  const isDesktop = window.matchMedia('(min-width: 901px)').matches;
+  if(isDesktop){
+    // hide farm panels initially on desktop
+    document.documentElement.classList.add('pc-farm-modal-mode');
+    // Add a small "농사짓기" button if not present
+    if(!document.getElementById('pcFarmBtn')){
+      const b = document.createElement('button'); b.id='pcFarmBtn'; b.type='button';
+      b.textContent='농사짓기';
+      document.body.appendChild(b);
+    }
+    // build modal
+    if(!document.getElementById('pcFarmModal')){
+      const m = document.createElement('div'); m.id='pcFarmModal';
+      m.innerHTML = '<div class="pc-backdrop"></div><div class="pc-dialog"><button class="pc-close" aria-label="닫기">✕</button><div id="pcStage"></div></div>';
+      document.body.appendChild(m);
+    }
 
-  let currentView = null;
-  function viewFarm(){
-    if(currentView==='FARM'){ closeRail(); return; }
-    clearStage(); ensureMini();
-    const L=document.querySelector('.hud-left .panel'); const R=document.querySelector('.hud-right .panel');
-    if(L) gStage.appendChild(L); if(R) gStage.appendChild(R);
-    currentView='FARM'; openRail();
+    const pcModal = document.getElementById('pcFarmModal');
+    const pcStage = document.getElementById('pcStage');
+    let pcOpen = false;
+
+    function pcClear(){
+      while(pcStage.firstChild){ pcStage.appendChild(document.createComment('')); pcStage.removeChild(pcStage.firstChild); }
+    }
+    function pcOpenModal(){
+      if(pcOpen){ pcCloseModal(); return; }
+      pcClear();
+      const L=document.querySelector('.hud-left .panel'); const R=document.querySelector('.hud-right .panel');
+      if(L) pcStage.appendChild(L); if(R) pcStage.appendChild(R);
+      pcModal.classList.add('show'); pcOpen=true;
+    }
+    function pcCloseModal(){ pcModal.classList.remove('show'); pcOpen=false; }
+
+    document.getElementById('pcFarmBtn').addEventListener('click', pcOpenModal);
+    pcModal.querySelector('.pc-close').addEventListener('click', pcCloseModal);
+    pcModal.querySelector('.pc-backdrop').addEventListener('click', pcCloseModal);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ pcCloseModal(); } }, {passive:true});
   }
-  function viewGate(){
-    if(currentView==='GATE'){ closeRail(); return; }
-    clearStage(); ensureMini();
-    const dock=document.querySelector('.hud-left .gate-dock'); const gate=document.getElementById('gate');
-    if(dock) gStage.appendChild(dock);
-    if(gate){ gStage.appendChild(gate); gate.style.display='block'; }
-    try{ if(typeof updateGateFace==='function') updateGateFace(); }catch(e){}
-    currentView='GATE'; openRail();
-  }
-  function viewShop(){
-    if(currentView==='SHOP'){ closeRail(); return; }
-    clearStage(); ensureMini();
-    const shop=document.getElementById('shop'); if(shop){ gStage.appendChild(shop); shop.style.display='block'; }
-    currentView='SHOP'; openRail();
-  }
-
-  document.getElementById('mBar').addEventListener('click', async (e)=>{
-    const btn = e.target.closest('.mbtn'); if(!btn) return;
-    const tgt = btn.getAttribute('data-tgt');
-    if(tgt==='SYNC'){ if(typeof loadFromServer==='function'){ try{ await loadFromServer(); }catch(e){} } return; }
-    if(tgt==='FARM') viewFarm();
-    if(tgt==='GATE') viewGate();
-    if(tgt==='SHOP') viewShop();
-  }, {passive:true});
-
-  window.addEventListener('keydown', (e)=>{ if(!isMobile && e.key.toLowerCase()==='g'){ document.documentElement.classList.toggle('glass-on'); } });
 })();
 </script>
 <style>
-:root{ --glass-bd: rgba(255,255,255,.14); }
+/* ====== MOBILE ====== */
 @media (max-width:900px){
   .top, .bank { display:none !important; }
   #gateBackdrop{ display:none !important; }
@@ -603,58 +652,83 @@
   #mHdr{
     position:fixed; left:10px; right:10px; top:10px; z-index:9999;
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:8px 12px; border-radius:14px; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22); color:#fff; font-size:14px; white-space:nowrap;
+    padding:6px 10px; border-radius:14px; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22); color:#fff; font-size:13px; white-space:nowrap;
   }
   #mHdr .who{ font-weight:800; overflow:hidden; text-overflow:ellipsis; max-width:48vw; }
-  #mHdr .pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
+  #mHdr .pill{ display:inline-flex; align-items:center; gap:6px; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
   #mHdr .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 } #mHdr .dot.ok{ background:#25d366 }
 
+  /* compact bottom bar: one-line small text */
   #mBar{
     position:fixed; left:10px; right:10px; bottom:10px; z-index:9999;
-    display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:10px; border-radius:16px;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:6px; padding:8px; border-radius:14px;
     background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
   }
-  #mBar .mbtn{ border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.20); color:#fff; border-radius:12px; padding:10px 8px; font-size:14px; line-height:1.1; }
+  #mBar .mbtn{ border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.18); color:#fff; border-radius:10px; padding:8px 6px; font-size:12px; line-height:1; }
 
-  #glassRail{ position:fixed; left:10px; right:10px; top:64px; bottom:70px; z-index:9998; display:none; }
+  /* transparent glass rail */
+  #glassRail{ position:fixed; left:10px; right:10px; top:56px; bottom:60px; z-index:9998; display:none; }
   html.glass-on #glassRail{ display:block; }
   #glassBackdrop{ position:absolute; inset:0; background:transparent; }
   #glassInner{
     position:absolute; left:50%; transform:translateX(-50%);
     width:min(560px, 96%); height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
-    background:transparent; border:1px solid var(--glass-bd); border-radius:18px;
+    background:transparent; border:1px solid rgba(255,255,255,.14); border-radius:18px;
     box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset;
-    padding:8px 10px 90px 10px; pointer-events:auto;
+    padding:6px 8px calc(64px + env(safe-area-inset-bottom)); pointer-events:auto;
   }
   #glassClose{
-    position:sticky; top:8px; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
+    position:sticky; top:6px; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
     border-radius:999px; border:1px solid rgba(255,255,255,.22);
     background:rgba(0,0,0,.25); color:#fff; z-index:2;
   }
-  #gMini{ position:sticky; top:8px; z-index:1; display:grid; justify-items:center; padding:6px 4px; }
+  #gMini{ position:sticky; top:6px; z-index:1; display:grid; justify-items:center; padding:4px 2px; }
   #gMini .mini-wrap{ position:static !important; display:grid !important; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; width:100%;
     border:1px solid rgba(255,255,255,.18); border-radius:14px; background:rgba(0,0,0,.18); padding:10px; }
   #gMini .mini{ width:160px; height:160px; object-fit:cover; border-radius:12px; }
 
-  #gStage{ display:flex; flex-direction:column; gap:12px; padding-top:8px; }
+  #gStage{ display:flex; flex-direction:column; gap:12px; padding-top:6px; }
   #gStage .panel, #gStage #gate .card, #gStage #shop{ position:static !important; width:100% !important; left:auto !important; right:auto !important; top:auto !important; bottom:auto !important; transform:none !important; display:block !important; }
 
-  /* Gate layout: bars slimmer (50%), keep preview on the side */
-  #gStage #gate .card{ display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap:12px; align-items:center; }
+  /* Gate: bars to 50% width and keep character at side */
+  #gStage #gate .card{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:12px; align-items:center; }
   #gStage #gate .bars{ max-width:50%; }
   #gStage #gate .bar{ width:50% !important; max-width:12px; }
   #gStage #gate .gate-preview, #gStage #gate #gatePreview{ justify-self:stretch; }
 }
+
+/* ====== DESKTOP FARM MODAL ====== */
 @media (min-width:901px){
-  html.glass-on #glassRail{ display:block; }
-  #glassRail{ position:fixed; left:0; right:0; top:84px; bottom:24px; z-index:9998; display:none; }
-  #glassInner{ position:absolute; left:50%; transform:translateX(-50%); width:min(720px, 72%); height:100%; overflow:auto; background:transparent; border:1px solid var(--glass-bd); border-radius:18px; padding:10px 12px 100px 12px; }
-  #gMini .mini{ width:200px; height:200px; }
+  html.pc-farm-modal-mode .hud-left .panel,
+  html.pc-farm-modal-mode .hud-right .panel{ display:none !important; } /* hide initial */
+
+  #pcFarmBtn{
+    position:fixed; top:84px; left:16px; z-index:9998;
+    padding:8px 12px; font-size:14px; color:#fff; background:rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.25); border-radius:12px;
+  }
+  #pcFarmModal{ position:fixed; inset:0; z-index:9999; display:none; }
+  #pcFarmModal.show{ display:block; }
+  #pcFarmModal .pc-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
+  #pcFarmModal .pc-dialog{
+    position:absolute; left:50%; top:8%; transform:translateX(-50%);
+    width:min(960px, 82vw); max-height:84vh; overflow:auto;
+    background:transparent; border:1px solid rgba(255,255,255,.14); border-radius:18px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.04) inset;
+    padding:12px;
+  }
+  #pcFarmModal .pc-close{
+    position:sticky; top:6px; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px;
+    border-radius:999px; border:1px solid rgba(255,255,255,.22);
+    background:rgba(0,0,0,.25); color:#fff; z-index:2;
+  }
+  #pcStage .panel{ position:static !important; width:100% !important; transform:none !important; display:block !important; }
 }
 </style>
 
 </body>
 </html>
+
 
 
 
