@@ -73,8 +73,8 @@
 
   <main>
     <picture>
-      <source media="(max-width: 768px)" srcset="a_corn_0_01.png">
-      <img src="corn_0_01.png" alt="옥수수 농장 배경">
+      <source media="(max-width: 768px)" srcset="img/a_corn_0_01.png">
+      <img src="img/corn_0_01.png" alt="옥수수 농장 배경">
     </picture>
   </main>
 
@@ -90,8 +90,6 @@
 
     // 카카오 로그인 정보 가져오기 (예시)
     function getKakaoProfile() {
-      // 서버 세션이나 로컬스토리지에서 닉네임 가져오는 방식
-      // 이 부분은 실제 구현 환경에 맞게 수정 필요
       return localStorage.getItem("kakaoNickname");
     }
 
@@ -125,13 +123,12 @@
         const res = await fetch(`/api/corn/${action}?nickname=${encodeURIComponent(nickname)}`, { method: 'POST' });
         const result = await res.json();
         alert(result.message);
-        await loadFarmData(); // UI 갱신
+        await loadFarmData();
       } catch (err) {
         console.error(`${action} 실행 실패:`, err);
       }
     }
 
-    // 페이지 로드 시 데이터 불러오기
     window.onload = loadFarmData;
   </script>
 
