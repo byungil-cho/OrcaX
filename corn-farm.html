@@ -719,5 +719,74 @@
 </style>
 <!-- === /v13 injection end === -->
 
+
+<!-- === v14 patch: mobile initial hide + park container + safe restore === -->
+<script>
+(function(){
+  'use strict';
+  // Create hidden park to store panels when closed (avoid deletion)
+  if(!document.getElementById('farmPark')){
+    var park = document.createElement('div');
+    park.id = 'farmPark';
+    park.style.display = 'none';
+    document.body.appendChild(park);
+  }
+  const $ = (s, r=document)=>r.querySelector(s);
+  const isMobile = ()=>matchMedia('(max-width:900px)').matches;
+
+  function pullPanel(sel){
+    // Prefer original location, else from park
+    return $(sel) || $('#farmPark '+sel.replace(/^\./,''));
+  }
+  function moveInto(target, nodes){
+    const frag = document.createDocumentFragment();
+    nodes.forEach(n => { if(n) frag.appendChild(n); });
+    target.appendChild(frag);
+  }
+  function moveAllToPark(containerSel){
+    const cont = $(containerSel); if(!cont) return;
+    const park = $('#farmPark');
+    const kids = Array.from(cont.children);
+    kids.forEach(n => { if(n && n.nodeType===1) park.appendChild(n); });
+  }
+
+  // Router hooks if present: override open/close to use park
+  const tryPatchRouter = ()=>{
+    if(!window.FarmRouter || window.FarmRouter._v14patched) return;
+    const R = window.FarmRouter;
+    const _open = R.open.bind(R);
+    const _close = R.close.bind(R);
+
+    R.open = function(to){
+      // Before opening, ensure source panels exist (park fallback)
+      const L = pullPanel('.hud-left .panel');
+      const Rpanel = pullPanel('.hud-right .panel');
+      const gate = pullPanel('#gate');
+      const shop = pullPanel('#shop');
+      // If missing in DOM, they will be grabbed from park in router's queries
+      _open(to);
+    };
+    R.close = function(){
+      _close();
+      // After close, park any children so nothing remains deleted or visible
+      moveAllToPark('#gStage');
+      moveAllToPark('#pcStage');
+    };
+    R._v14patched = true;
+  };
+
+  // Run once DOM ready
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', tryPatchRouter, {once:true});
+  }else{ tryPatchRouter(); }
+})();
+</script>
+<style>
+/* Mobile: hide original panels only while they sit in their original columns */
+@media (max-width:900px){
+  .hud-left > .panel, .hud-right > .panel{ display:none !important; }
+}
+</style>
+
 </body>
 </html>
