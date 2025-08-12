@@ -733,8 +733,49 @@
 }
 </style>
 
+
+<!-- === ADD-ONLY: Conditional BG fallback (shows ONLY if farm bg missing) === -->
+<script>
+(function(){
+  function ensureFallback(){
+    try{
+      var cs = getComputedStyle(document.body);
+      var hasImg = cs.backgroundImage && cs.backgroundImage !== 'none';
+      var fb = document.getElementById('bgFallback');
+      if(hasImg){
+        if(fb) fb.remove();
+        return;
+      }
+      if(!fb){
+        fb = document.createElement('div');
+        fb.id = 'bgFallback';
+        document.body.prepend(fb);
+      }
+    }catch(e){}
+  }
+  // Run early and after load
+  ensureFallback();
+  window.addEventListener('load', ensureFallback);
+  // Re-check a bit later in case bg set async
+  setTimeout(ensureFallback, 1200);
+})();
+</script>
+<style>
+#bgFallback{
+  position:fixed; inset:0; z-index:0;
+  background:
+    radial-gradient(1200px 800px at 50% 40%, rgba(255,255,255,.08), rgba(0,0,0,0) 60%),
+    linear-gradient(180deg, #0b3a1a, #1e5f2e 55%, #0b3a1a);
+}
+/* Keep all interactive layers above */
+@media (max-width:900px){
+  #glassRail, #mHdr, #mBar{ position:fixed; z-index: 9998; }
+}
+</style>
+
 </body>
 </html>
+
 
 
 
