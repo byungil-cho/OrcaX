@@ -495,16 +495,14 @@
     })();
   </script>
 
-<!-- === ADD-ONLY (v11): Mobile Glass Rail + Desktop Farm Modal === -->
+<!-- === ADD-ONLY (v12): Mobile Glass Rail + Desktop Right Dock (safe reparent) === -->
 <script>
 (function(){
   const isMobile = window.matchMedia('(max-width: 900px)').matches;
-  const params = new URLSearchParams(location.search);
-  const glassFlag = params.has('glass'); // allow desktop preview
   const inapp = /KAKAO|KAKAOTALK|NAVER|NAVER\(inapp\)|FBAV|Instagram|Line/i.test(navigator.userAgent);
   if(inapp) document.documentElement.classList.add('inapp');
 
-  /* ---------- COMMON HELPERS ---------- */
+  /* ========= Shared header info ========= */
   function readInv(){ try{ return JSON.parse(localStorage.getItem('potato_inv')||localStorage.getItem('potatoInv')||'{}'); }catch(e){ return {}; } }
   function syncHdr(){
     const name = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '';
@@ -517,9 +515,8 @@
     const net = document.getElementById('mNet'); if(net) net.textContent = ok ? '온라인' : '오프라인';
   }
 
-  /* ---------- MOBILE LAYER ---------- */
-  if (isMobile || glassFlag){
-    // Build header / bar if missing
+  /* ========= MOBILE (Glass Rail) ========= */
+  if(isMobile){
     if(!document.getElementById('mHdr')){
       const hdr = document.createElement('div'); hdr.id='mHdr';
       hdr.innerHTML =
@@ -540,7 +537,6 @@
       document.body.appendChild(bar);
     }
 
-    // Build glass rail
     if(!document.getElementById('glassRail')){
       const rail = document.createElement('div'); rail.id='glassRail';
       rail.innerHTML = '<div id="glassBackdrop" tabindex="-1"></div><div id="glassInner"><button id="glassClose" aria-label="닫기">✕</button><div id="gMini"></div><div id="gStage"></div></div>';
@@ -553,7 +549,7 @@
     const gStage = document.getElementById('gStage');
     let currentView = null;
 
-    function ensureMini(){ const mw=document.querySelector('.mini-wrap'); if(mw && mw.parentElement!==gMini){ gMini.appendChild(mw); } }
+    function ensureMini(){ const mw = document.querySelector('.mini-wrap'); if(mw && mw.parentElement!==gMini){ gMini.appendChild(mw); } }
     function clearStage(){
       const shop = document.getElementById('shop'); if(shop) shop.style.display='none';
       const gate = document.getElementById('gate'); if(gate) gate.style.display='none';
@@ -602,49 +598,70 @@
     }, {passive:true});
   }
 
-  /* ---------- DESKTOP FARM MODAL ---------- */
+  /* ========= DESKTOP (Right Dock) ========= */
   const isDesktop = window.matchMedia('(min-width: 901px)').matches;
   if(isDesktop){
-    // hide farm panels initially on desktop
-    document.documentElement.classList.add('pc-farm-modal-mode');
-    // Add a small "농사짓기" button if not present
+    // Hide farm panels in their original columns only
+    const style = document.createElement('style');
+    style.textContent = '.hud-left > .panel, .hud-right > .panel{display:none !important;}';
+    document.head.appendChild(style);
+
+    // Build button and dock once
     if(!document.getElementById('pcFarmBtn')){
-      const b = document.createElement('button'); b.id='pcFarmBtn'; b.type='button';
-      b.textContent='농사짓기';
+      const b=document.createElement('button'); b.id='pcFarmBtn'; b.type='button'; b.textContent='농사짓기';
       document.body.appendChild(b);
     }
-    // build modal
-    if(!document.getElementById('pcFarmModal')){
-      const m = document.createElement('div'); m.id='pcFarmModal';
-      m.innerHTML = '<div class="pc-backdrop"></div><div class="pc-dialog"><button class="pc-close" aria-label="닫기">✕</button><div id="pcStage"></div></div>';
-      document.body.appendChild(m);
+    if(!document.getElementById('pcFarmDock')){
+      const d=document.createElement('div'); d.id='pcFarmDock';
+      d.innerHTML = '<div class="pc-dock"><button class="pc-close" aria-label="닫기">✕</button><div id="pcStage"></div></div>';
+      document.body.appendChild(d);
     }
 
-    const pcModal = document.getElementById('pcFarmModal');
-    const pcStage = document.getElementById('pcStage');
-    let pcOpen = false;
+    // placeholders to restore panels back to original parents safely
+    const Lpanel = document.querySelector('.hud-left .panel');
+    const Rpanel = document.querySelector('.hud-right .panel');
+    const Lparent = Lpanel?.parentNode || null;
+    const Rparent = Rpanel?.parentNode || null;
+    const Lanchor = Lparent ? document.createComment('L-anchor') : null;
+    const Ranchor = Rparent ? document.createComment('R-anchor') : null;
+    if(Lparent && Lpanel) Lparent.insertBefore(Lanchor, Lpanel);
+    if(Rparent && Rpanel) Rparent.insertBefore(Ranchor, Rpanel);
 
-    function pcClear(){
-      while(pcStage.firstChild){ pcStage.appendChild(document.createComment('')); pcStage.removeChild(pcStage.firstChild); }
-    }
-    function pcOpenModal(){
-      if(pcOpen){ pcCloseModal(); return; }
-      pcClear();
-      const L=document.querySelector('.hud-left .panel'); const R=document.querySelector('.hud-right .panel');
-      if(L) pcStage.appendChild(L); if(R) pcStage.appendChild(R);
-      pcModal.classList.add('show'); pcOpen=true;
-    }
-    function pcCloseModal(){ pcModal.classList.remove('show'); pcOpen=false; }
+    const dock = document.getElementById('pcFarmDock');
+    const stage = document.getElementById('pcStage');
+    let open = false;
 
-    document.getElementById('pcFarmBtn').addEventListener('click', pcOpenModal);
-    pcModal.querySelector('.pc-close').addEventListener('click', pcCloseModal);
-    pcModal.querySelector('.pc-backdrop').addEventListener('click', pcCloseModal);
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ pcCloseModal(); } }, {passive:true});
+    function stageClear(){
+      while(stage.firstChild){ stage.appendChild(document.createComment('')); stage.removeChild(stage.firstChild); }
+    }
+    function restore(){
+      if(Lparent && Lpanel && Lanchor && Lanchor.parentNode){ Lparent.insertBefore(Lpanel, Lanchor.nextSibling); }
+      if(Rparent && Rpanel && Ranchor && Ranchor.parentNode){ Rparent.insertBefore(Rpanel, Ranchor.nextSibling); }
+      stageClear();
+    }
+    function openDock(){
+      if(open){ closeDock(); return; }
+      stageClear();
+      if(Lpanel) stage.appendChild(Lpanel);
+      if(Rpanel) stage.appendChild(Rpanel);
+      dock.classList.add('show'); open = true;
+    }
+    function closeDock(){
+      dock.classList.remove('show'); open = false; restore();
+    }
+
+    // Bind events once
+    if(!document.getElementById('pcFarmBtn')._bind){
+      document.getElementById('pcFarmBtn').addEventListener('click', openDock);
+      dock.querySelector('.pc-close').addEventListener('click', closeDock);
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeDock(); }}, {passive:true});
+      document.getElementById('pcFarmBtn')._bind = true;
+    }
   }
 })();
 </script>
 <style>
-/* ====== MOBILE ====== */
+/* ===== MOBILE: header/bar/glass rail ===== */
 @media (max-width:900px){
   .top, .bank { display:none !important; }
   #gateBackdrop{ display:none !important; }
@@ -652,35 +669,30 @@
   #mHdr{
     position:fixed; left:10px; right:10px; top:10px; z-index:9999;
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:6px 10px; border-radius:14px; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22); color:#fff; font-size:13px; white-space:nowrap;
+    padding:6px 10px; border-radius:14px; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22); color:#fff; font-size:13px;
   }
   #mHdr .who{ font-weight:800; overflow:hidden; text-overflow:ellipsis; max-width:48vw; }
   #mHdr .pill{ display:inline-flex; align-items:center; gap:6px; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
   #mHdr .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 } #mHdr .dot.ok{ background:#25d366 }
 
-  /* compact bottom bar: one-line small text */
   #mBar{
     position:fixed; left:10px; right:10px; bottom:10px; z-index:9999;
-    display:grid; grid-template-columns:repeat(4,1fr); gap:6px; padding:8px; border-radius:14px;
-    background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
+    display:grid; grid-template-columns:repeat(4,1fr); gap:6px; padding:8px; border-radius:14px; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
   }
   #mBar .mbtn{ border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.18); color:#fff; border-radius:10px; padding:8px 6px; font-size:12px; line-height:1; }
 
-  /* transparent glass rail */
   #glassRail{ position:fixed; left:10px; right:10px; top:56px; bottom:60px; z-index:9998; display:none; }
   html.glass-on #glassRail{ display:block; }
   #glassBackdrop{ position:absolute; inset:0; background:transparent; }
   #glassInner{
     position:absolute; left:50%; transform:translateX(-50%);
     width:min(560px, 96%); height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
-    background:transparent; border:1px solid rgba(255,255,255,.14); border-radius:18px;
-    box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset;
-    padding:6px 8px calc(64px + env(safe-area-inset-bottom)); pointer-events:auto;
+    background:transparent; border:1px solid rgba(255,255,255,.14); border-radius:18px; box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset;
+    padding:6px 8px calc(64px + env(safe-area-inset-bottom));
   }
   #glassClose{
     position:sticky; top:6px; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
-    border-radius:999px; border:1px solid rgba(255,255,255,.22);
-    background:rgba(0,0,0,.25); color:#fff; z-index:2;
+    border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.25); color:#fff; z-index:2;
   }
   #gMini{ position:sticky; top:6px; z-index:1; display:grid; justify-items:center; padding:4px 2px; }
   #gMini .mini-wrap{ position:static !important; display:grid !important; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; width:100%;
@@ -688,36 +700,31 @@
   #gMini .mini{ width:160px; height:160px; object-fit:cover; border-radius:12px; }
 
   #gStage{ display:flex; flex-direction:column; gap:12px; padding-top:6px; }
-  #gStage .panel, #gStage #gate .card, #gStage #shop{ position:static !important; width:100% !important; left:auto !important; right:auto !important; top:auto !important; bottom:auto !important; transform:none !important; display:block !important; }
+  #gStage .panel, #gStage #gate .card, #gStage #shop{ position:static !important; width:100% !important; transform:none !important; display:block !important; }
 
-  /* Gate: bars to 50% width and keep character at side */
+  /* Gate layout tweaks (50% bars) */
   #gStage #gate .card{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:12px; align-items:center; }
   #gStage #gate .bars{ max-width:50%; }
   #gStage #gate .bar{ width:50% !important; max-width:12px; }
-  #gStage #gate .gate-preview, #gStage #gate #gatePreview{ justify-self:stretch; }
 }
 
-/* ====== DESKTOP FARM MODAL ====== */
+/* ===== DESKTOP: right-side dock ===== */
 @media (min-width:901px){
-  html.pc-farm-modal-mode .hud-left .panel,
-  html.pc-farm-modal-mode .hud-right .panel{ display:none !important; } /* hide initial */
-
   #pcFarmBtn{
     position:fixed; top:84px; left:16px; z-index:9998;
     padding:8px 12px; font-size:14px; color:#fff; background:rgba(0,0,0,.35);
     border:1px solid rgba(255,255,255,.25); border-radius:12px;
   }
-  #pcFarmModal{ position:fixed; inset:0; z-index:9999; display:none; }
-  #pcFarmModal.show{ display:block; }
-  #pcFarmModal .pc-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
-  #pcFarmModal .pc-dialog{
-    position:absolute; left:50%; top:8%; transform:translateX(-50%);
-    width:min(960px, 82vw); max-height:84vh; overflow:auto;
-    background:transparent; border:1px solid rgba(255,255,255,.14); border-radius:18px;
-    box-shadow:0 0 0 1px rgba(255,255,255,.04) inset;
-    padding:12px;
+  #pcFarmDock{ position:fixed; inset:0; z-index:9998; pointer-events:none; }
+  #pcFarmDock .pc-dock{
+    position:absolute; top:96px; right:24px; bottom:24px; width:min(520px, 32vw);
+    background:transparent; border:1px solid rgba(255,255,255,.14); border-radius:16px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.04) inset, 0 12px 28px rgba(0,0,0,.25);
+    overflow:auto; padding:10px; transform:translateX(16px); opacity:0; transition:transform .18s ease, opacity .18s ease;
+    pointer-events:auto;
   }
-  #pcFarmModal .pc-close{
+  #pcFarmDock.show .pc-dock{ transform:translateX(0); opacity:1; }
+  #pcFarmDock .pc-close{
     position:sticky; top:6px; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px;
     border-radius:999px; border:1px solid rgba(255,255,255,.22);
     background:rgba(0,0,0,.25); color:#fff; z-index:2;
