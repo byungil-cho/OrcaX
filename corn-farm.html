@@ -64,53 +64,51 @@
     #gateBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:40}
     #gateBackdrop.show{display:block}
 
-    /* === 모바일 거울 레이아웃 (기본 비활성) === */
+    /* 모바일 거울 레이아웃 */
     @media (max-width:900px){
       .glass{ background: rgba(0,0,0,.22) !important; }
       .top, .bank{ display:none !important; }
+
       #mirror{ position:fixed; inset:10px; display:flex; flex-direction:column;
                border-radius:18px; border:1px solid rgba(255,255,255,.22);
                background:rgba(0,0,0,.18); backdrop-filter:saturate(1.05) blur(8px);
                box-shadow:0 18px 40px rgba(0,0,0,.45); overflow:hidden; z-index:60; }
       #mirrorHeader{ flex:0 0 auto; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.18);
-                     display:flex; align-items:center; justify-content:space-between; gap:10px; color:#fff; font-size:14px; }
+                     display:flex; align-items:center; justify-content:space-between; gap:10px; color:#fff; font-size:14px; white-space:nowrap; }
       #mirrorHeader .who{ font-weight:700; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:46vw; }
-      #mirrorHeader .line{ display:flex; gap:8px; align-items:center; font-variant-numeric:tabular-nums; }
-      #mirrorHeader .pill{ display:inline-flex; gap:6px; align-items:center; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
-      #mirrorHeader .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 } .dot.ok{ background:#25d366 }
-      #mirrorBody{ flex:1 1 auto; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch }
-    }
 
-    /* === OrcaX Mobile Menu & Popup Patch (2025-08-12) === */
-    @media (max-width: 900px){
-      /* Background stays fixed */
-      body{ background-attachment: fixed; }
-      /* Mirror container centered with fixed max width */
-      #mirror{ inset: auto !important; top: 10px; bottom: 10px; left: 50%; right: auto; transform: translateX(-50%); width: min(480px, calc(100vw - 20px)); }
-      #mirrorHeader{ white-space: nowrap; }
-      /* Button bar under header */
-      #mirrorBar{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 8px 10px 0 10px; }
-      #mirrorBar .mbtn{ border: 1px solid rgba(255,255,255,.22); background: rgba(0,0,0,.28); color: #fff; border-radius: 12px; padding: 8px 6px; font-size: 13px; line-height: 1.1; }
-      #mirrorBody{ padding-top: 8px; }
-      /* Popup shell inside mirror */
-      #mOverlay{ position: absolute; inset: 0; background: rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: .18s ease; }
-      #mirror.pop #mOverlay{ opacity: 1; pointer-events: auto; }
-      .m-sec{ display: none; }
-      .m-sec.pop{ display: block; position: absolute; left: 50%; transform: translateX(-50%); top: 56px; bottom: 60px; width: min(460px, 94vw); overflow-y: auto; overflow-x: hidden; border-radius: 16px; border: 1px solid rgba(255,255,255,.22); background: rgba(0,0,0,.28); backdrop-filter: saturate(1.05) blur(8px); padding: 10px; box-shadow: 0 18px 40px rgba(0,0,0,.45); }
-      /* When gate is inside mobile section, make its internals look nice */
-      #mSec4 #gate{ position: static !important; display: block !important; }
-      #mSec4 .gate .card{ min-width: auto; width: 100%; }
-      /* Sticky mini at bottom center that follows scroll (always visible) */
-      #mSec5{ position: sticky; bottom: 8px; z-index: 3; }
-      #mSec5 .mini-wrap{ position: static !important; display: grid; justify-items: center; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.22); border-radius: 16px; padding: 8px; width: 100%; }
-      /* Ensure only vertical scroll; lock horizontal width */
-      html, body{ overflow-x: hidden; }
+      #mirrorBar{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:8px 10px 0 10px; }
+      #mirrorBar .mbtn{ border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); color:#fff; border-radius:12px; padding:8px 6px; font-size:13px; line-height:1.1; }
+
+      #mirrorBody{ position:relative; flex:1 1 auto; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding:8px 10px; }
+
+      #mOverlay{ position:absolute; inset:0; background:rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:.18s ease; z-index:70; }
+      #mirror.pop #mOverlay{ opacity:1; pointer-events:auto; }
+
+      .m-sec{ display:none; }
+      .m-sec.pop{
+        display:block; position:absolute; left:50%; transform:translateX(-50%); top:56px; bottom:60px;
+        width:min(460px,94vw); overflow-y:auto; overflow-x:hidden;
+        border-radius:16px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28);
+        backdrop-filter:saturate(1.05) blur(8px); padding:10px; box-shadow:0 18px 40px rgba(0,0,0,.45); z-index:75;
+      }
+
+      #mSec4 #gate{ position:static !important; display:block !important; }
+      #mSec4 .gate .card{ min-width:auto; width:100%; }
+
+      #mSec5{ position:sticky; bottom:8px; z-index:80; }
+      #mSec5 .mini-wrap{
+        position:static !important; display:grid; justify-items:center;
+        background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.22);
+        border-radius:16px; padding:8px; width:100%;
+      }
+      html,body{ overflow-x:hidden; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- 상단 고정바 (PC) -->
+    <!-- 상단 고정바(PC) -->
     <div class="top">
       <div class="title" id="title">옥수수 농장</div>
       <div class="hud">
@@ -180,9 +178,7 @@
           <span class="chip" id="pickSalt">🧂 소금 <b id="saltCount" class="count">0</b></span>
           <span class="chip" id="pickSugar">🧁 설탕 <b id="sugarCount" class="count">0</b></span>
         </div>
-        <div class="row">
-          <button id="pop" class="btn" disabled>🍿 팝콘 만들기</button>
-        </div>
+        <div class="row"><button id="pop" class="btn" disabled>🍿 팝콘 만들기</button></div>
         <div class="row">
           <button id="openShop" class="btn">구매/첨가물</button>
           <button id="sync" class="btn">동기화</button>
@@ -234,7 +230,7 @@
     const $gate=$('gate'), $btnGate=$('btnGate'), $closeGate=$('closeGate');
     const $gateBackdrop=$('gateBackdrop');
     const $fillW=$('fillW'), $fillF=$('fillF'), $fillG=$('fillG');
-    const $gauge=$('gauge'), $gVal=$('gVal'), $gState=$('gState');
+    const $gVal=$('gVal'), $gState=$('gState');
 
     const $w=$('w'), $f=$('f'), $c=$('c'), $seed=$('seed');
     const $plant=$('plant'), $harv=$('harv');
@@ -250,19 +246,16 @@
 
     const $mini=$('mini'), $miniCap=$('miniCap');
 
-    let NET_OK=true; // 서버 연결 상태(테스트용)
+    let NET_OK=true; // 더미
 
-    // ---------------- 공통 유틸 -----------------
     function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none',1300); }
     function getPotatoInv(){ try{ const raw=localStorage.getItem('potatoInv'); return raw? JSON.parse(raw):{token:10, popcorn:0, water:10, fertilizer:10}; }catch(e){ return {token:10,popcorn:0,water:10,fertilizer:10}; } }
     function setPotatoInv(v){ localStorage.setItem('potatoInv', JSON.stringify(v)); }
 
     function save(){ localStorage.setItem('cornS', JSON.stringify(S)); }
     function load(){ try{ const raw=localStorage.getItem('cornS'); return raw? JSON.parse(raw):null; }catch(e){ return null; } }
-
     function resPct(v){ return Math.max(0, Math.min(100, v)); }
 
-    // 계절/슬롯 배경 이미지
     const IMG={
       bg:{
         winter:['/OrcaX/img/bg/winter_1.jpg','/OrcaX/img/bg/winter_2.jpg','/OrcaX/img/bg/winter_3.jpg','/OrcaX/img/bg/winter_4.jpg','/OrcaX/img/bg/winter_5.jpg'],
@@ -274,29 +267,45 @@
       charBase:'/OrcaX/img/char/'
     };
 
-    // ---------------- 상태 -----------------
     let S = load() || {
-      w:10, f:10, c:0, seed:0,      // 물, 거름, 옥수수, 씨앗
-      g:0,                          // 성장률
-      phase:'IDLE',                 // IDLE | GROW
-      season:'winter',              // winter, spring, summer, autumn
-      slot:1,                       // 1~5 (08-23시 3시간 슬롯)
-      sel:null,                     // salt | sugar
-      salt:0, sugar:0,              // 첨가물
+      w:10, f:10, c:0, seed:0,
+      g:0,
+      phase:'IDLE',               // IDLE | GROW
+      season:'winter',            // winter, spring, summer, autumn
+      slot:1,                     // 1~5 (08-23시 3시간 슬롯)
+      sel:null, salt:0, sugar:0,
       level:1
     };
 
-    // ---------------- 배경 & 미니 -----------------
-    function applyBG(){ const list=IMG.bg[S.season]||IMG.bg.winter; const idx=Math.max(1,Math.min(5,S.slot))-1; document.body.style.background = `#000 url('${list[idx]}') 50% 50%/cover no-repeat fixed`; }
-    function applyMini(){ const src=IMG.mini[S.season]||IMG.mini.winter; $mini.src=src; const label={winter:'겨울', spring:'봄', summer:'여름', autumn:'가을'}[S.season]||'겨울'; $miniCap.textContent=`${label} · 슬롯${S.slot}`; }
+    function applyBG(){
+      const list=IMG.bg[S.season]||IMG.bg.winter;
+      const idx=Math.max(1,Math.min(5,S.slot))-1;
+      document.body.style.background = `#000 url('${list[idx]}') 50% 50%/cover no-repeat fixed`;
+    }
+    function applyMini(){
+      const src=IMG.mini[S.season]||IMG.mini.winter;
+      $mini.src=src;
+      const label={winter:'겨울', spring:'봄', summer:'여름', autumn:'가을'}[S.season]||'겨울';
+      $miniCap.textContent=`${label} · 슬롯${S.slot}`;
+    }
 
-    // ---------------- 렌더 -----------------
-    function renderGate(){ $fillW.style.height=resPct(S.w)+'%'; $fillF.style.height=resPct(S.f)+'%'; $fillG.style.height=Math.max(0,Math.min(100,S.g))+'%'; }
-    function renderRes(){ $w.textContent=S.w; $f.textContent=S.f; $c.textContent=S.c; $seed.textContent=S.seed; $saltCount.textContent=S.salt; $sugarCount.textContent=S.sugar; $pickSalt.classList.toggle('sel', S.sel==='salt'); $pickSugar.classList.toggle('sel', S.sel==='sugar'); $pop.disabled = !( S.c>=1 && (S.salt>=1 || S.sugar>=1) ); $plant.disabled = !(S.phase!=='GROW' && S.seed>=1); $harv.disabled = !(S.phase==='GROW' && S.g>=100); }
-    function renderBank(){ const inv=getPotatoInv(); $bankToken.textContent=inv.token; $bankPop.textContent=inv.popcorn; $bankToken2.textContent=inv.token; $bankPop2.textContent=inv.popcorn; }
-    function renderAll(){ $('title').textContent = `${nickname} – 옥수수 농장`; $gVal.textContent=S.g.toFixed(0); $('gauge') && ($('gauge').style.background=`conic-gradient(var(--accent) ${Math.max(0,Math.min(100,S.g))}%, rgba(255,255,255,.15) 0)`); applyBG(); applyMini(); renderGate(); renderRes(); renderBank(); }
+    function renderGate(){ $('fillW').style.height=resPct(S.w)+'%'; $('fillF').style.height=resPct(S.f)+'%'; $('fillG').style.height=resPct(S.g)+'%'; }
+    function renderRes(){
+      $w.textContent=S.w; $f.textContent=S.f; $c.textContent=S.c; $seed.textContent=S.seed;
+      $('saltCount').textContent=S.salt; $('sugarCount').textContent=S.sugar;
+      $pickSalt.classList.toggle('sel', S.sel==='salt'); $pickSugar.classList.toggle('sel', S.sel==='sugar');
+      $pop.disabled = !( S.c>=1 && (S.salt>=1 || S.sugar>=1) );
+      $plant.disabled = !(S.phase!=='GROW' && S.seed>=1);
+      $harv.disabled = !(S.phase==='GROW' && S.g>=100);
+    }
+    function renderBank(){ const inv=getPotatoInv(); $bankToken.textContent=$bankToken2.textContent=inv.token; $bankPop.textContent=$bankPop2.textContent=inv.popcorn; }
+    function renderAll(){
+      const nickname = localStorage.getItem('kakaoNickname') || localStorage.getItem('nickname') || '게스트';
+      $('title').textContent = `${nickname} – 옥수수 농장`;
+      $gVal.textContent=S.g.toFixed(0);
+      applyBG(); applyMini(); renderGate(); renderRes(); renderBank();
+    }
 
-    // ---------------- 이벤트 -----------------
     function openGate(){ $gate.classList.add('open'); $gateBackdrop.classList.add('show'); $btnGate.setAttribute('aria-expanded','true'); }
     function closeGate(){ $gate.classList.remove('open'); $gateBackdrop.classList.remove('show'); $btnGate.setAttribute('aria-expanded','false'); }
     $btnGate.onclick=()=>($gate.classList.contains('open')?closeGate():openGate());
@@ -310,206 +319,157 @@
 
     $useW.onclick=()=>useRes('w');
     $useF.onclick=()=>useRes('f');
+    function useRes(kind){
+      if(kind==='w' && S.w<=0) return toast('물 부족');
+      if(kind==='f' && S.f<=0) return toast('거름 부족');
+      if(kind==='w') S.w--; else S.f--;
+      S.g = Math.min(100, S.g + 5);
+      save(); renderAll();
+    }
 
-    function useRes(kind){ if(kind==='w' && S.w<=0) return toast('물 부족'); if(kind==='f' && S.f<=0) return toast('거름 부족'); if(kind==='w') S.w--; else S.f--; S.g = Math.min(100, S.g + 5); save(); renderAll(); }
+    $plant.onclick=()=>{ if(S.seed<=0) return toast('씨앗 필요'); if(S.phase==='GROW') return toast('이미 성장 중');
+      S.seed--; S.phase='GROW'; S.g=0; save(); renderAll(); toast('파종 완료'); };
+    $harv.onclick=()=>{ if(S.phase!=='GROW' || S.g<100) return toast('아직 수확 단계가 아닙니다');
+      const g=[3,5,7][Math.floor(Math.random()*3)]; S.c+=g; S.phase='IDLE'; S.level=(S.level||0)+1; save(); renderAll(); toast(`수확 완료 (+${g})`); };
 
-    $plant.onclick=()=>{ if(S.seed<=0) return toast('씨앗 필요'); if(S.phase==='GROW') return toast('이미 성장 중'); S.seed--; S.phase='GROW'; S.g=0; save(); renderAll(); toast('파종 완료'); };
-    $harv.onclick=()=>{ if(S.phase!=='GROW' || S.g<100) return toast('아직 수확 단계가 아닙니다'); const g=[3,5,7][Math.floor(Math.random()*3)]; S.c+=g; S.phase='IDLE'; S.level=(S.level||0)+1; save(); renderAll(); toast(`수확 완료 (+${g})`); };
-
-    $pop.onclick=()=>{ if(!( S.c>=1 && (S.salt>=1 || S.sugar>=1) )) return; S.c--; if(S.sel==='salt' && S.salt>0) S.salt--; else if(S.sel==='sugar' && S.sugar>0) S.sugar--; const inv=getPotatoInv(); inv.popcorn=(inv.popcorn||0)+1; setPotatoInv(inv); save(); renderAll(); toast('🍿 팝콘 +1'); };
+    $pop.onclick=()=>{ if(!( S.c>=1 && (S.salt>=1 || S.sugar>=1) )) return;
+      S.c--; if(S.sel==='salt' && S.salt>0) S.salt--; else if(S.sel==='sugar' && S.sugar>0) S.sugar--;
+      const inv=getPotatoInv(); inv.popcorn=(inv.popcorn||0)+1; setPotatoInv(inv); save(); renderAll(); toast('🍿 팝콘 +1'); };
 
     $openShop.onclick=()=>{ openShop(); };
     $shopCancel.onclick=()=>{ closeShop(); };
-
     $shopItem.onchange=$shopQty.oninput=()=>updateShopCalc();
     $shopBuyBtn.onclick=()=>shopBuy();
 
-    function priceOf(item){ const base={seed:2, salt:3, sugar:3}; // ORCX
-      // 관리자 조정 가능: 레벨에 따라 가중치 예시
-      const tier=Math.max(1, Math.min(10, Math.floor((S.level||1)/5)+1));
-      return base[item]*1; // 주인님 지시 전까지는 기본가 유지
+    function priceOf(item){ const base={seed:2, salt:3, sugar:3}; const tier=Math.max(1, Math.min(10, Math.floor((S.level||1)/5)+1)); return base[item]*1; }
+    function updateShopCalc(){
+      const inv=getPotatoInv(); const item=$shopItem.value; const qty=Math.max(1, parseInt($shopQty.value||'1',10));
+      const price=priceOf(item); const total=price*qty;
+      $shopPricePer.textContent=price; $shopTotal.textContent=total; $shopOrcx.textContent=inv.token||0; $shopBuyBtn.disabled = (inv.token||0) < total;
     }
-
-    function updateShopCalc(){ const inv=getPotatoInv(); const item=$shopItem.value; const qty=Math.max(1, parseInt($shopQty.value||'1',10)); const price=priceOf(item); const total=price*qty; $shopPricePer.textContent=price; $shopTotal.textContent=total; $shopOrcx.textContent=inv.token||0; $shopBuyBtn.disabled = (inv.token||0) < total; }
-
     function openShop(){ updateShopCalc(); $shop.classList.add('open'); }
     function closeShop(){ $shop.classList.remove('open'); }
-
-    function shopBuy(){ const inv=getPotatoInv(); const item=$shopItem.value; const qty=Math.max(1, parseInt($shopQty.value||'1',10)); const price=priceOf(item); const total=price*qty; if((inv.token||0)<total) return toast('ORCX 부족'); inv.token-=total; if(item==='seed') S.seed+=qty; if(item==='salt') S.salt+=qty; if(item==='sugar') S.sugar+=qty; setPotatoInv(inv); save(); renderAll(); toast('구매 완료'); closeShop(); }
+    function shopBuy(){
+      const inv=getPotatoInv(); const item=$shopItem.value; const qty=Math.max(1, parseInt($shopQty.value||'1',10));
+      const price=priceOf(item); const total=price*qty; if((inv.token||0)<total) return toast('ORCX 부족');
+      inv.token-=total; if(item==='seed') S.seed+=qty; if(item==='salt') S.salt+=qty; if(item==='sugar') S.sugar+=qty; setPotatoInv(inv); save(); renderAll(); toast('구매 완료'); closeShop();
+    }
 
     $('sync').onclick=async()=>{ await loadFromServer(); };
 
-    // ---------------- 서버 연동 (더미) -----------------
-    async function loadFromServer(){ try{ // 실제 엔드포인트는 그대로. 여기선 더미 갱신만.
-        const ok = NET_OK; $('netDot').classList.toggle('ok', ok); $('netTxt').textContent = ok? '온라인':'오프라인';
-        const inv=getPotatoInv(); $bankToken.textContent=$bankToken2.textContent=inv.token||0; $bankPop.textContent=$bankPop2.textContent=inv.popcorn||0; toast('동기화 완료'); }catch(e){ toast('동기화 실패'); } }
+    async function loadFromServer(){ try{
+      const ok = NET_OK; $('netDot').classList.toggle('ok', ok); $('netTxt').textContent = ok? '온라인':'오프라인';
+      const inv=getPotatoInv(); $bankToken.textContent=$bankToken2.textContent=inv.token||0; $bankPop.textContent=$bankPop2.textContent=inv.popcorn||0; toast('동기화 완료');
+    }catch(e){ toast('동기화 실패'); } }
 
-    // 초기 렌더
-    let nickname = localStorage.getItem('kakaoNickname') || localStorage.getItem('nickname') || '게스트';
+    /* --------- PC 성장게이트 캐릭터 얼굴/레벨 --------- */
+    function levelToTier(level){
+      if(typeof level!=='number'){ var g=(S&&S.g)||0; level = Math.floor(g/10)*5 + 1; }
+      var t=Math.floor(level/5)+1; if(t<1)t=1; if(t>10)t=10; return t;
+    }
+    function ensureGateFace(){
+      var gateCard = document.querySelector('#gate .card');
+      if(!gateCard || document.getElementById('gateFace')) return;
+      var box=document.createElement('div');
+      box.style.cssText='position:absolute;right:10px;top:42px;display:flex;flex-direction:column;align-items:center;gap:4px';
+      box.innerHTML =
+        '<img id="gateFace" src="" style="width:68px;height:68px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:#000;object-fit:cover;">' +
+        '<div id="gateLv" style="font-size:12px;font-weight:700;opacity:.95">Lv1</div>';
+      gateCard.appendChild(box);
+    }
+    function updateGateFace(){
+      ensureGateFace();
+      var img=document.getElementById('gateFace'); var lv=document.getElementById('gateLv');
+      if(!img||!lv) return;
+      var tier = levelToTier(S.level||1);
+      img.src = (IMG && IMG.charBase ? IMG.charBase : '/OrcaX/img/char/') + 'tier' + tier + '.png';
+      lv.textContent = 'Lv' + (S.level||tier);
+    }
+    (function hookGateBtn(){
+      const b=document.getElementById('btnGate'); if(!b) return;
+      const old=b.onclick; b.onclick=function(ev){ try{ updateGateFace(); }catch(e){} if(typeof old==='function'){ old.call(this, ev); } }
+    })();
+
+    /* --------- 초기 렌더 --------- */
     renderAll(); loadFromServer();
 
-    // --- 모바일 거울 DOM 구성 ---
-    (function(){ if(window.matchMedia('(max-width:900px)').matches){
+    /* --------- 모바일 거울 레이아웃 구성 --------- */
+    (function(){ if(!window.matchMedia('(max-width:900px)').matches) return;
       var mirror=document.createElement('div'); mirror.id='mirror';
       var header=document.createElement('div'); header.id='mirrorHeader';
       header.innerHTML = '<span class="who" id="mWho"></span>'
-        + '<span class="line">'
-        +   '<span class="pill">🪙 <b id="mTok">0</b></span>'
-        +   '<span class="pill">🍿 <b id="mPop">0</b></span>'
-        +   '<span class="pill"><span id="mDot" class="dot"></span> <span id="mNet">오프라인</span></span>'
+        + '<span style="display:flex;gap:8px;align-items:center">'
+        +   '<span class="chip" style="padding:4px 8px">🪙 <b id="mTok">0</b></span>'
+        +   '<span class="chip" style="padding:4px 8px">🍿 <b id="mPop">0</b></span>'
+        +   '<span class="chip" style="padding:4px 8px"><span id="mDot" class="dot"></span> <span id="mNet">오프라인</span></span>'
         + '</span>';
+      var bar=document.createElement('div'); bar.id='mirrorBar';
+      bar.innerHTML =
+        '<button class="mbtn" data-target="#mSec3">농사짓기</button>'+
+        '<button class="mbtn" data-target="#mSec4">성장게이트</button>'+
+        '<button class="mbtn" data-target="#shop">구매/첨가물</button>'+
+        '<button class="mbtn" data-target="SYNC">동기화</button>';
       var body=document.createElement('div'); body.id='mirrorBody';
       var s2=document.createElement('div'); s2.id='mSec2'; s2.className='m-sec';
       var s3=document.createElement('div'); s3.id='mSec3'; s3.className='m-sec';
       var s4=document.createElement('div'); s4.id='mSec4'; s4.className='m-sec';
-      var s5=document.createElement('div'); s5.id='mSec5'; s5.className='m-sec';
+      var s5=document.createElement('div'); s5.id='mSec5'; s5.className='m-sec'; // 미니 컨테이너(상시 노출)
+
       body.appendChild(s2); body.appendChild(s3); body.appendChild(s4); body.appendChild(s5);
-      mirror.appendChild(header); mirror.appendChild(body);
+      mirror.appendChild(header); mirror.appendChild(bar); mirror.appendChild(body);
+      var ov=document.createElement('div'); ov.id='mOverlay'; mirror.appendChild(ov);
       document.body.appendChild(mirror);
       document.documentElement.style.overflowX = 'hidden'; document.body.style.overflowX = 'hidden';
 
-      // 2) 기존 조각 이동
+      // 기존 조각 이동
       var rightPanel=document.querySelector('.hud-right .panel'); if(rightPanel) s2.appendChild(rightPanel);
       var leftPanel=document.querySelector('.hud-left .panel'); if(leftPanel) s3.appendChild(leftPanel);
       var gateDock=document.querySelector('.hud-left .gate-dock'); if(gateDock) s4.appendChild(gateDock);
       var gate=document.getElementById('gate'); if(gate) s4.appendChild(gate);
-      var miniWrap=document.querySelector('.mini-wrap'); if(miniWrap) s5.appendChild(miniWrap);
+      var miniWrap=document.querySelector('.mini-wrap'); if(miniWrap) { s5.appendChild(miniWrap); s5.classList.add('pop'); } // 항상 보이게
 
-      // 3) 상단 상태 동기화 루프
-      function syncHeader(){ try{ var name=(window.nickname || localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '(로그인 필요)'); var inv=(typeof getPotatoInv==='function')? getPotatoInv():{token:0,popcorn:0}; var ok=!!window.NET_OK; document.getElementById('mWho').textContent=name; document.getElementById('mTok').textContent=inv.token||0; document.getElementById('mPop').textContent=inv.popcorn||0; document.getElementById('mDot').classList.toggle('ok', ok); document.getElementById('mNet').textContent=ok?'온라인':'오프라인'; }catch(e){} }
+      function syncHeader(){
+        try{
+          var name=(window.nickname || localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '(로그인 필요)');
+          var inv=(typeof getPotatoInv==='function')? getPotatoInv():{token:0,popcorn:0};
+          var ok=!!NET_OK;
+          document.getElementById('mWho').textContent=name;
+          document.getElementById('mTok').textContent=inv.token||0;
+          document.getElementById('mPop').textContent=inv.popcorn||0;
+          document.getElementById('mDot').classList.toggle('ok', ok);
+          document.getElementById('mNet').textContent=ok?'온라인':'오프라인';
+        }catch(e){}
+      }
       syncHeader(); setInterval(syncHeader, 800);
 
-      // 4) Level character face inside gate (face-only preview)
-      function levelToTier(level){ if(typeof level!=='number'){ var g=(window.S&&S.g)||0; level = Math.floor(g/10)*5 + 1; } var t=Math.floor(level/5)+1; if(t<1)t=1; if(t>10)t=10; return t; }
-      function ensureGateFace(){ var card = document.querySelector('#mSec4 .gate .card') || document.querySelector('#gate .card'); if(!card || document.getElementById('gateFace')) return; var box=document.createElement('div'); box.style.cssText='position:absolute;right:10px;top:42px;display:flex;flex-direction:column;align-items:center;gap:4px'; box.innerHTML='<img id="gateFace" src="'+(window.IMG?IMG.charBase:'/OrcaX/img/char/')+'tier1.png" style="width:68px;height:68px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:#000;object-fit:cover">' +'<div id="gateLv" style="font-size:12px;font-weight:700;opacity:.95">1v</div>'; card.appendChild(box); }
-      function updateGateFace(){ ensureGateFace(); var img=document.getElementById('gateFace'); var lv=document.getElementById('gateLv'); if(!img||!lv) return; var vt=levelToTier(window.S && S.level); img.src = (window.IMG?IMG.charBase:'/OrcaX/img/char/') + 'tier' + vt + '.png'; lv.textContent = 'Lv' + ((window.S && S.level) || vt); }
-
-      // 모바일 내부에서 게이트 열릴 때 갱신
-      try{ updateGateFace(); }catch(e){}
-
-      // 팝업 상태를 위한 스타일 보정은 아래 패치 스크립트에서 처리
-    }} )();
-
-  </script>
-
-  <!-- === OrcaX Mobile & Gate Face Patch (2025-08-12) === -->
-  <style>
-  @media (max-width: 900px){
-    /* 배경은 고정, 세로 스크롤만 허용 */
-    html, body{ overflow-x: hidden; }
-    body{ background-attachment: fixed; }
-
-    /* 모바일 컨테이너 너비 보정 */
-    #mirror{ inset: auto !important; top: 10px; bottom: 10px; left: 50%; right: auto; transform: translateX(-50%); width: min(480px, calc(100vw - 20px)); }
-    #mirrorHeader{ white-space: nowrap; }
-
-    /* 버튼 바 */
-    #mirrorBar{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 8px 10px 0 10px; }
-    #mirrorBar .mbtn{ border: 1px solid rgba(255,255,255,.22); background: rgba(0,0,0,.28); color: #fff; border-radius: 12px; padding: 8px 6px; font-size: 13px; line-height: 1.1; }
-    #mirrorBody{ padding-top: 8px; }
-
-    /* 오버레이 */
-    #mOverlay{ position: absolute; inset: 0; background: rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: .18s ease; }
-    #mirror.pop #mOverlay{ opacity: 1; pointer-events: auto; }
-
-    .m-sec{ display: none; }
-    .m-sec.pop{ display: block; position: absolute; left: 50%; transform: translateX(-50%); top: 56px; bottom: 60px; width: min(460px, 94vw); overflow-y: auto; overflow-x: hidden; border-radius: 16px; border: 1px solid rgba(255,255,255,.22); background: rgba(0,0,0,.28); backdrop-filter: saturate(1.05) blur(8px); padding: 10px; box-shadow: 0 18px 40px rgba(0,0,0,.45); }
-
-    /* 성장게이트 카드 폭 */
-    #mSec4 #gate{ position: static !important; display: block !important; }
-    #mSec4 .gate .card{ min-width: auto; width: 100%; }
-
-    /* 하단 미니: 항상 보이되 스크롤 따라붙는 느낌 */
-    #mSec5{ position: sticky; bottom: 8px; z-index: 3; }
-    #mSec5 .mini-wrap{ position: static !important; display: grid; justify-items: center; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.22); border-radius: 16px; padding: 8px; width: 100%; }
-  }
-  </style>
-
-  <script>
-  /* === OrcaX Mobile Menu & Popup Patch (2025-08-12) === */
-  (function(){
-    const mq = window.matchMedia('(max-width: 900px)');
-    function initMobileMenu(){
-      if(!mq.matches) return;
-      const mirror = document.getElementById('mirror');
-      if(!mirror || document.getElementById('mirrorBar')) return; // once
-
-      const bar = document.createElement('div');
-      bar.id = 'mirrorBar';
-      bar.innerHTML = [
-        '<button class="mbtn" data-target="#mSec3">농사짓기</button>',
-        '<button class="mbtn" data-target="#mSec4">성장게이트</button>',
-        '<button class="mbtn" data-target="#shop">구매/첨가물</button>',
-        '<button class="mbtn" data-target="SYNC">동기화</button>'
-      ].join('');
-      const body = document.getElementById('mirrorBody');
-      mirror.insertBefore(bar, body);
-
-      // Overlay for popups
-      const ov = document.createElement('div'); ov.id='mOverlay';
-      mirror.appendChild(ov);
-
-      function closeAll(){
-        mirror.classList.remove('pop');
-        document.querySelectorAll('.m-sec.pop').forEach(el=>el.classList.remove('pop'));
-        const shop = document.getElementById('shop');
-        if(shop){ shop.classList.remove('open'); }
-      }
+      function closeAll(){ mirror.classList.remove('pop'); document.querySelectorAll('.m-sec.pop').forEach(el=>{ if(el.id!=='mSec5') el.classList.remove('pop'); }); const shop=document.getElementById('shop'); if(shop){ shop.classList.remove('open'); } }
       ov.addEventListener('click', closeAll);
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeAll(); });
 
       bar.addEventListener('click', async (e)=>{
-        const btn = e.target.closest('.mbtn'); if(!btn) return;
-        const tgt = btn.getAttribute('data-target');
-        if(tgt === 'SYNC'){
-          if(typeof loadFromServer === 'function'){ try{ await loadFromServer(); toast && toast('동기화 완료'); }catch{} }
-          return;
-        }
-        closeAll();
-        if(tgt === '#shop'){
-          // open existing shop
-          const shop = document.getElementById('shop');
+        const btn=e.target.closest('.mbtn'); if(!btn) return;
+        const tgt=btn.getAttribute('data-target');
+        if(tgt==='SYNC'){ if(typeof loadFromServer==='function'){ try{ await loadFromServer(); toast && toast('동기화 완료'); }catch{} } return; }
+        closeAll(); mirror.classList.add('pop');
+        if(tgt==='#shop'){
+          const shop=document.getElementById('shop');
           if(shop){
-            mirror.classList.add('pop');
             shop.classList.add('open');
-            shop.style.position = 'absolute';
-            shop.style.left = '50%';
-            shop.style.transform = 'translateX(-50%)';
-            shop.style.top = '56px'; shop.style.bottom = '60px';
-            shop.style.width = 'min(460px,94vw)';
-            shop.style.overflowY = 'auto';
-            const c1 = document.getElementById('shopCancel');
-            if(c1){ c1.onclick = closeAll; }
+            shop.style.position='absolute'; shop.style.left='50%'; shop.style.transform='translateX(-50%)';
+            shop.style.top='56px'; shop.style.bottom='60px'; shop.style.width='min(460px,94vw)'; shop.style.overflowY='auto';
+            const c=document.getElementById('shopCancel'); if(c) c.onclick=closeAll;
           }
           return;
         }
-        const panel = document.querySelector(tgt);
-        if(panel){
-          panel.classList.add('pop');
-          mirror.classList.add('pop');
-          if(tgt==='#mSec4' && typeof updateGateFace==='function'){ updateGateFace(); }
-        }
+        const panel=document.querySelector(tgt);
+        if(panel){ panel.classList.add('pop'); if(tgt==='#mSec4'){ try{ updateGateFace(); }catch(e){} } }
       });
 
-      // Esc key close
-      document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeAll(); } });
-    }
-
-    // Ensure PC gate shows character face
-    const $btnGate = document.getElementById('btnGate');
-    if($btnGate){
-      const old = $btnGate.onclick;
-      $btnGate.onclick = function(ev){
-        if(typeof updateGateFace==='function'){ try{ updateGateFace(); }catch(e){} }
-        if(typeof old === 'function'){ old.call(this, ev); }
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', function(){ if(typeof updateGateFace==='function'){ try{ updateGateFace(); }catch(e){} } initMobileMenu(); });
-    setTimeout(initMobileMenu, 600);
-    setTimeout(initMobileMenu, 1500);
-  })();
-
+      // 초기 한 번 캐릭터 싱크
+      try{ updateGateFace(); }catch(e){}
+    })();
   </script>
 </body>
 </html>
+
  
