@@ -73,8 +73,8 @@
 
   <main>
     <picture>
-      <source media="(max-width: 768px)" srcset="img/a_corn_0_09.png">
-      <img src="img/corn_0_09.png" alt="옥수수 농장 배경">
+      <source media="(max-width: 768px)" srcset="img/a_farm_09.png">
+      <img src="img/farm_09.png" alt="옥수수 농장 배경">
     </picture>
   </main>
 
@@ -86,24 +86,22 @@
   </div>
 
   <script>
-    const BASE_API = ''; // 서버 API 베이스 URL (필요시 설정)
+    const BASE_API = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 고정 도메인
     let kakaoId = null;
     let nickname = null;
 
-    // 로그인 정보 확인
     function checkLogin() {
       kakaoId  = localStorage.getItem('kakaoId');
       nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
 
       if (!kakaoId || !nickname) {
         alert("로그인이 필요합니다.");
-        location.href = '/index.html'; // 로그인 페이지 경로
+        location.href = '/index9.html';
         return false;
       }
       return true;
     }
 
-    // 농장 데이터 불러오기
     async function loadFarmData() {
       if (!checkLogin()) return;
 
@@ -130,7 +128,6 @@
       }
     }
 
-    // 행동 실행
     async function doAction(action) {
       if (!checkLogin()) return;
 
@@ -148,7 +145,6 @@
       }
     }
 
-    // 페이지 로드 시 데이터 불러오기
     window.onload = loadFarmData;
   </script>
 
