@@ -495,7 +495,7 @@
     })();
   </script>
 
-<!-- === ADD-ONLY: Mobile Layer + Safe + BG Fallback (v7: z-index fix + transparent body) === -->
+<!-- === ADD-ONLY (v8): Mobile Header+BottomBar (init only) + On-Demand Stage + In-App Safe + BG Fallback. No HOLO, Desktop untouched. === -->
 <script>
 (function(){ // detect in-app (Kakao/Naver/IG/FB/Line)
   var inapp = /KAKAO|KAKAOTALK|NAVER|NAVER\(inapp\)|FBAV|Instagram|Line/i.test(navigator.userAgent);
@@ -508,35 +508,38 @@
 </script>
 <style>
 @media (max-width: 900px){
-  /* Ensure body's fallback color doesn't cover our gradient when images fail */
-  body{ background-color: transparent !important; }
-
+  /* Do not alter desktop; hide original fixed headers on mobile only */
   .top, .bank { display:none !important; }
   #gateBackdrop{ display:none !important; }
-  .hud-left, .hud-right, #gate, #shop, .mini-wrap { display:none !important; }
 
-  /* Fallback background (now above body background) */
+  /* When images fail, show gradient fallback; and don't let body paint black */
+  body{ background-color: transparent !important; }
   #mBgFallback{
     position:fixed; inset:0; z-index:0;
     background:
-      radial-gradient(1200px 800px at 50% 40%, rgba(255,255,255,.10), rgba(0,0,0,0) 60%),
+      radial-gradient(1200px 800px at 50% 40%, rgba(255,255,255,.08), rgba(0,0,0,0) 60%),
       linear-gradient(180deg, #0b3a1a, #1e5f2e 55%, #0b3a1a);
   }
 
-  /* Fixed Top Header */
+  /* Initial: keep original content hidden on mobile; they will reappear inside our stage */
+  .hud-left, .hud-right, .mini-wrap, #gate, #shop { display:none !important; }
+  /* Re-enable when inside our containers */
+  #mMini .mini-wrap{ display:grid !important; }
+  #mStage #gate, #mStage #shop, #mStage .panel{ display:block !important; }
+
+  /* Fixed header (PC-like one-line) */
   #mHdr{
     position:fixed; left:10px; right:10px; top:10px; z-index:9999;
     display:flex; align-items:center; justify-content:space-between; gap:8px;
     padding:8px 12px; border-radius:14px;
-    background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22);
-    color:#fff; font-size:14px; white-space:nowrap;
+    background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22); color:#fff; font-size:14px; white-space:nowrap;
   }
   #mHdr .who{ font-weight:800; overflow:hidden; text-overflow:ellipsis; max-width:48vw; }
   #mHdr .pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px;
                border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
   #mHdr .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 } #mHdr .dot.ok{ background:#25d366 }
 
-  /* Fixed Bottom Menu */
+  /* Fixed bottom menu */
   #mBar{
     position:fixed; left:10px; right:10px; bottom:10px; z-index:9999;
     display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
@@ -548,7 +551,7 @@
     border-radius:12px; padding:10px 8px; font-size:14px; line-height:1.1;
   }
 
-  /* Middle scroll area (hidden until tap) */
+  /* Middle scroll area (hidden until a button is tapped) */
   #mBody{
     position:fixed; left:10px; right:10px; top:64px; bottom:68px;
     overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
@@ -564,14 +567,13 @@
   #mMini .mini{ width:160px; height:160px; object-fit:cover; border-radius:12px; }
   #mMini .mini-cap{ grid-column:1/-1; text-align:center; opacity:.9; }
 
-  /* Stage under the mini */
+  /* Stage (under mini) */
   #mStage{ margin:0 auto; width:min(520px, 98%); display:flex; flex-direction:column; gap:12px; }
-  #mStage .panel, #mStage .gate .card, #mStage #shop{
+  #mStage .panel, #mStage #gate .card, #mStage #shop{
     position:static !important; width:100% !important; left:auto !important; right:auto !important; top:auto !important; bottom:auto !important; transform:none !important;
   }
-  #mStage #shop{ display:block !important; border-radius:16px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); padding:10px; }
 
-  /* In-app(WebView) safe mode */
+  /* In-app safe mode: strip heavy effects */
   html.inapp body{ background-attachment: scroll !important; }
   html.inapp .glass{ backdrop-filter:none !important; background:rgba(0,0,0,.28) !important; box-shadow:none !important; }
   html.inapp #mHdr, html.inapp #mBar{ background:rgba(0,0,0,.24) !important; }
@@ -584,7 +586,7 @@
   if(!mq.matches) return;
   if(document.getElementById('mHdr')) return; // once
 
-  // Header
+  // Fixed header
   const hdr = document.createElement('div'); hdr.id='mHdr';
   hdr.innerHTML =
     '<span class="who" id="mWho"></span>' +
@@ -595,7 +597,7 @@
     '</span>';
   document.body.appendChild(hdr);
 
-  // Bottom bar
+  // Fixed bottom bar
   const bar = document.createElement('div'); bar.id='mBar';
   bar.innerHTML =
     '<button class="mbtn" data-tgt="FARM">농사짓기</button>'+
@@ -611,7 +613,7 @@
   body.appendChild(mMini); body.appendChild(stage);
   document.body.appendChild(body);
 
-  // Sync header
+  // Header sync
   function readInv(){ try{ return JSON.parse(localStorage.getItem('potato_inv')||localStorage.getItem('potatoInv')||'{}'); }catch(e){ return {}; } }
   function syncHdr(){
     const name = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '';
@@ -623,7 +625,7 @@
     document.getElementById('mDot').classList.toggle('ok', !!ok);
     document.getElementById('mNet').textContent = ok ? '온라인' : '오프라인';
   }
-  syncHdr(); setInterval(syncHdr, 800);
+  syncHdr(); setInterval(syncHdr, 1000);
 
   // Helpers
   function ensureMini(){ const mw = document.querySelector('.mini-wrap'); if(mw && mw.parentElement !== mMini){ mMini.appendChild(mw); } }
@@ -631,18 +633,25 @@
   function showBody(){ if(body.style.display!=='block'){ body.style.display='block'; } }
 
   // Views
-  function viewFarm(){ clearStage(); ensureMini();
+  function viewFarm(){ try{
+    clearStage(); ensureMini();
     const L = document.querySelector('.hud-left .panel'); const R = document.querySelector('.hud-right .panel');
-    if(L) stage.appendChild(L); if(R) stage.appendChild(R); showBody();
-  }
-  function viewGate(){ clearStage(); ensureMini();
+    if(L) stage.appendChild(L); if(R) stage.appendChild(R);
+    showBody();
+  }catch(e){} }
+  function viewGate(){ try{
+    clearStage(); ensureMini();
     const dock = document.querySelector('.hud-left .gate-dock'); const gate = document.getElementById('gate');
-    if(dock) stage.appendChild(dock); if(gate) stage.appendChild(gate);
-    try{ if(typeof updateGateFace==='function') updateGateFace(); }catch(e){} showBody();
-  }
-  function viewShop(){ clearStage(); ensureMini();
-    const shop = document.getElementById('shop'); if(shop){ stage.appendChild(shop); shop.style.display='block'; } showBody();
-  }
+    if(dock) stage.appendChild(dock);
+    if(gate){ stage.appendChild(gate); gate.style.display='block'; }
+    if(typeof updateGateFace==='function'){ try{ updateGateFace(); }catch(_){} }
+    showBody();
+  }catch(e){} }
+  function viewShop(){ try{
+    clearStage(); ensureMini();
+    const shop = document.getElementById('shop'); if(shop){ stage.appendChild(shop); shop.style.display='block'; }
+    showBody();
+  }catch(e){} }
 
   // Actions
   bar.addEventListener('click', async (e)=>{
@@ -655,137 +664,10 @@
   });
 })();
 </script>
-<!-- === /ADD-ONLY END === -->
-
-
-<!-- === ADD-ONLY: HOLO GLASS OVERLAY (toggle by long-press on header) === -->
-<style>
-@media (max-width:900px){
-  /* Holo container overlays the middle area; does not block taps (pointer-events:none) */
-  #holo{
-    position:fixed; left:10px; right:10px; top:64px; bottom:68px; z-index:9998;
-    display:none; pointer-events:none;
-  }
-  html.holo-on #holo{ display:block; }
-
-  #holo .glass{
-    position:absolute; left:50%; transform:translateX(-50%);
-    width:min(520px, 98%); height:100%;
-    border-radius:16px; border:1px solid rgba(255,255,255,.22);
-    background:rgba(0,0,0,.20);
-    backdrop-filter:saturate(1.05) blur(6px);
-    box-shadow:0 18px 40px rgba(0,0,0,.35) inset;
-    overflow:hidden;
-  }
-  /* In-app: drop heavy effects */
-  html.inapp #holo .glass{ backdrop-filter:none; background:rgba(0,0,0,.18); box-shadow:none; }
-
-  /* Decorative scanline */
-  #holo .scan{ position:absolute; left:0; right:0; height:42%; top:-42%; opacity:.15;
-               background:linear-gradient(to bottom, transparent, rgba(255,255,255,1), transparent);
-               animation:scan 4.5s linear infinite; }
-  @keyframes scan { 0%{ top:-42%; } 100%{ top:100%; } }
-
-  /* Columns of ghost text */
-  #holo .cols{ position:absolute; inset:10px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  #holo .col{ position:relative; overflow:hidden; mask-image:linear-gradient(to bottom, transparent, black 10%, black 90%, transparent); }
-  #holo .line{
-    font: 600 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    color: rgba(173, 255, 208, .82);
-    letter-spacing:.2px; white-space:nowrap;
-    opacity:.0; transform:translateY(40px) translateZ(0);
-    animation: rise 6s linear infinite;
-    text-shadow: 0 0 6px rgba(173,255,208,.45), 0 0 16px rgba(0,255,204,.25);
-    will-change: transform, opacity;
-  }
-  #holo .line.alt{ color: rgba(173, 216, 255, .84); text-shadow: 0 0 6px rgba(173,216,255,.45), 0 0 16px rgba(0,180,255,.25); }
-  @keyframes rise {
-    0%   { opacity:0;   transform:translateY(40px) translateZ(0); }
-    10%  { opacity:.85; transform:translateY(0) translateZ(0); }
-    90%  { opacity:.85; transform:translateY(-260px) translateZ(0); }
-    100% { opacity:0;   transform:translateY(-300px) translateZ(0); }
-  }
-
-  /* Corner glyphs */
-  #holo .glyph{ position:absolute; font:700 11px/1 ui-monospace, monospace; opacity:.55; color:#aef; }
-  #holo .g1{ left:10px; top:8px; } .g2{ right:10px; top:8px; } .g3{ left:10px; bottom:8px; } .g4{ right:10px; bottom:8px; }
-}
-</style>
-
-<div id="holo" aria-hidden="true">
-  <div class="glass">
-    <div class="scan"></div>
-    <div class="glyph g1">HOLO-GLASS</div>
-    <div class="glyph g2">LIVE FEED</div>
-    <div class="glyph g3">ORCAX</div>
-    <div class="glyph g4" id="holoClock">--:--:--</div>
-    <div class="cols">
-      <div class="col" id="holoColL"></div>
-      <div class="col" id="holoColR"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-  if(!window.matchMedia('(max-width:900px)').matches) return;
-
-  // 1) Toggle by long-press on the top header
-  const hdr = document.getElementById('mHdr');
-  if(hdr && !hdr._holoBind){
-    let t=null;
-    hdr.addEventListener('pointerdown', ()=>{ t=setTimeout(()=>{ document.documentElement.classList.toggle('holo-on'); }, 600); }, true);
-    ['pointerup','pointerleave','pointercancel'].forEach(ev=>hdr.addEventListener(ev, ()=>{ if(t){ clearTimeout(t); t=null; } }, true));
-    hdr._holoBind=true;
-  }
-
-  // 2) Ghost text generator (lightweight)
-  const L = document.getElementById('holoColL');
-  const R = document.getElementById('holoColR');
-  if(!L || !R) return;
-
-  const K = ['seed','grow','gate','sync','token','level','slot','season','ORCX','salt','sugar','water','fert','inv','kakao','uid','api','fetch','ok','200','pong','calc','harvest','plant','mini'];
-  function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-  function word(){ return K[rnd(0,K.length-1)] + '=' + rnd(0,9999); }
-  function line(idx){
-    const span = document.createElement('div');
-    span.className = 'line' + (idx%3===0 ? ' alt' : '');
-    const n = rnd(3, 7);
-    let s='';
-    for(let i=0;i<n;i++){ s += (i?'  ':'') + word(); }
-    span.textContent = s;
-    // stagger start time & speed
-    span.style.animationDelay = (-rnd(0, 6000)) + 'ms';
-    span.style.animationDuration = (4500 + rnd(0, 3000)) + 'ms';
-    return span;
-  }
-
-  function fill(col){
-    for(let i=0;i<20;i++){ col.appendChild(line(i)); }
-    // recycle nodes to keep memory stable
-    setInterval(()=>{
-      if(col.children.length>0){
-        col.removeChild(col.firstChild);
-        col.appendChild(line(rnd(0,9999)));
-      }
-    }, 500);
-  }
-  fill(L); fill(R);
-
-  // 3) Clock glyph
-  function tickClock(){
-    const el = document.getElementById('holoClock'); if(!el) return;
-    const d = new Date();
-    const pad = n => (n<10?'0':'')+n;
-    el.textContent = pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
-  }
-  tickClock(); setInterval(tickClock, 1000);
-})();
-</script>
-<!-- === /HOLO GLASS OVERLAY === -->
 
 </body>
 </html>
+
 
 
 
