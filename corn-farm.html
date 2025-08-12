@@ -12,6 +12,7 @@
       --ok:#25d366;
     }
     html,body{height:100%;margin:0;background:#000;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif}
+
     /* 배경 레이어 */
     #bg{position:fixed;inset:0;background:url('img/farm_05.png') center/cover no-repeat;z-index:0}
 
@@ -21,6 +22,8 @@
       background:var(--panel);border:1px solid var(--bd);border-radius:14px;backdrop-filter:blur(6px)}
     .dot{width:10px;height:10px;border-radius:999px;background:#ef4444}
     .dot.ok{background:var(--ok)}
+    .navlinks{display:flex;gap:8px;margin-right:6px}
+    .linkbtn{padding:6px 10px;border-radius:10px;border:1px solid var(--bd);background:rgba(255,255,255,.08);color:#fff;text-decoration:none;font-size:12px}
     .nick{display:flex;align-items:center;gap:8px}
     .res{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px}
     .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.38)}
@@ -32,25 +35,26 @@
 
     /* 미니 성장 카드(중앙 하단) */
     .miniWrap{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;z-index:5;text-align:center}
-    .mini{width:min(34vw,220px);aspect-ratio:3/4;border-radius:14px;border:1px solid var(--bd);background:rgba(0,0,0,.25);overflow:hidden}
+    .mini{width:min(34vw,220px);aspect-ratio:3/4;border-radius:14px;border:1px solid var(--bd);background:rgba(0,0,0,.25);overflow:hidden;position:relative}
     .mini img{width:100%;height:100%;object-fit:cover;display:block}
     .miniCap{margin-top:6px;font-size:12px;opacity:.95}
-    .miniBadge{position:absolute;left:8px;bottom:46px;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;background:rgba(0,0,0,.55);border:1px solid var(--bd)}
+    .miniBadge{position:absolute;left:8px;bottom:8px;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;background:rgba(0,0,0,.55);border:1px solid var(--bd)}
     .miniBadge img{width:18px;height:18px;border-radius:999px}
 
     /* 하단 액션바 */
     .actions{position:fixed;left:12px;right:12px;bottom:12px;z-index:10;
-      display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:10px;
+      display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:10px;
       background:var(--panel);border:1px solid var(--bd);border-radius:14px;backdrop-filter:blur(6px)}
     .btn{padding:12px 8px;border-radius:12px;border:1px solid var(--bd);background:rgba(255,255,255,.08);color:#fff;font-weight:700;cursor:pointer}
     .btn[disabled]{opacity:.5;cursor:not-allowed}
+    #btn-exchange{grid-column:1/-1}
 
     /* 토스트 */
     #toast{position:fixed;left:50%;transform:translateX(-50%);top:64px;z-index:20;
       display:none;background:rgba(0,0,0,.65);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px}
     #toast.show{display:block}
 
-    @media (max-width:720px){
+    @media (max-width:900px){
       .actions{grid-template-columns:repeat(3,1fr)}
       .mini{width:min(52vw,240px)}
       .exp{display:none}
@@ -60,12 +64,16 @@
 <body>
   <div id="bg" aria-hidden="true"></div>
 
-  <!-- 상단 투명 HUD: 연결상태 + 레벨/EXP + 자원 -->
+  <!-- 상단 투명 HUD: 이전/감자농장 + 연결상태 + 레벨/EXP + 자원 -->
   <header class="hud">
+    <nav class="navlinks" aria-label="바로가기">
+      <a href="#" class="linkbtn" id="goBack">이전</a>
+      <a href="https://byungil-cho.github.io/OrcaX/index9.html" class="linkbtn">감자농장 가기</a>
+    </nav>
     <div class="nick">
       <span id="netDot" class="dot" aria-hidden="true"></span>
       <span id="netTxt">연결 확인 중…</span>
-      <span class="lvl">
+      <span class="lvl" title="레벨">
         <img id="levelIcon" src="img/mark_01.png" alt="레벨 아이콘" />
         <b id="levelText">Lv.1</b>
       </span>
@@ -104,22 +112,26 @@
     <button id="btn-fert"  class="btn">거름 주기</button>
     <button id="btn-harv"  class="btn" disabled>수확</button>
     <button id="btn-pop"   class="btn" disabled>뻥튀기</button>
-    <!-- 간단거래(팝콘↔거름 1:1) -->
-    <button id="btn-exchange" class="btn" style="grid-column:1/-1">팝콘 → 거름 (1:1 교환)</button>
+    <button id="btn-exchange" class="btn">팝콘 → 거름 (1:1 교환)</button>
   </nav>
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- API/로직: ngrok 고정 도메인 + 카카오 연동 + 이미지 a_ 접두 대응 -->
+  <!-- API/로직 -->
   <script src="js/corn-api.js"></script>
   <script>
-    // 미니 캡션 텍스트 노출 동기 (API 파일은 #miniCap 요소만 갱신하므로 보조 동기화)
+    // '이전' 버튼 (히스토리가 없으면 corn-index.html로)
+    document.getElementById('goBack').addEventListener('click', function(e){
+      e.preventDefault();
+      if (history.length > 1) history.back();
+      else window.location.href = 'corn-index.html';
+    });
+
+    // 미니 캡션 텍스트 동기 (보조)
     const cap = document.getElementById('miniCap');
     const capText = document.getElementById('miniCapText');
-    const ro = new MutationObserver(()=>{
-      capText.textContent = cap.textContent || '상태 확인 중…';
-    });
-    ro.observe(cap, {characterData:true,subtree:true,childList:true});
+    new MutationObserver(()=>{ capText.textContent = cap.textContent || '상태 확인 중…'; })
+      .observe(cap, {characterData:true,subtree:true,childList:true});
   </script>
 </body>
 </html>
