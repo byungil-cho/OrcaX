@@ -1,133 +1,125 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장</title>
   <style>
     :root{
-      --glass: rgba(0,0,0,.42);
-      --bd: rgba(255,255,255,.22);
-      --ink:#fff;
-      --accent:#ffd24d;
+      --panel: rgba(0,0,0,.45);
+      --bd: rgba(255,255,255,.18);
+      --ink:#eef6ee;
+      --ok:#25d366;
     }
-    html,body{height:100%;margin:0;background:#000;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;overflow:hidden}
+    html,body{height:100%;margin:0;background:#000;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif}
+    /* 배경 레이어 */
+    #bg{position:fixed;inset:0;background:url('img/farm_05.png') center/cover no-repeat;z-index:0}
 
-    /* 배경(동적 교체) */
-    .bg{
-      position:fixed; inset:0; background:#000 center/cover no-repeat;
-      will-change: background-image;
-    }
+    /* 상단 HUD */
+    .hud{position:fixed;left:12px;right:12px;top:12px;z-index:10;
+      display:flex;align-items:center;gap:10px;padding:8px 10px;
+      background:var(--panel);border:1px solid var(--bd);border-radius:14px;backdrop-filter:blur(6px)}
+    .dot{width:10px;height:10px;border-radius:999px;background:#ef4444}
+    .dot.ok{background:var(--ok)}
+    .nick{display:flex;align-items:center;gap:8px}
+    .res{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px}
+    .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.38)}
+    .lvl{display:inline-flex;align-items:center;gap:6px}
+    .lvl img{width:22px;height:22px;border-radius:999px;display:block}
+    .exp{display:flex;align-items:center;gap:6px;margin-left:6px}
+    .bar{width:80px;height:6px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.15);overflow:hidden}
+    .bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7ee787,#3fb950)}
 
-    /* 상단 투명바(자원/레벨) */
-    header.top{
-      position:fixed; left:10px; right:10px; top:10px; z-index:30;
-      display:flex; align-items:center; gap:10px; padding:8px 10px;
-      background:var(--glass); border:1px solid var(--bd); border-radius:14px;
-      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-      font-size:13px; flex-wrap:wrap;
-    }
-    .dot{width:8px;height:8px;border-radius:999px;background:#ef4444}
-    .dot.ok{background:#22c55e}
-    .lvl{display:flex;align-items:center;gap:8px;margin-right:6px}
-    .lvl img{width:24px;height:24px;border-radius:999px;display:block}
-    .res{display:flex;gap:8px;flex-wrap:wrap}
-    .tag{padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid var(--bd);font-size:12px}
-    .tag b{font-weight:800}
+    /* 미니 성장 카드(중앙 하단) */
+    .miniWrap{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;z-index:5;text-align:center}
+    .mini{width:min(34vw,220px);aspect-ratio:3/4;border-radius:14px;border:1px solid var(--bd);background:rgba(0,0,0,.25);overflow:hidden}
+    .mini img{width:100%;height:100%;object-fit:cover;display:block}
+    .miniCap{margin-top:6px;font-size:12px;opacity:.95}
+    .miniBadge{position:absolute;left:8px;bottom:46px;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;background:rgba(0,0,0,.55);border:1px solid var(--bd)}
+    .miniBadge img{width:18px;height:18px;border-radius:999px}
 
-    /* 미니 성장 이미지 (중앙 하단) */
-    .mini{
-      position:fixed; left:50%; transform:translateX(-50%);
-      bottom:96px; z-index:20; display:grid; justify-items:center; gap:6px;
-    }
-    .mini img{width:140px; height:auto; border-radius:12px; border:1px solid var(--bd); background:rgba(0,0,0,.35)}
-    @media (max-width:768px){ .mini img{width:110px} }
-
-    /* 성장게이지 + 캐릭터(미니 위쪽) */
-    .level-info{
-      position:fixed; left:50%; transform:translateX(-50%);
-      bottom:170px; z-index:21; display:flex; align-items:center; gap:10px;
-      padding:6px 10px; background:var(--glass); border:1px solid var(--bd); border-radius:12px;
-    }
-    .level-info img{width:26px;height:26px;border-radius:999px}
-    .exp-rail{width:140px;height:10px;background:rgba(255,255,255,.28);border-radius:999px;overflow:hidden}
-    .exp-bar{height:100%;width:0%;background:linear-gradient(90deg,#7cff7c,#ffd24d,#ff8a3d)}
-
-    /* 하단 투명바(행동 버튼) */
-    .actions{
-      position:fixed; left:10px; right:10px; bottom:10px; z-index:25;
-      display:grid; grid-template-columns:repeat(6,1fr); gap:6px;
-      background:var(--glass); border:1px solid var(--bd); border-radius:14px; padding:8px;
-      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-    }
-    .btn{
-      background:rgba(255,255,255,.10); border:1px solid var(--bd);
-      color:#fff; border-radius:10px; padding:10px 8px; font-weight:700; cursor:pointer;
-    }
-    .btn.primary{ background:var(--accent); color:#000; border-color:rgba(0,0,0,.15) }
-    .btn:disabled{ opacity:.55; cursor:not-allowed }
+    /* 하단 액션바 */
+    .actions{position:fixed;left:12px;right:12px;bottom:12px;z-index:10;
+      display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:10px;
+      background:var(--panel);border:1px solid var(--bd);border-radius:14px;backdrop-filter:blur(6px)}
+    .btn{padding:12px 8px;border-radius:12px;border:1px solid var(--bd);background:rgba(255,255,255,.08);color:#fff;font-weight:700;cursor:pointer}
+    .btn[disabled]{opacity:.5;cursor:not-allowed}
 
     /* 토스트 */
-    .toast{
-      position:fixed; left:50%; transform:translateX(-50%);
-      top:64px; z-index:40; background:rgba(0,0,0,.65); color:#fff;
-      border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none;
+    #toast{position:fixed;left:50%;transform:translateX(-50%);top:64px;z-index:20;
+      display:none;background:rgba(0,0,0,.65);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px}
+    #toast.show{display:block}
+
+    @media (max-width:720px){
+      .actions{grid-template-columns:repeat(3,1fr)}
+      .mini{width:min(52vw,240px)}
+      .exp{display:none}
     }
-    .toast.show{display:block}
   </style>
 </head>
 <body>
-  <!-- 동적 배경 -->
-  <div id="bg" class="bg" aria-hidden="true"></div>
+  <div id="bg" aria-hidden="true"></div>
 
-  <!-- 상단 투명바 -->
-  <header class="top">
-    <span class="dot" id="netDot" title="네트워크"></span>
-    <span id="netTxt">연결 확인 중…</span>
-    <div class="lvl" style="margin-left:auto">
-      <img id="levelIcon" src="img/mark_01.png" alt="레벨" />
-      <b id="levelText">Lv.1</b>
+  <!-- 상단 투명 HUD: 연결상태 + 레벨/EXP + 자원 -->
+  <header class="hud">
+    <div class="nick">
+      <span id="netDot" class="dot" aria-hidden="true"></span>
+      <span id="netTxt">연결 확인 중…</span>
+      <span class="lvl">
+        <img id="levelIcon" src="img/mark_01.png" alt="레벨 아이콘" />
+        <b id="levelText">Lv.1</b>
+      </span>
+      <span class="exp" title="경험치">
+        <span class="bar"><i id="expBar" style="width:0%"></i></span>
+        <span id="expText">0%</span>
+      </span>
     </div>
     <div class="res">
-      <span class="tag">💧 물 <b id="r-water">0</b></span>
-      <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
-      <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
-      <span class="tag">🍿 팝콘 <b id="r-pop">0</b></span>
-      <span class="tag">🧂 소금 <b id="r-salt">0</b></span>
-      <span class="tag">🍬 설탕 <b id="r-sugar">0</b></span>
-      <span class="tag">🪙 토큰 <b id="r-orcx">0</b></span>
+      <span class="pill">💧 물 <b id="r-water">0</b></span>
+      <span class="pill">🌱 거름 <b id="r-fert">0</b></span>
+      <span class="pill">🌽 옥수수 <b id="r-corn">0</b></span>
+      <span class="pill">🍿 팝콘 <b id="r-pop">0</b></span>
+      <span class="pill">🧂 소금 <b id="r-salt">0</b></span>
+      <span class="pill">🍬 설탕 <b id="r-sugar">0</b></span>
+      <span class="pill">🪙 토큰 <b id="r-orcx">0</b></span>
     </div>
   </header>
 
-  <!-- 성장게이지 + 캐릭터(레벨) -->
-  <div class="level-info">
-    <img id="levelIconMini" src="img/mark_01.png" alt="레벨" />
-    <div class="exp-rail"><div id="expBar" class="exp-bar"></div></div>
-    <span id="expText" style="font-size:12px;opacity:.9">0%</span>
+  <!-- 미니 성장 이미지 (중앙 하단) -->
+  <div class="miniWrap">
+    <div class="mini">
+      <img id="miniImg" src="img/corn_06_02.png" alt="발아" />
+      <div class="miniBadge">
+        <img id="levelIconMini" src="img/mark_01.png" alt="레벨" />
+        <span id="miniCap">씨앗 필요</span>
+      </div>
+    </div>
+    <div class="miniCap" id="miniCapText">씨앗 필요</div>
   </div>
 
-  <!-- 미니 성장 이미지 -->
-  <div class="mini">
-    <img id="miniImg" src="img/corn_06_02.png" alt="성장 상태" />
-    <div id="miniCap" style="font-size:12px;opacity:.9">씨앗 필요</div>
-  </div>
+  <!-- 하단 투명 액션바 -->
+  <nav class="actions" aria-label="농사 작업">
+    <button id="btn-plant" class="btn">씨앗 심기</button>
+    <button id="btn-water" class="btn">물 주기</button>
+    <button id="btn-fert"  class="btn">거름 주기</button>
+    <button id="btn-harv"  class="btn" disabled>수확</button>
+    <button id="btn-pop"   class="btn" disabled>뻥튀기</button>
+    <!-- 간단거래(팝콘↔거름 1:1) -->
+    <button id="btn-exchange" class="btn" style="grid-column:1/-1">팝콘 → 거름 (1:1 교환)</button>
+  </nav>
 
-  <!-- 하단 투명바 (행동) -->
-  <div class="actions">
-    <button class="btn" id="btn-plant">씨앗 심기</button>
-    <button class="btn" id="btn-water">물 주기</button>
-    <button class="btn" id="btn-fert">거름 주기</button>
-    <button class="btn" id="btn-harv">수확</button>
-    <button class="btn" id="btn-pop">뻥튀기</button>
-    <button class="btn" id="btn-exchange">팝콘→거름</button>
-  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
 
-  <div id="toast" class="toast"></div>
-
-  <!-- 게임 로직 -->
+  <!-- API/로직: ngrok 고정 도메인 + 카카오 연동 + 이미지 a_ 접두 대응 -->
   <script src="js/corn-api.js"></script>
+  <script>
+    // 미니 캡션 텍스트 노출 동기 (API 파일은 #miniCap 요소만 갱신하므로 보조 동기화)
+    const cap = document.getElementById('miniCap');
+    const capText = document.getElementById('miniCapText');
+    const ro = new MutationObserver(()=>{
+      capText.textContent = cap.textContent || '상태 확인 중…';
+    });
+    ro.observe(cap, {characterData:true,subtree:true,childList:true});
+  </script>
 </body>
 </html>
