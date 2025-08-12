@@ -86,49 +86,69 @@
   </div>
 
   <script>
-    let nickname = null; // 카카오 닉네임 저장 변수
+    const BASE_API = ''; // 서버 API 베이스 URL (필요시 설정)
+    let kakaoId = null;
+    let nickname = null;
 
-    // 카카오 로그인 정보 가져오기 (예시)
-    function getKakaoProfile() {
-      return localStorage.getItem("kakaoNickname");
+    // 로그인 정보 확인
+    function checkLogin() {
+      kakaoId  = localStorage.getItem('kakaoId');
+      nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
+
+      if (!kakaoId || !nickname) {
+        alert("로그인이 필요합니다.");
+        location.href = '/index.html'; // 로그인 페이지 경로
+        return false;
+      }
+      return true;
     }
 
+    // 농장 데이터 불러오기
     async function loadFarmData() {
-      nickname = getKakaoProfile();
-      if (!nickname) {
-        alert("카카오 로그인 정보가 없습니다.");
-        return;
-      }
+      if (!checkLogin()) return;
 
       try {
-        const res = await fetch(`/api/corn/status?nickname=${encodeURIComponent(nickname)}`);
-        const data = await res.json();
+        const res = await fetch(BASE_API + '/api/userdata', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId: kakaoId })
+        });
+        const result = await res.json();
 
-        document.getElementById("water").innerText = `💧 물: ${data.water}`;
-        document.getElementById("fertilizer").innerText = `🌱 거름: ${data.fertilizer}`;
-        document.getElementById("corn").innerText = `🌽 옥수수: ${data.corn}`;
-        document.getElementById("popcorn").innerText = `🍿 팝콘: ${data.popcorn}`;
-        document.getElementById("salt").innerText = `🧂 소금: ${data.salt}`;
-        document.getElementById("sugar").innerText = `🍬 설탕: ${data.sugar}`;
-        document.getElementById("tokens").innerText = `💰 토큰: ${data.tokens}`;
+        if (result && result.user && result.user.inventory) {
+          const inv = result.user.inventory;
+          document.getElementById("water").innerText = `💧 물: ${inv.water || 0}`;
+          document.getElementById("fertilizer").innerText = `🌱 거름: ${inv.fertilizer || 0}`;
+          document.getElementById("corn").innerText = `🌽 옥수수: ${inv.corn || 0}`;
+          document.getElementById("popcorn").innerText = `🍿 팝콘: ${inv.popcorn || 0}`;
+          document.getElementById("salt").innerText = `🧂 소금: ${inv.salt || 0}`;
+          document.getElementById("sugar").innerText = `🍬 설탕: ${inv.sugar || 0}`;
+          document.getElementById("tokens").innerText = `💰 토큰: ${inv.tokens || 0}`;
+        }
       } catch (err) {
         console.error("농장 데이터 불러오기 실패:", err);
       }
     }
 
+    // 행동 실행
     async function doAction(action) {
-      if (!nickname) return;
+      if (!checkLogin()) return;
 
       try {
-        const res = await fetch(`/api/corn/${action}?nickname=${encodeURIComponent(nickname)}`, { method: 'POST' });
+        const res = await fetch(BASE_API + `/api/corn/${action}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId: kakaoId })
+        });
         const result = await res.json();
-        alert(result.message);
+        alert(result.message || '작업 완료');
         await loadFarmData();
       } catch (err) {
         console.error(`${action} 실행 실패:`, err);
       }
     }
 
+    // 페이지 로드 시 데이터 불러오기
     window.onload = loadFarmData;
   </script>
 
