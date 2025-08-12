@@ -775,5 +775,218 @@
 }
 </style>
 
+
+<!-- === OrcaX Corn Farm: v16 (namespaced hash, park/restore, mobile/pc) === -->
+<script>
+(function(){
+  'use strict';
+  const HASH_ROOT = '#farm';
+  const H = {
+    home:  HASH_ROOT + '/home',
+    farm:  HASH_ROOT + '/farm',
+    gate:  HASH_ROOT + '/gate',
+    shop:  HASH_ROOT + '/shop'
+  };
+  const $  = (s, r=document)=>r.querySelector(s);
+  const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+  const isMobile = ()=>matchMedia('(max-width:900px)').matches;
+
+  // Hidden park
+  let park = $('#farmPark'); if(!park){ park = document.createElement('div'); park.id='farmPark'; park.style.display='none'; document.body.appendChild(park); }
+
+  // Sanitize: move all legacy panels into park, so they don't flash
+  function sanitizeInitial(){
+    ['.hud-left .panel','.hud-right .panel','.hud-left .gate-dock','#gate','#shop'].forEach(sel => {
+      $$(sel).forEach(n => { if(n && n.parentElement !== park) park.appendChild(n); });
+    });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', sanitizeInitial, {once:true}); } else { sanitizeInitial(); }
+
+  // Build mobile UI shells
+  function ensureMobileUI(){
+    if(!isMobile()) return;
+    if(!$('#mHdr')){
+      const hdr=document.createElement('div'); hdr.id='mHdr';
+      hdr.innerHTML='<span class="who" id="mWho"></span><span style="display:flex;gap:8px;align-items:center"><span class="pill">🪙 <b id="mTok">0</b></span><span class="pill">🍿 <b id="mPop">0</b></span><span class="pill"><span id="mDot" class="dot"></span> <span id="mNet">오프라인</span></span></span>';
+      document.body.appendChild(hdr);
+      const bar=document.createElement('div'); bar.id='mBar';
+      bar.innerHTML='<button class="mbtn" data-tgt="FARM">농사짓기</button><button class="mbtn" data-tgt="GATE">성장게이트</button><button class="mbtn" data-tgt="SHOP">구매/첨가물</button><button class="mbtn" data-tgt="SYNC">동기화</button>';
+      document.body.appendChild(bar);
+    }
+    if(!$('#glassRail')){
+      const rail=document.createElement('div'); rail.id='glassRail';
+      rail.innerHTML='<div id="glassBackdrop" tabindex="-1"></div><div id="glassInner"><button id="glassClose" aria-label="닫기">✕</button><div id="gMini"></div><div id="gStage"></div></div>';
+      document.body.appendChild(rail);
+    }
+  }
+  ensureMobileUI();
+
+  // Desktop shells
+  function ensureDesktop(){
+    if(isMobile()) return;
+    if(!$('#pcFarmBtn')){ const b=document.createElement('button'); b.id='pcFarmBtn'; b.type='button'; b.textContent='농사짓기'; document.body.appendChild(b); }
+    if(!$('#pcFarmDock')){ const d=document.createElement('div'); d.id='pcFarmDock'; d.innerHTML='<div class="pc-dock"><button class="pc-close" aria-label="닫기">✕</button><div id="pcStage"></div></div>'; document.body.appendChild(d); }
+  }
+  ensureDesktop();
+
+  // Header refresh
+  function readInv(){ try{ return JSON.parse(localStorage.getItem('potato_inv')||localStorage.getItem('potatoInv')||'{}'); }catch(e){ return {}; } }
+  function syncHdr(){
+    const name = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname') || '';
+    const inv = readInv();
+    const who=$('#mWho'); if(who) who.textContent=name||'(로그인 필요)';
+    const tok=$('#mTok'); if(tok) tok.textContent=inv.token ?? 0;
+    const pop=$('#mPop'); if(pop) pop.textContent=inv.popcorn ?? 0;
+    const ok = $('#netDot')?.classList.contains('ok') || false;
+    $('#mDot')?.classList.toggle('ok', !!ok);
+    const net=$('#mNet'); if(net) net.textContent = ok ? '온라인' : '오프라인';
+  }
+  syncHdr(); setInterval(syncHdr, 1000);
+
+  // Router (namespaced)
+  const Router = {
+    current:null,
+    getStage(){ return isMobile()? $('#gStage'): $('#pcStage'); },
+    nav(to){
+      if(to===this.current){ this.close(); return; }
+      this.open(to);
+      const map={farm:H.farm, gate:H.gate, shop:H.shop};
+      if(location.hash !== map[to]) history.pushState({},'', map[to]);
+    },
+    getTargets(to){
+      if(to==='farm'){
+        const nodes = $$('#farmPark .panel');
+        if(nodes.length) return nodes;
+        return $$('.hud-left .panel, .hud-right .panel');
+      }
+      if(to==='gate'){
+        const arr=[];
+        const dock = $('#farmPark .gate-dock') || $('.hud-left .gate-dock');
+        const gate = $('#farmPark #gate') || $('#gate');
+        if(dock) arr.push(dock);
+        if(gate){ gate.style.display='block'; arr.push(gate); }
+        return arr;
+      }
+      if(to==='shop'){
+        const s = $('#farmPark #shop') || $('#shop');
+        if(s){ s.style.display='block'; return [s]; }
+      }
+      return [];
+    },
+    open(to){
+      this.current=to;
+      const stage=this.getStage(); if(!stage) return;
+      while(stage.firstChild){ stage.removeChild(stage.firstChild); }
+      // hide originals always
+      const sh=$('#shop'); if(sh) sh.style.display='none';
+      const gt=$('#gate'); if(gt) gt.style.display='none';
+      const frag=document.createDocumentFragment();
+      this.getTargets(to).forEach(n=>{ if(n) frag.appendChild(n); });
+      stage.appendChild(frag);
+      if(isMobile()){
+        document.documentElement.classList.add('glass-on');
+        // ensure mini on top
+        const gMini=$('#gMini'); const mw=$('.mini-wrap'); if(gMini && mw && mw.parentElement!==gMini){ gMini.appendChild(mw); }
+      }else{
+        $('#pcFarmDock')?.classList.add('show');
+      }
+    },
+    close(){
+      const stage=this.getStage();
+      if(stage){ Array.from(stage.children).forEach(n=>park.appendChild(n)); }
+      document.documentElement.classList.remove('glass-on');
+      $('#pcFarmDock')?.classList.remove('show');
+      const sh=$('#shop'); if(sh) sh.style.display='none';
+      const gt=$('#gate'); if(gt) gt.style.display='none';
+      this.current=null;
+      if(location.hash !== H.home) history.replaceState({},'', H.home);
+    },
+    routeFromHash(){
+      const h=(location.hash||H.home);
+      if(!h.startsWith(HASH_ROOT)){ return 'external'; }
+      if(h===H.farm) return 'farm';
+      if(h===H.gate) return 'gate';
+      if(h===H.shop) return 'shop';
+      return 'home';
+    },
+    sync(){
+      const r=this.routeFromHash();
+      if(r==='external'){ /* external hash, ignore */ return; }
+      if(r==='home') this.close();
+      if(r==='farm') this.open('farm');
+      if(r==='gate') this.open('gate');
+      if(r==='shop') this.open('shop');
+    },
+    start(){
+      if(this._started) return; this._started=true;
+      // First load → namespaced home (avoid '#/home' collisions)
+      if(!sessionStorage.getItem('FR_INIT2')){
+        sessionStorage.setItem('FR_INIT2','1');
+        history.replaceState({},'', H.home);
+        document.documentElement.classList.remove('glass-on');
+      }
+      $('#pcFarmBtn')?.addEventListener('click', ()=>this.nav('farm'), false);
+      $('#mBar')?.addEventListener('click', (e)=>{
+        const b=e.target.closest('.mbtn'); if(!b) return;
+        const t=(b.getAttribute('data-tgt')||'').toLowerCase();
+        if(t==='sync'){ if(typeof window.loadFromServer==='function'){ try{ window.loadFromServer(); }catch(_){ } } return; }
+        if(t) this.nav(t);
+      }, false);
+      $('#glassBackdrop')?.addEventListener('click', ()=>this.close(), false);
+      $('#glassClose')?.addEventListener('click', ()=>this.close(), false);
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ this.close(); } }, false);
+      window.addEventListener('hashchange', ()=>this.sync(), false);
+      window.addEventListener('popstate',  ()=>this.sync(), false);
+      this.sync();
+    }
+  };
+  window.FarmRouter = Router;
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', ()=>Router.start(), {once:true}); } else { Router.start(); }
+})();
+</script>
+
+<style>
+/* MOBILE */
+@media (max-width:900px){
+  .top, .bank { display:none !important; }
+  .hud-left > .panel, .hud-right > .panel, .hud-left > .gate-dock, #gate, #shop { display:none !important; }
+
+  #mHdr{ position:fixed; left:10px; right:10px; top:10px; z-index:9999; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 10px; border-radius:14px; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22); color:#fff; font-size:13px; }
+  #mHdr .who{ font-weight:800; overflow:hidden; text-overflow:ellipsis; max-width:48vw; }
+  #mHdr .pill{ display:inline-flex; align-items:center; gap:6px; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); font-size:12px; }
+  #mHdr .dot{ width:8px; height:8px; border-radius:999px; background:#ef4444 } #mHdr .dot.ok{ background:#25d366 }
+
+  #mBar{ position:fixed; left:10px; right:10px; bottom:10px; z-index:9999; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; padding:8px; border-radius:14px; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.22); }
+  #mBar .mbtn{ border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.18); color:#fff; border-radius:10px; padding:8px 6px; font-size:12px; line-height:1; }
+
+  #glassRail{ position:fixed; left:10px; right:10px; top:56px; bottom:60px; z-index:9998; display:none; }
+  html.glass-on #glassRail{ display:block; }
+  #glassBackdrop{ position:absolute; inset:0; background:transparent; }
+  #glassInner{ position:absolute; left:50%; transform:translateX(-50%); width:min(560px, 96%); height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; background:transparent; border:1px solid rgba(255,255,255,.14); border-radius:18px; box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset; padding:6px 8px calc(72px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; }
+  #glassClose{ position:sticky; top:6px; align-self:flex-end; margin:0 6px 4px 0; z-index:3; display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.28); color:#fff; }
+  #gMini{ position:sticky; top:6px; z-index:2; display:flex; justify-content:center; padding:4px 2px; }
+  #gMini .mini-wrap{ position:static !important; display:grid !important; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; width:min(520px, 96%); margin:0 auto; border:1px solid rgba(255,255,255,.18); border-radius:14px; background:rgba(0,0,0,.18); padding:10px; }
+  #gMini .mini{ width:160px; height:160px; object-fit:cover; border-radius:12px; }
+  #gStage{ display:flex; flex-direction:column; gap:12px; padding-top:6px; }
+  #gStage .panel, #gStage #gate .card, #gStage #shop{ position:static !important; width:100% !important; transform:none !important; display:block !important; }
+
+  /* Gate bars visual half */
+  #gStage #gate .bar{ transform:scaleX(0.5); transform-origin:left center; }
+}
+
+/* DESKTOP */
+@media (min-width:901px){
+  .hud-left > .panel, .hud-right > .panel{ display:none !important; }
+  #pcFarmBtn{ position:fixed; top:84px; left:16px; z-index:9998; padding:8px 12px; font-size:14px; color:#fff; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.25); border-radius:12px; }
+  #pcFarmDock{ position:fixed; inset:0; z-index:9998; pointer-events:none; display:none; }
+  #pcFarmDock.show{ display:block; }
+  #pcFarmDock .pc-dock{ position:absolute; top:96px; right:24px; bottom:24px; width:min(520px, 32vw); background:transparent; border:1px solid rgba(255,255,255,.14); border-radius:16px; box-shadow:0 0 0 1px rgba(255,255,255,.04) inset, 0 12px 28px rgba(0,0,0,.25); overflow:auto; padding:10px; transform:translateX(16px); opacity:0; transition:transform .18s ease, opacity .18s ease; pointer-events:auto; }
+  #pcFarmDock.show .pc-dock{ transform:translateX(0); opacity:1; }
+  #pcFarmDock .pc-close{ position:sticky; top:6px; margin-left:auto; display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.25); color:#fff; z-index:2; }
+  #pcStage .panel{ position:static !important; width:100% !important; transform:none !important; display:block !important; }
+  #pcStage #gate .bar{ transform:scaleX(0.5); transform-origin:left center; }
+}
+</style>
+
 </body>
 </html>
