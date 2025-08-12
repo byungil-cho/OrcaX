@@ -1,152 +1,133 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>옥수수 농장</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
+    :root{
+      --glass: rgba(0,0,0,.42);
+      --bd: rgba(255,255,255,.22);
+      --ink:#fff;
+      --accent:#ffd24d;
     }
-    header {
-      background: rgba(0,0,0,0.6);
-      color: white;
-      padding: 8px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: space-around;
-      font-size: 14px;
-      z-index: 1000;
+    html,body{height:100%;margin:0;background:#000;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;overflow:hidden}
+
+    /* 배경(동적 교체) */
+    .bg{
+      position:fixed; inset:0; background:#000 center/cover no-repeat;
+      will-change: background-image;
     }
-    main {
-      margin-top: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: calc(100vh - 100px);
-      overflow: hidden;
+
+    /* 상단 투명바(자원/레벨) */
+    header.top{
+      position:fixed; left:10px; right:10px; top:10px; z-index:30;
+      display:flex; align-items:center; gap:10px; padding:8px 10px;
+      background:var(--glass); border:1px solid var(--bd); border-radius:14px;
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      font-size:13px; flex-wrap:wrap;
     }
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
+    .dot{width:8px;height:8px;border-radius:999px;background:#ef4444}
+    .dot.ok{background:#22c55e}
+    .lvl{display:flex;align-items:center;gap:8px;margin-right:6px}
+    .lvl img{width:24px;height:24px;border-radius:999px;display:block}
+    .res{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid var(--bd);font-size:12px}
+    .tag b{font-weight:800}
+
+    /* 미니 성장 이미지 (중앙 하단) */
+    .mini{
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom:96px; z-index:20; display:grid; justify-items:center; gap:6px;
     }
-    .actions {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.6);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
+    .mini img{width:140px; height:auto; border-radius:12px; border:1px solid var(--bd); background:rgba(0,0,0,.35)}
+    @media (max-width:768px){ .mini img{width:110px} }
+
+    /* 성장게이지 + 캐릭터(미니 위쪽) */
+    .level-info{
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom:170px; z-index:21; display:flex; align-items:center; gap:10px;
+      padding:6px 10px; background:var(--glass); border:1px solid var(--bd); border-radius:12px;
     }
-    .actions button {
-      background: #ffcc00;
-      border: none;
-      padding: 10px 20px;
-      font-size: 14px;
-      border-radius: 5px;
-      cursor: pointer;
+    .level-info img{width:26px;height:26px;border-radius:999px}
+    .exp-rail{width:140px;height:10px;background:rgba(255,255,255,.28);border-radius:999px;overflow:hidden}
+    .exp-bar{height:100%;width:0%;background:linear-gradient(90deg,#7cff7c,#ffd24d,#ff8a3d)}
+
+    /* 하단 투명바(행동 버튼) */
+    .actions{
+      position:fixed; left:10px; right:10px; bottom:10px; z-index:25;
+      display:grid; grid-template-columns:repeat(6,1fr); gap:6px;
+      background:var(--glass); border:1px solid var(--bd); border-radius:14px; padding:8px;
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
     }
-    .actions button:hover {
-      background: #ffdd33;
+    .btn{
+      background:rgba(255,255,255,.10); border:1px solid var(--bd);
+      color:#fff; border-radius:10px; padding:10px 8px; font-weight:700; cursor:pointer;
     }
+    .btn.primary{ background:var(--accent); color:#000; border-color:rgba(0,0,0,.15) }
+    .btn:disabled{ opacity:.55; cursor:not-allowed }
+
+    /* 토스트 */
+    .toast{
+      position:fixed; left:50%; transform:translateX(-50%);
+      top:64px; z-index:40; background:rgba(0,0,0,.65); color:#fff;
+      border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none;
+    }
+    .toast.show{display:block}
   </style>
 </head>
 <body>
+  <!-- 동적 배경 -->
+  <div id="bg" class="bg" aria-hidden="true"></div>
 
-  <header>
-    <div id="water">💧 물: 0</div>
-    <div id="fertilizer">🌱 거름: 0</div>
-    <div id="corn">🌽 옥수수: 0</div>
-    <div id="popcorn">🍿 팝콘: 0</div>
-    <div id="salt">🧂 소금: 0</div>
-    <div id="sugar">🍬 설탕: 0</div>
-    <div id="tokens">💰 토큰: 0</div>
+  <!-- 상단 투명바 -->
+  <header class="top">
+    <span class="dot" id="netDot" title="네트워크"></span>
+    <span id="netTxt">연결 확인 중…</span>
+    <div class="lvl" style="margin-left:auto">
+      <img id="levelIcon" src="img/mark_01.png" alt="레벨" />
+      <b id="levelText">Lv.1</b>
+    </div>
+    <div class="res">
+      <span class="tag">💧 물 <b id="r-water">0</b></span>
+      <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
+      <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
+      <span class="tag">🍿 팝콘 <b id="r-pop">0</b></span>
+      <span class="tag">🧂 소금 <b id="r-salt">0</b></span>
+      <span class="tag">🍬 설탕 <b id="r-sugar">0</b></span>
+      <span class="tag">🪙 토큰 <b id="r-orcx">0</b></span>
+    </div>
   </header>
 
-  <main>
-    <picture>
-      <source media="(max-width: 768px)" srcset="img/a_farm_09.png">
-      <img src="img/farm_09.png" alt="옥수수 농장 배경">
-    </picture>
-  </main>
-
-  <div class="actions">
-    <button onclick="doAction('seed')">씨앗 심기</button>
-    <button onclick="doAction('water')">물 주기</button>
-    <button onclick="doAction('fertilize')">거름 주기</button>
-    <button onclick="doAction('harvest')">수확</button>
+  <!-- 성장게이지 + 캐릭터(레벨) -->
+  <div class="level-info">
+    <img id="levelIconMini" src="img/mark_01.png" alt="레벨" />
+    <div class="exp-rail"><div id="expBar" class="exp-bar"></div></div>
+    <span id="expText" style="font-size:12px;opacity:.9">0%</span>
   </div>
 
-  <script>
-    const BASE_API = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 고정 도메인
-    let kakaoId = null;
-    let nickname = null;
+  <!-- 미니 성장 이미지 -->
+  <div class="mini">
+    <img id="miniImg" src="img/corn_06_02.png" alt="성장 상태" />
+    <div id="miniCap" style="font-size:12px;opacity:.9">씨앗 필요</div>
+  </div>
 
-    function checkLogin() {
-      kakaoId  = localStorage.getItem('kakaoId');
-      nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
+  <!-- 하단 투명바 (행동) -->
+  <div class="actions">
+    <button class="btn" id="btn-plant">씨앗 심기</button>
+    <button class="btn" id="btn-water">물 주기</button>
+    <button class="btn" id="btn-fert">거름 주기</button>
+    <button class="btn" id="btn-harv">수확</button>
+    <button class="btn" id="btn-pop">뻥튀기</button>
+    <button class="btn" id="btn-exchange">팝콘→거름</button>
+  </div>
 
-      if (!kakaoId || !nickname) {
-        alert("로그인이 필요합니다.");
-        location.href = '/index9.html';
-        return false;
-      }
-      return true;
-    }
+  <div id="toast" class="toast"></div>
 
-    async function loadFarmData() {
-      if (!checkLogin()) return;
-
-      try {
-        const res = await fetch(BASE_API + '/api/userdata', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId: kakaoId })
-        });
-        const result = await res.json();
-
-        if (result && result.user && result.user.inventory) {
-          const inv = result.user.inventory;
-          document.getElementById("water").innerText = `💧 물: ${inv.water || 0}`;
-          document.getElementById("fertilizer").innerText = `🌱 거름: ${inv.fertilizer || 0}`;
-          document.getElementById("corn").innerText = `🌽 옥수수: ${inv.corn || 0}`;
-          document.getElementById("popcorn").innerText = `🍿 팝콘: ${inv.popcorn || 0}`;
-          document.getElementById("salt").innerText = `🧂 소금: ${inv.salt || 0}`;
-          document.getElementById("sugar").innerText = `🍬 설탕: ${inv.sugar || 0}`;
-          document.getElementById("tokens").innerText = `💰 토큰: ${inv.tokens || 0}`;
-        }
-      } catch (err) {
-        console.error("농장 데이터 불러오기 실패:", err);
-      }
-    }
-
-    async function doAction(action) {
-      if (!checkLogin()) return;
-
-      try {
-        const res = await fetch(BASE_API + `/api/corn/${action}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId: kakaoId })
-        });
-        const result = await res.json();
-        alert(result.message || '작업 완료');
-        await loadFarmData();
-      } catch (err) {
-        console.error(`${action} 실행 실패:`, err);
-      }
-    }
-
-    window.onload = loadFarmData;
-  </script>
-
+  <!-- 게임 로직 -->
+  <script src="js/corn-api.js"></script>
 </body>
 </html>
