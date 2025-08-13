@@ -11,7 +11,8 @@
   const $ = id => document.getElementById(id);
   const dom = {
     netDot: $('netDot'), netTxt: $('netTxt'), nick: $('nick'),
-    r:{ water:$('r-water'), fert:$('r-fert'), corn:$('r-corn'), pop:$('r-pop'), salt:$('r-salt'), sugar:$('r-sugar'), orcx:$('r-orcx') },
+    r:{ seeds:$('r-seeds'), water:$('r-water'), fert:$('r-fert'),
+        corn:$('r-corn'), pop:$('r-pop'), salt:$('r-salt'), sugar:$('r-sugar'), orcx:$('r-orcx') },
     gnum:$('gnum'), gfill:$('gfill'),
     levelIconMini:$('levelIconMini'), levelText:$('levelText'), expBar:$('expBar'),
     miniImg:$('miniImg'), miniCap:$('miniCap'),
@@ -26,7 +27,8 @@
   const S = Object.assign({
     online:false, g:0, phase:'IDLE',
     level:1, exp:0,
-    water:0, fertilizer:0, corn:0, popcorn:0, salt:0, sugar:0, orcx:0,
+    seeds:0, water:0, fertilizer:0,
+    corn:0, popcorn:0, salt:0, sugar:0, orcx:0,
     gradeInv:{A:0,B:0,C:0,D:0,E:0,F:0},
   }, safeParse(localStorage.getItem('corn_state')) || {});
   function save(){ try{ localStorage.setItem('corn_state', JSON.stringify(S)); }catch(e){} }
@@ -52,11 +54,13 @@
       S.online=true; dom.netDot.classList.add('ok'); dom.netTxt.textContent='온라인';
       dom.nick.textContent = nickname;
 
+      // 인벤토리/자원 매핑 (문서 구조 케이스별 대응)
       S.orcx       = (u.wallet?.orcx ?? u.orcx ?? S.orcx)|0;
+      S.seeds      = (u.seeds ?? u.inventory?.seeds ?? u.agri?.seeds ?? S.seeds)|0;
       S.water      = (u.inventory?.water ?? S.water)|0;
       S.fertilizer = (u.inventory?.fertilizer ?? S.fertilizer)|0;
-      S.corn       = (u.agri?.corn ?? S.corn)|0;
-      S.popcorn    = (u.food?.popcorn ?? S.popcorn)|0;
+      S.corn       = (u.agri?.corn ?? u.corn ?? S.corn)|0;
+      S.popcorn    = (u.food?.popcorn ?? u.popcorn ?? S.popcorn)|0;
       S.salt       = (u.additives?.salt ?? S.salt)|0;
       S.sugar      = (u.additives?.sugar ?? S.sugar)|0;
 
@@ -77,11 +81,17 @@
   /* ===== 액션 ===== */
   async function plant(){
     if(!kakaoId || !nickname) return;
+    if((S.seeds|0) <= 0){ toast('씨앗이 없습니다'); return; }
     try{
-      await j('/api/corn/plant', { kakaoId });
+      const res = await j('/api/corn/plant', { kakaoId });
+      // 서버가 seeds를 돌려주면 반영
+      const inv = res?.inventory || res?.agri || res;
+      if(typeof inv?.seeds === 'number') S.seeds = inv.seeds;
       S.phase='GROW'; S.g=0; gainExp(8);
       await loadUser(); toast('씨앗 심었습니다');
     }catch(e){
+      // 오프라인 임시 처리
+      S.seeds = Math.max(0, (S.seeds|0) - 1);
       S.phase='GROW'; S.g=0; gainExp(8); renderAll(); save(); toast('씨앗(로컬)');
     }
   }
@@ -109,7 +119,10 @@
     if(!(S.phase==='GROW' && S.g>=100)){ toast('아직 수확 단계 아님'); return; }
     localStreak++; const grade = gradeFromStreak(localStreak);
     try{
-      await j('/api/corn/harvest', { kakaoId, grade });
+      const res = await j('/api/corn/harvest', { kakaoId, grade });
+      // 서버 응답에 corn/seeds 포함되면 반영
+      if(typeof res?.agri?.corn === 'number') S.corn = res.agri.corn;
+      if(typeof res?.seeds === 'number') S.seeds = res.seeds;
       S.phase='STUBBLE'; S.g=0; gainExp(12);
       await loadUser(); toast(`수확 완료 · 등급 ${grade}`);
     }catch(e){
@@ -139,6 +152,17 @@
     }
   }
 
+  async function exchangePopToFert(){
+    if(!kakaoId || !nickname) return;
+    if(S.popcorn<1){ toast('팝콘 부족'); return; }
+    try{
+      await j('/api/corn/exchange', { kakaoId, from:'popcorn', to:'fertilizer', qty:1 });
+      await loadUser(); toast('팝콘→거름 교환');
+    }catch(e){
+      S.popcorn--; S.fertilizer++; renderAll(); save(); toast('교환(로컬)');
+    }
+  }
+
   /* ===== 성장/레벨/렌더 ===== */
   function gainGrowth(d){ S.g=Math.max(0,Math.min(100,(S.g||0)+d)); }
   function gainExp(n){
@@ -158,7 +182,6 @@
     dom.expBar.style.width = `${Math.max(0,Math.min(99,S.exp))}%`;
   }
 
-  // 배경은 성장도에 따라 선택
   function pickBgFile(){
     const g=S.g|0;
     if(g<=29) return 'farm_05.png';
@@ -192,16 +215,17 @@
   }
 
   function renderRes(){
-    dom.r.water.textContent=S.water|0;
-    dom.r.fert .textContent=S.fertilizer|0;
-    dom.r.corn .textContent=S.corn|0;
-    dom.r.pop  .textContent=S.popcorn|0;
-    dom.r.salt .textContent=S.salt|0;
-    dom.r.sugar.textContent=S.sugar|0;
-    dom.r.orcx .textContent=S.orcx|0;
+    dom.r.seeds.textContent = S.seeds|0;
+    dom.r.water.textContent = S.water|0;
+    dom.r.fert .textContent = S.fertilizer|0;
+    dom.r.corn .textContent = S.corn|0;
+    dom.r.pop  .textContent = S.popcorn|0;
+    dom.r.salt .textContent = S.salt|0;
+    dom.r.sugar.textContent = S.sugar|0;
+    dom.r.orcx .textContent = S.orcx|0;
 
-    dom.btnHarv.disabled = !(S.phase==='GROW' && S.g>=100);
-    dom.btnPop .disabled = !(S.corn>=1 && S.salt>=1 && S.sugar>=1 && S.orcx>=30);
+    dom.btnHarv && (dom.btnHarv.disabled = !(S.phase==='GROW' && S.g>=100));
+    dom.btnPop  && (dom.btnPop .disabled = !(S.corn>=1 && S.salt>=1 && S.sugar>=1 && S.orcx>=30));
   }
 
   function renderGauge(){
@@ -214,12 +238,12 @@
 
   /* ===== 바인딩/부팅 ===== */
   function bind(){
-    dom.btnPlant.onclick=plant;
-    dom.btnWater.onclick=()=>useResource('water');
-    dom.btnFert .onclick=()=>useResource('fertilizer');
-    dom.btnHarv .onclick=harvest;
-    dom.btnPop  .onclick=pop;
-    dom.btnEx   .onclick=exchangePopToFert;
+    if (dom.btnPlant) dom.btnPlant.onclick = () => plant();
+    if (dom.btnWater) dom.btnWater.onclick = () => useResource('water');
+    if (dom.btnFert ) dom.btnFert .onclick = () => useResource('fertilizer');
+    if (dom.btnHarv ) dom.btnHarv .onclick = () => harvest();
+    if (dom.btnPop  ) dom.btnPop  .onclick = () => pop();
+    if (dom.btnEx   ) dom.btnEx   .onclick = () => exchangePopToFert();
     window.addEventListener('resize', ()=>{ applyBg(); renderMini(); });
   }
 
@@ -228,39 +252,8 @@
   })();
 
 })();
-// === 1) 액션 함수들 (선언식으로! 호이스팅 OK) ===
-async function plant(){ /* ...그대로... */ }
-async function useResource(kind){ /* ...그대로... */ }
-async function harvest(){ /* ...그대로... */ }
-async function pop(){ /* ...그대로... */ }
 
-// 👇 문제난 이놈을 '선언식'으로 명확히
-async function exchangePopToFert(){
-  if(!kakaoId || !nickname) return;
-  if(S.popcorn < 1){ toast('팝콘 부족'); return; }
-  try{
-    await j('/api/corn/exchange', { kakaoId, from:'popcorn', to:'fertilizer', qty:1 });
-    await loadUser(); toast('팝콘→거름 교환');
-  }catch(e){
-    S.popcorn--; S.fertilizer++; renderAll(); save(); toast('교환(로컬)');
-  }
-}
 
-// === 2) 바인딩 (null 가드 + 래핑) ===
-function bind(){
-  if (dom.btnPlant) dom.btnPlant.onclick = () => plant();
-  if (dom.btnWater) dom.btnWater.onclick = () => useResource('water');
-  if (dom.btnFert ) dom.btnFert .onclick = () => useResource('fertilizer');
-  if (dom.btnHarv ) dom.btnHarv .onclick = () => harvest();
-  if (dom.btnPop  ) dom.btnPop  .onclick = () => pop();
-  if (dom.btnEx   ) dom.btnEx   .onclick = () => exchangePopToFert(); // ← 여기
-  window.addEventListener('resize', ()=>{ applyBg(); renderMini(); });
-}
-
-// === 3) 부팅 순서 유지 ===
-(async function boot(){
-  renderAll(); bind(); await loadUser();
-})();
 
 
 
