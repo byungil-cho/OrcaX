@@ -60,13 +60,16 @@
     .bottom-links {
       margin-top: 3rem;
       font-size: 0.9rem;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
     }
     .bottom-links a {
       display: inline-block;
       background: rgba(255,255,255,0.8);
       padding: 0.4rem 0.8rem;
       color: #222;
-      margin: 0 0.5rem;
       text-decoration: none;
       border-radius: 6px;
       font-weight: bold;
@@ -82,8 +85,25 @@
       cursor: pointer;
       font-weight: bold;
     }
+
+    /* 옥수수 농장 영역 중앙 정렬 + 간격 조정 */
+    #cornTeaser {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    #cornTeaser img {
+      width: 200px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px black;
+    }
+
     @media (max-width: 768px) {
       .field img { width: 140px; }
+      #cornTeaser img { width: 160px; }
     }
   </style>
 </head>
@@ -113,16 +133,15 @@
     <button id="logoutBtn" class="kakao-btn" style="display: none; background-color: #ff4d4d;" onclick="logout()">로그아웃</button>
   
     <!-- 옥수수 농장 빠른입장 (이미지 로테이션) -->
-    <div id="cornTeaser" style="margin-top: 1.5rem;">
-      <a id="cornLink" href="corn-index.html" style="display:inline-block">
-        <img id="cornRot" src="img/farm_01.png" alt="옥수수 농장" 
-             style="width:200px;height:auto;border-radius:10px;box-shadow:0 0 10px black;">
+    <div id="cornTeaser">
+      <a id="cornLink" href="corn-index.html">
+        <img id="cornRot" src="img/farm_01.png" alt="옥수수 농장">
       </a>
-      <div style="margin-top:0.4rem;font-weight:bold;background:rgba(0,0,0,0.5);display:inline-block;padding:0.2rem 0.6rem;border-radius:6px;">
-      
+      <div style="font-weight:bold;background:rgba(0,0,0,0.5);padding:0.2rem 0.6rem;border-radius:6px;">
+        <!-- 필요시 텍스트 -->
       </div>
     </div>
-
+  </div>
 
   <script>
     const BASE_URL = "https://climbing-wholly-grouper.jp.ngrok.io";
@@ -161,7 +180,6 @@
         document.getElementById("loginBtn").style.display = "none";
         document.getElementById("logoutBtn").style.display = "inline-block";
 
-        // 서버 기록 (선택 사항)
         fetch(`${BASE_URL}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -191,12 +209,10 @@
 
     window.addEventListener("pageshow", function(event) {
       if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
-        location.reload(); // 뒤로가기 캐시 대응
+        location.reload();
       }
     });
 
-
-    // 옥수수 농장 이미지 로테이션 (01 → 03 → 05 → 09)
     (function(){
       const seq = ['img/farm_01.png','img/farm_03.png','img/farm_05.png','img/farm_09.png'];
       let i = 0;
@@ -206,7 +222,6 @@
         if (el) el.src = seq[i];
       }, 2500);
     })();
-
 
     window.onload = init;
   </script>
