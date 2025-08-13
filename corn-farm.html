@@ -80,7 +80,7 @@
 </head>
 <body>
   <!-- 배경 -->
-  <div id="bg" aria-hidden="true" style="background-image:url('img/corn_winter.jpg')"></div>
+  <div id="bg" aria-hidden="true"></div>
 
   <!-- 상단 리소스 바 -->
   <header>
@@ -132,48 +132,7 @@
   </div>
 
   <div id="toast"></div>
-
-  <!-- API/로직: 3060 백엔드 JS 로더 (경로 자동 탐색) -->
-  <script>
-    (function(){
-      var candidates = [
-        "https://climbing-wholly-grouper.jp.ngrok.io/js/corn-api.js",
-        "https://climbing-wholly-grouper.jp.ngrok.io/%EC%A0%9C%EC%8A%A4/corn-api.js"
-      ];
-      function load(u){
-        return new Promise(function(resolve,reject){
-          var s=document.createElement('script');
-          s.src=u + (u.includes('?')?'&':'?') + 'v=' + Date.now();
-          s.onload=function(){ resolve(u); };
-          s.onerror=function(){ reject(new Error('fail '+u)); };
-          document.body.appendChild(s);
-        });
-      }
-      (async function(){
-        var ok=null;
-        for (var i=0;i<candidates.length;i++){
-          try{ ok = await load(candidates[i]); break; }catch(e){ /* try next */ }
-        }
-        var dot = document.getElementById('netDot');
-        var txt = document.getElementById('netTxt');
-        if(!ok){
-          if (dot) dot.classList.remove('ok');
-          if (txt) txt.textContent = "JS 로드 실패(서버 경로 확인)";
-          console.warn("corn-api.js load failed for all candidates:", candidates);
-          return;
-        }else{
-          console.info("corn-api.js loaded from:", ok);
-        }
-        // 로그인 안내 개선: kakaoId 없으면 상단에 안내 유지
-        try{
-          var kid = localStorage.getItem('kakaoId')||localStorage.getItem('orcax:kakaoId');
-          if(!kid && txt){
-            txt.textContent = "연결됨(로그인 필요)";
-          }
-        }catch(e){}
-      })();
-    })();
-  </script>
-
+  <!-- API/로직 -->
+  <script src="https://byungil-cho.github.io/OrcaX/js/corn-api.js"></script>
 </body>
 </html>
