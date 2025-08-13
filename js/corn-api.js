@@ -228,6 +228,40 @@
   })();
 
 })();
+// === 1) 액션 함수들 (선언식으로! 호이스팅 OK) ===
+async function plant(){ /* ...그대로... */ }
+async function useResource(kind){ /* ...그대로... */ }
+async function harvest(){ /* ...그대로... */ }
+async function pop(){ /* ...그대로... */ }
+
+// 👇 문제난 이놈을 '선언식'으로 명확히
+async function exchangePopToFert(){
+  if(!kakaoId || !nickname) return;
+  if(S.popcorn < 1){ toast('팝콘 부족'); return; }
+  try{
+    await j('/api/corn/exchange', { kakaoId, from:'popcorn', to:'fertilizer', qty:1 });
+    await loadUser(); toast('팝콘→거름 교환');
+  }catch(e){
+    S.popcorn--; S.fertilizer++; renderAll(); save(); toast('교환(로컬)');
+  }
+}
+
+// === 2) 바인딩 (null 가드 + 래핑) ===
+function bind(){
+  if (dom.btnPlant) dom.btnPlant.onclick = () => plant();
+  if (dom.btnWater) dom.btnWater.onclick = () => useResource('water');
+  if (dom.btnFert ) dom.btnFert .onclick = () => useResource('fertilizer');
+  if (dom.btnHarv ) dom.btnHarv .onclick = () => harvest();
+  if (dom.btnPop  ) dom.btnPop  .onclick = () => pop();
+  if (dom.btnEx   ) dom.btnEx   .onclick = () => exchangePopToFert(); // ← 여기
+  window.addEventListener('resize', ()=>{ applyBg(); renderMini(); });
+}
+
+// === 3) 부팅 순서 유지 ===
+(async function boot(){
+  renderAll(); bind(); await loadUser();
+})();
+
 
 
 
