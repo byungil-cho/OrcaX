@@ -1,10 +1,11 @@
-/* js/corn-api.js
-   - 카카오 연동 → API
-   - 리소스/게이지/레벨/배경/미니 이미지 렌더
-   - 씨앗/물/거름/수확/뻥튀기/교환 로직
-*/
+/* js/corn-api.js */
 (function(){
   'use strict';
+
+  /* ===== 이미지 절대 경로 (GitHub Pages) ===== */
+  const IMG_BASE = 'https://byungil-cho.github.io/OrcaX/img/';
+  const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
+  function img(file){ return IMG_BASE + (isMobile()? ('a_'+file) : file); }
 
   /* ===== DOM ===== */
   const $ = id => document.getElementById(id);
@@ -20,12 +21,6 @@
     toast:$('toast')
   };
   const toast=(m)=>{ dom.toast.textContent=m; dom.toast.classList.add('show'); setTimeout(()=>dom.toast.classList.remove('show'),1300); };
-
-  /* ===== 유틸: 이미지 경로 ===== */
-  const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
-  function img(file){
-    return 'img/' + (isMobile()? ('a_'+file) : file);
-  }
 
   /* ===== 상태 ===== */
   const S = Object.assign({
@@ -160,18 +155,22 @@
   function gainGrowth(d){ S.g=Math.max(0,Math.min(100,(S.g||0)+d)); }
   function gainExp(n){
     S.exp=(S.exp||0)+n;
-    while(S.exp>=100){ S.exp-=100; S.level=(S.level||1)+1; try{ j('/api/user/exp',{kakaoId,expGain:n,level:S.level}); }catch(_){ }
-      toast(`Level Up! Lv.${S.level}`); }
+    while(S.exp>=100){
+      S.exp-=100; S.level=(S.level||1)+1;
+      try{ j('/api/user/exp',{kakaoId,expGain:n,level:S.level}); }catch(_){}
+      toast(`Level Up! Lv.${S.level}`);
+    }
     renderLevel(); save();
   }
 
-  function levelIconPath(lv){ const n=Math.max(1,Math.min(10,Math.floor(lv||1))); return `img/mark_${String(n).padStart(2,'0')}.png`; }
+  function levelIconPath(lv){ const n=Math.max(1,Math.min(10,Math.floor(lv||1))); return IMG_BASE + `mark_${String(n).padStart(2,'0')}.png`; }
   function renderLevel(){
     dom.levelIconMini.src = levelIconPath(S.level);
     dom.levelText.textContent = `Lv.${S.level}`;
     dom.expBar.style.width = `${Math.max(0,Math.min(99,S.exp))}%`;
   }
 
+  // 배경은 성장도에 따라 선택
   function pickBgFile(){
     const g=S.g|0;
     if(g<=29) return 'farm_05.png';
