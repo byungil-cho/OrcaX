@@ -82,11 +82,10 @@
     }
     .btn[disabled]{opacity:.55;pointer-events:none}
 
-    /* ===== 위치 조정 부분 ===== */
+    /* 게이지 + 레벨 캐릭터 복구 */
     .gauge{
       position:fixed;
-      left:50%;
-      transform:translateX(-50%);
+      left:10px; /* 왼쪽 고정 */
       bottom:calc(240px + env(safe-area-inset-bottom));
       z-index:6;
       width:110px;height:110px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.35);
@@ -98,7 +97,7 @@
 
     .lvface{
       position:absolute;
-      top:-25px; /* 게이지 위쪽에 배치 */
+      top:-50px; /* 게이지 위 */
       left:50%;
       transform:translateX(-50%);
       display:flex;align-items:center;gap:8px
@@ -156,6 +155,7 @@
     </div>
   </header>
 
+  <!-- 게이지 + 레벨 캐릭터 -->
   <div class="gauge">
     <div class="gfill" id="gfill" style="--p:0%"></div>
     <div class="gnum" id="gnum">0</div>
@@ -168,6 +168,7 @@
     </div>
   </div>
 
+  <!-- 미니 상태 -->
   <div class="mini-wrap">
     <a class="nav" href="corn-index.html" title="이전">⬅️</a>
     <img id="miniImg" alt="작물 상태" />
@@ -175,6 +176,7 @@
     <div id="miniCap">상태 확인 중…</div>
   </div>
 
+  <!-- 하단 액션 -->
   <div class="actions">
     <button id="btn-plant" class="btn">씨앗 심기</button>
     <button id="btn-water" class="btn">물 주기</button>
