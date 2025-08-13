@@ -54,7 +54,7 @@
       S.online=true; dom.netDot.classList.add('ok'); dom.netTxt.textContent='온라인';
       dom.nick.textContent = nickname;
 
-      // 인벤토리/자원 매핑 (문서 구조 케이스별 대응)
+      // 인벤토리/자원 매핑
       S.orcx       = (u.wallet?.orcx ?? u.orcx ?? S.orcx)|0;
       S.seeds      = (u.seeds ?? u.inventory?.seeds ?? u.agri?.seeds ?? S.seeds)|0;
       S.water      = (u.inventory?.water ?? S.water)|0;
@@ -182,6 +182,7 @@
     dom.expBar.style.width = `${Math.max(0,Math.min(99,S.exp))}%`;
   }
 
+  // 성장도에 따라 배경 교체
   function pickBgFile(){
     const g=S.g|0;
     if(g<=29) return 'farm_05.png';
@@ -252,11 +253,3 @@
   })();
 
 })();
-
-
-
-
-
-
-
-
