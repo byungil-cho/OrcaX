@@ -52,7 +52,6 @@
       S.online=true; dom.netDot.classList.add('ok'); dom.netTxt.textContent='온라인';
       dom.nick.textContent = nickname;
 
-      // 인벤토리 매핑
       S.orcx       = (u.wallet?.orcx ?? u.orcx ?? S.orcx)|0;
       S.water      = (u.inventory?.water ?? S.water)|0;
       S.fertilizer = (u.inventory?.fertilizer ?? S.fertilizer)|0;
@@ -140,17 +139,6 @@
     }
   }
 
-  async function exchangePopToFert(){
-    if(!kakaoId || !nickname) return;
-    if(S.popcorn<1){ toast('팝콘 부족'); return; }
-    try{
-      await j('/api/corn/exchange', { kakaoId, from:'popcorn', to:'fertilizer', qty:1 });
-      await loadUser(); toast('팝콘→거름 교환');
-    }catch(e){
-      S.popcorn--; S.fertilizer++; renderAll(); save(); toast('교환(로컬)');
-    }
-  }
-
   /* ===== 성장/레벨/렌더 ===== */
   function gainGrowth(d){ S.g=Math.max(0,Math.min(100,(S.g||0)+d)); }
   function gainExp(n){
@@ -181,7 +169,10 @@
   }
   function applyBg(){
     const file = pickBgFile();
-    dom.bg.style.backgroundImage = `url('${img(file)}')`;
+    const want = `url('${img(file)}')`;
+    if (getComputedStyle(dom.bg).backgroundImage !== want){
+      dom.bg.style.backgroundImage = want;
+    }
   }
 
   function pickMini(){
@@ -237,6 +228,8 @@
   })();
 
 })();
+
+
 
 
 
