@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장</title>
 
+  <!-- ===== 부트스트랩: 환경/로그인/최소 API ===== -->
   <script>
     'use strict';
     const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
@@ -38,6 +39,7 @@
       --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18);
       --ok:#25d366;
     }
+    /* ★ 검은 바탕 제거 */
     html,body{
       height:100%;
       margin:0;
@@ -45,6 +47,8 @@
       background:transparent;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;
     }
+
+    /* ==== 배경: 화면 전체 덮도록, 검은색 없음 ==== */
     #bg{
       position:fixed; inset:0; width:100%; height:100%;
       z-index:-1;
@@ -52,6 +56,7 @@
         url('https://byungil-cho.github.io/OrcaX/img/farm_05.png')
         center / cover no-repeat;
     }
+
     header{
       position:fixed;left:10px;right:10px;top:10px;z-index:9;
       backdrop-filter:blur(6px);background:var(--glass);border:1px solid var(--bd);
@@ -61,6 +66,7 @@
     .status{width:8px;height:8px;border-radius:999px;background:#ef4444}
     .status.ok{background:var(--ok)}
     .nick{font-weight:800;max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
     .res{
       display:grid;gap:6px;margin-top:6px;
       grid-template-columns:repeat(auto-fit, minmax(120px,1fr));
@@ -82,47 +88,45 @@
     }
     .btn[disabled]{opacity:.55;pointer-events:none}
 
-    /* 게이지 + 레벨 캐릭터 복구 */
+    /* ===== 위치 조정 (디자인 유지) ===== */
     .gauge{
       position:fixed;
-      left:10px; /* 왼쪽 고정 */
-      bottom:calc(240px + env(safe-area-inset-bottom));
+      left:10px; /* 왼쪽 고정 유지 */
+      /* 더 아래로: mini-wrap(120px) + 여유 */
+      bottom:calc(200px + env(safe-area-inset-bottom));
       z-index:6;
       width:110px;height:110px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.35);
       display:grid;place-items:center;overflow:hidden
     }
     .gfill{position:absolute;inset:0;background:
       conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0)}
-    .gnum{position:relative;font-weight:800;font-variant-numeric:tabular-nums}
+    .gnum{position:relative;font-weight:800;font-variant-numeric:tabular-nums; z-index:2}
 
+    /* 레벨 캐릭터 + 바: 게이지 위에 겹치기 */
     .lvface{
       position:absolute;
-      top:-50px; /* 게이지 위 */
+      top:-52px; /* 게이지 바로 위 */
       left:50%;
       transform:translateX(-50%);
-      display:flex;align-items:center;gap:8px
+      display:flex;align-items:center;gap:8px;
+      z-index:3;  /* gfill(기본)과 gnum 위로 */
     }
     .lvface img{width:44px;height:44px;border-radius:999px;border:1px solid var(--bd);background:#000}
     .expbar{width:120px;height:6px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.15);overflow:hidden}
     .expbar span{display:block;height:100%;width:0;background:#8ed36b}
 
+    /* 미니 이미지 필름 박스: 가로 폭 제한(퍼지지 않게) */
     .mini-wrap{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:calc(120px + env(safe-area-inset-bottom));
-      z-index:7;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      width:min(520px,94vw);
+      position:fixed;left:50%;transform:translateX(-50%);
+      bottom:calc(120px + env(safe-area-inset-bottom));z-index:7;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      width:clamp(280px, 60vw, 460px);           /* 폭 제한 */
       border:1px solid var(--bd);border-radius:14px;background:rgba(0,0,0,.28);
       padding:8px 10px;
     }
     .nav{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;color:#fff;text-decoration:none;border:1px solid var(--bd);background:rgba(0,0,0,.35)}
-    #miniImg{width:120px;height:120px;border-radius:12px;border:1px solid var(--bd);object-fit:cover;background:#000}
-    #miniCap{font-size:12px;opacity:.9}
+    #miniImg{width:120px;height:120px;border-radius:12px;border:1px solid var(--bd);object-fit:cover;background:#000;flex:0 0 auto}
+    #miniCap{font-size:12px;opacity:.9;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
     #toast{position:fixed;left:50%;transform:translateX(-50%);top:62px;z-index:10;
       background:rgba(0,0,0,.65);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;display:none}
@@ -135,8 +139,10 @@
   </style>
 </head>
 <body>
+  <!-- 배경 -->
   <div id="bg" aria-hidden="true"></div>
 
+  <!-- 상단 리소스 바 -->
   <header>
     <div class="topline">
       <span id="netDot" class="status"></span>
@@ -155,7 +161,7 @@
     </div>
   </header>
 
-  <!-- 게이지 + 레벨 캐릭터 -->
+  <!-- 게이지 + 레벨 -->
   <div class="gauge">
     <div class="gfill" id="gfill" style="--p:0%"></div>
     <div class="gnum" id="gnum">0</div>
@@ -188,6 +194,9 @@
 
   <div id="toast"></div>
 
+  <!-- 외부 로직 (캐시 버스팅) -->
   <script defer src="./js/corn-api.js?v=20250813"></script>
 </body>
 </html>
+
+
