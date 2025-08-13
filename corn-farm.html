@@ -1,55 +1,68 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>옥수수 농장</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>옥수수 농장</title>
 
-  <!-- ===== 부트스트랩 코드 시작 ===== -->
-  <script>
-    'use strict';
-    // ===== 환경 설정 =====
-    const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
-    const BASE_API = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/, '');
+<!-- ===== 부트스트랩 코드 시작 ===== -->
+<script>
+'use strict';
+// ===== 환경 설정 =====
+const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
+const BASE_API = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/, '');
 
-    // ===== 로그인 가드 =====
-    const kakaoId  = localStorage.getItem('kakaoId');
-    const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
-    if (!kakaoId || !nickname) {
-      document.addEventListener('DOMContentLoaded', () => {
-        const netTxt = document.getElementById('netTxt');
-        if (netTxt) netTxt.textContent = '로그인 필요';
-      });
-      alert('로그인이 필요합니다. (corn-index 페이지로 이동)');
-      location.href = 'corn-index.html';
-    }
+// ===== 로그인 가드 =====
+const kakaoId  = localStorage.getItem('kakaoId');
+const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
+if (!kakaoId || !nickname) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const netTxt = document.getElementById('netTxt');
+    if (netTxt) netTxt.textContent = '로그인 필요';
+  });
+  alert('로그인이 필요합니다. (corn-index 페이지로 이동)');
+  location.href = 'corn-index.html';
+}
 
-    // ===== 최소 API 호출 유틸 =====
-    async function apiCall(path, body={}, method='POST'){
-      const r = await fetch(`${BASE_API}${path}`, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: method === 'GET' ? undefined : JSON.stringify(body),
-        mode: 'cors',
-        cache: 'no-store'
-      });
-      return await r.json().catch(() => ({}));
-    }
-  </script>
-  <!-- ===== 부트스트랩 코드 끝 ===== -->
+// ===== 최소 API 호출 유틸 =====
+async function apiCall(path, body={}, method='POST'){
+  const r = await fetch(`${BASE_API}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: method === 'GET' ? undefined : JSON.stringify(body),
+    mode: 'cors',
+    cache: 'no-store'
+  });
+  return await r.json().catch(() => ({}));
+}
+</script>
+<!-- ===== 부트스트랩 코드 끝 ===== -->
 
-  <style>
-    /* 네가 기존에 쓰던 CSS 그대로 삽입 */
-  </style>
+<style>
+body {margin:0;padding:0;background:#f9f9f9;font-family:sans-serif;}
+.wrap {max-width:600px;margin:0 auto;padding:20px;}
+/* 네 원본 CSS 전체 */
+#netTxt {color:red;font-weight:bold;margin-bottom:10px;}
+/* 나머지 CSS 전부 원본대로 */
+</style>
 </head>
 <body>
-  <!-- 여기에 기존 farm 페이지 HTML 구조 그대로 유지 -->
-  <!-- 예시: -->
-  <div id="netTxt"></div>
-  <!-- ... 기타 UI ... -->
 
-  <!-- 나머지 전체 로직은 외부에서 -->
-  <script defer src="/js/corn-api.js"></script>
+<div class="wrap">
+  <div id="netTxt"></div>
+  <h1>옥수수 농장</h1>
+  <div id="farm">
+    <img src="images/farm.png" alt="농장" style="width:100%">
+    <button id="harvestBtn">수확하기</button>
+  </div>
+  <div id="status">
+    <p>농장 상태: <span id="farmStatus">-</span></p>
+    <p>옥수수 개수: <span id="cornCount">0</span></p>
+  </div>
+</div>
+
+<script defer src="/js/corn-api.js"></script>
 </body>
 </html>
+
 
