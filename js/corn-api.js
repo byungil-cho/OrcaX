@@ -1,5 +1,5 @@
 /* js/corn-api.js
-   - 카카오 연동 → Mongo API
+   - 카카오 연동 → API
    - 리소스/게이지/레벨/배경/미니 이미지 렌더
    - 씨앗/물/거름/수확/뻥튀기/교환 로직
 */
@@ -160,7 +160,8 @@
   function gainGrowth(d){ S.g=Math.max(0,Math.min(100,(S.g||0)+d)); }
   function gainExp(n){
     S.exp=(S.exp||0)+n;
-    while(S.exp>=100){ S.exp-=100; S.level=(S.level||1)+1; try{ j('/api/user/exp',{kakaoId,expGain:n,level:S.level}); }catch(_){ } toast(`Level Up! Lv.${S.level}`); }
+    while(S.exp>=100){ S.exp-=100; S.level=(S.level||1)+1; try{ j('/api/user/exp',{kakaoId,expGain:n,level:S.level}); }catch(_){ }
+      toast(`Level Up! Lv.${S.level}`); }
     renderLevel(); save();
   }
 
