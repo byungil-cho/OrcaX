@@ -42,15 +42,22 @@
       --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18);
       --ok:#25d366;
     }
-    html,body{height:100%;margin:0;color:var(--ink);background:#000;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif}
+    /* ★ 검은 바탕 제거 */
+    html,body{
+      height:100%;
+      margin:0;
+      color:var(--ink);
+      background:transparent;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;
+    }
 
-    /* ==== 배경: 확실히 덮이게 고정 ==== */
+    /* ==== 배경: 화면 전체 덮도록, 검은색 제거 ==== */
     #bg{
       position:fixed; inset:0; width:100%; height:100%;
       z-index:-1;
       background:
         url('https://byungil-cho.github.io/OrcaX/img/farm_05.png')
-        center / cover no-repeat #000;
+        center / cover no-repeat;
     }
 
     header{
@@ -132,6 +139,7 @@
       <span class="nick" id="nick">(로그인 필요)</span>
     </div>
     <div class="res">
+      <!-- 씨앗은 다음 단계에서 JS로 값 바인딩 예정 -->
       <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
       <div class="tag">💧 물 <b id="r-water">0</b></div>
       <div class="tag">🪴 거름 <b id="r-fert">0</b></div>
@@ -176,7 +184,9 @@
 
   <div id="toast"></div>
 
-  <!-- 외부 로직 (캐시 버스팅) -->
+  <!-- 외부 로직 (캐시 버스팅 유지) -->
   <script defer src="./js/corn-api.js?v=20250813"></script>
 </body>
 </html>
+
+
