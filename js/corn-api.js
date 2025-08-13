@@ -27,7 +27,10 @@
   const toast=(m)=>{ dom.toast.textContent=m; dom.toast.classList.add('show'); setTimeout(()=>dom.toast.classList.remove('show'),1300); };
 
   /* ===== 유틸: 이미지 경로 ===== */
-  function img(file){ return 'img/' + file; }
+  function img(file){
+    // 항상 'img/파일명', 모바일은 a_ 접두 리소스를 사용(파일은 사용자가 준비)
+    return 'img/' + (isMobile()? ('a_'+file) : file);
+  }
 
   /* ===== 상태 ===== */
   const S = Object.assign({
