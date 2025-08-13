@@ -1,15 +1,10 @@
 /* js/corn-api.js
-   - 카카오 연동 → Mongo API(ngrok 고정, 로컬에서 orcax:BASE_API로 오버라이드 가능)
+   - 카카오 연동 → Mongo API
    - 리소스/게이지/레벨/배경/미니 이미지 렌더
-   - 씨앗/물/거름/수확/뻥튀기/교환 로직 (이미지 경로는 항상 'img/파일명')
+   - 씨앗/물/거름/수확/뻥튀기/교환 로직
 */
 (function(){
   'use strict';
-
-  /* ===== 환경 ===== */
-  const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
-  const BASE_API = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/,'');
-  const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
 
   /* ===== DOM ===== */
   const $ = id => document.getElementById(id);
@@ -27,8 +22,8 @@
   const toast=(m)=>{ dom.toast.textContent=m; dom.toast.classList.add('show'); setTimeout(()=>dom.toast.classList.remove('show'),1300); };
 
   /* ===== 유틸: 이미지 경로 ===== */
+  const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
   function img(file){
-    // 항상 'img/파일명', 모바일은 a_ 접두 리소스를 사용(파일은 사용자가 준비)
     return 'img/' + (isMobile()? ('a_'+file) : file);
   }
 
@@ -42,20 +37,7 @@
   function save(){ try{ localStorage.setItem('corn_state', JSON.stringify(S)); }catch(e){} }
   function safeParse(x){ try{ return JSON.parse(x); }catch(_){ return null; } }
 
-  /* ===== 로그인 가드 ===== */
-  const kakaoId  = localStorage.getItem('kakaoId');
-  const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
-  function needLogin(){
-    if(!kakaoId || !nickname){
-      dom.netDot.classList.remove('ok'); dom.netTxt.textContent='로그인 필요';
-      alert('로그인이 필요합니다. (corn-index 또는 감자농장에서 로그인)');
-      location.href = 'corn-index.html';
-      return true;
-    }
-    return false;
-  }
-
-  /* ===== 서버 ===== */
+  /* ===== 서버 통신 ===== */
   async function j(path, body={}, method='POST'){
     const r = await fetch(`${BASE_API}${path}`, {
       method, headers:{'Content-Type':'application/json'},
@@ -68,14 +50,14 @@
   }
 
   async function loadUser(){
-    if(needLogin()) return;
+    if(!kakaoId || !nickname) return;
     try{
       const data = await j('/api/userdata', { kakaoId });
       const u = data?.user || data?.data?.user || {};
       S.online=true; dom.netDot.classList.add('ok'); dom.netTxt.textContent='온라인';
       dom.nick.textContent = nickname;
 
-      // 인벤토리 매핑(감자 대시보드 패턴과 동일)
+      // 인벤토리 매핑
       S.orcx       = (u.wallet?.orcx ?? u.orcx ?? S.orcx)|0;
       S.water      = (u.inventory?.water ?? S.water)|0;
       S.fertilizer = (u.inventory?.fertilizer ?? S.fertilizer)|0;
@@ -84,7 +66,6 @@
       S.salt       = (u.additives?.salt ?? S.salt)|0;
       S.sugar      = (u.additives?.sugar ?? S.sugar)|0;
 
-      // 레벨/게이지
       S.level = Math.max(1, Number(u.level ?? u.profile?.level ?? S.level || 1));
       S.exp   = Math.max(0, Number(u.profile?.exp ?? S.exp || 0));
       S.phase = (u.agri?.phase || S.phase || 'IDLE');
@@ -101,7 +82,7 @@
 
   /* ===== 액션 ===== */
   async function plant(){
-    if(needLogin()) return;
+    if(!kakaoId || !nickname) return;
     try{
       await j('/api/corn/plant', { kakaoId });
       S.phase='GROW'; S.g=0; gainExp(8);
@@ -111,8 +92,8 @@
     }
   }
 
-  async function useResource(kind){ // 'water'|'fertilizer'
-    if(needLogin()) return;
+  async function useResource(kind){
+    if(!kakaoId || !nickname) return;
     const field = kind==='water' ? 'water' : 'fertilizer';
     if(S[field]<=0){ toast((field==='water'?'물':'거름')+' 없음'); return; }
     try{
@@ -130,11 +111,11 @@
   let localStreak = 0;
 
   async function harvest(){
-    if(needLogin()) return;
+    if(!kakaoId || !nickname) return;
     if(!(S.phase==='GROW' && S.g>=100)){ toast('아직 수확 단계 아님'); return; }
     localStreak++; const grade = gradeFromStreak(localStreak);
     try{
-      const res = await j('/api/corn/harvest', { kakaoId, grade });
+      await j('/api/corn/harvest', { kakaoId, grade });
       S.phase='STUBBLE'; S.g=0; gainExp(12);
       await loadUser(); toast(`수확 완료 · 등급 ${grade}`);
     }catch(e){
@@ -148,7 +129,7 @@
   function popcornChance(grade){ return ({A:.9,B:.75,C:.6,D:.4,E:.2,F:.1})[grade] ?? .5; }
 
   async function pop(){
-    if(needLogin()) return;
+    if(!kakaoId || !nickname) return;
     if(S.corn<1){ toast('옥수수 없음'); return; }
     if(S.salt<1 || S.sugar<1){ toast('소금/설탕 1:1 필요'); return; }
     if(S.orcx<30){ toast('토큰 30 필요'); return; }
@@ -165,7 +146,7 @@
   }
 
   async function exchangePopToFert(){
-    if(needLogin()) return;
+    if(!kakaoId || !nickname) return;
     if(S.popcorn<1){ toast('팝콘 부족'); return; }
     try{
       await j('/api/corn/exchange', { kakaoId, from:'popcorn', to:'fertilizer', qty:1 });
@@ -190,7 +171,6 @@
     dom.expBar.style.width = `${Math.max(0,Math.min(99,S.exp))}%`;
   }
 
-  // 배경(게이지 단계별). 항상 img/ + 모바일은 a_ 접두 사용
   function pickBgFile(){
     const g=S.g|0;
     if(g<=29) return 'farm_05.png';
@@ -249,7 +229,6 @@
     dom.btnHarv .onclick=harvest;
     dom.btnPop  .onclick=pop;
     dom.btnEx   .onclick=exchangePopToFert;
-    // 창 크기 바뀌면 a_ 리소스 반영
     window.addEventListener('resize', ()=>{ applyBg(); renderMini(); });
   }
 
