@@ -61,8 +61,8 @@
       S.salt       = (u.additives?.salt ?? S.salt)|0;
       S.sugar      = (u.additives?.sugar ?? S.sugar)|0;
 
-      S.level = Math.max(1, Number(u.level ?? u.profile?.level ?? S.level || 1));
-      S.exp   = Math.max(0, Number(u.profile?.exp ?? S.exp || 0));
+      S.level = Math.max(1, Number((u.level ?? u.profile?.level ?? S.level || 1));
+      S.exp   = Math.max(0, Number((u.profile?.exp ?? S.exp || 0));
       S.phase = (u.agri?.phase || S.phase || 'IDLE');
       S.g     = Number.isFinite(u.agri?.g) ? u.agri.g : (S.g||0);
 
@@ -237,3 +237,4 @@
   })();
 
 })();
+
