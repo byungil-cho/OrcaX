@@ -1,176 +1,161 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>옥수수 농장</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>옥수수 농장</title>
 
-  <script>
-    'use strict';
-    const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
-    const BASE_API = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/, '');
-    const kakaoId  = localStorage.getItem('kakaoId');
-    const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
-    if (!kakaoId || !nickname) {
-      document.addEventListener('DOMContentLoaded', () => {
-        const netTxt = document.getElementById('netTxt');
-        if (netTxt) netTxt.textContent = '로그인 필요';
-      });
-      alert('로그인이 필요합니다. (corn-index 페이지로 이동)');
-      location.href = 'corn-index.html';
-    }
-  </script>
+<script>
+  'use strict';
+  /* 감자와 동일 서버(/api 포함). 필요 시 localStorage['orcax:BASE_API']로 덮어쓰기 */
+  const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io/api';
+  const BASE_API = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/,'');
+  const kakaoId  = localStorage.getItem('kakaoId');
+  const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
+  if (!kakaoId || !nickname) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const netTxt = document.getElementById('netTxt'); if (netTxt) netTxt.textContent = '로그인 필요';
+    });
+    alert('로그인이 필요합니다. (corn-index.html로 이동)'); location.href = 'corn-index.html';
+  }
+</script>
 
-  <style>
-    :root{ --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18); --ok:#25d366; }
-    html,body{ height:100%; margin:0; color:var(--ink); background:transparent;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
-    #bg{ position:fixed; inset:0; width:100%; height:100%; z-index:-1;
-      background:url('https://byungil-cho.github.io/OrcaX/img/farm_05.png') center/cover no-repeat; }
-    header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
-      backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
-      border-radius:14px; padding:8px 10px; }
-    .topline{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
-    .status{ width:8px; height:8px; border-radius:999px; background:#ef4444 }
-    .status.ok{ background:var(--ok) }
-    .nick{ font-weight:800; max-width:42vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-    .res{ display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) }
-    .tag{ display:flex; justify-content:space-between; align-items:center; gap:8px;
-      padding:6px 8px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.08); font-size:12px }
-    .tag b{ font-variant-numeric:tabular-nums }
+<style>
+:root{ --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18); --ok:#25d366; }
+html,body{ height:100%; margin:0; color:var(--ink); background:transparent;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
+#bg{ position:fixed; inset:0; z-index:-1;
+  background:url('https://byungil-cho.github.io/OrcaX/img/farm_05.png') center/cover no-repeat; }
+header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
+  backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
+  border-radius:14px; padding:8px 10px; }
+.topline{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+.status{ width:8px; height:8px; border-radius:999px; background:#ef4444 }
+.status.ok{ background:var(--ok) }
+.nick{ font-weight:800; max-width:42vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.res{ display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) }
+.tag{ display:flex; justify-content:space-between; align-items:center; gap:8px;
+  padding:6px 8px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.08); font-size:12px }
+.tag b{ font-variant-numeric:tabular-nums }
 
-    .actions{ position:fixed; left:10px; right:10px; bottom:10px; z-index:8;
-      display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
-      backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
-      border-radius:14px; padding:8px; }
-    .btn{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:10px;
-      padding:10px 8px; font-size:13px; cursor:pointer }
-    .btn[disabled]{ opacity:.55; pointer-events:none }
+.actions{ position:fixed; left:10px; right:10px; bottom:10px; z-index:8;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
+  backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
+  border-radius:14px; padding:8px; }
+.btn{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:10px;
+  padding:10px 8px; font-size:13px; cursor:pointer }
+.btn[disabled]{ opacity:.55; pointer-events:none }
 
-    .gauge{ position:fixed; left:10px; bottom:calc(260px + env(safe-area-inset-bottom)); z-index:6;
-      width:110px; height:110px; border-radius:999px; border:1px solid var(--bd);
-      background:rgba(0,0,0,.35); display:grid; place-items:center; overflow:hidden; }
-    .gfill{ position:absolute; inset:0; background:conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0) }
-    .gnum{ position:relative; font-weight:800; font-variant-numeric:tabular-nums }
+.gauge{ position:fixed; left:10px; bottom:calc(260px + env(safe-area-inset-bottom)); z-index:6;
+  width:110px; height:110px; border-radius:999px; border:1px solid var(--bd);
+  background:rgba(0,0,0,.35); display:grid; place-items:center; overflow:hidden; }
+.gfill{ position:absolute; inset:0; background:conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0) }
+.gnum{ position:relative; font-weight:800; font-variant-numeric:tabular-nums }
 
-    .level-box{ position:fixed; left:10px; bottom:calc(200px + env(safe-area-inset-bottom)); z-index:6;
-      display:flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--bd);
-      border-radius:10px; background:rgba(0,0,0,.35); }
-    .level-box img{ width:44px; height:44px; border-radius:999px; border:1px solid var(--bd); background:#000; }
-    .expbar{ width:120px; height:6px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.15); overflow:hidden }
-    .expbar span{ display:block; height:100%; width:0; background:#8ed36b }
+.level-box{ position:fixed; left:10px; bottom:calc(200px + env(safe-area-inset-bottom)); z-index:6;
+  display:flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--bd);
+  border-radius:10px; background:rgba(0,0,0,.35); }
+.level-box img{ width:44px; height:44px; border-radius:999px; border:1px solid var(--bd); background:#000; }
+.expbar{ width:120px; height:6px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.15); overflow:hidden }
+.expbar span{ display:block; height:100%; width:0; background:#8ed36b }
 
-    .mini-wrap{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(120px + env(safe-area-inset-bottom));
-      z-index:7; display:flex; align-items:center; justify-content:space-between; gap:10px;
-      width:clamp(280px, 60vw, 460px); border:1px solid var(--bd); border-radius:14px; background:rgba(0,0,0,.28); padding:8px 10px; }
-    .nav{ width:40px; height:40px; border-radius:999px; display:grid; place-items:center;
-      color:#fff; text-decoration:none; border:1px solid var(--bd); background:rgba(0,0,0,.35) }
-    #miniImg{ width:120px; height:120px; border-radius:12px; border:1px solid var(--bd); object-fit:cover; background:#000; flex:0 0 auto }
-    #miniCap{ font-size:12px; opacity:.9; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.mini-wrap{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(120px + env(safe-area-inset-bottom));
+  z-index:7; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  width:clamp(280px, 60vw, 460px); border:1px solid var(--bd); border-radius:14px; background:rgba(0,0,0,.28); padding:8px 10px; }
+.nav{ width:40px; height:40px; border-radius:999px; display:grid; place-items:center;
+  color:#fff; text-decoration:none; border:1px solid var(--bd); background:rgba(0,0,0,.35) }
+#miniImg{ width:120px; height:120px; border-radius:12px; border:1px solid var(--bd); object-fit:cover; background:#000; flex:0 0 auto }
+#miniCap{ font-size:12px; opacity:.9; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 
-    #toast{ position:fixed; left:50%; transform:translateX(-50%); top:62px; z-index:10;
-      background:rgba(0,0,0,.65); color:#fff; border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none }
-    #toast.show{ display:block }
+#toast{ position:fixed; left:50%; transform:translateX(-50%); top:62px; z-index:10;
+  background:rgba(0,0,0,.65); color:#fff; border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none }
+#toast.show{ display:block }
 
-    /* 구매 모달 */
-    .btn-buy{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:8px; padding:4px 8px; font-size:12px; cursor:pointer; }
-    .modal{ position:fixed; inset:0; background:rgba(0,0,0,.25); display:none; align-items:center; justify-content:center; z-index:20; }
-    .modal-content{ background:rgba(34,34,34,.70); padding:20px; border-radius:10px; color:#fff; text-align:center; }
-    .modal-content button{ display:block; margin:6px auto; padding:6px 12px;
-      border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; border-radius:8px; cursor:pointer }
-    @media (max-width:680px){ .actions{ grid-template-columns:repeat(2,1fr) } #miniImg{ width:96px; height:96px } }
-  </style>
+/* 구매 모달 (필름 연하게) */
+.btn-buy{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:8px; padding:4px 8px; font-size:12px; cursor:pointer; }
+.modal{ position:fixed; inset:0; background:rgba(0,0,0,.22); display:none; align-items:center; justify-content:center; z-index:20; }
+.modal-content{ background:rgba(34,34,34,.70); padding:20px; border-radius:10px; color:#fff; text-align:center; }
+.modal-content button{ display:block; margin:6px auto; padding:6px 12px;
+  border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; border-radius:8px; cursor:pointer }
+@media (max-width:680px){ .actions{ grid-template-columns:repeat(2,1fr) } #miniImg{ width:96px; height:96px } }
+</style>
 </head>
 <body>
-  <div id="bg" aria-hidden="true"></div>
+<div id="bg" aria-hidden="true"></div>
 
-  <header>
-    <div class="topline">
-      <span id="netDot" class="status"></span>
-      <span id="netTxt">연결 확인 중…</span>
-      <span class="nick" id="nick">(로그인 필요)</span>
-      <button id="btn-buy" class="btn-buy">구매하기</button>
-    </div>
-    <div class="res">
-      <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
-      <div class="tag">💧 물 <b id="r-water">0</b></div>
-      <div class="tag">🪴 거름 <b id="r-fert">0</b></div>
-      <div class="tag">🌽 옥수수 <b id="r-corn">0</b></div>
-      <div class="tag">🍿 팝콘 <b id="r-pop">0</b></div>
-      <div class="tag">🧂 소금 <b id="r-salt">0</b></div>
-      <div class="tag">🍬 설탕 <b id="r-sugar">0</b></div>
-      <div class="tag">🪙 토큰 <b id="r-orcx">0</b></div>
-    </div>
-  </header>
-
-  <div class="gauge"><div class="gfill" id="gfill" style="--p:0%"></div><div class="gnum" id="gnum">0</div></div>
-
-  <div class="level-box">
-    <img id="levelIconMini" src="https://byungil-cho.github.io/OrcaX/img/mark_01.png" alt="레벨 아이콘" />
-    <div><div id="levelText">Lv.1</div><div class="expbar"><span id="expBar"></span></div></div>
+<header>
+  <div class="topline">
+    <span id="netDot" class="status"></span>
+    <span id="netTxt">연결 확인 중…</span>
+    <span class="nick" id="nick">(로그인 필요)</span>
+    <button id="btn-buy" class="btn-buy">구매하기</button>
   </div>
-
-  <div class="mini-wrap">
-    <a class="nav" href="corn-index.html" title="이전">⬅️</a>
-    <img id="miniImg" alt="작물 상태" />
-    <a class="nav" href="https://byungil-cho.github.io/OrcaX/index9.html" title="감자 농장">🥔</a>
-    <div id="miniCap">상태 확인 중…</div>
+  <div class="res">
+    <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
+    <div class="tag">💧 물 <b id="r-water">0</b></div>
+    <div class="tag">🪴 거름 <b id="r-fert">0</b></div>
+    <div class="tag">🌽 옥수수 <b id="r-corn">0</b></div>
+    <div class="tag">🍿 팝콘 <b id="r-pop">0</b></div>
+    <div class="tag">🧂 소금 <b id="r-salt">0</b></div>
+    <div class="tag">🍬 설탕 <b id="r-sugar">0</b></div>
+    <div class="tag">🪙 토큰 <b id="r-orcx">0</b></div>
   </div>
+</header>
 
-  <div class="actions">
-    <button id="btn-plant" class="btn">씨앗 심기</button>
-    <button id="btn-water" class="btn">물 주기</button>
-    <button id="btn-fert"  class="btn">거름 주기</button>
-    <button id="btn-harv"  class="btn" disabled>수확</button>
-    <button id="btn-pop"   class="btn" disabled>뻥튀기</button>
-    <button id="btn-ex"    class="btn">팝콘↔거름</button>
+<div class="gauge"><div class="gfill" id="gfill" style="--p:0%"></div><div class="gnum" id="gnum">0</div></div>
+
+<div class="level-box">
+  <img id="levelIconMini" src="https://byungil-cho.github.io/OrcaX/img/mark_01.png" alt="레벨 아이콘" />
+  <div><div id="levelText">Lv.1</div><div class="expbar"><span id="expBar"></span></div></div>
+</div>
+
+<div class="mini-wrap">
+  <a class="nav" href="corn-index.html" title="이전">⬅️</a>
+  <img id="miniImg" alt="작물 상태" />
+  <a class="nav" href="https://byungil-cho.github.io/OrcaX/index9.html" title="감자 농장">🥔</a>
+  <div id="miniCap">상태 확인 중…</div>
+</div>
+
+<div class="actions">
+  <button id="btn-plant" class="btn">씨앗 심기</button>
+  <button id="btn-water" class="btn">물 주기</button>
+  <button id="btn-fert"  class="btn">거름 주기</button>
+  <button id="btn-harv"  class="btn" disabled>수확</button>
+  <button id="btn-pop"   class="btn" disabled>뻥튀기</button>
+  <button id="btn-ex"    class="btn">팝콘↔거름</button>
+</div>
+
+<div id="toast"></div>
+
+<!-- 구매 모달 -->
+<div id="buyModal" class="modal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="buyTitle">
+    <h3 id="buyTitle">구매하기</h3>
+    <div>현재 토큰: <span id="currentTokens">0</span></div>
+    <button onclick="handleBuy('salt',10)">소금 구매 (10 토큰)</button>
+    <button onclick="handleBuy('sugar',20)">설탕 구매 (20 토큰)</button>
+    <button onclick="handleBuy('seeds',100)">씨앗 구매 (100 토큰)</button>
+    <button onclick="closeBuy()">닫기</button>
   </div>
+</div>
 
-  <div id="toast"></div>
+<script defer src="./js/corn-api.js?v=20250814-merge"></script>
+<script>
+  document.getElementById('btn-buy').onclick = () => {
+    document.getElementById('currentTokens').textContent = (S.orcx|0);
+    const m = document.getElementById('buyModal'); m.style.display='flex'; m.setAttribute('aria-hidden','false');
+  };
+  function closeBuy(){ const m=document.getElementById('buyModal'); m.style.display='none'; m.setAttribute('aria-hidden','true'); }
+  document.getElementById('buyModal').addEventListener('click',e=>{ if(e.target.id==='buyModal') closeBuy(); });
+  window.closeBuy = closeBuy;
 
-  <!-- 구매 모달 -->
-  <div id="buyModal" class="modal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="buyTitle">
-      <h3 id="buyTitle">구매하기</h3>
-      <div>현재 토큰: <span id="currentTokens">0</span></div>
-      <button onclick="handleBuy('salt',10)">소금 구매 (10 토큰)</button>
-      <button onclick="handleBuy('sugar',20)">설탕 구매 (20 토큰)</button>
-      <button onclick="handleBuy('seeds',100)">씨앗 구매 (100 토큰)</button>
-      <button onclick="closeBuy()">닫기</button>
-    </div>
-  </div>
-
-  <script defer src="./js/corn-api.js?v=20250813"></script>
-  <script>
-    // 구매 열기
-    document.getElementById('btn-buy').onclick = () => {
-      document.getElementById('currentTokens').textContent = (S.orcx|0);
-      const m = document.getElementById('buyModal');
-      m.style.display = 'flex'; m.setAttribute('aria-hidden','false');
-    };
-    // 닫기(+오버레이 클릭 닫힘)
-    function closeBuy(){ const m=document.getElementById('buyModal'); m.style.display='none'; m.setAttribute('aria-hidden','true'); }
-    document.getElementById('buyModal').addEventListener('click',e=>{ if(e.target.id==='buyModal') closeBuy(); });
-    window.closeBuy = closeBuy;
-
-    // 구매 처리: 서버 성공시에만 loadUser()
-    async function handleBuy(type, price){
-      if ((S.orcx|0) < price){ alert('토큰이 부족합니다.'); return; }
-      const r = await buyItem(type); // {synced:boolean}
-      if (r && r.synced) await loadUser(); // 서버 반영된 경우에만 동기화
-      closeBuy();
-    }
-    window.handleBuy = handleBuy;
-  </script>
+  async function handleBuy(type, price){
+    if ((S.orcx|0) < price){ alert('토큰이 부족합니다.'); return; }
+    const r = await buyItem(type);
+    if (r && r.synced) await loadAll(); // 두 컬렉션 재동기화
+    closeBuy();
+  }
+  window.handleBuy = handleBuy;
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
