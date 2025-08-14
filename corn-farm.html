@@ -133,14 +133,12 @@
     }
     .modal{
       position:fixed;top:0;left:0;width:100%;height:100%;
-      /* 연하게: 0.25 */
-      background:rgba(0,0,0,.25);
+      background:rgba(0,0,0,.25); /* 연하게 */
       display:none;align-items:center;justify-content:center;
       z-index:20;
     }
     .modal-content{
-      /* 박스도 살짝 연하게: 0.70 */
-      background:rgba(34,34,34,.70);
+      background:rgba(34,34,34,.70); /* 박스도 연하게 */
       padding:20px;border-radius:10px;color:#fff;text-align:center;
     }
     .modal-content button{
@@ -240,7 +238,7 @@
     document.getElementById('buyModal').addEventListener('click', (e) => {
       if (e.target.id === 'buyModal') closeBuy();
     });
-    window.closeBuy = closeBuy; // inline 버튼 호환
+    window.closeBuy = closeBuy;
 
     // 구매 처리
     async function handleBuy(type, price){
@@ -250,7 +248,7 @@
       await __corn.loadUser();
       closeBuy();
     }
-    window.handleBuy = handleBuy; // inline 버튼 호환
+    window.handleBuy = handleBuy;
   </script>
 </body>
 </html>
