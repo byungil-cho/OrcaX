@@ -11,7 +11,7 @@
     const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io/api';
     const BASE_API = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/, '');
 
-    // 카카오 로그인 체크 (기존 유지)
+    // 카카오 로그인 체크(기존 유지)
     const kakaoId  = localStorage.getItem('kakaoId');
     const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
     if (!kakaoId || !nickname) {
@@ -26,8 +26,8 @@
 
   <style>
     :root{ --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18); --ok:#25d366; }
-    html,body{ height:100%; margin:0; color:var(--ink); background:transparent;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
+    html,body{ height:100%; margin:0; color:var(--ink);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; background:transparent; }
     #bg{ position:fixed; inset:0; width:100%; height:100%; z-index:-1;
       background:url('https://byungil-cho.github.io/OrcaX/img/farm_05.png') center/cover no-repeat; }
     header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
@@ -106,17 +106,11 @@
     </div>
   </header>
 
-  <div class="gauge">
-    <div class="gfill" id="gfill" style="--p:0%"></div>
-    <div class="gnum" id="gnum">0</div>
-  </div>
+  <div class="gauge"><div class="gfill" id="gfill" style="--p:0%"></div><div class="gnum" id="gnum">0</div></div>
 
   <div class="level-box">
     <img id="levelIconMini" src="https://byungil-cho.github.io/OrcaX/img/mark_01.png" alt="레벨 아이콘" />
-    <div>
-      <div id="levelText">Lv.1</div>
-      <div class="expbar"><span id="expBar"></span></div>
-    </div>
+    <div><div id="levelText">Lv.1</div><div class="expbar"><span id="expBar"></span></div></div>
   </div>
 
   <div class="mini-wrap">
@@ -149,7 +143,7 @@
     </div>
   </div>
 
-  <script defer src="./js/corn-api.js?v=20250814c"></script>
+  <script defer src="./js/corn-api.js?v=20250814-spec"></script>
   <script>
     // 구매 열기/닫기
     document.getElementById('btn-buy').onclick = () => {
@@ -161,17 +155,19 @@
     document.getElementById('buyModal').addEventListener('click',e=>{ if(e.target.id==='buyModal') closeBuy(); });
     window.closeBuy = closeBuy;
 
-    // 구매 처리(서버 성공시에만 동기화)
+    // 구매 처리
     async function handleBuy(type, price){
       if ((S.orcx|0) < price){ alert('토큰이 부족합니다.'); return; }
-      const r = await buyItem(type);             // {synced:boolean}
-      if (r && r.synced) await loadUser();       // 서버 반영된 경우만 동기화
+      const r = await buyItem(type);           // {synced:boolean}
+      if (r && r.synced) await loadUser();     // 서버 반영된 경우에만 동기화
       closeBuy();
     }
     window.handleBuy = handleBuy;
   </script>
 </body>
 </html>
+
+
 
 
 
