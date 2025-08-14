@@ -7,6 +7,7 @@
 
   <script>
     'use strict';
+    // ===== API 베이스 (카카오 로그인 값 필수) =====
     const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
     const BASE_API = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/, '');
     const kakaoId  = localStorage.getItem('kakaoId');
@@ -16,7 +17,7 @@
         const netTxt = document.getElementById('netTxt');
         if (netTxt) netTxt.textContent = '로그인 필요';
       });
-      alert('로그인이 필요합니다. (corn-index 페이지로 이동)');
+      alert('로그인이 필요합니다. (corn-index.html로 이동)');
       location.href = 'corn-index.html';
     }
   </script>
@@ -140,29 +141,30 @@
     </div>
   </div>
 
-  <script defer src="./js/corn-api.js?v=20250813"></script>
+  <script defer src="./js/corn-api.js?v=20250814"></script>
   <script>
-    // 구매 열기
+    // 구매 열기/닫기
     document.getElementById('btn-buy').onclick = () => {
       document.getElementById('currentTokens').textContent = (S.orcx|0);
       const m = document.getElementById('buyModal');
       m.style.display = 'flex'; m.setAttribute('aria-hidden','false');
     };
-    // 닫기(+오버레이 클릭 닫힘)
     function closeBuy(){ const m=document.getElementById('buyModal'); m.style.display='none'; m.setAttribute('aria-hidden','true'); }
     document.getElementById('buyModal').addEventListener('click',e=>{ if(e.target.id==='buyModal') closeBuy(); });
     window.closeBuy = closeBuy;
 
-    // 구매 처리: 서버 성공시에만 loadUser()
+    // 구매 처리(성공시에만 서버 동기화)
     async function handleBuy(type, price){
       if ((S.orcx|0) < price){ alert('토큰이 부족합니다.'); return; }
-      const r = await buyItem(type); // {synced:boolean}
-      if (r && r.synced) await loadUser(); // 서버 반영된 경우에만 동기화
+      const r = await buyItem(type);             // {synced:boolean}
+      if (r && r.synced) await loadUser();       // 서버 반영된 경우만 동기화
       closeBuy();
     }
     window.handleBuy = handleBuy;
   </script>
 </body>
 </html>
+
+
 
 
