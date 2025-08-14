@@ -23,7 +23,6 @@
   </script>
 
   <style>
-    /* 원본 CSS 전부 유지 */
     :root{
       --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18);
       --ok:#25d366;
@@ -38,7 +37,9 @@
     #bg{
       position:fixed; inset:0; width:100%; height:100%;
       z-index:-1;
-      background:url('https://byungil-cho.github.io/OrcaX/img/farm_05.png') center / cover no-repeat;
+      background:
+        url('https://byungil-cho.github.io/OrcaX/img/farm_05.png')
+        center / cover no-repeat;
     }
     header{
       position:fixed;left:10px;right:10px;top:10px;z-index:9;
@@ -57,6 +58,7 @@
       padding:6px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.08);
       font-size:12px}
     .tag b{font-variant-numeric:tabular-nums}
+
     .actions{
       position:fixed;left:10px;right:10px;bottom:10px;z-index:8;
       display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
@@ -68,6 +70,8 @@
       padding:10px 8px;font-size:13px;cursor:pointer
     }
     .btn[disabled]{opacity:.55;pointer-events:none}
+
+    /* 원형 게이지 */
     .gauge{
       position:fixed;
       left:10px;
@@ -80,6 +84,8 @@
     .gfill{position:absolute;inset:0;background:
       conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0)}
     .gnum{position:relative;font-weight:800;font-variant-numeric:tabular-nums}
+
+    /* 레벨 캐릭터 박스 */
     .level-box{
       position:fixed;
       left:10px;
@@ -96,6 +102,8 @@
     }
     .expbar{width:120px;height:6px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.15);overflow:hidden}
     .expbar span{display:block;height:100%;width:0;background:#8ed36b}
+
+    /* 미니 이미지 박스 */
     .mini-wrap{
       position:fixed;
       left:50%;
@@ -113,9 +121,12 @@
     .nav{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;color:#fff;text-decoration:none;border:1px solid var(--bd);background:rgba(0,0,0,.35)}
     #miniImg{width:120px;height:120px;border-radius:12px;border:1px solid var(--bd);object-fit:cover;background:#000;flex:0 0 auto}
     #miniCap{font-size:12px;opacity:.9;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
     #toast{position:fixed;left:50%;transform:translateX(-50%);top:62px;z-index:10;
       background:rgba(0,0,0,.65);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;display:none}
     #toast.show{display:block}
+
+    /* 🔹 구매 버튼 & 모달 스타일 */
     .btn-buy{
       border:1px solid var(--bd);background:rgba(0,0,0,.25);color:#fff;
       border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer;
@@ -126,7 +137,7 @@
       z-index:20;
     }
     .modal-content{
-      background:rgba(34,34,34,0.65); /* 연하게 변경 */
+      background:rgba(34,34,34,0.85); /* 밝기 조정 */
       padding:20px;border-radius:10px;color:#fff;text-align:center;
     }
     .modal-content button{
@@ -134,6 +145,7 @@
       border:1px solid var(--bd);background:rgba(255,255,255,.1);color:#fff;
       border-radius:8px;cursor:pointer
     }
+
     @media (max-width:680px){
       .actions{grid-template-columns:repeat(2,1fr)}
       #miniImg{width:96px;height:96px}
@@ -162,7 +174,36 @@
     </div>
   </header>
 
-  <!-- 나머지 UI/기능 원본 그대로 유지 -->
+  <div class="gauge">
+    <div class="gfill" id="gfill" style="--p:0%"></div>
+    <div class="gnum" id="gnum">0</div>
+  </div>
+
+  <div class="level-box">
+    <img id="levelIconMini" src="https://byungil-cho.github.io/OrcaX/img/mark_01.png" alt="레벨 아이콘" />
+    <div>
+      <div id="levelText">Lv.1</div>
+      <div class="expbar"><span id="expBar"></span></div>
+    </div>
+  </div>
+
+  <div class="mini-wrap">
+    <a class="nav" href="corn-index.html" title="이전">⬅️</a>
+    <img id="miniImg" alt="작물 상태" />
+    <a class="nav" href="https://byungil-cho.github.io/OrcaX/index9.html" title="감자 농장">🥔</a>
+    <div id="miniCap">상태 확인 중…</div>
+  </div>
+
+  <div class="actions">
+    <button id="btn-plant" class="btn">씨앗 심기</button>
+    <button id="btn-water" class="btn">물 주기</button>
+    <button id="btn-fert"  class="btn">거름 주기</button>
+    <button id="btn-harv"  class="btn" disabled>수확</button>
+    <button id="btn-pop"   class="btn" disabled>뻥튀기</button>
+    <button id="btn-ex"    class="btn">팝콘↔거름</button>
+  </div>
+
+  <div id="toast"></div>
 
   <div id="buyModal" class="modal">
     <div class="modal-content">
@@ -175,25 +216,16 @@
     </div>
   </div>
 
-  <script src="./js/corn-api.js?v=20250813"></script>
+  <script defer src="./js/corn-api.js?v=20250813"></script>
   <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btn-buy').addEventListener('click', () => {
-        document.getElementById('buyModal').style.display = 'flex';
-        document.getElementById('currentTokens').textContent =
-          (typeof S !== 'undefined' && typeof S.orcx !== 'undefined') ? S.orcx : 0;
-      });
-    });
-
+    document.getElementById('btn-buy').onclick = () => {
+      document.getElementById('currentTokens').textContent = S.orcx;
+      document.getElementById('buyModal').style.display = 'flex';
+    };
     function closeBuy(){
       document.getElementById('buyModal').style.display = 'none';
     }
-
     async function handleBuy(type, price){
-      if (typeof S === 'undefined' || typeof buyItem !== 'function') {
-        alert('구매 기능이 아직 준비되지 않았습니다.');
-        return;
-      }
       if (S.orcx < price){
         alert('토큰이 부족합니다.');
         return;
@@ -205,6 +237,7 @@
   </script>
 </body>
 </html>
+
 
 
 
