@@ -7,9 +7,13 @@
 
 <script>
   'use strict';
-  /* 감자와 동일 서버(/api 포함). 필요 시 localStorage['orcax:BASE_API']로 덮어쓰기 */
-  const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io/api';
-  const BASE_API = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/,'');
+  /* ✅ 인덱스와 동일 규칙: BASE_ORIGIN에는 /api가 없는 “도메인”만 저장.
+     요청할 때만 '/api/...'를 붙인다. (이러면 /api/api 중복 및 404 방지) */
+  const DEFAULT_ORIGIN = 'https://climbing-wholly-grouper.jp.ngrok.io';
+  const BASE_ORIGIN = (localStorage.getItem('orcax:BASE_API') || DEFAULT_ORIGIN).replace(/\/+$/,'');
+  const API = (p) => `${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
+
+  // 로그인 필요 확인 (인덱스와 동일하게 kakaoId/nickname을 본다)
   const kakaoId  = localStorage.getItem('kakaoId');
   const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
   if (!kakaoId || !nickname) {
@@ -17,6 +21,27 @@
       const netTxt = document.getElementById('netTxt'); if (netTxt) netTxt.textContent = '로그인 필요';
     });
     alert('로그인이 필요합니다. (corn-index.html로 이동)'); location.href = 'corn-index.html';
+  }
+
+  // 공통 fetch(JSON) 도우미
+  async function jfetch(url, { method='GET', query, body, headers } = {}){
+    let u = url;
+    if (query && typeof query === 'object'){
+      const qs = new URLSearchParams();
+      for (const [k,v] of Object.entries(query)) if (v!==undefined && v!==null) qs.set(k, String(v));
+      const q = qs.toString(); if (q) u += (u.includes('?') ? '&' : '?') + q;
+    }
+    const opts = { method, headers: Object.assign({ 'Accept': 'application/json' }, headers||{}) };
+    if (body !== undefined && body !== null){
+      opts.headers['Content-Type'] = 'application/json';
+      opts.body = JSON.stringify(body);
+    }
+    const r = await fetch(u, Object.assign(opts, { mode:'cors', cache:'no-store' }));
+    const t = await r.text();
+    const isJson = (r.headers.get('content-type')||'').includes('application/json');
+    const data = t ? (isJson ? JSON.parse(t) : { raw:t }) : {};
+    if (!r.ok){ const err = new Error(`HTTP ${r.status}`); err.data = data; throw err; }
+    return data;
   }
 </script>
 
@@ -71,7 +96,6 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   background:rgba(0,0,0,.65); color:#fff; border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none }
 #toast.show{ display:block }
 
-/* 구매 모달 (필름 연하게) */
 .btn-buy{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:8px; padding:4px 8px; font-size:12px; cursor:pointer; }
 .modal{ position:fixed; inset:0; background:rgba(0,0,0,.22); display:none; align-items:center; justify-content:center; z-index:20; }
 .modal-content{ background:rgba(34,34,34,.70); padding:20px; border-radius:10px; color:#fff; text-align:center; }
@@ -139,8 +163,72 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   </div>
 </div>
 
-<script defer src="./js/corn-api.js?v=20250814-merge"></script>
 <script>
+  // === 상태 표시 도우미 ===
+  const S = { orcx:0 };
+  function setNet(ok, msg){
+    const dot = document.getElementById('netDot');
+    const txt = document.getElementById('netTxt');
+    if (dot) dot.classList.toggle('ok', !!ok);
+    if (txt) txt.textContent = ok ? (msg || '온라인') : (msg || '오프라인/연결 실패');
+  }
+  function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1500); }
+
+  // === UI 갱신 ===
+  function paintFromUser(user){
+    if (!user) return;
+    document.getElementById('nick').textContent = user.nickname || nickname || '';
+    document.getElementById('r-water').textContent = Number(user.inventory?.water||0);
+    document.getElementById('r-fert').textContent  = Number(user.inventory?.fertilizer||0);
+    document.getElementById('r-orcx').textContent  = Number(user.wallet?.orcx ?? user.orcx ?? 0);
+    S.orcx = Number(user.wallet?.orcx ?? user.orcx ?? 0);
+    document.getElementById('currentTokens').textContent = S.orcx|0;
+  }
+  function paintFromCorn(s){
+    if (!s) return;
+    document.getElementById('r-seeds').textContent = Number(s.agri?.seeds||0);
+    document.getElementById('r-corn').textContent  = Number(s.agri?.corn||0);
+    document.getElementById('r-pop').textContent   = Number(s.food?.popcorn||0);
+    document.getElementById('r-salt').textContent  = Number(s.additives?.salt||0);
+    document.getElementById('r-sugar').textContent = Number(s.additives?.sugar||0);
+    // 미니 이미지/게이지는 서버 스펙에 맞춰 필요 시 매핑
+    const g = Math.max(0, Math.min(100, Number(s.g||0)));
+    document.getElementById('gfill').style.setProperty('--p', g+'%');
+    document.getElementById('gnum').textContent = g|0;
+    document.getElementById('miniImg').src = (g>=100)
+      ? 'https://byungil-cho.github.io/OrcaX/img/corn_ready.png'
+      : 'https://byungil-cho.github.io/OrcaX/img/corn_seedling.png';
+    document.getElementById('miniCap').textContent = (s.phase || 'IDLE');
+  }
+
+  // === API 호출 ===
+  async function apiUserdata(){
+    return await jfetch(API('userdata'), { method:'POST', body:{ kakaoId, nickname } });
+  }
+  async function apiCornSummary(){
+    return await jfetch(API('corn/summary'), { method:'GET', query:{ kakaoId } });
+  }
+  async function apiBuyAdditive(item, qty=1){
+    // seeds → seed 호환
+    const it = (item === 'seeds') ? 'seed' : item;
+    return await jfetch(API('corn/buy-additive'), { method:'POST', body:{ kakaoId, item:it, qty:Number(qty)||1 } });
+  }
+
+  // === 로드 & 구매 핸들러 ===
+  async function loadAll(){
+    try{
+      const [ud, cs] = await Promise.all([ apiUserdata(), apiCornSummary() ]);
+      // /api/userdata 응답 형식: { success:true, user:{...} } 또는 { ok:true, ... } 케이스 공통 처리
+      const user = ud.user || ud.data || ud;
+      paintFromUser(user);
+      paintFromCorn(cs);
+      setNet(true, '온라인');
+    }catch(e){
+      setNet(false, '연결 실패'); console.error(e);
+      toast('서버 연결 실패');
+    }
+  }
+
   document.getElementById('btn-buy').onclick = () => {
     document.getElementById('currentTokens').textContent = (S.orcx|0);
     const m = document.getElementById('buyModal'); m.style.display='flex'; m.setAttribute('aria-hidden','false');
@@ -150,12 +238,20 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   window.closeBuy = closeBuy;
 
   async function handleBuy(type, price){
-    if ((S.orcx|0) < price){ alert('토큰이 부족합니다.'); return; }
-    const r = await buyItem(type);
-    if (r && r.synced) await loadAll(); // 두 컬렉션 재동기화
-    closeBuy();
+    try{
+      if ((S.orcx|0) < Number(price||0)){ alert('토큰이 부족합니다.'); return; }
+      await apiBuyAdditive(type, 1);
+      await loadAll(); // 재동기화
+      closeBuy();
+      toast('구매 완료');
+    }catch(e){
+      console.error(e); alert('구매 실패');
+    }
   }
   window.handleBuy = handleBuy;
+
+  // 초기 로드
+  document.addEventListener('DOMContentLoaded', loadAll);
 </script>
 </body>
 </html>
