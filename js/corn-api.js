@@ -1,4 +1,3 @@
-/* js/corn-api.js */
 (function(){
   'use strict';
 
@@ -30,6 +29,7 @@
     seeds:0, water:0, fertilizer:0,
     corn:0, popcorn:0, salt:0, sugar:0, orcx:0,
     gradeInv:{A:0,B:0,C:0,D:0,E:0,F:0},
+    lastGrade: null // 🔹 추가: 마지막 수확 등급 저장
   }, safeParse(localStorage.getItem('corn_state')) || {});
   function save(){ try{ localStorage.setItem('corn_state', JSON.stringify(S)); }catch(e){} }
   function safeParse(x){ try{ return JSON.parse(x); }catch(_){ return null; } }
@@ -64,6 +64,13 @@
       S.salt       = (u.additives?.salt ?? S.salt)|0;
       S.sugar      = (u.additives?.sugar ?? S.sugar)|0;
 
+      // 🔹 DB 값 직접 보정
+      if (typeof u.seeds === 'number') S.seeds = u.seeds;
+      if (u.additives) {
+        if (typeof u.additives.salt === 'number') S.salt = u.additives.salt;
+        if (typeof u.additives.sugar === 'number') S.sugar = u.additives.sugar;
+      }
+
       S.level = Math.max(1, Number((u.level ?? u.profile?.level ?? S.level) || 1));
       S.exp   = Math.max(0, Number((u.profile?.exp ?? S.exp) || 0));
       S.phase = (u.agri?.phase || S.phase || 'IDLE');
@@ -78,19 +85,17 @@
     }
   }
 
-  /* ===== 액션 ===== */
+  /* ===== 기존 액션 ===== */
   async function plant(){
     if(!kakaoId || !nickname) return;
     if((S.seeds|0) <= 0){ toast('씨앗이 없습니다'); return; }
     try{
       const res = await j('/api/corn/plant', { kakaoId });
-      // 서버가 seeds를 돌려주면 반영
       const inv = res?.inventory || res?.agri || res;
       if(typeof inv?.seeds === 'number') S.seeds = inv.seeds;
       S.phase='GROW'; S.g=0; gainExp(8);
       await loadUser(); toast('씨앗 심었습니다');
     }catch(e){
-      // 오프라인 임시 처리
       S.seeds = Math.max(0, (S.seeds|0) - 1);
       S.phase='GROW'; S.g=0; gainExp(8); renderAll(); save(); toast('씨앗(로컬)');
     }
@@ -120,7 +125,6 @@
     localStreak++; const grade = gradeFromStreak(localStreak);
     try{
       const res = await j('/api/corn/harvest', { kakaoId, grade });
-      // 서버 응답에 corn/seeds 포함되면 반영
       if(typeof res?.agri?.corn === 'number') S.corn = res.agri.corn;
       if(typeof res?.seeds === 'number') S.seeds = res.seeds;
       S.phase='STUBBLE'; S.g=0; gainExp(12);
@@ -132,8 +136,6 @@
       renderAll(); save(); toast(`수확(로컬) · ${grade}`);
     }
   }
-
-  function popcornChance(grade){ return ({A:.9,B:.75,C:.6,D:.4,E:.2,F:.1})[grade] ?? .5; }
 
   async function pop(){
     if(!kakaoId || !nickname) return;
@@ -147,7 +149,8 @@
     }catch(e){
       S.corn--; S.salt--; S.sugar--; S.orcx-=30;
       if(Math.random() < popcornChance(lastGrade)){ S.popcorn++; toast('🍿 +1'); }
-      else{ const drop=[1,2,3,5][Math.floor(Math.random()*4)]; S.orcx+=drop; toast(`🪙 +${drop}`); }
+      else{ const drop=[1,2,3,5][Math.floor(Math.random()*4)]; S.orcx+=drop; toast(`🪙 +${drop}`);
+      }
       gainExp(2); renderAll(); save();
     }
   }
@@ -182,7 +185,6 @@
     dom.expBar.style.width = `${Math.max(0,Math.min(99,S.exp))}%`;
   }
 
-  // 성장도에 따라 배경 교체
   function pickBgFile(){
     const g=S.g|0;
     if(g<=29) return 'farm_05.png';
@@ -237,7 +239,6 @@
 
   function renderAll(){ renderLevel(); renderGauge(); applyBg(); renderMini(); renderRes(); }
 
-  /* ===== 바인딩/부팅 ===== */
   function bind(){
     if (dom.btnPlant) dom.btnPlant.onclick = () => plant();
     if (dom.btnWater) dom.btnWater.onclick = () => useResource('water');
@@ -251,5 +252,94 @@
   (async function boot(){
     renderAll(); bind(); await loadUser();
   })();
+
+  /* ==========================================================
+     🔹 추가 기능: 수확 등급 판정, 뻥튀기 보상, 구매 시스템
+  ========================================================== */
+
+  // 뻥튀기 보상 테이블
+  let POP_REWARDS = {
+    A: [1000, 900, 800, '팝콘'],
+    B: [800, 700, 600, '팝콘'],
+    C: [600, 500, 400, '팝콘'],
+    D: [400, 300, 200, '팝콘'],
+    E: [200, 100,  50, '팝콘'],
+    F: [100,  50,  10, '팝콘']
+  };
+  let plantDate = null;
+
+  // 심기 시 날짜 기록
+  const origPlant = plant;
+  plant = async function(){
+    plantDate = Date.now();
+    await origPlant();
+  };
+
+  // 등급 판정
+  function gradeFromDays(days){
+    if (days <= 5) return 'A';
+    if (days <= 6) return 'B';
+    if (days <= 7) return 'C';
+    if (days <= 8) return 'D';
+    if (days <= 9) return 'E';
+    return 'F';
+  }
+
+  // 수확 시 등급/수량 지급
+  const origHarvest = harvest;
+  harvest = async function(){
+    await origHarvest();
+    if (plantDate){
+      const days = Math.floor((Date.now() - plantDate) / (1000*60*60*24));
+      const grade = gradeFromDays(days);
+      const count = [5,7,9][Math.floor(Math.random()*3)];
+      S.corn += count;
+      S.lastGrade = grade;
+      toast(`등급 ${grade} · 옥수수 ${count}개 수확`);
+      plantDate = null;
+      renderAll(); save();
+    }
+  };
+
+  // 뻥튀기 보상 적용 + 소금/설탕 필수 소모
+  const origPop = pop;
+  pop = async function(){
+    if (S.corn<1){ toast('옥수수 없음'); return; }
+    if (S.salt<1 || S.sugar<1){ toast('소금/설탕 부족'); return; }
+    if (S.orcx<30){ toast('토큰 부족'); return; }
+
+    S.corn--; S.salt--; S.sugar--; S.orcx -= 30;
+
+    const grade = S.lastGrade || 'C';
+    const rewards = POP_REWARDS[grade] || POP_REWARDS.C;
+    const pick = rewards[Math.floor(Math.random()*rewards.length)];
+
+    if (pick === '팝콘'){
+      S.popcorn++; toast('🍿 팝콘 당첨');
+    } else {
+      S.orcx += pick; toast(`🪙 ${pick} 토큰 당첨`);
+    }
+    renderAll(); save();
+  };
+
+  // 구매 시스템
+  async function buyItem(type){
+    const prices = { salt:10, sugar:20, seeds:100 };
+    const price = prices[type];
+    if (!price){ toast('잘못된 품목'); return; }
+    if (S.orcx < price){ toast('토큰 부족'); return; }
+
+    S.orcx -= price;
+    if (type === 'salt') S.salt++;
+    else if (type === 'sugar') S.sugar++;
+    else if (type === 'seeds') S.seeds++;
+
+    toast(`${type} 구매 완료`);
+    renderAll(); save();
+
+    try {
+      await j('/api/corn/buy', { kakaoId, item:type, qty:1 });
+    } catch(e) {}
+  }
 
 })();
