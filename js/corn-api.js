@@ -33,15 +33,13 @@
   function save(){ try{ localStorage.setItem('corn_state', JSON.stringify(S)); }catch(_){} }
   function safeParse(x){ try{ return JSON.parse(x); }catch(_){ return null; } }
 
-  /* ===== API 기본 경로 =====
-     감자밭과 동일: https://climbing-wholly-grouper.jp.ngrok.io/api
-     (필요 시 localStorage['orcax:BASE_API']로 현장 오버라이드) */
+  /* ===== API 루트 ===== */
   const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io/api';
   const API_ROOT = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/, '');
 
-  /* ===== 서버 호출 헬퍼 ===== */
+  /* ===== 서버 통신 ===== */
   async function j(path, body={}, method='POST'){
-    // path는 /userdata, /seed/buy 처럼 /api 없이 시작
+    // path는 /corn/summary, /corn/seed 같은 '/api' 없는 절대경로 조각
     const r = await fetch(`${API_ROOT}${path}`, {
       method, headers:{'Content-Type':'application/json'},
       body: method === 'GET' ? undefined : JSON.stringify(body),
@@ -52,20 +50,20 @@
     return d;
   }
 
-  /* ===== 유저/인벤토리 동기화 (온라인 성공 시 서버값만 신뢰) ===== */
+  /* ===== 유저/인벤 동기화 (온라인 성공 시 서버값만 신뢰) ===== */
   async function loadUser(){
     if(!kakaoId || !nickname) return;
     try{
-      const data = await j('/userdata', { kakaoId });
+      const data = await j('/corn/summary', { kakaoId }); // ← spec: 요약 엔드포인트
       const u = data?.user || data?.data?.user || {};
 
       S.online = true; dom.netDot.classList.add('ok'); dom.netTxt.textContent = '온라인';
       dom.nick.textContent = nickname;
 
-      // ✅ 서버 우선, 로컬 fallback 금지
+      // 서버 우선, 로컬 보정 금지
       const num = v => (typeof v === 'number' ? v : 0);
       S.orcx       = num(u.wallet?.orcx ?? u.orcx);
-      S.seeds      = num(u.seeds ?? u.inventory?.seeds ?? u.agri?.seeds);
+      S.seeds      = num(u.inventory?.seedCorn ?? u.seeds ?? u.agri?.seeds);
       S.water      = num(u.inventory?.water);
       S.fertilizer = num(u.inventory?.fertilizer);
       S.corn       = num(u.agri?.corn ?? u.corn);
@@ -73,7 +71,6 @@
       S.salt       = num(u.additives?.salt);
       S.sugar      = num(u.additives?.sugar);
 
-      // 레벨/경험/단계
       S.level = Math.max(1, Number((u.level ?? u.profile?.level ?? S.level) || 1));
       S.exp   = Math.max(0, Number((u.profile?.exp ?? S.exp) || 0));
       S.phase = (u.agri?.phase || 'IDLE');
@@ -92,12 +89,12 @@
     if(!kakaoId || !nickname) return;
     if((S.seeds|0) <= 0){ toast('씨앗이 없습니다'); return; }
     try{
-      const res = await j('/corn/plant', { kakaoId });
-      const inv = res?.inventory || res?.agri || res;
-      if(typeof inv?.seeds === 'number') S.seeds = inv.seeds;
+      // spec에 맞춰 /corn/seed 사용. op:'plant'
+      await j('/corn/seed', { kakaoId, op:'plant', qty:1 });
       S.phase='GROW'; S.g=0; gainExp(8);
       await loadUser(); toast('씨앗 심었습니다');
     }catch(e){
+      // 서버 실패 시 임시 로컬(기능 유지), 단 저장은 허용
       S.seeds = Math.max(0, (S.seeds|0) - 1);
       S.phase='GROW'; S.g=0; gainExp(8); renderAll(); save(); toast('씨앗(로컬)');
     }
@@ -126,9 +123,7 @@
     if(!(S.phase==='GROW' && S.g>=100)){ toast('아직 수확 단계 아님'); return; }
     localStreak++;
     try{
-      const res = await j('/corn/harvest', { kakaoId, grade:gradeFromStreak(localStreak) });
-      if(typeof res?.agri?.corn === 'number') S.corn = res.agri.corn;
-      if(typeof res?.seeds === 'number') S.seeds = res.seeds;
+      await j('/corn/harvest', { kakaoId, grade:gradeFromStreak(localStreak) });
       S.phase='STUBBLE'; S.g=0; gainExp(12);
       await loadUser(); toast('수확 완료');
     }catch(e){
@@ -156,7 +151,7 @@
     if(!kakaoId || !nickname) return;
     if(S.popcorn<1){ toast('팝콘 부족'); return; }
     try{
-      await j('/corn/exchange', { kakaoId, from:'popcorn', to:'fertilizer', qty:1 });
+      await j('/corn/exchange/pop-to-fert', { kakaoId, qty:1 }); // ← spec
       await loadUser(); toast('팝콘→거름 교환');
     }catch(e){
       S.popcorn--; S.fertilizer++; renderAll(); save(); toast('교환(로컬)');
@@ -198,11 +193,12 @@
 
   (async function boot(){ renderAll(); bind(); await loadUser(); })();
 
-  /* ====================== 구매(감자밭 방식으로 서버 직통) ======================
-     - 씨앗: /seed/buy  (seedType:'corn')
-     - 소금/설탕: /additives/buy (type:'salt'|'sugar')
-     - 성공 시에만 반영/동기화, 실패 시 로컬 반영/저장 모두 안 함
-  ============================================================================ */
+  /* ====================== 구매 (spec 기반) ======================
+     - 씨앗:  /corn/seed  (op:'buy',  qty, tokenCost)
+     - 심기:  /corn/seed  (op:'plant', qty)
+     - 첨가물: /additives/buy (type:'salt'|'sugar', qty, tokenCost)
+     - 서버 성공시에만 synced:true, 실패 시 저장/로컬반영 모두 금지
+  =============================================================== */
 
   async function buyItem(type){
     const prices = { salt:10, sugar:20, seeds:100 };
@@ -213,7 +209,7 @@
 
     try{
       if (type === 'seeds'){
-        await j('/seed/buy', { kakaoId, seedType:'corn', qty:1, tokenCost:price });
+        await j('/corn/seed', { kakaoId, op:'buy', seed:'corn', qty:1, tokenCost:price });
       } else if (type === 'salt' || type === 'sugar'){
         await j('/additives/buy', { kakaoId, type, qty:1, tokenCost:price });
       } else {
@@ -222,19 +218,20 @@
       toast(`${label} 구매 완료`);
       return {synced:true};
     }catch(e){
-      // 서버 실패 → 반영/저장 모두 금지 (유령데이터 방지)
       toast(`${label} 구매 실패(서버)`);
       return {synced:false, error:e};
     }
   }
 
-  /* ===== 전역 호환 브리지 ===== */
+  /* ===== 전역 브리지 ===== */
   window.S = S;
   window.buyItem = buyItem;
   window.loadUser = loadUser;
   window.__corn = { get state(){ return S; }, loadUser, buyItem };
 
 })();
+
+
 
 
 
