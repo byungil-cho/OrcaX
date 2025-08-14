@@ -240,7 +240,7 @@
     document.getElementById('buyModal').addEventListener('click', (e) => {
       if (e.target.id === 'buyModal') closeBuy();
     });
-    window.closeBuy = closeBuy; // 기존 inline onclick 호환
+    window.closeBuy = closeBuy; // inline 버튼 호환
 
     // 구매 처리
     async function handleBuy(type, price){
@@ -250,21 +250,7 @@
       await __corn.loadUser();
       closeBuy();
     }
-    window.handleBuy = handleBuy; // 기존 inline onclick 호환
+    window.handleBuy = handleBuy; // inline 버튼 호환
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
