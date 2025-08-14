@@ -7,9 +7,11 @@
 
   <script>
     'use strict';
-    // ===== API 베이스 (카카오 로그인 값 필수) =====
-    const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
+    // ✅ 감자밭과 동일한 API 루트(/api 포함)
+    const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io/api';
     const BASE_API = (localStorage.getItem('orcax:BASE_API') || DEFAULT_API).replace(/\/+$/, '');
+
+    // 카카오 로그인 체크 (기존 유지)
     const kakaoId  = localStorage.getItem('kakaoId');
     const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
     if (!kakaoId || !nickname) {
@@ -17,7 +19,7 @@
         const netTxt = document.getElementById('netTxt');
         if (netTxt) netTxt.textContent = '로그인 필요';
       });
-      alert('로그인이 필요합니다. (corn-index.html로 이동)');
+      alert('로그인이 필요합니다. (corn-index 페이지로 이동)');
       location.href = 'corn-index.html';
     }
   </script>
@@ -104,11 +106,17 @@
     </div>
   </header>
 
-  <div class="gauge"><div class="gfill" id="gfill" style="--p:0%"></div><div class="gnum" id="gnum">0</div></div>
+  <div class="gauge">
+    <div class="gfill" id="gfill" style="--p:0%"></div>
+    <div class="gnum" id="gnum">0</div>
+  </div>
 
   <div class="level-box">
     <img id="levelIconMini" src="https://byungil-cho.github.io/OrcaX/img/mark_01.png" alt="레벨 아이콘" />
-    <div><div id="levelText">Lv.1</div><div class="expbar"><span id="expBar"></span></div></div>
+    <div>
+      <div id="levelText">Lv.1</div>
+      <div class="expbar"><span id="expBar"></span></div>
+    </div>
   </div>
 
   <div class="mini-wrap">
@@ -141,7 +149,7 @@
     </div>
   </div>
 
-  <script defer src="./js/corn-api.js?v=20250814"></script>
+  <script defer src="./js/corn-api.js?v=20250814c"></script>
   <script>
     // 구매 열기/닫기
     document.getElementById('btn-buy').onclick = () => {
@@ -153,7 +161,7 @@
     document.getElementById('buyModal').addEventListener('click',e=>{ if(e.target.id==='buyModal') closeBuy(); });
     window.closeBuy = closeBuy;
 
-    // 구매 처리(성공시에만 서버 동기화)
+    // 구매 처리(서버 성공시에만 동기화)
     async function handleBuy(type, price){
       if ((S.orcx|0) < price){ alert('토큰이 부족합니다.'); return; }
       const r = await buyItem(type);             // {synced:boolean}
@@ -164,6 +172,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
