@@ -23,6 +23,7 @@
   </script>
 
   <style>
+    /* 원본 CSS 전부 유지 */
     :root{
       --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18);
       --ok:#25d366;
@@ -37,9 +38,7 @@
     #bg{
       position:fixed; inset:0; width:100%; height:100%;
       z-index:-1;
-      background:
-        url('https://byungil-cho.github.io/OrcaX/img/farm_05.png')
-        center / cover no-repeat;
+      background:url('https://byungil-cho.github.io/OrcaX/img/farm_05.png') center / cover no-repeat;
     }
     header{
       position:fixed;left:10px;right:10px;top:10px;z-index:9;
@@ -58,7 +57,6 @@
       padding:6px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.08);
       font-size:12px}
     .tag b{font-variant-numeric:tabular-nums}
-
     .actions{
       position:fixed;left:10px;right:10px;bottom:10px;z-index:8;
       display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
@@ -70,7 +68,6 @@
       padding:10px 8px;font-size:13px;cursor:pointer
     }
     .btn[disabled]{opacity:.55;pointer-events:none}
-
     .gauge{
       position:fixed;
       left:10px;
@@ -83,7 +80,6 @@
     .gfill{position:absolute;inset:0;background:
       conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0)}
     .gnum{position:relative;font-weight:800;font-variant-numeric:tabular-nums}
-
     .level-box{
       position:fixed;
       left:10px;
@@ -100,7 +96,6 @@
     }
     .expbar{width:120px;height:6px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.15);overflow:hidden}
     .expbar span{display:block;height:100%;width:0;background:#8ed36b}
-
     .mini-wrap{
       position:fixed;
       left:50%;
@@ -118,11 +113,9 @@
     .nav{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;color:#fff;text-decoration:none;border:1px solid var(--bd);background:rgba(0,0,0,.35)}
     #miniImg{width:120px;height:120px;border-radius:12px;border:1px solid var(--bd);object-fit:cover;background:#000;flex:0 0 auto}
     #miniCap{font-size:12px;opacity:.9;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
     #toast{position:fixed;left:50%;transform:translateX(-50%);top:62px;z-index:10;
       background:rgba(0,0,0,.65);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;display:none}
     #toast.show{display:block}
-
     .btn-buy{
       border:1px solid var(--bd);background:rgba(0,0,0,.25);color:#fff;
       border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer;
@@ -141,7 +134,6 @@
       border:1px solid var(--bd);background:rgba(255,255,255,.1);color:#fff;
       border-radius:8px;cursor:pointer
     }
-
     @media (max-width:680px){
       .actions{grid-template-columns:repeat(2,1fr)}
       #miniImg{width:96px;height:96px}
@@ -214,17 +206,23 @@
 
   <script defer src="./js/corn-api.js?v=20250813"></script>
   <script>
+    // 버튼은 DOM 준비 후 이벤트 연결
     window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btn-buy').onclick = () => {
-        document.getElementById('currentTokens').textContent = S?.orcx ?? 0;
+      document.getElementById('btn-buy').addEventListener('click', () => {
+        // 팝업은 항상 뜨게
         document.getElementById('buyModal').style.display = 'flex';
-      };
+        // 토큰 값은 S가 있으면 업데이트
+        document.getElementById('currentTokens').textContent =
+          (typeof S !== 'undefined' && typeof S.orcx !== 'undefined') ? S.orcx : 0;
+      });
     });
+
     function closeBuy(){
       document.getElementById('buyModal').style.display = 'none';
     }
+
     async function handleBuy(type, price){
-      if (typeof buyItem !== 'function') {
+      if (typeof S === 'undefined' || typeof buyItem !== 'function') {
         alert('구매 기능이 아직 준비되지 않았습니다.');
         return;
       }
@@ -239,6 +237,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
