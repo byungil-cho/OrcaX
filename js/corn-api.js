@@ -29,7 +29,7 @@
     seeds:0, water:0, fertilizer:0,
     corn:0, popcorn:0, salt:0, sugar:0, orcx:0,
     gradeInv:{A:0,B:0,C:0,D:0,E:0,F:0},
-    lastGrade: null // 🔹 추가: 마지막 수확 등급 저장
+    lastGrade: null
   }, safeParse(localStorage.getItem('corn_state')) || {});
   function save(){ try{ localStorage.setItem('corn_state', JSON.stringify(S)); }catch(e){} }
   function safeParse(x){ try{ return JSON.parse(x); }catch(_){ return null; } }
@@ -64,7 +64,7 @@
       S.salt       = (u.additives?.salt ?? S.salt)|0;
       S.sugar      = (u.additives?.sugar ?? S.sugar)|0;
 
-      // 🔹 DB 값 직접 보정
+      // 명시적 보정
       if (typeof u.seeds === 'number') S.seeds = u.seeds;
       if (u.additives) {
         if (typeof u.additives.salt === 'number') S.salt = u.additives.salt;
@@ -149,8 +149,7 @@
     }catch(e){
       S.corn--; S.salt--; S.sugar--; S.orcx-=30;
       if(Math.random() < popcornChance(lastGrade)){ S.popcorn++; toast('🍿 +1'); }
-      else{ const drop=[1,2,3,5][Math.floor(Math.random()*4)]; S.orcx+=drop; toast(`🪙 +${drop}`);
-      }
+      else{ const drop=[1,2,3,5][Math.floor(Math.random()*4)]; S.orcx+=drop; toast(`🪙 +${drop}`); }
       gainExp(2); renderAll(); save();
     }
   }
@@ -257,7 +256,6 @@
      🔹 추가 기능: 수확 등급 판정, 뻥튀기 보상, 구매 시스템
   ========================================================== */
 
-  // 뻥튀기 보상 테이블
   let POP_REWARDS = {
     A: [1000, 900, 800, '팝콘'],
     B: [800, 700, 600, '팝콘'],
@@ -268,14 +266,12 @@
   };
   let plantDate = null;
 
-  // 심기 시 날짜 기록
   const origPlant = plant;
   plant = async function(){
     plantDate = Date.now();
     await origPlant();
   };
 
-  // 등급 판정
   function gradeFromDays(days){
     if (days <= 5) return 'A';
     if (days <= 6) return 'B';
@@ -285,7 +281,6 @@
     return 'F';
   }
 
-  // 수확 시 등급/수량 지급
   const origHarvest = harvest;
   harvest = async function(){
     await origHarvest();
@@ -301,7 +296,6 @@
     }
   };
 
-  // 뻥튀기 보상 적용 + 소금/설탕 필수 소모
   const origPop = pop;
   pop = async function(){
     if (S.corn<1){ toast('옥수수 없음'); return; }
@@ -322,31 +316,62 @@
     renderAll(); save();
   };
 
-  // 구매 시스템
-  async function buyItem(type){
-    const prices = { salt:10, sugar:20, seeds:100 };
-    const price = prices[type];
-    if (!price){ toast('잘못된 품목'); return; }
-    if (S.orcx < price){ toast('토큰 부족'); return; }
+  /* ===== 구매(서버 우선, 로컬 폴백) ===== */
 
-    S.orcx -= price;
-    if (type === 'salt') S.salt++;
-    else if (type === 'sugar') S.sugar++;
-    else if (type === 'seeds') S.seeds++;
+  async function tryBuyEndpointSequence(type, price){
+    const payload = { kakaoId, item:type, qty:1, tokenCost:price };
 
-    toast(`${type} 구매 완료`);
-    renderAll(); save();
+    // 서버 구현 상황에 따라 있을 법한 경로를 순차 시도
+    const endpoints = (type === 'seeds')
+      ? ['/api/corn/buy', '/api/corn/seeds/buy', '/api/user/inventory/buy', '/api/inventory/buy']
+      : ['/api/corn/buy', '/api/user/inventory/buy', '/api/inventory/buy'];
 
-    try {
-      await j('/api/corn/buy', { kakaoId, item:type, qty:1 });
-    } catch(e) {}
+    let lastErr;
+    for (const p of endpoints){
+      try{
+        const res = await j(p, payload);
+        return res; // 성공한 첫 응답 반환
+      }catch(e){
+        lastErr = e;
+      }
+    }
+    throw lastErr || new Error('buy failed');
   }
 
-  /* === 🔶 전역 브리지: HTML에서 안전하게 접근(원본 기능 삭제 없음) === */
+  async function buyItem(type){
+    const prices = { salt:10, sugar:20, seeds:100 };
+    const label  = { salt:'소금', sugar:'설탕', seeds:'씨앗' }[type] || type;
+    const price  = prices[type];
+    if (!price){ toast('잘못된 품목'); return; }
+
+    // 1) 서버 반영 우선 시도
+    try{
+      await tryBuyEndpointSequence(type, price);
+      await loadUser();   // 서버 최신 상태 흡수
+      toast(`${label} 구매 완료`);
+      return;
+    }catch(_e){
+      // 2) 서버 실패 시 로컬 폴백 (기존 UX 유지)
+      if ((S.orcx|0) < price){ toast('토큰 부족'); return; }
+      S.orcx -= price;
+      if (type === 'salt') S.salt++;
+      else if (type === 'sugar') S.sugar++;
+      else if (type === 'seeds') S.seeds++;
+      renderAll(); save();
+      toast(`${label} 구매(로컬) · 서버 미동기화`);
+    }
+  }
+
+  /* === 전역 브리지 (원본 기능 보존, 전역 오염 최소화) === */
   window.__corn = {
     get state(){ return S; },
     loadUser,
     buyItem
   };
+
+  /* ===== 유틸(MISC) ===== */
+  function popcornChance(grade){
+    return ({A:.9,B:.8,C:.6,D:.4,E:.25,F:.15}[grade] || .5);
+  }
 
 })();
