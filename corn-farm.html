@@ -20,17 +20,6 @@
       alert('로그인이 필요합니다. (corn-index 페이지로 이동)');
       location.href = 'corn-index.html';
     }
-
-    async function apiCall(path, body={}, method='POST'){
-      const r = await fetch(`${BASE_API}${path}`, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: method === 'GET' ? undefined : JSON.stringify(body),
-        mode: 'cors',
-        cache: 'no-store'
-      });
-      return await r.json().catch(() => ({}));
-    }
   </script>
 
   <style>
@@ -96,7 +85,7 @@
       conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0)}
     .gnum{position:relative;font-weight:800;font-variant-numeric:tabular-nums}
 
-    /* 레벨 캐릭터 박스 - 게이지 바로 아래 */
+    /* 레벨 캐릭터 박스 */
     .level-box{
       position:fixed;
       left:10px;
@@ -137,7 +126,7 @@
       background:rgba(0,0,0,.65);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;display:none}
     #toast.show{display:block}
 
-    /* 🔹 구매 버튼 & 모달 스타일 추가 */
+    /* 🔹 구매 버튼 & 모달 스타일 */
     .btn-buy{
       border:1px solid var(--bd);background:rgba(0,0,0,.25);color:#fff;
       border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer;
@@ -148,7 +137,8 @@
       z-index:20;
     }
     .modal-content{
-      background:#222;padding:20px;border-radius:10px;color:#fff;text-align:center;
+      background:rgba(34,34,34,0.85); /* 밝기 조정 */
+      padding:20px;border-radius:10px;color:#fff;text-align:center;
     }
     .modal-content button{
       display:block;margin:6px auto;padding:6px 12px;
@@ -170,7 +160,6 @@
       <span id="netDot" class="status"></span>
       <span id="netTxt">연결 확인 중…</span>
       <span class="nick" id="nick">(로그인 필요)</span>
-      <!-- 🔹 구매 버튼 추가 -->
       <button id="btn-buy" class="btn-buy">구매하기</button>
     </div>
     <div class="res">
@@ -185,13 +174,11 @@
     </div>
   </header>
 
-  <!-- 원형 게이지 -->
   <div class="gauge">
     <div class="gfill" id="gfill" style="--p:0%"></div>
     <div class="gnum" id="gnum">0</div>
   </div>
 
-  <!-- 레벨 캐릭터 박스 -->
   <div class="level-box">
     <img id="levelIconMini" src="https://byungil-cho.github.io/OrcaX/img/mark_01.png" alt="레벨 아이콘" />
     <div>
@@ -200,7 +187,6 @@
     </div>
   </div>
 
-  <!-- 미니 상태 -->
   <div class="mini-wrap">
     <a class="nav" href="corn-index.html" title="이전">⬅️</a>
     <img id="miniImg" alt="작물 상태" />
@@ -208,7 +194,6 @@
     <div id="miniCap">상태 확인 중…</div>
   </div>
 
-  <!-- 하단 액션 -->
   <div class="actions">
     <button id="btn-plant" class="btn">씨앗 심기</button>
     <button id="btn-water" class="btn">물 주기</button>
@@ -220,37 +205,39 @@
 
   <div id="toast"></div>
 
-  <!-- 🔹 구매 모달 추가 -->
   <div id="buyModal" class="modal">
     <div class="modal-content">
       <h3>구매하기</h3>
-      <button onclick="buyItem('salt')">소금 구매</button>
-      <button onclick="buyItem('sugar')">설탕 구매</button>
-      <button onclick="buyItem('seeds')">씨앗 구매</button>
+      <div>현재 토큰: <span id="currentTokens">0</span></div>
+      <button onclick="handleBuy('salt',10)">소금 구매 (10 토큰)</button>
+      <button onclick="handleBuy('sugar',20)">설탕 구매 (20 토큰)</button>
+      <button onclick="handleBuy('seeds',100)">씨앗 구매 (100 토큰)</button>
       <button onclick="closeBuy()">닫기</button>
     </div>
   </div>
 
   <script defer src="./js/corn-api.js?v=20250813"></script>
   <script>
-    // 🔹 구매 버튼 동작 추가
     document.getElementById('btn-buy').onclick = () => {
+      document.getElementById('currentTokens').textContent = S.orcx;
       document.getElementById('buyModal').style.display = 'flex';
     };
     function closeBuy(){
       document.getElementById('buyModal').style.display = 'none';
     }
-    async function buyItem(type){
-      try{
-        await apiCall('/api/corn/buy', { kakaoId, item:type, qty:1 });
-        alert(type + ' 구매 완료');
-      }catch(e){
-        alert('구매 실패');
+    async function handleBuy(type, price){
+      if (S.orcx < price){
+        alert('토큰이 부족합니다.');
+        return;
       }
+      await buyItem(type);
+      await loadUser();
       closeBuy();
     }
   </script>
 </body>
 </html>
+
+
 
 
