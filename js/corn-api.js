@@ -342,4 +342,11 @@
     } catch(e) {}
   }
 
+  /* === 🔶 전역 브리지: HTML에서 안전하게 접근(원본 기능 삭제 없음) === */
+  window.__corn = {
+    get state(){ return S; },
+    loadUser,
+    buyItem
+  };
+
 })();
