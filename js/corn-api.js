@@ -1,12 +1,12 @@
 (function(){
   'use strict';
 
-  /* 이미지 경로/반응형 선택 */
+  /* ===== 이미지 경로/반응형 선택 ===== */
   const IMG_BASE = 'https://byungil-cho.github.io/OrcaX/img/';
   const isMobile = () => window.matchMedia('(max-width:768px)').matches;
   const img = f => IMG_BASE + (isMobile()? ('a_'+f) : f);
 
-  /* DOM refs */
+  /* ===== DOM ===== */
   const $ = id => document.getElementById(id);
   const dom = {
     netDot:$('netDot'), netTxt:$('netTxt'), nick:$('nick'),
@@ -21,7 +21,7 @@
   };
   const toast = m => { dom.toast.textContent=m; dom.toast.classList.add('show'); setTimeout(() => dom.toast.classList.remove('show'), 1300); };
 
-  /* 상태 */
+  /* ===== 상태 ===== */
   const S = Object.assign({
     online:false, g:0, phase:'IDLE',
     level:1, exp:0,
@@ -33,7 +33,7 @@
   function save(){ try{ localStorage.setItem('corn_state', JSON.stringify(S)); }catch(_){} }
   function safeParse(x){ try{ return JSON.parse(x); }catch(_){ return null; } }
 
-  /* 서버 호출 */
+  /* ===== 서버 호출 ===== */
   async function j(path, body={}, method='POST'){
     const r = await fetch(`${BASE_API}${path}`, {
       method, headers:{'Content-Type':'application/json'},
@@ -45,16 +45,17 @@
     return d;
   }
 
-  /* 유저/인벤토리 동기화 (온라인 성공 시 서버값만 신뢰) */
+  /* ===== 유저/인벤토리 동기화 (온라인 성공 시 서버값만 신뢰) ===== */
   async function loadUser(){
     if(!kakaoId || !nickname) return;
     try{
-      const data = await j('/api/userdata', { kakaoId }); // 서버에서 씨앗/토큰/첨가물 읽어오기
+      const data = await j('/api/userdata', { kakaoId });
       const u = data?.user || data?.data?.user || {};
+
       S.online = true; dom.netDot.classList.add('ok'); dom.netTxt.textContent = '온라인';
       dom.nick.textContent = nickname;
 
-      // ✅ 서버 우선, 로컬 보정 금지
+      // ✅ 서버 우선, 로컬 fallback 금지
       const num = v => (typeof v === 'number' ? v : 0);
       S.orcx       = num(u.wallet?.orcx ?? u.orcx);
       S.seeds      = num(u.seeds ?? u.inventory?.seeds ?? u.agri?.seeds);
@@ -65,7 +66,7 @@
       S.salt       = num(u.additives?.salt);
       S.sugar      = num(u.additives?.sugar);
 
-      // 레벨/경험치/단계 등
+      // 레벨/경험/단계
       S.level = Math.max(1, Number((u.level ?? u.profile?.level ?? S.level) || 1));
       S.exp   = Math.max(0, Number((u.profile?.exp ?? S.exp) || 0));
       S.phase = (u.agri?.phase || 'IDLE');
@@ -74,13 +75,12 @@
 
       renderAll(); save(); // 온라인 성공 시점에만 저장
     }catch(e){
-      // 실패 시 기존 로컬 유지(오프라인 모드)
       S.online=false; dom.netDot.classList.remove('ok'); dom.netTxt.textContent='오프라인/연결 실패';
       renderAll();
     }
   }
 
-  /* 액션들 */
+  /* ===== 액션 ===== */
   async function plant(){
     if(!kakaoId || !nickname) return;
     if((S.seeds|0) <= 0){ toast('씨앗이 없습니다'); return; }
@@ -156,7 +156,7 @@
     }
   }
 
-  /* 성장/레벨 및 렌더 */
+  /* ===== 성장/레벨 & 렌더 ===== */
   function gainGrowth(d){ S.g=Math.max(0,Math.min(100,(S.g||0)+d)); renderGauge(); }
   function gainExp(n){
     S.exp=(S.exp||0)+n;
@@ -191,14 +191,29 @@
 
   (async function boot(){ renderAll(); bind(); await loadUser(); })();
 
-  /* ====================== 구매(서버 우선 + 응답검증 + 로컬 폴백(저장 금지)) ====================== */
+  /* ====================== 구매(서버 우선 + 응답검증 + 로컬 폴백(저장X)) ====================== */
 
-  // 서버 라우트를 순서대로 시도(씨앗/첨가물 분리 가능성 고려)
+  // 엔드포인트 우선순위 (현장에서 오버라이드 가능: localStorage['orcax:BUY_ENDPOINTS'])
+  const BUY_ENDPOINTS = (() => {
+    const base = {
+      seeds: ['/api/corn/seeds/buy','/api/corn/buy','/api/user/inventory/buy'],
+      salt : ['/api/user/additives/buy','/api/additives/buy','/api/user/inventory/buy','/api/corn/buy'],
+      sugar: ['/api/user/additives/buy','/api/additives/buy','/api/user/inventory/buy','/api/corn/buy']
+    };
+    try{
+      const override = JSON.parse(localStorage.getItem('orcax:BUY_ENDPOINTS')||'null');
+      if (override && typeof override==='object'){
+        for(const k of ['seeds','salt','sugar']){
+          if (Array.isArray(override[k]) && override[k].length) base[k] = override[k].slice();
+        }
+      }
+    }catch(_){}
+    return base;
+  })();
+
   async function tryBuyEndpointSequence(type, price){
     const payload = { kakaoId, item:type, qty:1, tokenCost:price };
-    const eps = (type==='seeds')
-      ? ['/api/corn/seeds/buy','/api/corn/buy','/api/user/inventory/buy']
-      : ['/api/user/additives/buy','/api/additives/buy','/api/user/inventory/buy','/api/corn/buy'];
+    const eps = BUY_ENDPOINTS[type] || [];
     let last;
     for(const ep of eps){
       try{ return await j(ep, payload); }catch(e){ last=e; }
@@ -230,6 +245,7 @@
     const label  = { salt:'소금', sugar:'설탕', seeds:'씨앗' }[type] || type;
     const price  = prices[type];
     if(!price){ toast('잘못된 품목'); return {synced:false}; }
+    if ((S.orcx|0) < price){ toast('토큰 부족'); return {synced:false}; }
 
     const before = { seeds:S.seeds, salt:S.salt, sugar:S.sugar, orcx:S.orcx };
 
@@ -242,24 +258,25 @@
       }
       throw new Error('server-no-change');
     }catch(_e){
-      // 2) 로컬 폴백(즉시 반영하되 저장 금지 → 새로고침 시 사라짐)
-      if ((S.orcx|0) < price){ toast('토큰 부족'); return {synced:false}; }
+      // 2) 로컬 폴백(즉시 반영, 저장 금지 → 새로고침 시 사라짐)
       S.orcx -= price;
       if(type==='salt')   S.salt++;
       if(type==='sugar')  S.sugar++;
       if(type==='seeds')  S.seeds++;
-      renderAll(); // save() 호출 금지
+      renderAll(); // save() 금지
       toast(`${label} 구매(로컬) · 서버 미동기화`);
       return {synced:false};
     }
   }
 
-  /* 전역 호환 (HTML에서 직접 호출) */
+  /* ===== 전역 호환 브리지 (기존 코드와 둘 다 맞춰줌) ===== */
   window.S = S;
   window.buyItem = buyItem;
   window.loadUser = loadUser;
+  window.__corn = { get state(){ return S; }, loadUser, buyItem };
 
 })();
+
 
 
 
