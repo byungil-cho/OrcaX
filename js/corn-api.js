@@ -45,7 +45,7 @@
     return d;
   }
 
-  /* 유저/인벤토리 동기화 */
+  /* 유저/인벤토리 동기화 (온라인 성공 시 서버값만 신뢰) */
   async function loadUser(){
     if(!kakaoId || !nickname) return;
     try{
@@ -54,32 +54,27 @@
       S.online = true; dom.netDot.classList.add('ok'); dom.netTxt.textContent = '온라인';
       dom.nick.textContent = nickname;
 
-      // 서버 값 흡수(문서에 적은 그 매핑) :contentReference[oaicite:4]{index=4}
-      S.orcx       = (u.wallet?.orcx ?? u.orcx ?? S.orcx)|0;
-      S.seeds      = (u.seeds ?? u.inventory?.seeds ?? u.agri?.seeds ?? S.seeds)|0;
-      S.water      = (u.inventory?.water ?? S.water)|0;
-      S.fertilizer = (u.inventory?.fertilizer ?? S.fertilizer)|0;
-      S.corn       = (u.agri?.corn ?? u.corn ?? S.corn)|0;
-      S.popcorn    = (u.food?.popcorn ?? u.popcorn ?? S.popcorn)|0;
-      S.salt       = (u.additives?.salt ?? S.salt)|0;
-      S.sugar      = (u.additives?.sugar ?? S.sugar)|0;
+      // ✅ 서버 우선, 로컬 보정 금지
+      const num = v => (typeof v === 'number' ? v : 0);
+      S.orcx       = num(u.wallet?.orcx ?? u.orcx);
+      S.seeds      = num(u.seeds ?? u.inventory?.seeds ?? u.agri?.seeds);
+      S.water      = num(u.inventory?.water);
+      S.fertilizer = num(u.inventory?.fertilizer);
+      S.corn       = num(u.agri?.corn ?? u.corn);
+      S.popcorn    = num(u.food?.popcorn ?? u.popcorn);
+      S.salt       = num(u.additives?.salt);
+      S.sugar      = num(u.additives?.sugar);
 
-      // 응답이 애매할 때 직접 보정
-      if (typeof u.seeds === 'number') S.seeds = u.seeds;
-      if (u.additives) {
-        if (typeof u.additives.salt  === 'number') S.salt  = u.additives.salt;
-        if (typeof u.additives.sugar === 'number') S.sugar = u.additives.sugar;
-      }
-
+      // 레벨/경험치/단계 등
       S.level = Math.max(1, Number((u.level ?? u.profile?.level ?? S.level) || 1));
       S.exp   = Math.max(0, Number((u.profile?.exp ?? S.exp) || 0));
-      S.phase = (u.agri?.phase || S.phase || 'IDLE');
-      S.g     = Number.isFinite(u.agri?.g) ? u.agri.g : (S.g||0);
-
+      S.phase = (u.agri?.phase || 'IDLE');
+      S.g     = Number.isFinite(u.agri?.g) ? u.agri.g : 0;
       if(u.agri?.gradeInv) S.gradeInv = Object.assign({A:0,B:0,C:0,D:0,E:0,F:0}, u.agri.gradeInv);
 
-      renderAll(); save();
+      renderAll(); save(); // 온라인 성공 시점에만 저장
     }catch(e){
+      // 실패 시 기존 로컬 유지(오프라인 모드)
       S.online=false; dom.netDot.classList.remove('ok'); dom.netTxt.textContent='오프라인/연결 실패';
       renderAll();
     }
@@ -90,7 +85,7 @@
     if(!kakaoId || !nickname) return;
     if((S.seeds|0) <= 0){ toast('씨앗이 없습니다'); return; }
     try{
-      const res = await j('/api/corn/plant', { kakaoId }); // :contentReference[oaicite:5]{index=5}
+      const res = await j('/api/corn/plant', { kakaoId });
       const inv = res?.inventory || res?.agri || res;
       if(typeof inv?.seeds === 'number') S.seeds = inv.seeds;
       S.phase='GROW'; S.g=0; gainExp(8);
@@ -196,9 +191,9 @@
 
   (async function boot(){ renderAll(); bind(); await loadUser(); })();
 
-  /* ====================== 구매(서버 우선 + 응답 검증 + 로컬 폴백) ====================== */
+  /* ====================== 구매(서버 우선 + 응답검증 + 로컬 폴백(저장 금지)) ====================== */
 
-  // 서버가 어떤 라우트로 붙어있든 순서대로 시도
+  // 서버 라우트를 순서대로 시도(씨앗/첨가물 분리 가능성 고려)
   async function tryBuyEndpointSequence(type, price){
     const payload = { kakaoId, item:type, qty:1, tokenCost:price };
     const eps = (type==='seeds')
@@ -241,21 +236,19 @@
     // 1) 서버 시도
     try{
       const res = await tryBuyEndpointSequence(type, price);
-      // 응답이 실제 갱신을 반영했는지 확인
       if (changedByServer(res, type, before)){
         toast(`${label} 구매 완료`);
         return {synced:true, res};
       }
-      // 200이더라도 값 안 바뀌었으면 비동기화로 간주
       throw new Error('server-no-change');
     }catch(_e){
-      // 2) 로컬 폴백(즉시 반영)
+      // 2) 로컬 폴백(즉시 반영하되 저장 금지 → 새로고침 시 사라짐)
       if ((S.orcx|0) < price){ toast('토큰 부족'); return {synced:false}; }
       S.orcx -= price;
       if(type==='salt')   S.salt++;
       if(type==='sugar')  S.sugar++;
       if(type==='seeds')  S.seeds++;
-      renderAll(); save();
+      renderAll(); // save() 호출 금지
       toast(`${label} 구매(로컬) · 서버 미동기화`);
       return {synced:false};
     }
@@ -267,5 +260,6 @@
   window.loadUser = loadUser;
 
 })();
+
 
 
