@@ -71,7 +71,6 @@
     }
     .btn[disabled]{opacity:.55;pointer-events:none}
 
-    /* 원형 게이지 */
     .gauge{
       position:fixed;
       left:10px;
@@ -85,7 +84,6 @@
       conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0)}
     .gnum{position:relative;font-weight:800;font-variant-numeric:tabular-nums}
 
-    /* 레벨 캐릭터 박스 */
     .level-box{
       position:fixed;
       left:10px;
@@ -103,7 +101,6 @@
     .expbar{width:120px;height:6px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.15);overflow:hidden}
     .expbar span{display:block;height:100%;width:0;background:#8ed36b}
 
-    /* 미니 이미지 박스 */
     .mini-wrap{
       position:fixed;
       left:50%;
@@ -126,7 +123,6 @@
       background:rgba(0,0,0,.65);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;display:none}
     #toast.show{display:block}
 
-    /* 🔹 구매 버튼 & 모달 스타일 */
     .btn-buy{
       border:1px solid var(--bd);background:rgba(0,0,0,.25);color:#fff;
       border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer;
@@ -137,7 +133,7 @@
       z-index:20;
     }
     .modal-content{
-      background:rgba(34,34,34,0.85); /* 밝기 조정 */
+      background:rgba(34,34,34,0.85);
       padding:20px;border-radius:10px;color:#fff;text-align:center;
     }
     .modal-content button{
@@ -218,14 +214,20 @@
 
   <script defer src="./js/corn-api.js?v=20250813"></script>
   <script>
-    document.getElementById('btn-buy').onclick = () => {
-      document.getElementById('currentTokens').textContent = S.orcx;
-      document.getElementById('buyModal').style.display = 'flex';
-    };
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-buy').onclick = () => {
+        document.getElementById('currentTokens').textContent = S?.orcx ?? 0;
+        document.getElementById('buyModal').style.display = 'flex';
+      };
+    });
     function closeBuy(){
       document.getElementById('buyModal').style.display = 'none';
     }
     async function handleBuy(type, price){
+      if (typeof buyItem !== 'function') {
+        alert('구매 기능이 아직 준비되지 않았습니다.');
+        return;
+      }
       if (S.orcx < price){
         alert('토큰이 부족합니다.');
         return;
@@ -237,6 +239,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
