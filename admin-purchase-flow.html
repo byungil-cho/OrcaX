@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>OrcaX | 관리자 가격설정 & 구매 모달 흐름 데모</title>
+<style>
+  :root{--bg:#0b1220;--card:#121a2b;--ink:#e8f0ff;--muted:#9cb3d8;--accent:#63b3ff;--ok:#5bd69c;--warn:#ffb84d;--err:#ff6b6b}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,Segoe UI,Apple SD Gothic Neo,Pretendard,Arial}
+  .wrap{max-width:1100px;margin:24px auto;padding:16px}
+  h1{font-size:20px;margin:0 0 16px}
+  .row{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:960px){.row{grid-template-columns:1.1fr .9fr}}
+  .card{background:var(--card);border:1px solid #1b2742;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.28)}
+  .card h2{font-size:18px;margin:0 0 12px}
+  .card .body{padding:16px}
+  .muted{color:var(--muted);font-size:13px}
+  label{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}
+  input,select,button{width:100%;box-sizing:border-box}
+  input,select{background:#0e1526;color:var(--ink);border:1px solid #263455;border-radius:10px;padding:10px 12px;outline:none}
+  input:focus{border-color:var(--accent)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:12px;border:1px solid #284066;background:#16223a;color:var(--ink);cursor:pointer;font-weight:600}
+  .btn:hover{border-color:var(--accent)}
+  .btn.ok{background:#123225;border-color:#1b5f40}
+  .btn.warn{background:#3a2a12;border-color:#6b4b1b}
+  .btn.ghost{background:transparent}
+  .kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+  .kpi .tile{background:#0f1730;border:1px solid #223458;border-radius:12px;padding:12px}
+  .tile .n{font-size:20px;font-weight:700}
+  .hr{height:1px;background:#1f2b49;margin:16px 0}
+  details{background:#0e162c;border:1px solid #223458;border-radius:12px;padding:12px}
+  details summary{cursor:pointer;font-weight:700}
+  /* Modal */
+  dialog{border:none;border-radius:16px;max-width:520px;width:calc(100% - 24px);background:#0f1730;color:var(--ink)}
+  dialog::backdrop{background:rgba(0,0,0,.6)}
+  .modal-h{padding:14px 16px;border-bottom:1px solid #1f2b49}
+  .modal-b{padding:16px}
+  .flex{display:flex;gap:10px}
+  .right{margin-left:auto}
+  .tag{display:inline-block;border:1px solid #2b416d;background:#102040;padding:2px 8px;border-radius:999px;font-size:12px;color:#a6c3ff}
+  .price{font-size:22px;font-weight:800}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#10253a;border:1px solid #2f5d8d;color:#cfe7ff;padding:10px 14px;border-radius:12px;display:none;z-index:9999}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>관리자 가격설정 & 구매 모달 흐름 (Demo)</h1>
+  <div class="row">
+    <!-- 왼쪽: 관리자 가격설정 -->
+    <div class="card">
+      <div class="body">
+        <h2>① 관리자 가격설정</h2>
+        <div class="grid">
+          <div>
+            <label>아이템 선택</label>
+            <select id="itemSelect">
+              <option value="seedCorn">씨옥수수</option>
+              <option value="seedPotato">씨감자</option>
+              <option value="seedBarley">씨보리</option>
+            </select>
+          </div>
+          <div>
+            <label>기본가격 (ORCX)</label>
+            <input id="basePrice" type="number" min="0" step="1" value="2"/>
+          </div>
+        </div>
+
+        <label>레벨 구간별 배수(0~29 / 30~49 / 50~69 / 70~89 / 90+)</label>
+        <div class="grid-3" style="margin-bottom:10px">
+          <input id="m0" type="number" step="0.05" value="1.00"/>
+          <input id="m1" type="number" step="0.05" value="1.25"/>
+          <input id="m2" type="number" step="0.05" value="1.50"/>
+        </div>
+        <div class="grid">
+          <input id="m3" type="number" step="0.05" value="1.75"/>
+          <input id="m4" type="number" step="0.05" value="2.00"/>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="grid">
+          <div>
+            <label>프리뷰용 가상 레벨</label>
+            <input id="previewLevel" type="number" min="0" step="1" value="12"/>
+          </div>
+          <div>
+            <label>현재 적용 가격(자동 계산)</label>
+            <div class="price"><span id="computedPrice">2</span> ORCX</div>
+            <div class="muted">기본가×배수, 소수점 올림.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="flex">
+          <button class="btn ok" id="saveAdmin">관리자 설정 저장</button>
+          <button class="btn ghost right" id="resetAdmin">초기화</button>
+        </div>
+
+        <div class="hr"></div>
+        <details>
+          <summary>적용 규칙 요약</summary>
+          <ul class="muted">
+            <li>레벨별 가격 = <b>기본가격 × 구간배수</b> (소수점 올림).</li>
+            <li>최대 보유치: 씨앗류 기본 2개(데모). 실제 게임 규칙에 맞게 조정.</li>
+            <li>실서버 연동 시 <code>POST /api/seed-buy</code>, <code>POST /api/admin/price</code>에 교체.</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+
+    <!-- 오른쪽: 유저 화면 + 구매 모달 -->
+    <div class="card">
+      <div class="body">
+        <h2>② 유저 구매 & 팝콘 활성화(조건)</h2>
+
+        <div class="kpi">
+          <div class="tile"><div class="muted">보유 ORCX</div><div class="n" id="k_orcx">100</div></div>
+          <div class="tile"><div class="muted">씨옥수수</div><div class="n" id="k_corn">0</div></div>
+          <div class="tile"><div class="muted">첨가물</div><div class="n" id="k_add">0</div></div>
+          <div class="tile"><div class="muted">가상 레벨</div><div class="n" id="k_lv">12</div></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="grid">
+          <button class="btn" id="btnBuyCorn">씨옥수수 구매</button>
+          <button class="btn warn" id="btnMakePop">팝콘 만들기</button>
+        </div>
+        <div class="muted" style="margin-top:8px">
+          팝콘 버튼은 <b>옥수수 ≥ 1</b> & <b>첨가물 ≥ 1</b>일 때만 활성화됩니다.
+        </div>
+
+        <div class="hr"></div>
+        <details open>
+          <summary>동작 흐름(요약)</summary>
+          <ol class="muted">
+            <li>관리자가 기본가·배수 저장 → 현재 가격 즉시 반영.</li>
+            <li>유저가 “씨옥수수 구매” 클릭 → 모달에서 수량 선택.</li>
+            <li>검증: 보유 ORCX, 보유 한도(2개), 재고 확인.</li>
+            <li>확정 시: ORCX 차감, 인벤토리 증가, 관리자 재고 감소.</li>
+            <li>팝콘: 옥수수≥1 & 첨가물≥1 → 버튼 활성화 → 제작 시 각 1개 소모.</li>
+          </ol>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <div class="card">
+    <div class="body">
+      <h2>③ 오늘 작업 요약(간단)</h2>
+      <ul class="muted">
+        <li>관리자 가격설정 UI: 기본가·레벨배수 저장/프리뷰.</li>
+        <li>구매 모달: 수량, 합계, 잔액 체크, 보유한도(2개) 적용.</li>
+        <li>팝콘 활성화 로직: <b>옥수수≥1 & 첨가물≥1</b>에서만 활성화.</li>
+        <li>연동 포인트(TODO): <code>/api/admin/price</code>, <code>/api/seed-buy</code>, <code>/api/cooking/popcorn</code>.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 구매 모달 -->
+<dialog id="buyModal">
+  <div class="modal-h">
+    <b>씨옥수수 구매</b> <span class="tag right" id="tagPrice">- ORCX</span>
+  </div>
+  <div class="modal-b">
+    <div class="grid">
+      <div>
+        <label>수량</label>
+        <input id="buyQty" type="number" min="1" step="1" value="1"/>
+      </div>
+      <div>
+        <label>합계</label>
+        <div class="price"><span id="buyTotal">-</span> ORCX</div>
+      </div>
+    </div>
+    <div class="muted" style="margin-top:8px" id="buyHint">보유 한도와 잔액을 자동 체크합니다.</div>
+    <div class="hr"></div>
+    <div class="flex">
+      <button class="btn ghost" id="buyCancel">취소</button>
+      <button class="btn ok right" id="buyConfirm">구매 확정</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<!-- ⬇️ admin-purchase-flow.html 맨 아래 <script> 다음에 추가(혹은 기존 JS 교체) -->
+<script>
+(() => {
+  // 0) API 베이스 자동 선택 (Cafe24 → ngrok 순)
+  const CANDIDATES = [
+    "https://farm.orcax.co.kr",
+    "https://climbing-wholly-grouper.jp.ngrok.io"
+  ];
+  let API_BASE = null;
+
+  async function pickApiBase(){
+    for (const base of CANDIDATES){
+      try{
+        const r = await fetch(base + "/api/health", { credentials:"include" });
+        if(r.ok){ API_BASE = base; return base; }
+      }catch(e){}
+    }
+    throw new Error("API 서버 연결 실패");
+  }
+  async function fetchJSON(path, opt={}){
+    if(!API_BASE) await pickApiBase();
+    const init = {
+      method: opt.method || "GET",
+      headers: { "Content-Type":"application/json" },
+      credentials: "include",
+      body: opt.body ? JSON.stringify(opt.body) : undefined
+    };
+    const r = await fetch(API_BASE + path, init);
+    if(!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
+
+  // 1) 서버 API 래퍼
+  const api = {
+    me: () => fetchJSON("/api/user/me"),
+    getAdminPrice: (item) => fetchJSON(`/api/admin/price?item=${item}`),
+    saveAdminPrice: (payload) => fetchJSON("/api/admin/price", {method:"POST", body:payload}),
+    buySeed: (payload) => fetchJSON("/api/seed-buy", {method:"POST", body:payload}),
+    makePopcorn: (payload) => fetchJSON("/api/cooking/popcorn", {method:"POST", body:payload}),
+  };
+
+  // 2) DOM 헬퍼
+  const $ = (s) => document.querySelector(s);
+  const toast = (m)=>{
+    const t = $("#toast"); if(!t) return alert(m);
+    t.textContent = m; t.style.display="block"; setTimeout(()=>t.style.display="none",1500);
+  };
+  const fmt = (n)=> Number(n).toLocaleString();
+
+  // 3) 상태(서버 동기화용)
+  const state = {
+    level: 0,
+    orcx: 0,
+    inv: { seedCorn:0, corn:0, additive:0, popcorn:0 },
+    caps: { seedCorn:2 }
+  };
+
+  // 4) UI 바인딩 (기존 ID를 그대로 사용)
+  function renderKPI(){
+    $("#k_orcx") && ($("#k_orcx").textContent = fmt(state.orcx));
+    $("#k_corn") && ($("#k_corn").textContent = fmt(state.inv.seedCorn)); // 씨옥수수 보유
+    $("#k_add")  && ($("#k_add").textContent  = fmt(state.inv.additive));
+    $("#k_lv")   && ($("#k_lv").textContent   = fmt(state.level));
+  }
+  function updatePopButton(){
+    // ✅ 팝콘은 '수확 옥수수(corn) + 첨가물' 조건 (seedCorn 아님!)
+    const ok = (state.inv.corn >= 1) && (state.inv.additive >= 1);
+    const btn = $("#btnMakePop");
+    if(btn){ btn.disabled = !ok; btn.title = ok ? "" : "옥수수≥1 & 첨가물≥1 필요"; }
+  }
+
+  // 5) 관리자 가격 프리뷰 계산(로컬 계산은 그대로, 저장/로드만 서버)
+  function tierForLevel(lv){ if(lv>=90) return 4; if(lv>=70) return 3; if(lv>=50) return 2; if(lv>=30) return 1; return 0; }
+  function currentPrice(base, tiers, lv){ const m = tiers[tierForLevel(lv)] ?? 1; return Math.ceil(base*m); }
+  function getTiersFromUI(){
+    return ["#m0","#m1","#m2","#m3","#m4"].map(id=>Number($(id).value||1));
+  }
+  function setTiersToUI(tiers){
+    ["#m0","#m1","#m2","#m3","#m4"].forEach((id, i)=> { if($(id)) $(id).value = tiers[i] ?? 1; });
+  }
+  function updateComputed(){
+    const base = Number($("#basePrice")?.value||0);
+    const tiers = getTiersFromUI();
+    const lv = Number($("#previewLevel")?.value||state.level||0);
+    const p = currentPrice(base, tiers, lv);
+    $("#computedPrice") && ($("#computedPrice").textContent = fmt(p));
+    $("#tagPrice") && ($("#tagPrice").textContent = p + " ORCX");
+    updatePopButton();
+    return { base, tiers, p };
+  }
+
+  // 6) 이벤트 연결
+  async function bindAdmin(){
+    // 서버에서 씨옥수수 가격 규칙 불러오기
+    try{
+      const conf = await api.getAdminPrice("seedCorn"); // {basePrice, tiers:[...]}
+      if($("#basePrice")) $("#basePrice").value = conf.basePrice ?? 2;
+      setTiersToUI(conf.tiers ?? [1,1.25,1.5,1.75,2]);
+      if($("#previewLevel")) $("#previewLevel").value = state.level || 12;
+      updateComputed();
+    }catch(e){ toast("가격 규칙 로드 실패"); }
+
+    ["#basePrice","#m0","#m1","#m2","#m3","#m4","#previewLevel","#itemSelect"].forEach(id=>{
+      if($(id)) $(id).addEventListener("input", updateComputed);
+    });
+
+    $("#saveAdmin")?.addEventListener("click", async ()=>{
+      try{
+        const {base, tiers} = updateComputed();
+        await api.saveAdminPrice({ item:"seedCorn", basePrice: base, tiers });
+        toast("관리자 가격설정 저장 완료");
+      }catch(e){ toast("저장 실패: " + e.message); }
+    });
+
+    $("#resetAdmin")?.addEventListener("click", async ()=>{
+      try{
+        const conf = await api.getAdminPrice("seedCorn");
+        if($("#basePrice")) $("#basePrice").value = conf.basePrice ?? 2;
+        setTiersToUI(conf.tiers ?? [1,1.25,1.5,1.75,2]);
+        $("#previewLevel") && ( $("#previewLevel").value = state.level || 12 );
+        updateComputed();
+        toast("서버 값으로 복구");
+      }catch(e){ toast("복구 실패: " + e.message); }
+    });
+  }
+
+  async function bindUser(){
+    // 유저 정보 동기화
+    try{
+      const me = await api.me(); // {level, orcx, inventory:{seedCorn,corn,additive,popcorn}, caps:{seedCorn}}
+      state.level = me.level ?? 0;
+      state.orcx  = me.orcx ?? 0;
+      state.inv   = Object.assign(state.inv, me.inventory || {});
+      state.caps  = Object.assign(state.caps, me.caps || {});
+      renderKPI();
+      if($("#previewLevel")) $("#previewLevel").value = state.level;
+      updateComputed();
+      updatePopButton();
+    }catch(e){
+      toast("유저 동기화 실패(로그인 필요?)");
+    }
+
+    // 구매 모달 열기
+    $("#btnBuyCorn")?.addEventListener("click", ()=>{
+      const { p } = updateComputed();
+      $("#buyQty") && ($("#buyQty").value = 1);
+      $("#buyTotal") && ($("#buyTotal").textContent = fmt(p));
+      $("#buyHint") && ($("#buyHint").innerHTML = `보유한도: ${state.caps.seedCorn||2}개 / 현재: ${state.inv.seedCorn||0}개`);
+      $("#tagPrice") && ($("#tagPrice").textContent = p + " ORCX");
+      $("#buyModal")?.showModal();
+    });
+
+    // 수량 변경
+    $("#buyQty")?.addEventListener("input", ()=>{
+      const { p } = updateComputed();
+      const qty = Math.max(1, Number($("#buyQty").value||1));
+      $("#buyTotal") && ($("#buyTotal").textContent = fmt(p*qty));
+    });
+
+    // 취소
+    $("#buyCancel")?.addEventListener("click", ()=> $("#buyModal")?.close());
+
+    // 구매 확정 → 서버
+    $("#buyConfirm")?.addEventListener("click", async ()=>{
+      try{
+        const qty = Math.max(1, Number($("#buyQty").value||1));
+        const res = await api.buySeed({ item:"seedCorn", qty }); 
+        // 서버가 최신 지갑/인벤 반환한다고 가정
+        state.orcx = res.user?.orcx ?? state.orcx;
+        state.inv  = Object.assign(state.inv, res.user?.inventory || {});
+        renderKPI(); updatePopButton();
+        $("#buyModal")?.close();
+        toast("구매 완료");
+      }catch(e){ toast("구매 실패: " + e.message); }
+    });
+
+    // 팝콘 만들기(수확 옥수수 + 첨가물 1씩 소비)
+    $("#btnMakePop")?.addEventListener("click", async ()=>{
+      if($("#btnMakePop").disabled) return;
+      try{
+        const res = await api.makePopcorn({ qty:1 });
+        state.inv = Object.assign(state.inv, res.user?.inventory || {});
+        renderKPI(); updatePopButton();
+        toast("팝콘 1개 제작 완료");
+      }catch(e){ toast("제작 실패: " + e.message); }
+    });
+  }
+
+  // 7) 부트스트랩
+  (async function start(){
+    try{
+      await pickApiBase();
+      await bindAdmin();
+      await bindUser();
+    }catch(e){ toast(e.message || "초기화 실패"); }
+  })();
+})();
+</script>
+</body>
+</html>
