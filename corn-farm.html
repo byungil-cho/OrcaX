@@ -297,5 +297,78 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   }
   document.addEventListener('DOMContentLoaded', loadAll);
 </script>
+<script>
+/* corn-farm.runtime.js (All-in-one, inline)
+ * - API 연동
+ * - 버튼 활성/액션
+ * - 등급(A~F) 계산 (KST)
+ * - 팝 자원 조건(소금1+설탕1+토큰30+팝콘>=1)
+ * - 결과 오버레이(증감량 Delta)
+ * - 미니 이미지: 모바일 a_ 접두 우선 + 폴백
+ * - 계절 배경: 성장%에 따라 farm_01~05.png 자동 변경(폴백)
+ * - 물/거름/성장 세로 게이지: 중앙 하단 상태패널에 주입 (디자인 비침범)
+ * - 물: 3칸(3h), 1칸=1h 소진 / 거름: 1칸(3h) 소진 / 성장: 총 120h (5일)
+ * - 물·거름 부족 시간만큼 성장 지연 → 등급 하락 반영
+ */
+const DEFAULT_ORIGIN=(localStorage.getItem('orcax:DEFAULT_ORIGIN')||'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
+const RAW_ORIGIN=(localStorage.getItem('orcax:BASE_API')||DEFAULT_ORIGIN).replace(/\/+$/,'');
+const BASE_ORIGIN=RAW_ORIGIN.replace(/\/api\/?$/i,'');
+const API=(p)=>`${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
+const H=(n)=>n*60*60*1000,clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+function toKST(date){const d=new Date(date);const utc=d.getTime()+d.getTimezoneOffset()*60000;return new Date(utc+9*60*60000)}function now(){return new Date()}
+async function jfetch(url,{method='GET',query,body,headers}={}){let u=url;if(query){const qs=new URLSearchParams();Object.entries(query).forEach(([k,v])=>{if(v!=null)qs.set(k,String(v))});const q=qs.toString();if(q)u+=(u.includes('?')?'&':'?')+q}const opts={method,headers:Object.assign({'Accept':'application/json'},headers||{})};if(body!=null){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body)}const r=await fetch(u,Object.assign(opts,{mode:'cors',cache:'no-store'}));const text=await r.text();const isJson=(r.headers.get('content-type')||'').includes('application/json');const data=text?(isJson?JSON.parse(text):{raw:text}):{};if(!r.ok)throw Object.assign(new Error(`HTTP ${r.status}`),{data,status:r.status});return data}
+function getKakaoId(){return localStorage.getItem('kakao_id')||localStorage.getItem('orcax:kakaoId')||''}
+function ensureLogin(){const kakaoId=getKakaoId();if(!kakaoId){alert('로그인이 필요합니다. (index9.html로 이동)');location.href='index9.html';return false}return kakaoId}
+const LKEY='orcax:corn:timers';function loadTimers(){try{return JSON.parse(localStorage.getItem(LKEY)||'{}')}catch(e){return{}}}
+function saveTimers(t){localStorage.setItem(LKEY,JSON.stringify(t||{}))}function resetTimers(){saveTimers({})}
+function timersOnPlant(iso){const t=loadTimers();t.plantedAt=iso;t.waterDepleteAt=0;t.fertilDepleteAt=0;t.shortageMs=0;t.lastTickAt=now().toISOString();saveTimers(t)}
+function timersAddWater(){const t=loadTimers();const cur=now().getTime();const end=Math.max(cur,t.waterDepleteAt?new Date(t.waterDepleteAt).getTime():0);const remain=Math.max(0,end-cur);const next=cur+Math.min(H(3),remain+H(1));t.waterDepleteAt=new Date(next).toISOString();saveTimers(t)}
+function timersAddFertil(){const t=loadTimers();t.fertilDepleteAt=new Date(now().getTime()+H(3)).toISOString();saveTimers(t)}
+function timersTick(){const t=loadTimers();if(!t.lastTickAt)return;const s=new Date(t.lastTickAt).getTime();const e=now().getTime();if(e<=s)return;const w=t.waterDepleteAt?new Date(t.waterDepleteAt).getTime():0;const f=t.fertilDepleteAt?new Date(t.fertilDepleteAt).getTime():0;const coveredEnd=Math.min(e,(w||0)||1e20,(f||0)||1e20);const covered=Math.max(0,coveredEnd-s);const dt=e-s;const shortage=dt-covered;t.shortageMs=(t.shortageMs||0)+Math.max(0,shortage);t.lastTickAt=new Date(e).toISOString();saveTimers(t)}
+function calcGrowthByTimers(){const t=loadTimers();if(!t.plantedAt)return null;const planted=new Date(t.plantedAt).getTime();const effective=(now().getTime()-planted)-(t.shortageMs||0);const pct=clamp(effective/H(120)*100,0,100);return pct}
+function waterPct(){const t=loadTimers();if(!t.waterDepleteAt)return 0;const remain=new Date(t.waterDepleteAt).getTime()-now().getTime();return clamp(remain/H(3)*100,0,100)}
+function fertilPct(){const t=loadTimers();if(!t.fertilDepleteAt)return 0;const remain=new Date(t.fertilDepleteAt).getTime()-now().getTime();return clamp(remain/H(3)*100,0,100)}
+function predictedGrade(){const t=loadTimers();if(!t.plantedAt)return null;const days=5+(t.shortageMs||0)/H(24);if(days<5.5)return'A';if(days<6.5)return'B';if(days<7.5)return'C';if(days<8.5)return'D';if(days<9.5)return'E';return'F'}
+const $=(s)=>document.querySelector(s);
+function injectStyle(){if($('#corn-runtime-style'))return;const css=document.createElement('style');css.id='corn-runtime-style';css.textContent=`
+.corn-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:9999}
+.corn-overlay .box{background:rgba(8,12,24,.88);border:1px solid #2a3c63;border-radius:14px;padding:16px 18px;min-width:280px;max-width:560px;color:#eaf1ff;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+.corn-overlay .box h4{margin:0 0 8px;font-size:16px}
+.corn-overlay .kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:14px}
+.corn-overlay .pos{color:#7ee787}.corn-overlay .neg{color:#ff8e8e}
+#corn-bars{position:absolute;right:6px;bottom:6px;display:flex;gap:6px;z-index:5}
+#corn-bars .bar{width:8px;height:68px;border:1px solid rgba(255,255,255,.2);border-radius:6px;position:relative;overflow:hidden;background:rgba(0,0,0,.25)}
+#corn-bars .bar .fill{position:absolute;left:0;bottom:0;width:100%;height:0;background:linear-gradient(to top, rgba(120,190,255,.9), rgba(120,190,255,.35))}
+#corn-bars .bar.fert .fill{background:linear-gradient(to top, rgba(255,210,120,.9), rgba(255,210,120,.35))}
+#corn-bars .bar.grow .fill{background:linear-gradient(to top, rgba(140,255,140,.95), rgba(140,255,140,.35))}
+#corn-bars .bar .lab{position:absolute;top:2px;left:0;width:100%;text-align:center;font-size:10px;color:#eaf1ff;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+`;document.head.appendChild(css)}
+function ensureMiniPanel(){let panel=$('#crop-panel')||[...document.querySelectorAll('div,section')].find(el=>/작물\s*상태/.test(el.textContent||''));if(!panel){panel=$('#mini-img')?.parentElement||null}return panel}
+function mountBars(){const panel=ensureMiniPanel();if(!panel)return;if($('#corn-bars'))return;const bars=document.createElement('div');bars.id='corn-bars';bars.innerHTML=`
+  <div class="bar water"><div class="fill" id="bar-water"></div><div class="lab">💧</div></div>
+  <div class="bar fert"><div class="fill" id="bar-fert"></div><div class="lab">🌱</div></div>
+  <div class="bar grow"><div class="fill" id="bar-grow"></div><div class="lab">🌽</div></div>
+`;panel.style.position=panel.style.position||'relative';panel.appendChild(bars)}
+function updateBars(){const bw=$('#bar-water'),bf=$('#bar-fert'),bg=$('#bar-grow');if(bw)bw.style.height=clamp(waterPct(),0,100)+'%';if(bf)bf.style.height=clamp(fertilPct(),0,100)+'%';const gp=calcGrowthByTimers();if(bg&&gp!=null)bg.style.height=clamp(gp,0,100)+'%'}
+function isMobile(){return(window.matchMedia&&matchMedia('(max-width: 640px)').matches)||(window.innerWidth<=640)}
+function setMiniByGrowth(g){let mini=document.getElementById('mini-img')||document.querySelector('img[alt*="작물"]');if(!mini)return;const base=(g>=100)?'corn_ready.png':(g>=80)?'corn_70.png':(g>=60)?'corn_50.png':(g>=40)?'corn_30.png':(g>0)?'corn_seedling.png':'corn_empty.png';const srcMini=`./img/a_${base}`;const srcFull=`./img/${base}`;mini.onerror=function(){if(mini.getAttribute('data-a-tried')==='1')return;mini.setAttribute('data-a-tried','1');mini.src=srcFull};mini.setAttribute('data-a-tried',isMobile()?'0':'1');mini.alt='작물 상태';mini.src=isMobile()?srcMini:srcFull}
+function setSeasonBackground(g){const idx=(g>=80)?'05':(g>=60)?'04':(g>=40)?'03':(g>=20)?'02':'01';const target=document.getElementById('farm-bg')||[...document.querySelectorAll('img')].find(img=>/img\/farm_0\d\.png$/i.test(img.src||''));if(!target)return;const next=target.src.replace(/farm_0\d\.png/i,`farm_${idx}.png`);if(next!==target.src)target.src=next}
+function getCornGradeByTimers(){const t=loadTimers();if(!t.plantedAt)return null;const days=5+(t.shortageMs||0)/H(24);if(days<5.5)return'A';if(days<6.5)return'B';if(days<7.5)return'C';if(days<8.5)return'D';if(days<9.5)return'E';return'F'}
+function gradeLabel(g){if(!g)return'-';return{A:'A급',B:'B급',C:'C급',D:'D급',E:'E급',F:'F급'}[g]||g}
+let state={user:{},summary:{},corn:{}};
+function setText(id,v){const el=document.getElementById(id);if(el)el.textContent=(v??'0')}
+function setDisabled(el,disabled){if(!el)return;el.disabled=!!disabled;el.classList.toggle('is-disabled',!!disabled)}
+async function loadAll(){const kakaoId=ensureLogin();if(!kakaoId)return;try{const[user,summary]=await Promise.all([jfetch(API('userdata'),{method:'POST',body:{kakaoId}}),jfetch(API('corn/summary'),{method:'GET',query:{kakaoId}})]);state.user=user||{};state.summary=summary||{};state.corn=summary?.corn||{};const t=loadTimers();const plantedAt=(state.corn.plantedAt||state.summary.plantedAt||state.user.plantedAt);if(plantedAt&&!t.plantedAt)timersOnPlant(plantedAt);render()}catch(err){console.error('loadAll error',err);showToast('서버 연결 실패','error')}}
+function render(){injectStyle();mountBars();timersTick();updateBars();const u=state.user||{};const s=state.summary||{};const inv=s.inventory||{};const corn=s.corn||{};setText('val-seed',inv.seedCorn??inv.seed??0);setText('val-water',u.water??s.water??0);setText('val-fertil',u.fertilizer??s.fertilizer??0);setText('val-corn',s.cornCount??0);setText('val-pop',inv.popcorn??s.popcorn??0);setText('val-salt',inv.salt??0);setText('val-sugar',inv.sugar??0);setText('val-token',u.token??s.token??0);const g=calcGrowthByTimers();if(g!=null){const gauge=document.getElementById('growth-bar');if(gauge)gauge.style.width=`${clamp(g,0,100)}%`;const round=document.getElementById('gauge-round')||document.querySelector('.gauge-round,[data-gauge="round"]');if(round){round.textContent=Math.round(g);round.style.setProperty('--val',Math.round(g))}setMiniByGrowth(g);setSeasonBackground(g)}const grade=getCornGradeByTimers();setText('txt-grade',grade?`예상 등급: ${gradeLabel(grade)}`:'예상 등급: -');const btnPlant=document.getElementById('btn-plant')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='씨앗 심기');const btnWater=document.getElementById('btn-water')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='물 주기');const btnFert=document.getElementById('btn-fertilize')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='거름 주기');const btnHarv=document.getElementById('btn-harvest')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='수확');const btnPop=document.getElementById('btn-pop')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='뻥튀기');const btnExch=document.getElementById('btn-exchange')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim().includes('팝콘'));const hasSeed=(inv.seedCorn??inv.seed??0)>0;const hasWaterItem=(u.water??s.water??0)>0;const hasFertilItem=(u.fertilizer??s.fertilizer??0)>0;const hasPop=(inv.popcorn??s.popcorn??0)>0;const salt=inv.salt??0;const sugar=inv.sugar??0;const token=u.token??s.token??0;const growth=g??0;const readyToHarvest=(growth>=90);setDisabled(btnPlant,!(hasSeed&&growth===0));setDisabled(btnWater,!hasWaterItem);setDisabled(btnFert,!hasFertilItem);setDisabled(btnHarv,!readyToHarvest);setDisabled(btnPop,!(hasPop&&salt>=1&&sugar>=1&&token>=30));setDisabled(btnExch,!hasPop)}
+setInterval(()=>{timersTick();render()},30*1000);
+function showOverlayDelta(before,after,title,details){try{const keys=['seed','water','fertilizer','cornCount','popcorn','salt','sugar','token'];const names={seed:'씨앗',water:'물',fertilizer:'거름',cornCount:'옥수수',popcorn:'팝콘',salt:'소금',sugar:'설탕',token:'토큰'};const diff={};for(const k of keys){const b=(before[k]??0),a=(after[k]??0);if(a!==b)diff[k]=a-b}const wrap=document.createElement('div');wrap.className='corn-overlay';const box=document.createElement('div');box.className='box';const kvs=Object.entries(diff).map(([k,v])=>{const cls=v>=0?'pos':'neg';const sign=v>0?'+':'';return `<div>${names[k]}</div><div class="${cls}">${sign}${v}</div>`}).join('');box.innerHTML=`<h4>${title||'결과'}</h4>${details?`<div style="font-size:12px;margin-bottom:6px;color:#9fb6d6">${details}</div>`:''}<div class="kv">${kvs||'<div>변경 사항 없음</div><div></div>'}</div>`;wrap.appendChild(box);document.body.appendChild(wrap);setTimeout(()=>wrap.remove(),1800)}catch(e){console.warn('overlay error',e)}}
+async function act(endpoint,body,{title,details}={}){const kakaoId=ensureLogin();if(!kakaoId)return;const before=snapshotCounters();try{const r=await jfetch(API(endpoint),{method:'POST',body:Object.assign({kakaoId},body||{})});if(endpoint==='corn/plant'){timersOnPlant(new Date().toISOString())}else if(endpoint==='corn/water'){timersAddWater()}else if(endpoint==='corn/fertilize'){timersAddFertil()}else if(endpoint==='corn/harvest'){timersOnPlant(null);resetTimers()}await loadAll();const after=snapshotCounters();showOverlayDelta(before,after,title||endpoint.toUpperCase(),detailsFromResponse(endpoint,r,details))}catch(err){const msg=err?.data?.message||`요청 실패: ${endpoint}`;showToast(msg,'error');console.warn('act error',endpoint,err)}}
+function snapshotCounters(){const u=state.user||{};const s=state.summary||{};const inv=s.inventory||{};return{seed:inv.seedCorn??inv.seed??0,water:u.water??s.water??0,fertilizer:u.fertilizer??s.fertilizer??0,cornCount:s.cornCount??0,popcorn:inv.popcorn??s.popcorn??0,salt:inv.salt??0,sugar:inv.sugar??0,token:u.token??s.token??0}}
+function detailsFromResponse(endpoint,r,details){if(details)return details;try{if(!r||typeof r!=='object')return'';if(endpoint==='corn/pop'){const g=r.grade||r.gradeHint||predictedGrade();const br=r.breakdown||{};const hi=br.hi||0,mid=br.mid||0,low=br.low||0,pop=br.pop||0;const sum=r.tokenGained??0;return `등급 ${gradeLabel(g)} · 토큰(상:${hi} 중:${mid} 하:${low}) · 토큰 +${sum} · 팝콘 +${pop}`}if(endpoint==='corn/harvest'){const g=r.grade||predictedGrade();const qty=r.qty||r.cornGained||0;return `등급 ${gradeLabel(g)} · 옥수수 +${qty}`}}catch(e){}return''}
+function bindActions(){const byText=(t)=>[...document.querySelectorAll('button')].find(b=>b.textContent.trim()===t);(document.getElementById('btn-plant')||byText('씨앗 심기'))?.addEventListener('click',()=>act('corn/plant',null,{title:'씨앗 심기'}));(document.getElementById('btn-water')||byText('물 주기'))?.addEventListener('click',()=>act('corn/water',null,{title:'물 주기'}));(document.getElementById('btn-fertilize')||byText('거름 주기'))?.addEventListener('click',()=>act('corn/fertilize',null,{title:'거름 주기'}));(document.getElementById('btn-harvest')||byText('수확'))?.addEventListener('click',()=>{const grade=getCornGradeByTimers();act('corn/harvest',{gradeHint:grade},{title:'수확',details:`예상 등급 ${gradeLabel(grade)}`})});(document.getElementById('btn-pop')||byText('뻥튀기'))?.addEventListener('click',()=>act('corn/pop',{tokenCost:30},{title:'뻥튀기'}));(document.getElementById('btn-exchange')||byText('팝콘↔거름')||byText('팝콘 ↔ 거름'))?.addEventListener('click',()=>act('corn/exchange',{type:'popcorn-to-fertilizer',qty:1},{title:'교환'}))}
+function showToast(msg,type){try{const el=document.getElementById('toast-area');if(!el)return alert(msg);const d=document.createElement('div');d.className=`toast ${type||''}`;d.textContent=msg;el.appendChild(d);setTimeout(()=>d.remove(),2500)}catch(e){alert(msg)}}
+window.addEventListener('DOMContentLoaded',()=>{injectStyle();mountBars();bindActions();const t=loadTimers();if(!t.lastTickAt){t.lastTickAt=now().toISOString();saveTimers(t)}loadAll()});
+</script>
+
 </body>
 </html>
