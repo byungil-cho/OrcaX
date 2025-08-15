@@ -369,6 +369,6 @@ function bindActions(){const byText=(t)=>[...document.querySelectorAll('button')
 function showToast(msg,type){try{const el=document.getElementById('toast-area');if(!el)return alert(msg);const d=document.createElement('div');d.className=`toast ${type||''}`;d.textContent=msg;el.appendChild(d);setTimeout(()=>d.remove(),2500)}catch(e){alert(msg)}}
 window.addEventListener('DOMContentLoaded',()=>{injectStyle();mountBars();bindActions();const t=loadTimers();if(!t.lastTickAt){t.lastTickAt=now().toISOString();saveTimers(t)}loadAll()});
 </script>
-
+<script src="./js/corn-farm.runtime.js?v=20250815"></script>
 </body>
 </html>
