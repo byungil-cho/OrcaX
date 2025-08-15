@@ -18,6 +18,9 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 .status{ width:8px; height:8px; border-radius:999px; background:#ef4444 }
 .status.ok{ background:var(--ok) }
 .nick{ font-weight:800; max-width:42vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.shopbtn{ margin-left:auto; border:1px solid var(--bd); background:rgba(255,255,255,.1); color:#fff;
+  border-radius:999px; padding:6px 10px; cursor:pointer; font-size:12px }
+
 .res{ display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) }
 .tag{ display:flex; justify-content:space-between; align-items:center; gap:8px;
   padding:6px 8px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.08); font-size:12px }
@@ -67,6 +70,17 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   background:rgba(0,0,0,.65); color:#fff; border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none }
 #toast.show{ display:block }
 
+/* 구매 패널 */
+.sheet{ position:fixed; right:10px; top:56px; z-index:11; width:min(360px,92vw);
+  backdrop-filter:blur(8px); background:rgba(0,0,0,.7); border:1px solid var(--bd); border-radius:14px; padding:10px; display:none; }
+.sheet.show{ display:block }
+.shop-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px }
+.shop-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px; border:1px solid var(--bd); border-radius:10px; margin-top:6px; }
+.shop-row .info{ display:flex; gap:10px; align-items:center }
+.shop-row .info .icon{ font-size:18px }
+.shop-row .actions{ display:flex; gap:6px }
+.shop-row .actions .mini{ padding:6px 10px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.1); color:#fff; font-size:12px; cursor:pointer }
+
 @media (max-width:680px){
   .actions{ grid-template-columns:repeat(2,1fr) }
   #miniImg{ width:96px; height:96px }
@@ -81,6 +95,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
     <span id="netDot" class="status"></span>
     <span id="netTxt">연결 확인 중…</span>
     <span class="nick" id="nick">(로그인 필요)</span>
+    <button id="btn-shop" class="shopbtn">구매하기</button>
   </div>
   <div class="res">
     <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
@@ -93,6 +108,39 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
     <div class="tag">🪙 토큰 <b id="r-orcx">0</b></div>
   </div>
 </header>
+
+<!-- 구매 패널 -->
+<div id="shop" class="sheet" role="dialog" aria-modal="true" aria-label="구매하기">
+  <div class="shop-head">
+    <strong>구매하기</strong>
+    <button id="shopClose" class="shopbtn">닫기</button>
+  </div>
+  <div class="shop-row">
+    <div class="info"><span class="icon">🌱</span><div>씨앗(옥수수)</div></div>
+    <div class="actions">
+      <button class="mini buy-btn" data-item="seed" data-qty="1">x1</button>
+      <button class="mini buy-btn" data-item="seed" data-qty="5">x5</button>
+      <button class="mini buy-btn" data-item="seed" data-qty="10">x10</button>
+    </div>
+  </div>
+  <div class="shop-row">
+    <div class="info"><span class="icon">🧂</span><div>소금</div></div>
+    <div class="actions">
+      <button class="mini buy-btn" data-item="salt" data-qty="1">x1</button>
+      <button class="mini buy-btn" data-item="salt" data-qty="5">x5</button>
+      <button class="mini buy-btn" data-item="salt" data-qty="10">x10</button>
+    </div>
+  </div>
+  <div class="shop-row">
+    <div class="info"><span class="icon">🍬</span><div>설탕</div></div>
+    <div class="actions">
+      <button class="mini buy-btn" data-item="sugar" data-qty="1">x1</button>
+      <button class="mini buy-btn" data-item="sugar" data-qty="5">x5</button>
+      <button class="mini buy-btn" data-item="sugar" data-qty="10">x10</button>
+    </div>
+  </div>
+  <div style="opacity:.75; font-size:12px; margin-top:8px">구매 후 상단 수치가 자동 갱신됩니다.</div>
+</div>
 
 <div class="gauge"><div class="gfill" id="gfill" style="--p:0%"></div><div class="gnum" id="gnum">0</div></div>
 
@@ -142,7 +190,7 @@ const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
 /* 날짜·시간 규칙 */
 const ACTIVE_SLOTS = [ [8,11], [11,14], [14,17], [17,20], [20,23] ]; // 3시간×5
-const NIGHT = { start:23, end:8 }; // 휴면 시간
+const NIGHT = { start:23, end:8 };
 
 /* 배경(존재하는 파일만 매핑) */
 const BG = {
@@ -151,7 +199,7 @@ const BG = {
   day3:  { pc:'a_farm_07.png', m:'a_farm_07.png' },
   day4:  { pc:'a_farm_09.png', m:'a_farm_09.png' },
   day5p: { pc:'farm_10.png',   m:'a_farm_10.png' }, // 수확일(5~10일차)
-  idle:  { pc:'a_farm_01.png', m:'a_farm_01.png' }, // 파종 대기(겨울 유지)
+  idle:  { pc:'a_farm_01.png', m:'a_farm_01.png' }, // 파종 대기(겨울)
   rest:  { pc:'a_farm_12.png', m:'a_farm_12.png' }  // 수확 다음날(휴농 1일)
 };
 
@@ -341,7 +389,17 @@ const api = {
   harvest:       (kakaoId)          => jfetch(API('corn/harvest'),   { method:'POST', body:{ kakaoId } }),
   pop:           (kakaoId,cost=30)  => jfetch(API('corn/pop'),       { method:'POST', body:{ kakaoId, tokenCost:cost } }),
   exchange:      (kakaoId,qty=1,dir)=> jfetch(API('corn/exchange'),  { method:'POST', body:{ kakaoId, qty, dir } }),
-  useInventory:  (kakaoId,type,amt=1)=> jfetch(API('user/inventory/use'), { method:'POST', body:{ kakaoId, type, amount:amt } })
+  useInventory:  (kakaoId,type,amt=1)=> jfetch(API('user/inventory/use'), { method:'POST', body:{ kakaoId, type, amount:amt } }),
+  // 구매: 서버 구현 차이에 맞춰 순차 시도
+  buy:           async (kakaoId,item,qty)=> {
+    const tryPaths = ['store/buy','buy','shop/buy'];
+    let lastErr;
+    for (const p of tryPaths){
+      try{ return await jfetch(API(p), { method:'POST', body:{ kakaoId, item, qty } }); }
+      catch(e){ lastErr = e; }
+    }
+    throw lastErr || new Error('구매 API 없음');
+  }
 };
 
 /* 로그인 키 */
@@ -426,12 +484,31 @@ async function onPop(){ try{ await api.pop(kakaoId,30); await loadAll(); toast('
 catch(e){ console.error(e); toast(e.data?.error || '뻥튀기 실패'); } }
 async function onExchange(){ toast('교환 UI는 추후 적용'); }
 
+/* 구매 */
+function toggleShop(v){ document.getElementById('shop').classList.toggle('show', v===undefined ? !document.getElementById('shop').classList.contains('show') : !!v); }
+async function onBuy(item, qty){
+  try{
+    await api.buy(kakaoId, item, qty);
+    await loadAll();
+    toast(`${item==='seed'?'씨앗':item==='salt'?'소금':'설탕'} ${qty}개 구매 완료`);
+  }catch(e){
+    console.error(e);
+    toast(e?.data?.error || '구매 실패(서버 구매 API 확인 필요)');
+  }
+}
+
 document.getElementById('btn-plant').onclick = onPlant;
 document.getElementById('btn-water').onclick = onWater;
 document.getElementById('btn-fert').onclick  = onFert;
 document.getElementById('btn-harv').onclick  = onHarv;
 document.getElementById('btn-pop').onclick   = onPop;
 document.getElementById('btn-ex').onclick    = onExchange;
+
+document.getElementById('btn-shop').onclick  = ()=>toggleShop(true);
+document.getElementById('shopClose').onclick = ()=>toggleShop(false);
+document.querySelectorAll('.buy-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=> onBuy(btn.dataset.item, Number(btn.dataset.qty||1)));
+});
 
 /* 로드 */
 async function loadAll(){
@@ -457,6 +534,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 </body>
 </html>
+
 
 
 
