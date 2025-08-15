@@ -1,26 +1,7 @@
 # robots.txt - 검색엔진 크롤링 정책
-
-# 모든 크롤러 허용
 User-agent: *
-
-# 공개 허용 페이지
 Allow: /index.html
-Allow: /index9.html
 Allow: /corn-farm.html
-Allow: /gamja-farm.html
-Allow: /gamja-main.html
-
-# 내부 기능 및 API 차단
+Allow: /index9.html
 Disallow: /api/
-Disallow: /admin/
-Disallow: /gamja-factory.html
-Disallow: /gamja-result.html
-Disallow: /gamja-market.html
-Disallow: /gamja-shop.html
-Disallow: /gamja-exchange.html
-Disallow: /corn-index.html
-Disallow: /corn-api.js
-Disallow: /js/
-
-# 사이트맵 (검색엔진이 구조 파악 쉽게 함)
 Sitemap: https://byungil-cho.github.io/OrcaX/sitemap.xml
