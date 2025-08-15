@@ -16,14 +16,14 @@ const API = (p) => `${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
 /* ✅ 이미지 경로(배경은 GitHub 고정, 미니 이미지는 로컬 img/) */
 const IMG = {
   bg: {
-    winter: "https://byungil-cho.github.io/OrcaX/img/farm_winter.png",
-    spring: "https://byungil-cho.github.io/OrcaX/img/farm_spring.png",
+    winter: "https://byungil-cho.github.io/OrcaX/img/farm_01.png",
+    spring: "https://byungil-cho.github.io/OrcaX/img/farm_03.png",
     default:"https://byungil-cho.github.io/OrcaX/img/farm_05.png"
   },
   mini: {
-    idle: "./img/corn_idle.png",        // 휴경
-    seed: "./img/corn_seedling.png",    // 파종/초기
-    ready:"./img/corn_ready.png"        // 수확 준비
+    idle: "./img/a_corn_0_01_05.png",        // 휴경
+    seed: "./img/a_corn_0_01_03.png",    // 파종/초기
+    ready:"./img/a_corn_01.png"        // 수확 준비
   }
 };
 
@@ -445,6 +445,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 </body>
 </html>
+
 
 
 
