@@ -1,374 +1,210 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>옥수수 농장</title>
-
-<script>
-  'use strict';
-  /* ✅ BASE_ORIGIN에는 도메인만 저장(끝에 /api 금지). 요청 때만 /api 붙임 */
-  const DEFAULT_ORIGIN = 'https://climbing-wholly-grouper.jp.ngrok.io';
-  const RAW_ORIGIN  = (localStorage.getItem('orcax:BASE_API') || DEFAULT_ORIGIN).replace(/\/+$/,'');
-  const BASE_ORIGIN = RAW_ORIGIN.replace(/\/api\/?$/i,'');
-  const API = (p) => `${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
-
-  // 로그인 확인(없으면 index9.html로 이동)
-  const kakaoId  = localStorage.getItem('kakaoId');
-  const nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
-  if (!kakaoId || !nickname) {
-    document.addEventListener('DOMContentLoaded', () => {
-      const netTxt = document.getElementById('netTxt'); if (netTxt) netTxt.textContent = '로그인 필요';
-    });
-    alert('로그인이 필요합니다. (index9.html로 이동)');
-    location.href = 'index9.html';
-  }
-
-  // 공통 fetch(JSON)
-  async function jfetch(url, { method='GET', query, body, headers } = {}){
-    let u = url;
-    if (query && typeof query === 'object'){
-      const qs = new URLSearchParams();
-      for (const [k,v] of Object.entries(query)) if (v!==undefined && v!==null) qs.set(k, String(v));
-      const q = qs.toString(); if (q) u += (u.includes('?') ? '&' : '?') + q;
-    }
-    const opts = { method, headers: Object.assign({ 'Accept': 'application/json' }, headers||{}) };
-    if (body !== undefined && body !== null){
-      opts.headers['Content-Type'] = 'application/json';
-      opts.body = JSON.stringify(body);
-    }
-    const r = await fetch(u, Object.assign(opts, { mode:'cors', cache:'no-store' }));
-    const t = await r.text();
-    const isJson = (r.headers.get('content-type')||'').includes('application/json');
-    const data = t ? (isJson ? JSON.parse(t) : { raw:t }) : {};
-    if (!r.ok){ const err = new Error(`HTTP ${r.status}`); err.data = data; throw err; }
-    return data;
-  }
-</script>
-
-<style>
-:root{ --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18); --ok:#25d366; }
-html,body{ height:100%; margin:0; color:var(--ink); background:transparent;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
-#bg{ position:fixed; inset:0; z-index:-1;
-  background:url('https://byungil-cho.github.io/OrcaX/img/farm_05.png') center/cover no-repeat; }
-header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
-  backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
-  border-radius:14px; padding:8px 10px; }
-.topline{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
-.status{ width:8px; height:8px; border-radius:999px; background:#ef4444 }
-.status.ok{ background:var(--ok) }
-.nick{ font-weight:800; max-width:42vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.res{ display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) }
-.tag{ display:flex; justify-content:space-between; align-items:center; gap:8px;
-  padding:6px 8px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.08); font-size:12px }
-.tag b{ font-variant-numeric:tabular-nums }
-
-.actions{ position:fixed; left:10px; right:10px; bottom:10px; z-index:8;
-  display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
-  backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
-  border-radius:14px; padding:8px; }
-.btn{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:10px;
-  padding:10px 8px; font-size:13px; cursor:pointer }
-.btn[disabled]{ opacity:.55; pointer-events:none }
-
-.gauge{ position:fixed; left:10px; bottom:calc(260px + env(safe-area-inset-bottom)); z-index:6;
-  width:110px; height:110px; border-radius:999px; border:1px solid var(--bd);
-  background:rgba(0,0,0,.35); display:grid; place-items:center; overflow:hidden; }
-.gfill{ position:absolute; inset:0; background:conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0) }
-.gnum{ position:relative; font-weight:800; font-variant-numeric:tabular-nums }
-
-.level-box{ position:fixed; left:10px; bottom:calc(200px + env(safe-area-inset-bottom)); z-index:6;
-  display:flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--bd);
-  border-radius:10px; background:rgba(0,0,0,.35); }
-.level-box img{ width:44px; height:44px; border-radius:999px; border:1px solid var(--bd); background:#000; }
-.expbar{ width:120px; height:6px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.15); overflow:hidden }
-.expbar span{ display:block; height:100%; width:0; background:#8ed36b }
-
-.mini-wrap{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(120px + env(safe-area-inset-bottom));
-  z-index:7; display:flex; align-items:center; justify-content:space-between; gap:10px;
-  width:clamp(280px, 60vw, 460px); border:1px solid var(--bd); border-radius:14px; background:rgba(0,0,0,.28); padding:8px 10px; }
-.nav{ width:40px; height:40px; border-radius:999px; display:grid; place-items:center;
-  color:#fff; text-decoration:none; border:1px solid var(--bd); background:rgba(0,0,0,.35) }
-#miniImg{ width:120px; height:120px; border-radius:12px; border:1px solid var(--bd); object-fit:cover; background:#000; flex:0 0 auto }
-#miniCap{ font-size:12px; opacity:.9; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-
-#toast{ position:fixed; left:50%; transform:translateX(-50%); top:62px; z-index:10;
-  background:rgba(0,0,0,.65); color:#fff; border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none }
-#toast.show{ display:block }
-
-.btn-buy{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:8px; padding:4px 8px; font-size:12px; cursor:pointer; }
-.modal{ position:fixed; inset:0; background:rgba(0,0,0,.22); display:none; align-items:center; justify-content:center; z-index:20; }
-.modal-content{ background:rgba(34,34,34,.70); padding:20px; border-radius:10px; color:#fff; text-align:center; }
-.modal-content button{ display:block; margin:6px auto; padding:6px 12px;
-  border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; border-radius:8px; cursor:pointer }
-@media (max-width:680px){ .actions{ grid-template-columns:repeat(2,1fr) } #miniImg{ width:96px; height:96px } }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>옥수수 농장</title>
+  <style>
+    body { margin:0; font-family: system-ui, Roboto, Pretendard, sans-serif; background:#0a1020; color:#eaf1ff; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 12px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .status { display:grid; grid-template-columns: repeat(8, minmax(0,1fr)); gap:8px; margin:12px 0; }
+    .pill { background:#0f1630; border:1px solid #223459; border-radius:10px; padding:8px; text-align:center; }
+    .farm { position:relative; border:1px solid #223459; border-radius:12px; overflow:hidden; background:#0e142c; }
+    .farm img.bg { width:100%; display:block; }
+    .farm .overlay { position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; pointer-events:none; }
+    .farm .bottom { width:100%; padding:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .mini-wrap#crop-panel { position:relative; background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:8px 44px; display:flex; align-items:center; gap:10px; }
+    .mini-wrap .title { position:absolute; top:4px; left:10px; font-size:12px; color:#9fb6d6; }
+    .mini-wrap img { width:70px; height:70px; object-fit:contain; }
+    .btns { display:flex; gap:6px; flex-wrap:wrap; }
+    button { background:#15224a; border:1px solid #223459; color:#eaf1ff; border-radius:10px; padding:8px 10px; cursor:pointer; }
+    button.is-disabled, button:disabled { opacity:.5; cursor:not-allowed; }
+    .growth-rail { position:relative; height:10px; background:#09122a; border-radius:6px; border:1px solid #223459; overflow:hidden; }
+    .growth-rail .fill { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,#6cfaa3,#48b3ff); }
+    .links { display:flex; gap:8px; align-items:center; }
+  </style>
 </head>
 <body>
-<div id="bg" aria-hidden="true"></div>
+  <div class="wrap">
+    <header>
+      <h1 style="font-size:18px;margin:0">🌽 옥수수 농장</h1>
+      <div class="links">
+        <a href="#" title="왼쪽 링크">🔗</a>
+        <a href="#" title="오른쪽 링크">🔗</a>
+      </div>
+    </header>
 
-<header>
-  <div class="topline">
-    <span id="netDot" class="status"></span>
-    <span id="netTxt">연결 확인 중…</span>
-    <span class="nick" id="nick">(로그인 필요)</span>
-    <button id="btn-buy" class="btn-buy">구매하기</button>
+    <div class="status">
+      <div class="pill">씨앗 <b id="val-seed">0</b></div>
+      <div class="pill">물 <b id="val-water">0</b></div>
+      <div class="pill">거름 <b id="val-fertil">0</b></div>
+      <div class="pill">옥수수 <b id="val-corn">0</b></div>
+      <div class="pill">팝콘 <b id="val-pop">0</b></div>
+      <div class="pill">소금 <b id="val-salt">0</b></div>
+      <div class="pill">설탕 <b id="val-sugar">0</b></div>
+      <div class="pill">토큰 <b id="val-token">0</b></div>
+    </div>
+
+    <div class="farm">
+      <img id="farm-bg" class="bg" src="img/farm_01.png" alt="배경">
+      <div class="overlay">
+        <div class="bottom">
+          <div class="mini-wrap" id="crop-panel">
+            <span class="title">작물 상태</span>
+            <img id="mini-img" src="img/corn_empty.png" alt="작물 상태">
+            <!-- 이 영역 우측에 세로 막대(💧/🌱/🌽)가 자동 삽입됩니다 -->
+          </div>
+          <div style="flex:1; min-width:240px;">
+            <div class="growth-rail"><div id="growth-bar" class="fill"></div></div>
+            <div id="txt-grade" style="font-size:12px;color:#9fb6d6;margin-top:6px">예상 등급: -</div>
+          </div>
+          <div class="btns">
+            <button id="btn-plant">씨앗 심기</button>
+            <button id="btn-water">물 주기</button>
+            <button id="btn-fertilize">거름 주기</button>
+            <button id="btn-harvest">수확</button>
+            <button id="btn-pop">뻥튀기</button>
+            <button id="btn-exchange">팝콘↔거름</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast-area"></div>
   </div>
-  <div class="res">
-    <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
-    <div class="tag">💧 물 <b id="r-water">0</b></div>
-    <div class="tag">🪴 거름 <b id="r-fert">0</b></div>
-    <div class="tag">🌽 옥수수 <b id="r-corn">0</b></div>
-    <div class="tag">🍿 팝콘 <b id="r-pop">0</b></div>
-    <div class="tag">🧂 소금 <b id="r-salt">0</b></div>
-    <div class="tag">🍬 설탕 <b id="r-sugar">0</b></div>
-    <div class="tag">🪙 토큰 <b id="r-orcx">0</b></div>
-  </div>
-</header>
 
-<div class="gauge"><div class="gfill" id="gfill" style="--p:0%"></div><div class="gnum" id="gnum">0</div></div>
-
-<div class="level-box">
-  <img id="levelIconMini" src="./img/mark_01.png" alt="레벨 아이콘" />
-  <div><div id="levelText">Lv.1</div><div class="expbar"><span id="expBar"></span></div></div>
-</div>
-
-<div class="mini-wrap">
-  <!-- ← index9.html 로 수정 -->
-  <a class="nav" href="corn-index.html" title="이전">⬅️</a>
-  <img id="miniImg" alt="작물 상태" />
-  <a class="nav" href="index9.html" title="메인">🏠</a>
-  <div id="miniCap">상태 확인 중…</div>
-</div>
-
-<div class="actions">
-  <button id="btn-plant" class="btn">씨앗 심기</button>
-  <button id="btn-water" class="btn">물 주기</button>
-  <button id="btn-fert"  class="btn">거름 주기</button>
-  <button id="btn-harv"  class="btn" disabled>수확</button>
-  <button id="btn-pop"   class="btn" disabled>뻥튀기</button>
-  <button id="btn-ex"    class="btn">팝콘↔거름</button>
-</div>
-
-<div id="toast"></div>
-
-<!-- 구매 모달 -->
-<div id="buyModal" class="modal" aria-hidden="true">
-  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="buyTitle">
-    <h3 id="buyTitle">구매하기</h3>
-    <div>현재 토큰: <span id="currentTokens">0</span></div>
-    <button onclick="handleBuy('salt',10)">소금 구매 (10 토큰)</button>
-    <button onclick="handleBuy('sugar',20)">설탕 구매 (20 토큰)</button>
-    <button onclick="handleBuy('seeds',100)">씨앗 구매 (100 토큰)</button>
-    <button onclick="closeBuy()">닫기</button>
-  </div>
-</div>
-
-<script>
-  // ------- UI helpers -------
-  const S = { orcx:0, summary:null, user:null };
-  function setNet(ok, msg){
-    const dot = document.getElementById('netDot');
-    const txt = document.getElementById('netTxt');
-    if (dot) dot.classList.toggle('ok', !!ok);
-    if (txt) txt.textContent = ok ? (msg || '온라인') : (msg || '오프라인/연결 실패');
+  <!-- === INLINE RUNTIME (All-in-one) + HOTFIX v2 merged === -->
+  <script>
+  /* 런타임: API 연동 / 등급(A~F) / 뻥튀기 조건(팝콘+소금+설탕+토큰30) / 결과 오버레이 /
+     미니 a_이미지 폴백 / 성장%→배경/미니 교체 / 물·거름·성장 세로막대(이모지 아래, 막대 위) */
+  const DEFAULT_ORIGIN=(localStorage.getItem('orcax:DEFAULT_ORIGIN')||'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
+  const RAW_ORIGIN=(localStorage.getItem('orcax:BASE_API')||DEFAULT_ORIGIN).replace(/\/+$/,'');
+  const BASE_ORIGIN=RAW_ORIGIN.replace(/\/api\/?$/i,'');
+  const API=(p)=>`${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
+  const H=(n)=>n*60*60*1000,clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+  function now(){return new Date()}
+  async function jfetch(url,{method='GET',query,body,headers}={}){
+    let u=url; if(query){const qs=new URLSearchParams(); Object.entries(query).forEach(([k,v])=>{if(v!=null)qs.set(k,String(v))}); const q=qs.toString(); if(q)u+=(u.includes('?')?'&':'?')+q}
+    const opts={method,headers:Object.assign({'Accept':'application/json'},headers||{})}; if(body!=null){opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body)}
+    const r=await fetch(u,Object.assign(opts,{mode:'cors',cache:'no-store'})); const t=await r.text(); const j=(r.headers.get('content-type')||'').includes('application/json'); const d=t?(j?JSON.parse(t):{raw:t}):{}; if(!r.ok) throw Object.assign(new Error('HTTP '+r.status),{data:d,status:r.status}); return d;
   }
-  function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1500); }
-
-  function paintFromUser(user){
-    if (!user) return;
-    S.user = user;
-    document.getElementById('nick').textContent = user.nickname || nickname || '';
-    document.getElementById('r-water').textContent = Number(user.inventory?.water||0);
-    document.getElementById('r-fert').textContent  = Number(user.inventory?.fertilizer||0);
-    const orcx = Number(user.wallet?.orcx ?? user.orcx ?? 0);
-    S.orcx = orcx;
-    document.getElementById('r-orcx').textContent  = orcx;
-    document.getElementById('currentTokens').textContent = orcx|0;
+  function getKakaoId(){return localStorage.getItem('kakao_id')||localStorage.getItem('orcax:kakaoId')||'demo'}
+  function ensureLogin(){const id=getKakaoId(); if(!id){ alert('로그인이 필요합니다. index9.html로 이동'); location.href='index9.html'; return false } return id }
+  // timers (localStorage)
+  const LKEY='orcax:corn:timers'; function L(){try{return JSON.parse(localStorage.getItem(LKEY)||'{}')}catch(e){return{}}} function S(t){localStorage.setItem(LKEY,JSON.stringify(t||{}))}
+  function resetTimers(){S({})}
+  function timersOnPlant(iso){const t=L(); t.plantedAt=iso; t.waterDepleteAt=0; t.fertilDepleteAt=0; t.shortageMs=0; t.lastTickAt=now().toISOString(); S(t)}
+  function timersAddWater(){const t=L(); const cur=now().getTime(); const end=Math.max(cur,t.waterDepleteAt?new Date(t.waterDepleteAt).getTime():0); const remain=Math.max(0,end-cur); const next=cur+Math.min(H(3),remain+H(1)); t.waterDepleteAt=new Date(next).toISOString(); S(t) }
+  function timersAddFertil(){const t=L(); t.fertilDepleteAt=new Date(now().getTime()+H(3)).toISOString(); S(t)}
+  function timersTick(){const t=L(); if(!t.lastTickAt) return; const s=new Date(t.lastTickAt).getTime(); const e=now().getTime(); if(e<=s) return;
+    const w=t.waterDepleteAt?new Date(t.waterDepleteAt).getTime():0; const f=t.fertilDepleteAt?new Date(t.fertilDepleteAt).getTime():0;
+    const coveredEnd=Math.min(e,(w||0)||1e20,(f||0)||1e20); const covered=Math.max(0,coveredEnd-s); const dt=e-s; const shortage=dt-covered;
+    t.shortageMs=(t.shortageMs||0)+Math.max(0,shortage); t.lastTickAt=new Date(e).toISOString(); S(t);
   }
-
-  function paintFromCorn(s){
-    if (!s) return;
-    S.summary = s;
-    document.getElementById('r-seeds').textContent = Number(s.agri?.seeds||0);
-    document.getElementById('r-corn').textContent  = Number(s.agri?.corn||0);
-    document.getElementById('r-pop').textContent   = Number(s.food?.popcorn||0);
-    document.getElementById('r-salt').textContent  = Number(s.additives?.salt||0);
-    document.getElementById('r-sugar').textContent = Number(s.additives?.sugar||0);
-
-    const g = Math.max(0, Math.min(100, Number(s.g||0)));
-    document.getElementById('gfill').style.setProperty('--p', g+'%');
-    document.getElementById('gnum').textContent = g|0;
-    document.getElementById('miniImg').src = (g>=100)
-      ? './img/corn_ready.png'
-      : './img/corn_seedling.png';
-    document.getElementById('miniCap').textContent = (s.phase || 'IDLE');
-
-    // 버튼 상태 토글
-    document.getElementById('btn-plant').disabled = !(Number(s.agri?.seeds||0) > 0 && (s.phase === 'IDLE' || s.phase === 'STUBBLE'));
-    document.getElementById('btn-water').disabled = !(Number(S.user?.inventory?.water||0) > 0 && s.phase === 'GROW' && g < 100);
-    document.getElementById('btn-fert').disabled  = !(Number(S.user?.inventory?.fertilizer||0) > 0 && s.phase === 'GROW' && g < 100);
-    document.getElementById('btn-harv').disabled  = !(s.phase === 'GROW' && g >= 100);
-    document.getElementById('btn-pop').disabled   = !(Number(s.agri?.corn||0) > 0 && Number(s.additives?.salt||0) > 0 && Number(s.additives?.sugar||0) > 0 && S.orcx >= 30);
+  function calcGrowth(){const t=L(); if(!t.plantedAt) return null; const planted=new Date(t.plantedAt).getTime(); const eff=(now().getTime()-planted)-(t.shortageMs||0); return clamp(eff/H(120)*100,0,100) }
+  function waterPct(){const t=L(); if(!t.waterDepleteAt) return 0; const rem=new Date(t.waterDepleteAt).getTime()-now().getTime(); return clamp(rem/H(3)*100,0,100) }
+  function fertilPct(){const t=L(); if(!t.fertilDepleteAt) return 0; const rem=new Date(t.fertilDepleteAt).getTime()-now().getTime(); return clamp(rem/H(3)*100,0,100) }
+  function predictedGrade(){const t=L(); if(!t.plantedAt) return null; const days=5+(t.shortageMs||0)/H(24); if(days<5.5)return'A'; if(days<6.5)return'B'; if(days<7.5)return'C'; if(days<8.5)return'D'; if(days<9.5)return'E'; return'F'}
+  const $=s=>document.querySelector(s);
+  function injectStyle(){ if(document.getElementById('corn-runtime-style')) return; const css=document.createElement('style'); css.id='corn-runtime-style'; css.textContent=`
+  .corn-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:9999}
+  .corn-overlay .box{background:rgba(8,12,24,.88);border:1px solid #2a3c63;border-radius:14px;padding:16px 18px;min-width:280px;max-width:560px;color:#eaf1ff;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  .corn-overlay .box h4{margin:0 0 8px;font-size:16px}
+  .corn-overlay .kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:14px}
+  .corn-overlay .pos{color:#7ee787}.corn-overlay .neg{color:#ff8e8e}
+  /* 이모지 아래 + 위로 세로막대 */
+  .corn-panel{position:relative}
+  .corn-panel #corn-bars{ position:absolute; right:10px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:10px; z-index:5 }
+  .corn-panel #corn-bars .meter{ display:flex; flex-direction:column; align-items:center; gap:6px }
+  .corn-panel #corn-bars .meter .bar{ width:6px; height:96px; border:1px solid rgba(255,255,255,.25); border-radius:6px; overflow:hidden; background:rgba(0,0,0,.25); position:relative }
+  .corn-panel #corn-bars .meter .bar .fill{ position:absolute; left:0; bottom:0; width:100%; height:0 }
+  .corn-panel #corn-bars .meter.water .bar .fill{ background:linear-gradient(to top, rgba(120,190,255,.9), rgba(120,190,255,.35)) }
+  .corn-panel #corn-bars .meter.fert  .bar .fill{ background:linear-gradient(to top, rgba(255,210,120,.9), rgba(255,210,120,.35)) }
+  .corn-panel #corn-bars .meter.grow  .bar .fill{ background:linear-gradient(to top, rgba(140,255,140,.95), rgba(140,255,140,.35)) }
+  .corn-panel #corn-bars .meter .emoji{ font-size:16px; line-height:1; text-shadow:0 1px 2px rgba(0,0,0,.6) }
+  .corn-panel #corn-link-left, .corn-panel #corn-link-right{ position:absolute; top:50%; transform:translateY(-50%); z-index:6 }
+  .corn-panel #corn-link-left{ left:8px } .corn-panel #corn-link-right{ right:40px }
+  `; document.head.appendChild(css); }
+  function mountBars(){
+    var panel=document.getElementById('crop-panel') || (document.getElementById('mini-img') && document.getElementById('mini-img').closest('div'));
+    if(!panel) return; panel.classList.add('corn-panel');
+    let bars=document.getElementById('corn-bars');
+    if(!bars){ bars=document.createElement('div'); bars.id='corn-bars'; panel.appendChild(bars); }
+    bars.innerHTML=`
+      <div class="meter water"><div class="bar"><div class="fill" id="bar-water"></div></div><div class="emoji">💧</div></div>
+      <div class="meter fert"><div class="bar"><div class="fill" id="bar-fert"></div></div><div class="emoji">🌱</div></div>
+      <div class="meter grow"><div class="bar"><div class="fill" id="bar-grow"></div></div><div class="emoji">🌽</div></div>
+    `;
+    const links=[...panel.querySelectorAll('a,button')].filter(el=>!el.closest('#corn-bars'));
+    if(links[0] && !document.getElementById('corn-link-left'))  links[0].id='corn-link-left';
+    if(links[1] && !document.getElementById('corn-link-right')) links[1].id='corn-link-right';
   }
-
-  // ------- API wrappers -------
-  const api = {
-    userdata:      () => jfetch(API('userdata'),      { method:'POST', body:{ kakaoId, nickname } }),
-    cornSummary:   () => jfetch(API('corn/summary'),  { method:'GET',  query:{ kakaoId } }),
-    plant:         () => jfetch(API('corn/plant'),    { method:'POST', body:{ kakaoId } }),
-    grow:          (step=5) => jfetch(API('corn/grow'),{ method:'POST', body:{ kakaoId, step } }),
-    harvest:       () => jfetch(API('corn/harvest'),  { method:'POST', body:{ kakaoId } }),
-    pop:           (tokenCost=30) => jfetch(API('corn/pop'), { method:'POST', body:{ kakaoId, tokenCost } }),
-    exchange:      (qty=1) => jfetch(API('corn/exchange'), { method:'POST', body:{ kakaoId, qty } }),
-    useInventory:  (type, amount=1) => jfetch(API('user/inventory/use'), { method:'POST', body:{ kakaoId, type, amount } })
-  };
-
-  // ------- 이벤트 연결 -------
-  async function onPlant(){
-    try{ await api.plant(); await loadAll(); toast('심기 완료'); }
-    catch(e){ console.error(e); toast(e.data?.error || '심기 실패'); }
+  function setMiniByGrowth(g){
+    let mini=document.getElementById('mini-img'); if(!mini) return;
+    const base=(g>=100)?'corn_ready.png':(g>=80)?'corn_70.png':(g>=60)?'corn_50.png':(g>=40)?'corn_30.png':(g>0)?'corn_seedling.png':'corn_empty.png';
+    const mobile=(window.matchMedia && matchMedia('(max-width: 640px)').matches) || (window.innerWidth <= 640);
+    const srcMini=`img/a_${base}`, srcFull=`img/${base}`;
+    mini.onerror=function(){ if(mini.getAttribute('data-a-tried')==='1') return; mini.setAttribute('data-a-tried','1'); mini.src=srcFull };
+    mini.setAttribute('data-a-tried', mobile?'0':'1'); mini.src = mobile ? srcMini : srcFull;
   }
-  async function onWater(){
-    try{
-      try{ await api.useInventory('water',1); }catch(_){} // 재고 차감 라우트 없으면 무시
-      await api.grow(5);
-      await loadAll(); toast('물 주기 완료');
-    }catch(e){ console.error(e); toast(e.data?.error || '물 주기 실패'); }
-  }
-  async function onFert(){
-    try{
-      try{ await api.useInventory('fertilizer',1); }catch(_){} // 없으면 무시
-      await api.grow(7);
-      await loadAll(); toast('거름 주기 완료');
-    }catch(e){ console.error(e); toast(e.data?.error || '거름 주기 실패'); }
-  }
-  async function onHarv(){
-    try{ await api.harvest(); await loadAll(); toast('수확 완료'); }
-    catch(e){ console.error(e); toast(e.data?.error || '수확 실패'); }
-  }
-  async function onPop(){
-    try{ await api.pop(30); await loadAll(); toast('뻥튀기 완료'); }
-    catch(e){ console.error(e); toast(e.data?.error || '뻥튀기 실패'); }
-  }
-  async function onExchange(){
-    try{ await api.exchange(1); await loadAll(); toast('교환 완료'); }
-    catch(e){ console.error(e); toast(e.data?.error || '교환 실패'); }
-  }
-
-  document.getElementById('btn-plant').onclick = onPlant;
-  document.getElementById('btn-water').onclick = onWater;
-  document.getElementById('btn-fert').onclick  = onFert;
-  document.getElementById('btn-harv').onclick  = onHarv;
-  document.getElementById('btn-pop').onclick   = onPop;
-  document.getElementById('btn-ex').onclick    = onExchange;
-
-  // 구매 모달
-  document.getElementById('btn-buy').onclick = () => {
-    document.getElementById('currentTokens').textContent = (S.orcx|0);
-    const m = document.getElementById('buyModal'); m.style.display='flex'; m.setAttribute('aria-hidden','false');
-  };
-  function closeBuy(){ const m=document.getElementById('buyModal'); m.style.display='none'; m.setAttribute('aria-hidden','true'); }
-  document.getElementById('buyModal').addEventListener('click',e=>{ if(e.target.id==='buyModal') closeBuy(); });
-  window.closeBuy = closeBuy;
-
-  async function handleBuy(type, price){
-    try{
-      if ((S.orcx|0) < Number(price||0)){ alert('토큰이 부족합니다.'); return; }
-      const item = type; // seeds는 서버에서 seed로 호환 처리
-      await jfetch(API('corn/buy-additive'), { method:'POST', body:{ kakaoId, item, qty:1 } });
-      await loadAll(); closeBuy(); toast('구매 완료');
-    }catch(e){ console.error(e); alert(e.data?.error || '구매 실패'); }
-  }
-  window.handleBuy = handleBuy;
-
-  // ------- 초기 로드 -------
+  function setSeasonBackground(g){ const idx=(g>=80)?'05':(g>=60)?'04':(g>=40)?'03':(g>=20)?'02':'01'; const target=document.getElementById('farm-bg'); if(!target) return; const next=`img/farm_${idx}.png`; if(target.getAttribute('src')!==next) target.setAttribute('src', next); }
+  let state={user:{},summary:{},corn:{}};
+  function setText(id,v){const el=document.getElementById(id); if(el) el.textContent=(v??'0')}
+  function setDisabled(el,d){ if(!el)return; el.disabled=!!d; el.classList.toggle('is-disabled',!!d) }
   async function loadAll(){
+    const kakaoId=ensureLogin(); if(!kakaoId) return;
     try{
-      const [ud, cs] = await Promise.all([ api.userdata(), api.cornSummary() ]);
-      const user = ud.user || ud.data || ud;
-      paintFromUser(user);
-      paintFromCorn(cs);
-      setNet(true, '온라인');
-    }catch(e){
-      setNet(false, '연결 실패'); console.error(e); toast('서버 연결 실패');
-    }
+      const [user,summary]=await Promise.all([ jfetch(API('userdata'),{method:'POST',body:{kakaoId}}), jfetch(API('corn/summary'),{method:'GET',query:{kakaoId}}) ]);
+      state.user=user||{}; state.summary=summary||{}; state.corn=summary?.corn||{};
+      const t=L(); const plantedAt=(state.corn.plantedAt||state.summary.plantedAt||state.user.plantedAt||null); if(plantedAt && !t.plantedAt) timersOnPlant(plantedAt);
+      render();
+    }catch(e){ console.error(e); showToast('서버 연결 실패','error'); }
   }
-  document.addEventListener('DOMContentLoaded', loadAll);
-</script>
-<script>
-/* corn-farm.runtime.js (All-in-one, inline)
- * - API 연동
- * - 버튼 활성/액션
- * - 등급(A~F) 계산 (KST)
- * - 팝 자원 조건(소금1+설탕1+토큰30+팝콘>=1)
- * - 결과 오버레이(증감량 Delta)
- * - 미니 이미지: 모바일 a_ 접두 우선 + 폴백
- * - 계절 배경: 성장%에 따라 farm_01~05.png 자동 변경(폴백)
- * - 물/거름/성장 세로 게이지: 중앙 하단 상태패널에 주입 (디자인 비침범)
- * - 물: 3칸(3h), 1칸=1h 소진 / 거름: 1칸(3h) 소진 / 성장: 총 120h (5일)
- * - 물·거름 부족 시간만큼 성장 지연 → 등급 하락 반영
- */
-const DEFAULT_ORIGIN=(localStorage.getItem('orcax:DEFAULT_ORIGIN')||'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
-const RAW_ORIGIN=(localStorage.getItem('orcax:BASE_API')||DEFAULT_ORIGIN).replace(/\/+$/,'');
-const BASE_ORIGIN=RAW_ORIGIN.replace(/\/api\/?$/i,'');
-const API=(p)=>`${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
-const H=(n)=>n*60*60*1000,clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-function toKST(date){const d=new Date(date);const utc=d.getTime()+d.getTimezoneOffset()*60000;return new Date(utc+9*60*60000)}function now(){return new Date()}
-async function jfetch(url,{method='GET',query,body,headers}={}){let u=url;if(query){const qs=new URLSearchParams();Object.entries(query).forEach(([k,v])=>{if(v!=null)qs.set(k,String(v))});const q=qs.toString();if(q)u+=(u.includes('?')?'&':'?')+q}const opts={method,headers:Object.assign({'Accept':'application/json'},headers||{})};if(body!=null){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body)}const r=await fetch(u,Object.assign(opts,{mode:'cors',cache:'no-store'}));const text=await r.text();const isJson=(r.headers.get('content-type')||'').includes('application/json');const data=text?(isJson?JSON.parse(text):{raw:text}):{};if(!r.ok)throw Object.assign(new Error(`HTTP ${r.status}`),{data,status:r.status});return data}
-function getKakaoId(){return localStorage.getItem('kakao_id')||localStorage.getItem('orcax:kakaoId')||''}
-function ensureLogin(){const kakaoId=getKakaoId();if(!kakaoId){alert('로그인이 필요합니다. (index9.html로 이동)');location.href='index9.html';return false}return kakaoId}
-const LKEY='orcax:corn:timers';function loadTimers(){try{return JSON.parse(localStorage.getItem(LKEY)||'{}')}catch(e){return{}}}
-function saveTimers(t){localStorage.setItem(LKEY,JSON.stringify(t||{}))}function resetTimers(){saveTimers({})}
-function timersOnPlant(iso){const t=loadTimers();t.plantedAt=iso;t.waterDepleteAt=0;t.fertilDepleteAt=0;t.shortageMs=0;t.lastTickAt=now().toISOString();saveTimers(t)}
-function timersAddWater(){const t=loadTimers();const cur=now().getTime();const end=Math.max(cur,t.waterDepleteAt?new Date(t.waterDepleteAt).getTime():0);const remain=Math.max(0,end-cur);const next=cur+Math.min(H(3),remain+H(1));t.waterDepleteAt=new Date(next).toISOString();saveTimers(t)}
-function timersAddFertil(){const t=loadTimers();t.fertilDepleteAt=new Date(now().getTime()+H(3)).toISOString();saveTimers(t)}
-function timersTick(){const t=loadTimers();if(!t.lastTickAt)return;const s=new Date(t.lastTickAt).getTime();const e=now().getTime();if(e<=s)return;const w=t.waterDepleteAt?new Date(t.waterDepleteAt).getTime():0;const f=t.fertilDepleteAt?new Date(t.fertilDepleteAt).getTime():0;const coveredEnd=Math.min(e,(w||0)||1e20,(f||0)||1e20);const covered=Math.max(0,coveredEnd-s);const dt=e-s;const shortage=dt-covered;t.shortageMs=(t.shortageMs||0)+Math.max(0,shortage);t.lastTickAt=new Date(e).toISOString();saveTimers(t)}
-function calcGrowthByTimers(){const t=loadTimers();if(!t.plantedAt)return null;const planted=new Date(t.plantedAt).getTime();const effective=(now().getTime()-planted)-(t.shortageMs||0);const pct=clamp(effective/H(120)*100,0,100);return pct}
-function waterPct(){const t=loadTimers();if(!t.waterDepleteAt)return 0;const remain=new Date(t.waterDepleteAt).getTime()-now().getTime();return clamp(remain/H(3)*100,0,100)}
-function fertilPct(){const t=loadTimers();if(!t.fertilDepleteAt)return 0;const remain=new Date(t.fertilDepleteAt).getTime()-now().getTime();return clamp(remain/H(3)*100,0,100)}
-function predictedGrade(){const t=loadTimers();if(!t.plantedAt)return null;const days=5+(t.shortageMs||0)/H(24);if(days<5.5)return'A';if(days<6.5)return'B';if(days<7.5)return'C';if(days<8.5)return'D';if(days<9.5)return'E';return'F'}
-const $=(s)=>document.querySelector(s);
-function injectStyle(){if($('#corn-runtime-style'))return;const css=document.createElement('style');css.id='corn-runtime-style';css.textContent=`
-.corn-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:9999}
-.corn-overlay .box{background:rgba(8,12,24,.88);border:1px solid #2a3c63;border-radius:14px;padding:16px 18px;min-width:280px;max-width:560px;color:#eaf1ff;box-shadow:0 10px 30px rgba(0,0,0,.35);}
-.corn-overlay .box h4{margin:0 0 8px;font-size:16px}
-.corn-overlay .kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:14px}
-.corn-overlay .pos{color:#7ee787}.corn-overlay .neg{color:#ff8e8e}
-#corn-bars{position:absolute;right:6px;bottom:6px;display:flex;gap:6px;z-index:5}
-#corn-bars .bar{width:8px;height:68px;border:1px solid rgba(255,255,255,.2);border-radius:6px;position:relative;overflow:hidden;background:rgba(0,0,0,.25)}
-#corn-bars .bar .fill{position:absolute;left:0;bottom:0;width:100%;height:0;background:linear-gradient(to top, rgba(120,190,255,.9), rgba(120,190,255,.35))}
-#corn-bars .bar.fert .fill{background:linear-gradient(to top, rgba(255,210,120,.9), rgba(255,210,120,.35))}
-#corn-bars .bar.grow .fill{background:linear-gradient(to top, rgba(140,255,140,.95), rgba(140,255,140,.35))}
-#corn-bars .bar .lab{position:absolute;top:2px;left:0;width:100%;text-align:center;font-size:10px;color:#eaf1ff;text-shadow:0 1px 2px rgba(0,0,0,.7)}
-`;document.head.appendChild(css)}
-function ensureMiniPanel(){let panel=$('#crop-panel')||[...document.querySelectorAll('div,section')].find(el=>/작물\s*상태/.test(el.textContent||''));if(!panel){panel=$('#mini-img')?.parentElement||null}return panel}
-function mountBars(){const panel=ensureMiniPanel();if(!panel)return;if($('#corn-bars'))return;const bars=document.createElement('div');bars.id='corn-bars';bars.innerHTML=`
-  <div class="bar water"><div class="fill" id="bar-water"></div><div class="lab">💧</div></div>
-  <div class="bar fert"><div class="fill" id="bar-fert"></div><div class="lab">🌱</div></div>
-  <div class="bar grow"><div class="fill" id="bar-grow"></div><div class="lab">🌽</div></div>
-`;panel.style.position=panel.style.position||'relative';panel.appendChild(bars)}
-function updateBars(){const bw=$('#bar-water'),bf=$('#bar-fert'),bg=$('#bar-grow');if(bw)bw.style.height=clamp(waterPct(),0,100)+'%';if(bf)bf.style.height=clamp(fertilPct(),0,100)+'%';const gp=calcGrowthByTimers();if(bg&&gp!=null)bg.style.height=clamp(gp,0,100)+'%'}
-function isMobile(){return(window.matchMedia&&matchMedia('(max-width: 640px)').matches)||(window.innerWidth<=640)}
-function setMiniByGrowth(g){let mini=document.getElementById('mini-img')||document.querySelector('img[alt*="작물"]');if(!mini)return;const base=(g>=100)?'corn_ready.png':(g>=80)?'corn_70.png':(g>=60)?'corn_50.png':(g>=40)?'corn_30.png':(g>0)?'corn_seedling.png':'corn_empty.png';const srcMini=`./img/a_${base}`;const srcFull=`./img/${base}`;mini.onerror=function(){if(mini.getAttribute('data-a-tried')==='1')return;mini.setAttribute('data-a-tried','1');mini.src=srcFull};mini.setAttribute('data-a-tried',isMobile()?'0':'1');mini.alt='작물 상태';mini.src=isMobile()?srcMini:srcFull}
-function setSeasonBackground(g){const idx=(g>=80)?'05':(g>=60)?'04':(g>=40)?'03':(g>=20)?'02':'01';const target=document.getElementById('farm-bg')||[...document.querySelectorAll('img')].find(img=>/img\/farm_0\d\.png$/i.test(img.src||''));if(!target)return;const next=target.src.replace(/farm_0\d\.png/i,`farm_${idx}.png`);if(next!==target.src)target.src=next}
-function getCornGradeByTimers(){const t=loadTimers();if(!t.plantedAt)return null;const days=5+(t.shortageMs||0)/H(24);if(days<5.5)return'A';if(days<6.5)return'B';if(days<7.5)return'C';if(days<8.5)return'D';if(days<9.5)return'E';return'F'}
-function gradeLabel(g){if(!g)return'-';return{A:'A급',B:'B급',C:'C급',D:'D급',E:'E급',F:'F급'}[g]||g}
-let state={user:{},summary:{},corn:{}};
-function setText(id,v){const el=document.getElementById(id);if(el)el.textContent=(v??'0')}
-function setDisabled(el,disabled){if(!el)return;el.disabled=!!disabled;el.classList.toggle('is-disabled',!!disabled)}
-async function loadAll(){const kakaoId=ensureLogin();if(!kakaoId)return;try{const[user,summary]=await Promise.all([jfetch(API('userdata'),{method:'POST',body:{kakaoId}}),jfetch(API('corn/summary'),{method:'GET',query:{kakaoId}})]);state.user=user||{};state.summary=summary||{};state.corn=summary?.corn||{};const t=loadTimers();const plantedAt=(state.corn.plantedAt||state.summary.plantedAt||state.user.plantedAt);if(plantedAt&&!t.plantedAt)timersOnPlant(plantedAt);render()}catch(err){console.error('loadAll error',err);showToast('서버 연결 실패','error')}}
-function render(){injectStyle();mountBars();timersTick();updateBars();const u=state.user||{};const s=state.summary||{};const inv=s.inventory||{};const corn=s.corn||{};setText('val-seed',inv.seedCorn??inv.seed??0);setText('val-water',u.water??s.water??0);setText('val-fertil',u.fertilizer??s.fertilizer??0);setText('val-corn',s.cornCount??0);setText('val-pop',inv.popcorn??s.popcorn??0);setText('val-salt',inv.salt??0);setText('val-sugar',inv.sugar??0);setText('val-token',u.token??s.token??0);const g=calcGrowthByTimers();if(g!=null){const gauge=document.getElementById('growth-bar');if(gauge)gauge.style.width=`${clamp(g,0,100)}%`;const round=document.getElementById('gauge-round')||document.querySelector('.gauge-round,[data-gauge="round"]');if(round){round.textContent=Math.round(g);round.style.setProperty('--val',Math.round(g))}setMiniByGrowth(g);setSeasonBackground(g)}const grade=getCornGradeByTimers();setText('txt-grade',grade?`예상 등급: ${gradeLabel(grade)}`:'예상 등급: -');const btnPlant=document.getElementById('btn-plant')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='씨앗 심기');const btnWater=document.getElementById('btn-water')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='물 주기');const btnFert=document.getElementById('btn-fertilize')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='거름 주기');const btnHarv=document.getElementById('btn-harvest')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='수확');const btnPop=document.getElementById('btn-pop')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='뻥튀기');const btnExch=document.getElementById('btn-exchange')||[...document.querySelectorAll('button')].find(b=>b.textContent.trim().includes('팝콘'));const hasSeed=(inv.seedCorn??inv.seed??0)>0;const hasWaterItem=(u.water??s.water??0)>0;const hasFertilItem=(u.fertilizer??s.fertilizer??0)>0;const hasPop=(inv.popcorn??s.popcorn??0)>0;const salt=inv.salt??0;const sugar=inv.sugar??0;const token=u.token??s.token??0;const growth=g??0;const readyToHarvest=(growth>=90);setDisabled(btnPlant,!(hasSeed&&growth===0));setDisabled(btnWater,!hasWaterItem);setDisabled(btnFert,!hasFertilItem);setDisabled(btnHarv,!readyToHarvest);setDisabled(btnPop,!(hasPop&&salt>=1&&sugar>=1&&token>=30));setDisabled(btnExch,!hasPop)}
-setInterval(()=>{timersTick();render()},30*1000);
-function showOverlayDelta(before,after,title,details){try{const keys=['seed','water','fertilizer','cornCount','popcorn','salt','sugar','token'];const names={seed:'씨앗',water:'물',fertilizer:'거름',cornCount:'옥수수',popcorn:'팝콘',salt:'소금',sugar:'설탕',token:'토큰'};const diff={};for(const k of keys){const b=(before[k]??0),a=(after[k]??0);if(a!==b)diff[k]=a-b}const wrap=document.createElement('div');wrap.className='corn-overlay';const box=document.createElement('div');box.className='box';const kvs=Object.entries(diff).map(([k,v])=>{const cls=v>=0?'pos':'neg';const sign=v>0?'+':'';return `<div>${names[k]}</div><div class="${cls}">${sign}${v}</div>`}).join('');box.innerHTML=`<h4>${title||'결과'}</h4>${details?`<div style="font-size:12px;margin-bottom:6px;color:#9fb6d6">${details}</div>`:''}<div class="kv">${kvs||'<div>변경 사항 없음</div><div></div>'}</div>`;wrap.appendChild(box);document.body.appendChild(wrap);setTimeout(()=>wrap.remove(),1800)}catch(e){console.warn('overlay error',e)}}
-async function act(endpoint,body,{title,details}={}){const kakaoId=ensureLogin();if(!kakaoId)return;const before=snapshotCounters();try{const r=await jfetch(API(endpoint),{method:'POST',body:Object.assign({kakaoId},body||{})});if(endpoint==='corn/plant'){timersOnPlant(new Date().toISOString())}else if(endpoint==='corn/water'){timersAddWater()}else if(endpoint==='corn/fertilize'){timersAddFertil()}else if(endpoint==='corn/harvest'){timersOnPlant(null);resetTimers()}await loadAll();const after=snapshotCounters();showOverlayDelta(before,after,title||endpoint.toUpperCase(),detailsFromResponse(endpoint,r,details))}catch(err){const msg=err?.data?.message||`요청 실패: ${endpoint}`;showToast(msg,'error');console.warn('act error',endpoint,err)}}
-function snapshotCounters(){const u=state.user||{};const s=state.summary||{};const inv=s.inventory||{};return{seed:inv.seedCorn??inv.seed??0,water:u.water??s.water??0,fertilizer:u.fertilizer??s.fertilizer??0,cornCount:s.cornCount??0,popcorn:inv.popcorn??s.popcorn??0,salt:inv.salt??0,sugar:inv.sugar??0,token:u.token??s.token??0}}
-function detailsFromResponse(endpoint,r,details){if(details)return details;try{if(!r||typeof r!=='object')return'';if(endpoint==='corn/pop'){const g=r.grade||r.gradeHint||predictedGrade();const br=r.breakdown||{};const hi=br.hi||0,mid=br.mid||0,low=br.low||0,pop=br.pop||0;const sum=r.tokenGained??0;return `등급 ${gradeLabel(g)} · 토큰(상:${hi} 중:${mid} 하:${low}) · 토큰 +${sum} · 팝콘 +${pop}`}if(endpoint==='corn/harvest'){const g=r.grade||predictedGrade();const qty=r.qty||r.cornGained||0;return `등급 ${gradeLabel(g)} · 옥수수 +${qty}`}}catch(e){}return''}
-function bindActions(){const byText=(t)=>[...document.querySelectorAll('button')].find(b=>b.textContent.trim()===t);(document.getElementById('btn-plant')||byText('씨앗 심기'))?.addEventListener('click',()=>act('corn/plant',null,{title:'씨앗 심기'}));(document.getElementById('btn-water')||byText('물 주기'))?.addEventListener('click',()=>act('corn/water',null,{title:'물 주기'}));(document.getElementById('btn-fertilize')||byText('거름 주기'))?.addEventListener('click',()=>act('corn/fertilize',null,{title:'거름 주기'}));(document.getElementById('btn-harvest')||byText('수확'))?.addEventListener('click',()=>{const grade=getCornGradeByTimers();act('corn/harvest',{gradeHint:grade},{title:'수확',details:`예상 등급 ${gradeLabel(grade)}`})});(document.getElementById('btn-pop')||byText('뻥튀기'))?.addEventListener('click',()=>act('corn/pop',{tokenCost:30},{title:'뻥튀기'}));(document.getElementById('btn-exchange')||byText('팝콘↔거름')||byText('팝콘 ↔ 거름'))?.addEventListener('click',()=>act('corn/exchange',{type:'popcorn-to-fertilizer',qty:1},{title:'교환'}))}
-function showToast(msg,type){try{const el=document.getElementById('toast-area');if(!el)return alert(msg);const d=document.createElement('div');d.className=`toast ${type||''}`;d.textContent=msg;el.appendChild(d);setTimeout(()=>d.remove(),2500)}catch(e){alert(msg)}}
-window.addEventListener('DOMContentLoaded',()=>{injectStyle();mountBars();bindActions();const t=loadTimers();if(!t.lastTickAt){t.lastTickAt=now().toISOString();saveTimers(t)}loadAll()});
-</script>
-<script src="./js/corn-farm.runtime.js?v=20250815"></script>
+  function render(){
+    injectStyle(); mountBars(); timersTick();
+    const u=state.user||{}, s=state.summary||{}, inv=s.inventory||{}, corn=s.corn||{};
+    setText('val-seed',inv.seedCorn??inv.seed??0); setText('val-water',u.water??s.water??0); setText('val-fertil',u.fertilizer??s.fertilizer??0); setText('val-corn',s.cornCount??0);
+    setText('val-pop',inv.popcorn??s.popcorn??0); setText('val-salt',inv.salt??0); setText('val-sugar',inv.sugar??0); setText('val-token',u.token??s.token??0);
+    const g=calcGrowth(); if(g!=null){ const bar=$('#growth-bar'); if(bar) bar.style.width = Math.round(g)+'%'; setMiniByGrowth(g); setSeasonBackground(g);
+      const bw=$('#bar-water'), bf=$('#bar-fert'), bg=$('#bar-grow'); if(bw) bw.style.height = Math.round(waterPct())+'%'; if(bf) bf.style.height = Math.round(fertilPct())+'%'; if(bg) bg.style.height = Math.round(g)+'%';
+    }
+    const grade=predictedGrade(); setText('txt-grade', grade?('예상 등급: '+grade):'예상 등급: -');
+    const btnPlant=$('#btn-plant'), btnWater=$('#btn-water'), btnFert=$('#btn-fertilize'), btnHarv=$('#btn-harvest'), btnPop=$('#btn-pop'), btnExch=$('#btn-exchange');
+    const hasSeed=(inv.seedCorn??inv.seed??0)>0, hasWater=(u.water??s.water??0)>0, hasFertil=(u.fertilizer??s.fertilizer??0)>0, hasPop=(inv.popcorn??s.popcorn??0)>0;
+    const salt=inv.salt??0, sugar=inv.sugar??0, token=u.token??s.token??0, growth=g??0, ready=(growth>=90);
+    setDisabled(btnPlant, !(hasSeed && growth===0)); setDisabled(btnWater, !hasWater); setDisabled(btnFert, !hasFertil); setDisabled(btnHarv, !ready); setDisabled(btnPop, !(hasPop && salt>=1 && sugar>=1 && token>=30)); setDisabled(btnExch, !hasPop);
+  }
+  setInterval(render, 30000);
+  function showOverlayDelta(before,after,title,details){
+    try{const keys=['seed','water','fertilizer','cornCount','popcorn','salt','sugar','token']; const names={seed:'씨앗',water:'물',fertilizer:'거름',cornCount:'옥수수',popcorn:'팝콘',salt:'소금',sugar:'설탕',token:'토큰'};
+      const diff={}; for(const k of keys){ const b=(before[k]??0), a=(after[k]??0); if(a!==b) diff[k]=a-b }
+      const wrap=document.createElement('div'); wrap.className='corn-overlay'; const box=document.createElement('div'); box.className='box';
+      const kvs=Object.entries(diff).map(([k,v])=>{const cls=v>=0?'pos':'neg'; const sign=v>0?'+':''; return `<div>${names[k]}</div><div class="${cls}">${sign}${v}</div>`}).join('');
+      box.innerHTML=`<h4>${title||'결과'}</h4>${details?`<div style="font-size:12px;margin-bottom:6px;color:#9fb6d6">${details}</div>`:''}<div class="kv">${kvs||'<div>변경 사항 없음</div><div></div>'}</div>`;
+      wrap.appendChild(box); document.body.appendChild(wrap); setTimeout(()=>wrap.remove(),1800);
+    }catch(e){console.warn(e)}
+  }
+  function snap(){const u=state.user||{}, s=state.summary||{}, inv=s.inventory||{}; return {seed:inv.seedCorn??inv.seed??0, water:u.water??s.water??0, fertilizer:u.fertilizer??s.fertilizer??0, cornCount:s.cornCount??0, popcorn:inv.popcorn??s.popcorn??0, salt:inv.salt??0, sugar:inv.sugar??0, token:u.token??s.token??0}}
+  async function act(ep, body, {title, details}={}){
+    const kakaoId=ensureLogin(); if(!kakaoId) return; const before=snap();
+    try{
+      const r=await jfetch(API(ep),{method:'POST',body:Object.assign({kakaoId},body||{})});
+      if(ep==='corn/plant'){ timersOnPlant(new Date().toISOString()) } else if(ep==='corn/water'){ timersAddWater() } else if(ep==='corn/fertilize'){ timersAddFertil() } else if(ep==='corn/harvest'){ resetTimers() }
+      await loadAll(); const after=snap();
+      let det = details||''; if(ep==='corn/pop' && r){ const br=r.breakdown||{}; det=`등급 ${r.grade||'-'} · 토큰(상:${br.hi||0} 중:${br.mid||0} 하:${br.low||0}) · 토큰 +${r.tokenGained||0} · 팝콘 +${br.pop||0}` }
+      if(ep==='corn/harvest' && r){ det=`등급 ${r.grade||'-'} · 옥수수 +${r.qty||r.cornGained||0}` }
+      showOverlayDelta(before, after, title||ep.toUpperCase(), det);
+    }catch(e){ showToast((e?.data?.message)||'요청 실패','error') }
+  }
+  document.getElementById('btn-plant').onclick = ()=>act('corn/plant', null, {title:'씨앗 심기'});
+  document.getElementById('btn-water').onclick = ()=>act('corn/water', null, {title:'물 주기'});
+  document.getElementById('btn-fertilize').onclick = ()=>act('corn/fertilize', null, {title:'거름 주기'});
+  document.getElementById('btn-harvest').onclick = ()=>act('corn/harvest', null, {title:'수확'});
+  document.getElementById('btn-pop').onclick = ()=>act('corn/pop', {tokenCost:30}, {title:'뻥튀기'});
+  document.getElementById('btn-exchange').onclick = ()=>act('corn/exchange', {type:'popcorn-to-fertilizer', qty:1}, {title:'교환'});
+  function showToast(msg,type){ const el=document.getElementById('toast-area'); const d=document.createElement('div'); d.className=`toast ${type||''}`; d.textContent=msg; (el||document.body).appendChild(d); setTimeout(()=>d.remove(),2500) }
+  window.addEventListener('DOMContentLoaded', ()=>{ injectStyle(); mountBars(); loadAll(); });
+  </script>
 </body>
 </html>
