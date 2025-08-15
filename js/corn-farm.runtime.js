@@ -110,6 +110,11 @@ function render(){
   const gauge = document.getElementById('growth-bar');
   if (gauge) gauge.style.width = `${g}%`;
 
+  // 예상 등급 표시 (파종 시간 필요)
+  const plantedAt = (corn.plantedAt || s.plantedAt || u.plantedAt);
+  const grade = getCornGrade(plantedAt);
+  setText('txt-grade', grade ? `예상 등급: ${gradeLabel(grade)}` : '예상 등급: -');
+
   // 버튼 활성/비활성
   const btnPlant = document.getElementById('btn-plant');
   const btnWater = document.getElementById('btn-water');
@@ -135,6 +140,29 @@ function render(){
   setText('txt-status', readyToHarvest ? '수확 가능' : (g>0 ? `성장 중 (${g}%)` : '빈 밭'));
 }
 
+
+// ==== 5.5) 등급 산정 (A/B/C) ====
+// 규칙:
+// - 파종 후 정확히 5일차 내 수확 → A급
+// - 6일차 내 수확 → B급
+// - 7일차 이후 수확 → C급
+function getCornGrade(plantedAtIso, now = new Date()){
+  try{
+    if(!plantedAtIso) return null;
+    const planted = new Date(plantedAtIso);
+    const ms = now - planted;
+    if (Number.isNaN(ms) || ms < 0) return null;
+    const days = ms / (1000*60*60*24);
+    if (days <= 5.999) return (days >= 5.0 ? 'A' : null); // 5일 도달 전에는 등급 미정
+    if (days <= 6.999) return 'B';
+    return 'C';
+  }catch(e){ return null; }
+}
+function gradeLabel(g){
+  if (!g) return '-';
+  return (g==='A'?'A급':g==='B'?'B급':'C급');
+}
+
 // ==== 6) 액션 ====
 async function act(endpoint, body){
   const kakaoId = ensureLogin(); if(!kakaoId) return;
@@ -154,7 +182,7 @@ function bindActions(){
     ['#btn-plant',     () => act('corn/plant')],
     ['#btn-water',     () => act('corn/water')],
     ['#btn-fertilize', () => act('corn/fertilize')],
-    ['#btn-harvest',   () => act('corn/harvest')],
+    ['#btn-harvest',   () => act('corn/harvest', { gradeHint: getCornGrade((state.summary?.corn?.plantedAt || state.summary?.plantedAt || state.user?.plantedAt)) })],
     ['#btn-pop',       () => act('corn/pop', { tokenCost: 30 })],
     ['#btn-exchange',  () => act('corn/exchange', { type:'popcorn-to-fertilizer', qty:1 })],
   ];
