@@ -146,12 +146,17 @@ function render(){
   const hasFertil = (u.fertilizer ?? s.fertilizer ?? 0) > 0;
   const hasPop = (inv.popcorn ?? s.popcorn ?? 0) > 0;
   const readyToHarvest = (g >= 100);
+  const cornCount = Number(s.cornCount ?? 0);
+  const salt = Number(inv.salt ?? 0);
+  const sugar = Number(inv.sugar ?? 0);
+  const myToken = Number(u.token ?? s.token ?? 0);
+  const canPop = (cornCount > 0) && (salt >= 1) && (sugar >= 1) && (myToken >= 30);
 
   setDisabled(btnPlant, !(hasSeed && g === 0));          // 빈밭일 때만 심기
   setDisabled(btnWater, !(hasWater && g > 0 && g < 100));
   setDisabled(btnFert,  !(hasFertil && g > 0 && g < 100));
   setDisabled(btnHarv,  !readyToHarvest);
-  setDisabled(btnPop,   !hasPop);
+  setDisabled(btnPop,   !canPop);
   setDisabled(btnExch,  !hasPop);
 }
 
@@ -192,11 +197,117 @@ function gradeLabel(g){
 }
 
 // ==== 6) 액션 ====
+
+// ==== 6.5) 결과 오버레이 & 차이 계산 ====
+function ensureOverlay(){
+  let el = document.getElementById('result-overlay');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'result-overlay';
+  el.style.position = 'fixed';
+  el.style.left = '0'; el.style.top = '0'; el.style.right = '0'; el.style.bottom = '0';
+  el.style.display = 'none';
+  el.style.alignItems = 'center';
+  el.style.justifyContent = 'center';
+  el.style.zIndex = '9999';
+  el.style.pointerEvents = 'none';
+  document.body.appendChild(el);
+  return el;
+}
+function showResultBox(title, lines, ms=1800){
+  const wrap = ensureOverlay();
+  wrap.innerHTML = '';
+  const box = document.createElement('div');
+  box.style.minWidth = '260px';
+  box.style.maxWidth = '80vw';
+  box.style.padding = '18px 20px';
+  box.style.borderRadius = '16px';
+  box.style.background = 'rgba(10,16,30,.92)';
+  box.style.backdropFilter = 'blur(4px)';
+  box.style.border = '1px solid rgba(60,100,180,.35)';
+  box.style.boxShadow = '0 8px 30px rgba(0,0,0,.45)';
+  box.style.color = '#EAF2FF';
+  box.style.textAlign = 'center';
+  box.style.fontSize = '15px';
+  box.style.pointerEvents = 'auto';
+  const h = document.createElement('div');
+  h.style.fontSize = '16px'; h.style.marginBottom = '8px'; h.style.fontWeight = '600';
+  h.textContent = title;
+  const ul = document.createElement('div');
+  ul.style.lineHeight = '1.7';
+  (lines||[]).forEach(t=>{ const d=document.createElement('div'); d.textContent=t; ul.appendChild(d); });
+  box.appendChild(h); box.appendChild(ul);
+  wrap.appendChild(box);
+  wrap.style.display = 'flex';
+  setTimeout(()=>{ wrap.style.display = 'none'; wrap.innerHTML=''; }, ms);
+}
+function snap(){
+  const u = state.user || {};
+  const s = state.summary || {};
+  const inv = s.inventory || {};
+  const corn = s.corn || {};
+  return {
+    water: Number(u.water ?? s.water ?? 0),
+    fertil: Number(u.fertilizer ?? s.fertilizer ?? 0),
+    seed: Number((inv.seedCorn ?? inv.seed ?? 0)),
+    corn: Number(s.cornCount ?? 0),
+    popcorn: Number(inv.popcorn ?? s.popcorn ?? 0),
+    salt: Number(inv.salt ?? 0),
+    sugar: Number(inv.sugar ?? 0),
+    token: Number(u.token ?? s.token ?? 0),
+    growth: Number(corn.growth ?? s.growth ?? 0),
+  };
+}
+function diff(prev, now){
+  const out = {};
+  for (const k of Object.keys(prev)) out[k] = Number(now[k] - prev[k]);
+  return out;
+}
+function linesFor(endpoint, d){
+  const L=[];
+  function add(k,v){ if(v===0||Number.isNaN(v)) return; const sign = v>0?'+':''; L.push(`${k} ${sign}${v}`); }
+  const map = { token:'토큰', corn:'옥수수', popcorn:'팝콘', water:'물', fertil:'거름', salt:'소금', sugar:'설탕', seed:'씨앗' };
+  // 대표 항목만 강조 순서대로
+  add(map.token, d.token);
+  add(map.corn, d.corn);
+  add(map.popcorn, d.popcorn);
+  add(map.water, d.water);
+  add(map.fertil, d.fertil);
+  add(map.salt, d.salt);
+  add(map.sugar, d.sugar);
+  add(map.seed, d.seed);
+  return L;
+}
+
 async function act(endpoint, body){
   const kakaoId = ensureLogin(); if(!kakaoId) return;
   try{
-    await jfetch(API(endpoint), { method:'POST', body: Object.assign({ kakaoId }, body||{}) });
+    const before = snap();
+    const res = await jfetch(API(endpoint), { method:'POST', body: Object.assign({ kakaoId }, body||{}) });
     await loadAll();
+    const after = snap();
+    const d = diff(before, after);
+    const title = endpoint.includes('harvest') ? '수확 결과'
+                : endpoint.includes('pop') ? '뻥튀기 결과'
+                : endpoint.includes('exchange') ? '교환 결과'
+                : endpoint.includes('plant') ? '파종 완료'
+                : endpoint.includes('water') ? '물 주기'
+                : endpoint.includes('fertilize') ? '거름 주기'
+                : '처리됨';
+    const lines = (res && res.breakdown)
+      ? (()=>{
+          const arr = [];
+          if (res.grade) arr.push(`등급 ${res.grade}`);
+          if (res.breakdown) {
+            const {hi=0,mid=0,low=0,pop=0} = res.breakdown;
+            if (hi||mid||low) arr.push(`토큰: 상${hi}·중${mid}·하${low}`);
+            if (typeof res.tokenGained==='number') arr.push(`토큰 +${res.tokenGained}`);
+            if (pop) arr.push(`팝콘 +${pop}`);
+          }
+          return arr.concat(linesFor(endpoint, d));
+        })()
+      : linesFor(endpoint, d);
+    showResultBox(title, lines);
   }catch(err){
     const msg = err?.data?.message || `요청 실패: ${endpoint}`;
     showToast(msg, 'error');
