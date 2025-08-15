@@ -1,405 +1,436 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>옥수수 농장</title>
 <style>
-:root{
-  --ink:#eef6ee;
-  --glass:rgba(0,0,0,.16);
-  --glass-strong:rgba(0,0,0,.22);
-  --bd:rgba(255,255,255,.14);
-  --ok:#25d366;
-  --yellow:#ffd166;
-}
-html,body{height:100%;margin:0;color:var(--ink);background:transparent;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;}
-#bg{position:fixed;inset:0;z-index:0;background:url('img/a_farm_01.png') center/cover no-repeat;}
-/* 헤더 */
-header{position:fixed;left:10px;right:10px;top:10px;z-index:9;backdrop-filter:blur(10px);background:var(--glass);border:1px solid var(--bd);border-radius:14px;padding:8px 10px;}
-.topline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-start;}
-.status{width:8px;height:8px;border-radius:999px;background:#ef4444}.status.ok{background:var(--ok)}
-.nick{font-weight:800;max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.shopbtn{border:1px solid var(--bd);background:rgba(255,255,255,.10);color:#fff;border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer}
-.res{display:grid;gap:6px;margin-top:6px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
-.tag{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.08);font-size:12px}
-.tag b{font-variant-numeric:tabular-nums}
-/* 하단 액션 */
-.actions{position:fixed;left:10px;right:10px;bottom:10px;z-index:8;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;backdrop-filter:blur(10px);background:var(--glass);border:1px solid var(--bd);border-radius:14px;padding:8px}
-.btn{border:1px solid var(--bd);background:rgba(0,0,0,.12);color:#fff;border-radius:10px;padding:10px 8px;font-size:13px;cursor:pointer}
-.btn[disabled]{opacity:.55;pointer-events:none}
-/* 좌측 원형/레벨 */
-.gauge{position:fixed;left:10px;bottom:calc(260px + env(safe-area-inset-bottom));z-index:6;width:110px;height:110px;border-radius:999px;border:1px solid var(--bd);background:rgba(0,0,0,.20);display:grid;place-items:center;overflow:hidden}
-.gfill{position:absolute;inset:0;background:conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0)}
-.gnum{position:relative;font-weight:800;font-variant-numeric:tabular-nums}
-.level-box{position:fixed;left:10px;bottom:calc(200px + env(safe-area-inset-bottom));z-index:6;display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--bd);border-radius:10px;background:rgba(0,0,0,.20)}
-.level-box img{width:44px;height:44px;border-radius:999px;border:1px solid var(--bd);background:#000}
-.expbar{width:120px;height:6px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.15);overflow:hidden}
-.expbar span{display:block;height:100%;width:0;background:#8ed36b}
-/* 중앙 미니/막대 */
-.mini-wrap{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(120px + env(safe-area-inset-bottom));z-index:7;display:flex;align-items:center;justify-content:space-between;gap:10px;width:clamp(280px,60vw,460px);border:1px solid var(--bd);border-radius:14px;background:rgba(0,0,0,.18);backdrop-filter:blur(10px);padding:8px 10px}
-.nav{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;color:#fff;text-decoration:none;border:1px solid var(--bd);background:rgba(0,0,0,.20)}
-#miniImg{width:120px;height:120px;border-radius:12px;border:1px solid var(--bd);object-fit:cover;background:#000;flex:0 0 auto}
-#miniCap{font-size:12px;opacity:.95;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* 세로 막대 3개 */
-#corn-bars{display:flex;flex-direction:row;gap:10px;margin-left:8px;align-items:flex-end}
-#corn-bars .meter{display:flex;flex-direction:column;align-items:center;gap:4px}
-#corn-bars .bar{width:8px;height:96px;border:1px solid var(--bd);border-radius:6px;background:rgba(0,0,0,.20);position:relative;overflow:hidden}
-#corn-bars .fill{position:absolute;left:0;bottom:0;width:100%;height:0}
-#corn-bars .water .fill{background:linear-gradient(to top, rgba(120,190,255,.9), rgba(120,190,255,.35))}
-#corn-bars .fert .fill{background:linear-gradient(to top, rgba(255,210,120,.9), rgba(255,210,120,.35))}
-#corn-bars .grow .fill{background:linear-gradient(to top, rgba(140,255,140,.95), rgba(140,255,140,.35))}
-#corn-bars .emoji{font-size:16px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.6)}
-/* 토스트 */
-#toast{position:fixed;left:50%;transform:translateX(-50%);top:62px;z-index:10;background:rgba(0,0,0,.55);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;display:none}
-#toast.show{display:block}
-/* 구매 시트 */
-.sheet{position:fixed;right:10px;top:56px;z-index:11;width:min(360px,92vw);backdrop-filter:blur(12px);background:var(--glass-strong);border:1px solid var(--bd);border-radius:14px;padding:10px;display:none}
-.sheet.show{display:block}
-.shop-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.shop-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:8px;border:1px solid var(--bd);border-radius:10px;margin-top:6px;background:rgba(255,255,255,.06)}
-.shop-left{display:flex;gap:10px;align-items:center}
-.shop-left .icon{font-size:18px}
-.shop-meta{font-size:12px;opacity:.9}
-.stepper{display:flex;align-items:center;gap:6px}
-.stepper button{border:1px solid var(--bd);background:rgba(255,255,255,.1);color:#fff;border-radius:8px;padding:4px 8px;cursor:pointer}
-.stepper input{width:64px;border:1px solid var(--bd);background:rgba(0,0,0,.15);color:#fff;border-radius:8px;padding:5px 6px;text-align:right}
-.total{margin-top:6px;padding:8px;border:1px solid var(--bd);border-radius:10px;background:rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center}
-.confirm{display:flex;gap:6px;justify-content:flex-end;margin-top:6px}
-.confirm button{border:1px solid var(--bd);background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:8px 10px;cursor:pointer}
-.note{opacity:.75;font-size:12px;margin-top:8px}
-/* 모바일: 상단 이동 */
-@media (max-width:768px){
-  .actions{grid-template-columns:repeat(2,1fr)}
-  #miniImg{width:96px;height:96px}
-  .gauge{top:calc(96px + env(safe-area-inset-top));left:10px;bottom:auto}
-  .level-box{top:calc(96px + env(safe-area-inset-top));left:130px;bottom:auto}
-}
+  html,body{height:100%; margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;}
+  body{
+    background:#000 url('img/farm_05.png') center/cover no-repeat fixed; /* 배경 기본값 (파종 후 2일차 예시) */
+  }
+
+  /* ===== 상단 리소스 바 & 구매 버튼(닉네임 옆) ===== */
+  .ox-topbar {
+    position: fixed; left: 16px; right: 16px; top: 16px; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ox-chip-row{ display:flex; flex-wrap:wrap; gap:10px; }
+  .ox-chip{
+    display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:14px;
+    background: rgba(0,0,0,.12); color:#fff; font-weight:600; backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,.10);
+  }
+  .ox-nick{ font-size:18px; font-weight:800; }
+  .ox-buy-btn{
+    padding: 8px 12px; border-radius: 999px; margin-left:10px;
+    background: rgba(0,0,0,.18); color:#fff; font-weight:700; border:1px solid rgba(255,255,255,.12);
+    backdrop-filter: blur(6px); cursor:pointer;
+  }
+  .ox-buy-btn:hover{ background: rgba(0,0,0,.22); }
+
+  /* ===== 좌측 HUD(원형 게이지/레벨 카드) ===== */
+  .ox-left-hud{
+    position: fixed; left: 18px; bottom: 160px; z-index: 40;
+  }
+  .ox-level-card{
+    position: fixed; left: 18px; bottom: 96px; z-index: 40;
+    display:flex; align-items:center; gap:10px;
+    padding:8px 12px; border-radius:12px;
+    background: rgba(0,0,0,.12); color:#fff; border:1px solid rgba(255,255,255,.10);
+    backdrop-filter: blur(6px);
+  }
+  .ox-level-card .avatar{
+    width:40px; height:40px; border-radius:50%; background:#c24; flex:0 0 auto;
+  }
+  .ox-level-card .level{
+    width:160px; height:10px; background:rgba(255,255,255,.12); border-radius:999px; overflow:hidden;
+  }
+  .ox-level-card .level > i{
+    display:block; height:100%; width:30%; background:#7dd56f;
+  }
+
+  /* ===== 중앙 HUD(미니 이미지 + 세로 3게이지) ===== */
+  .ox-center-hud{
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: 140px; width: min(720px, 92vw);
+    display:flex; align-items:center; gap:14px; padding:16px; border-radius:16px;
+    background: rgba(0,0,0,.12); border:1px solid rgba(255,255,255,.10);
+    backdrop-filter: blur(6px); color:#fff;
+  }
+  .mini{
+    width:160px; height:160px; border-radius:14px; overflow:hidden; background:#222; flex:0 0 auto;
+    border:1px solid rgba(255,255,255,.10);
+  }
+  .mini img{ width:100%; height:100%; object-fit:cover; }
+
+  .v-gauges{ display:flex; align-items:flex-end; gap:18px; flex:1; height:140px; }
+  .v{ position:relative; width:18px; height:100%; background:rgba(255,255,255,.16); border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,.10); }
+  .v > i{ position:absolute; left:0; bottom:0; width:100%; height:40%; background:linear-gradient(to top, rgba(0,176,255,.9), rgba(0,176,255,.5)); }
+  .v.f > i{ background:linear-gradient(to top, rgba(255,190,0,.95), rgba(255,190,0,.5)); }
+  .v.g > i{ background:linear-gradient(to top, rgba(66,200,92,.95), rgba(66,200,92,.5)); }
+
+  .icons{ display:flex; gap:14px; align-items:center; }
+  .icons .i{ font-size:22px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+
+  .ox-grow-label{ margin-left:auto; padding:6px 10px; border-radius:10px; background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.12); }
+
+  /* ===== 하단 버튼 바 ===== */
+  .ox-bottom-bar{
+    position: fixed; left:0; right:0; bottom: 10px; z-index: 45; padding: 0 16px;
+    display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;
+    background: rgba(0,0,0,.08); /* 연하게 */
+    border-top: 1px solid rgba(255,255,255,.10);
+    backdrop-filter: blur(4px);
+  }
+  .ox-btn{
+    height:64px; border-radius:14px; border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.12); color:#fff; font-size:18px; font-weight:700;
+  }
+  .ox-btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+  /* 모바일에서 원형/레벨을 위로 올려서 겹침 해소 */
+  @media (max-width: 768px){
+    .ox-left-hud { position: fixed; left: 10px; top: calc(70px + 12px); bottom:auto; }
+    .ox-level-card{ position: fixed; left: 10px; top: calc(70px + 120px); bottom:auto; }
+    .ox-center-hud{ bottom: 110px; }
+    .ox-bottom-bar{ grid-template-columns: 1fr 1fr; row-gap:10px; padding-bottom: 12px; }
+  }
+
+  /* 구매 시트(모달) */
+  .ox-sheet {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    width: min(560px, 92vw);
+    background: rgba(20,20,20,.88);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 16px; padding: 16px;
+    color:#fff; z-index: 100; display:none;
+  }
+  .ox-sheet.open { display:block; }
+  .ox-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; }
+  .ox-qty { display:flex; align-items:center; gap:8px; }
+  .ox-qty button { width:32px; height:32px; border-radius:8px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06); color:#fff; }
+  .ox-qty input { width:56px; text-align:center; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18); border-radius:8px; color:#fff; padding:6px 8px; }
+  .ox-sheet .ox-footer { display:flex; justify-content:space-between; align-items:center; margin-top:14px; }
+  .ox-primary { padding:10px 14px; border-radius:12px; background:#4CAF50; color:white; font-weight:700; border:none; }
+  .ox-secondary { padding:10px 14px; border-radius:12px; background:rgba(255,255,255,.12); color:white; border:1px solid rgba(255,255,255,.18); }
+  .ox-hint { font-size:12px; opacity:.85; margin-top:8px; }
+  .ox-toast {
+    position: fixed; left:50%; bottom: 24px; transform:translateX(-50%);
+    background: rgba(20,20,20,.9); color:#fff; padding:10px 14px; border-radius:10px;
+    z-index: 120; display:none;
+  }
+  .ox-toast.show { display:block; }
 </style>
 </head>
 <body>
-<div id="bg" aria-hidden="true"></div>
 
-<header>
-  <div class="topline">
-    <span id="netDot" class="status"></span>
-    <span id="netTxt">연결 확인 중…</span>
-    <span class="nick" id="nick">(로그인 필요)</span>
-    <!-- ✨ 닉네임 옆으로 이동 -->
-    <button id="btn-shop" class="shopbtn">구매하기</button>
-  </div>
-  <div class="res">
-    <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
-    <div class="tag">💧 물 <b id="r-water">0</b></div>
-    <div class="tag">🪴 거름 <b id="r-fert">0</b></div>
-    <div class="tag">🌽 옥수수 <b id="r-corn">0</b></div>
-    <div class="tag">🍿 팝콘 <b id="r-pop">0</b></div>
-    <div class="tag">🧂 소금 <b id="r-salt">0</b></div>
-    <div class="tag">🍬 설탕 <b id="r-sugar">0</b></div>
-    <div class="tag">🪙 토큰 <b id="r-orcx">0</b></div>
-  </div>
-</header>
-
-<!-- 구매 패널 (가격/수량/총액/확정) -->
-<div id="shop" class="sheet" role="dialog" aria-modal="true" aria-label="구매하기">
-  <div class="shop-head">
-    <strong>구매하기</strong>
-    <button id="shopClose" class="shopbtn">닫기</button>
+  <!-- ===== 상단 리소스 바 / 닉네임 + 구매하기(왼쪽) ===== -->
+  <div class="ox-topbar">
+    <div class="ox-chip-row">
+      <div class="ox-chip"><span class="ox-nick" id="nick">온라인 범고래X</span></div>
+      <button class="ox-buy-btn" id="btnOpenBuy">구매하기</button>
+    </div>
+    <div class="ox-chip-row" id="resBar">
+      <div class="ox-chip">🌱 씨앗 <b id="r-seed">0</b></div>
+      <div class="ox-chip">💧 물 <b id="r-water">0</b></div>
+      <div class="ox-chip">🌿 거름 <b id="r-fert">0</b></div>
+      <div class="ox-chip">🌽 옥수수 <b id="r-corn">0</b></div>
+      <div class="ox-chip">🍿 팝콘 <b id="r-pop">0</b></div>
+      <div class="ox-chip">🧂 소금 <b id="r-salt">0</b></div>
+      <div class="ox-chip">🍬 설탕 <b id="r-sugar">0</b></div>
+      <div class="ox-chip">🪙 토큰 <b id="r-token">0</b></div>
+    </div>
   </div>
 
-  <div class="shop-row" data-item="seed">
-    <div class="shop-left">
-      <div class="icon">🌱</div>
-      <div>
-        <div>씨옥수수</div>
-        <div class="shop-meta">개당 <b id="px-seed">100</b> 토큰</div>
+  <!-- ===== 좌측 원형 게이지(샘플) + 레벨 카드 ===== -->
+  <div class="ox-left-hud">
+    <svg width="140" height="140" viewBox="0 0 36 36">
+      <path d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831"
+            fill="none" stroke="rgba(255,255,255,.15)" stroke-width="3"/>
+      <path id="pie" d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831"
+            fill="none" stroke="#7dd56f" stroke-width="3" stroke-dasharray="44,56"/>
+      <text x="18" y="20" text-anchor="middle" fill="#fff" font-size="6" font-weight="700" id="pieTxt">44</text>
+    </svg>
+  </div>
+  <div class="ox-level-card">
+    <div class="avatar"></div>
+    <div class="level"><i id="lvBar" style="width:30%"></i></div>
+    <div style="font-weight:800;margin-left:8px;" id="lvTxt">Lv.1</div>
+  </div>
+
+  <!-- ===== 중앙 HUD: 미니 이미지 + 세로 3게이지 + 성장률 ===== -->
+  <div class="ox-center-hud">
+    <div class="mini"><img id="miniImg" alt="작물 상태" src="img/a_corn_06_02.png"></div>
+    <div class="v-gauges">
+      <div class="v"><i id="g-water" style="height:60%"></i></div>
+      <div class="v f"><i id="g-fert" style="height:30%"></i></div>
+      <div class="v g"><i id="g-grow" style="height:56%"></i></div>
+    </div>
+    <div class="icons">
+      <div class="i">💧</div>
+      <div class="i">🌿</div>
+      <div class="i">🌱</div>
+    </div>
+    <div class="ox-grow-label">성장 <b id="growPct">56%</b></div>
+  </div>
+
+  <!-- ===== 하단 버튼 바 ===== -->
+  <div class="ox-bottom-bar">
+    <button class="ox-btn" id="btnPlant">씨앗 심기</button>
+    <button class="ox-btn" id="btnWater">물 주기</button>
+    <button class="ox-btn" id="btnFert">거름 주기</button>
+    <button class="ox-btn" id="btnHarvest">수확</button>
+    <button class="ox-btn" id="btnPopSwap" style="grid-column: 1 / -1;">팝콘↔거름</button>
+  </div>
+
+  <!-- ===== 구매 시트(모달) ===== -->
+  <div class="ox-sheet" id="oxBuySheet" role="dialog" aria-modal="true">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin:0;">구매하기</h3>
+      <button class="ox-secondary" id="btnCloseBuy">닫기</button>
+    </div>
+
+    <div class="ox-row">
+      <div>🌽 씨옥수수 <small>개당 100 토큰</small></div>
+      <div class="ox-qty">
+        <button data-k="seed" data-op="-">−</button>
+        <input id="qty-seed" type="number" min="0" value="0">
+        <button data-k="seed" data-op="+">+</button>
       </div>
     </div>
-    <div class="stepper">
-      <button class="st-dec" data-for="seed">－</button>
-      <input id="qty-seed" type="number" min="1" value="1" />
-      <button class="st-inc" data-for="seed">＋</button>
-    </div>
-  </div>
 
-  <div class="shop-row" data-item="salt">
-    <div class="shop-left">
-      <div class="icon">🧂</div>
-      <div>
-        <div>소금</div>
-        <div class="shop-meta">개당 <b id="px-salt">10</b> 토큰</div>
+    <div class="ox-row">
+      <div>🧂 소금 <small>개당 10 토큰</small></div>
+      <div class="ox-qty">
+        <button data-k="salt" data-op="-">−</button>
+        <input id="qty-salt" type="number" min="0" value="0">
+        <button data-k="salt" data-op="+">+</button>
       </div>
     </div>
-    <div class="stepper">
-      <button class="st-dec" data-for="salt">－</button>
-      <input id="qty-salt" type="number" min="1" value="1" />
-      <button class="st-inc" data-for="salt">＋</button>
-    </div>
-  </div>
 
-  <div class="shop-row" data-item="sugar">
-    <div class="shop-left">
-      <div class="icon">🍬</div>
-      <div>
-        <div>설탕</div>
-        <div class="shop-meta">개당 <b id="px-sugar">20</b> 토큰</div>
+    <div class="ox-row">
+      <div>🍬 설탕 <small>개당 20 토큰</small></div>
+      <div class="ox-qty">
+        <button data-k="sugar" data-op="-">−</button>
+        <input id="qty-sugar" type="number" min="0" value="0">
+        <button data-k="sugar" data-op="+">+</button>
       </div>
     </div>
-    <div class="stepper">
-      <button class="st-dec" data-for="sugar">－</button>
-      <input id="qty-sugar" type="number" min="1" value="1" />
-      <button class="st-inc" data-for="sugar">＋</button>
+
+    <div class="ox-footer">
+      <div>
+        합계: <b id="oxTotal">0</b> 토큰
+        <div class="ox-hint">구매 확정 시 서버 구매 API로 요청합니다. 실패/404면 구매되지 않으며 안내가 출력됩니다.</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="ox-secondary" id="btnResetBuy">초기화</button>
+        <button class="ox-primary" id="btnConfirmBuy">구매 확정</button>
+      </div>
     </div>
   </div>
 
-  <div class="total">
-    <div>총액</div>
-    <div><b id="buy-total" style="color:var(--yellow)">0</b> 토큰</div>
-  </div>
-  <div class="confirm">
-    <button id="buyConfirm">구매 확정</button>
-  </div>
-  <div class="note">확정 시 서버 구매 API로 요청합니다. 실패/404면 구매되지 않으며 안내가 출력됩니다.</div>
-</div>
-
-<!-- 좌측 원형/레벨 -->
-<div class="gauge"><div class="gfill" id="gfill" style="--p:0%"></div><div class="gnum" id="gnum">0</div></div>
-<div class="level-box"><img id="levelIconMini" src="img/mark_01.png" alt="레벨"/><div><div id="levelText">Lv.1</div><div class="expbar"><span id="expBar"></span></div></div></div>
-
-<!-- 중앙 미니/막대 -->
-<div class="mini-wrap" id="miniWrap">
-  <a class="nav" href="corn-index.html" title="이전">⬅️</a>
-  <img id="miniImg" src="img/a_corn_0_01_05.png" alt="작물 상태" />
-  <div id="corn-bars" aria-label="수분/거름/성장 게이지">
-    <div class="meter water"><div class="bar"><div class="fill" id="bar-water"></div></div><div class="emoji">💧</div></div>
-    <div class="meter fert"><div class="bar"><div class="fill" id="bar-fert"></div></div><div class="emoji">🌱</div></div>
-    <div class="meter grow"><div class="bar"><div class="fill" id="bar-grow"></div></div><div class="emoji">🌽</div></div>
-  </div>
-  <a class="nav" href="index9.html" title="메인">🏠</a>
-  <div id="miniCap">휴경</div>
-</div>
-
-<!-- 하단 액션 -->
-<div class="actions">
-  <button id="btn-plant" class="btn">씨앗 심기</button>
-  <button id="btn-water" class="btn">물 주기</button>
-  <button id="btn-fert"  class="btn">거름 주기</button>
-  <button id="btn-harv"  class="btn" disabled>수확</button>
-  <button id="btn-pop"   class="btn" disabled>뻥튀기</button>
-  <button id="btn-ex"    class="btn">팝콘↔거름</button>
-</div>
-
-<div id="toast"></div>
+  <div class="ox-toast" id="oxToast"></div>
 
 <script>
-'use strict';
+/* ====================== 프런트 로직 ====================== */
 
-/* ===== 기본 설정 ===== */
-const IMG_BASE='img/';
-const isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+/** 가격표(프런트 계산용) */
+const OX_PRICE = { seed:100, salt:10, sugar:20 };
 
-/* 구매 단가(토큰) */
-const PRICE = { seed:100, salt:10, sugar:20 };
+/** 구매 API 후보 경로들(404 자동 폴백) */
+const OX_ENDPOINTS = [
+  '/api/store/buy', // 권장
+  '/api/shop/buy',  // 예전 경로 호환
+  '/api/buy'        // 단순 호환
+];
 
-/* 구매 API 후보 경로 — 순차 시도 */
-const DEFAULT_ORIGIN='https://climbing-wholly-grouper.jp.ngrok.io';
-const RAW_ORIGIN=(localStorage.getItem('orcax:BASE_API')||DEFAULT_ORIGIN).replace(/\/+$/,'');
-const BASE_ORIGIN=RAW_ORIGIN.replace(/\/api\/?$/i,'');
-const API=(p)=>`${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
-const BUY_ENDPOINTS=['shop/buy','store/buy','buy']; // ← 백엔드가 있는 경로 하나만 열어주면 동작합니다.
+/* ====== 토스트 ====== */
+function oxToast(msg, ms=2200){
+  const t = document.getElementById('oxToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), ms);
+}
 
-/* 유틸 */
-const H=n=>n*60*60*1000;
-const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-const ACTIVE_SLOTS=[[8,11],[11,14],[14,17],[17,20],[20,23]];
-const toKST=t=>new Date((typeof t==='number'?t:(t?+new Date(t):Date.now())) + (9*60*60*1000) - new Date().getTimezoneOffset()*60000);
-const nowKST=()=>toKST(Date.now());
-function slotIndex(dateKST){const h=dateKST.getHours();for(let i=0;i<ACTIVE_SLOTS.length;i++){const[s,e]=ACTIVE_SLOTS[i];if(h>=s&&h<e)return i;}return-1;}
-function dayNumber(plantedAt){if(!plantedAt)return 0;const n=nowKST().setHours(0,0,0,0);const p=toKST(plantedAt).setHours(0,0,0,0);return Math.max(1,Math.floor((n-p)/(24*60*60*1000))+1);}
-function gradeByDays(plantedAt){const d=dayNumber(plantedAt);if(d<5)return null;if(d<6)return'A';if(d<7)return'B';if(d<8)return'C';if(d<9)return'D';if(d<10)return'E';return'F';}
+/* ====== 리소스 바/UI 갱신 헬퍼 ====== */
+function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = v; }
+function refreshTopbar(summary){
+  // summary 형식 예시:
+  // { token: 52225, inventory: { seed, water, fertilizer, popcorn, salt, sugar, corn }, nickname, level, levelPct }
+  if(!summary) return;
 
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='';void t.offsetWidth;t.className='show';setTimeout(()=>t.className='',1700);}
-function setNet(ok,msg){const dot=document.getElementById('netDot');const txt=document.getElementById('netTxt');if(dot)dot.classList.toggle('ok',!!ok);if(txt)txt.textContent=ok?(msg||'온라인'):(msg||'오프라인');}
+  const inv = summary.inventory || {};
+  setText('r-seed', inv.seed ?? 0);
+  setText('r-water', inv.water ?? 0);
+  setText('r-fert', inv.fertilizer ?? 0);
+  setText('r-corn', inv.corn ?? 0);
+  setText('r-pop', inv.popcorn ?? 0);
+  setText('r-salt', inv.salt ?? 0);
+  setText('r-sugar', inv.sugar ?? 0);
+  setText('r-token', summary.token ?? 0);
 
-/* ===== 이미지 매핑(생략: 이전 버전과 동일) ===== */
-const BG={day1:{pc:'a_farm_05.png',m:'a_farm_05.png'},day2:{pc:'farm_05.png',m:'a_farm_05.png'},day3:{pc:'a_farm_07.png',m:'a_farm_07.png'},day4:{pc:'a_farm_09.png',m:'a_farm_09.png'},day5p:{pc:'farm_10.png',m:'farm_10.png'},idle:{pc:'a_farm_01.png',m:'a_farm_01.png'},rest:{pc:'a_farm_12.png',m:'a_farm_12.png'}};
-const MINI_SERIES={day1:'a_corn_06',day2:'a_corn_04',day3:'a_corn_03',day4:'a_corn_02',pre6:'a_corn_0_01.png',pre7:'a_corn_0_01_01.png',grade:{A:'a_corn_01.png',B:'a_corn_01_01.png',C:'a_corn_01_02.png',D:'a_corn_01_03.png',E:'a_corn_01_04.png',F:'a_corn_01_04.png'},rest:['a_corn_0_01_02.png','a_corn_0_01_02.png','a_corn_0_01_03.png','a_corn_0_01_04.png','a_corn_0_01_05.png']};
-
-/* ===== 로컬 타이머(물/거름) — 서버 부재시 보조 ===== */
-const LKEY_TIMERS='orcax:corn:timers';
-const LKEY_HARV='orcax:corn:lastHarvestAt';
-const T={waterDepleteAt:0,fertilDepleteAt:0,source:'local'};
-const L=()=>{try{return JSON.parse(localStorage.getItem(LKEY_TIMERS)||'{}');}catch{return {};}}
-const Savel=(t)=>localStorage.setItem(LKEY_TIMERS,JSON.stringify(t||{}));
-function timersOnPlantLocal(){const t=L();t.plantedAt=Date.now();t.waterDepleteAt=0;t.fertilDepleteAt=0;Savel(t);}
-function timersAddWaterLocal(){const t=L(),now=Date.now(),curEnd=Math.max(now,t.waterDepleteAt||0);const remain=Math.max(0,curEnd-now);const next=now+Math.min(H(3),remain+H(1));t.waterDepleteAt=next;Savel(t);}
-function timersAddFertLocal(){const t=L();t.fertilDepleteAt=Date.now()+H(3);Savel(t);}
-function hydrateTimersFrom(any){if(!any)return;const t={...L(),...any};if(t.waterDepleteAt)T.waterDepleteAt=Number(t.waterDepleteAt);if(t.fertilDepleteAt)T.fertilDepleteAt=Number(t.fertilDepleteAt);Savel({waterDepleteAt:T.waterDepleteAt,fertilDepleteAt:T.fertilDepleteAt,plantedAt:S.summary?.plantedAt||t.plantedAt});}
-function pctWater(){if(!T.waterDepleteAt)return 0;return clamp((T.waterDepleteAt-Date.now())/H(3)*100,0,100);}
-function pctFert(){if(!T.fertilDepleteAt)return 0;return clamp((T.fertilDepleteAt-Date.now())/H(3)*100,0,100);}
-function waterUnits(){return Math.min(3,Math.ceil((T.waterDepleteAt-Date.now())/H(1)));}
-function fertUnits(){return Math.min(3,Math.ceil((T.fertilDepleteAt-Date.now())/H(1)));}
-
-/* ===== 비주얼 ===== */
-function statusForMini(isHarvest){if(isHarvest)return'harvest';if(waterUnits()<=0)return'waterLack';if(fertUnits()<=0)return'fertLack';return'normal';}
-function pickBackground(phase,plantedAt){const harvAt=Number(localStorage.getItem(LKEY_HARV)||0);const inRest=(harvAt&&(Date.now()-harvAt)<H(24));if(inRest)return BG.rest;if(phase==='IDLE'||phase==='STUBBLE')return BG.idle;const d=dayNumber(plantedAt);if(d<=1)return BG.day1;if(d===2)return BG.day2;if(d===3)return BG.day3;if(d===4)return BG.day4;return BG.day5p;}
-function pickMini(phase,plantedAt){const sIdx=slotIndex(nowKST());const harvAt=Number(localStorage.getItem(LKEY_HARV)||0);const inRest=(harvAt&&(Date.now()-harvAt)<H(24));if(inRest){const arr=MINI_SERIES.rest;return arr[(sIdx>=0?sIdx:0)]||arr[0];}if(phase==='IDLE'||phase==='STUBBLE')return'a_corn_0_01_05.png';const d=dayNumber(plantedAt);const st=statusForMini(d>=5);if(d>=5){if(sIdx<=1)return MINI_SERIES.pre6;if(sIdx<=3)return MINI_SERIES.pre7;const g=gradeByDays(plantedAt)||'A';return MINI_SERIES.grade[g];}
-const series=(d===1)?MINI_SERIES.day1:(d===2)?MINI_SERIES.day2:(d===3)?MINI_SERIES.day3:MINI_SERIES.day4;
-if(st==='waterLack')return series+'_01.png';if(st==='fertLack')return series+'_03.png';const order=[2,2,4,4,5];const num=order[(sIdx>=0?sIdx:0)];return num===5?(series+'.png'):(series+'_'+String(num).padStart(2,'0')+'.png');}
-function applyVisuals(phase,plantedAt){const bg=pickBackground(phase,plantedAt);const bgUrl=IMG_BASE+(isMobile?bg.m:bg.pc);document.getElementById('bg').style.background=`url('${bgUrl}') center/cover no-repeat`;const mini=pickMini(phase,plantedAt);document.getElementById('miniImg').src=IMG_BASE+mini;}
-
-/* ===== API 래퍼 ===== */
-async function jfetch(url,{method='GET',query,body,headers}={}){let u=url;if(query&&typeof query==='object'){const qs=new URLSearchParams();for(const[k,v]of Object.entries(query))if(v!==undefined&&v!==null)qs.set(k,String(v));const q=qs.toString();if(q)u+=(u.includes('?')?'&':'?')+q;}const opts={method,headers:Object.assign({'Accept':'application/json'},headers||{})};if(body!==undefined&&body!==null){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body);}const r=await fetch(u,Object.assign(opts,{mode:'cors',cache:'no-store'}));const t=await r.text();const isJson=(r.headers.get('content-type')||'').includes('application/json');const data=t?(isJson?JSON.parse(t):{raw:t}):{};if(!r.ok){const err=new Error(`HTTP ${r.status}`);err.data=data;throw err;}return data;}
-const api={
-  userdata:(kakaoId,nickname)=>jfetch(API('userdata'),{method:'POST',body:{kakaoId,nickname}}),
-  cornSummary:(kakaoId)=>jfetch(API('corn/summary'),{method:'GET',query:{kakaoId}}),
-  plant:(kakaoId)=>jfetch(API('corn/plant'),{method:'POST',body:{kakaoId}}),
-  grow:(kakaoId,step=5)=>jfetch(API('corn/grow'),{method:'POST',body:{kakaoId,step}}),
-  harvest:(kakaoId)=>jfetch(API('corn/harvest'),{method:'POST',body:{kakaoId}}),
-  pop:(kakaoId,cost=30)=>jfetch(API('corn/pop'),{method:'POST',body:{kakaoId,tokenCost:cost}}),
-  exchange:(kakaoId,qty=1,dir)=>jfetch(API('corn/exchange'),{method:'POST',body:{kakaoId,qty,dir}}),
-  useInventory:(kakaoId,type,amt=1)=>jfetch(API('user/inventory/use'),{method:'POST',body:{kakaoId,type,amount:amt}}),
-  timersGet: async (kakaoId)=>{
-    const paths=['corn/timers','corn/summary'];
-    for(const p of paths){try{const r=await jfetch(API(p),{method:'GET',query:{kakaoId}});const obj=r.timers||r; if(obj && (obj.waterDepleteAt||obj.fertilDepleteAt)) return {waterDepleteAt:Number(obj.waterDepleteAt||0),fertilDepleteAt:Number(obj.fertilDepleteAt||0)};}catch(e){}}
-    return {waterDepleteAt:0,fertilDepleteAt:0};
-  },
-  timersBump: async (kakaoId,type)=>{
-    const tries=[{p:'corn/timers/bump',b:{kakaoId,type}},{p:'corn/timers',b:{kakaoId,type,op:'bump'}},{p:type==='water'?'corn/water':'corn/fertil',b:{kakaoId,op:'bump'}}];
-    let last;for(const it of tries){try{return await jfetch(API(it.p),{method:'POST',body:it.b});}catch(e){last=e;}}throw last||new Error('타이머 bump 미지원');
-  },
-  buy: async (kakaoId, lines /* [{item,qty,unitPrice}] */)=>{
-    let last;
-    for(const ep of BUY_ENDPOINTS){
-      try{
-        return await jfetch(API(ep), {method:'POST',body:{kakaoId,lines}});
-      }catch(e){ last=e; }
-    }
-    throw last || new Error('구매 API 없음');
+  if(summary.nickname){ setText('nick', '온라인 ' + summary.nickname); }
+  if(typeof summary.levelPct === 'number'){
+    document.getElementById('lvBar').style.width = Math.max(0,Math.min(100,summary.levelPct))+'%';
   }
+  if(summary.level){ setText('lvTxt', 'Lv.'+summary.level); }
+}
+
+/* ====== 서버 요약 호출(있으면 사용) ====== */
+async function loadSummary(){
+  try{
+    const r = await fetch('/api/corn/summary');
+    if(r.ok){ const data = await r.json(); refreshTopbar(data); }
+  }catch(e){ /* 서버 없어도 무시 */ }
+}
+
+/* ====== 중앙 HUD 게이지 샘플 조작 ====== */
+function setGauge(elId, pct){ document.getElementById(elId).style.height = Math.max(0,Math.min(100,pct))+'%'; }
+function setGrowPct(p){ setText('growPct', Math.round(p)+'%'); setGauge('g-grow', p); }
+
+/* ====== 하단 버튼: (프로젝트 API에 맞춰 교체 가능) ====== */
+async function callApi(path, payload={}){
+  const r = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+  if(!r.ok) throw new Error('API '+path+' '+r.status);
+  return r.json().catch(()=> ({}));
+}
+document.getElementById('btnPlant').addEventListener('click', async ()=>{
+  try{
+    await callApi('/api/corn/plant');
+    oxToast('파종 완료!');
+    loadSummary();
+    // 상태 이미지/배경 갱신은 프로젝트 로직에 연결
+  }catch(e){ oxToast('파종 실패'); }
+});
+document.getElementById('btnWater').addEventListener('click', async ()=>{
+  try{
+    await callApi('/api/corn/water');
+    oxToast('물을 줬습니다');
+    setGauge('g-water', 100);
+    loadSummary();
+  }catch(e){ oxToast('물 주기 실패'); }
+});
+document.getElementById('btnFert').addEventListener('click', async ()=>{
+  try{
+    await callApi('/api/corn/fertilize');
+    oxToast('거름을 줬습니다');
+    setGauge('g-fert', 100);
+    loadSummary();
+  }catch(e){ oxToast('거름 주기 실패'); }
+});
+document.getElementById('btnHarvest').addEventListener('click', async ()=>{
+  try{
+    await callApi('/api/corn/harvest');
+    oxToast('수확 완료!');
+    loadSummary();
+  }catch(e){ oxToast('수확 실패'); }
+});
+document.getElementById('btnPopSwap').addEventListener('click', async ()=>{
+  try{
+    await callApi('/api/corn/swap');
+    oxToast('팝콘↔거름 교환 완료!');
+    loadSummary();
+  }catch(e){ oxToast('교환 실패'); }
+});
+
+/* ====== 구매 시트 ====== */
+const oxSheet   = document.getElementById('oxBuySheet');
+const btnOpen   = document.getElementById('btnOpenBuy');
+const btnClose  = document.getElementById('btnCloseBuy');
+const btnReset  = document.getElementById('btnResetBuy');
+const btnOk     = document.getElementById('btnConfirmBuy');
+const totalEl   = document.getElementById('oxTotal');
+
+const qtyEls = {
+  seed:  document.getElementById('qty-seed'),
+  salt:  document.getElementById('qty-salt'),
+  sugar: document.getElementById('qty-sugar')
 };
+let buyState = { seed:0, salt:0, sugar:0 };
 
-/* ===== 상태/표시 ===== */
-const kakaoId=localStorage.getItem('kakaoId');
-const nickname=localStorage.getItem('nickname')||localStorage.getItem('kakaoNickname');
-const S={summary:null,user:null,orcx:0};
-function updateBars(g){const bw=document.getElementById('bar-water'),bf=document.getElementById('bar-fert'),bg=document.getElementById('bar-grow');if(bw)bw.style.height=Math.round(pctWater())+'%';if(bf)bf.style.height=Math.round(pctFert())+'%';if(bg)bg.style.height=Math.round(clamp(g||0,0,100))+'%';}
-function refreshControls(){
-  const s=S.summary||{};const g=Number(s.g||0);const growPhase=s.phase==='GROW';const days=dayNumber(s.plantedAt);const isHarvestDay=growPhase&&days>=5;
-  const canWater=(Number(S.user?.inventory?.water||0)>0&&growPhase&&g<100&&!isHarvestDay&&waterUnits()<3);
-  const canFert=(Number(S.user?.inventory?.fertilizer||0)>0&&growPhase&&g<100&&!isHarvestDay);
-  document.getElementById('btn-plant').disabled=!(Number(s.agri?.seeds||0)>0&&(s.phase==='IDLE'||s.phase==='STUBBLE'));
-  document.getElementById('btn-water').disabled=!canWater;
-  document.getElementById('btn-fert').disabled=!canFert;
-  document.getElementById('btn-harv').disabled=!(growPhase&&g>=100);
-  if(isHarvestDay){document.getElementById('miniCap').textContent='오늘은 수확일: 물·거름 필요 없음';}
-  else if(growPhase){document.getElementById('miniCap').textContent=`성장 ${g|0}%`;}
-  else if(s.phase==='STUBBLE'){document.getElementById('miniCap').textContent='휴농(수확 완료)';}
-  else{document.getElementById('miniCap').textContent='휴경';}
+function calcTotal(){
+  const sum = (buyState.seed*OX_PRICE.seed) + (buyState.salt*OX_PRICE.salt) + (buyState.sugar*OX_PRICE.sugar);
+  totalEl.textContent = String(sum);
+  return sum;
 }
-function paintFromUser(user){
-  if(!user)return;S.user=user;
-  document.getElementById('nick').textContent=user.nickname||nickname||'';
-  document.getElementById('r-water').textContent=Number(user.inventory?.water||0);
-  document.getElementById('r-fert').textContent=Number(user.inventory?.fertilizer||0);
-  const orcx=Number(user.wallet?.orcx ?? user.orcx ?? 0);S.orcx=orcx;document.getElementById('r-orcx').textContent=orcx|0;
+function syncInputs(){
+  qtyEls.seed.value  = buyState.seed;
+  qtyEls.salt.value  = buyState.salt;
+  qtyEls.sugar.value = buyState.sugar;
+  calcTotal();
 }
-function paintFromCorn(s){
-  if(!s){applyVisuals('IDLE',null);updateBars(0);return;}
-  S.summary=s;
-  document.getElementById('r-seeds').textContent=Number(s.agri?.seeds||0);
-  document.getElementById('r-corn').textContent=Number(s.agri?.corn||0);
-  document.getElementById('r-pop').textContent=Number(s.food?.popcorn||0);
-  document.getElementById('r-salt').textContent=Number(s.additives?.salt||0);
-  document.getElementById('r-sugar').textContent=Number(s.additives?.sugar||0);
-  const g=clamp(Number(s.g||0),0,100);document.getElementById('gfill').style.setProperty('--p',g+'%');document.getElementById('gnum').textContent=g|0;
-  applyVisuals(s.phase||'IDLE',s.plantedAt);updateBars(g);refreshControls();
-}
+function clamp(v){ v = parseInt(v||0,10); return Math.max(0, isNaN(v)?0:v); }
 
-/* ===== 액션 ===== */
-async function onPlant(){try{const r=await api.plant(kakaoId);timersOnPlantLocal();try{const ts=await api.timersGet(kakaoId);if(ts.waterDepleteAt||ts.fertilDepleteAt){hydrateTimersFrom(ts);} }catch{}S.summary=Object.assign({},S.summary||{},{phase:'GROW',g:0,plantedAt:r.plantedAt||new Date().toISOString()});paintFromCorn(S.summary);toast('심기 완료');await loadAll();}catch(e){console.error(e);toast(e.data?.error||'심기 실패');}}
-async function onWater(){try{const d=dayNumber(S.summary?.plantedAt);if(S.summary?.phase==='GROW'&&d>=5){toast('오늘은 수확일입니다. 물을 주지 않습니다.');return;}await api.useInventory(kakaoId,'water',1);try{await api.timersBump(kakaoId,'water');const ts=await api.timersGet(kakaoId);hydrateTimersFrom(ts);}catch{timersAddWaterLocal();hydrateTimersFrom(L());}await api.grow(kakaoId,5);await loadAll();toast('물 주기 완료');}catch(e){console.error(e);toast(e.data?.error||'물 주기 실패');}}
-async function onFert(){try{const d=dayNumber(S.summary?.plantedAt);if(S.summary?.phase==='GROW'&&d>=5){toast('오늘은 수확일입니다. 거름을 주지 않습니다.');return;}await api.useInventory(kakaoId,'fertilizer',1);try{await api.timersBump(kakaoId,'fertilizer');const ts=await api.timersGet(kakaoId);hydrateTimersFrom(ts);}catch{timersAddFertLocal();hydrateTimersFrom(L());}await api.grow(kakaoId,7);await loadAll();toast('거름 주기 완료');}catch(e){console.error(e);toast(e.data?.error||'거름 주기 실패');}}
-async function onHarv(){try{await api.harvest(kakaoId);localStorage.setItem(LKEY_HARV,String(Date.now()));S.summary=Object.assign({},S.summary||{},{phase:'STUBBLE',g:0});paintFromCorn(S.summary);await loadAll();toast('수확 완료');}catch(e){console.error(e);toast(e.data?.error||'수확 실패');}}
-async function onPop(){try{await api.pop(kakaoId,30);await loadAll();toast('뻥튀기 완료');}catch(e){console.error(e);toast(e.data?.error||'뻥튀기 실패');}}
+btnOpen.addEventListener('click', ()=>{ oxSheet.classList.add('open'); syncInputs(); });
+btnClose.addEventListener('click', ()=>{ oxSheet.classList.remove('open'); });
+btnReset.addEventListener('click', ()=>{ buyState={seed:0,salt:0,sugar:0}; syncInputs(); });
 
-/* ===== 구매 시트 로직 ===== */
-const buyState={ seed:1, salt:1, sugar:1 };
-function recalcTotal(){const t=PRICE.seed*buyState.seed + PRICE.salt*buyState.salt + PRICE.sugar*buyState.sugar;document.getElementById('buy-total').textContent=t;return t;}
-function syncQtyInputs(){document.getElementById('qty-seed').value=buyState.seed;document.getElementById('qty-salt').value=buyState.salt;document.getElementById('qty-sugar').value=buyState.sugar;recalcTotal();}
-function toggleShop(v){document.getElementById('shop').classList.toggle('show', v===undefined ? !document.getElementById('shop').classList.contains('show') : !!v);if(v!==false){syncQtyInputs();}}
-async function onBuyConfirm(){
-  const total=recalcTotal();
-  if(total<=0){toast('선택된 수량이 없습니다.');return;}
-  if((S.orcx|0)<total){toast('토큰이 부족합니다.');return;}
-  try{
-    const lines=[{item:'seed',qty:buyState.seed,unitPrice:PRICE.seed},{item:'salt',qty:buyState.salt,unitPrice:PRICE.salt},{item:'sugar',qty:buyState.sugar,unitPrice:PRICE.sugar}].filter(x=>x.qty>0);
-    const r=await api.buy(kakaoId,lines);
-    toggleShop(false);
-    await loadAll();
-    toast('구매 완료');
-  }catch(e){
-    console.error(e);
-    // 404 등 명확한 안내
-    if((e.message||'').includes('HTTP 404')) toast('구매 API가 서버에 없습니다(404). 백엔드 라우트 확인 필요');
-    else toast(e.data?.error || '구매 실패');
-  }
-}
-
-/* ===== 네트워크/로드 ===== */
-async function jtry(p){try{return await p;}catch(e){throw e;}}
-async function loadAll(){
-  try{
-    const [ud, cs, ts] = await Promise.all([
-      jtry(api.userdata(kakaoId,nickname)),
-      jtry(api.cornSummary(kakaoId)),
-      jtry(api.timersGet(kakaoId))
-    ]);
-    paintFromUser(ud.user||ud.data||ud);
-    paintFromCorn(cs);
-    if(ts && (ts.waterDepleteAt||ts.fertilDepleteAt)) hydrateTimersFrom(ts); else hydrateTimersFrom(L());
-    setNet(true,'온라인');
-  }catch(e){
-    hydrateTimersFrom(L());
-    setNet(false,'연결 실패');console.error(e);toast('서버 연결 실패');
-  }
-}
-
-/* ===== 초기화/바인딩 ===== */
-if(!localStorage.getItem('kakaoId')||!(localStorage.getItem('nickname')||localStorage.getItem('kakaoNickname'))){
-  document.addEventListener('DOMContentLoaded',()=>{const netTxt=document.getElementById('netTxt');if(netTxt)netTxt.textContent='로그인 필요';});
-  alert('로그인이 필요합니다. (index9.html로 이동)');location.href='index9.html';
-}
-document.getElementById('btn-plant').onclick=onPlant;
-document.getElementById('btn-water').onclick=onWater;
-document.getElementById('btn-fert').onclick=onFert;
-document.getElementById('btn-harv').onclick=onHarv;
-document.getElementById('btn-pop').onclick=onPop;
-document.getElementById('btn-ex').onclick=()=>toast('교환은 추후 적용');
-
-document.getElementById('btn-shop').onclick=()=>toggleShop(true);
-document.getElementById('shopClose').onclick=()=>toggleShop(false);
-document.getElementById('buyConfirm').onclick=onBuyConfirm;
-/* 수량 증감 */
-document.querySelectorAll('.st-inc').forEach(b=>b.onclick=()=>{const k=b.dataset.for;buyState[k]=Math.max(1,(buyState[k]|0)+1);syncQtyInputs();});
-document.querySelectorAll('.st-dec').forEach(b=>b.onclick=()=>{const k=b.dataset.for;buyState[k]=Math.max(0,(buyState[k]|0)-1);syncQtyInputs();});
-['seed','salt','sugar'].forEach(k=>{
-  document.getElementById('qty-'+k).addEventListener('input',e=>{const v=Math.max(0,parseInt(e.target.value||'0',10));buyState[k]=v;recalcTotal();});
+document.querySelectorAll('.ox-qty button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const k = btn.getAttribute('data-k');
+    const op = btn.getAttribute('data-op');
+    buyState[k] = clamp(buyState[k] + (op==='+'?1:-1));
+    syncInputs();
+  });
+});
+Object.entries(qtyEls).forEach(([k,el])=>{
+  el.addEventListener('input', ()=>{ buyState[k] = clamp(el.value); calcTotal(); });
 });
 
-document.addEventListener('DOMContentLoaded',()=>{
-  applyVisuals('IDLE',null);
-  // 가격 표시
-  document.getElementById('px-seed').textContent=PRICE.seed;
-  document.getElementById('px-salt').textContent=PRICE.salt;
-  document.getElementById('px-sugar').textContent=PRICE.sugar;
-  recalcTotal();
-  loadAll();
-  setInterval(()=>{ if(S.summary){updateBars(S.summary.g|0);applyVisuals(S.summary.phase,S.summary.plantedAt);refreshControls();}},10000);
+/* 404 자동 폴백 구매 호출 */
+async function fetchWithFallback(payload){
+  let lastErr;
+  for(const path of OX_ENDPOINTS){
+    try{
+      const r = await fetch(path, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if(r.ok){ return { ok:true, path, data: await r.json().catch(()=> ({})) }; }
+      if(r.status===404){ lastErr = new Error('404 '+path); continue; }
+      const text = await r.text().catch(()=> '');
+      return { ok:false, path, status:r.status, text };
+    }catch(e){ lastErr = e; }
+  }
+  return { ok:false, error:lastErr?.message || 'all endpoints failed' };
+}
+
+btnOk.addEventListener('click', async ()=>{
+  const amount = calcTotal();
+  if(amount<=0){ oxToast('구매 수량을 선택하세요.'); return; }
+
+  const payload = { items: { seed: buyState.seed, salt: buyState.salt, sugar: buyState.sugar } };
+  btnOk.disabled = true; btnOk.textContent = '구매 중…';
+  try{
+    const res = await fetchWithFallback(payload);
+    if(!res.ok){
+      const msg = res.status? `구매 실패(${res.status})` : `구매 실패(${res.error||'네트워크'})`;
+      oxToast(msg);
+    }else{
+      oxToast('구매 완료!');
+      buyState={seed:0,salt:0,sugar:0}; syncInputs();
+      oxSheet.classList.remove('open');
+      // 응답값으로 인벤토리/토큰 반영
+      if(res.data){ refreshTopbar(res.data); }
+      else{ loadSummary(); }
+    }
+  }finally{
+    btnOk.disabled = false; btnOk.textContent = '구매 확정';
+  }
 });
+
+/* 초기 로딩 */
+loadSummary();
+setGrowPct(56);
 </script>
 </body>
 </html>
+
 
 
 
