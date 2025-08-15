@@ -8,8 +8,9 @@
 :root{ --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18); --ok:#25d366; }
 html,body{ height:100%; margin:0; color:var(--ink); background:transparent;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
-#bg{ position:fixed; inset:0; z-index:-1;
-  background:url('https://byungil-cho.github.io/OrcaX/img/a_farm_01.png') center/cover no-repeat; } /* 기본=겨울(파종 전) */
+#bg{ position:fixed; inset:0; z-index:0;
+  background:url('img/a_farm_01.png') center/cover no-repeat; } /* 기본=겨울(파종 전) */
+
 header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
   border-radius:14px; padding:8px 10px; }
@@ -51,7 +52,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 #miniImg{ width:120px; height:120px; border-radius:12px; border:1px solid var(--bd); object-fit:cover; background:#000; flex:0 0 auto }
 #miniCap{ font-size:12px; opacity:.9; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 
-/* 세로 막대 3개(가로 배치, 막대 아래 이모지) */
+/* 세로 막대 3개(가로 배치, 각 막대 아래 이모지) */
 #corn-bars{ display:flex; flex-direction:row; gap:10px; margin-left:8px; align-items:flex-end; }
 #corn-bars .meter{ display:flex; flex-direction:column; align-items:center; gap:4px; }
 #corn-bars .bar{ width:8px; height:96px; border:1px solid var(--bd); border-radius:6px;
@@ -96,13 +97,13 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 <div class="gauge"><div class="gfill" id="gfill" style="--p:0%"></div><div class="gnum" id="gnum">0</div></div>
 
 <div class="level-box">
-  <img id="levelIconMini" src="./img/mark_01.png" alt="레벨" />
+  <img id="levelIconMini" src="img/mark_01.png" alt="레벨" />
   <div><div id="levelText">Lv.1</div><div class="expbar"><span id="expBar"></span></div></div>
 </div>
 
 <div class="mini-wrap" id="miniWrap">
   <a class="nav" href="corn-index.html" title="이전">⬅️</a>
-  <img id="miniImg" src="./img/corn_idle.png" alt="작물 상태" />
+  <img id="miniImg" src="img/corn_idle.png" alt="작물 상태" />
   <div id="corn-bars" aria-label="수분/거름/성장 게이지">
     <div class="meter water">
       <div class="bar"><div class="fill" id="bar-water"></div></div>
@@ -136,31 +137,30 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 'use strict';
 
 /* ====== 상수/경로 ====== */
-const IMG_BASE = 'https://byungil-cho.github.io/OrcaX/img/';
+const IMG_BASE = 'img/';                    // ✅ 로컬/Pages 공통
 const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
 /* 날짜·시간 규칙 */
 const ACTIVE_SLOTS = [ [8,11], [11,14], [14,17], [17,20], [20,23] ]; // 3시간×5
 const NIGHT = { start:23, end:8 }; // 휴면 시간
 
-/* 배경(PC/모바일) */
+/* 배경(존재하는 파일만 매핑) */
 const BG = {
-  day1:  { pc:'farm_spring.png',    m:'farm_spring.png' }, // 씨앗 심자마자
-  day2:  { pc:'farm_05.png',        m:'a_farm_05.png' },
-  day3:  { pc:'farm_07.png',        m:'a_farm_07.png' },
-  day4:  { pc:'farm_09.png',        m:'a_farm_09.png' },
-  day5p: { pc:'farm_10.png',        m:'a_farm_10.png' }, // 수확일(5~10일차)
-  idle:  { pc:'farm_01.png',        m:'a_farm_01.png' }, // 파종 대기(겨울 유지)
-  rest:  { pc:'farm_12.png',        m:'a_farm_12.png' }  // 수확 다음날(휴농 1일)
+  day1:  { pc:'a_farm_05.png', m:'a_farm_05.png' }, // 파종 직후
+  day2:  { pc:'farm_05.png',   m:'a_farm_05.png' },
+  day3:  { pc:'a_farm_07.png', m:'a_farm_07.png' },
+  day4:  { pc:'a_farm_09.png', m:'a_farm_09.png' },
+  day5p: { pc:'farm_10.png',   m:'a_farm_10.png' }, // 수확일(5~10일차)
+  idle:  { pc:'a_farm_01.png', m:'a_farm_01.png' }, // 파종 대기(겨울 유지)
+  rest:  { pc:'a_farm_12.png', m:'a_farm_12.png' }  // 수확 다음날(휴농 1일)
 };
 
-/* 미니이미지 시리즈(항상 a_ 시리즈 사용) */
+/* 미니이미지 시리즈(모바일 시리즈를 공용 사용) */
 const MINI_SERIES = {
-  day1: 'a_corn_06', // _01~_04, + base(=5)
+  day1: 'a_corn_06',
   day2: 'a_corn_04',
   day3: 'a_corn_03',
   day4: 'a_corn_02',
-  // 수확일(5~10일): 예열 6,7 → 등급컷 X
   pre6: 'a_corn_0_01.png',
   pre7: 'a_corn_0_01_01.png',
   grade: {
@@ -169,9 +169,8 @@ const MINI_SERIES = {
     C:'a_corn_01_02.png',
     D:'a_corn_01_03.png',
     E:'a_corn_01_04.png',
-    F:'a_corn_01_04.png', // F도 5번 이미지
+    F:'a_corn_01_04.png'
   },
-  // 휴농일(수확 다음날): 1→1→2→3→4
   rest: ['a_corn_0_01_02.png', 'a_corn_0_01_02.png', 'a_corn_0_01_03.png', 'a_corn_0_01_04.png', 'a_corn_0_01_05.png']
 };
 
@@ -182,10 +181,9 @@ const LKEY_HARV   = 'orcax:corn:lastHarvestAt';
 /* ====== 유틸 ====== */
 const H = n => n*60*60*1000;
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-const toKST = d => { const t = (typeof d==='number')?d:(d?+new Date(d):Date.now()); return new Date(t + (9*60*60*1000) - new Date(t).getTimezoneOffset()*60000); };
+const toKST = t => new Date((typeof t==='number'?t:(t?+new Date(t):Date.now())) + (9*60*60*1000) - new Date().getTimezoneOffset()*60000);
 const nowKST = ()=> toKST(Date.now());
 
-/* 08~23 슬롯 인덱스(0..4), 야간(-1) */
 function slotIndex(dateKST){
   const h = dateKST.getHours();
   for (let i=0;i<ACTIVE_SLOTS.length;i++){
@@ -194,31 +192,22 @@ function slotIndex(dateKST){
   }
   return -1; // night
 }
-
-/* 경과 일수(1일차=1). KST 자정 기준. */
 function dayNumber(plantedAt){
   if (!plantedAt) return 0;
-  const n = toKST(Date.now()), p = toKST(plantedAt);
-  const d = Math.floor((n - new Date(p.getFullYear(), p.getMonth(), p.getDate()))/ (24*60*60*1000))
-          - Math.floor((new Date(p.getFullYear(), p.getMonth(), p.getDate()) - new Date(p.getFullYear(), p.getMonth(), p.getDate()))/(24*60*60*1000)) + 1;
-  // 간단: 자정 기준 +1
-  const days = Math.max(1, Math.floor((n - p)/(24*60*60*1000)) + 1);
-  return days;
+  const n = nowKST().setHours(0,0,0,0);
+  const p = toKST(plantedAt).setHours(0,0,0,0);
+  return Math.max(1, Math.floor((n - p)/(24*60*60*1000)) + 1);
 }
-
-/* A~F 등급(5~10일차) */
 function gradeByDays(plantedAt){
-  const days = dayNumber(plantedAt);
-  if (days < 5) return null;
-  if (days < 6) return 'A';
-  if (days < 7) return 'B';
-  if (days < 8) return 'C';
-  if (days < 9) return 'D';
-  if (days < 10) return 'E';
+  const d = dayNumber(plantedAt);
+  if (d < 5) return null;
+  if (d < 6) return 'A';
+  if (d < 7) return 'B';
+  if (d < 8) return 'C';
+  if (d < 9) return 'D';
+  if (d < 10) return 'E';
   return 'F';
 }
-
-/* 로컬 타이머(물/거름) */
 const L = ()=>{ try{ return JSON.parse(localStorage.getItem(LKEY_TIMERS)||'{}'); }catch{ return {}; } };
 const Savel = t => localStorage.setItem(LKEY_TIMERS, JSON.stringify(t||{}));
 function timersOnPlant(){ const t=L(); t.plantedAt = Date.now(); t.waterDepleteAt=0; t.fertilDepleteAt=0; Savel(t); }
@@ -231,10 +220,8 @@ function timersAddWater(){
 function timersAddFert(){ const t=L(); t.fertilDepleteAt = Date.now() + H(3); Savel(t); }
 function pctWater(){ const t=L(); if(!t.waterDepleteAt) return 0; return clamp((t.waterDepleteAt - Date.now()) / H(3) * 100, 0, 100); }
 function pctFert(){ const t=L(); if(!t.fertilDepleteAt) return 0; return clamp((t.fertilDepleteAt - Date.now()) / H(3) * 100, 0, 100); }
-function waterUnits(){ return Math.min(3, Math.ceil(((L().waterDepleteAt||0)-Date.now())/H(1))); } // 0~3
-function fertUnits(){  return Math.min(3, Math.ceil(((L().fertilDepleteAt||0)-Date.now())/H(1))); }  // 0~3
-
-/* 상태 판정: normal | waterLack | fertLack */
+function waterUnits(){ return Math.min(3, Math.ceil(((L().waterDepleteAt||0)-Date.now())/H(1))); }
+function fertUnits(){  return Math.min(3, Math.ceil(((L().fertilDepleteAt||0)-Date.now())/H(1))); }
 function statusForMini(isHarvest){
   if (isHarvest) return 'harvest';
   if (waterUnits() <= 0) return 'waterLack';
@@ -242,54 +229,43 @@ function statusForMini(isHarvest){
   return 'normal';
 }
 
-/* 배경 선택 */
+/* 배경/미니 선택 */
 function pickBackground(phase, plantedAt){
   const harvAt = Number(localStorage.getItem(LKEY_HARV)||0);
   const inRest = (harvAt && (Date.now()-harvAt) < H(24));
   if (inRest) return BG.rest;
-  if (phase==='IDLE' || phase==='STUBBLE'){ // 파종 전/수확 후(휴농 지나고)
-    return BG.idle;
-  }
+  if (phase==='IDLE' || phase==='STUBBLE'){ return BG.idle; }
   const d = dayNumber(plantedAt);
   if (d<=1) return BG.day1;
   if (d===2) return BG.day2;
   if (d===3) return BG.day3;
   if (d===4) return BG.day4;
-  return BG.day5p; // 5~10 수확일
+  return BG.day5p;
 }
-
-/* 미니이미지 선택 */
 function pickMini(phase, plantedAt){
   const sIdx = slotIndex(nowKST());
   const harvAt = Number(localStorage.getItem(LKEY_HARV)||0);
   const inRest = (harvAt && (Date.now()-harvAt) < H(24));
   if (inRest){
-    // 휴농일: 1→1→2→3→4
     const arr = MINI_SERIES.rest;
     return arr[(sIdx>=0?sIdx:0)] || arr[0];
   }
-  if (phase==='IDLE' || phase==='STUBBLE'){
-    return 'corn_idle.png'; // 파종 대기
-  }
+  if (phase==='IDLE' || phase==='STUBBLE'){ return 'corn_idle.png'; }
   const d = dayNumber(plantedAt);
-  const st = statusForMini(d>=5); // 수확일이면 강제 harvest 처리
-  // 수확일(5~10): 6,6,7,7,등급컷
+  const st = statusForMini(d>=5);
   if (d>=5){
     if (sIdx<=1) return MINI_SERIES.pre6;
     if (sIdx<=3) return MINI_SERIES.pre7;
     const g = gradeByDays(plantedAt) || 'A';
     return MINI_SERIES.grade[g];
   }
-  // 성장일(1~4): 정상 2,2,4,4,5 / 물부족=1 / 거름부족=3
   const series = (d===1)?MINI_SERIES.day1 : (d===2)?MINI_SERIES.day2 : (d===3)?MINI_SERIES.day3 : MINI_SERIES.day4;
-  if (st==='waterLack') return series+'_01.png'; // 1
-  if (st==='fertLack')  return series+'_03.png'; // 3
+  if (st==='waterLack') return series+'_01.png';
+  if (st==='fertLack')  return series+'_03.png';
   const order = [2,2,4,4,5];
   const num = order[(sIdx>=0?sIdx:0)];
   return num===5 ? (series+'.png') : (series+'_'+String(num).padStart(2,'0')+'.png');
 }
-
-/* 미니/배경 적용 */
 function applyVisuals(phase, plantedAt){
   const bg = pickBackground(phase, plantedAt);
   const bgUrl = IMG_BASE + (isMobile?bg.m:bg.pc);
@@ -298,8 +274,8 @@ function applyVisuals(phase, plantedAt){
   document.getElementById('miniImg').src = IMG_BASE + mini;
 }
 
-/* API ====== */
-const DEFAULT_ORIGIN = 'https://climbing-wholly-grouper.jp.ngrok.io';
+/* ====== API ====== */
+const DEFAULT_ORIGIN = 'https://climbing-wholly-grouper.jp.ngrok.io'; // ↔ http://localhost:3060
 const RAW_ORIGIN  = (localStorage.getItem('orcax:BASE_API') || DEFAULT_ORIGIN).replace(/\/+$/,'');
 const BASE_ORIGIN = RAW_ORIGIN.replace(/\/api\/?$/i,'');
 const API = (p) => `${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
@@ -320,7 +296,7 @@ async function jfetch(url, { method='GET', query, body, headers } = {}){
   return data;
 }
 
-/* 상태/공유 ====== */
+/* ====== 상태 ====== */
 const S = { summary:null, user:null, orcx:0 };
 function setNet(ok, msg){ const dot=document.getElementById('netDot'); const txt=document.getElementById('netTxt');
   if (dot) dot.classList.toggle('ok', !!ok); if (txt) txt.textContent = ok ? (msg||'온라인') : (msg||'오프라인'); }
@@ -332,11 +308,11 @@ function updateBars(growthPct){
   if (bg) bg.style.height = Math.round(clamp(growthPct||0,0,100))+'%';
 }
 
-/* 버튼/안내(수확일엔 비활성) */
+/* 버튼/안내(수확일엔 물/거름 비활성) */
 function refreshControls(){
   const s = S.summary || {}; const g = Number(s.g||0); const growPhase = s.phase === 'GROW';
   const days = dayNumber(s.plantedAt);
-  const isHarvestDay = growPhase && days>=5; // 5~10일차
+  const isHarvestDay = growPhase && days>=5;
   const canWater = (Number(S.user?.inventory?.water||0) > 0 && growPhase && g < 100 && !isHarvestDay && waterUnits()<3);
   const canFert  = (Number(S.user?.inventory?.fertilizer||0) > 0 && growPhase && g < 100 && !isHarvestDay);
 
@@ -356,7 +332,7 @@ function refreshControls(){
   }
 }
 
-/* 서버 API 래퍼 */
+/* ====== API 래퍼 ====== */
 const api = {
   userdata:      (kakaoId,nickname) => jfetch(API('userdata'),      { method:'POST', body:{ kakaoId, nickname } }),
   cornSummary:   (kakaoId)          => jfetch(API('corn/summary'),   { method:'GET',  query:{ kakaoId } }),
@@ -365,8 +341,7 @@ const api = {
   harvest:       (kakaoId)          => jfetch(API('corn/harvest'),   { method:'POST', body:{ kakaoId } }),
   pop:           (kakaoId,cost=30)  => jfetch(API('corn/pop'),       { method:'POST', body:{ kakaoId, tokenCost:cost } }),
   exchange:      (kakaoId,qty=1,dir)=> jfetch(API('corn/exchange'),  { method:'POST', body:{ kakaoId, qty, dir } }),
-  useInventory:  (kakaoId,type,amt=1)=> jfetch(API('user/inventory/use'), { method:'POST', body:{ kakaoId, type, amount:amt } }),
-  buyAdditive:   (kakaoId,item,qty=1)=> jfetch(API('corn/buy-additive'),  { method:'POST', body:{ kakaoId, item, qty } }),
+  useInventory:  (kakaoId,type,amt=1)=> jfetch(API('user/inventory/use'), { method:'POST', body:{ kakaoId, type, amount:amt } })
 };
 
 /* 로그인 키 */
@@ -389,16 +364,10 @@ function paintFromUser(user){
   const orcx = Number(user.wallet?.orcx ?? user.orcx ?? 0);
   S.orcx = orcx; document.getElementById('r-orcx').textContent = orcx|0;
 }
-
 function paintFromCorn(s){
-  if (!s) {
-    applyVisuals('IDLE', null);
-    updateBars(0);
-    return;
-  }
+  if (!s) { applyVisuals('IDLE', null); updateBars(0); return; }
   S.summary = s;
 
-  // 리소스
   document.getElementById('r-seeds').textContent = Number(s.agri?.seeds||0);
   document.getElementById('r-corn').textContent  = Number(s.agri?.corn||0);
   document.getElementById('r-pop').textContent   = Number(s.food?.popcorn||0);
@@ -427,7 +396,6 @@ async function onPlant(){
 }
 async function onWater(){
   try{
-    // 수확일 가드
     const d = dayNumber(S.summary?.plantedAt); if (S.summary?.phase==='GROW' && d>=5){ toast('오늘은 수확일입니다. 물을 주지 않습니다.'); return; }
     await api.useInventory(kakaoId,'water',1);
     timersAddWater();
@@ -446,23 +414,17 @@ async function onFert(){
 }
 async function onHarv(){
   try{
-    const r = await api.harvest(kakaoId);
+    await api.harvest(kakaoId);
     localStorage.setItem(LKEY_HARV, String(Date.now())); // 휴농일 1일
-    // 즉시 휴농/겨울 비주얼 반영
     S.summary = Object.assign({}, S.summary||{}, { phase:'STUBBLE', g:0 });
     paintFromCorn(S.summary);
     await loadAll();
     toast('수확 완료');
   }catch(e){ console.error(e); toast(e.data?.error || '수확 실패'); }
 }
-async function onPop(){
-  try{ await api.pop(kakaoId,30); await loadAll(); toast('뻥튀기 완료'); }
-  catch(e){ console.error(e); toast(e.data?.error || '뻥튀기 실패'); }
-}
-async function onExchange(){
-  try{ await api.exchange(kakaoId,1); await loadAll(); toast('교환 완료'); }
-  catch(e){ console.error(e); toast(e.data?.error || '교환 실패'); }
-}
+async function onPop(){ try{ await api.pop(kakaoId,30); await loadAll(); toast('뻥튀기 완료'); }
+catch(e){ console.error(e); toast(e.data?.error || '뻥튀기 실패'); } }
+async function onExchange(){ toast('교환 UI는 추후 적용'); }
 
 document.getElementById('btn-plant').onclick = onPlant;
 document.getElementById('btn-water').onclick = onWater;
@@ -488,15 +450,14 @@ async function loadAll(){
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
-  // 초기는 파종 대기 배경
   applyVisuals('IDLE', null);
   loadAll();
-  // 10초마다 막대/미니/배경 갱신
   setInterval(()=>{ updateBars((S.summary?.g)|0); if (S.summary) { applyVisuals(S.summary.phase, S.summary.plantedAt); refreshControls(); } }, 10000);
 });
 </script>
 </body>
 </html>
+
 
 
 
