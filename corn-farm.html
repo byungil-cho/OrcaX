@@ -67,21 +67,18 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 #corn-bars .grow  .fill{ background:linear-gradient(to top, rgba(140,255,140,.95), rgba(140,255,140,.35)); }
 #corn-bars .emoji{ font-size:16px; line-height:1; text-shadow:0 1px 2px rgba(0,0,0,.6); }
 
-/* ✅ 토스트를 최상단으로 */
+/* 토스트 최상단 */
 #toast{ position:fixed; left:50%; transform:translateX(-50%); top:62px; z-index:9999;
   background:rgba(0,0,0,.88); color:#fff; border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none }
 #toast.show{ display:block }
 
-/* ✅ 구매 팝업: 백드롭 없음 + 패널만 뜸 + 더 밝은 패널 */
+/* 구매 팝업(백드롭 없음, 밝은 패널) */
 .modal{ position:fixed; inset:0; z-index:20; display:none; align-items:center; justify-content:center; pointer-events:none; }
 .modal.open{ display:flex; }
-.modal .panel{
-  pointer-events:auto; position:relative; width:min(92vw,420px);
+.modal .panel{ pointer-events:auto; position:relative; width:min(92vw,420px);
   border-radius:14px; border:1px solid rgba(255,255,255,.25);
-  background:linear-gradient(180deg, rgba(22,28,38,.86), rgba(22,28,38,.80)); /* 밝게 수정 */
-  color:#eaf2ff; padding:16px 16px 14px;
-  box-shadow:0 18px 50px rgba(0,0,0,.30);  /* 과한 어둠 제거 */
-}
+  background:linear-gradient(180deg, rgba(22,28,38,.86), rgba(22,28,38,.80));
+  color:#eaf2ff; padding:16px 16px 14px; box-shadow:0 18px 50px rgba(0,0,0,.30); }
 .modal h3{ margin:0 0 8px; font-size:16px }
 .modal .close{ position:absolute; top:8px; right:8px; width:32px; height:32px; border-radius:999px;
   border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; cursor:pointer }
@@ -132,7 +129,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 
 <div class="mini-wrap" id="miniWrap">
   <a class="nav" href="corn-index.html" title="이전">⬅️</a>
-  <img id="miniImg" src="img/corn_idle.png" alt="작물 상태" />
+  <img id="miniImg" src="img/a_corn_06_02.png" alt="작물 상태" />
   <div id="corn-bars" aria-label="수분/거름/성장 게이지">
     <div class="meter water"><div class="bar"><div class="fill" id="bar-water"></div></div><div class="emoji">💧</div></div>
     <div class="meter fert"><div class="bar"><div class="fill" id="bar-fert"></div></div><div class="emoji">🌱</div></div>
@@ -180,9 +177,11 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 <script>
 'use strict';
 
-/* ===== 공통 ===== */
+/* ===== 상수/공통 ===== */
 const IMG_BASE='img/';
 const isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+/* 시간 슬롯(3시간 × 5) */
 const ACTIVE_SLOTS=[[8,11],[11,14],[14,17],[17,20],[20,23]];
 const H=n=>n*60*60*1000, clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 const toKST=t=>new Date((typeof t==='number'?t:(t?+new Date(t):Date.now()))+(9*60*60*1000)-new Date().getTimezoneOffset()*60000);
@@ -191,10 +190,34 @@ function slotIndex(d){const h=d.getHours(); for(let i=0;i<ACTIVE_SLOTS.length;i+
 function dayNumber(plantedAt){ if(!plantedAt)return 0; const n=nowKST().setHours(0,0,0,0); const p=toKST(plantedAt).setHours(0,0,0,0); return Math.max(1, Math.floor((n-p)/(24*60*60*1000))+1); }
 function gradeByDays(plantedAt){ const d=dayNumber(plantedAt); if(d<5)return null; if(d<6)return'A'; if(d<7)return'B'; if(d<8)return'C'; if(d<9)return'D'; if(d<10)return'E'; return'F'; }
 
-const BG_BY_SEASON={winter:{pc:'farm_01.png',m:'a_farm_01.png'},lateWinter:{pc:'farm_03.png',m:'a_farm_03.png'},spring:{pc:'farm_05.png',m:'a_farm_05.png'},summer:{pc:'farm_07.png',m:'a_farm_07.png'},lateSummer:{pc:'farm_09.png',m:'a_farm_09.png'},autumn:{pc:'farm_10.png',m:'a_farm_10.png'},deepWinter:{pc:'farm_12.png',m:'a_farm_12.png'}};
-const BG_FALLBACK={day1:{pc:'a_farm_05.png',m:'a_farm_05.png'},day2:{pc:'farm_05.png',m:'a_farm_05.png'},day3:{pc:'a_farm_07.png',m:'a_farm_07.png'},day4:{pc:'a_farm_09.png',m:'a_farm_09.png'},day5p:{pc:'farm_10.png',m:'a_farm_10.png'},idle:{pc:'a_farm_01.png',m:'a_farm_01.png'},rest:{pc:'a_farm_12.png',m:'a_farm_12.png'}};
-const MINI_SERIES={day1:'a_corn_06',day2:'a_corn_04',day3:'a_corn_03',day4:'a_corn_02',pre6:'a_corn_0_01.png',pre7:'a_corn_0_01_01.png',grade:{A:'a_corn_01.png',B:'a_corn_01_01.png',C:'a_corn_01_02.png',D:'a_corn_01_03.png',E:'a_corn_01_04.png',F:'a_corn_01_04.png'},rest:['a_corn_0_01_02.png','a_corn_0_01_02.png','a_corn_0_01_03.png','a_corn_0_01_04.png','a_corn_0_01_05.png']};
+/* 배경: 서버 season→파일 */
+const BG_BY_SEASON={
+  winter:{pc:'farm_01.png',m:'a_farm_01.png'}, lateWinter:{pc:'farm_03.png',m:'a_farm_03.png'},
+  spring:{pc:'farm_05.png',m:'a_farm_05.png'}, summer:{pc:'farm_07.png',m:'a_farm_07.png'},
+  lateSummer:{pc:'farm_09.png',m:'a_farm_09.png'}, autumn:{pc:'farm_10.png',m:'a_farm_10.png'},
+  deepWinter:{pc:'farm_12.png',m:'a_farm_12.png'}
+};
+/* 폴백 배경 */
+const BG_FALLBACK={
+  day1:{pc:'a_farm_05.png',m:'a_farm_05.png'}, day2:{pc:'farm_05.png',m:'a_farm_05.png'},
+  day3:{pc:'a_farm_07.png',m:'a_farm_07.png'}, day4:{pc:'a_farm_09.png',m:'a_farm_09.png'},
+  day5p:{pc:'farm_10.png',m:'a_farm_10.png'}, idle:{pc:'a_farm_01.png',m:'a_farm_01.png'}, rest:{pc:'a_farm_12.png',m:'a_farm_12.png'}
+};
 
+/* ======= 미니 이미지 규칙: 항상 a_ 접두사(PC/모바일 동일) ======= */
+const MINI_SERIES={
+  day1:'a_corn_06', day2:'a_corn_04', day3:'a_corn_03', day4:'a_corn_02',
+  pre6:'a_corn_0_01.png', pre7:'a_corn_0_01_01.png',
+  grade:{ A:'a_corn_01.png', B:'a_corn_01_01.png', C:'a_corn_01_02.png', D:'a_corn_01_03.png', E:'a_corn_01_04.png', F:'a_corn_01_04.png' },
+  rest:['a_corn_0_01_02.png','a_corn_0_01_02.png','a_corn_0_01_03.png','a_corn_0_01_04.png','a_corn_0_01_05.png']
+};
+/* 번호 규칙: 1/2/3/4는 _0N.png, 5는 .png */
+function miniFileFrom(seriesBase, num){
+  if(num===5) return `${seriesBase}.png`;
+  return `${seriesBase}_${String(num).padStart(2,'0')}.png`;
+}
+
+/* 로컬 타이머 (물/거름 소모 표시만) */
 const LKEY_TIMERS='orcax:corn:timers', LKEY_HARV='orcax:corn:lastHarvestAt';
 const L=()=>{try{return JSON.parse(localStorage.getItem(LKEY_TIMERS)||'{}');}catch{return{}}};
 const Savel=t=>localStorage.setItem(LKEY_TIMERS, JSON.stringify(t||{}));
@@ -204,17 +227,119 @@ function timersAddFert(){const t=L(); t.fertilDepleteAt=Date.now()+H(3); Savel(t
 function pctWater(){const t=L(); if(!t.waterDepleteAt)return 0; return clamp((t.waterDepleteAt-Date.now())/H(3)*100,0,100);}
 function pctFert(){const t=L(); if(!t.fertilDepleteAt)return 0; return clamp((t.fertilDepleteAt-Date.now())/H(3)*100,0,100);}
 
-/* API 래퍼 */
+/* 서버 응답 정규화 */
+function normalizeSummary(raw){
+  const s=raw||{}, assets=s.assets||{};
+  return {
+    phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
+    meters:{ waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN) },
+    assetBg:assets.bg||s.bg||null,
+    assetMini:assets.mini||s.mini||null,  // 있으면 그대로 사용
+    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{}
+  };
+}
+
+/* 배경/미니 적용(서버 우선) */
+function resolveBgFile(ns){
+  if(ns.assetBg) return ns.assetBg;
+  if(ns.season && BG_BY_SEASON[ns.season]){const m=BG_BY_SEASON[ns.season]; return isMobile?m.m:m.pc;}
+  const harvAt=Number(localStorage.getItem(LKEY_HARV)||0);
+  const inRest=(harvAt&&(Date.now()-harvAt)<H(24));
+  if(inRest) return (isMobile?BG_FALLBACK.rest.m:BG_FALLBACK.rest.pc);
+  if(ns.phase==='IDLE'||ns.phase==='STUBBLE') return (isMobile?BG_FALLBACK.idle.m:BG_FALLBACK.idle.pc);
+  const d=dayNumber(ns.plantedAt);
+  if(d<=1) return (isMobile?BG_FALLBACK.day1.m:BG_FALLBACK.day1.pc);
+  if(d===2) return (isMobile?BG_FALLBACK.day2.m:BG_FALLBACK.day2.pc);
+  if(d===3) return (isMobile?BG_FALLBACK.day3.m:BG_FALLBACK.day3.pc);
+  if(d===4) return (isMobile?BG_FALLBACK.day4.m:BG_FALLBACK.day4.pc);
+  return (isMobile?BG_FALLBACK.day5p.m:BG_FALLBACK.day5p.pc);
+}
+function resolveMiniFile(ns){
+  // 서버가 파일명을 내려주면 그걸 그대로 사용 (항상 img/ + 그대로)
+  if(ns.assetMini) return ns.assetMini;
+
+  // 수확 다음날(휴농일) – 최근 수확 24h 내
+  const harvAt=Number(localStorage.getItem(LKEY_HARV)||0);
+  const sIdx=slotIndex(nowKST());
+  if(harvAt && (Date.now()-harvAt)<H(24)){
+    const arr=MINI_SERIES.rest; return arr[(sIdx>=0?sIdx:0)] || arr[0];
+  }
+
+  // 파종 전(IDLE) – 기본 1일차 정상컷 ②
+  if(ns.phase==='IDLE') return miniFileFrom(MINI_SERIES.day1, 2);
+
+  // 휴농 잔여(그루터기) – 휴농 시퀀스 첫 컷
+  if(ns.phase==='STUBBLE') return MINI_SERIES.rest[0];
+
+  // 성장일
+  const d=dayNumber(ns.plantedAt);
+  if(d>=1 && d<=4){
+    const series = (d===1)?MINI_SERIES.day1 : (d===2)?MINI_SERIES.day2 : (d===3)?MINI_SERIES.day3 : MINI_SERIES.day4;
+    const order=[2,2,4,4,5];
+    // 부족 상태 대체: 물→1, 거름→3
+    const waterUnits=Math.min(3,Math.ceil(((L().waterDepleteAt||0)-Date.now())/H(1)));
+    const fertUnits =Math.min(3,Math.ceil(((L().fertilDepleteAt||0)-Date.now())/H(1)));
+    let num = order[(sIdx>=0?sIdx:0)];
+    if(waterUnits<=0) num=1; else if(fertUnits<=0) num=3;
+    return miniFileFrom(series, num);
+  }
+
+  // 수확 구간(5~10일)
+  if(d>=5){
+    if(sIdx<=1) return MINI_SERIES.pre6;
+    if(sIdx===2) return MINI_SERIES.pre7;
+    const g=gradeByDays(ns.plantedAt)||'A';
+    return MINI_SERIES.grade[g];
+  }
+
+  // 기타 폴백
+  return miniFileFrom(MINI_SERIES.day1, 2);
+}
+function applyVisualsServerFirst(ns){
+  const bgFile=resolveBgFile(ns);
+  const miniFile=resolveMiniFile(ns); // 이미 a_ 접두사 고정
+  document.getElementById('bg').style.background=`url('${IMG_BASE+bgFile}') center/cover no-repeat`;
+  document.getElementById('miniImg').src=IMG_BASE + miniFile;
+}
+
+/* 게이지 */
+function updateBars(growthPct,waterPctOverride,fertPctOverride){
+  const bw=document.getElementById('bar-water'), bf=document.getElementById('bar-fert'), bg=document.getElementById('bar-grow');
+  const w=isFinite(waterPctOverride)?waterPctOverride:pctWater();
+  const f=isFinite(fertPctOverride)?fertPctOverride:pctFert();
+  if(bw) bw.style.height=Math.round(clamp(w,0,100))+'%';
+  if(bf) bf.style.height=Math.round(clamp(f,0,100))+'%';
+  if(bg) bg.style.height=Math.round(clamp(growthPct||0,0,100))+'%';
+}
+
+/* 버튼 상태/토스트/네트워크 */
+const S={summary:null,user:null,orcx:0};
+function setNet(ok,msg){const d=document.getElementById('netDot'), t=document.getElementById('netTxt'); if(d)d.classList.toggle('ok',!!ok); if(t)t.textContent=ok?(msg||'온라인'):(msg||'오프라인');}
+function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1800);}
+function refreshControls(){
+  const s=S.summary||{}; const g=Number(s.g||0); const grow=s.phase==='GROW';
+  const days=dayNumber(s.plantedAt); const isHarvestDay=grow && days>=5;
+  const canWater=(Number(S.user?.inventory?.water||0)>0 && grow && g<100 && !isHarvestDay);
+  const canFert =(Number(S.user?.inventory?.fertilizer||0)>0 && grow && g<100 && !isHarvestDay);
+  document.getElementById('btn-plant').disabled = !(Number(s.agri?.seeds||0)>0 && (s.phase==='IDLE'||s.phase==='STUBBLE'));
+  document.getElementById('btn-water').disabled = !canWater;
+  document.getElementById('btn-fert').disabled  = !canFert;
+  document.getElementById('btn-harv').disabled  = !(grow && g>=100);
+  if(isHarvestDay){ document.getElementById('miniCap').textContent='오늘은 수확일: 물·거름 필요 없음'; }
+  else if(grow){ document.getElementById('miniCap').textContent=`성장 ${g|0}%`; }
+  else if(s.phase==='STUBBLE'){ document.getElementById('miniCap').textContent='휴농(수확 완료)'; }
+  else { document.getElementById('miniCap').textContent='휴경'; }
+}
+
+/* ===== API ===== */
 const DEFAULT_ORIGIN='https://climbing-wholly-grouper.jp.ngrok.io';
 const RAW_ORIGIN=(localStorage.getItem('orcax:BASE_API')||DEFAULT_ORIGIN).replace(/\/+$/,'');
 const BASE_ORIGIN=RAW_ORIGIN.replace(/\/api\/?$/i,'');
 const API=(p)=>`${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
-
 async function jfetch(url,{method='GET',query,body,headers}={}){
   let u=url;
   if(query && typeof query==='object'){
-    const qs=new URLSearchParams();
-    for(const[k,v] of Object.entries(query)) if(v!==undefined&&v!==null) qs.set(k,String(v));
+    const qs=new URLSearchParams(); for(const[k,v] of Object.entries(query)) if(v!==undefined&&v!==null) qs.set(k,String(v));
     const q=qs.toString(); if(q) u+=(u.includes('?')?'&':'?')+q;
   }
   const opts={method,headers:Object.assign({'Accept':'application/json'},headers||{})};
@@ -237,76 +362,15 @@ const api={
   shopBuy:(kakaoId,type,qty)=>jfetch(API('shop/buy'),{method:'POST',body:{kakaoId,type,qty}})
 };
 
-/* 상태/토스트 */
-const S={summary:null,user:null,orcx:0};
-function setNet(ok,msg){const dot=document.getElementById('netDot'), txt=document.getElementById('netTxt');
-  if(dot) dot.classList.toggle('ok',!!ok); if(txt) txt.textContent=ok?(msg||'온라인'):(msg||'오프라인');}
-function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1800);}
-
-/* 비주얼 */
-function resolveBgFile(ns){
-  if(ns.assetBg) return ns.assetBg;
-  if(ns.season && BG_BY_SEASON[ns.season]){const m=BG_BY_SEASON[ns.season]; return isMobile?m.m:m.pc;}
-  const harvAt=Number(localStorage.getItem(LKEY_HARV)||0); const inRest=(harvAt&&(Date.now()-harvAt)<H(24));
-  if(inRest) return (isMobile?BG_FALLBACK.rest.m:BG_FALLBACK.rest.pc);
-  if(ns.phase==='IDLE'||ns.phase==='STUBBLE') return (isMobile?BG_FALLBACK.idle.m:BG_FALLBACK.idle.pc);
-  const d=dayNumber(ns.plantedAt);
-  if(d<=1) return (isMobile?BG_FALLBACK.day1.m:BG_FALLBACK.day1.pc);
-  if(d===2) return (isMobile?BG_FALLBACK.day2.m:BG_FALLBACK.day2.pc);
-  if(d===3) return (isMobile?BG_FALLBACK.day3.m:BG_FALLBACK.day3.pc);
-  if(d===4) return (isMobile?BG_FALLBACK.day4.m:BG_FALLBACK.day4.pc);
-  return (isMobile?BG_FALLBACK.day5p.m:BG_FALLBACK.day5p.pc);
-}
-function resolveMiniFile(ns){
-  if(ns.assetMini) return ns.assetMini;
-  const sIdx=slotIndex(nowKST()), harvAt=Number(localStorage.getItem(LKEY_HARV)||0);
-  if(harvAt && (Date.now()-harvAt)<H(24)){const arr=MINI_SERIES.rest; return arr[(sIdx>=0?sIdx:0)]||arr[0];}
-  if(ns.phase==='IDLE'||ns.phase==='STUBBLE') return 'corn_idle.png';
-  const d=dayNumber(ns.plantedAt);
-  const waterUnits=Math.min(3,Math.ceil(((L().waterDepleteAt||0)-Date.now())/H(1)));
-  const fertUnits=Math.min(3,Math.ceil(((L().fertilDepleteAt||0)-Date.now())/H(1)));
-  const status=(d>=5)?'harvest':(waterUnits<=0?'waterLack':(fertUnits<=0?'fertLack':'normal'));
-  if(d>=5){ if(sIdx<=1) return MINI_SERIES.pre6; if(sIdx<=3) return MINI_SERIES.pre7; const g=gradeByDays(ns.plantedAt)||'A'; return MINI_SERIES.grade[g];}
-  const series=(d===1)?MINI_SERIES.day1:(d===2)?MINI_SERIES.day2:(d===3)?MINI_SERIES.day3:MINI_SERIES.day4;
-  if(status==='waterLack') return series+'_01.png'; if(status==='fertLack') return series+'_03.png';
-  const order=[2,2,4,4,5]; const num=order[(sIdx>=0?sIdx:0)];
-  return num===5 ? (series+'.png') : (series+'_'+String(num).padStart(2,'0')+'.png');
-}
-function applyVisualsServerFirst(ns){
-  const bgFile=resolveBgFile(ns), miniFile=resolveMiniFile(ns);
-  document.getElementById('bg').style.background=`url('${IMG_BASE+bgFile}') center/cover no-repeat`;
-  document.getElementById('miniImg').src=IMG_BASE+miniFile;
-}
-
-/* 게이지 & 버튼 상태 */
-function updateBars(growthPct,waterPctOverride,fertPctOverride){
-  const bw=document.getElementById('bar-water'), bf=document.getElementById('bar-fert'), bg=document.getElementById('bar-grow');
-  const w=isFinite(waterPctOverride)?waterPctOverride:pctWater();
-  const f=isFinite(fertPctOverride)?fertPctOverride:pctFert();
-  if(bw) bw.style.height=Math.round(clamp(w,0,100))+'%';
-  if(bf) bf.style.height=Math.round(clamp(f,0,100))+'%';
-  if(bg) bg.style.height=Math.round(clamp(growthPct||0,0,100))+'%';
-}
-function refreshControls(){
-  const s=S.summary||{}; const g=Number(s.g||0); const growPhase=s.phase==='GROW';
-  const days=dayNumber(s.plantedAt); const isHarvestDay=growPhase && days>=5;
-  const canWater=(Number(S.user?.inventory?.water||0)>0 && growPhase && g<100 && !isHarvestDay);
-  const canFert =(Number(S.user?.inventory?.fertilizer||0)>0 && growPhase && g<100 && !isHarvestDay);
-  document.getElementById('btn-plant').disabled = !(Number(s.agri?.seeds||0)>0 && (s.phase==='IDLE'||s.phase==='STUBBLE'));
-  document.getElementById('btn-water').disabled = !canWater;
-  document.getElementById('btn-fert').disabled  = !canFert;
-  document.getElementById('btn-harv').disabled  = !(growPhase && g>=100);
-  if(isHarvestDay){ document.getElementById('miniCap').textContent='오늘은 수확일: 물·거름 필요 없음'; }
-  else if(growPhase){ document.getElementById('miniCap').textContent=`성장 ${g|0}%`; }
-  else if(s.phase==='STUBBLE'){ document.getElementById('miniCap').textContent='휴농(수확 완료)'; }
-  else { document.getElementById('miniCap').textContent='휴경'; }
-}
-
-/* 로그인 & 로딩 */
+/* 로그인 */
 const kakaoId=localStorage.getItem('kakaoId');
 const nickname=localStorage.getItem('nickname')||localStorage.getItem('kakaoNickname');
-if(!kakaoId||!nickname){document.addEventListener('DOMContentLoaded',()=>{const t=document.getElementById('netTxt'); if(t)t.textContent='로그인 필요';}); alert('로그인이 필요합니다. (index9.html로 이동)'); location.href='index9.html';}
+if(!kakaoId||!nickname){
+  document.addEventListener('DOMContentLoaded',()=>{const t=document.getElementById('netTxt'); if(t)t.textContent='로그인 필요';});
+  alert('로그인이 필요합니다. (index9.html로 이동)'); location.href='index9.html';
+}
 
+/* 페인트 */
 function paintFromUser(user){
   if(!user) return; S.user=user;
   document.getElementById('nick').textContent=user.nickname||nickname||'';
@@ -319,13 +383,6 @@ function paintFromUser(user){
   document.getElementById('r-sugar').textContent=Number(user.additives?.sugar||0);
   const orcx=Number(user.wallet?.orcx ?? user.orcx ?? 0); S.orcx=orcx; document.getElementById('r-orcx').textContent=orcx|0;
 }
-function normalizeSummary(raw){
-  const s=raw||{}, assets=s.assets||{};
-  return { phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
-    meters:{waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN)},
-    assetBg:assets.bg||s.bg||null, assetMini:assets.mini||s.mini||null,
-    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{} };
-}
 function paintFromCorn(raw){
   if(!raw) return; const s=normalizeSummary(raw); S.summary=s;
   const g=clamp(Number(s.g||0),0,100);
@@ -336,6 +393,7 @@ function paintFromCorn(raw){
   refreshControls();
 }
 
+/* 이벤트 */
 async function onPlant(){ try{ const r=await api.plant(kakaoId); timersOnPlant(); S.summary=Object.assign({},S.summary||{},{phase:'GROW',g:0,plantedAt:r.plantedAt||new Date().toISOString()}); paintFromCorn(S.summary); toast('심기 완료'); await loadAll(); }catch(e){ console.error(e); toast(e.data?.error||'심기 실패'); } }
 async function onWater(){ try{ await api.grow(kakaoId,5); timersAddWater(); await loadAll(); toast('물 1회 사용.'); }catch(e){ console.error(e); toast(e.data?.error||'물 주기 실패'); } }
 async function onFert(){ try{ await api.grow(kakaoId,7); timersAddFert(); await loadAll(); toast('거름 1회 사용.'); }catch(e){ console.error(e); toast(e.data?.error||'거름 주기 실패'); } }
@@ -350,6 +408,7 @@ document.getElementById('btn-harv').onclick=onHarv;
 document.getElementById('btn-pop').onclick=onPop;
 document.getElementById('btn-ex').onclick=onExchange;
 
+/* 로드 */
 async function loadAll(){
   try{
     const [ud,cs]=await Promise.all([ api.userdata(kakaoId,nickname), api.cornSummary(kakaoId) ]);
@@ -357,7 +416,7 @@ async function loadAll(){
   }catch(e){ setNet(false,'연결 실패'); console.error(e); toast('서버 연결 실패'); }
 }
 
-/* ===== 상점(구매) ===== */
+/* === 상점(구매) === */
 const PRICE={salt:10,sugar:20,seed:100}, LABEL={salt:'소금',sugar:'설탕',seed:'씨옥수수'};
 const shopModal=document.getElementById('shopModal'), shopItem=document.getElementById('shopItem'),
       shopQty=document.getElementById('shopQty'), shopWallet=document.getElementById('shopWallet'),
@@ -369,7 +428,6 @@ function updateShopTotal(){ const type=shopItem.value; const qty=Math.max(1,pars
 async function confirmShop(){
   const type=shopItem.value; const qty=Math.max(1,parseInt(shopQty.value||'1',10));
   const total=(PRICE[type]||0)*qty;
-  // ✅ 클라 선검증: 토큰 부족시 바로 안내
   if(Number(S.orcx||0) < total){ toast(`토큰 부족 (보유 ${Number(S.orcx||0)}, 필요 ${total})`); return; }
   try{
     const res=await api.shopBuy(kakaoId,type,qty);
@@ -389,8 +447,6 @@ async function confirmShop(){
 document.getElementById('btn-shop').addEventListener('click', openShop);
 document.getElementById('shopClose').addEventListener('click', closeShop);
 document.getElementById('shopConfirm').addEventListener('click', confirmShop);
-shopItem.addEventListener('change', updateShopTotal);
-shopQty.addEventListener('input', updateShopTotal);
 
 /* 시작 */
 document.addEventListener('DOMContentLoaded', async ()=>{
@@ -400,6 +456,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
+
 
 
 
