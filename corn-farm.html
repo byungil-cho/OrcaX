@@ -109,7 +109,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
     <button id="btn-shop" class="shopbtn" title="소금/설탕/씨옥수수 구매">구매</button>
   </div>
   <div class="res">
-    <div class="tag">🌱 씨앗 <b id="r-seed">0</b></div>
+    <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
     <div class="tag">💧 물 <b id="r-water">0</b></div>
     <div class="tag">🪴 거름 <b id="r-fert">0</b></div>
     <div class="tag">🌽 옥수수 <b id="r-corn">0</b></div>
@@ -156,7 +156,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
     <div class="row">
       <div class="select">
         <select id="shopItem">
-          <!-- ✅ 값은 반드시 'seeds' -->
+          <!-- ✅ 값은 반드시 'seed' (단수) -->
           <option value="seed">씨옥수수</option>
           <option value="salt">소금</option>
           <option value="sugar">설탕</option>
@@ -293,15 +293,16 @@ function updateBars(growthPct,waterPctOverride,fertPctOverride){
 }
 
 /* 상태/토스트/버튼 */
-const S={summary:null,user:null,orcx:0, price:{salt:10,sugar:20,seed:100}}; // ✅ seeds 기본가 100
+const S={summary:null,user:null,orcx:0, price:{salt:10,sugar:20,seed:100}}; // ✅ seed(단수) 기본가 100
 function setNet(ok,msg){const d=document.getElementById('netDot'), t=document.getElementById('netTxt'); if(d)d.classList.toggle('ok',!!ok); if(t)t.textContent=ok?(msg||'온라인'):(msg||'오프라인');}
 function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1800);}
 function refreshControls(){
   const s=S.summary||{}; const g=Number(s.g||0); const grow=s.phase==='GROW';
   const days=dayNumber(s.plantedAt); const isHarvestDay=grow && days>=5;
+  const seedsCount = Number(s.agri?.seeds ?? s.agri?.seed ?? 0); // ✅ 둘 다 대응
   const canWater=(Number(S.user?.inventory?.water||0)>0 && grow && g<100 && !isHarvestDay);
   const canFert =(Number(S.user?.inventory?.fertilizer||0)>0 && grow && g<100 && !isHarvestDay);
-  document.getElementById('btn-plant').disabled = !(Number(s.agri?.seed||0)>0 && (s.phase==='IDLE'||s.phase==='STUBBLE'));
+  document.getElementById('btn-plant').disabled = !(seedsCount>0 && (s.phase==='IDLE'||s.phase==='STUBBLE'));
   document.getElementById('btn-water').disabled = !canWater;
   document.getElementById('btn-fert').disabled  = !canFert;
   document.getElementById('btn-harv').disabled  = !(grow && g>=100);
@@ -338,11 +339,10 @@ const api={
   harvest:(kakaoId)=>jfetch(API('corn/harvest'),{method:'POST',body:{kakaoId}}),
   pop:(kakaoId,cost=30)=>jfetch(API('corn/pop'),{method:'POST',body:{kakaoId,tokenCost:cost}}),
   exchange:(kakaoId,qty=1,dir)=>jfetch(API('corn/exchange'),{method:'POST',body:{kakaoId,qty,dir}}),
-  /* ✅ buy-additive: seeds 기준으로 전송 */
+  /* ✅ buy-additive: seed(단수)로 전송. 서버가 seeds여도 미들웨어가 seed로 바꿔줌 */
   buyAdditive:(kakaoId,type,qty)=>{
-    // 서버 호환 위해 item/type 동일하게 넘김 (둘 다 'seeds' 가능)
-    const item = type;
-    return jfetch(API('corn/buy-additive'),{ method:'POST', body:{kakaoId, type, item, qty, amount:qty }});
+    const item = (type==='seeds' ? 'seed' : type); // 혹시 값이 잘못 들어와도 방어
+    return jfetch(API('corn/buy-additive'),{ method:'POST', body:{kakaoId, type:item, item, qty, amount:qty }});
   },
   priceboard:()=>jfetch(API('corn/priceboard'),{method:'GET'})
 };
@@ -361,7 +361,9 @@ function paintFromUser(user){
   document.getElementById('nick').textContent=user.nickname||nickname||'';
   document.getElementById('r-water').textContent=Number(user.inventory?.water||0);
   document.getElementById('r-fert').textContent =Number(user.inventory?.fertilizer||0);
-  document.getElementById('r-seed').textContent=Number(user.agri?.seed||0);
+  // ✅ seeds/seed 어느 쪽이 와도 반영
+  const seedCount = Number(user.agri?.seeds ?? user.agri?.seed ?? 0);
+  document.getElementById('r-seeds').textContent=seedCount;
   document.getElementById('r-corn').textContent =Number(user.agri?.corn||0);
   document.getElementById('r-pop').textContent  =Number(user.food?.popcorn||0);
   document.getElementById('r-salt').textContent =Number(user.additives?.salt||0);
@@ -403,13 +405,13 @@ async function loadAll(){
     ]);
     const user=ud.user||ud.data||ud; paintFromUser(user); paintFromCorn(cs); setNet(true,'온라인');
 
-    // ✅ 가격판 동기화 (seeds 키 사용)
+    // ✅ 가격판 동기화 (seed 우선, 혹시 서버가 seeds로 줄 때도 반영)
     if(prices && prices.price){
       const p=prices.price;
       S.price={
         salt : Number(p.salt  ?? S.price.salt),
         sugar: Number(p.sugar ?? S.price.sugar),
-        seed: Number(p.seed ?? S.price.seed)
+        seed : Number((p.seed ?? p.seeds) ?? S.price.seed)
       };
     }
     updateShopLabels();
@@ -420,7 +422,7 @@ async function loadAll(){
 }
 
 /* === 상점(구매) === */
-const LABEL={salt:'소금',sugar:'설탕',seed:'씨옥수수'}; // ✅ seeds 라벨
+const LABEL={salt:'소금',sugar:'설탕',seed:'씨옥수수'}; // ✅ seed 라벨
 const shopModal=document.getElementById('shopModal'), shopItem=document.getElementById('shopItem'),
       shopQty=document.getElementById('shopQty'), shopWallet=document.getElementById('shopWallet'),
       shopTotal=document.getElementById('shopTotal');
@@ -441,14 +443,15 @@ function updateShopTotal(){
   shopQty.value=qty; shopTotal.textContent=total;
 }
 async function confirmShop(){
-  const type=shopItem.value; const qty=Math.max(1,parseInt(shopQty.value||'1',10));
-  const total=(S.price[type]||0)*qty;
+  const selected=shopItem.value; // 'seed' | 'salt' | 'sugar'
+  const qty=Math.max(1,parseInt(shopQty.value||'1',10));
+  const total=(S.price[selected]||0)*qty;
   if(Number(S.orcx||0) < total){ toast(`토큰 부족 (보유 ${Number(S.orcx||0)}, 필요 ${total})`); return; }
   try{
-    const res=await api.buyAdditive(kakaoId,type,qty); // type === 'seeds' | 'salt' | 'sugar'
+    const res=await api.buyAdditive(kakaoId, selected, qty); // ✅ seed(단수)로 전송
     console.log('corn/buy-additive result:',res);
     closeShop(); await loadAll();
-    toast(`${LABEL[type]} ${qty}개를 ${total} 토큰으로 구매했습니다.`);
+    toast(`${LABEL[selected]} ${qty}개를 ${total} 토큰으로 구매했습니다.`);
   }catch(e){
     console.error('buy-additive error:',e);
     if(e.status===404)       toast('구매 실패: buy-additive 라우터(404).');
@@ -473,6 +476,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
 
 
 
