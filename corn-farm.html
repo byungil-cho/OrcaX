@@ -17,6 +17,8 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 .status{ width:8px; height:8px; border-radius:999px; background:#ef4444 }
 .status.ok{ background:var(--ok) }
 .nick{ font-weight:800; max-width:42vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+
+/* 닉네임 옆 구매 버튼 */
 .shopbtn{ margin-left:6px; font-size:12px; padding:6px 10px; border-radius:999px;
   border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; cursor:pointer }
 
@@ -154,7 +156,8 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
     <div class="row">
       <div class="select">
         <select id="shopItem">
-          <option value="seed">씨옥수수</option>
+          <!-- ✅ 값은 반드시 'seeds' -->
+          <option value="seeds">씨옥수수</option>
           <option value="salt">소금</option>
           <option value="sugar">설탕</option>
         </select>
@@ -186,7 +189,7 @@ function slotIndex(d){const h=d.getHours(); for(let i=0;i<ACTIVE_SLOTS.length;i+
 function dayNumber(plantedAt){ if(!plantedAt)return 0; const n=nowKST().setHours(0,0,0,0); const p=toKST(plantedAt).setHours(0,0,0,0); return Math.max(1, Math.floor((n-p)/(24*60*60*1000))+1); }
 function gradeByDays(plantedAt){ const d=dayNumber(plantedAt); if(d<5)return null; if(d<6)return'A'; if(d<7)return'B'; if(d<8)return'C'; if(d<9)return'D'; if(d<10)return'E'; return'F'; }
 
-/* 배경: 서버 season→파일 */
+/* 배경 */
 const BG_BY_SEASON={
   winter:{pc:'farm_01.png',m:'a_farm_01.png'}, lateWinter:{pc:'farm_03.png',m:'a_farm_03.png'},
   spring:{pc:'farm_05.png',m:'a_farm_05.png'}, summer:{pc:'farm_07.png',m:'a_farm_07.png'},
@@ -199,7 +202,7 @@ const BG_FALLBACK={
   day5p:{pc:'farm_10.png',m:'a_farm_10.png'}, idle:{pc:'a_farm_01.png',m:'a_farm_01.png'}, rest:{pc:'a_farm_12.png',m:'a_farm_12.png'}
 };
 
-/* ======= 미니 이미지 규칙: 항상 a_ 접두사 ======= */
+/* 미니: 항상 a_ 접두사 */
 const MINI_SERIES={
   day1:'a_corn_06', day2:'a_corn_04', day3:'a_corn_03', day4:'a_corn_02',
   pre6:'a_corn_0_01.png', pre7:'a_corn_0_01_01.png',
@@ -229,7 +232,7 @@ function normalizeSummary(raw){
   };
 }
 
-/* 배경/미니 적용(서버 우선) */
+/* 비주얼 적용 */
 function resolveBgFile(ns){
   if(ns.assetBg) return ns.assetBg;
   if(ns.season && BG_BY_SEASON[ns.season]){const m=BG_BY_SEASON[ns.season]; return isMobile?m.m:m.pc;}
@@ -245,7 +248,7 @@ function resolveBgFile(ns){
   return (isMobile?BG_FALLBACK.day5p.m:BG_FALLBACK.day5p.pc);
 }
 function resolveMiniFile(ns){
-  if(ns.assetMini) return ns.assetMini; // 서버가 명시하면 그대로
+  if(ns.assetMini) return ns.assetMini;
   const harvAt=Number(localStorage.getItem(LKEY_HARV)||0);
   const sIdx=slotIndex(nowKST());
   if(harvAt && (Date.now()-harvAt)<H(24)){
@@ -290,7 +293,7 @@ function updateBars(growthPct,waterPctOverride,fertPctOverride){
 }
 
 /* 상태/토스트/버튼 */
-const S={summary:null,user:null,orcx:0, price:{salt:10,sugar:20,seed:100}};
+const S={summary:null,user:null,orcx:0, price:{salt:10,sugar:20,seeds:100}}; // ✅ seeds 기본가 100
 function setNet(ok,msg){const d=document.getElementById('netDot'), t=document.getElementById('netTxt'); if(d)d.classList.toggle('ok',!!ok); if(t)t.textContent=ok?(msg||'온라인'):(msg||'오프라인');}
 function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1800);}
 function refreshControls(){
@@ -335,12 +338,12 @@ const api={
   harvest:(kakaoId)=>jfetch(API('corn/harvest'),{method:'POST',body:{kakaoId}}),
   pop:(kakaoId,cost=30)=>jfetch(API('corn/pop'),{method:'POST',body:{kakaoId,tokenCost:cost}}),
   exchange:(kakaoId,qty=1,dir)=>jfetch(API('corn/exchange'),{method:'POST',body:{kakaoId,qty,dir}}),
-  /* ✅ 기존 shop/buy 제거 → corn/buy-additive 사용 */
-  buyAdditive:(kakaoId,type,qty)=>jfetch(API('corn/buy-additive'),{
-    method:'POST',
-    /* 서버 호환 위해 필드 동시 전송(type/item, qty/amount) */
-    body:{kakaoId, type, item:type, qty, amount:qty}
-  }),
+  /* ✅ buy-additive: seeds 기준으로 전송 */
+  buyAdditive:(kakaoId,type,qty)=>{
+    // 서버 호환 위해 item/type 동일하게 넘김 (둘 다 'seeds' 가능)
+    const item = type;
+    return jfetch(API('corn/buy-additive'),{ method:'POST', body:{kakaoId, type, item, qty, amount:qty }});
+  },
   priceboard:()=>jfetch(API('corn/priceboard'),{method:'GET'})
 };
 
@@ -400,18 +403,16 @@ async function loadAll(){
     ]);
     const user=ud.user||ud.data||ud; paintFromUser(user); paintFromCorn(cs); setNet(true,'온라인');
 
-    // 가격판 동기화 (없으면 기본값 유지)
+    // ✅ 가격판 동기화 (seeds 키 사용)
     if(prices && prices.price){
       const p=prices.price;
       S.price={
-        salt: Number(p.salt ?? S.price.salt),
-        sugar:Number(p.sugar?? S.price.sugar),
-        seed: Number(p.seed  ?? S.price.seed)
+        salt : Number(p.salt  ?? S.price.salt),
+        sugar: Number(p.sugar ?? S.price.sugar),
+        seeds: Number(p.seeds ?? S.price.seeds)
       };
-      updateShopLabels();
-    } else {
-      updateShopLabels(); // 기본가로라도 갱신
     }
+    updateShopLabels();
   }catch(e){
     setNet(false,'연결 실패'); console.error(e); toast('서버 연결 실패');
     updateShopLabels(); // 오프라인 기본가
@@ -419,16 +420,15 @@ async function loadAll(){
 }
 
 /* === 상점(구매) === */
-const LABEL={salt:'소금',sugar:'설탕',seed:'씨옥수수'};
+const LABEL={salt:'소금',sugar:'설탕',seeds:'씨옥수수'}; // ✅ seeds 라벨
 const shopModal=document.getElementById('shopModal'), shopItem=document.getElementById('shopItem'),
       shopQty=document.getElementById('shopQty'), shopWallet=document.getElementById('shopWallet'),
       shopTotal=document.getElementById('shopTotal');
 
 function updateShopLabels(){
-  // 셀렉트 옵션의 보이는 텍스트를 서버 가격으로 반영
+  // 옵션 라벨에 서버 가격 반영
   [...shopItem.options].forEach(opt=>{
-    const t=opt.value;
-    const price=S.price[t];
+    const t=opt.value; const price=S.price[t];
     opt.textContent = `${LABEL[t]} (${price} 토큰)`;
   });
   updateShopTotal();
@@ -445,7 +445,7 @@ async function confirmShop(){
   const total=(S.price[type]||0)*qty;
   if(Number(S.orcx||0) < total){ toast(`토큰 부족 (보유 ${Number(S.orcx||0)}, 필요 ${total})`); return; }
   try{
-    const res=await api.buyAdditive(kakaoId,type,qty);
+    const res=await api.buyAdditive(kakaoId,type,qty); // type === 'seeds' | 'salt' | 'sugar'
     console.log('corn/buy-additive result:',res);
     closeShop(); await loadAll();
     toast(`${LABEL[type]} ${qty}개를 ${total} 토큰으로 구매했습니다.`);
@@ -473,6 +473,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
+
 
 
 
