@@ -8,8 +8,7 @@
 :root{ --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18); --ok:#25d366; }
 html,body{ height:100%; margin:0; color:var(--ink); background:transparent;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
-#bg{ position:fixed; inset:0; z-index:0;
-  background:url('img/a_farm_01.png') center/cover no-repeat; } /* 기본=겨울(파종 전) */
+#bg{ position:fixed; inset:0; z-index:0; background:url('img/a_farm_01.png') center/cover no-repeat; }
 
 header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
@@ -21,7 +20,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 
 /* 구매 버튼: 닉네임 바로 옆 */
 .shopbtn{ margin-left:6px; font-size:12px; padding:6px 10px; border-radius:999px;
-  border:1px solid var(--bd); background:rgba(255,255,255,.08); color:#fff; cursor:pointer }
+  border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; cursor:pointer }
 
 .res{ display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) }
 .tag{ display:flex; justify-content:space-between; align-items:center; gap:8px;
@@ -57,7 +56,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 #miniImg{ width:120px; height:120px; border-radius:12px; border:1px solid var(--bd); object-fit:cover; background:#000; flex:0 0 auto }
 #miniCap{ font-size:12px; opacity:.9; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 
-/* === 세로 막대 3개를 가로로 나란히 (바닥 맞춤) === */
+/* 세로 막대 3개 가로 배치 */
 #corn-bars{ display:flex; flex-direction:row; gap:10px; margin-left:8px; align-items:flex-end; }
 #corn-bars .meter{ display:flex; flex-direction:column; align-items:center; gap:4px; }
 #corn-bars .bar{ width:8px; height:96px; border:1px solid var(--bd); border-radius:6px;
@@ -70,24 +69,29 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 
 /* ✅ 토스트를 최상단으로 */
 #toast{ position:fixed; left:50%; transform:translateX(-50%); top:62px; z-index:9999;
-  background:rgba(0,0,0,.85); color:#fff; border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none }
+  background:rgba(0,0,0,.88); color:#fff; border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none }
 #toast.show{ display:block }
 
-/* === ✅ 구매 팝업(백드롭 제거, 패널만 뜸) === */
+/* ✅ 구매 팝업: 백드롭 없음 + 패널만 뜸 + 더 밝은 패널 */
 .modal{ position:fixed; inset:0; z-index:20; display:none; align-items:center; justify-content:center; pointer-events:none; }
 .modal.open{ display:flex; }
-.modal .panel{ pointer-events:auto; position:relative; width:min(92vw,420px); border-radius:14px; border:1px solid var(--bd);
-  background:rgba(10,16,24,.96); color:#fff; padding:14px 14px 12px; box-shadow:0 20px 60px rgba(0,0,0,.45) }
+.modal .panel{
+  pointer-events:auto; position:relative; width:min(92vw,420px);
+  border-radius:14px; border:1px solid rgba(255,255,255,.25);
+  background:linear-gradient(180deg, rgba(22,28,38,.86), rgba(22,28,38,.80)); /* 밝게 수정 */
+  color:#eaf2ff; padding:16px 16px 14px;
+  box-shadow:0 18px 50px rgba(0,0,0,.30);  /* 과한 어둠 제거 */
+}
 .modal h3{ margin:0 0 8px; font-size:16px }
 .modal .close{ position:absolute; top:8px; right:8px; width:32px; height:32px; border-radius:999px;
-  border:1px solid var(--bd); background:rgba(255,255,255,.08); color:#fff; cursor:pointer }
+  border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; cursor:pointer }
 .row{ display:flex; align-items:center; gap:10px; margin:10px 0 }
 .select, .qty{ flex:1; }
-.select select, .qty input{ width:100%; padding:8px 10px; border-radius:10px; border:1px solid var(--bd); background:rgba(255,255,255,.08); color:#fff; }
-.modal .hint{ font-size:12px; opacity:.9; margin-top:6px; }
+.select select, .qty input{ width:100%; padding:8px 10px; border-radius:10px; border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; }
+.modal .hint{ font-size:12px; opacity:.95; margin-top:6px; }
 .modal .confirm-wrap{ display:flex; justify-content:center; margin-top:14px; }
-.btn-ghost{ border:1px solid var(--bd); background:rgba(255,255,255,.08); color:#fff; border-radius:10px; padding:10px 16px; font-size:14px; cursor:pointer }
-.btn-primary{ border:1px solid rgba(123,207,255,.45); background:linear-gradient(180deg, rgba(123,207,255,.25), rgba(123,207,255,.12)); color:#e8f6ff; }
+.btn-ghost{ border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; border-radius:10px; padding:10px 16px; font-size:14px; cursor:pointer }
+.btn-primary{ border:1px solid rgba(123,207,255,.45); background:linear-gradient(180deg, rgba(123,207,255,.28), rgba(123,207,255,.14)); color:#e8f6ff; }
 
 @media (max-width:680px){
   .actions{ grid-template-columns:repeat(2,1fr) }
@@ -105,7 +109,6 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
     <span id="netDot" class="status"></span>
     <span id="netTxt">연결 확인 중…</span>
     <span class="nick" id="nick">(로그인 필요)</span>
-    <!-- ✅ 구매 버튼: 닉네임 옆 -->
     <button id="btn-shop" class="shopbtn" title="소금/설탕/씨옥수수 구매">구매</button>
   </div>
   <div class="res">
@@ -131,18 +134,9 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   <a class="nav" href="corn-index.html" title="이전">⬅️</a>
   <img id="miniImg" src="img/corn_idle.png" alt="작물 상태" />
   <div id="corn-bars" aria-label="수분/거름/성장 게이지">
-    <div class="meter water">
-      <div class="bar"><div class="fill" id="bar-water"></div></div>
-      <div class="emoji">💧</div>
-    </div>
-    <div class="meter fert">
-      <div class="bar"><div class="fill" id="bar-fert"></div></div>
-      <div class="emoji">🌱</div>
-    </div>
-    <div class="meter grow">
-      <div class="bar"><div class="fill" id="bar-grow"></div></div>
-      <div class="emoji">🌽</div>
-    </div>
+    <div class="meter water"><div class="bar"><div class="fill" id="bar-water"></div></div><div class="emoji">💧</div></div>
+    <div class="meter fert"><div class="bar"><div class="fill" id="bar-fert"></div></div><div class="emoji">🌱</div></div>
+    <div class="meter grow"><div class="bar"><div class="fill" id="bar-grow"></div></div><div class="emoji">🌽</div></div>
   </div>
   <a class="nav" href="index9.html" title="메인">🏠</a>
   <div id="miniCap">휴경</div>
@@ -157,7 +151,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   <button id="btn-ex"    class="btn">팝콘↔거름</button>
 </div>
 
-<!-- ✅ 구매 팝업(백드롭 제거) -->
+<!-- 구매 팝업 -->
 <div id="shopModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
   <div class="panel">
     <button class="close" id="shopClose" aria-label="닫기">✕</button>
@@ -186,44 +180,22 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
 <script>
 'use strict';
 
-/* ====== 상수/경로 ====== */
-const IMG_BASE = 'img/';
-const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-
-/* 시간 슬롯(폴백 전용) */
-const ACTIVE_SLOTS = [ [8,11], [11,14], [14,17], [17,20], [20,23] ];
-
-/* 시즌 → 배경 */
-const BG_BY_SEASON = {
-  winter:{pc:'farm_01.png',m:'a_farm_01.png'}, lateWinter:{pc:'farm_03.png',m:'a_farm_03.png'},
-  spring:{pc:'farm_05.png',m:'a_farm_05.png'}, summer:{pc:'farm_07.png',m:'a_farm_07.png'},
-  lateSummer:{pc:'farm_09.png',m:'a_farm_09.png'}, autumn:{pc:'farm_10.png',m:'a_farm_10.png'},
-  deepWinter:{pc:'farm_12.png',m:'a_farm_12.png'}
-};
-/* 폴백 리소스 */
-const BG_FALLBACK = {
-  day1:{pc:'a_farm_05.png',m:'a_farm_05.png'}, day2:{pc:'farm_05.png',m:'a_farm_05.png'},
-  day3:{pc:'a_farm_07.png',m:'a_farm_07.png'}, day4:{pc:'a_farm_09.png',m:'a_farm_09.png'},
-  day5p:{pc:'farm_10.png',m:'a_farm_10.png'}, idle:{pc:'a_farm_01.png',m:'a_farm_01.png'}, rest:{pc:'a_farm_12.png',m:'a_farm_12.png'}
-};
-const MINI_SERIES = {
-  day1:'a_corn_06', day2:'a_corn_04', day3:'a_corn_03', day4:'a_corn_02',
-  pre6:'a_corn_0_01.png', pre7:'a_corn_0_01_01.png',
-  grade:{A:'a_corn_01.png',B:'a_corn_01_01.png',C:'a_corn_01_02.png',D:'a_corn_01_03.png',E:'a_corn_01_04.png',F:'a_corn_01_04.png'},
-  rest:['a_corn_0_01_02.png','a_corn_0_01_02.png','a_corn_0_01_03.png','a_corn_0_01_04.png','a_corn_0_01_05.png']
-};
-
-/* 로컬 키 */
-const LKEY_TIMERS='orcax:corn:timers', LKEY_HARV='orcax:corn:lastHarvestAt';
-
-/* 유틸 */
-const H=n=>n*60*60*1000;
-const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-const toKST=t=>new Date((typeof t==='number'?t:(t?+new Date(t):Date.now()))+ (9*60*60*1000) - new Date().getTimezoneOffset()*60000);
+/* ===== 공통 ===== */
+const IMG_BASE='img/';
+const isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+const ACTIVE_SLOTS=[[8,11],[11,14],[14,17],[17,20],[20,23]];
+const H=n=>n*60*60*1000, clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const toKST=t=>new Date((typeof t==='number'?t:(t?+new Date(t):Date.now()))+(9*60*60*1000)-new Date().getTimezoneOffset()*60000);
 const nowKST=()=>toKST(Date.now());
 function slotIndex(d){const h=d.getHours(); for(let i=0;i<ACTIVE_SLOTS.length;i++){const[s,e]=ACTIVE_SLOTS[i]; if(h>=s&&h<e)return i;} return 0;}
 function dayNumber(plantedAt){ if(!plantedAt)return 0; const n=nowKST().setHours(0,0,0,0); const p=toKST(plantedAt).setHours(0,0,0,0); return Math.max(1, Math.floor((n-p)/(24*60*60*1000))+1); }
 function gradeByDays(plantedAt){ const d=dayNumber(plantedAt); if(d<5)return null; if(d<6)return'A'; if(d<7)return'B'; if(d<8)return'C'; if(d<9)return'D'; if(d<10)return'E'; return'F'; }
+
+const BG_BY_SEASON={winter:{pc:'farm_01.png',m:'a_farm_01.png'},lateWinter:{pc:'farm_03.png',m:'a_farm_03.png'},spring:{pc:'farm_05.png',m:'a_farm_05.png'},summer:{pc:'farm_07.png',m:'a_farm_07.png'},lateSummer:{pc:'farm_09.png',m:'a_farm_09.png'},autumn:{pc:'farm_10.png',m:'a_farm_10.png'},deepWinter:{pc:'farm_12.png',m:'a_farm_12.png'}};
+const BG_FALLBACK={day1:{pc:'a_farm_05.png',m:'a_farm_05.png'},day2:{pc:'farm_05.png',m:'a_farm_05.png'},day3:{pc:'a_farm_07.png',m:'a_farm_07.png'},day4:{pc:'a_farm_09.png',m:'a_farm_09.png'},day5p:{pc:'farm_10.png',m:'a_farm_10.png'},idle:{pc:'a_farm_01.png',m:'a_farm_01.png'},rest:{pc:'a_farm_12.png',m:'a_farm_12.png'}};
+const MINI_SERIES={day1:'a_corn_06',day2:'a_corn_04',day3:'a_corn_03',day4:'a_corn_02',pre6:'a_corn_0_01.png',pre7:'a_corn_0_01_01.png',grade:{A:'a_corn_01.png',B:'a_corn_01_01.png',C:'a_corn_01_02.png',D:'a_corn_01_03.png',E:'a_corn_01_04.png',F:'a_corn_01_04.png'},rest:['a_corn_0_01_02.png','a_corn_0_01_02.png','a_corn_0_01_03.png','a_corn_0_01_04.png','a_corn_0_01_05.png']};
+
+const LKEY_TIMERS='orcax:corn:timers', LKEY_HARV='orcax:corn:lastHarvestAt';
 const L=()=>{try{return JSON.parse(localStorage.getItem(LKEY_TIMERS)||'{}');}catch{return{}}};
 const Savel=t=>localStorage.setItem(LKEY_TIMERS, JSON.stringify(t||{}));
 function timersOnPlant(){const t=L(); t.plantedAt=Date.now(); t.waterDepleteAt=0; t.fertilDepleteAt=0; Savel(t);}
@@ -232,16 +204,44 @@ function timersAddFert(){const t=L(); t.fertilDepleteAt=Date.now()+H(3); Savel(t
 function pctWater(){const t=L(); if(!t.waterDepleteAt)return 0; return clamp((t.waterDepleteAt-Date.now())/H(3)*100,0,100);}
 function pctFert(){const t=L(); if(!t.fertilDepleteAt)return 0; return clamp((t.fertilDepleteAt-Date.now())/H(3)*100,0,100);}
 
-/* 서버 어댑터 */
-function normalizeSummary(raw){
-  const s=raw||{}, assets=s.assets||{};
-  return {
-    phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
-    meters:{ waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN) },
-    assetBg:assets.bg||s.bg||null, assetMini:assets.mini||s.mini||null,
-    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{}
-  };
+/* API 래퍼 */
+const DEFAULT_ORIGIN='https://climbing-wholly-grouper.jp.ngrok.io';
+const RAW_ORIGIN=(localStorage.getItem('orcax:BASE_API')||DEFAULT_ORIGIN).replace(/\/+$/,'');
+const BASE_ORIGIN=RAW_ORIGIN.replace(/\/api\/?$/i,'');
+const API=(p)=>`${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
+
+async function jfetch(url,{method='GET',query,body,headers}={}){
+  let u=url;
+  if(query && typeof query==='object'){
+    const qs=new URLSearchParams();
+    for(const[k,v] of Object.entries(query)) if(v!==undefined&&v!==null) qs.set(k,String(v));
+    const q=qs.toString(); if(q) u+=(u.includes('?')?'&':'?')+q;
+  }
+  const opts={method,headers:Object.assign({'Accept':'application/json'},headers||{})};
+  if(body!==undefined&&body!==null){opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body);}
+  const r=await fetch(u,Object.assign(opts,{mode:'cors',cache:'no-store'}));
+  const t=await r.text(); const isJson=(r.headers.get('content-type')||'').includes('application/json');
+  const data=t?(isJson?JSON.parse(t):{raw:t}):{};
+  if(!r.ok){ const err=new Error(`HTTP ${r.status}`); err.status=r.status; err.data=data; throw err; }
+  return data;
 }
+
+const api={
+  userdata:(kakaoId,nickname)=>jfetch(API('userdata'),{method:'POST',body:{kakaoId,nickname}}),
+  cornSummary:(kakaoId)=>jfetch(API('corn/summary'),{method:'GET',query:{kakaoId}}),
+  plant:(kakaoId)=>jfetch(API('corn/plant'),{method:'POST',body:{kakaoId}}),
+  grow:(kakaoId,step=5)=>jfetch(API('corn/grow'),{method:'POST',body:{kakaoId,step}}),
+  harvest:(kakaoId)=>jfetch(API('corn/harvest'),{method:'POST',body:{kakaoId}}),
+  pop:(kakaoId,cost=30)=>jfetch(API('corn/pop'),{method:'POST',body:{kakaoId,tokenCost:cost}}),
+  exchange:(kakaoId,qty=1,dir)=>jfetch(API('corn/exchange'),{method:'POST',body:{kakaoId,qty,dir}}),
+  shopBuy:(kakaoId,type,qty)=>jfetch(API('shop/buy'),{method:'POST',body:{kakaoId,type,qty}})
+};
+
+/* 상태/토스트 */
+const S={summary:null,user:null,orcx:0};
+function setNet(ok,msg){const dot=document.getElementById('netDot'), txt=document.getElementById('netTxt');
+  if(dot) dot.classList.toggle('ok',!!ok); if(txt) txt.textContent=ok?(msg||'온라인'):(msg||'오프라인');}
+function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1800);}
 
 /* 비주얼 */
 function resolveBgFile(ns){
@@ -278,32 +278,7 @@ function applyVisualsServerFirst(ns){
   document.getElementById('miniImg').src=IMG_BASE+miniFile;
 }
 
-/* API */
-const DEFAULT_ORIGIN='https://climbing-wholly-grouper.jp.ngrok.io';
-const RAW_ORIGIN=(localStorage.getItem('orcax:BASE_API')||DEFAULT_ORIGIN).replace(/\/+$/,'');
-const BASE_ORIGIN=RAW_ORIGIN.replace(/\/api\/?$/i,'');
-const API=(p)=>`${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
-
-async function jfetch(url,{method='GET',query,body,headers}={}){
-  let u=url;
-  if(query && typeof query==='object'){const qs=new URLSearchParams(); for(const[k,v]of Object.entries(query)) if(v!==undefined&&v!==null) qs.set(k,String(v));
-    const q=qs.toString(); if(q) u+=(u.includes('?')?'&':'?')+q;}
-  const opts={method,headers:Object.assign({'Accept':'application/json'},headers||{})};
-  if(body!==undefined&&body!==null){opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body);}
-  const r=await fetch(u,Object.assign(opts,{mode:'cors',cache:'no-store'}));
-  const t=await r.text(); const isJson=(r.headers.get('content-type')||'').includes('application/json');
-  const data=t?(isJson?JSON.parse(t):{raw:t}):{};
-  if(!r.ok){const err=new Error(`HTTP ${r.status}`); err.data=data; throw err;}
-  return data;
-}
-
-/* 상태/토스트 */
-const S={summary:null,user:null,orcx:0};
-function setNet(ok,msg){const dot=document.getElementById('netDot'), txt=document.getElementById('netTxt');
-  if(dot) dot.classList.toggle('ok',!!ok); if(txt) txt.textContent=ok?(msg||'온라인'):(msg||'오프라인');}
-function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1800);}
-
-/* 게이지 */
+/* 게이지 & 버튼 상태 */
 function updateBars(growthPct,waterPctOverride,fertPctOverride){
   const bw=document.getElementById('bar-water'), bf=document.getElementById('bar-fert'), bg=document.getElementById('bar-grow');
   const w=isFinite(waterPctOverride)?waterPctOverride:pctWater();
@@ -312,8 +287,6 @@ function updateBars(growthPct,waterPctOverride,fertPctOverride){
   if(bf) bf.style.height=Math.round(clamp(f,0,100))+'%';
   if(bg) bg.style.height=Math.round(clamp(growthPct||0,0,100))+'%';
 }
-
-/* 버튼 상태 */
 function refreshControls(){
   const s=S.summary||{}; const g=Number(s.g||0); const growPhase=s.phase==='GROW';
   const days=dayNumber(s.plantedAt); const isHarvestDay=growPhase && days>=5;
@@ -329,24 +302,11 @@ function refreshControls(){
   else { document.getElementById('miniCap').textContent='휴경'; }
 }
 
-/* API 래퍼 */
-const api={
-  userdata:(kakaoId,nickname)=>jfetch(API('userdata'),{method:'POST',body:{kakaoId,nickname}}),
-  cornSummary:(kakaoId)=>jfetch(API('corn/summary'),{method:'GET',query:{kakaoId}}),
-  plant:(kakaoId)=>jfetch(API('corn/plant'),{method:'POST',body:{kakaoId}}),
-  grow:(kakaoId,step=5)=>jfetch(API('corn/grow'),{method:'POST',body:{kakaoId,step}}),
-  harvest:(kakaoId)=>jfetch(API('corn/harvest'),{method:'POST',body:{kakaoId}}),
-  pop:(kakaoId,cost=30)=>jfetch(API('corn/pop'),{method:'POST',body:{kakaoId,tokenCost:cost}}),
-  exchange:(kakaoId,qty=1,dir)=>jfetch(API('corn/exchange'),{method:'POST',body:{kakaoId,qty,dir}}),
-  shopBuy:(kakaoId,type,qty)=>jfetch(API('shop/buy'),{method:'POST',body:{kakaoId,type,qty}})
-};
-
-/* 로그인 키 */
+/* 로그인 & 로딩 */
 const kakaoId=localStorage.getItem('kakaoId');
 const nickname=localStorage.getItem('nickname')||localStorage.getItem('kakaoNickname');
 if(!kakaoId||!nickname){document.addEventListener('DOMContentLoaded',()=>{const t=document.getElementById('netTxt'); if(t)t.textContent='로그인 필요';}); alert('로그인이 필요합니다. (index9.html로 이동)'); location.href='index9.html';}
 
-/* 페인트 */
 function paintFromUser(user){
   if(!user) return; S.user=user;
   document.getElementById('nick').textContent=user.nickname||nickname||'';
@@ -359,6 +319,13 @@ function paintFromUser(user){
   document.getElementById('r-sugar').textContent=Number(user.additives?.sugar||0);
   const orcx=Number(user.wallet?.orcx ?? user.orcx ?? 0); S.orcx=orcx; document.getElementById('r-orcx').textContent=orcx|0;
 }
+function normalizeSummary(raw){
+  const s=raw||{}, assets=s.assets||{};
+  return { phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
+    meters:{waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN)},
+    assetBg:assets.bg||s.bg||null, assetMini:assets.mini||s.mini||null,
+    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{} };
+}
 function paintFromCorn(raw){
   if(!raw) return; const s=normalizeSummary(raw); S.summary=s;
   const g=clamp(Number(s.g||0),0,100);
@@ -369,7 +336,6 @@ function paintFromCorn(raw){
   refreshControls();
 }
 
-/* 이벤트 */
 async function onPlant(){ try{ const r=await api.plant(kakaoId); timersOnPlant(); S.summary=Object.assign({},S.summary||{},{phase:'GROW',g:0,plantedAt:r.plantedAt||new Date().toISOString()}); paintFromCorn(S.summary); toast('심기 완료'); await loadAll(); }catch(e){ console.error(e); toast(e.data?.error||'심기 실패'); } }
 async function onWater(){ try{ await api.grow(kakaoId,5); timersAddWater(); await loadAll(); toast('물 1회 사용.'); }catch(e){ console.error(e); toast(e.data?.error||'물 주기 실패'); } }
 async function onFert(){ try{ await api.grow(kakaoId,7); timersAddFert(); await loadAll(); toast('거름 1회 사용.'); }catch(e){ console.error(e); toast(e.data?.error||'거름 주기 실패'); } }
@@ -384,7 +350,6 @@ document.getElementById('btn-harv').onclick=onHarv;
 document.getElementById('btn-pop').onclick=onPop;
 document.getElementById('btn-ex').onclick=onExchange;
 
-/* 로드 */
 async function loadAll(){
   try{
     const [ud,cs]=await Promise.all([ api.userdata(kakaoId,nickname), api.cornSummary(kakaoId) ]);
@@ -392,7 +357,7 @@ async function loadAll(){
   }catch(e){ setNet(false,'연결 실패'); console.error(e); toast('서버 연결 실패'); }
 }
 
-/* === 상점 로직 === */
+/* ===== 상점(구매) ===== */
 const PRICE={salt:10,sugar:20,seed:100}, LABEL={salt:'소금',sugar:'설탕',seed:'씨옥수수'};
 const shopModal=document.getElementById('shopModal'), shopItem=document.getElementById('shopItem'),
       shopQty=document.getElementById('shopQty'), shopWallet=document.getElementById('shopWallet'),
@@ -403,22 +368,31 @@ function closeShop(){ shopModal.classList.remove('open'); shopModal.setAttribute
 function updateShopTotal(){ const type=shopItem.value; const qty=Math.max(1,parseInt(shopQty.value||'1',10)); const total=(PRICE[type]||0)*qty; shopQty.value=qty; shopTotal.textContent=total; }
 async function confirmShop(){
   const type=shopItem.value; const qty=Math.max(1,parseInt(shopQty.value||'1',10));
+  const total=(PRICE[type]||0)*qty;
+  // ✅ 클라 선검증: 토큰 부족시 바로 안내
+  if(Number(S.orcx||0) < total){ toast(`토큰 부족 (보유 ${Number(S.orcx||0)}, 필요 ${total})`); return; }
   try{
     const res=await api.shopBuy(kakaoId,type,qty);
     console.log('shop/buy result:',res);
     closeShop(); await loadAll();
-    toast(`${LABEL[type]} ${qty}개를 ${(PRICE[type]||0)*qty} 토큰으로 구매했습니다.`);
-  }catch(e){ console.error(e); toast(e?.data?.error||'토큰이 부족합니다.'); }
+    toast(`${LABEL[type]} ${qty}개를 ${total} 토큰으로 구매했습니다.`);
+  }catch(e){
+    console.error('shop/buy error:', e);
+    if(e.status===404)       toast('구매 실패: 상점 API 미구현(404).');
+    else if(e.status===401 || e.status===403) toast('구매 실패: 인증 만료(다시 로그인).');
+    else if(e.message?.includes('Failed to fetch')) toast('구매 실패: 네트워크 오류.');
+    else toast(e?.data?.error || e.message || '구매 실패');
+  }
 }
 
-/* 상점 이벤트 */
+/* 이벤트 바인딩(상점) */
 document.getElementById('btn-shop').addEventListener('click', openShop);
 document.getElementById('shopClose').addEventListener('click', closeShop);
 document.getElementById('shopConfirm').addEventListener('click', confirmShop);
 shopItem.addEventListener('change', updateShopTotal);
 shopQty.addEventListener('input', updateShopTotal);
 
-/* 서버 기준 렌더(폴링만) */
+/* 시작 */
 document.addEventListener('DOMContentLoaded', async ()=>{
   await loadAll();
   setInterval(async ()=>{ try{ const cs=await api.cornSummary(kakaoId); paintFromCorn(cs); }catch(e){ console.warn('summary poll failed',e); } }, 15000);
@@ -426,6 +400,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
 
 
 
