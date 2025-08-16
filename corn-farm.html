@@ -109,7 +109,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
     <button id="btn-shop" class="shopbtn" title="소금/설탕/씨옥수수 구매">구매</button>
   </div>
   <div class="res">
-    <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
+    <div class="tag">🌱 씨앗 <b id="r-seed">0</b></div>
     <div class="tag">💧 물 <b id="r-water">0</b></div>
     <div class="tag">🪴 거름 <b id="r-fert">0</b></div>
     <div class="tag">🌽 옥수수 <b id="r-corn">0</b></div>
@@ -157,7 +157,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
       <div class="select">
         <select id="shopItem">
           <!-- ✅ 값은 반드시 'seeds' -->
-          <option value="seeds">씨옥수수</option>
+          <option value="seed">씨옥수수</option>
           <option value="salt">소금</option>
           <option value="sugar">설탕</option>
         </select>
@@ -293,7 +293,7 @@ function updateBars(growthPct,waterPctOverride,fertPctOverride){
 }
 
 /* 상태/토스트/버튼 */
-const S={summary:null,user:null,orcx:0, price:{salt:10,sugar:20,seeds:100}}; // ✅ seeds 기본가 100
+const S={summary:null,user:null,orcx:0, price:{salt:10,sugar:20,seed:100}}; // ✅ seeds 기본가 100
 function setNet(ok,msg){const d=document.getElementById('netDot'), t=document.getElementById('netTxt'); if(d)d.classList.toggle('ok',!!ok); if(t)t.textContent=ok?(msg||'온라인'):(msg||'오프라인');}
 function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1800);}
 function refreshControls(){
@@ -301,7 +301,7 @@ function refreshControls(){
   const days=dayNumber(s.plantedAt); const isHarvestDay=grow && days>=5;
   const canWater=(Number(S.user?.inventory?.water||0)>0 && grow && g<100 && !isHarvestDay);
   const canFert =(Number(S.user?.inventory?.fertilizer||0)>0 && grow && g<100 && !isHarvestDay);
-  document.getElementById('btn-plant').disabled = !(Number(s.agri?.seeds||0)>0 && (s.phase==='IDLE'||s.phase==='STUBBLE'));
+  document.getElementById('btn-plant').disabled = !(Number(s.agri?.seed||0)>0 && (s.phase==='IDLE'||s.phase==='STUBBLE'));
   document.getElementById('btn-water').disabled = !canWater;
   document.getElementById('btn-fert').disabled  = !canFert;
   document.getElementById('btn-harv').disabled  = !(grow && g>=100);
@@ -361,7 +361,7 @@ function paintFromUser(user){
   document.getElementById('nick').textContent=user.nickname||nickname||'';
   document.getElementById('r-water').textContent=Number(user.inventory?.water||0);
   document.getElementById('r-fert').textContent =Number(user.inventory?.fertilizer||0);
-  document.getElementById('r-seeds').textContent=Number(user.agri?.seeds||0);
+  document.getElementById('r-seed').textContent=Number(user.agri?.seed||0);
   document.getElementById('r-corn').textContent =Number(user.agri?.corn||0);
   document.getElementById('r-pop').textContent  =Number(user.food?.popcorn||0);
   document.getElementById('r-salt').textContent =Number(user.additives?.salt||0);
@@ -409,7 +409,7 @@ async function loadAll(){
       S.price={
         salt : Number(p.salt  ?? S.price.salt),
         sugar: Number(p.sugar ?? S.price.sugar),
-        seeds: Number(p.seeds ?? S.price.seeds)
+        seed: Number(p.seed ?? S.price.seed)
       };
     }
     updateShopLabels();
@@ -420,7 +420,7 @@ async function loadAll(){
 }
 
 /* === 상점(구매) === */
-const LABEL={salt:'소금',sugar:'설탕',seeds:'씨옥수수'}; // ✅ seeds 라벨
+const LABEL={salt:'소금',sugar:'설탕',seed:'씨옥수수'}; // ✅ seeds 라벨
 const shopModal=document.getElementById('shopModal'), shopItem=document.getElementById('shopItem'),
       shopQty=document.getElementById('shopQty'), shopWallet=document.getElementById('shopWallet'),
       shopTotal=document.getElementById('shopTotal');
@@ -473,6 +473,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
 
 
 
