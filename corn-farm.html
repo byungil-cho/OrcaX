@@ -156,7 +156,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
     <div class="row">
       <div class="select">
         <select id="shopItem">
-          <!-- 값은 반드시 'seed'(단수) -->
+          <!-- ✅ 값은 반드시 'seed' (단수) -->
           <option value="seed">씨옥수수</option>
           <option value="salt">소금</option>
           <option value="sugar">설탕</option>
@@ -189,7 +189,7 @@ function slotIndex(d){const h=d.getHours(); for(let i=0;i<ACTIVE_SLOTS.length;i+
 function dayNumber(plantedAt){ if(!plantedAt)return 0; const n=nowKST().setHours(0,0,0,0); const p=toKST(plantedAt).setHours(0,0,0,0); return Math.max(1, Math.floor((n-p)/(24*60*60*1000))+1); }
 function gradeByDays(plantedAt){ const d=dayNumber(plantedAt); if(d<5)return null; if(d<6)return'A'; if(d<7)return'B'; if(d<8)return'C'; if(d<9)return'D'; if(d<10)return'E'; return'F'; }
 
-/* 배경/미니 계산 로직 — 그대로 */
+/* 배경 */
 const BG_BY_SEASON={
   winter:{pc:'farm_01.png',m:'a_farm_01.png'}, lateWinter:{pc:'farm_03.png',m:'a_farm_03.png'},
   spring:{pc:'farm_05.png',m:'a_farm_05.png'}, summer:{pc:'farm_07.png',m:'a_farm_07.png'},
@@ -201,7 +201,8 @@ const BG_FALLBACK={
   day3:{pc:'a_farm_07.png',m:'a_farm_07.png'}, day4:{pc:'a_farm_09.png',m:'a_farm_09.png'},
   day5p:{pc:'farm_10.png',m:'a_farm_10.png'}, idle:{pc:'a_farm_01.png',m:'a_farm_01.png'}, rest:{pc:'a_farm_12.png',m:'a_farm_12.png'}
 };
-/* 미니 프레임 */
+
+/* 미니: 항상 a_ 접두사 */
 const MINI_SERIES={
   day1:'a_corn_06', day2:'a_corn_04', day3:'a_corn_03', day4:'a_corn_02',
   pre6:'a_corn_0_01.png', pre7:'a_corn_0_01_01.png',
@@ -292,13 +293,13 @@ function updateBars(growthPct,waterPctOverride,fertPctOverride){
 }
 
 /* 상태/토스트/버튼 */
-const S={summary:null,user:null,orcx:0, price:{salt:10,sugar:20,seed:100}};
+const S={summary:null,user:null,orcx:0, price:{salt:10,sugar:20,seed:100}}; // ✅ seed(단수) 기본가 100
 function setNet(ok,msg){const d=document.getElementById('netDot'), t=document.getElementById('netTxt'); if(d)d.classList.toggle('ok',!!ok); if(t)t.textContent=ok?(msg||'온라인'):(msg||'오프라인');}
 function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.className=''; void t.offsetWidth; t.className='show'; setTimeout(()=>t.className='',1800);}
 function refreshControls(){
   const s=S.summary||{}; const g=Number(s.g||0); const grow=s.phase==='GROW';
   const days=dayNumber(s.plantedAt); const isHarvestDay=grow && days>=5;
-  const seedsCount = Number(s.agri?.seeds ?? s.agri?.seed ?? 0);
+  const seedsCount = Number(s.agri?.seeds ?? s.agri?.seed ?? 0); // ✅ 둘 다 대응
   const canWater=(Number(S.user?.inventory?.water||0)>0 && grow && g<100 && !isHarvestDay);
   const canFert =(Number(S.user?.inventory?.fertilizer||0)>0 && grow && g<100 && !isHarvestDay);
   document.getElementById('btn-plant').disabled = !(seedsCount>0 && (s.phase==='IDLE'||s.phase==='STUBBLE'));
@@ -338,9 +339,9 @@ const api={
   harvest:(kakaoId)=>jfetch(API('corn/harvest'),{method:'POST',body:{kakaoId}}),
   pop:(kakaoId,cost=30)=>jfetch(API('corn/pop'),{method:'POST',body:{kakaoId,tokenCost:cost}}),
   exchange:(kakaoId,qty=1,dir)=>jfetch(API('corn/exchange'),{method:'POST',body:{kakaoId,qty,dir}}),
-  // ✅ seed(단수) 표준화
+  /* ✅ buy-additive: seed(단수)로 전송. 서버가 seeds여도 미들웨어가 seed로 바꿔줌 */
   buyAdditive:(kakaoId,type,qty)=>{
-    const item = (type==='seeds' ? 'seed' : type);
+    const item = (type==='seeds' ? 'seed' : type); // 혹시 값이 잘못 들어와도 방어
     return jfetch(API('corn/buy-additive'),{ method:'POST', body:{kakaoId, type:item, item, qty, amount:qty }});
   },
   priceboard:()=>jfetch(API('corn/priceboard'),{method:'GET'})
@@ -354,28 +355,23 @@ if(!kakaoId||!nickname){
   alert('로그인이 필요합니다. (index9.html로 이동)'); location.href='index9.html';
 }
 
-/* === HUD 페인트 === */
-// 공유(물/거름/토큰만)
+/* 페인트 */
 function paintFromUser(user){
   if(!user) return; S.user=user;
   document.getElementById('nick').textContent=user.nickname||nickname||'';
   document.getElementById('r-water').textContent=Number(user.inventory?.water||0);
   document.getElementById('r-fert').textContent =Number(user.inventory?.fertilizer||0);
-  const orcx=Number(user.wallet?.orcx ?? user.orcx ?? 0); S.orcx=orcx;
-  document.getElementById('r-orcx').textContent=orcx|0;
+  // ✅ seeds/seed 어느 쪽이 와도 반영
+  const seedCount = Number(user.agri?.seeds ?? user.agri?.seed ?? 0);
+  document.getElementById('r-seeds').textContent=seedCount;
+  document.getElementById('r-corn').textContent =Number(user.agri?.corn||0);
+  document.getElementById('r-pop').textContent  =Number(user.food?.popcorn||0);
+  document.getElementById('r-salt').textContent =Number(user.additives?.salt||0);
+  document.getElementById('r-sugar').textContent=Number(user.additives?.sugar||0);
+  const orcx=Number(user.wallet?.orcx ?? user.orcx ?? 0); S.orcx=orcx; document.getElementById('r-orcx').textContent=orcx|0;
 }
-
-// 옥수수 전용(씨앗/옥수수/팝콘/소금/설탕 + 게이지/배경)
 function paintFromCorn(raw){
   if(!raw) return; const s=normalizeSummary(raw); S.summary=s;
-
-  // corn_data → HUD 반영
-  document.getElementById('r-seeds').textContent = Number(s.agri?.seeds ?? s.agri?.seed ?? 0);
-  document.getElementById('r-corn').textContent  = Number(s.agri?.corn ?? 0);
-  document.getElementById('r-pop').textContent   = Number(s.food?.popcorn ?? 0);
-  document.getElementById('r-salt').textContent  = Number(s.additives?.salt ?? 0);
-  document.getElementById('r-sugar').textContent = Number(s.additives?.sugar ?? 0);
-
   const g=clamp(Number(s.g||0),0,100);
   document.getElementById('gfill').style.setProperty('--p', g+'%');
   document.getElementById('gnum').textContent=g|0;
@@ -384,7 +380,7 @@ function paintFromCorn(raw){
   refreshControls();
 }
 
-/* 액션 */
+/* 이벤트 */
 async function onPlant(){ try{ const r=await api.plant(kakaoId); timersOnPlant(); S.summary=Object.assign({},S.summary||{},{phase:'GROW',g:0,plantedAt:r.plantedAt||new Date().toISOString()}); paintFromCorn(S.summary); toast('심기 완료'); await loadAll(); }catch(e){ console.error(e); toast(e.data?.error||'심기 실패'); } }
 async function onWater(){ try{ await api.grow(kakaoId,5); timersAddWater(); await loadAll(); toast('물 1회 사용.'); }catch(e){ console.error(e); toast(e.data?.error||'물 주기 실패'); } }
 async function onFert(){ try{ await api.grow(kakaoId,7); timersAddFert(); await loadAll(); toast('거름 1회 사용.'); }catch(e){ console.error(e); toast(e.data?.error||'거름 주기 실패'); } }
@@ -409,10 +405,14 @@ async function loadAll(){
     ]);
     const user=ud.user||ud.data||ud; paintFromUser(user); paintFromCorn(cs); setNet(true,'온라인');
 
-    // 가격판 동기화 (seed 우선)
+    // ✅ 가격판 동기화 (seed 우선, 혹시 서버가 seeds로 줄 때도 반영)
     if(prices && prices.price){
       const p=prices.price;
-      S.price={ salt:Number(p.salt??S.price.salt), sugar:Number(p.sugar??S.price.sugar), seed:Number((p.seed??p.seeds)??S.price.seed) };
+      S.price={
+        salt : Number(p.salt  ?? S.price.salt),
+        sugar: Number(p.sugar ?? S.price.sugar),
+        seed : Number((p.seed ?? p.seeds) ?? S.price.seed)
+      };
     }
     updateShopLabels();
   }catch(e){
@@ -422,12 +422,13 @@ async function loadAll(){
 }
 
 /* === 상점(구매) === */
-const LABEL={salt:'소금',sugar:'설탕',seed:'씨옥수수'};
+const LABEL={salt:'소금',sugar:'설탕',seed:'씨옥수수'}; // ✅ seed 라벨
 const shopModal=document.getElementById('shopModal'), shopItem=document.getElementById('shopItem'),
       shopQty=document.getElementById('shopQty'), shopWallet=document.getElementById('shopWallet'),
       shopTotal=document.getElementById('shopTotal');
 
 function updateShopLabels(){
+  // 옵션 라벨에 서버 가격 반영
   [...shopItem.options].forEach(opt=>{
     const t=opt.value; const price=S.price[t];
     opt.textContent = `${LABEL[t]} (${price} 토큰)`;
@@ -447,7 +448,7 @@ async function confirmShop(){
   const total=(S.price[selected]||0)*qty;
   if(Number(S.orcx||0) < total){ toast(`토큰 부족 (보유 ${Number(S.orcx||0)}, 필요 ${total})`); return; }
   try{
-    const res=await api.buyAdditive(kakaoId, selected, qty); // seed(단수)로 전송
+    const res=await api.buyAdditive(kakaoId, selected, qty); // ✅ seed(단수)로 전송
     console.log('corn/buy-additive result:',res);
     closeShop(); await loadAll();
     toast(`${LABEL[selected]} ${qty}개를 ${total} 토큰으로 구매했습니다.`);
@@ -475,6 +476,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
+
 
 
 
