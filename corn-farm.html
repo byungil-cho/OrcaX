@@ -222,14 +222,26 @@ function pctWater(){const t=L(); if(!t.waterDepleteAt)return 0; return clamp((t.
 function pctFert(){const t=L(); if(!t.fertilDepleteAt)return 0; return clamp((t.fertilDepleteAt-Date.now())/H(3)*100,0,100);}
 
 /* 서버 응답 정규화 */
-function normalizeSummary(raw){
-  const s=raw||{}, assets=s.assets||{};
-  return {
-    phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
-    meters:{ waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN) },
-    assetBg:assets.bg||s.bg||null, assetMini:assets.mini||s.mini||null,
-    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{}
-  };
+const agri = { ...(s.agri || {}) };
+// 서버가 top-level로 seed/seeds/seedCorn를 주는 경우까지 흡수
+if (agri.seeds == null && agri.seed == null) {
+  const v = s.seeds ?? s.seed ?? s.seedCorn ?? 0;
+  if (v != null) agri.seeds = Number(v);
+}
+
+return {
+  phase: s.phase || 'IDLE',
+  g: Number(s.g ?? 0),
+  plantedAt: s.plantedAt || null,
+  season: s.season || null,
+  meters: { /* 기존 그대로 */ },
+  assetBg: assets.bg || s.bg || null,
+  assetMini: assets.mini || s.mini || null,
+  agri, // ← 여기서 통일된 씨앗 값이 들어감
+  food: s.food || {},
+  additives: s.additives || {},
+  wallet: s.wallet || {}
+};
 }
 
 /* 비주얼 적용 */
@@ -422,35 +434,45 @@ async function loadAll(){
 }
 
 /* === 상점(구매) === */
-// ⬇⬇⬇ 여기( updateShopTotal() 끝난 직후 )에 붙여라
+const LABEL={salt:'소금',sugar:'설탕',seed:'씨옥수수'}; // ✅ seed 라벨
+const shopModal=document.getElementById('shopModal'), shopItem=document.getElementById('shopItem'),
+      shopQty=document.getElementById('shopQty'), shopWallet=document.getElementById('shopWallet'),
+      shopTotal=document.getElementById('shopTotal');
+
+function updateShopLabels(){
+  // 옵션 라벨에 서버 가격 반영
+  [...shopItem.options].forEach(opt=>{
+    const t=opt.value; const price=S.price[t];
+    opt.textContent = `${LABEL[t]} (${price} 토큰)`;
+  });
+  updateShopTotal();
+}
+function openShop(){ shopWallet.textContent=Number(S?.orcx||0); updateShopTotal(); shopModal.classList.add('open'); shopModal.setAttribute('aria-hidden','false'); }
+function closeShop(){ shopModal.classList.remove('open'); shopModal.setAttribute('aria-hidden','true'); }
+function updateShopTotal(){
+  const type=shopItem.value; const qty=Math.max(1,parseInt(shopQty.value||'1',10));
+  const price=S.price[type] ?? 0; const total=price*qty;
+  shopQty.value=qty; shopTotal.textContent=total;
+}
 async function confirmShop(){
-  const selected = shopItem.value;           // 'seed' | 'salt' | 'sugar'
-  const qty      = Math.max(1, parseInt(shopQty.value || '1', 10));
-  const total    = (S.price[selected] || 0) * qty;
-
-  // 토큰 부족 선체크(HUD 기준)
-  if (Number(S.orcx || 0) < total) {
-    toast(`토큰 부족 (보유 ${Number(S.orcx||0)}, 필요 ${total})`);
-    return;
-  }
-
-  try {
-    // 구매 API 호출 (seed/seeds 혼용은 서버/클라에서 자동 표준화됨)
-    const res = await api.buyAdditive(kakaoId, selected, qty);
-    console.log('corn/buy-additive result:', res);
-
-    // 모달 닫고 전량 새로고침 → HUD 및 씨앗/토큰 즉시 반영
-    closeShop();
-    await loadAll();
+  const selected=shopItem.value; // 'seed' | 'salt' | 'sugar'
+  const qty=Math.max(1,parseInt(shopQty.value||'1',10));
+  const total=(S.price[selected]||0)*qty;
+  if(Number(S.orcx||0) < total){ toast(`토큰 부족 (보유 ${Number(S.orcx||0)}, 필요 ${total})`); return; }
+  try{
+    const res=await api.buyAdditive(kakaoId, selected, qty); // ✅ seed(단수)로 전송
+    console.log('corn/buy-additive result:',res);
+    closeShop(); await loadAll();
     toast(`${LABEL[selected]} ${qty}개를 ${total} 토큰으로 구매했습니다.`);
-  } catch (e) {
-    console.error('buy-additive error:', e);
-    if (e.status === 404)              toast('구매 실패: buy-additive 라우터(404).');
-    else if (e.status === 401 || e.status === 403) toast('구매 실패: 인증 만료(다시 로그인).');
-    else if (e.message?.includes('Failed to fetch')) toast('구매 실패: 네트워크 오류.');
+  }catch(e){
+    console.error('buy-additive error:',e);
+    if(e.status===404)       toast('구매 실패: buy-additive 라우터(404).');
+    else if(e.status===401 || e.status===403) toast('구매 실패: 인증 만료(다시 로그인).');
+    else if(e.message?.includes('Failed to fetch')) toast('구매 실패: 네트워크 오류.');
     else toast(e?.data?.error || e.message || '구매 실패');
   }
 }
+
 /* 이벤트 바인딩(상점) */
 document.getElementById('btn-shop').addEventListener('click', openShop);
 document.getElementById('shopClose').addEventListener('click', closeShop);
@@ -466,6 +488,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
+
 
 
 
