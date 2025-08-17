@@ -222,26 +222,14 @@ function pctWater(){const t=L(); if(!t.waterDepleteAt)return 0; return clamp((t.
 function pctFert(){const t=L(); if(!t.fertilDepleteAt)return 0; return clamp((t.fertilDepleteAt-Date.now())/H(3)*100,0,100);}
 
 /* 서버 응답 정규화 */
-const agri = { ...(s.agri || {}) };
-// 서버가 top-level로 seed/seeds/seedCorn를 주는 경우까지 흡수
-if (agri.seeds == null && agri.seed == null) {
-  const v = s.seeds ?? s.seed ?? s.seedCorn ?? 0;
-  if (v != null) agri.seeds = Number(v);
-}
-
-return {
-  phase: s.phase || 'IDLE',
-  g: Number(s.g ?? 0),
-  plantedAt: s.plantedAt || null,
-  season: s.season || null,
-  meters: { /* 기존 그대로 */ },
-  assetBg: assets.bg || s.bg || null,
-  assetMini: assets.mini || s.mini || null,
-  agri, // ← 여기서 통일된 씨앗 값이 들어감
-  food: s.food || {},
-  additives: s.additives || {},
-  wallet: s.wallet || {}
-};
+function normalizeSummary(raw){
+  const s=raw||{}, assets=s.assets||{};
+  return {
+    phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
+    meters:{ waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN) },
+    assetBg:assets.bg||s.bg||null, assetMini:assets.mini||s.mini||null,
+    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{}
+  };
 }
 
 /* 비주얼 적용 */
@@ -488,6 +476,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
+
 
 
 
