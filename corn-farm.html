@@ -96,74 +96,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   #corn-bars{ gap:8px }
   #corn-bars .bar{ width:7px; height:88px }
 }
-<script>
-/* ===== Corn Seed Loader (drop-in) =====
-   - kakaoId 자동 추출(window/localStorage/sessionStorage)
-   - 엔드포인트 자동 탐색: 동일오리진 → farm.orcax.co.kr → ngrok → cafe24 → 로컬
-   - 첫 성공 응답의 seeds 값을 상단 '씨앗' 숫자에 반영
-   - 디자인/구조 수정 없음. #r-seeds / [data-key="seedCount"] / .seed-count 중
-     존재하는 요소를 찾아서 갱신
-*/
-(function(){
-  // 1) 표시에 쓸 후보 선택자들 (기존 UI 그대로 활용)
-  const TARGETS = ['#r-seeds','[data-key="seedCount"]','.seed-count'];
-  function setSeed(n){
-    for(const sel of TARGETS){
-      const el = document.querySelector(sel);
-      if(el){ el.textContent = String(n); return true; }
-    }
-    return false; // 요소가 없으면 조용히 패스
-  }
-
-  // 2) kakaoId 확보
-  const kakaoId =
-    (window.kakaoId && String(window.kakaoId)) ||
-    localStorage.getItem('kakaoId') ||
-    sessionStorage.getItem('kakaoId') ||
-    '';
-
-  // 3) 호출 후보 엔드포인트 (위에서 아래로 시도)
-  const BASES = [
-    '', // same-origin (서버와 같은 도메인에 있을 때)
-    'https://farm.orcax.co.kr',
-    'https://climbing-wholly-grouper.jp.ngrok.io',
-    'https://orcax.cafe24.com:3060',
-    'http://127.0.0.1:3060'
-  ].map(b => b.replace(/\/$/,''));
-
-  async function tryFetch(url){
-    const res = await fetch(url, { credentials:'include' });
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const j = await res.json();
-    if(j && j.ok && typeof j.seeds !== 'undefined') return Number(j.seeds||0);
-    throw new Error('bad payload');
-  }
-
-  async function loadSeeds(){
-    if(!kakaoId){ console.warn('[seed] kakaoId 없음'); return; }
-    const paths = BASES.map(b => `${b}/api/corn/seed/${encodeURIComponent(kakaoId)}`);
-    for(const url of paths){
-      try{
-        const n = await tryFetch(url);
-        if(Number.isFinite(n)){
-          setSeed(n);
-          window.__seed_diag__ = { ok:true, url, seeds:n };
-          return;
-        }
-      }catch(e){
-        window.__seed_diag__ = { ok:false, url, error:e.message };
-      }
-    }
-    console.warn('[seed] 모든 엔드포인트 실패', window.__seed_diag__);
-  }
-
-  // 수동 진단용(콘솔에서 __seeddiag() 호출)
-  window.__seeddiag = () => ({ kakaoId, last: window.__seed_diag__ });
-
-  // 자동 실행
-  loadSeeds();
-})();
-</script>
+</style>
 </head>
 <body>
 <div id="bg" aria-hidden="true"></div>
@@ -289,14 +222,18 @@ function pctWater(){const t=L(); if(!t.waterDepleteAt)return 0; return clamp((t.
 function pctFert(){const t=L(); if(!t.fertilDepleteAt)return 0; return clamp((t.fertilDepleteAt-Date.now())/H(3)*100,0,100);}
 
 /* 서버 응답 정규화 */
-function normalizeSummary(raw){
-  const s=raw||{}, assets=s.assets||{};
-  return {
-    phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
-    meters:{ waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN) },
-    assetBg:assets.bg||s.bg||null, assetMini:assets.mini||s.mini||null,
-    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{}
-  };
+function paintFromCorn(raw){
+  console.log("corn/summary raw response:", raw); // 서버 응답 그대로 확인
+  if(!raw) return;
+  const s = normalizeSummary(raw);
+  S.summary = s;
+
+  const g = clamp(Number(s.g||0),0,100);
+  document.getElementById('gfill').style.setProperty('--p', g+'%');
+  document.getElementById('gnum').textContent=g|0;
+  applyVisualsServerFirst(s);
+  updateBars(s.meters.growPct,s.meters.waterPct,s.meters.fertPct);
+  refreshControls();
 }
 
 /* 비주얼 적용 */
@@ -429,8 +366,8 @@ function paintFromUser(user){
   document.getElementById('r-water').textContent=Number(user.inventory?.water||0);
   document.getElementById('r-fert').textContent =Number(user.inventory?.fertilizer||0);
   // ✅ seeds/seed 어느 쪽이 와도 반영
-  const seedCount = Number(user.agri?.seed ?? user.agri?.seed ?? 0);
-  document.getElementById('r-seed').textContent =Number(user.agri?.seed||0);
+  const seedCount = Number(user.agri?.seeds ?? user.agri?.seed ?? 0);
+  document.getElementById('r-seed').textContent=seedCount;
   document.getElementById('r-corn').textContent =Number(user.agri?.corn||0);
   document.getElementById('r-pop').textContent  =Number(user.food?.popcorn||0);
   document.getElementById('r-salt').textContent =Number(user.additives?.salt||0);
@@ -541,8 +478,37 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   setInterval(async ()=>{ try{ const cs=await api.cornSummary(kakaoId); paintFromCorn(cs); }catch(e){ console.warn('summary poll failed',e); } }, 15000);
 });
 </script>
+  <script>
+/* Corn seed sync (drop-in) */
+(function(){
+  const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 서버 도메인 1곳으로 고정
+  const targetSel = ['#r-seeds','[data-key="seedCount"]','.seed-count'];
+
+  function setSeed(n){
+    for(const s of targetSel){ const el = document.querySelector(s); if(el){ el.textContent = String(n); return; } }
+  }
+  function getKakaoId(){
+    return (window.kakaoId && String(window.kakaoId))
+        || localStorage.getItem('kakaoId')
+        || sessionStorage.getItem('kakaoId')
+        || '';
+  }
+  async function load(){
+    const kid = getKakaoId();
+    if(!kid) return console.warn('[seed] kakaoId 없음');
+    const url = `${API_BASE}/api/corn/seed/${encodeURIComponent(kid)}`;
+    const r = await fetch(url, { credentials: 'include' });
+    const j = await r.json();
+    if(j?.ok) setSeed(Number(j.seeds||0));
+    window.__seeddiag = { url, payload:j };
+  }
+  load();
+})();
+</script>
+
 </body>
 </html>
+
 
 
 
