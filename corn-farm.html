@@ -503,6 +503,42 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }
   load();
 })();
+/* ===== Fix pack: normalizeSummary + seed loader (no-credentials) ===== */
+
+// 1) 누락 함수 보강
+window.normalizeSummary = window.normalizeSummary || function (j) {
+  return {
+    water: Number(j?.water ?? 0),
+    fertilizer: Number(j?.fertilizer ?? 0),
+    seeds: Number(j?.seeds ?? 0),
+  };
+};
+
+// 2) 씨앗 로더 (credentials 미사용: 쿠키 필요 없음)
+(function(){
+  const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 주인님이 쓰는 서버 주소 1곳 고정
+  const targetSel = ['#r-seeds','[data-key="seedCount"]','.seed-count'];
+
+  function setSeed(n){
+    for(const s of targetSel){ const el = document.querySelector(s); if(el){ el.textContent = String(n); return; } }
+  }
+  function getKakaoId(){
+    return (window.kakaoId && String(window.kakaoId))
+        || localStorage.getItem('kakaoId')
+        || sessionStorage.getItem('kakaoId')
+        || '';
+  }
+  async function loadSeed(){
+    const kid = getKakaoId();
+    if(!kid){ console.warn('[seed] kakaoId 없음'); return; }
+    const url = `${API_BASE}/api/corn/seed/${encodeURIComponent(kid)}`;
+    const r = await fetch(url, { credentials: 'omit' }); // ★ credentials 안 씀
+    const j = await r.json();
+    if(j?.ok) setSeed(Number(j.seeds||0));
+    window.__seeddiag = { url, payload: j };
+  }
+  loadSeed();
+})();
 </script>
 
 </body>
