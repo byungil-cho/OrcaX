@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🌽 관리자 대시보드</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    h1 { color: #333; }
+    section { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    input, button { margin: 5px 0; padding: 6px; }
+    button { cursor: pointer; }
+    pre { background: #222; color: #0f0; padding: 10px; border-radius: 6px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>🌽 관리자 대시보드</h1>
+
+  <!-- 설정 변경 -->
+  <section>
+    <h2>설정 변경</h2>
+    <input id="cfgCategory" placeholder="카테고리 (ex: harvest)" />
+    <input id="cfgKey" placeholder="설정 키 (ex: rate)" />
+    <input id="cfgValue" placeholder="설정 값 (ex: 1.2)" />
+    <button onclick="setConfig()">설정 변경</button>
+  </section>
+
+  <!-- 대출 관리 -->
+  <section>
+    <h2>대출 관리</h2>
+    <input id="loanUser" placeholder="유저 ID" />
+    <input id="loanAmount" placeholder="상환 금액" />
+    <button onclick="forceRepay()">대출 강제 상환</button>
+  </section>
+
+  <!-- NFT 지급 -->
+  <section>
+    <h2>NFT 지급</h2>
+    <input id="nftUser" placeholder="유저 ID" />
+    <input id="nftIndex" placeholder="리워드 인덱스 (ex: 0)" />
+    <input id="nftWallet" placeholder="지갑 주소" />
+    <button onclick="grantNFT()">NFT 지급</button>
+  </section>
+
+  <!-- 보상 지급 -->
+  <section>
+    <h2>수동 보상 지급</h2>
+    <input id="rewardUser" placeholder="유저 ID" />
+    <input id="rewardType" placeholder="보상 종류 (ex: token)" />
+    <input id="rewardAmount" placeholder="보상 개수" />
+    <button onclick="manualReward()">보상 지급</button>
+  </section>
+
+  <!-- 지갑 변경 -->
+  <section>
+    <h2>지갑 주소 변경</h2>
+    <input id="walletUser" placeholder="유저 ID" />
+    <input id="newWallet" placeholder="새 지갑 주소" />
+    <button onclick="updateWallet()">지갑 변경</button>
+  </section>
+
+  <!-- 로그 조회 -->
+  <section>
+    <h2>관리 로그</h2>
+    <button onclick="getLogs()">로그 조회</button>
+    <pre id="logResult">[로그 결과가 여기에 표시됩니다]</pre>
+  </section>
+
+  <!-- 대기 변경 적용 -->
+  <section>
+    <h2>대기 변경 적용 (08:00 수동 테스트)</h2>
+    <button onclick="applyChanges()">변경사항 적용</button>
+  </section>
+
+  <script>
+    const API = "http://localhost:3060/api/admin";
+
+    async function setConfig() {
+      const res = await fetch(`${API}/config`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: document.getElementById("cfgCategory").value,
+          key: document.getElementById("cfgKey").value,
+          value: document.getElementById("cfgValue").value
+        })
+      });
+      alert(await res.text());
+    }
+
+    async function forceRepay() {
+      const res = await fetch(`${API}/loan/repay`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: document.getElementById("loanUser").value,
+          amount: document.getElementById("loanAmount").value
+        })
+      });
+      alert(await res.text());
+    }
+
+    async function grantNFT() {
+      const res = await fetch(`${API}/nft/grant`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: document.getElementById("nftUser").value,
+          rewardIndex: parseInt(document.getElementById("nftIndex").value),
+          walletAddr: document.getElementById("nftWallet").value
+        })
+      });
+      alert(await res.text());
+    }
+
+    async function manualReward() {
+      const res = await fetch(`${API}/reward/manual`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: document.getElementById("rewardUser").value,
+          type: document.getElementById("rewardType").value,
+          amount: parseInt(document.getElementById("rewardAmount").value)
+        })
+      });
+      alert(await res.text());
+    }
+
+    async function updateWallet() {
+      const res = await fetch(`${API}/user/wallet`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: document.getElementById("walletUser").value,
+          newWallet: document.getElementById("newWallet").value
+        })
+      });
+      alert(await res.text());
+    }
+
+    async function getLogs() {
+      const res = await fetch(`${API}/logs`);
+      const data = await res.json();
+      document.getElementById("logResult").innerText = JSON.stringify(data, null, 2);
+    }
+
+    async function applyChanges() {
+      const res = await fetch(`${API}/apply`, { method: "POST" });
+      alert(await res.text());
+    }
+  </script>
+</body>
+</html>
