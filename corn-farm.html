@@ -539,8 +539,65 @@ window.normalizeSummary = window.normalizeSummary || function (j) {
   }
   loadSeed();
 })();
-</script>
+/* ==== Corn API – final ==== */
+(function () {
+  // ★ 고정된 백엔드 도메인으로 바꾸세요 (Render 로그의 기본 URL)
+  // 예: https://orcax-survey-3060.onrender.com
+  const API_BASE = 'https://orcax-survey-3060.onrender.com';
 
+  const seedTargets = ['#r-seeds','[data-key="seedCount"]','.seed-count'];
+  function setSeed(n){
+    for (const s of seedTargets) {
+      const el = document.querySelector(s);
+      if (el) { el.textContent = String(Number(n||0)); return; }
+    }
+  }
+  function getKakaoId(){
+    return (window.kakaoId && String(window.kakaoId))
+        || localStorage.getItem('kakaoId')
+        || sessionStorage.getItem('kakaoId')
+        || '';
+  }
+  async function fetchJSON(url){
+    const r = await fetch(url, { credentials: 'omit', cache: 'no-store' }); // GET은 쿠키 불필요
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    const ct = r.headers.get('content-type') || '';
+    if(!ct.includes('application/json')) throw new Error('Not JSON');
+    return r.json();
+  }
+
+  // normalize + 기본값(예외시에도 UI가 안 깨지게)
+  function normSummary(j){
+    return {
+      water:       Number(j?.water ?? 0),
+      fertilizer:  Number(j?.fertilizer ?? 0),
+      seeds:       Number(j?.seeds ?? 0),
+      growPct:     Number(j?.growPct ?? 0),
+    };
+  }
+
+  (async () => {
+    const kid = getKakaoId();
+    if (!kid) return;
+
+    // 1) 씨앗 숫자
+    try {
+      const s = await fetchJSON(`${API_BASE}/api/corn/seed/${encodeURIComponent(kid)}`);
+      if (s?.ok) setSeed(s.seeds);
+    } catch (e) {
+      // 실패해도 UI 유지
+    }
+
+    // 2) 요약 (paintFromCorn 등에서 사용)
+    try {
+      const j = await fetchJSON(`${API_BASE}/api/corn/summary/${encodeURIComponent(kid)}`);
+      window.__cornSummary = normSummary(j);
+    } catch (e) {
+      window.__cornSummary = normSummary(null); // 기본값
+    }
+  })();
+})();
+</script>
 </body>
 </html>
 
