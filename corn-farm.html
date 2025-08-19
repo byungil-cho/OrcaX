@@ -227,7 +227,13 @@ function paintFromCorn(raw){
   if(!raw) return;
   const s = normalizeSummary(raw);
   S.summary = s;
-  ...
+
+  const g = clamp(Number(s.g||0),0,100);
+  document.getElementById('gfill').style.setProperty('--p', g+'%');
+  document.getElementById('gnum').textContent=g|0;
+  applyVisualsServerFirst(s);
+  updateBars(s.meters.growPct,s.meters.waterPct,s.meters.fertPct);
+  refreshControls();
 }
 
 /* 비주얼 적용 */
