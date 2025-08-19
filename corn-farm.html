@@ -4,112 +4,140 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>옥수수 농장</title>
-<!-- ✅ 디자인/CSS는 손 안 댐 -->
-<link rel="stylesheet" href="style.css" />
+<style>
+:root{ --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18); --ok:#25d366; }
+html,body{ height:100%; margin:0; color:var(--ink); background:transparent;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
+#bg{ position:fixed; inset:0; z-index:0; background:url('img/a_farm_01.png') center/cover no-repeat; }
+header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
+  backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
+  border-radius:14px; padding:8px 10px; }
+.topline{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-start; }
+.status{ width:8px; height:8px; border-radius:999px; background:#ef4444 }
+.status.ok{ background:var(--ok) }
+.nick{ font-weight:800; max-width:42vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.shopbtn{ margin-left:6px; font-size:12px; padding:6px 10px; border-radius:999px;
+  border:1px solid var(--bd); background:rgba(255,255,255,.10); color:#fff; cursor:pointer }
+.res{ display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) }
+.tag{ display:flex; justify-content:space-between; align-items:center; gap:8px;
+  padding:6px 8px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.08); font-size:12px }
+.tag b{ font-variant-numeric:tabular-nums }
+.actions{ position:fixed; left:10px; right:10px; bottom:10px; z-index:8;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
+  backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
+  border-radius:14px; padding:8px; }
+.btn{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:10px;
+  padding:10px 8px; font-size:13px; cursor:pointer }
+.btn[disabled]{ opacity:.55; pointer-events:none }
+.gauge{ position:fixed; left:10px; bottom:calc(260px + env(safe-area-inset-bottom)); z-index:6;
+  width:110px; height:110px; border-radius:999px; border:1px solid var(--bd);
+  background:rgba(0,0,0,.35); display:grid; place-items:center; overflow:hidden; }
+.gfill{ position:absolute; inset:0; background:conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0) }
+.gnum{ position:relative; font-weight:800; font-variant-numeric:tabular-nums }
+.level-box{ position:fixed; left:10px; bottom:calc(200px + env(safe-area-inset-bottom)); z-index:6;
+  display:flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--bd);
+  border-radius:10px; background:rgba(0,0,0,.35); }
+.level-box img{ width:44px; height:44px; border-radius:999px; border:1px solid var(--bd); background:#000; }
+.expbar{ width:120px; height:6px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.15); overflow:hidden }
+.expbar span{ display:block; height:100%; width:0; background:#8ed36b }
+.mini-wrap{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(120px + env(safe-area-inset-bottom));
+  z-index:7; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  width:clamp(280px, 60vw, 460px); border:1px solid var(--bd); border-radius:14px; background:rgba(0,0,0,.28); padding:8px 10px; }
+.nav{ width:40px; height:40px; border-radius:999px; display:grid; place-items:center;
+  color:#fff; text-decoration:none; border:1px solid var(--bd); background:rgba(0,0,0,.35) }
+#miniImg{ width:120px; height:120px; border-radius:12px; border:1px solid var(--bd); object-fit:cover; background:#000; flex:0 0 auto }
+#miniCap{ font-size:12px; opacity:.9; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+#toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(60px + env(safe-area-inset-bottom));
+  z-index:99; background:rgba(0,0,0,.75); color:#fff; padding:10px 16px; border-radius:999px;
+  font-size:13px; opacity:0; pointer-events:none; transition:opacity .3s; }
+#toast.show{ opacity:1 }
+.modal{ position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.6); display:none;
+  align-items:center; justify-content:center; }
+.modal.active{ display:flex }
+.modal-content{ background:#222; border-radius:14px; padding:20px; max-width:90%; color:#fff; }
+.shop-item{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.1) }
+.shop-item:last-child{ border-bottom:none }
+.shop-item button{ padding:6px 12px; border-radius:6px; background:#25d366; border:none; color:#fff; cursor:pointer }
+</style>
 </head>
 <body>
-  <!-- ✅ UI 부분도 그대로 -->
-  <div id="bg" aria-hidden="true"></div>
-  <header> ... </header>
-  <div class="gauge"> ... </div>
-  <div class="level-box"> ... </div>
-  <div class="mini-wrap" id="miniWrap"> ... </div>
-  <div class="actions"> ... </div>
-  <div id="shopModal" class="modal"> ... </div>
-  <div id="toast"></div>
-
+<div id="bg" aria-hidden="true"></div>
+<header>
+  <div class="topline">
+    <span class="status" id="statusDot"></span>
+    <span class="nick" id="nickname">닉네임</span>
+    <button class="shopbtn" onclick="openShop()">상점</button>
+  </div>
+  <div class="res">
+    <div class="tag"><span>씨앗</span><b id="r-seeds">0</b></div>
+    <div class="tag"><span>물</span><b id="r-water">0</b></div>
+    <div class="tag"><span>비료</span><b id="r-fert">0</b></div>
+    <div class="tag"><span>코인</span><b id="r-coins">0</b></div>
+  </div>
+</header>
+<div class="gauge">
+  <div class="gfill" id="growFill"></div>
+  <div class="gnum" id="growNum">0%</div>
+</div>
+<div class="level-box">
+  <img id="levelIcon" src="img/level1.png" alt="레벨" />
+  <div class="expbar"><span id="expBar"></span></div>
+  <span id="levelNum">Lv.1</span>
+</div>
+<div class="mini-wrap" id="miniWrap">
+  <a href="#" class="nav" onclick="prevMini()">◀</a>
+  <img id="miniImg" src="img/a_farm_01.png" alt="미니" />
+  <span id="miniCap">옥수수밭</span>
+  <a href="#" class="nav" onclick="nextMini()">▶</a>
+</div>
+<div class="actions">
+  <button class="btn" onclick="onPlant()">심기</button>
+  <button class="btn" onclick="onWater()">물주기</button>
+  <button class="btn" onclick="onFert()">비료</button>
+  <button class="btn" onclick="onHarv()">수확</button>
+</div>
+<div id="shopModal" class="modal">
+  <div class="modal-content">
+    <h3>상점</h3>
+    <div id="shopItems"></div>
+    <button onclick="closeShop()">닫기</button>
+  </div>
+</div>
+<div id="toast"></div>
 <script>
 'use strict';
-
-// ✅ 여기서부터 API 관련 수정만 함
 const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
 const BASE_ORIGIN = API_BASE;
 const API = (p) => `${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/, '')}`;
-
-async function jfetch(url,{method='GET',query,body,headers}={}){
-  let u=url;
-  if(query && typeof query==='object'){
-    const qs=new URLSearchParams();
-    for(const[k,v] of Object.entries(query)) if(v!==undefined&&v!==null) qs.set(k,String(v));
-    const q=qs.toString(); if(q) u+=(u.includes('?')?'&':'?')+q;
-  }
-  const opts={method,headers:Object.assign({'Accept':'application/json'},headers||{})};
-  if(body!==undefined&&body!==null){opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body);}
-  const r=await fetch(u,Object.assign(opts,{mode:'cors',cache:'no-store'}));
-  const t=await r.text(); const isJson=(r.headers.get('content-type')||'').includes('application/json');
-  const data=t?(isJson?JSON.parse(t):{raw:t}):{};
-  if(!r.ok){ const err=new Error(`HTTP ${r.status}`); err.status=r.status; err.data=data; throw err; }
-  return data;
-}
-
-// ✅ api 객체 (ngrok 주소만 사용)
-const api={
-  userdata:(kakaoId,nickname)=>jfetch(API('userdata'),{method:'POST',body:{kakaoId,nickname}}),
-  cornSummary:(kakaoId)=>jfetch(API('corn/summary'),{method:'GET',query:{kakaoId}}),
-  plant:(kakaoId)=>jfetch(API('corn/plant'),{method:'POST',body:{kakaoId}}),
-  grow:(kakaoId,step=5)=>jfetch(API('corn/grow'),{method:'POST',body:{kakaoId,step}}),
-  harvest:(kakaoId)=>jfetch(API('corn/harvest'),{method:'POST',body:{kakaoId}}),
-  pop:(kakaoId,cost=30)=>jfetch(API('corn/pop'),{method:'POST',body:{kakaoId,tokenCost:cost}}),
-  exchange:(kakaoId,qty=1,dir)=>jfetch(API('corn/exchange'),{method:'POST',body:{kakaoId,qty,dir}}),
-  buyAdditive:(kakaoId,type,qty)=>{
-    const item = (type==='seeds' ? 'seed' : type);
-    return jfetch(API('corn/buy-additive'),{ method:'POST', body:{kakaoId, type:item, item, qty, amount:qty }});
-  },
-  priceboard:()=>jfetch(API('corn/priceboard'),{method:'GET'})
-};
-
-/* ==== Corn API – final ==== */
-(function () {
-  const seedTargets = ['#r-seeds','[data-key="seedCount"]','.seed-count'];
-  function setSeed(n){
-    for (const s of seedTargets) {
-      const el = document.querySelector(s);
-      if (el) { el.textContent = String(Number(n||0)); return; }
-    }
-  }
-  function getKakaoId(){
-    return (window.kakaoId && String(window.kakaoId))
-        || localStorage.getItem('kakaoId')
-        || sessionStorage.getItem('kakaoId')
-        || '';
-  }
-  async function fetchJSON(url){
-    const r = await fetch(url, { credentials: 'omit', cache: 'no-store' });
-    if (!r.ok) throw new Error('HTTP '+r.status);
-    const ct = r.headers.get('content-type') || '';
-    if(!ct.includes('application/json')) throw new Error('Not JSON');
-    return r.json();
-  }
-
-  function normSummary(j){
-    return {
-      water:       Number(j?.water ?? 0),
-      fertilizer:  Number(j?.fertilizer ?? 0),
-      seeds:       Number(j?.seeds ?? 0),
-      growPct:     Number(j?.growPct ?? 0),
-    };
-  }
-
-  (async () => {
-    const kid = getKakaoId();
-    if (!kid) return;
-
-    try {
-      const s = await fetchJSON(`${API_BASE}/api/corn/seed/${encodeURIComponent(kid)}`);
-      if (s?.ok) setSeed(s.seeds);
-    } catch (e) {}
-
-    try {
-      const j = await fetchJSON(`${API_BASE}/api/corn/summary/${encodeURIComponent(kid)}`);
-      window.__cornSummary = normSummary(j);
-    } catch (e) {
-      window.__cornSummary = normSummary(null);
-    }
-  })();
-})();
+function toast(msg){ const t=document.getElementById('toast'); if(!t) return; t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+function prevMini(){ toast('이전 미니'); }
+function nextMini(){ toast('다음 미니'); }
+function onPlant(){ doAction('plant'); }
+function onWater(){ doAction('water'); }
+function onFert(){ doAction('fertilize'); }
+function onHarv(){ doAction('harvest'); }
+function openShop(){ document.getElementById('shopModal').classList.add('active'); loadShopItems(); }
+function closeShop(){ document.getElementById('shopModal').classList.remove('active'); }
+function loadShopItems(){ const list=document.getElementById('shopItems'); list.innerHTML=''; const items=[ {name:'씨앗',price:10}, {name:'물',price:5}, {name:'비료',price:15}, ]; for(const it of items){ const row=document.createElement('div'); row.className='shop-item'; row.innerHTML=`<span>${it.name} - ${it.price}코인</span><button onclick="buyItem('${it.name}',${it.price})">구매</button>`; list.appendChild(row);} }
+function buyItem(name,price){ if(state.coins<price){ toast('코인이 부족합니다'); return; } state.coins-=price; if(name==='씨앗') state.seeds++; if(name==='물') state.water++; if(name==='비료') state.fert++; updateUI(); toast(name+' 구매 완료'); }
+let state={ seeds:0, water:0, fert:0, coins:0, grow:0, level:1, exp:0 };
+function updateUI(){ document.getElementById('r-seeds').textContent=state.seeds; document.getElementById('r-water').textContent=state.water; document.getElementById('r-fert').textContent=state.fert; document.getElementById('r-coins').textContent=state.coins; document.getElementById('growNum').textContent=state.grow+'%'; document.getElementById('growFill').style.setProperty('--p', state.grow+'%'); document.getElementById('expBar').style.width=(state.exp%100)+'%'; document.getElementById('levelNum').textContent='Lv.'+state.level; }
+async function fetchSummary(){ try{ const res=await fetch(API('corn/summary/testUser')); if(!res.ok) throw new Error('요약 불러오기 실패'); const j=await res.json(); state.seeds=j.seeds||0; state.water=j.water||0; state.fert=j.fertilizer||0; state.coins=j.coins||0; state.grow=j.growPct||0; state.level=j.level||1; state.exp=j.exp||0; updateUI(); }catch(e){ console.error(e); } }
+async function doAction(action){ try{ const res=await fetch(API('corn/'+action+'/testUser'),{method:'POST'}); if(!res.ok) throw new Error(action+' 실패'); const j=await res.json(); toast(j.message||action+' 성공'); await fetchSummary(); }catch(e){ toast('에러:'+e.message); } }
+function addExp(amount){ state.exp += amount; if(state.exp>=100){ state.exp -= 100; state.level++; toast('레벨업! Lv.'+state.level); } updateUI(); }
+setInterval(()=>{ if(state.grow<100){ state.grow++; updateUI(); if(state.grow>=100){ toast('옥수수 성숙 완료!'); } } },5000);
+async function loadPriceboard(){ try{ const r=await fetch(API('corn/priceboard')); const j=await r.json(); console.log('가격표',j); }catch(e){ console.error(e); } }
+async function loadUser(){ try{ const r=await fetch(API('userdata')); const j=await r.json(); document.getElementById('nickname').textContent=j.nickname||'손님'; }catch(e){ console.error(e); } }
+window.addEventListener('DOMContentLoaded',()=>{ fetchSummary(); updateUI(); loadUser(); loadPriceboard(); });
+async function exchangeCorn(dir){ try{ const r=await fetch(API('corn/exchange'),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({kakaoId:'testUser', qty:1, dir}) }); const j=await r.json(); toast(j.message||'환전 완료'); await fetchSummary(); }catch(e){ toast('환전 에러:'+e.message); } }
+async function makePopcorn(){ try{ const r=await fetch(API('corn/pop'),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({kakaoId:'testUser', tokenCost:30}) }); const j=await r.json(); toast(j.message||'팝콘 성공'); await fetchSummary(); }catch(e){ toast('팝콘 에러:'+e.message); } }
+setInterval(()=>{ fetchSummary(); },30000);
+function setStatus(ok){ const dot=document.getElementById('statusDot'); if(!dot) return; dot.classList.toggle('ok',!!ok); }
+(async()=>{ try{ const res=await fetch(API('ping')); setStatus(res.ok); }catch(e){ setStatus(false); } })();
 </script>
 </body>
 </html>
+
 
 
 
