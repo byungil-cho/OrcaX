@@ -366,14 +366,21 @@ function paintFromUser(user){
   document.getElementById('r-water').textContent=Number(user.inventory?.water||0);
   document.getElementById('r-fert').textContent =Number(user.inventory?.fertilizer||0);
   // ✅ seeds/seed 어느 쪽이 와도 반영
+ function paintFromCorn(raw){
+  if(!raw) return;
+  const s = normalizeSummary(raw); 
+  S.summary = s;
+
+  // 🌽 corn_data 전용 값들 표시
   const seedCount = Number(raw.seeds ?? raw.seed ?? 0);
-  document.getElementById('r-seed').textContent=seedCount;
-  document.getElementById('r-corn').textContent =Number(user.agri?.corn||0);
-  document.getElementById('r-pop').textContent  =Number(user.food?.popcorn||0);
-  document.getElementById('r-salt').textContent =Number(user.additives?.salt||0);
-  document.getElementById('r-sugar').textContent=Number(user.additives?.sugar||0);
-  const orcx=Number(user.wallet?.orcx ?? user.orcx ?? 0); S.orcx=orcx; document.getElementById('r-orcx').textContent=orcx|0;
+  document.getElementById('r-seed').textContent = seedCount;
+
+  document.getElementById('r-corn').textContent = Number(raw.corn || 0);
+  document.getElementById('r-pop').textContent  = Number(raw.popcorn || 0);
+  document.getElementById('r-salt').textContent = Number(raw.additives?.salt || 0);
+  document.getElementById('r-sugar').textContent= Number(raw.additives?.sugar || 0);
 }
+
 function paintFromCorn(raw){
   if(!raw) return; const s=normalizeSummary(raw); S.summary=s;
   const g=clamp(Number(s.g||0),0,100);
