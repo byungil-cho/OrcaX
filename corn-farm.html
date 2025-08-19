@@ -222,14 +222,12 @@ function pctWater(){const t=L(); if(!t.waterDepleteAt)return 0; return clamp((t.
 function pctFert(){const t=L(); if(!t.fertilDepleteAt)return 0; return clamp((t.fertilDepleteAt-Date.now())/H(3)*100,0,100);}
 
 /* 서버 응답 정규화 */
-function normalizeSummary(raw){
-  const s=raw||{}, assets=s.assets||{};
-  return {
-    phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
-    meters:{ waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN) },
-    assetBg:assets.bg||s.bg||null, assetMini:assets.mini||s.mini||null,
-    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{}
-  };
+function paintFromCorn(raw){
+  console.log("corn/summary raw response:", raw); // 서버 응답 그대로 확인
+  if(!raw) return;
+  const s = normalizeSummary(raw);
+  S.summary = s;
+  ...
 }
 
 /* 비주얼 적용 */
@@ -476,5 +474,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
 
 
