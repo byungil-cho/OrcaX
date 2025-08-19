@@ -222,18 +222,14 @@ function pctWater(){const t=L(); if(!t.waterDepleteAt)return 0; return clamp((t.
 function pctFert(){const t=L(); if(!t.fertilDepleteAt)return 0; return clamp((t.fertilDepleteAt-Date.now())/H(3)*100,0,100);}
 
 /* 서버 응답 정규화 */
-function paintFromCorn(raw){
-  console.log("corn/summary raw response:", raw); // 서버 응답 그대로 확인
-  if(!raw) return;
-  const s = normalizeSummary(raw);
-  S.summary = s;
-
-  const g = clamp(Number(s.g||0),0,100);
-  document.getElementById('gfill').style.setProperty('--p', g+'%');
-  document.getElementById('gnum').textContent=g|0;
-  applyVisualsServerFirst(s);
-  updateBars(s.meters.growPct,s.meters.waterPct,s.meters.fertPct);
-  refreshControls();
+function normalizeSummary(raw){
+  const s=raw||{}, assets=s.assets||{};
+  return {
+    phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
+    meters:{ waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN) },
+    assetBg:assets.bg||s.bg||null, assetMini:assets.mini||s.mini||null,
+    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{}
+  };
 }
 
 /* 비주얼 적용 */
@@ -359,48 +355,29 @@ if(!kakaoId||!nickname){
   alert('로그인이 필요합니다. (index9.html로 이동)'); location.href='index9.html';
 }
 
-/* ===========================
-   기존 사용자용 함수 (감자/보리)
-=========================== */
+/* 페인트 */
 function paintFromUser(user){
-  if(!user) return; 
-  S.user = user;
-
-  document.getElementById('nick').textContent = user.nickname || nickname || '';
-  document.getElementById('r-water').textContent = Number(user.inventory?.water || 0);
-  document.getElementById('r-fert').textContent  = Number(user.inventory?.fertilizer || 0);
-
+  if(!user) return; S.user=user;
+  document.getElementById('nick').textContent=user.nickname||nickname||'';
+  document.getElementById('r-water').textContent=Number(user.inventory?.water||0);
+  document.getElementById('r-fert').textContent =Number(user.inventory?.fertilizer||0);
   // ✅ seeds/seed 어느 쪽이 와도 반영
-  const seedCount = Number(user.agri?.seeds ?? user.agri?.seed ?? 0);
-  document.getElementById('r-seed').textContent = seedCount;
-
-  document.getElementById('r-corn').textContent = Number(user.agri?.corn || 0);
-  document.getElementById('r-pop').textContent  = Number(user.food?.popcorn || 0);
-  document.getElementById('r-salt').textContent = Number(user.additives?.salt || 0);
-  document.getElementById('r-sugar').textContent= Number(user.additives?.sugar || 0);
-
-  const orcx = Number(user.wallet?.orcx ?? user.orcx ?? 0);
-  S.orcx = orcx;
-  document.getElementById('r-orcx').textContent = orcx | 0;
+  const seedCount = Number(user.agri?.seed ?? user.agri?.seed ?? 0);
+  document.getElementById('r-seed').textContent =Number(user.agri?.seed||0);
+  document.getElementById('r-corn').textContent =Number(user.agri?.corn||0);
+  document.getElementById('r-pop').textContent  =Number(user.food?.popcorn||0);
+  document.getElementById('r-salt').textContent =Number(user.additives?.salt||0);
+  document.getElementById('r-sugar').textContent=Number(user.additives?.sugar||0);
+  const orcx=Number(user.wallet?.orcx ?? user.orcx ?? 0); S.orcx=orcx; document.getElementById('r-orcx').textContent=orcx|0;
 }
-
-/* ===========================
-   새로 추가된 옥수수밭 함수
-=========================== */
 function paintFromCorn(raw){
-  if(!raw) return;
-
-  const s = normalizeSummary(raw);
-  S.summary = s;
-
-  // ✅ corn_data 기준으로 seed 처리
-  const seedCount = Number(raw.seeds ?? raw.seed ?? 0);
-  document.getElementById('r-seed').textContent = seedCount;
-
-  document.getElementById('r-corn').textContent  = Number(raw.corn || 0);
-  document.getElementById('r-pop').textContent   = Number(raw.popcorn || 0);
-  document.getElementById('r-salt').textContent  = Number(raw.additives?.salt || 0);
-  document.getElementById('r-sugar').textContent = Number(raw.additives?.sugar || 0);
+  if(!raw) return; const s=normalizeSummary(raw); S.summary=s;
+  const g=clamp(Number(s.g||0),0,100);
+  document.getElementById('gfill').style.setProperty('--p', g+'%');
+  document.getElementById('gnum').textContent=g|0;
+  applyVisualsServerFirst(s);
+  updateBars(s.meters.growPct,s.meters.waterPct,s.meters.fertPct);
+  refreshControls();
 }
 
 /* 이벤트 */
