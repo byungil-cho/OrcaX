@@ -359,27 +359,27 @@ if(!kakaoId||!nickname){
   alert('로그인이 필요합니다. (index9.html로 이동)'); location.href='index9.html';
 }
 
-/* 페인트 */
-function paintFromUser(user){
-  if(!user) return; S.user=user;
-  document.getElementById('nick').textContent=user.nickname||nickname||'';
-  document.getElementById('r-water').textContent=Number(user.inventory?.water||0);
-  document.getElementById('r-fert').textContent =Number(user.inventory?.fertilizer||0);
-  // ✅ seeds/seed 어느 쪽이 와도 반영
- function paintFromCorn(raw){
+/* 옥수수 밭 데이터 페인트 */
+function paintFromCorn(raw){
   if(!raw) return;
-  const s = normalizeSummary(raw); 
+
+  // summary 정리 (서버 응답 확인용)
+  const s = normalizeSummary(raw);
   S.summary = s;
 
-  // 🌽 corn_data 전용 값들 표시
+  // 씨앗 (seed or seeds 둘 다 대응)
   const seedCount = Number(raw.seeds ?? raw.seed ?? 0);
   document.getElementById('r-seed').textContent = seedCount;
 
-  document.getElementById('r-corn').textContent = Number(raw.corn || 0);
-  document.getElementById('r-pop').textContent  = Number(raw.popcorn || 0);
-  document.getElementById('r-salt').textContent = Number(raw.additives?.salt || 0);
-  document.getElementById('r-sugar').textContent= Number(raw.additives?.sugar || 0);
+  // 옥수수 관련 자원 표시
+  document.getElementById('r-corn').textContent  = Number(raw.corn || 0);
+  document.getElementById('r-pop').textContent   = Number(raw.popcorn || 0);
+
+  // 첨가물 (소금, 설탕)
+  document.getElementById('r-salt').textContent  = Number(raw.additives?.salt || 0);
+  document.getElementById('r-sugar').textContent = Number(raw.additives?.sugar || 0);
 }
+
 
 function paintFromCorn(raw){
   if(!raw) return; const s=normalizeSummary(raw); S.summary=s;
