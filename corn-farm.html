@@ -477,8 +477,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   await loadAll();
   setInterval(async ()=>{ try{ const cs=await api.cornSummary(kakaoId); paintFromCorn(cs); }catch(e){ console.warn('summary poll failed',e); } }, 15000);
 });
-</script>
-  <script>
+
 /* Corn seed sync (drop-in) */
 (function(){
   const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 서버 도메인 1곳으로 고정
