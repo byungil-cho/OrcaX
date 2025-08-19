@@ -359,7 +359,9 @@ if(!kakaoId||!nickname){
   alert('로그인이 필요합니다. (index9.html로 이동)'); location.href='index9.html';
 }
 
-/* 기존 함수 - 사용자 데이터 */
+/* ===========================
+   기존 사용자용 함수 (감자/보리)
+=========================== */
 function paintFromUser(user){
   if(!user) return; 
   S.user = user;
@@ -368,6 +370,7 @@ function paintFromUser(user){
   document.getElementById('r-water').textContent = Number(user.inventory?.water || 0);
   document.getElementById('r-fert').textContent  = Number(user.inventory?.fertilizer || 0);
 
+  // ✅ seeds/seed 어느 쪽이 와도 반영
   const seedCount = Number(user.agri?.seeds ?? user.agri?.seed ?? 0);
   document.getElementById('r-seed').textContent = seedCount;
 
@@ -381,12 +384,16 @@ function paintFromUser(user){
   document.getElementById('r-orcx').textContent = orcx | 0;
 }
 
-/* 새로 추가된 함수 - 옥수수밭 데이터 */
+/* ===========================
+   새로 추가된 옥수수밭 함수
+=========================== */
 function paintFromCorn(raw){
   if(!raw) return;
+
   const s = normalizeSummary(raw);
   S.summary = s;
 
+  // ✅ corn_data 기준으로 seed 처리
   const seedCount = Number(raw.seeds ?? raw.seed ?? 0);
   document.getElementById('r-seed').textContent = seedCount;
 
@@ -394,16 +401,6 @@ function paintFromCorn(raw){
   document.getElementById('r-pop').textContent   = Number(raw.popcorn || 0);
   document.getElementById('r-salt').textContent  = Number(raw.additives?.salt || 0);
   document.getElementById('r-sugar').textContent = Number(raw.additives?.sugar || 0);
-}
-
-function paintFromCorn(raw){
-  if(!raw) return; const s=normalizeSummary(raw); S.summary=s;
-  const g=clamp(Number(s.g||0),0,100);
-  document.getElementById('gfill').style.setProperty('--p', g+'%');
-  document.getElementById('gnum').textContent=g|0;
-  applyVisualsServerFirst(s);
-  updateBars(s.meters.growPct,s.meters.waterPct,s.meters.fertPct);
-  refreshControls();
 }
 
 /* 이벤트 */
