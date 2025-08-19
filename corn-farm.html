@@ -97,6 +97,21 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
   #corn-bars .bar{ width:7px; height:88px }
 }
 </style>
+  <!-- 상단바 "씨앗" 숫자 요소에 id 추가만 (모양/스타일 변화 없음) -->
+<span id="r-seeds">0</span>
+<script>
+  async function loadSeed(kakaoId){
+    try{
+      const r = await fetch(`/api/corn/seed/${encodeURIComponent(kakaoId)}`);
+      const j = await r.json();
+      if(j?.ok && document.getElementById('r-seeds')){
+        document.getElementById('r-seeds').textContent = Number(j.seeds||0);
+      }
+    }catch(_){}
+  }
+  // 로그인 직후 한 번:
+  // loadSeed(window.kakaoId);
+</script>
 </head>
 <body>
 <div id="bg" aria-hidden="true"></div>
