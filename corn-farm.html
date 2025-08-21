@@ -43,6 +43,7 @@
   </div>
 
   <script>
+    // API 서버 주소 고정 (ngrok/render 혼용 제거)
     const API_BASE = "/api/corn";
 
     // 로그인 연동 확인
@@ -50,7 +51,7 @@
     const nickname = localStorage.getItem("nickname");
     if (!kakaoId || !nickname) {
       alert("로그인 후 입장 가능합니다.");
-      window.location.href = "index9.html"; // 감자농장 입구로 이동
+      window.location.href = "index9.html";
     }
 
     async function fetchCornStatus() {
@@ -106,6 +107,7 @@
   </script>
 </body>
 </html>
+
 
 
 
