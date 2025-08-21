@@ -2,126 +2,71 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>옥수수 농장</title>
-  <link rel="stylesheet" href="farm-style.css">
+  <title>옥수수 엔진 Demo (index8)</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div id="farm-container">
+  <h1>🌽 옥수수 엔진 데모</h1>
 
-    <!-- 상태 표시줄 -->
-    <div id="status-bar">
-      닉네임: <span id="nickname"></span>
-      씨앗 🌽: <span id="r-cornseed">0</span>
-      자원 💰: <span id="resources">0</span>
-    </div>
-
-    <!-- 농장 배경 + 캐릭터 -->
-    <div id="farm-view">
-      <img id="farm-bg" src="img/farm_01.png" alt="농장 배경">
-      <img id="corn-img" src="img/corn_idle.png" alt="옥수수 캐릭터">
-    </div>
-
-    <!-- 게이지 -->
-    <div id="gauges">
-      <div>물 💧: <progress id="g-water" max="100" value="0"></progress></div>
-      <div>거름 🌱: <progress id="g-fertilizer" max="100" value="0"></progress></div>
-      <div>성장 🌽: <progress id="g-growth" max="100" value="0"></progress></div>
-    </div>
-
-    <!-- 조작 버튼 -->
-    <div id="controls">
-      <button id="btn-plant">씨앗 심기</button>
-      <button id="btn-water">물 주기</button>
-      <button id="btn-fertilizer">거름 주기</button>
-      <button id="btn-harvest">수확</button>
-      <button id="btn-popcorn">팝콘 만들기</button>
-    </div>
-
-    <!-- 상점 -->
-    <div id="shop">
-      <button id="btn-buy-seed">씨앗 구매</button>
-      <button id="btn-buy-additive">첨가물 구매</button>
-    </div>
-
-    <!-- 레벨 / 보상 박스 -->
-    <div id="level-box">
-      <p>레벨: <span id="level">1</span></p>
-      <p>경험치: <span id="exp">0</span></p>
-      <p>보상: <span id="reward">없음</span></p>
-    </div>
-
+  <!-- 농장 배경 -->
+  <div id="farm-bg">
+    <img id="farmImg" src="img/farm_00.png" alt="farm background">
   </div>
 
+  <!-- 옥수수 성장 -->
+  <div id="corn-stage">
+    <img id="cornImg" src="img/a_corn_06_01.png" alt="corn stage">
+  </div>
+
+  <!-- 캐릭터 -->
+  <div id="character">
+    <img id="charImg" src="img/a_mark_01.png" alt="character level">
+  </div>
+
+  <!-- 게이지 -->
+  <div id="gauges">
+    <progress id="waterGauge" value="3" max="3"></progress> 물
+    <progress id="fertGauge" value="3" max="3"></progress> 거름
+    <progress id="growGauge" value="0" max="5"></progress> 성장
+  </div>
+
+  <!-- 버튼 -->
+  <div id="controls">
+    <button onclick="Engine.plant()">씨앗 심기</button>
+    <button onclick="Engine.grow()">성장</button>
+    <button onclick="Engine.harvest()">수확</button>
+    <button onclick="Engine.puff()">뻥튀기</button>
+    <button onclick="Engine.exchange()">교환</button>
+  </div>
+
+  <!-- 상태 -->
+  <div id="status">
+    <p>💰 토큰: <span id="tokens">0</span></p>
+    <p>🍿 팝콘: <span id="popcorn">0</span></p>
+    <p>📈 레벨: <span id="level">1</span></p>
+  </div>
+
+  <!-- 로그 -->
+  <div id="log"></div>
+
+  <!-- 엔진 모듈 불러오기 -->
+  <script src="js/growth.js"></script>
+  <script src="js/harvest.js"></script>
+  <script src="js/puffed.js"></script>
+  <script src="js/exchange.js"></script>
+  <script src="js/level.js"></script>
+  <script src="js/reward.js"></script>
+  <script src="js/engine.js"></script>
+
   <script>
-    const API_BASE = "/api/corn";
-
-    // 카카오 로그인 연동
-    const kakaoId = localStorage.getItem("kakaoId");
-    const nickname = localStorage.getItem("nickname");
-    if (!kakaoId || !nickname) {
-      alert("로그인 후 이용 가능합니다.");
-      window.location.href = "index9.html";
-    }
-
-    // 초기 상태 불러오기
-    async function fetchCornStatus() {
-      try {
-        console.log("[DEBUG] fetchCornStatus kakaoId:", kakaoId);
-        const res = await fetch(`${API_BASE}/summary/${kakaoId}`);
-        console.log("[DEBUG] status:", res.status);
-        const data = await res.json();
-        console.log("[DEBUG] data:", data);
-        paintFromCorn(data);
-      } catch (err) {
-        console.error("Corn status fetch error", err);
-      }
-    }
-
-    // 화면 반영
-    function paintFromCorn(data) {
-      document.getElementById("nickname").textContent = nickname;
-      document.getElementById("r-cornseed").textContent = data.seeds ?? 0;
-      document.getElementById("resources").textContent = data.resources ?? 0;
-
-      document.getElementById("g-water").value = data.water ?? 0;
-      document.getElementById("g-fertilizer").value = data.fertilizer ?? 0;
-      document.getElementById("g-growth").value = data.growth ?? 0;
-
-      document.getElementById("level").textContent = data.level ?? 1;
-      document.getElementById("exp").textContent = data.exp ?? 0;
-      document.getElementById("reward").textContent = data.reward ?? "없음";
-
-      if (data.image) {
-        document.getElementById("corn-img").src = `img/${data.image}`;
-      }
-    }
-
-    // 공통 액션 호출
-    async function callAction(action) {
-      try {
-        console.log("[DEBUG] callAction:", action);
-        const res = await fetch(`${API_BASE}/${action}/${kakaoId}`, { method: "POST" });
-        console.log("[DEBUG] response status:", res.status);
-        const data = await res.json();
-        console.log("[DEBUG] response data:", data);
-        paintFromCorn(data);
-      } catch (err) {
-        console.error("Corn action error", action, err);
-      }
-    }
-
-    // 버튼 이벤트
-    document.getElementById("btn-plant").onclick = () => callAction("plant");
-    document.getElementById("btn-water").onclick = () => callAction("water");
-    document.getElementById("btn-fertilizer").onclick = () => callAction("fertilizer");
-    document.getElementById("btn-harvest").onclick = () => callAction("harvest");
-    document.getElementById("btn-popcorn").onclick = () => callAction("popcorn");
-
-    document.getElementById("btn-buy-seed").onclick = () => callAction("buy-seed");
-    document.getElementById("btn-buy-additive").onclick = () => callAction("buy-additive");
-
-    // 최초 실행
-    fetchCornStatus();
+    // 여기서 Engine 객체가 각 모듈 기능을 호출하도록 연결
+    const Engine = {
+      plant: () => { Growth.plant(); },
+      grow: () => { Growth.advance(); },
+      harvest: () => { Harvest.do(); },
+      puff: () => { Puffed.run(); },
+      exchange: () => { Exchange.run(); }
+    };
   </script>
 </body>
 </html>
