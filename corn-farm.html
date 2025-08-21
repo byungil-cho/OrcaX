@@ -109,7 +109,7 @@ header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
     <button id="btn-shop" class="shopbtn" title="소금/설탕/씨옥수수 구매">구매</button>
   </div>
   <div class="res">
-    <div class="tag">🌱 씨앗 <b id="r-seed">0</b></div>
+    <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
     <div class="tag">💧 물 <b id="r-water">0</b></div>
     <div class="tag">🪴 거름 <b id="r-fert">0</b></div>
     <div class="tag">🌽 옥수수 <b id="r-corn">0</b></div>
@@ -222,18 +222,14 @@ function pctWater(){const t=L(); if(!t.waterDepleteAt)return 0; return clamp((t.
 function pctFert(){const t=L(); if(!t.fertilDepleteAt)return 0; return clamp((t.fertilDepleteAt-Date.now())/H(3)*100,0,100);}
 
 /* 서버 응답 정규화 */
-function paintFromCorn(raw){
-  console.log("corn/summary raw response:", raw); // 서버 응답 그대로 확인
-  if(!raw) return;
-  const s = normalizeSummary(raw);
-  S.summary = s;
-
-  const g = clamp(Number(s.g||0),0,100);
-  document.getElementById('gfill').style.setProperty('--p', g+'%');
-  document.getElementById('gnum').textContent=g|0;
-  applyVisualsServerFirst(s);
-  updateBars(s.meters.growPct,s.meters.waterPct,s.meters.fertPct);
-  refreshControls();
+function normalizeSummary(raw){
+  const s=raw||{}, assets=s.assets||{};
+  return {
+    phase:s.phase||'IDLE', g:Number(s.g??0), plantedAt:s.plantedAt||null, season:s.season||null,
+    meters:{ waterPct:Number(s.meters?.waterPct??s.waterPct??NaN), fertPct:Number(s.meters?.fertPct??s.fertPct??NaN), growPct:Number(s.meters?.growPct??s.g??NaN) },
+    assetBg:assets.bg||s.bg||null, assetMini:assets.mini||s.mini||null,
+    agri:s.agri||{}, food:s.food||{}, additives:s.additives||{}, wallet:s.wallet||{}
+  };
 }
 
 /* 비주얼 적용 */
@@ -367,7 +363,7 @@ function paintFromUser(user){
   document.getElementById('r-fert').textContent =Number(user.inventory?.fertilizer||0);
   // ✅ seeds/seed 어느 쪽이 와도 반영
   const seedCount = Number(user.agri?.seeds ?? user.agri?.seed ?? 0);
-  document.getElementById('r-seed').textContent=seedCount;
+  document.getElementById('r-seeds').textContent=seedCount;
   document.getElementById('r-corn').textContent =Number(user.agri?.corn||0);
   document.getElementById('r-pop').textContent  =Number(user.food?.popcorn||0);
   document.getElementById('r-salt').textContent =Number(user.additives?.salt||0);
@@ -477,129 +473,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   await loadAll();
   setInterval(async ()=>{ try{ const cs=await api.cornSummary(kakaoId); paintFromCorn(cs); }catch(e){ console.warn('summary poll failed',e); } }, 15000);
 });
-
-/* Corn seed sync (drop-in) */
-(function(){
-  const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 서버 도메인 1곳으로 고정
-  const targetSel = ['#r-seeds','[data-key="seedCount"]','.seed-count'];
-
-  function setSeed(n){
-    for(const s of targetSel){ const el = document.querySelector(s); if(el){ el.textContent = String(n); return; } }
-  }
-  function getKakaoId(){
-    return (window.kakaoId && String(window.kakaoId))
-        || localStorage.getItem('kakaoId')
-        || sessionStorage.getItem('kakaoId')
-        || '';
-  }
-  async function load(){
-    const kid = getKakaoId();
-    if(!kid) return console.warn('[seed] kakaoId 없음');
-    const url = `${API_BASE}/api/corn/seed/${encodeURIComponent(kid)}`;
-    const r = await fetch(url, { credentials: 'include' });
-    const j = await r.json();
-    if(j?.ok) setSeed(Number(j.seeds||0));
-    window.__seeddiag = { url, payload:j };
-  }
-  load();
-})();
-/* ===== Fix pack: normalizeSummary + seed loader (no-credentials) ===== */
-
-// 1) 누락 함수 보강
-window.normalizeSummary = window.normalizeSummary || function (j) {
-  return {
-    water: Number(j?.water ?? 0),
-    fertilizer: Number(j?.fertilizer ?? 0),
-    seeds: Number(j?.seeds ?? 0),
-  };
-};
-
-// 2) 씨앗 로더 (credentials 미사용: 쿠키 필요 없음)
-(function(){
-  const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 주인님이 쓰는 서버 주소 1곳 고정
-  const targetSel = ['#r-seeds','[data-key="seedCount"]','.seed-count'];
-
-  function setSeed(n){
-    for(const s of targetSel){ const el = document.querySelector(s); if(el){ el.textContent = String(n); return; } }
-  }
-  function getKakaoId(){
-    return (window.kakaoId && String(window.kakaoId))
-        || localStorage.getItem('kakaoId')
-        || sessionStorage.getItem('kakaoId')
-        || '';
-  }
-  async function loadSeed(){
-    const kid = getKakaoId();
-    if(!kid){ console.warn('[seed] kakaoId 없음'); return; }
-    const url = `${API_BASE}/api/corn/seed/${encodeURIComponent(kid)}`;
-    const r = await fetch(url, { credentials: 'omit' }); // ★ credentials 안 씀
-    const j = await r.json();
-    if(j?.ok) setSeed(Number(j.seeds||0));
-    window.__seeddiag = { url, payload: j };
-  }
-  loadSeed();
-})();
-/* ==== Corn API – final ==== */
-(function () {
-  // ★ 고정된 백엔드 도메인으로 바꾸세요 (Render 로그의 기본 URL)
-  // 예: https://orcax-survey-3060.onrender.com
-  const API_BASE = 'https://orcax-survey-3060.onrender.com';
-
-  const seedTargets = ['#r-seeds','[data-key="seedCount"]','.seed-count'];
-  function setSeed(n){
-    for (const s of seedTargets) {
-      const el = document.querySelector(s);
-      if (el) { el.textContent = String(Number(n||0)); return; }
-    }
-  }
-  function getKakaoId(){
-    return (window.kakaoId && String(window.kakaoId))
-        || localStorage.getItem('kakaoId')
-        || sessionStorage.getItem('kakaoId')
-        || '';
-  }
-  async function fetchJSON(url){
-    const r = await fetch(url, { credentials: 'omit', cache: 'no-store' }); // GET은 쿠키 불필요
-    if (!r.ok) throw new Error('HTTP '+r.status);
-    const ct = r.headers.get('content-type') || '';
-    if(!ct.includes('application/json')) throw new Error('Not JSON');
-    return r.json();
-  }
-
-  // normalize + 기본값(예외시에도 UI가 안 깨지게)
-  function normSummary(j){
-    return {
-      water:       Number(j?.water ?? 0),
-      fertilizer:  Number(j?.fertilizer ?? 0),
-      seeds:       Number(j?.seeds ?? 0),
-      growPct:     Number(j?.growPct ?? 0),
-    };
-  }
-
-  (async () => {
-    const kid = getKakaoId();
-    if (!kid) return;
-
-    // 1) 씨앗 숫자
-    try {
-      const s = await fetchJSON(`${API_BASE}/api/corn/seed/${encodeURIComponent(kid)}`);
-      if (s?.ok) setSeed(s.seeds);
-    } catch (e) {
-      // 실패해도 UI 유지
-    }
-
-    // 2) 요약 (paintFromCorn 등에서 사용)
-    try {
-      const j = await fetchJSON(`${API_BASE}/api/corn/summary/${encodeURIComponent(kid)}`);
-      window.__cornSummary = normSummary(j);
-    } catch (e) {
-      window.__cornSummary = normSummary(null); // 기본값
-    }
-  })();
-})();
 </script>
 </body>
 </html>
+
 
 
 
