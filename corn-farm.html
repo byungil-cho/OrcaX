@@ -5,57 +5,77 @@
   <title>옥수수 농장</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { margin:0; font-family:sans-serif; background:#f5f5f5; }
+    body, html {
+      margin:0; padding:0; height:100%; overflow:hidden;
+      font-family:sans-serif;
+    }
+    /* 배경 꽉 채우기 */
+    #farmBackground {
+      position:absolute; top:0; left:0;
+      width:100%; height:100%;
+      object-fit:cover; z-index:-1;
+    }
+
+    /* 상단 자원바 */
     #resourceBar {
-      background:#222; color:#fff; padding:10px;
-      display:flex; justify-content:space-around; flex-wrap:wrap;
-      font-size:14px;
+      position:fixed; top:0; left:0; width:100%;
+      background:rgba(0,0,0,0.4); color:#fff;
+      display:flex; justify-content:space-around; align-items:center;
+      height:40px; font-size:14px; z-index:10;
     }
-    #farmArea { 
-      position:relative; 
-      display:flex; justify-content:center; align-items:center;
-      height:60vh; 
+
+    /* 하단 버튼바 */
+    #actionBar {
+      position:fixed; bottom:0; left:0; width:100%;
+      background:rgba(255,255,255,0.7);
+      display:flex; justify-content:center; gap:10px; padding:10px;
+      z-index:10;
     }
-    #farmBackground { width:100%; height:100%; object-fit:cover; }
-    #circleGauge { position:absolute; left:10px; top:10px; width:120px; height:120px; }
-    #verticalGauges { 
-      position:absolute; right:10px; top:10px; 
-      display:flex; flex-direction:column; gap:10px; 
+    #actionBar button {
+      padding:10px 15px; border:none; border-radius:5px;
+      cursor:pointer; background:#eee;
     }
-    .vBar { width:20px; height:150px; background:#ddd; position:relative; }
+
+    /* 게이지 */
+    #circleGauge {
+      position:absolute; top:60px; left:20px;
+      width:100px; height:100px;
+    }
+    #verticalGauges {
+      position:absolute; top:60px; right:20px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .vBar { width:10px; height:120px; background:#ddd; position:relative; border-radius:5px; overflow:hidden; }
     .vFill { position:absolute; bottom:0; width:100%; background:green; }
+
+    /* 캐릭터 + 레벨 게이지 */
     #characterArea {
-      position:absolute; bottom:10px; left:10px;
+      position:absolute; bottom:60px; left:20px;
       display:flex; align-items:center; gap:10px;
     }
-    #character { position:relative; }
-    #character img { width:80px; }
+    #character img { width:60px; }
+    #levelGauge { width:150px; height:15px; background:#ccc; border-radius:10px; overflow:hidden; }
+    #levelFill { width:0%; height:100%; background:orange; }
+
+    /* 풍선말 */
     #speechBubble {
-      position:absolute; top:-40px; left:50%; transform:translateX(-50%);
+      position:absolute; top:-35px; left:50%; transform:translateX(-50%);
       background:#fff; border:1px solid #333; padding:5px 10px;
       border-radius:10px; font-size:12px;
       display:none; white-space:nowrap;
       animation: floatUp 3s ease-out forwards;
     }
     @keyframes floatUp {
-      0% { opacity:1; transform:translate(-50%, 0); }
-      100% { opacity:0; transform:translate(-50%, -40px); }
+      0% { opacity:1; transform:translate(-50%,0); }
+      100% { opacity:0; transform:translate(-50%,-40px); }
     }
-    #levelGauge {
-      width:200px; height:20px; background:#ccc;
-      border-radius:10px; overflow:hidden;
-    }
-    #levelFill { height:100%; width:0%; background:orange; transition:width 0.5s; }
-    #actionButtons {
-      display:flex; flex-wrap:wrap; justify-content:center;
-      gap:10px; padding:15px;
-    }
-    button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; }
+
     /* 팝업 */
     #buyModal {
       position:fixed; top:0; left:0; width:100%; height:100%;
       background:rgba(0,0,0,0.5); display:none;
       justify-content:center; align-items:center;
+      z-index:20;
     }
     #buyContent {
       background:#fff; padding:20px; border-radius:10px;
@@ -63,50 +83,49 @@
     }
     .buyOption { margin:10px 0; }
     .buyOption input[type="number"] { width:60px; }
-    /* 풍선말 품목별 색상 */
     .bubble-salt { background:#d0e7ff; border-color:#1e90ff; }
     .bubble-sugar { background:#ffe0f0; border-color:#ff69b4; }
     .bubble-seed { background:#e0ffd6; border-color:#2e8b57; }
   </style>
 </head>
 <body>
+  <img id="farmBackground" src="img/farm_01.png" alt="Farm">
+
   <!-- 상단 자원바 -->
   <div id="resourceBar">
-    물: <span id="water">0</span> |
-    거름: <span id="fertilizer">0</span> |
-    토큰: <span id="tokens">0</span> |
-    씨옥수수: <span id="seed">0</span> |
-    소금: <span id="salt">0</span> |
-    설탕: <span id="sugar">0</span> |
-    팝콘: <span id="popcorn">0</span>
+    💧 물: <span id="water">0</span> |
+    💩 거름: <span id="fertilizer">0</span> |
+    🪙 토큰: <span id="tokens">0</span> |
+    🌽 씨옥수수: <span id="seed">0</span> |
+    🧂 소금: <span id="salt">0</span> |
+    🍬 설탕: <span id="sugar">0</span> |
+    🍿 팝콘: <span id="popcorn">0</span>
   </div>
 
-  <!-- 중앙 농장 -->
-  <div id="farmArea">
-    <img id="farmBackground" src="img/farm_01.png" alt="Farm">
-    <canvas id="circleGauge"></canvas>
-
-    <div id="verticalGauges">
-      <div class="vBar"><div id="waterFill" class="vFill" style="height:80%"></div></div>
-      <div class="vBar"><div id="fertilizerFill" class="vFill" style="height:60%"></div></div>
-    </div>
-
-    <div id="characterArea">
-      <div id="character">
-        <img src="img/a_mark_01.png" alt="캐릭터">
-        <div id="speechBubble"></div>
-      </div>
-      <div id="levelGauge"><div id="levelFill"></div></div>
-    </div>
+  <!-- 게이지 -->
+  <canvas id="circleGauge"></canvas>
+  <div id="verticalGauges">
+    <div class="vBar"><div id="waterFill" class="vFill" style="height:80%"></div></div>
+    <div class="vBar"><div id="fertilizerFill" class="vFill" style="height:60%"></div></div>
   </div>
 
-  <!-- 하단 버튼 -->
-  <div id="actionButtons">
-    <button onclick="grow()">성장</button>
-    <button onclick="harvest()">수확</button>
-    <button onclick="puff()">뻥튀기</button>
-    <button onclick="exchange()">교환</button>
-    <button onclick="openBuyModal()">구매</button>
+  <!-- 캐릭터 -->
+  <div id="characterArea">
+    <div id="character">
+      <img src="img/a_mark_01.png" alt="캐릭터">
+      <div id="speechBubble"></div>
+    </div>
+    <div id="levelGauge"><div id="levelFill"></div></div>
+  </div>
+
+  <!-- 하단 버튼바 -->
+  <div id="actionBar">
+    <button onclick="plant()">🌱 씨앗 심기</button>
+    <button onclick="water()">💧 물 주기</button>
+    <button onclick="fertilize()">💩 거름 주기</button>
+    <button onclick="harvest()">🌽 수확</button>
+    <button onclick="puff()">🍿 뻥튀기</button>
+    <button onclick="openBuyModal()">🛒 구매</button>
   </div>
 
   <!-- 구매 팝업 -->
@@ -114,15 +133,15 @@
     <div id="buyContent">
       <h3>구매하기</h3>
       <div class="buyOption">
-        <input type="radio" name="buyItem" value="salt"> 🧂 소금 (<span id="priceSalt">10</span> 토큰)
+        <input type="radio" name="buyItem" value="salt"> 🧂 소금 (10 토큰)
         수량: <input type="number" id="qtySalt" disabled>
       </div>
       <div class="buyOption">
-        <input type="radio" name="buyItem" value="sugar"> 🍬 설탕 (<span id="priceSugar">20</span> 토큰)
+        <input type="radio" name="buyItem" value="sugar"> 🍬 설탕 (20 토큰)
         수량: <input type="number" id="qtySugar" disabled>
       </div>
       <div class="buyOption">
-        <input type="radio" name="buyItem" value="seed"> 🌽 씨옥수수 (<span id="priceSeed">100</span> 토큰)
+        <input type="radio" name="buyItem" value="seed"> 🌽 씨옥수수 (100 토큰)
         수량: <input type="number" id="qtySeed" disabled>
       </div>
       <div id="totalCost">총액: 0 토큰</div>
@@ -133,10 +152,8 @@
 
   <script>
     // === 팝업 제어 ===
-    function openBuyModal() { document.getElementById("buyModal").style.display="flex"; }
-    function closeBuyModal() { document.getElementById("buyModal").style.display="none"; }
-
-    // 라디오 선택 → 수량칸 활성화
+    function openBuyModal(){ document.getElementById("buyModal").style.display="flex"; }
+    function closeBuyModal(){ document.getElementById("buyModal").style.display="none"; }
     document.querySelectorAll("input[name=buyItem]").forEach(radio=>{
       radio.addEventListener("change", ()=>{
         document.querySelectorAll("#buyContent input[type=number]").forEach(i=>i.disabled=true);
@@ -146,42 +163,42 @@
       });
     });
 
-    // === 구매 실행 ===
+    // === 구매 ===
     function buyItem(){
       let item=document.querySelector("input[name=buyItem]:checked");
       if(!item){ alert("구매할 항목을 선택하세요."); return; }
       let qty=0, price=0;
-      if(item.value==="salt"){ qty=document.getElementById("qtySalt").value; price=document.getElementById("priceSalt").innerText; }
-      if(item.value==="sugar"){ qty=document.getElementById("qtySugar").value; price=document.getElementById("priceSugar").innerText; }
-      if(item.value==="seed"){ qty=document.getElementById("qtySeed").value; price=document.getElementById("priceSeed").innerText; }
+      if(item.value==="salt"){ qty=document.getElementById("qtySalt").value; price=10; }
+      if(item.value==="sugar"){ qty=document.getElementById("qtySugar").value; price=20; }
+      if(item.value==="seed"){ qty=document.getElementById("qtySeed").value; price=100; }
       if(qty<=0){ alert("수량을 입력하세요."); return; }
       let total=qty*price;
-      // TODO: 서버 API 호출 (item.value, qty, total)
       showSpeechBubble(item.value, qty, total);
       closeBuyModal();
     }
 
-    // === 풍선말 ===
     function showSpeechBubble(item, qty, total){
       const bubble=document.getElementById("speechBubble");
       let icon="", label="", cls="";
       if(item==="salt"){ icon="🧂"; label="소금"; cls="bubble-salt"; }
       if(item==="sugar"){ icon="🍬"; label="설탕"; cls="bubble-sugar"; }
       if(item==="seed"){ icon="🌽"; label="씨옥수수"; cls="bubble-seed"; }
-      bubble.className = cls;
-      bubble.innerText=`${icon} ${label} ${qty}개 구매 완료 (${total} 토큰 차감)`;
+      bubble.className=cls;
+      bubble.innerText=`${icon} ${label} ${qty}개 구매 (${total} 토큰)`;
       bubble.style.display="block";
       setTimeout(()=>{ bubble.style.display="none"; }, 3000);
     }
 
-    // === TODO: 엔진 모듈 연동 ===
-    function grow(){ console.log("성장"); }
-    function harvest(){ console.log("수확"); }
-    function puff(){ console.log("뻥튀기"); }
-    function exchange(){ console.log("교환"); }
+    // === 액션 더미 ===
+    function plant(){console.log("씨앗 심기");}
+    function water(){console.log("물 주기");}
+    function fertilize(){console.log("거름 주기");}
+    function harvest(){console.log("수확");}
+    function puff(){console.log("뻥튀기");}
   </script>
 </body>
 </html>
+
 
 
 
