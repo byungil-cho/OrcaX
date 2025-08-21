@@ -3,187 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <title>옥수수 농장</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body, html { margin:0; padding:0; height:100%; overflow:hidden; font-family:sans-serif; }
-    #farmBackground { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; }
-    #resourceBar { position:fixed; top:0; left:0; width:100%; background:rgba(0,0,0,0.4); color:#fff; display:flex; justify-content:space-around; align-items:center; height:40px; font-size:14px; z-index:10; }
-    #actionBar { position:fixed; bottom:0; left:0; width:100%; background:rgba(255,255,255,0.7); display:flex; justify-content:center; gap:10px; padding:10px; z-index:10; }
-    #actionBar button { padding:10px 15px; border:none; border-radius:5px; cursor:pointer; background:#eee; }
-    #circleGauge { position:absolute; top:60px; left:20px; width:100px; height:100px; }
-    #verticalGauges { position:absolute; top:60px; right:20px; display:flex; flex-direction:column; gap:10px; }
-    .vBar { width:10px; height:120px; background:#ddd; position:relative; border-radius:5px; overflow:hidden; }
-    .vFill { position:absolute; bottom:0; width:100%; background:green; }
-    #characterArea { position:absolute; bottom:60px; left:20px; display:flex; align-items:center; gap:10px; }
-    #character img { width:60px; }
-    #levelGauge { width:150px; height:15px; background:#ccc; border-radius:10px; overflow:hidden; }
-    #levelFill { width:0%; height:100%; background:orange; }
-    #speechBubble { position:absolute; top:-35px; left:50%; transform:translateX(-50%); background:#fff; border:1px solid #333; padding:5px 10px; border-radius:10px; font-size:12px; display:none; white-space:nowrap; animation: floatUp 3s ease-out forwards; }
-    @keyframes floatUp { 0% { opacity:1; transform:translate(-50%,0); } 100% { opacity:0; transform:translate(-50%,-40px); } }
-    #buyModal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:20; }
-    #buyContent { background:#fff; padding:20px; border-radius:10px; width:300px; }
-    .buyOption { margin:10px 0; }
-    .buyOption input[type="number"] { width:60px; }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: url("img/farm_winter.png") no-repeat center center fixed;
+      background-size: cover;
+    }
+    .top-bar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px;
+      font-size: 14px;
+    }
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(255,255,255,0.8);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+    }
+    .profile {
+      position: fixed;
+      bottom: 80px;
+      left: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .profile img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    .nickname {
+      margin-left: 10px;
+      background: rgba(255,255,255,0.7);
+      padding: 5px 10px;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
-  <img id="farmBackground" src="img/farm_01.png" alt="Farm">
-
   <!-- 상단 자원바 -->
-  <div id="resourceBar">
-    💧 물: <span id="water">0</span> |
-    💩 거름: <span id="fertilizer">0</span> |
-    🪙 토큰: <span id="tokens">0</span> |
-    🌽 씨옥수수: <span id="seed">0</span> |
-    🧂 소금: <span id="salt">0</span> |
-    🍬 설탕: <span id="sugar">0</span> |
-    🍿 팝콘: <span id="popcorn">0</span>
+  <div class="top-bar" id="resource-bar">
+    💧물: 0 | 💩거름: 0 | 🪙토큰: 0 | 🌱씨옥수수: 0 | 🧂소금: 0 | 🍭설탕: 0 | 🍿팝콘: 0
   </div>
 
-  <!-- 게이지 -->
-  <canvas id="circleGauge"></canvas>
-  <div id="verticalGauges">
-    <div class="vBar"><div id="waterFill" class="vFill"></div></div>
-    <div class="vBar"><div id="fertilizerFill" class="vFill"></div></div>
-  </div>
-
-  <!-- 캐릭터 -->
-  <div id="characterArea">
-    <div id="character">
-      <img id="charImg" src="img/a_mark_01.png" alt="캐릭터">
-      <div id="speechBubble"></div>
-    </div>
-    <div id="levelGauge"><div id="levelFill"></div></div>
+  <!-- 좌측하단 프로필 -->
+  <div class="profile">
+    <img src="img/character_lv1.png" alt="캐릭터">
+    <div class="nickname" id="nickname">로그인 안됨</div>
   </div>
 
   <!-- 하단 버튼바 -->
-  <div id="actionBar">
-    <button onclick="plant()">🌱 씨앗 심기</button>
-    <button onclick="water()">💧 물 주기</button>
-    <button onclick="fertilize()">💩 거름 주기</button>
-    <button onclick="harvest()">🌽 수확</button>
-    <button onclick="puff()">🍿 뻥튀기</button>
-    <button onclick="openBuyModal()">🛒 구매</button>
-  </div>
-
-  <!-- 구매 팝업 -->
-  <div id="buyModal">
-    <div id="buyContent">
-      <h3>구매하기</h3>
-      <div class="buyOption"><input type="radio" name="buyItem" value="salt"> 🧂 소금 (10 토큰) 수량: <input type="number" id="qtySalt" disabled></div>
-      <div class="buyOption"><input type="radio" name="buyItem" value="sugar"> 🍬 설탕 (20 토큰) 수량: <input type="number" id="qtySugar" disabled></div>
-      <div class="buyOption"><input type="radio" name="buyItem" value="seed"> 🌽 씨옥수수 (100 토큰) 수량: <input type="number" id="qtySeed" disabled></div>
-      <div id="totalCost">총액: 0 토큰</div>
-      <button onclick="buyItem()">구매하기</button>
-      <button onclick="closeBuyModal()">취소</button>
-    </div>
+  <div class="bottom-bar">
+    <button>🌱 씨앗 심기</button>
+    <button>💧 물 주기</button>
+    <button>💩 거름 주기</button>
+    <button>🌽 수확</button>
+    <button>🍿 뻥튀기</button>
+    <button>🛒 구매</button>
   </div>
 
   <script>
-    const kakaoId = "TEST_USER"; // 로그인된 ID 대체
-    
-    // 초기 데이터 불러오기
-    async function loadData(){
-      let user = await fetch(`http://localhost:3060/api/user/resources/${kakaoId}`).then(r=>r.json());
-      let corn = await fetch(`http://localhost:3060/api/corn/status/${kakaoId}`).then(r=>r.json());
+    async function loadUserData() {
+      try {
+        const res = await fetch("/api/userData?userId=testUser"); // 로그인 후 userId 동적 연결
+        const data = await res.json();
 
-      document.getElementById("water").innerText=user.water;
-      document.getElementById("fertilizer").innerText=user.fertilizer;
-      document.getElementById("tokens").innerText=user.tokens;
-      document.getElementById("seed").innerText=corn.seed;
-      document.getElementById("salt").innerText=corn.salt;
-      document.getElementById("sugar").innerText=corn.sugar;
-      document.getElementById("popcorn").innerText=corn.popcorn;
+        document.getElementById("nickname").textContent = data.nickname;
 
-      // 게이지 업데이트
-      document.getElementById("waterFill").style.height=(user.water/100*120)+"px";
-      document.getElementById("fertilizerFill").style.height=(user.fertilizer/100*120)+"px";
-      document.getElementById("levelFill").style.width=(user.harvestCount%5/5*100)+"%";
-
-      // 성장 원형
-      drawCircleGauge(corn.growth);
-
-      // 이미지 교체
-      document.getElementById("farmBackground").src=`img/${corn.background}`;
-      document.getElementById("charImg").src=`img/a_mark_${user.level}.png`;
+        document.getElementById("resource-bar").textContent =
+          `💧물: ${data.resources.water} | 💩거름: ${data.resources.fertilizer} | 🪙토큰: ${data.resources.token} | 🌱씨옥수수: ${data.resources.cornSeed} | 🧂소금: ${data.resources.salt} | 🍭설탕: ${data.resources.sugar} | 🍿팝콘: ${data.resources.popcorn}`;
+      } catch (err) {
+        console.error("자원 불러오기 실패:", err);
+      }
     }
 
-    function drawCircleGauge(percent){
-      const canvas=document.getElementById("circleGauge");
-      const ctx=canvas.getContext("2d");
-      canvas.width=100; canvas.height=100;
-      ctx.clearRect(0,0,100,100);
-      ctx.beginPath();
-      ctx.arc(50,50,45,0,2*Math.PI);
-      ctx.strokeStyle="#ccc"; ctx.lineWidth=10; ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(50,50,45,-Math.PI/2,(percent/100*2*Math.PI)-Math.PI/2);
-      ctx.strokeStyle="green"; ctx.lineWidth=10; ctx.stroke();
-    }
-
-    // 팝업 제어
-    function openBuyModal(){ document.getElementById("buyModal").style.display="flex"; }
-    function closeBuyModal(){ document.getElementById("buyModal").style.display="none"; }
-
-    document.querySelectorAll("input[name=buyItem]").forEach(radio=>{
-      radio.addEventListener("change", ()=>{
-        document.querySelectorAll("#buyContent input[type=number]").forEach(i=>i.disabled=true);
-        if(radio.value==="salt") document.getElementById("qtySalt").disabled=false;
-        if(radio.value==="sugar") document.getElementById("qtySugar").disabled=false;
-        if(radio.value==="seed") document.getElementById("qtySeed").disabled=false;
-      });
-    });
-
-    // 구매
-    async function buyItem(){
-      let item=document.querySelector("input[name=buyItem]:checked");
-      if(!item){ alert("선택하세요"); return; }
-      let qty=0;
-      if(item.value==="salt") qty=document.getElementById("qtySalt").value;
-      if(item.value==="sugar") qty=document.getElementById("qtySugar").value;
-      if(item.value==="seed") qty=document.getElementById("qtySeed").value;
-
-      let res=await fetch("http://localhost:3060/api/corn/buy",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({kakaoId,item:item.value,qty:parseInt(qty)})
-      });
-      let data=await res.json();
-      if(data.success){
-        showSpeechBubble(item.value,qty);
-        loadData();
-        closeBuyModal();
-      } else alert(data.error);
-    }
-
-    function showSpeechBubble(item,qty){
-      const bubble=document.getElementById("speechBubble");
-      let icon="", label="";
-      if(item==="salt"){icon="🧂";label="소금";}
-      if(item==="sugar"){icon="🍬";label="설탕";}
-      if(item==="seed"){icon="🌽";label="씨옥수수";}
-      bubble.innerText=`${icon} ${label} ${qty}개 구매 완료`;
-      bubble.style.display="block";
-      setTimeout(()=>bubble.style.display="none",3000);
-    }
-
-    // 더미 버튼들
-    function plant(){console.log("씨앗 심기");}
-    function water(){console.log("물 주기");}
-    function fertilize(){console.log("거름 주기");}
-    async function harvest(){
-      let res=await fetch("http://localhost:3060/api/corn/harvest",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({kakaoId})
-      });
-      let data=await res.json();
-      if(data.success){ showSpeechBubble("seed",1); loadData(); }
-      else alert(data.error);
-    }
-    function puff(){console.log("뻥튀기");}
-
-    loadData();
+    window.onload = loadUserData;
   </script>
 </body>
 </html>
