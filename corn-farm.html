@@ -11,6 +11,8 @@
       font-family: Arial, sans-serif;
       color: white;
     }
+
+    /* 상단 자원 표시 바 */
     #resourceBar {
       position: fixed;
       top: 0;
@@ -21,9 +23,11 @@
       justify-content: center;
       padding: 5px;
       font-size: 14px;
+      z-index: 100;
     }
     #resourceBar span { margin: 0 8px; }
 
+    /* 캐릭터 + 닉네임 */
     #character {
       position: fixed;
       bottom: 60px;
@@ -31,30 +35,9 @@
       display: flex;
       align-items: center;
     }
-    #character img {
-      width: 50px;
-      height: 50px;
-    }
+    #character img { width: 50px; height: 50px; }
 
-    #actionBar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255,255,255,0.8);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px;
-    }
-    #actionBar button {
-      border: none;
-      background: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
+    /* 미니 옥수수 이미지 */
     #miniImage {
       position: fixed;
       bottom: 120px;
@@ -67,9 +50,89 @@
       justify-content: center;
     }
     #miniImage img { width: 80px; height: 80px; }
+
+    /* 하단 액션 바 */
+    #actionBar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255,255,255,0.8);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      z-index: 100;
+    }
+    #actionBar button {
+      border: none;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* 성장 게이지 */
+    #growthGauge {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      width: 200px;
+      height: 20px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    #growthFill {
+      height: 100%;
+      width: 0%;
+      background: limegreen;
+      transition: width 1s;
+    }
+
+    /* 구매 팝업 */
+    #popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 200;
+      box-shadow: 0 0 10px black;
+      text-align: center;
+    }
+    #popup button {
+      margin: 5px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    #popupClose {
+      background: red;
+      color: white;
+    }
+
+    /* 풍선말 */
+    #toast {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: black;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      z-index: 300;
+    }
   </style>
 </head>
 <body>
+  <!-- 상단 자원 -->
   <div id="resourceBar">
     <span>💧 물: <span id="water">0</span></span>
     <span>💩 거름: <span id="fertilizer">0</span></span>
@@ -80,41 +143,89 @@
     <span>🍿 팝콘: <span id="popcorn">0</span></span>
   </div>
 
+  <!-- 캐릭터 -->
   <div id="character">
     <img id="characterImg" src="">
     <span id="nickname">로그인 안됨</span>
   </div>
 
+  <!-- 미니 이미지 -->
   <div id="miniImage">
     <img id="cornStage" src="">
   </div>
 
+  <!-- 성장 게이지 -->
+  <div id="growthGauge"><div id="growthFill"></div></div>
+
+  <!-- 하단 액션 -->
   <div id="actionBar">
     <button>🌱 씨앗 심기</button>
     <button>💧 물 주기</button>
     <button>💩 거름 주기</button>
     <button>🌽 수확</button>
     <button>🍿 뻥튀기</button>
-    <button>🛒 구매</button>
+    <button onclick="openPopup()">🛒 구매</button>
   </div>
 
+  <!-- 구매 팝업 -->
+  <div id="popup">
+    <h3>🛒 구매하기</h3>
+    <p><button onclick="buy('salt',10)">🧂 소금 (10토큰)</button></p>
+    <p><button onclick="buy('sugar',20)">🍬 설탕 (20토큰)</button></p>
+    <p><button onclick="buy('seed',100)">🌱 씨옥수수 (100토큰)</button></p>
+    <button id="popupClose" onclick="closePopup()">닫기</button>
+  </div>
+
+  <!-- 풍선말 -->
+  <div id="toast"></div>
+
   <script>
-    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api"; // 네 서버 주소
+    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
 
     // === 이미지 매핑 ===
     function getBackground(season) {
-      return `/img/background/farm_${season}.png`; 
+      return `/img/background/farm_${season}.png`;
     }
-
     function getCornStage(stage) {
       return `/img/corn/a_corn_${stage}.png`;
     }
-
     function getCharacter(level) {
       if (level < 5) return "/img/char/a_mark_01.png";
       if (level < 10) return "/img/char/a_mark_02.png";
       if (level < 20) return "/img/char/a_mark_03.png";
       return "/img/char/a_mark_04.png";
+    }
+
+    // === 팝업 제어 ===
+    function openPopup(){ document.getElementById("popup").style.display="block"; }
+    function closePopup(){ document.getElementById("popup").style.display="none"; }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.style.display = "block";
+      setTimeout(()=> toast.style.display="none", 2000);
+    }
+
+    // === 구매 기능 ===
+    async function buy(item, cost) {
+      try {
+        const res = await fetch(`${API}/buy`, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          credentials:"include",
+          body: JSON.stringify({item, cost})
+        });
+        const data = await res.json();
+        if(res.ok){
+          showToast(`${item} 구매 완료!`);
+          loadUser();
+        } else {
+          showToast(`구매 실패: ${data.error}`);
+        }
+      } catch(err){
+        console.error(err);
+      }
     }
 
     // === 유저 정보 불러오기 ===
@@ -143,6 +254,12 @@
         if(user.season) document.body.style.backgroundImage = `url(${getBackground(user.season)})`;
         if(user.growthStage) document.getElementById("cornStage").src = getCornStage(user.growthStage);
         if(user.level) document.getElementById("characterImg").src = getCharacter(user.level);
+
+        // 성장 게이지 (예: progress / totalDays)
+        if(user.progress && user.totalDays){
+          const pct = Math.min(100, (user.progress/user.totalDays)*100);
+          document.getElementById("growthFill").style.width = pct+"%";
+        }
 
       } catch (err) {
         console.error("❌ loadUser Error", err);
