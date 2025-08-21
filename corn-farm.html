@@ -2,274 +2,60 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>🌽 옥수수 농장</title>
+  <title>Corn Farm</title>
   <style>
-    body {
-      margin: 0;
-      background-size: cover;
-      background-position: center;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
-
-    /* 상단 자원 표시 바 */
-    #resourceBar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.6);
-      display: flex;
-      justify-content: center;
-      padding: 5px;
-      font-size: 14px;
-      z-index: 100;
-    }
-    #resourceBar span { margin: 0 8px; }
-
-    /* 캐릭터 + 닉네임 */
-    #character {
-      position: fixed;
-      bottom: 60px;
-      left: 10px;
-      display: flex;
-      align-items: center;
-    }
-    #character img { width: 50px; height: 50px; }
-
-    /* 미니 옥수수 이미지 */
-    #miniImage {
-      position: fixed;
-      bottom: 120px;
-      right: 20px;
-      width: 100px;
-      height: 100px;
-      background: rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #miniImage img { width: 80px; height: 80px; }
-
-    /* 하단 액션 바 */
-    #actionBar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255,255,255,0.8);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px;
-      z-index: 100;
-    }
-    #actionBar button {
-      border: none;
-      background: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    /* 성장 게이지 */
-    #growthGauge {
-      position: fixed;
-      top: 60px;
-      right: 20px;
-      width: 200px;
-      height: 20px;
-      background: rgba(255,255,255,0.3);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    #growthFill {
-      height: 100%;
-      width: 0%;
-      background: limegreen;
-      transition: width 1s;
-    }
-
-    /* 구매 팝업 */
-    #popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      color: black;
-      padding: 20px;
-      border-radius: 10px;
-      z-index: 200;
-      box-shadow: 0 0 10px black;
-      text-align: center;
-    }
-    #popup button {
-      margin: 5px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-    }
-    #popupClose {
-      background: red;
-      color: white;
-    }
-
-    /* 풍선말 */
-    #toast {
-      display: none;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: black;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      z-index: 300;
-    }
+    body { font-family: sans-serif; }
+    #resources { margin: 20px; }
+    .stat { margin-right: 20px; }
   </style>
 </head>
 <body>
-  <!-- 상단 자원 -->
-  <div id="resourceBar">
-    <span>💧 물: <span id="water">0</span></span>
-    <span>💩 거름: <span id="fertilizer">0</span></span>
-    <span>🪙 토큰: <span id="token">0</span></span>
-    <span>🌱 씨옥수수: <span id="seed">0</span></span>
-    <span>🧂 소금: <span id="salt">0</span></span>
-    <span>🍬 설탕: <span id="sugar">0</span></span>
-    <span>🍿 팝콘: <span id="popcorn">0</span></span>
+  <h2>🌽 옥수수 농장</h2>
+  
+  <!-- 로그인 -->
+  <div>
+    <input type="text" id="username" placeholder="닉네임 입력">
+    <button onclick="login()">로그인</button>
   </div>
 
-  <!-- 캐릭터 -->
-  <div id="character">
-    <img id="characterImg" src="">
-    <span id="nickname">로그인 안됨</span>
+  <!-- 자원 표시 -->
+  <div id="resources">
+    <span class="stat">💧 물: <span id="water">0</span></span>
+    <span class="stat">💩 거름: <span id="fertilizer">0</span></span>
+    <span class="stat">🌽 옥수수: <span id="corn">0</span></span>
   </div>
-
-  <!-- 미니 이미지 -->
-  <div id="miniImage">
-    <img id="cornStage" src="">
-  </div>
-
-  <!-- 성장 게이지 -->
-  <div id="growthGauge"><div id="growthFill"></div></div>
-
-  <!-- 하단 액션 -->
-  <div id="actionBar">
-    <button>🌱 씨앗 심기</button>
-    <button>💧 물 주기</button>
-    <button>💩 거름 주기</button>
-    <button>🌽 수확</button>
-    <button>🍿 뻥튀기</button>
-    <button onclick="openPopup()">🛒 구매</button>
-  </div>
-
-  <!-- 구매 팝업 -->
-  <div id="popup">
-    <h3>🛒 구매하기</h3>
-    <p><button onclick="buy('salt',10)">🧂 소금 (10토큰)</button></p>
-    <p><button onclick="buy('sugar',20)">🍬 설탕 (20토큰)</button></p>
-    <p><button onclick="buy('seed',100)">🌱 씨옥수수 (100토큰)</button></p>
-    <button id="popupClose" onclick="closePopup()">닫기</button>
-  </div>
-
-  <!-- 풍선말 -->
-  <div id="toast"></div>
 
   <script>
-    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api";
+    const API = "https://climbing-wholly-grouper.jp.ngrok.io"; // ngrok 주소
 
-    // === 이미지 매핑 ===
-    function getBackground(season) {
-      return `/img/background/farm_${season}.png`;
-    }
-    function getCornStage(stage) {
-      return `/img/corn/a_corn_${stage}.png`;
-    }
-    function getCharacter(level) {
-      if (level < 5) return "/img/char/a_mark_01.png";
-      if (level < 10) return "/img/char/a_mark_02.png";
-      if (level < 20) return "/img/char/a_mark_03.png";
-      return "/img/char/a_mark_04.png";
-    }
+    async function login() {
+      const username = document.getElementById('username').value;
+      if (!username) return alert("닉네임을 입력하세요!");
 
-    // === 팝업 제어 ===
-    function openPopup(){ document.getElementById("popup").style.display="block"; }
-    function closePopup(){ document.getElementById("popup").style.display="none"; }
+      await fetch(`${API}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username })
+      });
 
-    function showToast(msg) {
-      const toast = document.getElementById("toast");
-      toast.innerText = msg;
-      toast.style.display = "block";
-      setTimeout(()=> toast.style.display="none", 2000);
+      loadResources(username);
     }
 
-    // === 구매 기능 ===
-    async function buy(item, cost) {
-      try {
-        const res = await fetch(`${API}/buy`, {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          credentials:"include",
-          body: JSON.stringify({item, cost})
-        });
-        const data = await res.json();
-        if(res.ok){
-          showToast(`${item} 구매 완료!`);
-          loadUser();
-        } else {
-          showToast(`구매 실패: ${data.error}`);
-        }
-      } catch(err){
-        console.error(err);
-      }
+    async function loadResources(username) {
+      const res = await fetch(`${API}/api/corn/summary/${username}`, {
+        credentials: 'include'
+      });
+      const data = await res.json();
+
+      document.getElementById("water").innerText = data.water;
+      document.getElementById("fertilizer").innerText = data.fertilizer;
+      document.getElementById("corn").innerText = data.corn;
     }
-
-    // === 유저 정보 불러오기 ===
-    async function loadUser() {
-      try {
-        const res = await fetch(`${API}/cornfarm`, { credentials: "include" });
-        if (!res.ok) {
-          document.getElementById("nickname").innerText = "❌ 로그인 안됨";
-          return;
-        }
-        const user = await res.json();
-
-        // 닉네임
-        document.getElementById("nickname").innerText = user.nickname;
-
-        // 자원 표시
-        document.getElementById("water").innerText = user.water || 0;
-        document.getElementById("fertilizer").innerText = user.fertilizer || 0;
-        document.getElementById("token").innerText = user.token || 0;
-        document.getElementById("seed").innerText = user.seed || 0;
-        document.getElementById("salt").innerText = user.salt || 0;
-        document.getElementById("sugar").innerText = user.sugar || 0;
-        document.getElementById("popcorn").innerText = user.popcorn || 0;
-
-        // 이미지 반영
-        if(user.season) document.body.style.backgroundImage = `url(${getBackground(user.season)})`;
-        if(user.growthStage) document.getElementById("cornStage").src = getCornStage(user.growthStage);
-        if(user.level) document.getElementById("characterImg").src = getCharacter(user.level);
-
-        // 성장 게이지 (예: progress / totalDays)
-        if(user.progress && user.totalDays){
-          const pct = Math.min(100, (user.progress/user.totalDays)*100);
-          document.getElementById("growthFill").style.width = pct+"%";
-        }
-
-      } catch (err) {
-        console.error("❌ loadUser Error", err);
-      }
-    }
-
-    loadUser();
   </script>
 </body>
 </html>
+
 
 
 
