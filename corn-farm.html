@@ -7,27 +7,28 @@
 </head>
 <body>
   <div id="farm-container">
-    <!-- 닉네임, 자원 표시 -->
+
+    <!-- 상태 표시줄 -->
     <div id="status-bar">
       닉네임: <span id="nickname"></span>
       씨앗 🌽: <span id="r-cornseed">0</span>
       자원 💰: <span id="resources">0</span>
     </div>
 
-    <!-- 농장 배경과 캐릭터 -->
+    <!-- 농장 배경 + 캐릭터 -->
     <div id="farm-view">
-      <img id="farm-bg" src="img/farm_01.png" alt="농장 배경">
-      <img id="corn-img" src="img/corn_idle.png" alt="Corn">
+      <img id="farm-bg" src="img/a_farm_01.png" alt="농장 배경">
+      <img id="corn-img" src="img/corn_idle.png" alt="옥수수 캐릭터">
     </div>
 
     <!-- 게이지 -->
     <div id="gauges">
-      물 💧: <progress id="g-water" max="100" value="0"></progress>
-      거름 🌱: <progress id="g-fertilizer" max="100" value="0"></progress>
-      성장 🌽: <progress id="g-growth" max="100" value="0"></progress>
+      <div>물 💧: <progress id="g-water" max="100" value="0"></progress></div>
+      <div>거름 🌱: <progress id="g-fertilizer" max="100" value="0"></progress></div>
+      <div>성장 🌽: <progress id="g-growth" max="100" value="0"></progress></div>
     </div>
 
-    <!-- 버튼 영역 -->
+    <!-- 조작 버튼 -->
     <div id="controls">
       <button id="btn-plant">씨앗 심기</button>
       <button id="btn-water">물 주기</button>
@@ -41,32 +42,42 @@
       <button id="btn-buy-seed">씨앗 구매</button>
       <button id="btn-buy-additive">첨가물 구매</button>
     </div>
+
+    <!-- 레벨 / 보상 박스 -->
+    <div id="level-box">
+      <p>레벨: <span id="level">1</span></p>
+      <p>경험치: <span id="exp">0</span></p>
+      <p>보상: <span id="reward">없음</span></p>
+    </div>
+
   </div>
 
   <script>
     const API_BASE = "/api/corn";
 
-    // 카카오 로그인 연동 확인
+    // 카카오 로그인 연동
     const kakaoId = localStorage.getItem("kakaoId");
     const nickname = localStorage.getItem("nickname");
     if (!kakaoId || !nickname) {
-      alert("로그인 후 입장 가능합니다.");
+      alert("로그인 후 이용 가능합니다.");
       window.location.href = "index9.html";
     }
 
+    // 초기 상태 불러오기
     async function fetchCornStatus() {
       try {
-        console.log("[DEBUG] kakaoId:", kakaoId);
+        console.log("[DEBUG] fetchCornStatus kakaoId:", kakaoId);
         const res = await fetch(`${API_BASE}/summary/${kakaoId}`);
-        console.log("[DEBUG] response status:", res.status);
+        console.log("[DEBUG] status:", res.status);
         const data = await res.json();
-        console.log("[DEBUG] response data:", data);
+        console.log("[DEBUG] data:", data);
         paintFromCorn(data);
       } catch (err) {
         console.error("Corn status fetch error", err);
       }
     }
 
+    // 화면 반영
     function paintFromCorn(data) {
       document.getElementById("nickname").textContent = nickname;
       document.getElementById("r-cornseed").textContent = data.seeds ?? 0;
@@ -76,23 +87,30 @@
       document.getElementById("g-fertilizer").value = data.fertilizer ?? 0;
       document.getElementById("g-growth").value = data.growth ?? 0;
 
+      document.getElementById("level").textContent = data.level ?? 1;
+      document.getElementById("exp").textContent = data.exp ?? 0;
+      document.getElementById("reward").textContent = data.reward ?? "없음";
+
       if (data.image) {
         document.getElementById("corn-img").src = `img/${data.image}`;
       }
     }
 
+    // 공통 액션 호출
     async function callAction(action) {
       try {
+        console.log("[DEBUG] callAction:", action);
         const res = await fetch(`${API_BASE}/${action}/${kakaoId}`, { method: "POST" });
-        console.log(`[DEBUG] action: ${action}, response status:`, res.status);
+        console.log("[DEBUG] response status:", res.status);
         const data = await res.json();
-        console.log(`[DEBUG] action: ${action}, response data:`, data);
+        console.log("[DEBUG] response data:", data);
         paintFromCorn(data);
       } catch (err) {
         console.error("Corn action error", action, err);
       }
     }
 
+    // 버튼 이벤트
     document.getElementById("btn-plant").onclick = () => callAction("plant");
     document.getElementById("btn-water").onclick = () => callAction("water");
     document.getElementById("btn-fertilizer").onclick = () => callAction("fertilizer");
@@ -102,12 +120,11 @@
     document.getElementById("btn-buy-seed").onclick = () => callAction("buy-seed");
     document.getElementById("btn-buy-additive").onclick = () => callAction("buy-additive");
 
-    // 최초 로딩
+    // 최초 실행
     fetchCornStatus();
   </script>
 </body>
 </html>
-
 
 
 
