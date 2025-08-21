@@ -2,27 +2,81 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>Corn Farm</title>
+  <title>옥수수 농장</title>
   <style>
-    body { font-family: sans-serif; }
-    #resources { margin: 20px; }
-    .stat { margin-right: 20px; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: url("farm_bg.png") no-repeat center center fixed; /* 배경 */
+      background-size: cover;
+      font-family: sans-serif;
+    }
+
+    #topbar {
+      background: rgba(255,255,255,0.8);
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #resources span {
+      margin-right: 20px;
+      font-size: 18px;
+    }
+
+    #farm {
+      display: grid;
+      grid-template-columns: repeat(5, 100px);
+      grid-gap: 10px;
+      padding: 20px;
+    }
+
+    .plot {
+      width: 100px;
+      height: 100px;
+      background: url("soil.png") center/cover;
+      border: 2px solid #444;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+    }
+
+    .plot img {
+      width: 80px;
+      height: 80px;
+    }
   </style>
 </head>
 <body>
-  <h2>🌽 옥수수 농장</h2>
-  
-  <!-- 로그인 -->
-  <div>
-    <input type="text" id="username" placeholder="닉네임 입력">
-    <button onclick="login()">로그인</button>
+  <!-- 상단바 -->
+  <div id="topbar">
+    <div>
+      <input type="text" id="username" placeholder="닉네임 입력">
+      <button onclick="login()">로그인</button>
+    </div>
+    <div id="resources">
+      <span>💧 물: <span id="water">0</span></span>
+      <span>💩 거름: <span id="fertilizer">0</span></span>
+      <span>🌽 옥수수: <span id="corn">0</span></span>
+    </div>
   </div>
 
-  <!-- 자원 표시 -->
-  <div id="resources">
-    <span class="stat">💧 물: <span id="water">0</span></span>
-    <span class="stat">💩 거름: <span id="fertilizer">0</span></span>
-    <span class="stat">🌽 옥수수: <span id="corn">0</span></span>
+  <!-- 밭 -->
+  <div id="farm">
+    <div class="plot"><img src="seed.png" alt=""></div>
+    <div class="plot"></div>
+    <div class="plot"></div>
+    <div class="plot"></div>
+    <div class="plot"></div>
+    <div class="plot"></div>
+    <div class="plot"></div>
+    <div class="plot"></div>
+    <div class="plot"></div>
+    <div class="plot"></div>
   </div>
 
   <script>
@@ -55,6 +109,7 @@
   </script>
 </body>
 </html>
+
 
 
 
