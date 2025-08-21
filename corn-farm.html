@@ -55,8 +55,11 @@
 
     async function fetchCornStatus() {
       try {
-        const res = await fetch(`${API_BASE}/status/${kakaoId}`);
+        console.log("[DEBUG] kakaoId:", kakaoId);
+        const res = await fetch(`${API_BASE}/summary/${kakaoId}`);
+        console.log("[DEBUG] response status:", res.status);
         const data = await res.json();
+        console.log("[DEBUG] response data:", data);
         paintFromCorn(data);
       } catch (err) {
         console.error("Corn status fetch error", err);
@@ -80,7 +83,9 @@
     async function callAction(action) {
       try {
         const res = await fetch(`${API_BASE}/${action}/${kakaoId}`, { method: "POST" });
+        console.log(`[DEBUG] action: ${action}, response status:`, res.status);
         const data = await res.json();
+        console.log(`[DEBUG] action: ${action}, response data:`, data);
         paintFromCorn(data);
       } catch (err) {
         console.error("Corn action error", action, err);
