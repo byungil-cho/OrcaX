@@ -81,12 +81,12 @@
   </div>
 
   <div id="character">
-    <img src="https://cdn-icons-png.flaticon.com/512/1995/1995574.png">
+    <img id="characterImg" src="">
     <span id="nickname">로그인 안됨</span>
   </div>
 
   <div id="miniImage">
-    <img id="cornStage" src="https://cdn-icons-png.flaticon.com/512/590/590685.png">
+    <img id="cornStage" src="">
   </div>
 
   <div id="actionBar">
@@ -99,31 +99,54 @@
   </div>
 
   <script>
-    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api"; // ngrok 주소
-    const nickname = "testUser"; // 로그인 연동시 교체
+    const API = "https://climbing-wholly-grouper.jp.ngrok.io/api"; // 네 서버 주소
 
+    // === 이미지 매핑 ===
+    function getBackground(season) {
+      return `/img/background/farm_${season}.png`; 
+    }
+
+    function getCornStage(stage) {
+      return `/img/corn/a_corn_${stage}.png`;
+    }
+
+    function getCharacter(level) {
+      if (level < 5) return "/img/char/a_mark_01.png";
+      if (level < 10) return "/img/char/a_mark_02.png";
+      if (level < 20) return "/img/char/a_mark_03.png";
+      return "/img/char/a_mark_04.png";
+    }
+
+    // === 유저 정보 불러오기 ===
     async function loadUser() {
-      const res = await fetch(`${API}/userdata?nickname=${nickname}`);
-      if (!res.ok) {
-        document.getElementById("nickname").innerText = "❌ 유저 없음";
-        return;
+      try {
+        const res = await fetch(`${API}/cornfarm`, { credentials: "include" });
+        if (!res.ok) {
+          document.getElementById("nickname").innerText = "❌ 로그인 안됨";
+          return;
+        }
+        const user = await res.json();
+
+        // 닉네임
+        document.getElementById("nickname").innerText = user.nickname;
+
+        // 자원 표시
+        document.getElementById("water").innerText = user.water || 0;
+        document.getElementById("fertilizer").innerText = user.fertilizer || 0;
+        document.getElementById("token").innerText = user.token || 0;
+        document.getElementById("seed").innerText = user.seed || 0;
+        document.getElementById("salt").innerText = user.salt || 0;
+        document.getElementById("sugar").innerText = user.sugar || 0;
+        document.getElementById("popcorn").innerText = user.popcorn || 0;
+
+        // 이미지 반영
+        if(user.season) document.body.style.backgroundImage = `url(${getBackground(user.season)})`;
+        if(user.growthStage) document.getElementById("cornStage").src = getCornStage(user.growthStage);
+        if(user.level) document.getElementById("characterImg").src = getCharacter(user.level);
+
+      } catch (err) {
+        console.error("❌ loadUser Error", err);
       }
-      const user = await res.json();
-      document.getElementById("nickname").innerText = user.nickname;
-
-      document.getElementById("water").innerText = user.water;
-      document.getElementById("fertilizer").innerText = user.fertilizer;
-      document.getElementById("token").innerText = user.token;
-      document.getElementById("seed").innerText = user.seed;
-      document.getElementById("salt").innerText = user.salt;
-      document.getElementById("sugar").innerText = user.sugar;
-      document.getElementById("popcorn").innerText = user.popcorn;
-
-      // 배경 이미지 계절 교체
-      document.body.style.backgroundImage = `url('/img/background/${user.season}.png')`;
-
-      // 미니 이미지 (성장단계 교체)
-      document.getElementById("cornStage").src = `/img/corn/${user.growthStage}.png`;
     }
 
     loadUser();
