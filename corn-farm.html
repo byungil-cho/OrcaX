@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>옥수수 농장</title>
-  <link rel="stylesheet" href="farm-style.css" />
+  <link rel="stylesheet" href="farm-style.css">
 </head>
 <body>
   <div id="farm-container">
-    <!-- 상단 상태 영역 -->
+    <!-- 닉네임, 자원 표시 -->
     <div id="status-bar">
-      <span>닉네임: <span id="nickname"></span></span>
-      <span>씨앗 🌽: <span id="r-cornseed">0</span></span>
-      <span>자원 💰: <span id="resources">0</span></span>
+      닉네임: <span id="nickname"></span>
+      씨앗 🌽: <span id="r-cornseed">0</span>
+      자원 💰: <span id="resources">0</span>
     </div>
 
-    <!-- 농장 이미지 영역 -->
+    <!-- 농장 배경과 캐릭터 -->
     <div id="farm-view">
-      <img id="corn-img" src="img/corn_idle.png" alt="Corn" />
+      <img id="farm-bg" src="img/farm_01.png" alt="농장 배경">
+      <img id="corn-img" src="img/corn_idle.png" alt="Corn">
     </div>
 
     <!-- 게이지 -->
     <div id="gauges">
-      <div>물 💧: <progress id="g-water" max="100" value="0"></progress></div>
-      <div>거름 🌱: <progress id="g-fertilizer" max="100" value="0"></progress></div>
-      <div>성장 🌽: <progress id="g-growth" max="100" value="0"></progress></div>
+      물 💧: <progress id="g-water" max="100" value="0"></progress>
+      거름 🌱: <progress id="g-fertilizer" max="100" value="0"></progress>
+      성장 🌽: <progress id="g-growth" max="100" value="0"></progress>
     </div>
 
     <!-- 버튼 영역 -->
@@ -43,10 +44,9 @@
   </div>
 
   <script>
-    // API 서버 주소 고정 (ngrok/render 혼용 제거)
     const API_BASE = "/api/corn";
 
-    // 로그인 연동 확인
+    // 카카오 로그인 연동 확인
     const kakaoId = localStorage.getItem("kakaoId");
     const nickname = localStorage.getItem("nickname");
     if (!kakaoId || !nickname) {
@@ -107,6 +107,7 @@
   </script>
 </body>
 </html>
+
 
 
 
