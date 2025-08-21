@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>옥수수 농장</title>
   <style>
     body {
@@ -9,88 +9,166 @@
       font-family: sans-serif;
       background: url("img/farm_winter.png") no-repeat center center fixed;
       background-size: cover;
+      color: white;
     }
-    .top-bar {
+    #resource-bar {
       position: fixed;
       top: 0;
+      left: 0;
       width: 100%;
       background: rgba(0,0,0,0.5);
-      color: #fff;
-      display: flex;
-      justify-content: space-around;
       padding: 8px;
-      font-size: 14px;
-    }
-    .bottom-bar {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: rgba(255,255,255,0.8);
       display: flex;
       justify-content: space-around;
-      padding: 10px;
+      font-size: 14px;
+      z-index: 100;
     }
-    .profile {
+    #character {
       position: fixed;
       bottom: 80px;
       left: 10px;
       display: flex;
       align-items: center;
+      gap: 10px;
     }
-    .profile img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-    }
-    .nickname {
-      margin-left: 10px;
+    #actions {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
       background: rgba(255,255,255,0.7);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+    }
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 200;
+    }
+    #popup button {
+      width: 100%;
+    }
+    .tooltip {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: black;
+      color: white;
       padding: 5px 10px;
-      border-radius: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <!-- 상단 자원바 -->
-  <div class="top-bar" id="resource-bar">
-    💧물: 0 | 💩거름: 0 | 🪙토큰: 0 | 🌱씨옥수수: 0 | 🧂소금: 0 | 🍭설탕: 0 | 🍿팝콘: 0
+  <!-- 자원바 -->
+  <div id="resource-bar">
+    <span>💧 물: <span id="water">0</span></span>
+    <span>💩 거름: <span id="fertilizer">0</span></span>
+    <span>🪙 토큰: <span id="tokens">0</span></span>
+    <span>🌱 씨옥수수: <span id="seed">0</span></span>
+    <span>🧂 소금: <span id="salt">0</span></span>
+    <span>🍬 설탕: <span id="sugar">0</span></span>
+    <span>🍿 팝콘: <span id="popcorn">0</span></span>
   </div>
 
-  <!-- 좌측하단 프로필 -->
-  <div class="profile">
-    <img src="img/character_lv1.png" alt="캐릭터">
-    <div class="nickname" id="nickname">로그인 안됨</div>
+  <!-- 캐릭터 -->
+  <div id="character">
+    <img src="img/char_lv1.png" alt="캐릭터" width="60" />
+    <div>
+      <div id="nickname">로그인 안됨</div>
+      <div id="level">Lv.1</div>
+    </div>
   </div>
 
-  <!-- 하단 버튼바 -->
-  <div class="bottom-bar">
-    <button>🌱 씨앗 심기</button>
-    <button>💧 물 주기</button>
-    <button>💩 거름 주기</button>
-    <button>🌽 수확</button>
-    <button>🍿 뻥튀기</button>
-    <button>🛒 구매</button>
+  <!-- 액션 버튼 -->
+  <div id="actions">
+    <button onclick="plantSeed()">🌱 씨앗 심기</button>
+    <button onclick="water()">💧 물 주기</button>
+    <button onclick="fertilize()">💩 거름 주기</button>
+    <button onclick="harvest()">🌽 수확</button>
+    <button onclick="popcorn()">🍿 뻥튀기</button>
+    <button onclick="openPopup()">🛒 구매</button>
+  </div>
+
+  <!-- 구매 팝업 -->
+  <div id="popup">
+    <h3>구매하기</h3>
+    <button onclick="buy('salt',10)">🧂 소금 (10 토큰)</button>
+    <button onclick="buy('sugar',20)">🍬 설탕 (20 토큰)</button>
+    <button onclick="buy('seed',100)">🌱 씨옥수수 (100 토큰)</button>
+    <button onclick="closePopup()">닫기</button>
   </div>
 
   <script>
+    const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+    let userId = "testUser"; // TODO: 카카오 로그인 연동 시 바꿔주면 됨
+
     async function loadUserData() {
       try {
-        const res = await fetch("/api/userData?userId=testUser"); // 로그인 후 userId 동적 연결
+        const res = await fetch(`${API_BASE}/api/userData?userId=${userId}`);
         const data = await res.json();
-
-        document.getElementById("nickname").textContent = data.nickname;
-
-        document.getElementById("resource-bar").textContent =
-          `💧물: ${data.resources.water} | 💩거름: ${data.resources.fertilizer} | 🪙토큰: ${data.resources.token} | 🌱씨옥수수: ${data.resources.cornSeed} | 🧂소금: ${data.resources.salt} | 🍭설탕: ${data.resources.sugar} | 🍿팝콘: ${data.resources.popcorn}`;
+        document.getElementById("nickname").textContent = data.nickname || "손님";
+        document.getElementById("level").textContent = "Lv." + (data.level || 1);
+        document.getElementById("water").textContent = data.water || 0;
+        document.getElementById("fertilizer").textContent = data.fertilizer || 0;
+        document.getElementById("tokens").textContent = data.tokens || 0;
+        document.getElementById("seed").textContent = data.seed || 0;
+        document.getElementById("salt").textContent = data.salt || 0;
+        document.getElementById("sugar").textContent = data.sugar || 0;
+        document.getElementById("popcorn").textContent = data.popcorn || 0;
       } catch (err) {
-        console.error("자원 불러오기 실패:", err);
+        console.error("데이터 불러오기 실패", err);
       }
     }
+
+    async function callAPI(action, body={}) {
+      try {
+        await fetch(`${API_BASE}/api/${action}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, ...body })
+        });
+        await loadUserData();
+      } catch (err) {
+        console.error(`${action} 실패`, err);
+      }
+    }
+
+    function plantSeed() { callAPI("plantSeed"); }
+    function water() { callAPI("water"); }
+    function fertilize() { callAPI("fertilize"); }
+    function harvest() { callAPI("harvest"); }
+    function popcorn() { callAPI("popcorn"); }
+    function buy(item, cost) { callAPI("buy", { item, cost }); closePopup(); }
+
+    function openPopup() { document.getElementById("popup").style.display = "flex"; }
+    function closePopup() { document.getElementById("popup").style.display = "none"; }
 
     window.onload = loadUserData;
   </script>
 </body>
 </html>
+
 
 
 
