@@ -1,125 +1,60 @@
-// corn-farm.js
-const farmBackground = document.getElementById("farmBackground");
-const cornStageImg = document.getElementById("cornStage");
-const statusText = document.getElementById("status-text");
-const progressBar = document.getElementById("progress-bar");
-const cornIcon = document.getElementById("corn-icon");
-const nicknameEl = document.getElementById("nickname");
+'use strict';
 
-// 닉네임 (카카오 로그인 기반)
-const nickname = localStorage.getItem("nickname") || "로그인 필요";
-nicknameEl.textContent = nickname;
-
-/* ===== 상태 표시 ===== */
-function setNet(ok, msg){
-  const d=document.getElementById('netDot'),
-        t=document.getElementById('netTxt'),
-        s=document.getElementById('serverStatus');
+/* ===== 서버 상태 불빛 표시 ===== */
+function setNet(ok){
+  const d=document.getElementById('netDot');
   if(d) d.classList.toggle('ok', !!ok);
-  if(t) t.textContent = ok ? (msg||'온라인') : (msg||'오프라인');
-  if(s) s.textContent = ok ? '🟢 서버 연결됨' : '🔴 서버 끊김';
-};
-// 농장 상태
-let farm = {
-  planted: false,
-  growth: 0,
-  days: 0,
-  seedColor: localStorage.getItem("seedColor") || "yellow"
-};
-
-// 배경 매핑 (farm_XX.png)
-const farmStages = {
-  0: "img/farm_01.png", // 입구/휴농
-  1: "img/farm_03.png", // 1일차
-  2: "img/farm_05.png", // 2일차
-  3: "img/farm_07.png", // 3일차
-  4: "img/farm_09.png", // 4일차
-  5: "img/farm_10.png", // 5일차
-  fail: "img/farm_12.png" // 폐농
-};
-
-// 옥수수 성장 이미지 (a_corn_xx_xx.png)
-function getCornStage(days, growth) {
-  if (!farm.planted) return "img/a_corn_06_01.png"; // 씨앗 전
-  if (growth < 20) return "img/a_corn_06_01.png"; // 씨앗
-  if (growth < 40) return "img/a_corn_06_03.png"; // 새싹
-  if (growth < 60) return "img/a_corn_06_05.png"; // 중간 성장
-  if (growth < 80) return "img/a_corn_06_07.png"; // 거의 다 자람
-  return "img/a_corn_06_09.png"; // 수확 직전
 }
 
-// UI 업데이트
-function updateUI() {
-  progressBar.style.width = `${farm.growth}%`;
-  cornStageImg.src = getCornStage(farm.days, farm.growth);
+/* ===== 자원 및 상태 업데이트 ===== */
+function updateResources(data){
+  document.getElementById('r-seeds').textContent = data.seeds ?? 0;
+  document.getElementById('r-water').textContent = data.water ?? 0;
+  document.getElementById('r-fert').textContent = data.fertilizer ?? 0;
+  document.getElementById('r-corn').textContent = data.corn ?? 0;
+  document.getElementById('r-pop').textContent = data.popcorn ?? 0;
+  document.getElementById('r-salt').textContent = data.salt ?? 0;
+  document.getElementById('r-sugar').textContent = data.sugar ?? 0;
+  document.getElementById('r-orcx').textContent = data.token ?? 0;
+}
 
-  if (!farm.planted) {
-    statusText.textContent = "아직 씨앗을 심지 않았습니다.";
-    farmBackground.style.backgroundImage = `url(${farmStages[0]})`;
-  } else if (farm.growth < 100) {
-    statusText.textContent = `성장 중... (${farm.growth}% 진행됨, ${farm.days}일 경과)`;
-    farmBackground.style.backgroundImage = `url(${farmStages[farm.days] || farmStages[fail]})`;
-  } else {
-    statusText.textContent = `수확 가능! (${farm.days}일 농사)`;
-    farmBackground.style.backgroundImage = `url(${farmStages[farm.days] || farmStages[5]})`;
+/* ===== 토스트 메시지 ===== */
+function showToast(msg){
+  const t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+/* ===== 농장 상태 불러오기 ===== */
+async function loadFarm(){
+  try{
+    const res=await fetch('/api/farm/status'); // 실제 API 엔드포인트로 교체 필요
+    if(!res.ok) throw new Error('서버 오류');
+    const data=await res.json();
+    setNet(true);
+    updateResources(data);
+    document.getElementById('nick').textContent=data.nickname || '(알 수 없음)';
+  }catch(e){
+    setNet(false);
+    console.error(e);
   }
-
-  // 씨앗 색상 반영
-  const seedIcons = {
-    yellow: "img/corn-yellow.png",
-    red: "img/corn-red.png",
-    black: "img/corn-black.png"
-  };
-  cornIcon.src = seedIcons[farm.seedColor];
 }
 
-// 이벤트: 씨앗 심기
-document.getElementById("btn-plant").onclick = () => {
-  farm.planted = true;
-  farm.growth = 0;
-  farm.days = 0;
-  farm.seedColor = "yellow"; // 기본 자기자본
-  localStorage.setItem("seedColor", farm.seedColor);
-  updateUI();
-};
+/* ===== 버튼 이벤트 ===== */
+function bindEvents(){
+  document.getElementById('btn-plant').onclick=()=>showToast('씨앗 심기!');
+  document.getElementById('btn-water').onclick=()=>showToast('물 주기!');
+  document.getElementById('btn-fert').onclick=()=>showToast('거름 주기!');
+  document.getElementById('btn-harv').onclick=()=>showToast('수확!');
+  document.getElementById('btn-pop').onclick=()=>showToast('뻥튀기!');
+  document.getElementById('btn-ex').onclick=()=>showToast('팝콘↔거름 교환!');
+}
 
-// 이벤트: 물 주기
-document.getElementById("btn-water").onclick = () => {
-  if (!farm.planted) return alert("먼저 씨앗을 심으세요!");
-  farm.growth = Math.min(100, farm.growth + 10);
-  farm.days++;
-  updateUI();
-};
-
-// 이벤트: 거름 주기
-document.getElementById("btn-fertilize").onclick = () => {
-  if (!farm.planted) return alert("먼저 씨앗을 심으세요!");
-  farm.growth = Math.min(100, farm.growth + 15);
-  farm.days++;
-  updateUI();
-};
-
-// 이벤트: 수확
-document.getElementById("btn-harvest").onclick = () => {
-  if (farm.growth < 100) return alert("아직 다 자라지 않았습니다!");
-
-  let grade = "F";
-  if (farm.days === 5) grade = "A";
-  else if (farm.days === 6) grade = "B";
-  else if (farm.days === 7) grade = "C";
-  else if (farm.days === 8) grade = "D";
-  else if (farm.days === 9) grade = "E";
-
-  alert(`${grade} 등급 옥수수를 수확했습니다!`);
-
-  farm = { planted: false, growth: 0, days: 0, seedColor: farm.seedColor };
-  updateUI();
-};
-
-// 이벤트: 팝콘 튀기기
-document.getElementById("btn-popcorn").onclick = () => {
-  alert("옥수수를 팝콘으로 튀겼습니다!");
-};
-
-updateUI();
-
+/* ===== 초기 실행 ===== */
+document.addEventListener('DOMContentLoaded',()=>{
+  bindEvents();
+  loadFarm();
+  setInterval(loadFarm,10000); // 10초마다 상태 갱신
+});
