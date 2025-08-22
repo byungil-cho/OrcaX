@@ -10,6 +10,15 @@ const nicknameEl = document.getElementById("nickname");
 const nickname = localStorage.getItem("nickname") || "로그인 필요";
 nicknameEl.textContent = nickname;
 
+/* ===== 상태 표시 ===== */
+function setNet(ok, msg){
+  const d=document.getElementById('netDot'),
+        t=document.getElementById('netTxt'),
+        s=document.getElementById('serverStatus');
+  if(d) d.classList.toggle('ok', !!ok);
+  if(t) t.textContent = ok ? (msg||'온라인') : (msg||'오프라인');
+  if(s) s.textContent = ok ? '🟢 서버 연결됨' : '🔴 서버 끊김';
+};
 // 농장 상태
 let farm = {
   planted: false,
@@ -113,3 +122,4 @@ document.getElementById("btn-popcorn").onclick = () => {
 };
 
 updateUI();
+
