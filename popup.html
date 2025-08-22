@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>옥수수 뻥튀기 결과 - OrcaX</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <style>
+    body {
+      background: url("img/popup-bg.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .popup-box {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 2rem;
+      border-radius: 15px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    .popup-box h2 {
+      margin-bottom: 1rem;
+    }
+    .result {
+      font-size: 1.4rem;
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+    }
+    .btns {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <div class="popup-box">
+    <h2>🍿 뻥튀기 결과</h2>
+    <p>닉네임: <strong id="nickname">-</strong></p>
+    <div class="result" id="resultBox">결과 대기 중...</div>
+
+    <div class="btns">
+      <a href="corn-farm.html" role="button">농장으로</a>
+      <button id="retryBtn">다시 뻥튀기</button>
+    </div>
+  </div>
+
+  <script src="js/popup.js"></script>
+</body>
+</html>

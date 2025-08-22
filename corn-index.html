@@ -1,201 +1,85 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>옥수수 농장 메인</title>
-  <style>
-    html,body{height:100%;margin:0;background:#000;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;overflow:hidden}
-    /* 배경은 그대로(절대경로) */
-    .wrap{position:fixed;inset:0;background:url('https://byungil-cho.github.io/OrcaX/img/farm_00.png') center/cover no-repeat;}
-    .hud{position:fixed;left:12px;top:12px;z-index:20;color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:10px 12px;backdrop-filter:blur(6px);max-width:min(92vw,620px)}
-    .nick{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:6px}
-    .status{width:8px;height:8px;border-radius:999px;background:#e23}
-    .online .status{background:#3ecf8e}
-    .lvl{display:flex;align-items:center;gap:6px}
-    .lvl img{width:24px;height:24px;border-radius:999px;display:block}
-    .res{display:flex;flex-wrap:wrap;gap:8px}
-    .tag{font-size:12px;line-height:1;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
-    .tag b{font-weight:700}
-    .actions{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-    .btn{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);color:#fff;cursor:pointer}
-    .diag{font-size:11px;opacity:.85;margin-left:auto}
-    .scrollbox{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:min(40vw,260px);height:min(60vh,460px);border-radius:14px;background:transparent;border:1px solid rgba(255,255,255,.25);box-shadow:0 20px 40px rgba(0,0,0,.45);overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    .scrollbox::-webkit-scrollbar{display:none}
-    .spacer{height:85vh}
-    .link{display:block;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.25);box-shadow:0 8px 24px rgba(0,0,0,.35)}
-    .link img{width:100%;height:100%;object-fit:cover;display:block}
-    .caption{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);padding:8px 12px;border-radius:999px;font-size:14px;z-index:10;pointer-events:none}
-  </style>
-  <!-- 필요시 유지: <link rel="manifest" href="https://byungil-cho.github.io/OrcaX/manifest.webmanifest" /> -->
-</head>
-<body>
-  <div class="wrap">
-    <div class="hud" id="hudRoot">
-      <div class="nick" id="hudNick">
-        <span class="status"></span>
-        <span id="nickText">(로그인 확인 중)</span>
-        <span class="lvl" id="lvlWrap" style="display:none">
-          <img id="lvlIcon" src="https://byungil-cho.github.io/OrcaX/img/mark_01.png" alt="레벨 아이콘" />
-          <span id="lvlText">Lv.1</span>
-        </span>
-      </div>
-      <div class="res">
-        <span class="tag">💧 물 <b id="r-water">0</b></span>
-        <span class="tag">🪴 거름 <b id="r-fert">0</b></span>
-        <span class="tag">🌽 옥수수 <b id="r-corn">0</b></span>
-        <span class="tag">🍿 팝콘 <b id="r-pop">0</b></span>
-        <span class="tag">🧂 소금 <b id="r-salt">0</b></span>
-        <span class="tag">🍬 설탕 <b id="r-sugar">0</b></span>
-        <span class="tag">🪙 토큰 <b id="r-orcx">0</b></span>
-      </div>
-      <div class="actions">
-        <button class="btn" id="btnRefresh">새로고침</button>
-        <a class="btn" href="https://byungil-cho.github.io/OrcaX/index9.html">감자 농장 가기</a>
-        <span class="diag" id="diag">API 확인 중…</span>
-      </div>
-    </div>
-
-    <div class="scrollbox" aria-label="농장 입구 썸네일">
-      <div class="spacer"></div>
-      <a class="link" href="https://byungil-cho.github.io/OrcaX/corn-farm.html" title="내 옥수수 농장으로">
-        <img id="farmThumb" src="https://byungil-cho.github.io/OrcaX/img/farm_01.png" alt="계절 썸네일" />
-      </a>
-      <div class="spacer"></div>
-    </div>
-
-    <div class="caption">박스 안에서 위/아래 스크롤 · 이미지를 누르면 농장으로 이동</div>
-  </div>
-
-  <script>
-  'use strict';
-  var ORIGIN = 'https://byungil-cho.github.io/OrcaX';
-  var BASE_API = (localStorage.getItem('orcax:BASE_API') || 'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
-  var URL_USERDATA = BASE_API + '/api/userdata';
-
-  var diagEl   = document.getElementById('diag');
-  var hudNick  = document.getElementById('hudNick');
-  var nickText = document.getElementById('nickText');
-  var lvlWrap  = document.getElementById('lvlWrap');
-  var lvlIcon  = document.getElementById('lvlIcon');
-  var lvlText  = document.getElementById('lvlText');
-  var resEl = {
-    water: document.getElementById('r-water'),
-    fert : document.getElementById('r-fert'),
-    corn : document.getElementById('r-corn'),
-    pop  : document.getElementById('r-pop'),
-    salt : document.getElementById('r-salt'),
-    sugar: document.getElementById('r-sugar'),
-    orcx : document.getElementById('r-orcx')
-  };
-  var thumbEl = document.getElementById('farmThumb');
-
-  function setOnline(on){ hudNick.classList.toggle('online', !!on); }
-  function setNick(name){ nickText.textContent = name || '(로그인 필요)'; }
-  function setRes(x){
-    resEl.water.textContent = (x.water != null ? x.water : 0);
-    resEl.fert .textContent = (x.fertilizer != null ? x.fertilizer : 0);
-    resEl.corn .textContent = (x.corn != null ? x.corn : 0);
-    resEl.pop  .textContent = (x.popcorn != null ? x.popcorn : 0);
-    resEl.salt .textContent = (x.salt != null ? x.salt : 0);
-    resEl.sugar.textContent = (x.sugar != null ? x.sugar : 0);
-    resEl.orcx .textContent = (x.orcx != null ? x.orcx : 0);
-  }
-  function markPathByLevel(lv){
-    if(lv >= 10) return ORIGIN + '/img/mark_10.png';
-    var n = Math.max(1, Math.min(9, Math.floor(lv || 1)));
-    return ORIGIN + '/img/mark_0' + n + '.png';
-  }
-  function showLevel(lv){
-    if(!lv || lv<1){ lvlWrap.style.display='none'; return; }
-    lvlIcon.src = markPathByLevel(lv);
-    lvlText.textContent = 'Lv.' + lv;
-    lvlWrap.style.display = 'inline-flex';
-  }
-
-  var THUMBS = {
-    winter     : ORIGIN + '/img/farm_01.png',
-    lateWinter : ORIGIN + '/img/farm_03.png',
-    spring     : ORIGIN + '/img/farm_05.png',
-    summer     : ORIGIN + '/img/farm_07.png',
-    lateSummer : ORIGIN + '/img/farm_09.png',
-    autumn     : ORIGIN + '/img/farm_10.png',
-    deepWinter : ORIGIN + '/img/farm_12.png'
-  };
-  function applySeasonThumb(){
-    var key = localStorage.getItem('farmSeason');
-    if(key && THUMBS[key]) thumbEl.src = THUMBS[key];
-  }
-
-  async function loadUserData(){
-    var kakaoId  = localStorage.getItem('kakaoId');
-    var nickname = localStorage.getItem('nickname') || localStorage.getItem('kakaoNickname');
-    setNick(nickname);
-    diagEl.textContent = 'POST ' + URL_USERDATA;
-
-    if(!kakaoId || !nickname){
-      setOnline(false);
-      diagEl.textContent = '로그인 정보(kakaoId/nickname) 없음';
-      alert('로그인이 필요합니다. 감자 농장으로 이동합니다.');
-      window.location.href = 'https://byungil-cho.github.io/OrcaX/index9.html';
-      return;
-    }
-
-    try{
-      var r = await fetch(URL_USERDATA, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kakaoId: kakaoId }),
-        mode: 'cors',
-        cache: 'no-store'
-      });
-      if(!r.ok){
-        setOnline(false);
-        diagEl.textContent = '오류: HTTP ' + r.status + ' (' + r.statusText + ')';
-        throw new Error('HTTP ' + r.status);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>옥수수 농장 입구 - OrcaX</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+    <style>
+      body {
+        background: url('img/corn-dashboard.jpg') no-repeat center center fixed;
+        background-size: cover;
+        color: white;
       }
-      var data = await r.json();
-      var user = data && data.user;
-      if(!user){
-        setOnline(false);
-        diagEl.textContent = '오류: user 필드 없음';
-        alert('유저 정보를 찾을 수 없습니다.');
-        return;
+      .overlay {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-top: 2rem;
       }
-      setOnline(true);
-      diagEl.textContent = '연결됨 ✓';
+      .mini-farm {
+        border: 2px solid #fff;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .badge {
+        background-color: #444;
+        border-radius: 5px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+      }
+      .grid-resources {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="container-fluid">
+      <ul>
+        <li><strong>🌽 OrcaX Corn Dashboard</strong></li>
+      </ul>
+      <ul>
+        <li><a href="index9.html">홈</a></li>
+        <li><a href="mypage.html">마이페이지</a></li>
+        <li><a href="#">로그아웃</a></li>
+      </ul>
+    </nav>
 
-      setRes({
-        orcx: (user.orcx != null ? user.orcx : (user.wallet && user.wallet.orcx)),
-        water: user.inventory && user.inventory.water,
-        fertilizer: user.inventory && user.inventory.fertilizer,
-        corn: user.agri && user.agri.corn,
-        popcorn: user.food && user.food.popcorn,
-        salt: user.additives && user.additives.salt,
-        sugar: user.additives && user.additives.sugar
-      });
+    <main class="container">
+      <div class="overlay">
+        <hgroup>
+          <h2>옥수수 농장</h2>
+          <h3>현재 보유 자원</h3>
+        </hgroup>
 
-      var level = Number(user.level != null ? user.level :
-                         (user.profile && user.profile.level) ||
-                         localStorage.getItem('orcax:level') || 0);
-      showLevel(level);
+        <div class="grid-resources">
+          <span class="badge">🌊 물: <span id="water">-</span></span>
+          <span class="badge">🌱 거름: <span id="fertilizer">-</span></span>
+          <span class="badge">🌽 옥수수: <span id="corn">-</span></span>
+          <span class="badge">🍿 팝콘: <span id="popcorn">-</span></span>
+          <span class="badge">🧂 소금: <span id="salt">-</span></span>
+          <span class="badge">🍬 설탕: <span id="sugar">-</span></span>
+          <span class="badge">🪙 토큰: <span id="token">-</span></span>
+        </div>
 
-      // 데이터 성공 후 썸네일 적용
-      applySeasonThumb();
-    }catch(e){
-      setOnline(false);
-      alert('서버 연결 실패 또는 CORS 문제입니다. Network 탭에서 /api/userdata 상태를 확인하세요.');
-      console.warn('userdata error:', e);
-    }
-  }
+        <h3>농장 입장</h3>
+        <figure class="mini-farm">
+          <a href="corn-farm.html">
+            <img src="img/corn-preview.jpg" alt="미니 옥수수 농장 미리보기" />
+          </a>
+          <figcaption style="text-align:center">클릭 시 실제 농장으로 이동합니다</figcaption>
+        </figure>
+      </div>
+    </main>
 
-  window.onload = loadUserData;
-  document.getElementById('btnRefresh').addEventListener('click', loadUserData);
-  // 서비스워커는 잠시 비활성화 (간섭 방지)
-  // if('serviceWorker' in navigator){
-  //   window.addEventListener('load', function(){ navigator.serviceWorker.register(ORIGIN + '/service-worker.js'); });
-  // }
-</script>
+    <footer class="container">
+      <small><a href="#">© OrcaX Corn Farm System</a></small>
+    </footer>
 
-</body>
+    <script src="js/corn-index.js"></script>
+  </body>
 </html>

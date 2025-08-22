@@ -1,96 +1,82 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>마이페이지</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f3f4f6;
-      color: #222;
-    }
-    header {
-      background-color: #4caf50;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.5rem;
-    }
-    .container {
-      padding: 1rem;
-    }
-    .section {
-      background: white;
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    h2 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-    }
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    li {
-      margin-bottom: 0.5rem;
-    }
-    .footer {
-      text-align: center;
-      color: #666;
-      font-size: 0.9rem;
-      padding: 1rem;
-    }
-    @media (max-width: 600px) {
-      header {
-        font-size: 1.2rem;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OrcaX 마이페이지</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+    <style>
+      body {
+        background: url('img/mypage-bg.png') no-repeat center center fixed;
+        background-size: cover;
+        color: white;
       }
-      h2 {
-        font-size: 1rem;
+      main.container {
+        padding: 4rem 2rem;
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 1rem;
+        margin-top: 2rem;
       }
-    }
-  </style>
-</head>
-<body>
-  <header>📋 마이페이지</header>
-  <div class="container">
-
-    <div class="section">
-      <h2>👤 닉네임</h2>
-      <p id="nickname">불러오는 중...</p>
-    </div>
-
-    <div class="section">
-      <h2>📦 자재 보관함</h2>
+      .asset, .loan, .withdraw {
+        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+      }
+      .buttons {
+        margin-top: 2rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="container-fluid">
       <ul>
-        <li>🐳 ORCX 토큰: <span id="token">0</span></li>
-        <li>🥔 씨감자: <span id="gamjaSeed">0</span></li>
-        <li>🌾 씨보리: <span id="boriSeed">0</span></li>
-        <li>💩 거름: <span id="fertilizer">0</span></li>
-        <li>💧 물: <span id="water">0</span></li>
+        <li><strong>🐧 OrcaX 마이페이지</strong></li>
       </ul>
-    </div>
-
-    <div class="section">
-      <h2>📦 가공제품 보관함</h2>
       <ul>
-        <li>감자 가공품: <span id="gamjaProduct">0</span></li>
-        <li>보리 가공품: <span id="boriProduct">0</span></li>
+        <li><a href="index9.html">홈으로</a></li>
+        <li><a href="#">농장 밖으로</a></li>
+        <li><a href="#">📘 게임설명</a></li>
       </ul>
-    </div>
+    </nav>
+    <main class="container">
+      <div class="grid">
+        <section class="asset">
+          <hgroup>
+            <h2>법고래님 보유 자산</h2>
+            <h3>Assets</h3>
+          </hgroup>
+          <p>💰 토큰: <strong>76,500</strong></p>
+          <p>💧 물: <strong>50</strong> / 💩 거름: <strong>30</strong></p>
+        </section>
 
-    <div class="section">
-      <h2>📜 출금 및 거래 기록</h2>
-      <p>최근 출금 및 거래 기록을 불러옵니다...</p>
-    </div>
+        <section class="loan">
+          <hgroup>
+            <h2>대출 현황</h2>
+            <h3>Loan Status</h3>
+          </hgroup>
+          <p>📦 현재 대출: <strong>2000 토큰</strong></p>
+          <p>📈 이자: <strong>5% / 일</strong></p>
+          <button role="button">💳 상환하기</button>
+        </section>
 
-  </div>
-  <div class="footer">
-    &copy; 감자농장 Inc. 모든 권리 보유.
-  </div>
-</body>
+        <section class="withdraw">
+          <hgroup>
+            <h2>출금 신청</h2>
+            <h3>Withdraw</h3>
+          </hgroup>
+          <form class="grid">
+            <input type="text" name="wallet" placeholder="솔라나 지갑 주소" required />
+            <button type="submit" onclick="event.preventDefault()">💸 출금 신청</button>
+          </form>
+          <small>※ 50,000 토큰 이상 출금 가능</small>
+        </section>
+      </div>
+    </main>
+
+    <footer class="container">
+      <small><a href="#">이용약관</a> • <a href="#">개인정보</a></small>
+    </footer>
+  </body>
 </html>

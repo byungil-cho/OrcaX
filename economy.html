@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>교환소 - OrcaX</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+</head>
+<body>
+  <main class="container">
+    <h2>💱 자원 교환소</h2>
+
+    <!-- 팝콘 교환 -->
+    <section>
+      <h3>🍿 팝콘 교환</h3>
+      <form id="popcornWaterForm">
+        <label>팝콘 → 물 (1:1)</label>
+        <input type="number" id="popcornWaterAmount" placeholder="팝콘 수량" required />
+        <button type="submit">교환하기</button>
+      </form>
+
+      <form id="popcornNftForm">
+        <label>팝콘 1000개 → NFT (로얄스크린골프 오전 무료이용권)</label>
+        <button type="submit">NFT 교환하기</button>
+      </form>
+    </section>
+
+    <!-- 토큰으로 자원 구매 -->
+    <section>
+      <h3>🪙 토큰으로 구매</h3>
+      <form id="buyForm">
+        <label>구매할 자원 선택</label>
+        <select id="buyResource">
+          <option value="salt">소금 (10 토큰)</option>
+          <option value="sugar">설탕 (20 토큰)</option>
+          <option value="seed">씨옥수수 (100 토큰)</option>
+        </select>
+        <input type="number" id="buyAmount" placeholder="수량" required />
+        <button type="submit">구매하기</button>
+      </form>
+    </section>
+
+  </main>
+  <script type="module" src="js/economy.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>옥수수 농장 입장</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <style>
+    body {
+      background: url('img/corn-bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+    }
+    main.container {
+      padding: 4rem 2rem;
+      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 1rem;
+      margin-top: 2rem;
+    }
+    .entry-box {
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 1rem;
+      text-align: center;
+    }
+    .entry-box h2 {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul>
+      <li><strong>🌽 옥수수 농장 입장</strong></li>
+    </ul>
+    <ul>
+      <li><a href="index9.html">홈</a></li>
+      <li><a href="mypage.html">마이페이지</a></li>
+      <li><a href="#">게임설명</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="grid">
+      <section class="entry-box">
+        <hgroup>
+          <h2>입장 조건 확인</h2>
+          <h3>5만 토큰 이상 보유자만 입장 가능</h3>
+        </hgroup>
+        <p>현재 보유 토큰: <strong>76,500</strong></p>
+        <button role="button" onclick="enterCornFarm()">🌽 옥수수 농장 입장하기</button>
+        <p id="entry-msg"></p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="container">
+    <small><a href="#">이용약관</a> • <a href="#">개인정보</a></small>
+  </footer>
+
+  <script>
+    function enterCornFarm() {
+      const tokenAmount = 76500; // 실제 데이터는 서버에서 받아오는 값
+      const message = document.getElementById('entry-msg');
+      if (tokenAmount >= 50000) {
+        message.innerHTML = '<strong style="color:lightgreen">입장 조건 충족! 옥수수 농장으로 이동합니다...</strong>';
+        setTimeout(() => {
+          window.location.href = 'corn-farm.html';
+        }, 1500);
+      } else {
+        message.innerHTML = '<strong style="color:salmon">토큰이 부족합니다. 5만 토큰 이상이 필요합니다.</strong>';
+      }
+    }
+  </script>
+</body>
+</html>
