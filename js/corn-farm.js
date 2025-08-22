@@ -20,7 +20,7 @@ let farm = {
 
 // 배경 매핑 (farm_XX.png)
 const farmStages = {
-  0: "img/farm_00.png", // 입구/휴농
+  0: "img/farm_01.png", // 입구/휴농
   1: "img/farm_03.png", // 1일차
   2: "img/farm_05.png", // 2일차
   3: "img/farm_07.png", // 3일차
