@@ -21,10 +21,9 @@
       border-radius:14px; padding:8px 10px;
     }
     .topline { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .status { width:10px; height:10px; border-radius:50%; background:#ef4444; }
+    .status { width:14px; height:14px; border-radius:50%; background:#ef4444; }
     .status.ok { background:var(--ok); }
     .nick { font-weight:800; max-width:40vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .server-status { font-weight:bold; font-size:14px; margin-left:auto; }
 
     .res { display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
     .tag { display:flex; justify-content:space-between; align-items:center; gap:8px;
@@ -64,9 +63,7 @@
   <header>
     <div class="topline">
       <span id="netDot" class="status"></span>
-      <span id="netTxt">연결 확인 중…</span>
       <span class="nick" id="nick">(로그인 필요)</span>
-      <span class="server-status" id="serverStatus">🟡 서버 상태 확인 중</span>
     </div>
     <div class="res">
       <div class="tag">🌱 씨앗 <b id="r-seeds">0</b></div>
@@ -104,7 +101,7 @@
 
   <div id="toast"></div>
 
-  <!-- 업그레이드된 JS -->
+  <!-- JS -->
   <script src="js/corn-farm.js"></script>
 </body>
 </html>
