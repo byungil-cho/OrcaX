@@ -1,5 +1,9 @@
 'use strict';
 
+/* ===== API 서버 경로 설정 ===== */
+const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io"; 
+// ngrok 실행할 때마다 주소가 바뀔 수 있음 → 실행 시마다 여기 수정 필요
+
 /* ===== 서버 상태 불빛 표시 ===== */
 function setNet(ok){
   const d=document.getElementById('netDot');
@@ -30,7 +34,7 @@ function showToast(msg){
 /* ===== 농장 상태 불러오기 ===== */
 async function loadFarm(){
   try{
-    const res=await fetch('/api/farm/status'); // 실제 API 엔드포인트로 교체 필요
+    const res=await fetch(`${API_BASE}/api/init-user`, { credentials:"include" });
     if(!res.ok) throw new Error('서버 오류');
     const data=await res.json();
     setNet(true);
