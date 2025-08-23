@@ -164,15 +164,26 @@
   <div id="toast"></div>
 
   <!-- 3-in-1 구매 모달 -->
-  <div id="buyAllModal" class="modal" aria-hidden="true">
-    <div class="panel">
-      <h3>자원 구매</h3>
-
-      <div class="row" data-item="salt">
-        <span>🧂 소금</span><span class="unit">10</span>
-        <div class="qtybox"><button class="btn3 dec">-</button><input class="qty" type="number" min="0" value="0"><button class="btn3 inc">+</button></div>
-        <span class="sub">0</span>
+ <div id="buyAllModal" class="modal">
+  <div class="panel">
+    <!-- 행 3개: salt/sugar/seed -->
+    <div class="row" data-item="salt">
+      <span>🧂 소금</span><span class="unit">10</span>
+      <div class="qtybox">
+        <button class="btn3 dec">-</button>
+        <input class="qty" type="number" value="0" min="0">
+        <button class="btn3 inc">+</button>
       </div>
+      <span class="sub">0</span>
+    </div>
+    <!-- sugar, seed 행도 동일 구조 -->
+    <div class="actions-2">
+      <button class="btn2 ghost" id="buyAllCancel">취소</button>
+      <button class="btn2" id="buyAllOK">구매</button>
+    </div>
+  </div>
+</div>
+
 
       <div class="row" data-item="sugar">
         <span>🍬 설탕</span><span class="unit">20</span>
