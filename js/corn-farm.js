@@ -42,7 +42,10 @@ function updateResourcesFromSummary(s){
   const food= s.food || {};
   const wal = s.wallet || {};
 
-  document.getElementById('r-seeds').textContent = ag.seeds ?? 0;
+  // 씨앗 필드 보수적 매핑 (ag.seeds, user.agri.seedCorn, s.seed 다 지원)
+  const seedCount = (ag.seeds ?? s.user?.agri?.seedCorn ?? s.seed ?? 0);
+
+  document.getElementById('r-seeds').textContent = seedCount;
   document.getElementById('r-water').textContent = inv.water ?? 0;
   document.getElementById('r-fert').textContent  = inv.fertilizer ?? 0;
   document.getElementById('r-corn').textContent  = ag.corn ?? 0;
@@ -63,6 +66,15 @@ async function api(path, {method='GET', body=null} = {}){
   return data;
 }
 
+/* ===== init-user (GET → 실패 시 POST fallback) ===== */
+async function ensureUser(kakaoId, nickname){
+  try {
+    return await api(`/api/init-user?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`);
+  } catch(e) {
+    return await api('/api/init-user',{method:'POST', body:{kakaoId,nickname}});
+  }
+}
+
 /* ===== 농장 상태 불러오기 ===== */
 async function loadFarm(){
   try{
@@ -70,8 +82,8 @@ async function loadFarm(){
     await api('/api/health');
     setNet(true);
 
-    // 2) 유저 보장 (GET init-user with params)
-    await api(`/api/init-user?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`);
+    // 2) 유저 보장 (users + corn_data 동시 upsert)
+    await ensureUser(kakaoId, nickname);
 
     // 3) 요약
     const sum = await api(`/api/corn/summary?kakaoId=${encodeURIComponent(kakaoId)}`);
@@ -90,12 +102,16 @@ function bindEvents(){
     try{ await api('/api/corn/plant',{method:'POST', body:{kakaoId}}); showToast('씨앗 심기 완료'); await loadFarm(); }
     catch(e){ showToast(e.message); }
   };
+
+  // 물/거름 기능은 현재 corn 엔진 미지원
   document.getElementById('btn-water').onclick = ()=> showToast('Corn 엔진: 물 주기 기능 없음');
   document.getElementById('btn-fert').onclick  = ()=> showToast('Corn 엔진: 거름 주기 기능 없음');
+
   document.getElementById('btn-harv').onclick  = async ()=>{
     try{ const r=await api('/api/corn/harvest',{method:'POST', body:{kakaoId}}); showToast(`수확 +${r.gain}`); await loadFarm(); }
     catch(e){ showToast(e.message); }
   };
+
   document.getElementById('btn-pop').onclick   = async ()=>{
     try{
       const use = confirm('설탕 사용? (취소=소금)') ? 'sugar' : 'salt';
@@ -103,12 +119,14 @@ function bindEvents(){
       showToast(r.result==='popcorn' ? `팝콘 +${r.qty}` : `ORCX +${r.qty}`); await loadFarm();
     }catch(e){ showToast(e.message); }
   };
+
+  // 교환은 팝콘 → 거름만 허용
   document.getElementById('btn-ex').onclick    = async ()=>{
     try{
-      const dir = confirm('거름 → 팝콘? (취소=팝콘 → 거름)') ? 'fertilizer->popcorn' : 'popcorn->fertilizer';
-      const qty = parseInt(prompt('수량','1')||'1',10); if(!(qty>0)) return;
-      await api('/api/corn/exchange',{method:'POST', body:{kakaoId,dir,qty}});
-      showToast('교환 완료'); await loadFarm();
+      const qty = parseInt(prompt('팝콘 → 거름 수량','1')||'1',10); 
+      if(!(qty>0)) return;
+      await api('/api/corn/exchange',{method:'POST', body:{kakaoId,dir:'popcorn->fertilizer',qty}});
+      showToast('팝콘→거름 교환 완료'); await loadFarm();
     }catch(e){ showToast(e.message); }
   };
 }
