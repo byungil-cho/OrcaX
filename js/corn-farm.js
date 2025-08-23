@@ -1,202 +1,185 @@
-'use strict';
+/* corn-farm.runtime.js
+ * 연결·상태·버튼 활성화·미니이미지 복구 통합 스크립트
+ * 디자인 불변. HTML에는 버튼/요소에 id만 부여하면 됩니다.
+ */
 
-/* ===== API 서버 경로 설정 ===== */
-const qs = new URLSearchParams(location.search);
-const API_BASE =
-  (qs.get('api') || localStorage.getItem('orcax_api') || "https://climbing-wholly-grouper.jp.ngrok.io")
-  .replace(/\/+$/,'');
-localStorage.setItem('orcax_api', API_BASE);
+// ==== 0) BASE 정규화 ====
+const DEFAULT_ORIGIN = (localStorage.getItem('orcax:DEFAULT_ORIGIN') 
+  || 'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
 
-/* ===== 사용자 식별 ===== */
-let kakaoId  = qs.get('kakaoId')  || localStorage.getItem('kakaoId');
-let nickname = qs.get('nickname') || localStorage.getItem('nickname');
-if (!kakaoId || !nickname) {
-  nickname = nickname || prompt('닉네임을 입력하세요','범고래X') || 'Guest';
-  kakaoId  = kakaoId  || ('K' + Math.random().toString(36).slice(2,10));
-  localStorage.setItem('nickname', nickname);
-  localStorage.setItem('kakaoId', kakaoId);
-}
+const RAW_ORIGIN  = (localStorage.getItem('orcax:BASE_API') || DEFAULT_ORIGIN).replace(/\/+$/,'');
+const BASE_ORIGIN = RAW_ORIGIN.replace(/\/api\/?$/i,'');
+const API = (p) => `${BASE_ORIGIN}/api/${String(p||'').replace(/^\/+/,'')}`;
 
-/* ===== 서버 상태 불빛 표시 ===== */
-function setNet(ok){
-  const d=document.getElementById('netDot');
-  if(d) d.classList.toggle('ok', !!ok);
-}
-
-/* ===== 토스트 ===== */
-function showToast(msg){
-  const t=document.getElementById('toast');
-  if(!t) return;
-  t.textContent=msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2000);
-}
-
-/* ===== 공통 fetch ===== */
-async function api(path, {method='GET', body=null} = {}){
-  const url = `${API_BASE}${path}`;
-  const opt = { method, headers: { 'Content-Type':'application/json' } };
-  if (body) opt.body = JSON.stringify(body);
-  const res = await fetch(url, opt);
-  let data=null; try{ data = await res.json(); }catch{}
-  if(!res.ok) throw new Error((data && (data.message||data.error)) || res.statusText);
+// ==== 1) 공통 fetch ====
+async function jfetch(url, { method='GET', query, body, headers } = {}){
+  let u = url;
+  if (query){
+    const qs = new URLSearchParams();
+    Object.entries(query).forEach(([k,v]) => { if(v!=null) qs.set(k, String(v)) });
+    const q = qs.toString();
+    if(q) u += (u.includes('?') ? '&' : '?') + q;
+  }
+  const opts = { method, headers: Object.assign({ 'Accept':'application/json' }, headers||{}) };
+  if (body != null){ opts.headers['Content-Type']='application/json'; opts.body = JSON.stringify(body); }
+  const r = await fetch(u, Object.assign(opts, { mode:'cors', cache:'no-store' }));
+  const text = await r.text();
+  const isJson = (r.headers.get('content-type')||'').includes('application/json');
+  const data = text ? (isJson ? JSON.parse(text) : { raw:text }) : {};
+  if (!r.ok) throw Object.assign(new Error(`HTTP ${r.status}`), { data, status:r.status });
   return data;
 }
 
-/* ===== init-user (GET → 실패 시 POST fallback) ===== */
-async function ensureUser(kakaoId, nickname){
-  try {
-    return await api(`/api/init-user?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`);
-  } catch(e) {
-    return await api('/api/init-user',{method:'POST', body:{kakaoId,nickname}});
+// ==== 2) 로그인 체크 ====
+function getKakaoId(){
+  // 프로젝트 표준 키 사용
+  const id = localStorage.getItem('kakao_id') || localStorage.getItem('orcax:kakaoId') || '';
+  return id;
+}
+function ensureLogin(){
+  const kakaoId = getKakaoId();
+  if (!kakaoId){
+    alert('로그인이 필요합니다. (index9.html로 이동)');
+    location.href = 'index9.html';
+    return false;
   }
+  return kakaoId;
 }
 
-/* ===== 리소스 렌더링 ===== */
-function updateResourcesFromSummary(s){
-  const inv = s.inventory || {};
-  const ag  = s.agri || {};
-  const add = s.additives || {};
-  const food= s.food || {};
-  const wal = s.wallet || {};
-
-  const seedCount = (ag.seeds ?? s.user?.agri?.seedCorn ?? s.seed ?? 0);
-
-  document.getElementById('r-seeds').textContent = seedCount;
-  document.getElementById('r-water').textContent = inv.water ?? 0;
-  document.getElementById('r-fert').textContent  = inv.fertilizer ?? 0;
-  document.getElementById('r-corn').textContent  = ag.corn ?? 0;
-  document.getElementById('r-pop').textContent   = food.popcorn ?? 0;
-  document.getElementById('r-salt').textContent  = add.salt ?? 0;
-  document.getElementById('r-sugar').textContent = add.sugar ?? 0;
-  document.getElementById('r-orcx').textContent  = wal.orcx ?? 0;
+// ==== 3) DOM Helpers ====
+const $ = (sel) => document.querySelector(sel);
+function setText(id, v){
+  const el = document.getElementById(id);
+  if (el) el.textContent = (v ?? '0');
+}
+function setDisabled(el, disabled){
+  if (!el) return;
+  el.disabled = !!disabled;
+  el.classList.toggle('is-disabled', !!disabled);
 }
 
-/* ===== 상태/게이지/미니이미지 ===== */
-function paintState(sum){
-  const percent = Math.max(0, Math.min(100, Number(sum?.growth?.percent ?? 0)));
-  const g = document.getElementById('gfill'); if (g) g.style.setProperty('--p', `${percent}%`);
-  const gn = document.getElementById('gnum'); if (gn) gn.textContent = Math.round(percent);
+// ==== 4) 상태 로드 ====
+let state = { user:{}, corn:{}, summary:{} };
 
-  const state = (sum?.state || sum?.growth?.state || 'idle');
-  const mini = document.getElementById('miniImg');
-  const cap  = document.getElementById('miniCap');
-  if (cap) cap.textContent = (state==='idle'?'휴경': state==='planted'?'파종': state==='growing'?'성장중':'수확가능');
-
-  const imgMap = {
-    idle:'img/a_corn_06_01.png',
-    planted:'img/a_corn_04_01.png',
-    growing:'img/a_corn_04_04.png',
-    harvestable:'img/a_corn_06_04.png'
-  };
-  if(mini) mini.src = imgMap[state] || imgMap.idle;
-}
-
-/* ===== 미니 옆 세로 막대 3종 ===== */
-const WATER_MAX = 10, FERT_MAX = 10;
-const clamp01 = x => Math.max(0, Math.min(1, x));
-
-function paintSideBars(sum){
-  const inv = sum.inventory || {};
-  const water = Number(inv.water ?? 0);
-  const fert  = Number(inv.fertilizer ?? 0);
-  const growP = Math.max(0, Math.min(100, Number(sum?.growth?.percent ?? 0)));
-
-  const wMax = Number(sum?.limits?.waterMax ?? WATER_MAX);
-  const fMax = Number(sum?.limits?.fertMax  ?? FERT_MAX);
-
-  const wP = Math.round(clamp01(water / (wMax || WATER_MAX)) * 100);
-  const fP = Math.round(clamp01(fert  / (fMax || FERT_MAX))  * 100);
-
-  const W = document.getElementById('vbar-water'); if (W) W.style.setProperty('--p', `${wP}%`);
-  const F = document.getElementById('vbar-fert');  if (F) F.style.setProperty('--p', `${fP}%`);
-  const G = document.getElementById('vbar-grow');  if (G) G.style.setProperty('--p', `${growP}%`);
-
-  const Wn = document.getElementById('vnum-water'); if (Wn) Wn.textContent = water;
-  const Fn = document.getElementById('vnum-fert');  if (Fn) Fn.textContent = fert;
-  const Gn = document.getElementById('vnum-grow');  if (Gn) Gn.textContent = `${growP}%`;
-}
-
-/* ===== 레벨 계산 + 가로바 ===== */
-function computeLevel(sum){
-  if (sum?.level != null && sum?.levelProgress != null){
-    return { level: Number(sum.level)||1, percent: Math.round(Math.max(0,Math.min(100, Number(sum.levelProgress)))) };
-  }
-  const explicit = sum?.user?.level, explicitPct = sum?.user?.levelProgress;
-  if (explicit != null && explicitPct != null){
-    return { level: Number(explicit)||1, percent: Math.round(Math.max(0,Math.min(100, Number(explicitPct)))) };
-  }
-  // 간이 규칙
-  const xp = (Number(sum?.agri?.corn ?? 0) * 10) + (Number(sum?.food?.popcorn ?? 0) * 5);
-  const L  = Math.max(1, Math.floor(Math.log10(xp + 1)) + 1);
-  const nextCap = Math.pow(10, L) - 1;
-  const prevCap = Math.pow(10, L-1) - 1;
-  const pct = Math.round((xp - prevCap) / Math.max(1, (nextCap - prevCap)) * 100);
-  return { level: L, percent: Math.max(0, Math.min(100, pct)) };
-}
-
-function paintLevel(sum){
-  const { level, percent } = computeLevel(sum);
-  const elLv = document.getElementById('levelNum'); if (elLv) elLv.textContent = level;
-  const hb = document.getElementById('hbar-level'); if (hb) hb.style.setProperty('--p', `${percent}%`);
-}
-
-/* ===== 농장 상태 불러오기 ===== */
-async function loadFarm(){
+async function loadAll(){
+  const kakaoId = ensureLogin(); if(!kakaoId) return;
   try{
-    await api('/api/health'); setNet(true);
-    await ensureUser(kakaoId, nickname);
-    const sum = await api(`/api/corn/summary?kakaoId=${encodeURIComponent(kakaoId)}`);
-
-    updateResourcesFromSummary(sum);
-    paintState(sum);
-    paintSideBars(sum);
-    paintLevel(sum);
-
-    const nickEl = document.getElementById('nick'); if (nickEl) nickEl.textContent = nickname;
-  }catch(e){
-    setNet(false);
-    console.error(e);
-    showToast('서버 연결 실패: ' + e.message);
+    const [user, summary] = await Promise.all([
+      jfetch(API('userdata'), { method:'POST', body:{ kakaoId } }),
+      jfetch(API('corn/summary'), { method:'GET', query:{ kakaoId } }),
+    ]);
+    state.user = user || {};
+    state.summary = summary || {};
+    state.corn = summary?.corn || {};
+    render();
+  }catch(err){
+    console.error('loadAll error', err);
+    showToast('서버 연결 실패', 'error');
   }
 }
 
-/* ===== 버튼 이벤트 ===== */
-function bindEvents(){
-  document.getElementById('btn-plant').onclick = async ()=>{
-    try{ await api('/api/corn/plant',{method:'POST', body:{kakaoId}}); showToast('씨앗 심기 완료'); await loadFarm(); }
-    catch(e){ showToast(e.message); }
-  };
-  document.getElementById('btn-water').onclick = ()=> showToast('Corn 엔진: 물 주기 기능 없음');
-  document.getElementById('btn-fert').onclick  = ()=> showToast('Corn 엔진: 거름 주기 기능 없음');
+// ==== 5) 렌더 ====
+function render(){
+  const u = state.user || {};
+  const s = state.summary || {};
+  const inv = s.inventory || {};
+  const corn = s.corn || {};
 
-  document.getElementById('btn-harv').onclick  = async ()=>{
-    try{ const r=await api('/api/corn/harvest',{method:'POST', body:{kakaoId}}); showToast(`수확 +${r.gain}`); await loadFarm(); }
-    catch(e){ showToast(e.message); }
-  };
+  // 상단 리소스 수량 반영 (id는 자유, 있으면 반영됨)
+  setText('val-seed',      inv.seedCorn ?? inv.seed ?? 0);
+  setText('val-water',     u.water ?? s.water ?? 0);
+  setText('val-fertil',    u.fertilizer ?? s.fertilizer ?? 0);
+  setText('val-corn',      s.cornCount ?? 0);
+  setText('val-pop',       inv.popcorn ?? s.popcorn ?? 0);
+  setText('val-salt',      inv.salt ?? 0);
+  setText('val-sugar',     inv.sugar ?? 0);
+  setText('val-token',     u.token ?? s.token ?? 0);
 
-  document.getElementById('btn-pop').onclick   = async ()=>{
-    try{
-      const use = confirm('설탕 사용? (취소=소금)') ? 'sugar' : 'salt';
-      const r = await api('/api/corn/pop',{method:'POST', body:{kakaoId,use}});
-      showToast(r.result==='popcorn' ? `팝콘 +${r.qty}` : `ORCX +${r.qty}`); await loadFarm();
-    }catch(e){ showToast(e.message); }
-  };
+  // 미니 이미지 & 게이지
+  const g = Math.max(0, Math.min(100, Number(corn.growth ?? s.growth ?? 0)));
+  const mini = document.getElementById('mini-img');
+  if (mini){
+    mini.alt = '작물 상태';
+    mini.src = (g >= 100) ? './img/corn_ready.png'
+      : (g >= 70) ? './img/corn_70.png'
+      : (g >= 50) ? './img/corn_50.png'
+      : (g >= 30) ? './img/corn_30.png'
+      : (g >  0 ) ? './img/corn_seedling.png'
+      : './img/corn_empty.png';
+  }
+  const gauge = document.getElementById('growth-bar');
+  if (gauge) gauge.style.width = `${g}%`;
 
-  // 교환은 팝콘 → 거름만
-  document.getElementById('btn-ex').onclick    = async ()=>{
-    try{
-      const qty = parseInt(prompt('팝콘 → 거름 수량','1')||'1',10);
-      if(!(qty>0)) return;
-      await api('/api/corn/exchange',{method:'POST', body:{kakaoId,dir:'popcorn->fertilizer',qty}});
-      showToast('팝콘→거름 교환 완료'); await loadFarm();
-    }catch(e){ showToast(e.message); }
-  };
+  // 버튼 활성/비활성
+  const btnPlant = document.getElementById('btn-plant');
+  const btnWater = document.getElementById('btn-water');
+  const btnFert  = document.getElementById('btn-fertilize');
+  const btnHarv  = document.getElementById('btn-harvest');
+  const btnPop   = document.getElementById('btn-pop');
+  const btnExch  = document.getElementById('btn-exchange');
+
+  const hasSeed = (inv.seedCorn ?? inv.seed ?? 0) > 0;
+  const hasWater = (u.water ?? s.water ?? 0) > 0;
+  const hasFertil = (u.fertilizer ?? s.fertilizer ?? 0) > 0;
+  const hasPop = (inv.popcorn ?? s.popcorn ?? 0) > 0;
+  const readyToHarvest = (g >= 100);
+
+  setDisabled(btnPlant, !hasSeed || g > 0);          // 빈 밭일 때만 심기
+  setDisabled(btnWater, !hasWater || g <= 0 || g >= 100);
+  setDisabled(btnFert,  !hasFertil || g <= 0 || g >= 100);
+  setDisabled(btnHarv,  !readyToHarvest);
+  setDisabled(btnPop,   !hasPop);                    // 팝콘 있을 때만
+  setDisabled(btnExch,  !hasPop);                    // 1:1 교환 기본
+
+  // 상태 텍스트 (있으면)
+  setText('txt-status', readyToHarvest ? '수확 가능' : (g>0 ? `성장 중 (${g}%)` : '빈 밭'));
 }
 
-/* ===== 초기 실행 ===== */
-document.addEventListener('DOMContentLoaded',()=>{
-  bindEvents();
-  loadFarm();
-  setInterval(loadFarm, 10000);
+// ==== 6) 액션 ====
+async function act(endpoint, body){
+  const kakaoId = ensureLogin(); if(!kakaoId) return;
+  try{
+    await jfetch(API(endpoint), { method:'POST', body: Object.assign({ kakaoId }, body||{}) });
+    await loadAll();
+  }catch(err){
+    const msg = err?.data?.message || `요청 실패: ${endpoint}`;
+    showToast(msg, 'error');
+    console.warn('act error', endpoint, err);
+  }
+}
+
+// 버튼 연결
+function bindActions(){
+  const map = [
+    ['#btn-plant',     () => act('corn/plant')],
+    ['#btn-water',     () => act('corn/water')],
+    ['#btn-fertilize', () => act('corn/fertilize')],
+    ['#btn-harvest',   () => act('corn/harvest')],
+    ['#btn-pop',       () => act('corn/pop', { tokenCost: 30 })],
+    ['#btn-exchange',  () => act('corn/exchange', { type:'popcorn-to-fertilizer', qty:1 })],
+  ];
+  for (const [sel, fn] of map){
+    const el = document.querySelector(sel);
+    if (el) el.onclick = fn;
+  }
+}
+
+// ==== 7) UX 보조 ====
+function showToast(msg, type){
+  // 최소 보장용. 디자인 변경 없이 alert 대체
+  try{
+    const el = document.getElementById('toast-area');
+    if (!el) return alert(msg);
+    const d = document.createElement('div');
+    d.className = `toast ${type||''}`;
+    d.textContent = msg;
+    el.appendChild(d);
+    setTimeout(() => d.remove(), 2500);
+  }catch(e){ alert(msg); }
+}
+
+// ==== 8) 초기화 ====
+window.addEventListener('DOMContentLoaded', () => {
+  bindActions();
+  loadAll();
 });
