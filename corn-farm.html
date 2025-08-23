@@ -17,16 +17,20 @@
     .status{ width:14px; height:14px; border-radius:50%; background:#ef4444; } .status.ok{ background:var(--ok); }
     .nick{ font-weight:800; max-width:40vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .buy-group{ display:flex; gap:6px; margin-left:auto; }
-    .chip{ border:1px solid var(--bd); background:rgba(255,255,255,.08); color:#fff; border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer; }
+    .chip{ border:1px solid var(--bd); background:rgba(255,255,255,.08); color:#fff; border-radius:999px;
+      padding:4px 10px; font-size:12px; cursor:pointer; }
 
     .res{ display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
     .tag{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 8px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.08); font-size:12px; }
     .tag b{ font-variant-numeric:tabular-nums; }
 
-    .gauge{ position:fixed; left:10px; bottom:240px; width:110px; height:110px; z-index:6; border-radius:50%; border:1px solid var(--bd); background:rgba(0,0,0,.35); display:grid; place-items:center; overflow:hidden; }
+    /* 원형 성장 게이지 */
+    .gauge{ position:fixed; left:10px; bottom:240px; width:110px; height:110px; z-index:6;
+      border-radius:50%; border:1px solid var(--bd); background:rgba(0,0,0,.35); display:grid; place-items:center; overflow:hidden; }
     .gfill{ position:absolute; inset:0; background:conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0); }
     .gnum{ position:relative; font-weight:800; }
 
+    /* 레벨/캐릭터 */
     #levelPanel{ position:fixed; left:10px; bottom:170px; z-index:6; display:flex; align-items:center; gap:10px; }
     #charImg{ width:40px; height:40px; border-radius:10px; border:1px solid var(--bd); object-fit:cover; background:#111; }
     .lvwrap{ display:flex; flex-direction:column; gap:6px; }
@@ -34,7 +38,10 @@
     .hbar{ width:180px; height:12px; border-radius:8px; background:rgba(255,255,255,.18); overflow:hidden; }
     .hbar .fill{ height:100%; width:var(--p,0%); background:linear-gradient(#b4c6ff,#5b7cff); transition:width .35s ease; }
 
-    .mini-wrap{ position:fixed; left:50%; transform:translateX(-50%); bottom:120px; z-index:7; display:flex; align-items:center; gap:12px; width:clamp(300px, 64vw, 560px); border:1px solid var(--bd); border-radius:14px; background:rgba(0,0,0,.28); padding:10px 12px; }
+    /* 미니 카드 */
+    .mini-wrap{ position:fixed; left:50%; transform:translateX(-50%); bottom:120px; z-index:7;
+      display:flex; align-items:center; gap:12px; width:clamp(300px, 64vw, 560px);
+      border:1px solid var(--bd); border-radius:14px; background:rgba(0,0,0,.28); padding:10px 12px; }
     .mini-imgbox{ position:relative; width:120px; height:120px; }
     #miniImg{ width:100%; height:100%; border-radius:12px; border:1px solid var(--bd); object-fit:cover; background:#000; }
     .seed-badge{ position:absolute; left:6px; bottom:6px; width:32px; height:32px; object-fit:contain; display:none; }
@@ -42,12 +49,14 @@
     .mini-info{ display:flex; align-items:flex-end; gap:14px; flex:1; min-width:0; }
     #miniCap{ font-size:12px; opacity:.9; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; align-self:flex-start; }
 
+    /* 씨앗 3종(인벤토리 표시는 노란씨앗만 활성) */
     .seed-kinds{ display:flex; gap:8px; align-items:center; margin-left:8px; margin-right:auto; }
     .seed-fig{ position:relative; width:42px; height:68px; }
     .seed-fig img{ width:100%; height:100%; object-fit:contain; display:block; }
     .seed-fig.off{ opacity:.45; }
     .seed-fig .num{ position:absolute; right:-6px; top:-8px; background:rgba(0,0,0,.7); border:1px solid var(--bd); color:#fff; font-size:11px; padding:2px 6px; border-radius:999px; }
 
+    /* 세로 막대 */
     .vbars{ display:flex; gap:14px; align-items:flex-end; }
     .vbar{ position:relative; width:16px; height:84px; border-radius:8px; background:rgba(255,255,255,.18); overflow:hidden; }
     .vbar .fill{ position:absolute; left:0; right:0; bottom:0; height:var(--p,0%); transition:height .3s ease; }
@@ -56,19 +65,29 @@
     .vbar[data-type="grow"]  .fill{ background:linear-gradient(#ffd67a,#ff9f1a); }
     .vbar .emo{ position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); font-size:14px; }
 
-    .actions{ position:fixed; left:10px; right:10px; bottom:10px; z-index:8; display:grid; grid-template-columns:repeat(3,1fr); gap:6px; backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd); border-radius:14px; padding:8px; }
+    /* 하단 조작 */
+    .actions{ position:fixed; left:10px; right:10px; bottom:10px; z-index:8; display:grid; grid-template-columns:repeat(3,1fr); gap:6px;
+      backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd); border-radius:14px; padding:8px; }
     .btn{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:10px; padding:10px 8px; font-size:13px; cursor:pointer; }
     .btn[disabled]{ opacity:.55; pointer-events:none; }
 
-    #toast{ position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:9999; background:rgba(0,0,0,.85); color:#fff; border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none; }
+    /* 토스트 */
+    #toast{ position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:9999; background:rgba(0,0,0,.85); color:#fff;
+      border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none; }
     #toast.show{ display:block; }
 
+    /* 구매 모달(3-in-1) */
     .modal{ position:fixed; inset:0; z-index:9998; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.55); }
     .modal.show{ display:flex; }
-    .panel{ width:min(92vw,380px); background:rgba(0,0,0,.85); border:1px solid var(--bd); border-radius:12px; padding:14px; color:#fff; }
+    .panel{ width:min(92vw,420px); background:rgba(0,0,0,.88); border:1px solid var(--bd); border-radius:12px; padding:14px; color:#fff; }
     .panel h3{ margin:0 0 10px 0; font-size:16px; }
-    .row{ display:flex; align-items:center; justify-content:space-between; margin:8px 0; }
-    .row input{ width:110px; padding:6px 8px; border-radius:8px; border:1px solid var(--bd); background:#111; color:#fff; }
+    .row{ display:grid; grid-template-columns: 1fr auto auto auto; align-items:center; gap:10px; margin:8px 0; }
+    .row .unit{ opacity:.9; font-size:12px; }
+    .qtybox{ display:flex; align-items:center; gap:6px; }
+    .btn3{ width:28px; height:28px; border-radius:7px; border:1px solid var(--bd); background:#1e293b; color:#fff; cursor:pointer; }
+    .qty{ width:64px; padding:6px 8px; border-radius:8px; border:1px solid var(--bd); background:#111; color:#fff; text-align:center; }
+    .sub{ min-width:72px; text-align:right; font-variant-numeric:tabular-nums; }
+    .total{ border-top:1px dashed var(--bd); padding-top:8px; }
     .actions-2{ display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
     .btn2{ padding:8px 12px; border-radius:8px; border:1px solid var(--bd); background:#1e293b; color:#fff; cursor:pointer; }
     .ghost{ background:transparent; }
@@ -88,14 +107,16 @@
 <body>
   <div id="bg"></div>
 
+  <!-- 상단 -->
   <header>
     <div class="topline">
       <span id="netDot" class="status"></span>
       <span class="nick" id="nick">(로그인 필요)</span>
       <div class="buy-group">
-        <button class="chip" id="buy-salt">🧂 소금 구매</button>
-        <button class="chip" id="buy-sugar">🍬 설탕 구매</button>
-        <button class="chip" id="buy-seed">🌽 씨옥수수 구매</button>
+        <button class="chip" id="open-buy-all">🧺 자원 구매</button>
+        <button class="chip" id="buy-salt">🧂 소금</button>
+        <button class="chip" id="buy-sugar">🍬 설탕</button>
+        <button class="chip" id="buy-seed">🌽 씨옥수수</button>
       </div>
     </div>
 
@@ -111,13 +132,19 @@
     </div>
   </header>
 
+  <!-- 원형 성장 게이지 -->
   <div class="gauge"><div class="gfill" id="gfill" style="--p:0%"></div><div class="gnum" id="gnum">0</div></div>
 
+  <!-- 레벨/캐릭터 -->
   <div id="levelPanel">
     <img id="charImg" src="img/a_mark_01.png" alt="캐릭터" />
-    <div class="lvwrap"><div class="lvline">레벨 <b id="levelNum">1</b></div><div class="hbar"><div class="fill" id="hbar-level"></div></div></div>
+    <div class="lvwrap">
+      <div class="lvline">레벨 <b id="levelNum">1</b></div>
+      <div class="hbar"><div class="fill" id="hbar-level"></div></div>
+    </div>
   </div>
 
+  <!-- 미니 농장 -->
   <div class="mini-wrap">
     <div class="mini-imgbox">
       <img id="miniImg" src="img/a_corn_06_01.png" alt="작물 상태" />
@@ -140,6 +167,7 @@
     </div>
   </div>
 
+  <!-- 조작 -->
   <div class="actions">
     <button id="btn-plant" class="btn">씨앗 심기</button>
     <button id="btn-water" class="btn">물 주기</button>
@@ -151,13 +179,51 @@
 
   <div id="toast"></div>
 
-  <div id="buyModal" class="modal" aria-hidden="true">
+  <!-- 3-in-1 구매 모달 -->
+  <div id="buyAllModal" class="modal" aria-hidden="true">
     <div class="panel">
-      <h3 id="buyTitle">구매</h3>
-      <div class="row"><span>단가</span><b id="buyPrice">-</b></div>
-      <div class="row"><span>수량</span><input id="buyQty" type="number" min="1" value="1"></div>
-      <div class="row"><span>총액</span><b id="buyTotal">-</b></div>
-      <div class="actions-2"><button class="btn2 ghost" id="buyCancel">취소</button><button class="btn2" id="buyOK">구매</button></div>
+      <h3>자원 구매</h3>
+
+      <div class="row" data-item="salt">
+        <span>🧂 소금</span>
+        <span class="unit">10</span>
+        <div class="qtybox">
+          <button class="btn3 dec">-</button>
+          <input class="qty" type="number" min="0" value="0">
+          <button class="btn3 inc">+</button>
+        </div>
+        <span class="sub">0</span>
+      </div>
+
+      <div class="row" data-item="sugar">
+        <span>🍬 설탕</span>
+        <span class="unit">20</span>
+        <div class="qtybox">
+          <button class="btn3 dec">-</button>
+          <input class="qty" type="number" min="0" value="0">
+          <button class="btn3 inc">+</button>
+        </div>
+        <span class="sub">0</span>
+      </div>
+
+      <div class="row" data-item="seed">
+        <span>🌽 씨옥수수</span>
+        <span class="unit">100</span>
+        <div class="qtybox">
+          <button class="btn3 dec">-</button>
+          <input class="qty" type="number" min="0" value="0">
+          <button class="btn3 inc">+</button>
+        </div>
+        <span class="sub">0</span>
+      </div>
+
+      <div class="row"><span>보유 토큰</span><b id="buyAllWallet">-</b></div>
+      <div class="row total"><span>총액</span><b id="buyAllTotal">0</b></div>
+
+      <div class="actions-2">
+        <button class="btn2 ghost" id="buyAllCancel">취소</button>
+        <button class="btn2" id="buyAllOK">구매</button>
+      </div>
     </div>
   </div>
 
