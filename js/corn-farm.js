@@ -1,12 +1,12 @@
 'use strict';
 
-/* ===== API ===== */
-// ?api=... 없으면: localStorage → 없으면: 같은 오리진
+// ===== API base =====
 const qs = new URLSearchParams(location.search);
 const API_BASE = (qs.get('api') || localStorage.getItem('orcax_api') || window.location.origin).replace(/\/+$/,'');
 localStorage.setItem('orcax_api', API_BASE);
+console.log('[OrcaX Corn] API_BASE =', API_BASE);
 
-/* ===== 사용자 ===== */
+// ===== User =====
 let kakaoId  = qs.get('kakaoId')  || localStorage.getItem('kakaoId');
 let nickname = qs.get('nickname') || localStorage.getItem('nickname');
 if (!kakaoId || !nickname) {
@@ -16,13 +16,13 @@ if (!kakaoId || !nickname) {
   localStorage.setItem('kakaoId', kakaoId);
 }
 
-/* ===== 상수/유틸 ===== */
-const PRICES = { salt:10, sugar:20, seed:100 }; // 서버 설정과 동일
+// ===== Const/Util =====
+const PRICES = { salt:10, sugar:20, seed:100 };
 const WATER_MAX = 10, FERT_MAX = 10;
 const clamp01 = x => Math.max(0, Math.min(1, x));
-const $ = sel => document.querySelector(sel);
+const $ = s => document.querySelector(s);
 
-function setNet(ok){ const d=$('#netDot'); if(d) d.classList.toggle('ok', !!ok); }
+function setNet(ok){ $('#netDot')?.classList.toggle('ok', !!ok); }
 function showToast(msg){ const t=$('#toast'); if(!t) return; t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 
 async function api(path, {method='GET', body=null} = {}){
@@ -35,13 +35,13 @@ async function api(path, {method='GET', body=null} = {}){
   return data;
 }
 
-/* ===== init-user: 기존 엔진 유지 ===== */
+// ===== init-user =====
 async function ensureUser(kakaoId, nickname){
   try { return await api(`/api/init-user?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`); }
   catch { return await api('/api/init-user',{method:'POST', body:{kakaoId,nickname}}); }
 }
 
-/* ===== robust: 씨앗 총수 읽기 ===== */
+// ===== robust seed count =====
 function readSeedTotal(s){
   const cands = [
     s?.seedKinds?.total, s?.seedTotal, s?.seedsTotal,
@@ -52,7 +52,7 @@ function readSeedTotal(s){
   return 0;
 }
 
-/* ===== 리소스 표시 ===== */
+// ===== resources paint =====
 function updateResourcesFromSummary(s){
   const inv = s.inventory || {};
   const ag  = s.agri || {};
@@ -70,7 +70,7 @@ function updateResourcesFromSummary(s){
   $('#r-orcx').textContent  = wal.orcx ?? 0;
 }
 
-/* ===== 상태/미니 이미지 ===== */
+// ===== state / images =====
 function stateKey(v){
   if (!v) return 'idle';
   const s = String(v).toLowerCase();
@@ -98,7 +98,7 @@ function paintState(sum){
   if(mini) mini.src = imgMap[k] || imgMap.idle;
 }
 
-/* ===== 세로 막대 ===== */
+// ===== side bars =====
 function paintSideBars(sum){
   const inv = sum.inventory || {};
   const water = Number(inv.water ?? 0);
@@ -116,7 +116,7 @@ function paintSideBars(sum){
   $('#vbar-grow') ?.style.setProperty('--p', `${growP}%`);
 }
 
-/* ===== 씨앗 3종(인벤토리) → 항상 노란 씨앗만 활성 ===== */
+// ===== seed kinds (inventory shows yellow only) =====
 function paintSeedKinds(sum){
   const total = readSeedTotal(sum);
   const set = (id, n) => {
@@ -131,7 +131,7 @@ function paintSeedKinds(sum){
   set('seed-over',   0);
 }
 
-/* ===== 심어진 씨앗 배지 ===== */
+// ===== planted seed badge =====
 function plantedSeedType(sum){
   const explicit = (sum?.growth?.seedType || sum?.field?.seedType || sum?.seedType || '').toLowerCase();
   if (['red','loan'].includes(explicit))      return 'red';
@@ -156,7 +156,7 @@ function paintPlantedBadge(sum){
   badge.onerror = ()=>{ badge.style.display='none'; };
 }
 
-/* ===== 레벨/캐릭터(간이) ===== */
+// ===== level/character =====
 function computeLevel(sum){
   const xp = (Number(sum?.agri?.corn ?? 0) * 10) + (Number(sum?.food?.popcorn ?? 0) * 5);
   const L  = Math.max(1, Math.floor(Math.log10(xp + 1)) + 1);
@@ -172,40 +172,66 @@ function paintLevel(sum){
   const ci=$('#charImg'); if(ci) ci.src = charSpriteByLevel(level);
 }
 
-/* ===== 구매 모달 ===== */
-let buyItem = null;
-function openBuy(item){
-  buyItem = item;
-  $('#buyTitle').textContent = ({salt:'🧂 소금 구매', sugar:'🍬 설탕 구매', seed:'🌽 씨옥수수 구매'})[item];
-  $('#buyPrice').textContent = `${PRICES[item]} ORCX / 개`;
-  $('#buyQty').value = 1;
-  $('#buyTotal').textContent = `${PRICES[item]} ORCX`;
-  $('#buyModal').classList.add('show');
+// ===== 3-in-1 구매 모달 =====
+function openBuyAll(prefill) {
+  // 보유 토큰 반영
+  $('#buyAllWallet').textContent = $('#r-orcx').textContent || '0';
+
+  // 기본 수량 0, 프리필(소금/설탕/씨앗 중 하나만 1로) 처리
+  const rows = Array.from(document.querySelectorAll('#buyAllModal .row[data-item]'));
+  rows.forEach(r=>{
+    const item = r.getAttribute('data-item');
+    const qEl  = r.querySelector('.qty');
+    qEl.value = (prefill === item) ? 1 : 0;
+  });
+
+  updateBuyAllTotals();
+  $('#buyAllModal').classList.add('show');
 }
-function closeBuy(){ $('#buyModal').classList.remove('show'); }
-function updateBuyTotal(){
-  const q = Math.max(1, parseInt($('#buyQty').value || '1',10));
-  $('#buyQty').value = q;
-  if (buyItem) $('#buyTotal').textContent = `${PRICES[buyItem]*q} ORCX`;
+function closeBuyAll(){ $('#buyAllModal').classList.remove('show'); }
+
+function updateBuyAllTotals(){
+  let total = 0;
+  document.querySelectorAll('#buyAllModal .row[data-item]').forEach(r=>{
+    const item = r.getAttribute('data-item');
+    const price= PRICES[item];
+    const qty  = Math.max(0, parseInt(r.querySelector('.qty').value||'0',10));
+    const sub  = price * qty;
+    r.querySelector('.sub').textContent = sub.toString();
+    total += sub;
+  });
+  $('#buyAllTotal').textContent = total.toString();
 }
-async function doBuy(){
-  const qty = Math.max(1, parseInt($('#buyQty').value || '1',10));
+
+async function doBuyAll(){
+  // 수량 수집
+  const lines = [];
+  document.querySelectorAll('#buyAllModal .row[data-item]').forEach(r=>{
+    const item = r.getAttribute('data-item');
+    const qty  = Math.max(0, parseInt(r.querySelector('.qty').value||'0',10));
+    if (qty>0) lines.push({item, qty});
+  });
+  if (lines.length===0) { showToast('수량을 입력하세요'); return; }
+
   try{
-    await api('/api/corn/buy',{method:'POST', body:{ kakaoId, item:buyItem, qty }});
+    // 서버는 품목별 POST를 기대하므로 순차로 보냄
+    for (const it of lines){
+      await api('/api/corn/buy', { method:'POST', body:{ kakaoId, item:it.item, qty:it.qty } });
+    }
     showToast('구매 완료');
-    closeBuy();
+    closeBuyAll();
     await loadFarm();
   }catch(e){
+    console.error('[BUY-ALL FAIL]', e);
     showToast('구매 실패: ' + e.message);
-    closeBuy();
   }
 }
 
-/* ===== 동작 ===== */
+// ===== actions =====
 async function loadFarm(){
   try{
-    await ensureUser(kakaoId, nickname); // 공용 users 초기화/업데이트
-    const sum = await api(`/api/corn/summary?kakaoId=${encodeURIComponent(kakaoId)}`); // 옥수수 엔진
+    await ensureUser(kakaoId, nickname);
+    const sum = await api(`/api/corn/summary?kakaoId=${encodeURIComponent(kakaoId)}`);
 
     updateResourcesFromSummary(sum);
     paintState(sum);
@@ -224,13 +250,13 @@ async function loadFarm(){
 }
 
 function bindEvents(){
+  // 농장 버튼
   $('#btn-plant').onclick = async ()=>{
     try{ await api('/api/corn/plant',{method:'POST', body:{kakaoId}}); showToast('씨앗 심기 완료'); await loadFarm(); }
     catch(e){ showToast(e.message); }
   };
   $('#btn-water').onclick = ()=> showToast('물은 공용(users) 자원입니다');
   $('#btn-fert').onclick  = ()=> showToast('거름은 공용(users) 자원입니다');
-
   $('#btn-harv').onclick  = async ()=>{
     try{ const r=await api('/api/corn/harvest',{method:'POST', body:{kakaoId}}); showToast(`수확 +${r.gain} (씨앗:${r.seedType||'-'})`); await loadFarm(); }
     catch(e){ showToast(e.message); }
@@ -239,30 +265,38 @@ function bindEvents(){
     try{
       const use = confirm('설탕 사용? (취소=소금)') ? 'sugar' : 'salt';
       const r = await api('/api/corn/pop',{method:'POST', body:{kakaoId,use}});
-      if (typeof r.fee !== 'undefined' || r.seedType){
-        showToast(`지급 ${r.qty} (공제 ${r.fee ?? '?'} , 씨앗 ${r.seedType ?? '?'})`);
-      } else {
-        showToast(`지급 ${r.qty}`);
-      }
+      showToast(typeof r.fee!=='undefined' ? `지급 ${r.qty} (공제 ${r.fee})` : `지급 ${r.qty}`);
       await loadFarm();
     }catch(e){ showToast(e.message); }
   };
   $('#btn-ex').onclick    = ()=> showToast('팝콘→거름은 서버 엔진에 맞춰 구현');
 
-  // 구매
-  $('#buy-salt').onclick  = ()=>openBuy('salt');
-  $('#buy-sugar').onclick = ()=>openBuy('sugar');
-  $('#buy-seed').onclick  = ()=>openBuy('seed');
-  $('#buyQty').addEventListener('input', updateBuyTotal);
-  $('#buyCancel').onclick = closeBuy;
-  $('#buyOK').onclick     = doBuy;
+  // 구매(모두 같은 팝업으로)
+  $('#open-buy-all').onclick = ()=> openBuyAll();
+  $('#buy-salt').onclick  = ()=> openBuyAll('salt');
+  $('#buy-sugar').onclick = ()=> openBuyAll('sugar');
+  $('#buy-seed').onclick  = ()=> openBuyAll('seed');
 
-  // 초기 배지 숨김
-  const badge = $('#seedBadgeImg'); if (badge) badge.style.display='none';
+  // 모달 내부 +/-, input, 확인/취소
+  const modal = $('#buyAllModal');
+  modal.addEventListener('click', (e)=>{
+    if (e.target.id === 'buyAllModal') closeBuyAll();
+  });
+  modal.querySelectorAll('.row[data-item]').forEach(row=>{
+    const dec = row.querySelector('.dec');
+    const inc = row.querySelector('.inc');
+    const qty = row.querySelector('.qty');
+    dec.onclick = ()=>{ qty.value = Math.max(0, parseInt(qty.value||'0',10)-1); updateBuyAllTotals(); };
+    inc.onclick = ()=>{ qty.value = Math.max(0, parseInt(qty.value||'0',10)+1); updateBuyAllTotals(); };
+    qty.addEventListener('input', updateBuyAllTotals);
+    qty.addEventListener('keydown', e=>{ if(e.key==='Enter') doBuyAll(); });
+  });
+  $('#buyAllCancel').onclick = closeBuyAll;
+  $('#buyAllOK').onclick     = doBuyAll;
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
   bindEvents();
   loadFarm();
-  setInterval(loadFarm, 10000); // 10초마다 갱신
+  setInterval(loadFarm, 10000);
 });
