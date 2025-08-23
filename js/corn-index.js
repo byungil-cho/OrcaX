@@ -33,10 +33,7 @@ function updateUI(data) {
   // 토큰
   document.getElementById("token").innerText = data.wallet?.orcx ?? data.tokens ?? 0;
 
-  // 옥수수 (count 숫자만 출력)
-  document.getElementById("corn").innerText = data.corn?.count ?? data.agri?.corn ?? 0;
-
-  // 팝콘
+   // 팝콘
   document.getElementById("popcorn").innerText = data.food?.popcorn ?? data.popcorn ?? 0;
 
   // 첨가물
