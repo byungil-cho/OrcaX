@@ -17,8 +17,7 @@
     .status{ width:14px; height:14px; border-radius:50%; background:#ef4444; } .status.ok{ background:var(--ok); }
     .nick{ font-weight:800; max-width:40vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .buy-group{ display:flex; gap:6px; margin-left:auto; }
-    .chip{ border:1px solid var(--bd); background:rgba(255,255,255,.08); color:#fff; border-radius:999px;
-      padding:4px 10px; font-size:12px; cursor:pointer; }
+    .chip{ border:1px solid var(--bd); background:rgba(255,255,255,.08); color:#fff; border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer; }
 
     .res{ display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
     .tag{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 8px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.08); font-size:12px; }
@@ -57,13 +56,14 @@
     .seed-fig .num{ position:absolute; right:-6px; top:-8px; background:rgba(0,0,0,.7); border:1px solid var(--bd); color:#fff; font-size:11px; padding:2px 6px; border-radius:999px; }
 
     /* 세로 막대 */
-    .vbars{ display:flex; gap:14px; align-items:flex-end; }
+    .vwrap{ display:flex; gap:18px; align-items:flex-end; }
     .vbar{ position:relative; width:16px; height:84px; border-radius:8px; background:rgba(255,255,255,.18); overflow:hidden; }
     .vbar .fill{ position:absolute; left:0; right:0; bottom:0; height:var(--p,0%); transition:height .3s ease; }
     .vbar[data-type="water"] .fill{ background:linear-gradient(#9fd7ff,#4aa3ff); }
     .vbar[data-type="fert"]  .fill{ background:linear-gradient(#bff0b8,#4ecb5a); }
     .vbar[data-type="grow"]  .fill{ background:linear-gradient(#ffd67a,#ff9f1a); }
-    .vbar .emo{ position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); font-size:14px; }
+    .vlabel{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .vtext{ font-size:12px; opacity:.9; }
 
     /* 하단 조작 */
     .actions{ position:fixed; left:10px; right:10px; bottom:10px; z-index:8; display:grid; grid-template-columns:repeat(3,1fr); gap:6px;
@@ -100,7 +100,6 @@
       .mini-wrap{ width:calc(100vw - 20px); bottom:108px; gap:10px; }
       .mini-imgbox{ width:100px; height:100px; }
       .vbar{ height:72px; width:14px; }
-      .vbar .emo{ bottom:-18px; font-size:13px; }
     }
   </style>
 </head>
@@ -159,10 +158,19 @@
         <div class="seed-fig off" id="seed-over"><img src="img/corn-black.png" alt="연체 씨앗"><span class="num" id="seed-over-num">0</span></div>
       </div>
 
-      <div id="miniBars" class="vbars">
-        <div class="vbar" data-type="water"><div class="fill" id="vbar-water"></div><div class="emo">💧</div></div>
-        <div class="vbar" data-type="fert"><div class="fill" id="vbar-fert"></div><div class="emo">🪴</div></div>
-        <div class="vbar" data-type="grow"><div class="fill" id="vbar-grow"></div><div class="emo">🌿</div></div>
+      <div class="vwrap" id="miniBars">
+        <div class="vlabel">
+          <div class="vbar" data-type="water"><div class="fill" id="vbar-water"></div></div>
+          <div class="vtext">💧 물</div>
+        </div>
+        <div class="vlabel">
+          <div class="vbar" data-type="fert"><div class="fill" id="vbar-fert"></div></div>
+          <div class="vtext">🪴 거름</div>
+        </div>
+        <div class="vlabel">
+          <div class="vbar" data-type="grow"><div class="fill" id="vbar-grow"></div></div>
+          <div class="vtext">🌿 성장</div>
+        </div>
       </div>
     </div>
   </div>
