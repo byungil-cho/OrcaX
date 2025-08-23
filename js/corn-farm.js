@@ -3,8 +3,18 @@
 /* ----------------------- API BASE ----------------------- */
 const qs = new URLSearchParams(location.search);
 function normBase(u){ return (u||'').trim().replace(/\/+$/,''); }
-let API_BASE = normBase(qs.get('api')) || normBase(localStorage.getItem('orcax_api'));
-if (!API_BASE) API_BASE = ''; // 비어있으면 연결 모달
+
+// 🚀 강제로 ngrok 주소를 기본값으로 설정
+const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
+
+let API_BASE =
+  normBase(qs.get('api')) || 
+  normBase(localStorage.getItem('orcax_api')) || 
+  DEFAULT_API;
+
+// localStorage에도 항상 덮어씌움
+localStorage.setItem('orcax_api', API_BASE);
+
 function saveAPI(u){ 
   API_BASE = normBase(u); 
   localStorage.setItem('orcax_api', API_BASE); 
@@ -18,7 +28,6 @@ const $ = s => document.querySelector(s);
 const clamp01 = x => Math.max(0, Math.min(1, x));
 function setNet(ok){ $('#netDot')?.classList.toggle('ok', !!ok); }
 function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
-
 /* ----------------------- 유저 ----------------------- */
 let kakaoId  = qs.get('kakaoId')  || localStorage.getItem('kakaoId');
 let nickname = qs.get('nickname') || localStorage.getItem('nickname');
