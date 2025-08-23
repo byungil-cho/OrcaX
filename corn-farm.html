@@ -5,94 +5,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>옥수수 농장</title>
   <style>
-    :root { --ink:#eef6ee; --glass:rgba(0,0,0,.45); --bd:rgba(255,255,255,.18); --ok:#25d366; }
-    html, body { margin:0; padding:0; height:100%; background:#000; color:var(--ink);
-      font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif; }
-    /* 기본 배경은 항상 존재하는 이미지로 시작 */
-    #bg { position:fixed; inset:0; z-index:0; background:url('img/a_corn_06_01.png') center/cover no-repeat, #000; }
+    :root{--ink:#eef6ee;--glass:rgba(0,0,0,.45);--bd:rgba(255,255,255,.18);--ok:#25d366}
+    html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif}
+    #bg{position:fixed;inset:0;z-index:0;background:url('img/a_corn_06_01.png') center/cover no-repeat,#000}
 
-    header{ position:fixed; left:10px; right:10px; top:10px; z-index:9;
-      backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd);
-      border-radius:14px; padding:8px 10px; }
-    .topline{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .status{ width:14px; height:14px; border-radius:50%; background:#ef4444; } .status.ok{ background:var(--ok); }
-    .nick{ font-weight:800; max-width:40vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .buy-group{ display:flex; gap:6px; margin-left:auto; }
-    .chip{ border:1px solid var(--bd); background:rgba(255,255,255,.08); color:#fff; border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer; }
+    header{position:fixed;left:10px;right:10px;top:10px;z-index:9;backdrop-filter:blur(6px);background:var(--glass);border:1px solid var(--bd);border-radius:14px;padding:8px 10px}
+    .topline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .status{width:14px;height:14px;border-radius:50%;background:#ef4444}.status.ok{background:var(--ok)}
+    .nick{font-weight:800;max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .buy-group{display:flex;gap:6px;margin-left:auto}
+    .chip{border:1px solid var(--bd);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer}
 
-    .res{ display:grid; gap:6px; margin-top:6px; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
-    .tag{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 8px; border-radius:999px; border:1px solid var(--bd); background:rgba(255,255,255,.08); font-size:12px; }
-    .tag b{ font-variant-numeric:tabular-nums; }
+    .res{display:grid;gap:6px;margin-top:6px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+    .tag{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.08);font-size:12px}
+    .tag b{font-variant-numeric:tabular-nums}
 
-    .gauge{ position:fixed; left:10px; bottom:240px; width:110px; height:110px; z-index:6;
-      border-radius:50%; border:1px solid var(--bd); background:rgba(0,0,0,.35); display:grid; place-items:center; overflow:hidden; }
-    .gfill{ position:absolute; inset:0; background:conic-gradient(#8ed36b var(--p,0%), rgba(255,255,255,.12) 0); }
-    .gnum{ position:relative; font-weight:800; }
+    .gauge{position:fixed;left:10px;bottom:240px;width:110px;height:110px;z-index:6;border-radius:50%;border:1px solid var(--bd);background:rgba(0,0,0,.35);display:grid;place-items:center;overflow:hidden}
+    .gfill{position:absolute;inset:0;background:conic-gradient(#8ed36b var(--p,0%),rgba(255,255,255,.12) 0)}
+    .gnum{position:relative;font-weight:800}
 
-    #levelPanel{ position:fixed; left:10px; bottom:170px; z-index:6; display:flex; align-items:center; gap:10px; }
-    #charImg{ width:40px; height:40px; border-radius:10px; border:1px solid var(--bd); object-fit:cover; background:#111; }
-    .lvwrap{ display:flex; flex-direction:column; gap:6px; }
-    .lvline{ font-size:14px; }
-    .hbar{ width:180px; height:12px; border-radius:8px; background:rgba(255,255,255,.18); overflow:hidden; }
-    .hbar .fill{ height:100%; width:var(--p,0%); background:linear-gradient(#b4c6ff,#5b7cff); transition:width .35s ease; }
+    #levelPanel{position:fixed;left:10px;bottom:170px;z-index:6;display:flex;align-items:center;gap:10px}
+    #charImg{width:40px;height:40px;border-radius:10px;border:1px solid var(--bd);object-fit:cover;background:#111}
+    .lvwrap{display:flex;flex-direction:column;gap:6px}
+    .lvline{font-size:14px}
+    .hbar{width:180px;height:12px;border-radius:8px;background:rgba(255,255,255,.18);overflow:hidden}
+    .hbar .fill{height:100%;width:var(--p,0%);background:linear-gradient(#b4c6ff,#5b7cff);transition:width .35s ease}
 
-    .mini-wrap{ position:fixed; left:50%; transform:translateX(-50%); bottom:120px; z-index:7;
-      display:flex; align-items:center; gap:12px; width:clamp(300px, 64vw, 560px);
-      border:1px solid var(--bd); border-radius:14px; background:rgba(0,0,0,.28); padding:10px 12px; }
-    .mini-imgbox{ position:relative; width:120px; height:120px; }
-    #miniImg{ width:100%; height:100%; border-radius:12px; border:1px solid var(--bd); object-fit:cover; background:#000; }
-    .seed-badge{ position:absolute; left:6px; bottom:6px; width:32px; height:32px; object-fit:contain; display:none; }
+    .mini-wrap{position:fixed;left:50%;transform:translateX(-50%);bottom:120px;z-index:7;display:flex;align-items:center;gap:12px;width:clamp(300px,64vw,560px);border:1px solid var(--bd);border-radius:14px;background:rgba(0,0,0,.28);padding:10px 12px}
+    .mini-imgbox{position:relative;width:120px;height:120px}
+    #miniImg{width:100%;height:100%;border-radius:12px;border:1px solid var(--bd);object-fit:cover;background:#000}
+    .seed-badge{position:absolute;left:6px;bottom:6px;width:32px;height:32px;object-fit:contain;display:none}
+    .mini-info{display:flex;align-items:flex-end;gap:14px;flex:1;min-width:0}
+    #miniCap{font-size:12px;opacity:.9;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;align-self:flex-start}
 
-    .mini-info{ display:flex; align-items:flex-end; gap:14px; flex:1; min-width:0; }
-    #miniCap{ font-size:12px; opacity:.9; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; align-self:flex-start; }
+    .seed-kinds{display:flex;gap:8px;align-items:center;margin-left:8px;margin-right:auto}
+    .seed-fig{position:relative;width:42px;height:68px}
+    .seed-fig img{width:100%;height:100%;object-fit:contain;display:block}
+    .seed-fig.off{opacity:.45}
+    .seed-fig .num{position:absolute;right:-6px;top:-8px;background:rgba(0,0,0,.7);border:1px solid var(--bd);color:#fff;font-size:11px;padding:2px 6px;border-radius:999px}
 
-    .seed-kinds{ display:flex; gap:8px; align-items:center; margin-left:8px; margin-right:auto; }
-    .seed-fig{ position:relative; width:42px; height:68px; }
-    .seed-fig img{ width:100%; height:100%; object-fit:contain; display:block; }
-    .seed-fig.off{ opacity:.45; }
-    .seed-fig .num{ position:absolute; right:-6px; top:-8px; background:rgba(0,0,0,.7); border:1px solid var(--bd); color:#fff; font-size:11px; padding:2px 6px; border-radius:999px; }
+    .vwrap{display:flex;gap:18px;align-items:flex-end}
+    .vbar{position:relative;width:16px;height:84px;border-radius:8px;background:rgba(255,255,255,.18);overflow:hidden}
+    .vbar .fill{position:absolute;left:0;right:0;bottom:0;height:var(--p,0%);transition:height .3s ease}
+    .vbar[data-type="water"] .fill{background:linear-gradient(#9fd7ff,#4aa3ff)}
+    .vbar[data-type="fert"] .fill{background:linear-gradient(#bff0b8,#4ecb5a)}
+    .vbar[data-type="grow"] .fill{background:linear-gradient(#ffd67a,#ff9f1a)}
+    .vlabel{display:flex;flex-direction:column;align-items:center;gap:6px}
+    .vtext{font-size:12px;opacity:.9}
 
-    .vwrap{ display:flex; gap:18px; align-items:flex-end; }
-    .vbar{ position:relative; width:16px; height:84px; border-radius:8px; background:rgba(255,255,255,.18); overflow:hidden; }
-    .vbar .fill{ position:absolute; left:0; right:0; bottom:0; height:var(--p,0%); transition:height .3s ease; }
-    .vbar[data-type="water"] .fill{ background:linear-gradient(#9fd7ff,#4aa3ff); }
-    .vbar[data-type="fert"]  .fill{ background:linear-gradient(#bff0b8,#4ecb5a); }
-    .vbar[data-type="grow"]  .fill{ background:linear-gradient(#ffd67a,#ff9f1a); }
-    .vlabel{ display:flex; flex-direction:column; align-items:center; gap:6px; }
-    .vtext{ font-size:12px; opacity:.9; }
+    .actions{position:fixed;left:10px;right:10px;bottom:10px;z-index:8;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;backdrop-filter:blur(6px);background:var(--glass);border:1px solid var(--bd);border-radius:14px;padding:8px}
+    .btn{border:1px solid var(--bd);background:rgba(0,0,0,.25);color:#fff;border-radius:10px;padding:10px 8px;font-size:13px;cursor:pointer}
+    .btn[disabled]{opacity:.55;pointer-events:none}
 
-    .actions{ position:fixed; left:10px; right:10px; bottom:10px; z-index:8; display:grid; grid-template-columns:repeat(3,1fr); gap:6px;
-      backdrop-filter:blur(6px); background:var(--glass); border:1px solid var(--bd); border-radius:14px; padding:8px; }
-    .btn{ border:1px solid var(--bd); background:rgba(0,0,0,.25); color:#fff; border-radius:10px; padding:10px 8px; font-size:13px; cursor:pointer; }
-    .btn[disabled]{ opacity:.55; pointer-events:none; }
+    #toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9999;background:rgba(0,0,0,.85);color:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;display:none}
+    #toast.show{display:block}
 
-    #toast{ position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:9999; background:rgba(0,0,0,.85); color:#fff;
-      border:1px solid var(--bd); border-radius:10px; padding:8px 12px; font-size:13px; display:none; }
-    #toast.show{ display:block; }
-
-    .modal{ position:fixed; inset:0; z-index:9998; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.55); }
-    .modal.show{ display:flex; }
-    .panel{ width:min(92vw,420px); background:rgba(0,0,0,.88); border:1px solid var(--bd); border-radius:12px; padding:14px; color:#fff; }
-    .panel h3{ margin:0 0 10px 0; font-size:16px; }
-    .row{ display:grid; grid-template-columns: 1fr auto auto auto; align-items:center; gap:10px; margin:8px 0; }
-    .row .unit{ opacity:.9; font-size:12px; }
-    .qtybox{ display:flex; align-items:center; gap:6px; }
-    .btn3{ width:28px; height:28px; border-radius:7px; border:1px solid var(--bd); background:#1e293b; color:#fff; cursor:pointer; }
-    .qty{ width:64px; padding:6px 8px; border-radius:8px; border:1px solid var(--bd); background:#111; color:#fff; text-align:center; }
-    .sub{ min-width:72px; text-align:right; font-variant-numeric:tabular-nums; }
-    .total{ border-top:1px dashed var(--bd); padding-top:8px; }
-    .actions-2{ display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
-    .btn2{ padding:8px 12px; border-radius:8px; border:1px solid var(--bd); background:#1e293b; color:#fff; cursor:pointer; }
-    .ghost{ background:transparent; }
+    .modal{position:fixed;inset:0;z-index:9998;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
+    .modal.show{display:flex}
+    .panel{width:min(92vw,420px);background:rgba(0,0,0,.88);border:1px solid var(--bd);border-radius:12px;padding:14px;color:#fff}
+    .panel h3{margin:0 0 10px 0;font-size:16px}
+    .row{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:10px;margin:8px 0}
+    .unit{opacity:.9;font-size:12px}
+    .qtybox{display:flex;align-items:center;gap:6px}
+    .btn3{width:28px;height:28px;border-radius:7px;border:1px solid var(--bd);background:#1e293b;color:#fff;cursor:pointer}
+    .qty{width:64px;padding:6px 8px;border-radius:8px;border:1px solid var(--bd);background:#111;color:#fff;text-align:center}
+    .sub{min-width:72px;text-align:right;font-variant-numeric:tabular-nums}
+    .total{border-top:1px dashed var(--bd);padding-top:8px}
+    .actions-2{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+    .btn2{padding:8px 12px;border-radius:8px;border:1px solid var(--bd);background:#1e293b;color:#fff;cursor:pointer}
+    .ghost{background:transparent}
 
     @media (max-width:640px){
-      .gauge{ left:8px; bottom:230px; width:92px; height:92px; }
-      #levelPanel{ left:8px; bottom:164px; }
-      #charImg{ width:34px; height:34px; }
-      .hbar{ width:150px; }
-      .mini-wrap{ width:calc(100vw - 20px); bottom:108px; gap:10px; }
-      .mini-imgbox{ width:100px; height:100px; }
-      .vbar{ height:72px; width:14px; }
+      .gauge{left:8px;bottom:230px;width:92px;height:92px}
+      #levelPanel{left:8px;bottom:164px}
+      #charImg{width:34px;height:34px}
+      .hbar{width:150px}
+      .mini-wrap{width:calc(100vw - 20px);bottom:108px;gap:10px}
+      .mini-imgbox{width:100px;height:100px}
+      .vbar{height:72px;width:14px}
     }
   </style>
 </head>
@@ -104,7 +94,7 @@
       <span id="netDot" class="status"></span>
       <span class="nick" id="nick">(로그인 필요)</span>
       <div class="buy-group">
-        <!-- ✅ 통합 1버튼 -->
+        <button class="chip" id="btn-api">⚙ 연결</button>
         <button class="chip" id="open-buy-all">🧺 자원 구매</button>
       </div>
     </div>
@@ -179,35 +169,20 @@
       <h3>자원 구매</h3>
 
       <div class="row" data-item="salt">
-        <span>🧂 소금</span>
-        <span class="unit">10</span>
-        <div class="qtybox">
-          <button class="btn3 dec">-</button>
-          <input class="qty" type="number" min="0" value="0">
-          <button class="btn3 inc">+</button>
-        </div>
+        <span>🧂 소금</span><span class="unit">10</span>
+        <div class="qtybox"><button class="btn3 dec">-</button><input class="qty" type="number" min="0" value="0"><button class="btn3 inc">+</button></div>
         <span class="sub">0</span>
       </div>
 
       <div class="row" data-item="sugar">
-        <span>🍬 설탕</span>
-        <span class="unit">20</span>
-        <div class="qtybox">
-          <button class="btn3 dec">-</button>
-          <input class="qty" type="number" min="0" value="0">
-          <button class="btn3 inc">+</button>
-        </div>
+        <span>🍬 설탕</span><span class="unit">20</span>
+        <div class="qtybox"><button class="btn3 dec">-</button><input class="qty" type="number" min="0" value="0"><button class="btn3 inc">+</button></div>
         <span class="sub">0</span>
       </div>
 
       <div class="row" data-item="seed">
-        <span>🌽 씨옥수수</span>
-        <span class="unit">100</span>
-        <div class="qtybox">
-          <button class="btn3 dec">-</button>
-          <input class="qty" type="number" min="0" value="0">
-          <button class="btn3 inc">+</button>
-        </div>
+        <span>🌽 씨옥수수</span><span class="unit">100</span>
+        <div class="qtybox"><button class="btn3 dec">-</button><input class="qty" type="number" min="0" value="0"><button class="btn3 inc">+</button></div>
         <span class="sub">0</span>
       </div>
 
@@ -217,6 +192,19 @@
       <div class="actions-2">
         <button class="btn2 ghost" id="buyAllCancel">취소</button>
         <button class="btn2" id="buyAllOK">구매</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- API 연결 모달 -->
+  <div id="apiModal" class="modal" aria-hidden="true">
+    <div class="panel">
+      <h3>API 연결</h3>
+      <p style="margin:.25rem 0 .75rem 0;opacity:.9">ngrok 주소나 서버 URL을 입력하세요. 예) <code>https://xxxx.jp.ngrok.io</code></p>
+      <input id="apiInput" type="text" placeholder="https://..." style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--bd);background:#111;color:#fff">
+      <div class="actions-2" style="margin-top:10px">
+        <button class="btn2 ghost" id="apiCancel">닫기</button>
+        <button class="btn2" id="apiSave">저장</button>
       </div>
     </div>
   </div>
