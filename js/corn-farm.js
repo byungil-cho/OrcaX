@@ -70,32 +70,64 @@ function updateResourcesFromSummary(s){
   $('#r-orcx').textContent  = wal.orcx ?? 0;
 }
 
-// ===== state / images =====
+// ===== state helpers =====
 function stateKey(v){
   if (!v) return 'idle';
   const s = String(v).toLowerCase();
-  if (s.includes('휴경') || s.includes('idle')) return 'idle';
-  if (s.includes('파종') || s.includes('plant')) return 'planted';
-  if (s.includes('성장') || s.includes('grow')) return 'growing';
+  if (s.includes('폐경') || s.includes('abandon')) return 'abandon';
+  if (s.includes('휴경') || s.includes('idle'))    return 'idle';
+  if (s.includes('파종') || s.includes('plant'))   return 'planted';
+  if (s.includes('성장') || s.includes('grow'))    return 'growing';
   if (s.includes('수확') || s.includes('harvest')) return 'harvestable';
   return 'idle';
 }
+
+// ===== background / mini image =====
+function pickFirstExisting(paths){
+  // 그냥 첫 번째 경로를 사용하고, 로드 실패 시 onerror에서 다음을 시도할 수도 있지만
+  // 여기서는 폴백 1장만 즉시 반환(없는 경우 CSS 기본 배경 사용)
+  return paths[0];
+}
+function applyBackground(k){
+  // 상황별 배경 후보 (없으면 기본 farm_01.png 그대로)
+  const map = {
+    idle:      ['img/bg_winter.png','img/farm_winter.png'],
+    planted:   ['img/bg_spring.png','img/farm_spring.png'],
+    growing:   ['img/bg_summer.png','img/farm_summer.png'],
+    harvestable:['img/bg_autumn.png','img/farm_autumn.png'],
+    abandon:   ['img/bg_fallow.png','img/farm_fallow.png']
+  };
+  const bg = document.getElementById('bg');
+  if (!bg) return;
+  const src = pickFirstExisting(map[k] || []);
+  if (src) bg.style.backgroundImage = `url('${src}')`;
+}
+
 function paintState(sum){
   const percent = Math.max(0, Math.min(100, Number(sum?.growth?.percent ?? 0)));
   $('#gfill')?.style.setProperty('--p', `${percent}%`);
   $('#gnum').textContent = Math.round(percent);
 
   const k = stateKey(sum?.state || sum?.growth?.state);
-  $('#miniCap').textContent = (k==='idle'?'휴경': k==='planted'?'파종': k==='growing'?'성장중':'수확가능');
+  $('#miniCap').textContent = (k==='idle'?'휴경': k==='planted'?'파종': k==='growing'?'성장중': k==='abandon'?'폐경':'수확가능');
 
+  // 배경 전환
+  applyBackground(k);
+
+  // 미니 이미지
   const imgMap = {
-    idle:'img/a_corn_06_01.png',
+    idle:'img/a_corn_winter.png',           // 휴경 썸네일(없으면 아래 폴백)
     planted:'img/a_corn_04_01.png',
     growing:'img/a_corn_04_04.png',
-    harvestable:'img/a_corn_06_04.png'
+    harvestable:'img/a_corn_06_04.png',
+    abandon:'img/a_corn_fallow.png'
   };
   const mini = $('#miniImg');
-  if(mini) mini.src = imgMap[k] || imgMap.idle;
+  const desired = imgMap[k] || 'img/a_corn_06_01.png';
+  if(mini){
+    mini.src = desired;
+    mini.onerror = () => { mini.src = 'img/a_corn_06_01.png'; };
+  }
 }
 
 // ===== side bars =====
@@ -156,15 +188,28 @@ function paintPlantedBadge(sum){
   badge.onerror = ()=>{ badge.style.display='none'; };
 }
 
-// ===== level/character =====
+// ===== level/character (1,5,10,15,20,25,30,35,40,45,50) =====
+function levelSpriteIndex(level){
+  // 임계: 1,5,10,15,20,25,30,35,40,45,50 → 스프라이트 1..10에 매핑 (50은 10으로 고정)
+  const cuts = [1,5,10,15,20,25,30,35,40,45,50];
+  let idx = 1;
+  for (let i=0;i<cuts.length-1;i++){
+    if (level >= cuts[i]) idx = i+1; // 1..10
+  }
+  return Math.max(1, Math.min(10, idx));
+}
 function computeLevel(sum){
   const xp = (Number(sum?.agri?.corn ?? 0) * 10) + (Number(sum?.food?.popcorn ?? 0) * 5);
-  const L  = Math.max(1, Math.floor(Math.log10(xp + 1)) + 1);
+  const L  = Math.max(1, Math.floor(Math.log10(xp + 1)) + 1); // 간이
   const nextCap = Math.pow(10, L) - 1, prevCap = Math.pow(10, L-1) - 1;
   const pct = Math.round((xp - prevCap) / Math.max(1, (nextCap - prevCap)) * 100);
   return { level: L, percent: Math.max(0, Math.min(100, pct)) };
 }
-function charSpriteByLevel(level){ const n=Math.max(1,Math.min(10,Math.floor(level))); const pad=n<10?`0${n}`:`${n}`; return `img/a_mark_${pad}.png`; }
+function charSpriteByLevel(level){
+  const idx = levelSpriteIndex(level);
+  const pad = idx<10?`0${idx}`:`${idx}`;
+  return `img/a_mark_${pad}.png`;
+}
 function paintLevel(sum){
   const { level, percent } = computeLevel(sum);
   $('#levelNum').textContent = level;
@@ -174,10 +219,8 @@ function paintLevel(sum){
 
 // ===== 3-in-1 구매 모달 =====
 function openBuyAll(prefill) {
-  // 보유 토큰 반영
   $('#buyAllWallet').textContent = $('#r-orcx').textContent || '0';
 
-  // 기본 수량 0, 프리필(소금/설탕/씨앗 중 하나만 1로) 처리
   const rows = Array.from(document.querySelectorAll('#buyAllModal .row[data-item]'));
   rows.forEach(r=>{
     const item = r.getAttribute('data-item');
@@ -204,7 +247,6 @@ function updateBuyAllTotals(){
 }
 
 async function doBuyAll(){
-  // 수량 수집
   const lines = [];
   document.querySelectorAll('#buyAllModal .row[data-item]').forEach(r=>{
     const item = r.getAttribute('data-item');
@@ -214,9 +256,9 @@ async function doBuyAll(){
   if (lines.length===0) { showToast('수량을 입력하세요'); return; }
 
   try{
-    // 서버는 품목별 POST를 기대하므로 순차로 보냄
     for (const it of lines){
       await api('/api/corn/buy', { method:'POST', body:{ kakaoId, item:it.item, qty:it.qty } });
+      console.log('[BUY]', it);
     }
     showToast('구매 완료');
     closeBuyAll();
