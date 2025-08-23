@@ -5,7 +5,11 @@ const qs = new URLSearchParams(location.search);
 function normBase(u){ return (u||'').trim().replace(/\/+$/,''); }
 let API_BASE = normBase(qs.get('api')) || normBase(localStorage.getItem('orcax_api'));
 if (!API_BASE) API_BASE = ''; // 비어있으면 연결 모달
-function saveAPI(u){ API_BASE = normBase(u); localStorage.setItem('orcax_api', API_BASE); console.log('[API BASE]', API_BASE); }
+function saveAPI(u){ 
+  API_BASE = normBase(u); 
+  localStorage.setItem('orcax_api', API_BASE); 
+  console.log('[API BASE]', API_BASE); 
+}
 
 const PRICES = { salt:10, sugar:20, seed:100 };
 const WATER_MAX = 10, FERT_MAX = 10;
@@ -35,7 +39,7 @@ async function api(path, {method='GET', body=null, nocache=false}={}){
   const opt = {
     method,
     headers: { 'Content-Type': 'application/json', 'Accept':'application/json' },
-    cache: 'no-store' // 304 방지
+    cache: 'no-store'
   };
   if (body) opt.body = JSON.stringify(body);
 
@@ -70,7 +74,7 @@ async function ensureUser(){
   }
 }
 
-/* ----------------------- 도우미: 요약값 → 숫자 ----------------------- */
+/* ----------------------- 도우미 ----------------------- */
 function readSeedTotal(s){
   const c = [s?.seedKinds?.total,s?.seedTotal,s?.seedsTotal,s?.agri?.seedTotal,s?.agri?.seedCorn,s?.user?.agri?.seedCorn,s?.seedCorn,s?.seed_corn,s?.seeds,s?.seed,s?.agri?.seeds];
   for (const v of c) if (v!=null) return Number(v)||0;
@@ -204,7 +208,7 @@ async function loadSummary(){
   return s;
 }
 
-/* ----------------------- 구매(통합) ----------------------- */
+/* ----------------------- 구매 ----------------------- */
 function openBuyAll(pref){
   $('#buyAllWallet').textContent=$('#r-orcx').textContent||'0';
   document.querySelectorAll('#buyAllModal .row[data-item]').forEach(r=>{
@@ -268,7 +272,11 @@ function closeApi(){ $('#apiModal').classList.remove('show'); }
 /* ----------------------- 부트스트랩 ----------------------- */
 async function boot(){
   if (!API_BASE){
-    openApi(); setNet(false); return;
+    // 수정: 무조건 모달 강제 오픈
+    console.warn('[BOOT] API_BASE 없음 → 연결 모달 열기');
+    openApi(); 
+    setNet(false); 
+    return;
   }
   try{
     await ensureUser();
@@ -308,21 +316,11 @@ function bind(){
     qty?.addEventListener('input', updateBuyAllTotals);
   });
 
-  // API 연결
-  on('btn-api',   () => openApi());
-  on('apiCancel', () => closeApi());
-  on('apiSave',   async () => {
-    const v = $('#apiInput')?.value.trim();
-    if (!v || !/^https?:\/\//.test(v)) return toast('http(s):// 로 시작해야 합니다');
-    saveAPI(v);
-    closeApi();
-    boot();
-  });
+  // API 모달
+  on('btn-api', openApi);
+  on('apiCancel', closeApi);
+  on('apiSave', ()=>{ saveAPI($('#apiInput').value); closeApi(); boot(); });
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{
-  bind();
-  boot();
-  // 10초마다 리프레시 (요약은 항상 nocache)
-  setInterval(async ()=>{ if(API_BASE){ try{ await loadSummary(); setNet(true); }catch{ setNet(false); } } }, 10000);
-});
+/* ----------------------- MAIN ----------------------- */
+document.addEventListener('DOMContentLoaded', () => { bind(); boot(); });
