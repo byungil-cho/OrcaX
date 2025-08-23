@@ -1,10 +1,9 @@
 'use strict';
-
 /* ----------------------- API BASE ----------------------- */
 const qs = new URLSearchParams(location.search);
 function normBase(u){ return (u||'').trim().replace(/\/+$/,''); }
 
-// 🚀 강제로 ngrok 주소를 기본값으로 설정
+// 🚀 강제로 ngrok 주소 기본값
 const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
 
 let API_BASE =
@@ -12,7 +11,6 @@ let API_BASE =
   normBase(localStorage.getItem('orcax_api')) || 
   DEFAULT_API;
 
-// localStorage에도 항상 덮어씌움
 localStorage.setItem('orcax_api', API_BASE);
 
 function saveAPI(u){ 
@@ -28,6 +26,43 @@ const $ = s => document.querySelector(s);
 const clamp01 = x => Math.max(0, Math.min(1, x));
 function setNet(ok){ $('#netDot')?.classList.toggle('ok', !!ok); }
 function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+
+/* ----------------------- RESOURCE HELPERS ----------------------- */
+function readSeedTotal(s){
+  const c = [
+    s?.inventory?.seed,               // ✅ summary.inventory.seed
+    s?.seedKinds?.total,
+    s?.seedTotal,
+    s?.seedsTotal,
+    s?.agri?.seedTotal,
+    s?.agri?.seedCorn,
+    s?.user?.agri?.seedCorn,
+    s?.seedCorn,
+    s?.seed_corn,
+    s?.seeds,
+    s?.seed,
+    s?.agri?.seeds
+  ];
+  for (const v of c) if (v!=null) return Number(v)||0;
+  return 0;
+}
+
+/* ----------------------- MAIN RENDER ----------------------- */
+function paintResources(s){
+  const inv = s?.inventory || {};
+  const wal = s?.wallet || {};
+
+  $('#r-seeds').textContent = readSeedTotal(s);     // ✅ 씨앗 값
+  $('#r-water').textContent = inv.water ?? 0;
+  $('#r-fert').textContent  = inv.fertilizer ?? 0;
+  $('#r-corn').textContent  = s?.agri?.corn ?? 0;
+  $('#r-pop').textContent   = s?.food?.popcorn ?? 0;
+  $('#r-salt').textContent  = s?.additives?.salt ?? 0;
+  $('#r-sugar').textContent = s?.additives?.sugar ?? 0;
+  $('#r-orcx').textContent  = wal.orcx ?? 0;        // ✅ 토큰 값
+}
+
+// ... 이하 기존 코드 동일 (버튼, 모달, boot(), bind() 등)
 /* ----------------------- 유저 ----------------------- */
 let kakaoId  = qs.get('kakaoId')  || localStorage.getItem('kakaoId');
 let nickname = qs.get('nickname') || localStorage.getItem('nickname');
