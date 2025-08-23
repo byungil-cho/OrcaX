@@ -93,7 +93,7 @@ function paintResources(s){
 /* ===== 이미지 매퍼 ===== */
 const IMG = {
   bg: {
-    enter:   'img/farm_00.png',
+    enter:   'img/farm_01.png',
     fallow:  'img/farm_01.png',
     d1:      'img/farm_03.png',
     d2:      'img/farm_05.png',
