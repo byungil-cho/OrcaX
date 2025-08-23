@@ -25,21 +25,33 @@ if (!kakaoId || !nickname){
   localStorage.setItem('kakaoId', kakaoId);
 }
 
-/* ----------------------- API 호출 ----------------------- */
-async function api(path, {method='GET', body=null}={}){
+/* ----------------------- API 호출(캐시무시) ----------------------- */
+async function api(path, {method='GET', body=null, nocache=false}={}){
   if (!API_BASE) throw new Error('API 미지정');
-  const url = `${API_BASE}${path}`;
-  const opt = { method, headers:{'Content-Type':'application/json'} };
+
+  const addNoCache = nocache ? (path.includes('?') ? `&_=${Date.now()}` : `?_=${Date.now()}`) : '';
+  const url = `${API_BASE}${path}${addNoCache}`;
+
+  const opt = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'Accept':'application/json' },
+    cache: 'no-store' // 304 방지
+  };
   if (body) opt.body = JSON.stringify(body);
-  const r = await fetch(url, opt);
-  let j=null; try{ j = await r.json(); }catch{}
-  if(!r.ok) throw new Error((j&& (j.message||j.error)) || r.statusText);
-  return j;
+
+  const res = await fetch(url, opt);
+  if (res.status === 304) throw new Error('서버 응답이 갱신되지 않았습니다(304).');
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : {};
+
+  if (!res.ok) throw new Error(data?.message || data?.error || res.statusText);
+  return data;
 }
 async function tryAll(paths, body){
   let last;
   for(const p of paths){
-    try{ return await api(p, {method:'POST', body}); }
+    try{ return await api(p, {method:'POST', body, nocache:true}); }
     catch(e){ last=e; }
   }
   throw last || new Error('엔드포인트 없음');
@@ -47,11 +59,14 @@ async function tryAll(paths, body){
 
 /* ----------------------- 연결/인증 ----------------------- */
 async function ensureUser(){
-  await api('/api/health').catch(()=>api('/health')).catch(()=>{ throw new Error('서버 Health 실패'); });
+  await api('/api/health', { nocache:true })
+    .catch(()=>api('/health', { nocache:true }))
+    .catch(()=>{ throw new Error('서버 Health 실패'); });
+
   try{
-    await api(`/api/init-user?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`);
+    await api(`/api/init-user?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`, { nocache:true });
   }catch{
-    await api('/api/init-user',{method:'POST', body:{kakaoId,nickname}});
+    await api('/api/init-user',{method:'POST', body:{kakaoId,nickname}, nocache:true});
   }
 }
 
@@ -75,7 +90,7 @@ function paintResources(s){
   $('#r-orcx').textContent  = wal.orcx ?? 0;
 }
 
-/* ===== 이미지 매퍼(엔진 스펙 반영) ===== */
+/* ===== 이미지 매퍼 ===== */
 const IMG = {
   bg: {
     enter:   'img/farm_00.png',
@@ -169,21 +184,17 @@ function paintLevel(sum){ const {level,percent}=computeLevel(sum); $('#levelNum'
 
 /* 배경/미니/상태 문구 적용 */
 async function paintFront(sum){
-  // 배경
   await setBgImage(pickBackground(sum));
-  // 미니
   const mini = $('#miniImg'); if (mini) mini.src = pickMiniSprite(sum);
-  // 상태 글자
   const stKey = (sum?.status||sum?.state||'fallow').toLowerCase();
   $('#miniCap').textContent = stateText(stKey.includes('fallow')?'fallow':(stKey.includes('harvest')?'harvest':(stKey.includes('missed')?'missed':'growing')));
-  // 씨앗 뱃지
   paintBadge(sum);
 }
 
 /* 요약 로드 */
 async function loadSummary(){
-  const s = await api(`/api/corn/summary?kakaoId=${encodeURIComponent(kakaoId)}`)
-              .catch(()=>api(`/api/corn/summary/${encodeURIComponent(kakaoId)}`));
+  const s = await api(`/api/corn/summary?kakaoId=${encodeURIComponent(kakaoId)}`, { nocache:true })
+              .catch(()=>api(`/api/corn/summary/${encodeURIComponent(kakaoId)}`, { nocache:true }));
   paintResources(s);
   await paintFront(s);
   paintBars(s);
@@ -312,6 +323,6 @@ function bind(){
 document.addEventListener('DOMContentLoaded', ()=>{
   bind();
   boot();
-  // 10초마다 리프레시
+  // 10초마다 리프레시 (요약은 항상 nocache)
   setInterval(async ()=>{ if(API_BASE){ try{ await loadSummary(); setNet(true); }catch{ setNet(false); } } }, 10000);
 });
