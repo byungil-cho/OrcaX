@@ -16,8 +16,8 @@ if (!kakaoId || !nickname) {
   localStorage.setItem('kakaoId', kakaoId);
 }
 
-/* ===== 상수/유틸 (서버 무변경 전제) ===== */
-const PRICES = { salt:10, sugar:20, seed:100 }; // 서버 설정과 동일하게 유지(소금10/설탕20/씨옥수수100)
+/* ===== 상수/유틸 ===== */
+const PRICES = { salt:10, sugar:20, seed:100 }; // 서버 설정과 동일
 const WATER_MAX = 10, FERT_MAX = 10;
 const clamp01 = x => Math.max(0, Math.min(1, x));
 const $ = sel => document.querySelector(sel);
@@ -30,29 +30,29 @@ async function api(path, {method='GET', body=null} = {}){
   const opt = { method, headers: { 'Content-Type':'application/json' } };
   if (body) opt.body = JSON.stringify(body);
   const res = await fetch(url, opt);
-  let data = null; try{ data = await res.json(); }catch{}
+  let data=null; try{ data = await res.json(); }catch{}
   if(!res.ok) throw new Error((data && (data.message||data.error)) || res.statusText);
   return data;
 }
 
-/* ===== init-user (엔진 기존 라우트만 사용) ===== */
+/* ===== init-user: 기존 엔진 유지 ===== */
 async function ensureUser(kakaoId, nickname){
-  // GET 우선 → 실패 시 POST
   try { return await api(`/api/init-user?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`); }
   catch { return await api('/api/init-user',{method:'POST', body:{kakaoId,nickname}}); }
 }
 
-/* ===== 리소스 ===== */
+/* ===== robust: 씨앗 총수 읽기 ===== */
 function readSeedTotal(s){
   const cands = [
     s?.seedKinds?.total, s?.seedTotal, s?.seedsTotal,
     s?.agri?.seedTotal, s?.agri?.seedCorn, s?.user?.agri?.seedCorn,
-    s?.seedCorn, s?.seed_corn, s?.seeds, s?.seed
+    s?.seedCorn, s?.seed_corn, s?.seeds, s?.seed, s?.agri?.seeds
   ];
   for (const v of cands) if (v != null) return Number(v)||0;
   return 0;
 }
 
+/* ===== 리소스 표시 ===== */
 function updateResourcesFromSummary(s){
   const inv = s.inventory || {};
   const ag  = s.agri || {};
@@ -61,8 +61,8 @@ function updateResourcesFromSummary(s){
   const wal = s.wallet || {};
 
   $('#r-seeds').textContent = readSeedTotal(s);
-  $('#r-water').textContent = inv.water ?? 0;          // 공용(users)에서 온 값이면 summary가 채워줌
-  $('#r-fert').textContent  = inv.fertilizer ?? 0;     // 동일
+  $('#r-water').textContent = inv.water ?? 0;
+  $('#r-fert').textContent  = inv.fertilizer ?? 0;
   $('#r-corn').textContent  = ag.corn ?? 0;
   $('#r-pop').textContent   = food.popcorn ?? 0;
   $('#r-salt').textContent  = add.salt ?? 0;
@@ -70,7 +70,7 @@ function updateResourcesFromSummary(s){
   $('#r-orcx').textContent  = wal.orcx ?? 0;
 }
 
-/* ===== 상태/게이지/미니이미지 ===== */
+/* ===== 상태/미니 이미지 ===== */
 function stateKey(v){
   if (!v) return 'idle';
   const s = String(v).toLowerCase();
@@ -131,10 +131,10 @@ function paintSeedKinds(sum){
   set('seed-over',   0);
 }
 
-/* ===== 심어진 씨앗 배지 (노/빨/검) ===== */
+/* ===== 심어진 씨앗 배지 ===== */
 function plantedSeedType(sum){
   const explicit = (sum?.growth?.seedType || sum?.field?.seedType || sum?.seedType || '').toLowerCase();
-  if (['red','loan'].includes(explicit))   return 'red';
+  if (['red','loan'].includes(explicit))      return 'red';
   if (['black','overdue'].includes(explicit)) return 'black';
   if (['yellow','normal'].includes(explicit)) return 'yellow';
 
@@ -156,7 +156,7 @@ function paintPlantedBadge(sum){
   badge.onerror = ()=>{ badge.style.display='none'; };
 }
 
-/* ===== 레벨/캐릭터(간이 산식) ===== */
+/* ===== 레벨/캐릭터(간이) ===== */
 function computeLevel(sum){
   const xp = (Number(sum?.agri?.corn ?? 0) * 10) + (Number(sum?.food?.popcorn ?? 0) * 5);
   const L  = Math.max(1, Math.floor(Math.log10(xp + 1)) + 1);
@@ -204,14 +204,14 @@ async function doBuy(){
 /* ===== 동작 ===== */
 async function loadFarm(){
   try{
-    await ensureUser(kakaoId, nickname);        // 감자/보리 공용 users 컬렉션 초기화
-    const sum = await api(`/api/corn/summary?kakaoId=${encodeURIComponent(kakaoId)}`); // 옥수수 엔진 요약
+    await ensureUser(kakaoId, nickname); // 공용 users 초기화/업데이트
+    const sum = await api(`/api/corn/summary?kakaoId=${encodeURIComponent(kakaoId)}`); // 옥수수 엔진
 
-    updateResourcesFromSummary(sum);  // (users + corn_data 합산 요약)
+    updateResourcesFromSummary(sum);
     paintState(sum);
     paintSideBars(sum);
-    paintSeedKinds(sum);              // 인벤토리는 노란 씨앗만 활성
-    paintPlantedBadge(sum);           // 심긴 씨앗 배지(노/빨/검)
+    paintSeedKinds(sum);
+    paintPlantedBadge(sum);
     paintLevel(sum);
 
     const nickEl = $('#nick'); if (nickEl) nickEl.textContent = '온라인 ' + nickname;
@@ -228,19 +228,17 @@ function bindEvents(){
     try{ await api('/api/corn/plant',{method:'POST', body:{kakaoId}}); showToast('씨앗 심기 완료'); await loadFarm(); }
     catch(e){ showToast(e.message); }
   };
-  $('#btn-water').onclick = ()=> showToast('물 주기는 감자/공용 자원입니다');
-  $('#btn-fert').onclick  = ()=> showToast('거름 주기는 감자/공용 자원입니다');
+  $('#btn-water').onclick = ()=> showToast('물은 공용(users) 자원입니다');
+  $('#btn-fert').onclick  = ()=> showToast('거름은 공용(users) 자원입니다');
 
   $('#btn-harv').onclick  = async ()=>{
     try{ const r=await api('/api/corn/harvest',{method:'POST', body:{kakaoId}}); showToast(`수확 +${r.gain} (씨앗:${r.seedType||'-'})`); await loadFarm(); }
     catch(e){ showToast(e.message); }
   };
-
   $('#btn-pop').onclick   = async ()=>{
     try{
       const use = confirm('설탕 사용? (취소=소금)') ? 'sugar' : 'salt';
       const r = await api('/api/corn/pop',{method:'POST', body:{kakaoId,use}});
-      // 서버가 fee/seedType을 주면 표시, 없으면 지급량만 표시
       if (typeof r.fee !== 'undefined' || r.seedType){
         showToast(`지급 ${r.qty} (공제 ${r.fee ?? '?'} , 씨앗 ${r.seedType ?? '?'})`);
       } else {
@@ -249,8 +247,7 @@ function bindEvents(){
       await loadFarm();
     }catch(e){ showToast(e.message); }
   };
-
-  $('#btn-ex').onclick    = ()=> showToast('팝콘→거름은 서버 엔진에 맞춰 별도 구현');
+  $('#btn-ex').onclick    = ()=> showToast('팝콘→거름은 서버 엔진에 맞춰 구현');
 
   // 구매
   $('#buy-salt').onclick  = ()=>openBuy('salt');
@@ -260,13 +257,12 @@ function bindEvents(){
   $('#buyCancel').onclick = closeBuy;
   $('#buyOK').onclick     = doBuy;
 
-  // 초기에 배지는 숨김
+  // 초기 배지 숨김
   const badge = $('#seedBadgeImg'); if (badge) badge.style.display='none';
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
   bindEvents();
   loadFarm();
-  // 10초 주기 새로고침 (엔진 실시간 반영)
-  setInterval(loadFarm, 10000);
+  setInterval(loadFarm, 10000); // 10초마다 갱신
 });
