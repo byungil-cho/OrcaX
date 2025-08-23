@@ -35,6 +35,26 @@ async function api(path, {method='GET', body=null} = {}){
   return data;
 }
 
+// 여러 후보 엔드포인트 중 하나 성공할 때까지 시도
+async function tryEndpoints(list, body){
+  let lastErr;
+  for(const p of list){
+    try{ return await api(p, {method:'POST', body}); }
+    catch(e){ lastErr = e; }
+  }
+  throw lastErr || new Error('no endpoint');
+}
+
+// 이미지 preload 후 성공 시에만 배경 변경(실패하면 기존 유지)
+function preload(src){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.onload = () => resolve(src);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
 // ===== init-user =====
 async function ensureUser(kakaoId, nickname){
   try { return await api(`/api/init-user?kakaoId=${encodeURIComponent(kakaoId)}&nickname=${encodeURIComponent(nickname)}`); }
@@ -83,24 +103,28 @@ function stateKey(v){
 }
 
 // ===== background / mini image =====
-function pickFirstExisting(paths){
-  // 그냥 첫 번째 경로를 사용하고, 로드 실패 시 onerror에서 다음을 시도할 수도 있지만
-  // 여기서는 폴백 1장만 즉시 반환(없는 경우 CSS 기본 배경 사용)
-  return paths[0];
-}
-function applyBackground(k){
-  // 상황별 배경 후보 (없으면 기본 farm_01.png 그대로)
+function applyBackgroundSafe(k){
   const map = {
-    idle:      ['img/bg_winter.png','img/farm_winter.png'],
-    planted:   ['img/bg_spring.png','img/farm_spring.png'],
-    growing:   ['img/bg_summer.png','img/farm_summer.png'],
+    idle:       ['img/bg_winter.png','img/farm_winter.png'],
+    planted:    ['img/bg_spring.png','img/farm_spring.png'],
+    growing:    ['img/bg_summer.png','img/farm_summer.png'],
     harvestable:['img/bg_autumn.png','img/farm_autumn.png'],
-    abandon:   ['img/bg_fallow.png','img/farm_fallow.png']
+    abandon:    ['img/bg_fallow.png','img/farm_fallow.png']
   };
-  const bg = document.getElementById('bg');
+  const bg = $('#bg');
   if (!bg) return;
-  const src = pickFirstExisting(map[k] || []);
-  if (src) bg.style.backgroundImage = `url('${src}')`;
+
+  const candidates = map[k] || [];
+  if (candidates.length === 0) return;
+
+  // 성공한 것만 적용
+  (async ()=>{
+    for (const src of candidates){
+      try { await preload(src); bg.style.backgroundImage = `url('${src}')`; return; }
+      catch { /* skip */ }
+    }
+    // 모두 실패하면 기존 배경 유지 (아무 것도 하지 않음)
+  })();
 }
 
 function paintState(sum){
@@ -111,12 +135,10 @@ function paintState(sum){
   const k = stateKey(sum?.state || sum?.growth?.state);
   $('#miniCap').textContent = (k==='idle'?'휴경': k==='planted'?'파종': k==='growing'?'성장중': k==='abandon'?'폐경':'수확가능');
 
-  // 배경 전환
-  applyBackground(k);
+  applyBackgroundSafe(k);
 
-  // 미니 이미지
   const imgMap = {
-    idle:'img/a_corn_winter.png',           // 휴경 썸네일(없으면 아래 폴백)
+    idle:'img/a_corn_winter.png',
     planted:'img/a_corn_04_01.png',
     growing:'img/a_corn_04_04.png',
     harvestable:'img/a_corn_06_04.png',
@@ -148,7 +170,7 @@ function paintSideBars(sum){
   $('#vbar-grow') ?.style.setProperty('--p', `${growP}%`);
 }
 
-// ===== seed kinds (inventory shows yellow only) =====
+// ===== seed kinds =====
 function paintSeedKinds(sum){
   const total = readSeedTotal(sum);
   const set = (id, n) => {
@@ -188,19 +210,16 @@ function paintPlantedBadge(sum){
   badge.onerror = ()=>{ badge.style.display='none'; };
 }
 
-// ===== level/character (1,5,10,15,20,25,30,35,40,45,50) =====
+// ===== level/character =====
 function levelSpriteIndex(level){
-  // 임계: 1,5,10,15,20,25,30,35,40,45,50 → 스프라이트 1..10에 매핑 (50은 10으로 고정)
   const cuts = [1,5,10,15,20,25,30,35,40,45,50];
   let idx = 1;
-  for (let i=0;i<cuts.length-1;i++){
-    if (level >= cuts[i]) idx = i+1; // 1..10
-  }
+  for (let i=0;i<cuts.length-1;i++){ if (level >= cuts[i]) idx = i+1; }
   return Math.max(1, Math.min(10, idx));
 }
 function computeLevel(sum){
   const xp = (Number(sum?.agri?.corn ?? 0) * 10) + (Number(sum?.food?.popcorn ?? 0) * 5);
-  const L  = Math.max(1, Math.floor(Math.log10(xp + 1)) + 1); // 간이
+  const L  = Math.max(1, Math.floor(Math.log10(xp + 1)) + 1);
   const nextCap = Math.pow(10, L) - 1, prevCap = Math.pow(10, L-1) - 1;
   const pct = Math.round((xp - prevCap) / Math.max(1, (nextCap - prevCap)) * 100);
   return { level: L, percent: Math.max(0, Math.min(100, pct)) };
@@ -218,16 +237,12 @@ function paintLevel(sum){
 }
 
 // ===== 3-in-1 구매 모달 =====
-function openBuyAll(prefill) {
+function openBuyAll(prefill){
   $('#buyAllWallet').textContent = $('#r-orcx').textContent || '0';
-
-  const rows = Array.from(document.querySelectorAll('#buyAllModal .row[data-item]'));
-  rows.forEach(r=>{
+  document.querySelectorAll('#buyAllModal .row[data-item]').forEach(r=>{
     const item = r.getAttribute('data-item');
-    const qEl  = r.querySelector('.qty');
-    qEl.value = (prefill === item) ? 1 : 0;
+    r.querySelector('.qty').value = (prefill === item) ? 1 : 0;
   });
-
   updateBuyAllTotals();
   $('#buyAllModal').classList.add('show');
 }
@@ -257,8 +272,15 @@ async function doBuyAll(){
 
   try{
     for (const it of lines){
-      await api('/api/corn/buy', { method:'POST', body:{ kakaoId, item:it.item, qty:it.qty } });
-      console.log('[BUY]', it);
+      // 기본 경로 실패 시 대체 엔드포인트 자동 재시도
+      await tryEndpoints(
+        [
+          '/api/corn/buy',
+          `/api/corn/buy-${it.item}`,           // /api/corn/buy-salt
+          `/api/corn/${it.item}/buy`            // /api/corn/salt/buy
+        ],
+        { kakaoId, item: it.item, qty: it.qty }
+      );
     }
     showToast('구매 완료');
     closeBuyAll();
@@ -294,30 +316,37 @@ async function loadFarm(){
 function bindEvents(){
   // 농장 버튼
   $('#btn-plant').onclick = async ()=>{
-    try{ await api('/api/corn/plant',{method:'POST', body:{kakaoId}}); showToast('씨앗 심기 완료'); await loadFarm(); }
+    try{ await tryEndpoints(['/api/corn/plant','/api/corn/seed','/api/corn/sow'], {kakaoId}); showToast('씨앗 심기 완료'); await loadFarm(); }
     catch(e){ showToast(e.message); }
   };
-  $('#btn-water').onclick = ()=> showToast('물은 공용(users) 자원입니다');
-  $('#btn-fert').onclick  = ()=> showToast('거름은 공용(users) 자원입니다');
+  $('#btn-water').onclick = async ()=>{
+    try{
+      await tryEndpoints(['/api/corn/water','/api/corn/give-water','/api/corn/watering'], {kakaoId});
+      showToast('물 주기 완료'); await loadFarm();
+    }catch(e){ showToast(e.message); }
+  };
+  $('#btn-fert').onclick  = async ()=>{
+    try{
+      await tryEndpoints(['/api/corn/fertilize','/api/corn/fert','/api/corn/give-fert'], {kakaoId});
+      showToast('거름 주기 완료'); await loadFarm();
+    }catch(e){ showToast(e.message); }
+  };
   $('#btn-harv').onclick  = async ()=>{
-    try{ const r=await api('/api/corn/harvest',{method:'POST', body:{kakaoId}}); showToast(`수확 +${r.gain} (씨앗:${r.seedType||'-'})`); await loadFarm(); }
+    try{ const r=await tryEndpoints(['/api/corn/harvest'], {kakaoId}); showToast(`수확 +${r?.gain ?? ''}`); await loadFarm(); }
     catch(e){ showToast(e.message); }
   };
   $('#btn-pop').onclick   = async ()=>{
     try{
       const use = confirm('설탕 사용? (취소=소금)') ? 'sugar' : 'salt';
-      const r = await api('/api/corn/pop',{method:'POST', body:{kakaoId,use}});
-      showToast(typeof r.fee!=='undefined' ? `지급 ${r.qty} (공제 ${r.fee})` : `지급 ${r.qty}`);
+      const r = await tryEndpoints(['/api/corn/pop','/api/corn/popcorn'], {kakaoId,use});
+      showToast(typeof r?.fee!=='undefined' ? `지급 ${r.qty} (공제 ${r.fee})` : `지급 ${r?.qty ?? ''}`);
       await loadFarm();
     }catch(e){ showToast(e.message); }
   };
-  $('#btn-ex').onclick    = ()=> showToast('팝콘→거름은 서버 엔진에 맞춰 구현');
+  $('#btn-ex').onclick    = ()=> showToast('팝콘→거름은 서버 엔진에 맞춰 구현 예정');
 
-  // 구매(모두 같은 팝업으로)
+  // 구매(통합)
   $('#open-buy-all').onclick = ()=> openBuyAll();
-  $('#buy-salt').onclick  = ()=> openBuyAll('salt');
-  $('#buy-sugar').onclick = ()=> openBuyAll('sugar');
-  $('#buy-seed').onclick  = ()=> openBuyAll('seed');
 
   // 모달 내부 +/-, input, 확인/취소
   const modal = $('#buyAllModal');
