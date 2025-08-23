@@ -176,37 +176,56 @@ async function boot(){
   }
 }
 
-function bind(){
-  // 액션
-  $('#btn-plant').onclick = ()=> actPlant().then(loadSummary).catch(e=>toast(e.message));
-  $('#btn-water').onclick = ()=> actWater().then(loadSummary).catch(e=>toast(e.message));
-  $('#btn-fert').onclick  = ()=> actFert().then(loadSummary).catch(e=>toast(e.message));
-  $('#btn-harv').onclick  = ()=> actHarvest().then(loadSummary).catch(e=>toast(e.message));
-  $('#btn-pop').onclick   = ()=> actPop().then(loadSummary).catch(e=>toast(e.message));
-  $('#btn-ex').onclick    = ()=> toast('팝콘→거름은 서버 엔진 규칙에 맞게 후속 연결');
+function bind() {
+  const on = (id, handler) => {
+    const el = document.getElementById(id);
+    if (el) el.onclick = handler;
+    else console.warn('[MISSING]', id);
+  };
 
-  // 구매 모달
-  $('#open-buy-all').onclick = ()=> openBuyAll();
-  $('#buyAllCancel').onclick = closeBuyAll;
-  $('#buyAllOK').onclick     = doBuyAll;
-  document.querySelectorAll('#buyAllModal .row').forEach(r=>{
-    const dec=r.querySelector('.dec'), inc=r.querySelector('.inc'), q=r.querySelector('.qty');
-    dec.onclick=()=>{ q.value=Math.max(0,parseInt(q.value||'0',10)-1); updateBuyAllTotals(); };
-    inc.onclick=()=>{ q.value=Math.max(0,parseInt(q.value||'0',10)+1); updateBuyAllTotals(); };
-    q.addEventListener('input', updateBuyAllTotals);
-    q.addEventListener('keydown', e=>{ if(e.key==='Enter') doBuyAll(); });
+  // 액션 버튼들 (없으면 경고만 찍고 넘어감)
+  on('btn-plant', () => actPlant().then(loadSummary).catch(e => toast(e.message)));
+  on('btn-water', () => actWater().then(loadSummary).catch(e => toast(e.message)));
+  on('btn-fert',  () => actFert().then(loadSummary).catch(e => toast(e.message)));
+  on('btn-harv',  () => actHarvest().then(loadSummary).catch(e => toast(e.message)));
+  on('btn-pop',   () => actPop().then(loadSummary).catch(e => toast(e.message)));
+  on('btn-ex',    () => toast('팝콘→거름은 서버 엔진 규칙에 맞게 후속 연결'));
+
+  // 구매(통합) 모달
+  on('open-buy-all', () => openBuyAll());
+  on('buyAllCancel', () => closeBuyAll());
+  on('buyAllOK',     () => doBuyAll());
+
+  // 모달 내부 행 바인딩 (없으면 경고만)
+  const rows = document.querySelectorAll('#buyAllModal .row[data-item]');
+  if (rows.length === 0) console.warn('[MISSING] buyAllModal rows');
+
+  rows.forEach(r => {
+    const dec = r.querySelector('.dec');
+    const inc = r.querySelector('.inc');
+    const qty = r.querySelector('.qty');
+
+    if (dec && qty) dec.addEventListener('click', () => {
+      qty.value = Math.max(0, parseInt(qty.value || '0', 10) - 1);
+      updateBuyAllTotals();
+    });
+    if (inc && qty) inc.addEventListener('click', () => {
+      qty.value = Math.max(0, parseInt(qty.value || '0', 10) + 1);
+      updateBuyAllTotals();
+    });
+    if (qty) qty.addEventListener('input', updateBuyAllTotals);
   });
 
-  // API 모달
-  $('#btn-api').onclick = openApi;
-  $('#apiCancel').onclick = closeApi;
-  $('#apiSave').onclick = async ()=>{
-    const v=$('#apiInput').value.trim();
-    if(!/^https?:\/\//.test(v)) return toast('http(s):// 로 시작해야 합니다');
+  // API 연결 모달
+  on('btn-api',   () => openApi());
+  on('apiCancel', () => closeApi());
+  on('apiSave',   async () => {
+    const v = document.getElementById('apiInput')?.value.trim();
+    if (!v || !/^https?:\/\//.test(v)) return toast('http(s):// 로 시작해야 합니다');
     saveAPI(v);
     closeApi();
     boot();
-  };
+  });
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
