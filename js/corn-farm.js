@@ -182,6 +182,173 @@ function bind() {
     if (el) el.onclick = handler;
     else console.warn('[MISSING]', id);
   };
+/* ===============================
+   Corn Image Mapper (r8)
+   - 스펙: 엔진_05_종합_12_img.html
+   =============================== */
+
+const IMG = {
+  // 배경 (계절/상태)
+  bg: {
+    enter: 'img/farm_00.png',   // 처음 접속
+    fallow: 'img/farm_01.png',  // 휴농(씨앗 없음)
+    d1: 'img/farm_03.png',      // 1일차
+    d2: 'img/farm_05.png',      // 2일차
+    d3: 'img/farm_07.png',      // 3일차
+    d4: 'img/farm_09.png',      // 4일차
+    harvest: 'img/farm_10.png', // 5일차 (수확기)
+    missed: 'img/farm_12.png'   // 수확 시기 놓침/폐농
+  },
+
+  // 옥수수 미니 스프라이트(날짜별 시트 prefix)
+  // day1=06, day2=04, day3=03, day4=02, day5+=01
+  sheet: { 1: '06', 2: '04', 3: '03', 4: '02', 5: '01' },
+
+  // 레벨 → 캐릭터 이미지
+  avatar(level=1){
+    if (level >= 50) return 'img/a_mark_08.png';
+    if (level >= 40) return 'img/a_mark_07.png';
+    if (level >= 30) return 'img/a_mark_06.png';
+    if (level >= 20) return 'img/a_mark_05.png';
+    if (level >= 10) return 'img/a_mark_04.png';
+    if (level >= 5)  return 'img/a_mark_03.png';
+    if (level >= 2)  return 'img/a_mark_02.png';
+    return 'img/a_mark_01.png';
+  }
+};
+
+/** 안전한 이미지 적용 (404 대비) */
+async function setBgImage(url){
+  const bg = document.getElementById('bg');
+  if (!bg) return;
+  // 프리로드 후 적용
+  try {
+    await new Promise((res, rej)=>{
+      const im = new Image();
+      im.onload = res; im.onerror = rej;
+      im.src = url;
+    });
+    bg.style.backgroundImage = `url('${url}')`;
+    bg.style.backgroundPosition = 'center';
+    bg.style.backgroundSize = 'cover';
+    bg.style.backgroundRepeat = 'no-repeat';
+  } catch {
+    // 폴백: 휴농
+    bg.style.backgroundImage = `url('${IMG.bg.fallow}')`;
+  }
+}
+
+/** 배경 선택 로직 */
+function pickBackground(s) {
+  // s.status: 'fallow'|'growing'|'harvest'|'missed' 등 사용 가정
+  // s.day: 0(없음)~N
+  if (!s || !s.day || s.status === 'fallow') return IMG.bg.fallow;
+  if (s.status === 'missed') return IMG.bg.missed;     // 폐농/수확창구 지남
+  if (s.status === 'harvest') return IMG.bg.harvest;   // 수확 가능
+  const d = Math.max(1, Math.min(4, s.day));           // 1~4일차
+  return [null, IMG.bg.d1, IMG.bg.d2, IMG.bg.d3, IMG.bg.d4][d];
+}
+
+/** 미니 스프라이트 선택 (게이지/부족상태 반영)
+ *  - s.day: 1~ (5일차 이상은 01 시트)
+ *  - s.stageIndex: 1~5 (하루 5구간), 없으면 growthPercent로 환산
+ *  - s.water: 0~3, s.fert: 0/1 (또는 잔량)
+ *  - s.status: 'fallow'|'growing'|'harvest'|'missed'
+ */
+function pickMiniSprite(s) {
+  // 휴농/폐농 처리
+  if (!s || s.status === 'fallow') return 'img/a_corn_06_01.png'; // 씨 심기 전
+  if (s.status === 'missed') return 'img/a_corn_01_05.png';       // 눈사람
+
+  // day별 시트 prefix
+  const d = Math.max(1, Math.min(5, s.day || 1));
+  const sheet = IMG.sheet[d] || '01';
+
+  // 수확 윈도우 (5일차~)
+  if (d === 5) {
+    if (s.status === 'harvest') return 'img/a_corn_01_02.png'; // A급 수확 대기
+    // harvest 아님: 품질 B~D 가정
+    return 'img/a_corn_01_03.png';
+  }
+
+  // 하루 5구간: stageIndex 없으면 growthPercent로 환산
+  let k = s.stageIndex;
+  if (!k) {
+    const gp = Math.max(0, Math.min(99, s.growthPercent ?? 0));
+    k = 1 + Math.floor(gp / 20); // 0~99% → 1~5
+  }
+  k = Math.max(1, Math.min(5, k));
+
+  // 3/4일차는 부족 상태 전용 이미지가 있음
+  if (d === 3) {
+    if (s.fert === 0) return 'img/a_corn_03_04.png'; // 거름 부족
+    if (s.water === 0) return 'img/a_corn_03.png';   // 물 부족
+  }
+  if (d === 4) {
+    if (s.fert === 0) return 'img/a_corn_02_04.png';
+    if (s.water === 0) return 'img/a_corn_02.png';
+  }
+
+  // 일반 케이스
+  return `img/a_corn_${sheet}_${String(k).padStart(2,'0')}.png`;
+}
+
+/** 정면 적용: 배경 / 미니 / 캐릭터 / 게이지 */
+function applyFrontImages(summary){
+  // 1) 배경
+  const bgUrl = pickBackground(summary);
+  setBgImage(bgUrl);
+
+  // 2) 미니
+  const mini = document.getElementById('mini-corn'); // <img id="mini-corn">
+  if (mini) mini.src = pickMiniSprite(summary);
+
+  // 3) 캐릭터(레벨)
+  const avatar = document.getElementById('avatar-img'); // <img id="avatar-img">
+  if (avatar) avatar.src = IMG.avatar(summary?.level ?? 1);
+
+  // 4) 세로 게이지 (💧물, 🌿거름, 🌱성장)
+  const gWater = document.getElementById('g-water');
+  const gFert  = document.getElementById('g-fert');
+  const gGrow  = document.getElementById('g-grow');
+
+  // 물: 0~3칸 → 0, 33, 66, 100%
+  if (gWater) {
+    const w = Math.max(0, Math.min(3, summary?.water ?? 0));
+    gWater.style.setProperty('--val', String([0,33,66,100][w]));
+  }
+  // 거름: 0/1 또는 퍼센트로 들어오면 0~100
+  if (gFert) {
+    let f = summary?.fert ?? 0;
+    if (f <= 1) f = f*100;
+    gFert.style.setProperty('--val', String(Math.max(0,Math.min(100,f))));
+  }
+  // 성장: 하루 5구간 → 0,20,40,60,80,100
+  if (gGrow) {
+    let k = summary?.stageIndex;
+    if (!k) {
+      const gp = summary?.growthPercent ?? 0;
+      k = 1 + Math.floor(Math.max(0,Math.min(99,gp))/20);
+    }
+    const perc = Math.max(0, Math.min(100, (k-1)*20));
+    gGrow.style.setProperty('--val', String(perc));
+  }
+
+  // 5) 씨앗 3종 상태 뱃지(노/빨/검) : id=seed-badge-normal|loan|delin
+  const has = (id)=>document.getElementById(id);
+  if (has('seed-badge-normal')) {
+    ['seed-badge-normal','seed-badge-loan','seed-badge-delin'].forEach(id=>{
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.opacity = 0.2;
+    });
+    const badgeId = (summary?.seedType==='delinquent')
+      ? 'seed-badge-delin'
+      : (summary?.seedType==='loan' ? 'seed-badge-loan' : 'seed-badge-normal');
+    const active = document.getElementById(badgeId);
+    if (active) active.style.opacity = 1;
+  }
+}
 
   // 액션 버튼들 (없으면 경고만 찍고 넘어감)
   on('btn-plant', () => actPlant().then(loadSummary).catch(e => toast(e.message)));
