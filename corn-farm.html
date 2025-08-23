@@ -200,12 +200,14 @@
     </div>
   </div>
 
-  <!-- API 연결 모달 -->
+ <!-- API 연결 모달 -->
   <div id="apiModal" class="modal" aria-hidden="true">
     <div class="panel">
       <h3>API 연결</h3>
-      <p style="margin:.25rem 0 .75rem 0;opacity:.9">ngrok 주소나 서버 URL을 입력하세요. 예) <code>https://climbng-wholly-grouper.jp.ngrok.io</code></p>
-      <input id="apiInput" type="text" placeholder="https://..." style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--bd);background:#111;color:#fff">
+      <p style="margin:.25rem 0 .75rem 0;opacity:.9">ngrok 주소나 서버 URL을 입력하세요. 예) <code>https://climbing-wholly-grouper.jp.ngrok.io</code></p>
+      <input id="apiInput" type="text" value="https://climbing-wholly-grouper.jp.ngrok.io"
+             placeholder="https://climbing-wholly-grouper.jp.ngrok.io"
+             style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--bd);background:#111;color:#fff">
       <div class="actions-2" style="margin-top:10px">
         <button class="btn2 ghost" id="apiCancel">닫기</button>
         <button class="btn2" id="apiSave">저장</button>
@@ -213,6 +215,6 @@
     </div>
   </div>
 
-  <script src="corn-farm.js"></script>
+  <script src="js/corn-farm.js"></script>
 </body>
 </html>
