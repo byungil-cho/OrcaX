@@ -253,46 +253,52 @@ async function loadSummary(){
 }
 
 /* ----------------------- 구매 ----------------------- */
-// === (교체) 구매 실행 ===
+function openBuyAll(pref){
+  $('#buyAllWallet').textContent=$('#r-orcx').textContent||'0';
+  document.querySelectorAll('#buyAllModal .row[data-item]').forEach(r=>{
+    const item=r.dataset.item;
+    const q = r.querySelector('.qty');
+    const s = r.querySelector('.sub');
+    if (q) q.value = (pref===item)?1:0;
+    if (s) s.textContent = '0';
+  });
+  updateBuyAllTotals();
+  $('#buyAllModal').classList.add('show');
+}
+function closeBuyAll(){ $('#buyAllModal').classList.remove('show'); }
+function updateBuyAllTotals(){
+  let tot=0;
+  document.querySelectorAll('#buyAllModal .row[data-item]').forEach(r=>{
+    const item=r.dataset.item, price=PRICES[item];
+    const qty=Math.max(0,parseInt(r.querySelector('.qty')?.value||'0',10));
+    const sub=price*qty;
+    r.querySelector('.sub').textContent=sub;
+    tot+=sub;
+  });
+  $('#buyAllTotal').textContent=tot;
+}
 async function doBuyAll(){
   const lines=[];
   document.querySelectorAll('#buyAllModal .row[data-item]').forEach(r=>{
-    const item=r.dataset.item;                           // 'salt' | 'sugar' | 'seed' (이미 영문)
-    const qty =Math.max(0,parseInt(r.querySelector('.qty')?.value||'0',10));
+    const item=r.dataset.item;
+    const qty=Math.max(0,parseInt(r.querySelector('.qty')?.value||'0',10));
     if(qty>0) lines.push({item,qty});
   });
   if(!lines.length) return toast('수량을 입력하세요');
 
   try{
-    let latest=null;
     for(const it of lines){
-      // ✅ 단일 엔드포인트만 호출
-      const res = await api('/api/corn/buy-additive', {
-        method:'POST',
-        body:{ kakaoId, item:it.item, qty:it.qty },
-        nocache:true
-      });
-      // ✅ 응답 ok 검증 (말뿐 방지)
-      if(!res || res.ok!==true){
-        throw new Error(res?.error || '구매 실패');
-      }
-      latest=res;
+      await tryAll(
+        ['/api/corn/buy', `/api/corn/buy-${it.item}`, `/api/corn/${it.item}/buy`],
+        {kakaoId, item:it.item, qty:it.qty}
+      );
     }
-
-    // 성공 후 상단 상태 갱신 — 즉시 반영 + 안전하게 summary 재조회
-    if(latest){
-      document.querySelector('#r-orcx')  && (document.querySelector('#r-orcx').textContent  = String(latest.orcx ?? ''));
-      document.querySelector('#r-seeds') && (document.querySelector('#r-seeds').textContent = String(latest.seed ?? ''));
-      document.querySelector('#r-salt')  && (document.querySelector('#r-salt').textContent  = String(latest.additives?.salt  ?? ''));
-      document.querySelector('#r-sugar') && (document.querySelector('#r-sugar').textContent = String(latest.additives?.sugar ?? ''));
-    }
-
     toast('구매 완료');
     closeBuyAll();
-    await loadSummary(); // 서버 기준 최종 동기화
+    await loadSummary();
   }catch(e){
     console.error(e);
-    toast('구매 실패: '+(e?.message||'ERROR'));
+    toast('구매 실패: '+e.message);
   }
 }
 /* ----------------------- 행동 ----------------------- */
