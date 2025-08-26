@@ -470,6 +470,22 @@ async function actFert(){
   // ✅ 게이지 연동
   giveFert();
 }
+async function loadSummary(){
+  const summary = await api('/api/corn/summary',{method:'POST',body:{kakaoId}});
+  if(summary.ok){
+    // ✅ 원형 게이지 (일수)
+    updateDayGauge(summary.day);
+
+    // ✅ 물 게이지 복원
+    document.getElementById('vbar-water').style.height = (summary.waterGiven/3*100)+'%';
+
+    // ✅ 거름 게이지 복원
+    document.getElementById('vbar-fert').style.height = (summary.fertGiven*100)+'%';
+
+    // ✅ 성장 게이지 (구간)
+    document.getElementById('vbar-grow').style.height = (summary.phase/5*100)+'%';
+  }
+}
 
 /* ----------------------- 연결 모달 ----------------------- */
 function openApi(){ $('#apiInput').value = API_BASE || ''; $('#apiModal').classList.add('show'); }
@@ -529,6 +545,7 @@ function bind(){
 
 /* ----------------------- MAIN ----------------------- */
 document.addEventListener('DOMContentLoaded', () => { bind(); boot(); });
+
 
 
 
