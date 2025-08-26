@@ -303,12 +303,84 @@ try{
   toast('구매 실패: '+e.message);
 }
 }
-/* ----------------------- 행동 ----------------------- */
-async function actPlant(){ await tryAll(['/api/corn/plant','/api/corn/seed','/api/corn/sow'], {kakaoId}); toast('씨앗 심기 완료'); }
-async function actWater(){ await tryAll(['/api/corn/water','/api/corn/give-water','/api/corn/watering'], {kakaoId}); toast('물 주기 완료'); }
-async function actFert(){  await tryAll(['/api/corn/fertilize','/api/corn/fert','/api/corn/give-fert'], {kakaoId}); toast('거름 주기 완료'); }
-async function actHarvest(){ await tryAll(['/api/corn/harvest'], {kakaoId}); toast('수확 완료'); }
-async function actPop(){ const use=confirm('설탕 사용? (취소=소금)')?'sugar':'salt'; await tryAll(['/api/corn/pop','/api/corn/popcorn'], {kakaoId,use}); toast('뻥튀기 처리 완료'); }
+/* ---------------- 행동 ---------------- */
+
+// 씨앗 심기
+async function actPlant(){
+  await api('/api/corn/plant', {
+    method:'POST',
+    body:{ kakaoId },
+    nocache:true
+  });
+  toast('씨앗 심기 완료');
+  await loadSummary();
+}
+
+// 물 주기
+async function actWater(){
+  await api('/api/user/inventory/use', {
+    method:'POST',
+    body:{ kakaoId, type:'water', amount:1 },
+    nocache:true
+  });
+  toast('물 주기 완료');
+  await loadSummary();
+}
+
+// 거름 주기
+async function actFert(){
+  await api('/api/user/inventory/use', {
+    method:'POST',
+    body:{ kakaoId, type:'fertilizer', amount:1 },
+    nocache:true
+  });
+  toast('거름 주기 완료');
+  await loadSummary();
+}
+
+// 설탕 사용
+async function actSugar(){
+  await api('/api/corn/use-additive', {
+    method:'POST',
+    body:{ kakaoId, type:'sugar', amount:1 },
+    nocache:true
+  });
+  toast('설탕 사용 완료');
+  await loadSummary();
+}
+
+// 소금 사용
+async function actSalt(){
+  await api('/api/corn/use-additive', {
+    method:'POST',
+    body:{ kakaoId, type:'salt', amount:1 },
+    nocache:true
+  });
+  toast('소금 사용 완료');
+  await loadSummary();
+}
+
+// 수확
+async function actHarvest(){
+  await api('/api/corn/harvest', {
+    method:'POST',
+    body:{ kakaoId },
+    nocache:true
+  });
+  toast('수확 완료');
+  await loadSummary();
+}
+
+// 뻥튀기 (팝콘 만들기)
+async function actPop(){
+  await api('/api/corn/pop', {
+    method:'POST',
+    body:{ kakaoId },
+    nocache:true
+  });
+  toast('뻥튀기 완료');
+  await loadSummary();
+}
 
 /* ----------------------- 연결 모달 ----------------------- */
 function openApi(){ $('#apiInput').value = API_BASE || ''; $('#apiModal').classList.add('show'); }
@@ -369,5 +441,6 @@ function bind(){
 
 /* ----------------------- MAIN ----------------------- */
 document.addEventListener('DOMContentLoaded', () => { bind(); boot(); });
+
 
 
