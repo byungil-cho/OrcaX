@@ -286,21 +286,23 @@ async function doBuyAll(){
   });
   if(!lines.length) return toast('수량을 입력하세요');
 
-  try{
-    for(const it of lines){
-      await tryAll(
-        ['/api/corn/buy', `/api/corn/buy-${it.item}`, `/api/corn/${it.item}/buy`],
-        {kakaoId, item:it.item, qty:it.qty}
-      );
-    }
-    toast('구매 완료');
-    closeBuyAll();
-    await loadSummary();
-  }catch(e){
-    console.error(e);
-    toast('구매 실패: '+e.message);
+ // ✅ 기존 doBuyAll 함수 내부의 try 블록 수정
+try{
+  for(const it of lines){
+    await api('/api/corn/buy-additive', {
+      method:'POST',
+      body: { kakaoId, item:it.item, qty:it.qty },
+      nocache:true
+    });
   }
+  toast('구매 완료');
+  closeBuyAll();
+  await loadSummary();
+}catch(e){
+  console.error(e);
+  toast('구매 실패: '+e.message);
 }
+
 /* ----------------------- 행동 ----------------------- */
 async function actPlant(){ await tryAll(['/api/corn/plant','/api/corn/seed','/api/corn/sow'], {kakaoId}); toast('씨앗 심기 완료'); }
 async function actWater(){ await tryAll(['/api/corn/water','/api/corn/give-water','/api/corn/watering'], {kakaoId}); toast('물 주기 완료'); }
@@ -367,3 +369,4 @@ function bind(){
 
 /* ----------------------- MAIN ----------------------- */
 document.addEventListener('DOMContentLoaded', () => { bind(); boot(); });
+
