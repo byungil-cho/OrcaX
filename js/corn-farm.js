@@ -383,7 +383,7 @@ async function actPop(){
 }
 /* ---------------- 게이지 시스템 ---------------- */
 
-// 원형 게이지 (일수 기준)
+// ✅ 원형 게이지 (일수 기준)
 function updateDayGauge(day){
   const percent = Math.min(day, 10) / 5 * 100; // 5일 = 100%
   document.getElementById('gfill').style.setProperty('--p', percent+'%');
@@ -393,7 +393,7 @@ function updateDayGauge(day){
   document.getElementById('gfill').style.background = colors[Math.min(day-1, 9)];
 }
 
-// 물 게이지 (3개 단위)
+// ✅ 물 게이지 (3개 단위, 1시간마다 감소)
 let waterGauge = 0, waterTimer=null;
 function giveWater(){
   if(waterGauge < 3) waterGauge++;
@@ -413,7 +413,7 @@ function giveWater(){
   }
 }
 
-// 거름 게이지 (1개 단위)
+// ✅ 거름 게이지 (1개 단위, 3시간 후 감소)
 let fertGauge = 0, fertTimer=null;
 function giveFert(){
   fertGauge = 1;
@@ -426,7 +426,7 @@ function giveFert(){
   }, 3*60*60*1000); // 3시간 후 리셋
 }
 
-// 성장 게이지 (5구간 = 하루)
+// ✅ 성장 게이지 (5구간 = 하루 성장률)
 let growGauge = 0, day = 1;
 function completePhase(){
   if(growGauge < 5) growGauge++;
@@ -437,6 +437,38 @@ function completePhase(){
     day++;
     updateDayGauge(day);
   }
+}
+
+/* ---------------- 행동 연동 수정 ---------------- */
+
+// 물 주기
+async function actWater(){
+  await api('/api/user/inventory/use', {
+    method:'POST',
+    body:{ kakaoId, type:'water', amount:1 },
+    nocache:true
+  });
+
+  toast('물 주기 완료');
+  await loadSummary();
+
+  // ✅ 게이지 연동
+  giveWater();
+}
+
+// 거름 주기
+async function actFert(){
+  await api('/api/user/inventory/use', {
+    method:'POST',
+    body:{ kakaoId, type:'fertilizer', amount:1 },
+    nocache:true
+  });
+
+  toast('거름 주기 완료');
+  await loadSummary();
+
+  // ✅ 게이지 연동
+  giveFert();
 }
 
 /* ----------------------- 연결 모달 ----------------------- */
@@ -497,6 +529,7 @@ function bind(){
 
 /* ----------------------- MAIN ----------------------- */
 document.addEventListener('DOMContentLoaded', () => { bind(); boot(); });
+
 
 
 
