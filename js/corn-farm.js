@@ -302,7 +302,7 @@ try{
   console.error(e);
   toast('구매 실패: '+e.message);
 }
-
+}
 /* ----------------------- 행동 ----------------------- */
 async function actPlant(){ await tryAll(['/api/corn/plant','/api/corn/seed','/api/corn/sow'], {kakaoId}); toast('씨앗 심기 완료'); }
 async function actWater(){ await tryAll(['/api/corn/water','/api/corn/give-water','/api/corn/watering'], {kakaoId}); toast('물 주기 완료'); }
@@ -369,4 +369,5 @@ function bind(){
 
 /* ----------------------- MAIN ----------------------- */
 document.addEventListener('DOMContentLoaded', () => { bind(); boot(); });
+
 
