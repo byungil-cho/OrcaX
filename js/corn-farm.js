@@ -381,11 +381,67 @@ async function actPop(){
   toast('뻥튀기 완료');
   await loadSummary();
 }
+/* ---------------- 게이지 시스템 ---------------- */
+
+// 원형 게이지 (일수 기준)
+function updateDayGauge(day){
+  const percent = Math.min(day, 10) / 5 * 100; // 5일 = 100%
+  document.getElementById('gfill').style.setProperty('--p', percent+'%');
+  document.getElementById('gnum').innerText = day + "일";
+
+  const colors = ['red','orange','yellow','green','blue','navy','purple','lime','white','black'];
+  document.getElementById('gfill').style.background = colors[Math.min(day-1, 9)];
+}
+
+// 물 게이지 (3개 단위)
+let waterGauge = 0, waterTimer=null;
+function giveWater(){
+  if(waterGauge < 3) waterGauge++;
+  document.getElementById('vbar-water').style.height = (waterGauge/3*100)+'%';
+
+  if(!waterTimer){
+    waterTimer = setInterval(()=>{
+      if(waterGauge > 0){
+        waterGauge--;
+        document.getElementById('vbar-water').style.height = (waterGauge/3*100)+'%';
+      }
+      if(waterGauge <= 0){
+        clearInterval(waterTimer);
+        waterTimer = null;
+      }
+    }, 60*60*1000); // 1시간마다 -1
+  }
+}
+
+// 거름 게이지 (1개 단위)
+let fertGauge = 0, fertTimer=null;
+function giveFert(){
+  fertGauge = 1;
+  document.getElementById('vbar-fert').style.height = '100%';
+
+  if(fertTimer) clearTimeout(fertTimer);
+  fertTimer = setTimeout(()=>{
+    fertGauge = 0;
+    document.getElementById('vbar-fert').style.height = '0%';
+  }, 3*60*60*1000); // 3시간 후 리셋
+}
+
+// 성장 게이지 (5구간 = 하루)
+let growGauge = 0, day = 1;
+function completePhase(){
+  if(growGauge < 5) growGauge++;
+  document.getElementById('vbar-grow').style.height = (growGauge/5*100)+'%';
+
+  if(growGauge === 5){
+    growGauge = 0;
+    day++;
+    updateDayGauge(day);
+  }
+}
 
 /* ----------------------- 연결 모달 ----------------------- */
 function openApi(){ $('#apiInput').value = API_BASE || ''; $('#apiModal').classList.add('show'); }
 function closeApi(){ $('#apiModal').classList.remove('show'); }
-
 /* ----------------------- 부트스트랩 ----------------------- */
 async function boot(){
   if (!API_BASE){
@@ -441,6 +497,7 @@ function bind(){
 
 /* ----------------------- MAIN ----------------------- */
 document.addEventListener('DOMContentLoaded', () => { bind(); boot(); });
+
 
 
 
