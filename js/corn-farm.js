@@ -373,6 +373,7 @@ async function actHarvest(){
 
 // 뻥튀기 (팝콘 만들기)
 async function actPop(){
+  if (!confirm("소금 1개, 설탕 1개, 토큰 30개를 소모해 뻥튀기를 하시겠습니까?")) return;
   await api('/api/corn/pop', {
     method:'POST',
     body:{ kakaoId },
@@ -381,103 +382,18 @@ async function actPop(){
   toast('뻥튀기 완료');
   await loadSummary();
 }
-// 추가 블록 – 씨앗 심기 버튼 비활성화, 교환/뻥튀기 팝업 로직
 
-// === 씨앗 심기 버튼 비활성화 ===
-function updatePlantButton(){
-  if (!el.btnPlant) return;
-  if (state.phase === 'GROW'){
-    el.btnPlant.disabled = true;
-    el.btnPlant.classList.add('disabled');
-  } else {
-    el.btnPlant.disabled = false;
-    el.btnPlant.classList.remove('disabled');
-  }
-}
-
-// render() 호출 끝에 추가
-const _renderOrig = render;
-render = function(){
-  _renderOrig();
-  updatePlantButton();
-};
-
-// === 교환 팝업 ===
-function openExchangePopup(){
-  const qty = prompt('교환할 팝콘 수량을 입력하세요:', '1');
-  const n = parseInt(qty, 10);
-  if (!n || n < 1) return;
-  doExchangeQty(n);
-}
-
-async function doExchangeQty(n){
-  try{
-    const r = await api('/api/corn/exchange', { method:'POST', body: JSON.stringify({ kakaoId: store.kakaoId, popcorn: n }) });
-    state.r.pop = (state.r.pop || 0) - n;
-    state.r.fert = (state.r.fert || 0) + n;
-    toast(`팝콘 ${n}개 ▶ 거름 ${n}개 교환 완료`);
-    await refresh();
-  }catch(e){ toast('교환 실패'); }
-}
-
-el.btnEx?.removeEventListener('click', doExchange);
-el.btnEx?.addEventListener('click', openExchangePopup);
-
-// === 뻥튀기 팝업 ===
-function openPopPopup(){
-  if (state.r.salt < 1 || state.r.sugar < 1){
-    toast('소금/설탕이 부족합니다');
-    return;
-  }
-  if (state.r.orcx < 30){
-    toast('토큰이 부족합니다');
-    return;
-  }
-  if (!confirm('소금 1개, 설탕 1개, 토큰 30개를 소모하여 뻥튀기를 하시겠습니까?')) return;
-  doPopReal();
-}
-
-async function doPopReal(){
-  try{
-    const r = await api('/api/corn/pop', { method:'POST', body: JSON.stringify({ kakaoId: store.kakaoId, grade: 'A', cornCount: 1 }) });
-    toast(`뻥튀기 성공! 토큰 +${r.tokens}`);
-    animateTokens(r.tokens);
-    await refresh();
-  }catch(e){ toast('뻥튀기 실패'); }
-}
-
-function animateTokens(amount){
-  const container = document.body;
-  for (let i=0;i<10;i++){
-    const span = document.createElement('span');
-    span.textContent = `+${Math.floor(amount/10)}`;
-    span.className = 'token-fall';
-    span.style.left = (Math.random()*80+10)+'%';
-    span.style.top = '0%';
-    container.appendChild(span);
-    setTimeout(()=> span.remove(), 1500);
-  }
-}
-
-el.btnPop?.removeEventListener('click', doPop);
-el.btnPop?.addEventListener('click', openPopPopup);
-
-// === CSS 애니메이션을 위해 ===
-const style = document.createElement('style');
-style.textContent = `
-.token-fall {
-  position: fixed;
-  font-size: 14px;
-  font-weight: bold;
-  color: gold;
-  animation: fall 1.5s linear forwards;
-  z-index: 9999;
-}
-@keyframes fall {
-  from { transform: translateY(0); opacity:1; }
-  to   { transform: translateY(300px); opacity:0; }
-}`;
-document.head.appendChild(style);
+on('btn-ex', async () => {
+  const qty = prompt("교환할 팝콘 수량 입력", "1");
+  if (!qty || isNaN(qty) || qty <= 0) return;
+  await api('/api/corn/exchange', {
+    method:'POST',
+    body:{ kakaoId, popcorn: parseInt(qty,10) },
+    nocache:true
+  });
+  toast(`팝콘 ${qty}개 ▶ 거름 ${qty}개 교환 완료`);
+  await loadSummary();
+});
 
 /* ----------------------- 연결 모달 ----------------------- */
 function openApi(){ $('#apiInput').value = API_BASE || ''; $('#apiModal').classList.add('show'); }
