@@ -373,7 +373,6 @@ async function actHarvest(){
 
 // 뻥튀기 (팝콘 만들기)
 async function actPop(){
-  if (!confirm("소금 1개, 설탕 1개, 토큰 30개를 소모해 뻥튀기를 하시겠습니까?")) return;
   await api('/api/corn/pop', {
     method:'POST',
     body:{ kakaoId },
@@ -382,18 +381,6 @@ async function actPop(){
   toast('뻥튀기 완료');
   await loadSummary();
 }
-
-on('btn-ex', async () => {
-  const qty = prompt("교환할 팝콘 수량 입력", "1");
-  if (!qty || isNaN(qty) || qty <= 0) return;
-  await api('/api/corn/exchange', {
-    method:'POST',
-    body:{ kakaoId, popcorn: parseInt(qty,10) },
-    nocache:true
-  });
-  toast(`팝콘 ${qty}개 ▶ 거름 ${qty}개 교환 완료`);
-  await loadSummary();
-});
 
 /* ----------------------- 연결 모달 ----------------------- */
 function openApi(){ $('#apiInput').value = API_BASE || ''; $('#apiModal').classList.add('show'); }
