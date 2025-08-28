@@ -26,30 +26,17 @@
   button:disabled{ opacity:.5; cursor:not-allowed; }
   .actions{ display:flex; gap:10px; margin-top:14px; }
   .result{ margin-top:14px; padding:14px; border:1px dashed var(--bd); border-radius:14px; background:#121214; min-height:56px; }
-  .muted{ color:#9ca3af; font-size:13px; }
   .totals{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
-  /* 풍선말 */
   .balloon{ position:absolute; pointer-events:none; padding:6px 10px; border-radius:999px; background:rgba(0,0,0,.7); border:1px solid #2a2a2e; font-weight:800; }
-  /* 📱 모바일 대응 */
-  @media (max-width: 780px){
-    h2{ font-size:24px; }
-    .nums{ grid-template-columns:repeat(3,1fr); }
-  }
-  @media (max-width: 480px){
-    h2{ font-size:22px; }
-    .wrap{ padding:12px 12px 24px; }
-    .kv{ grid-template-columns:100px 1fr; font-size:14px; }
-    .nums{ grid-template-columns:repeat(2,1fr); }
-    .actions{ flex-direction:column; }
-    button{ width:100%; }
-  }
+  @media (max-width: 780px){ h2{font-size:24px} .nums{grid-template-columns:repeat(3,1fr)} }
+  @media (max-width: 480px){ h2{font-size:22px} .wrap{padding:12px} .kv{grid-template-columns:100px 1fr} .nums{grid-template-columns:repeat(2,1fr)} .actions{flex-direction:column} button{width:100%} }
 </style>
 </head>
 <body>
   <div class="wrap">
     <h2>🍿 뻥튀기</h2>
 
-    <div class="status" id="serverStat"><span class="dot" id="dot"></span><span id="svtxt">서버 상태 확인 중…</span></div>
+    <div class="status"><span class="dot" id="dot"></span><span id="svtxt">상태 확인 중…</span></div>
 
     <div class="card" id="card">
       <div class="kv">
@@ -63,11 +50,11 @@
       </div>
 
       <div class="nums">
-        <div class="box"><h4>ORCX(지갑)</h4><div class="big" id="v-orcx">-</div></div>
-        <div class="box"><h4>소금</h4><div class="big" id="v-salt">-</div></div>
-        <div class="box"><h4>설탕</h4><div class="big" id="v-sugar">-</div></div>
-        <div class="box"><h4>옥수수</h4><div class="big" id="v-corn">-</div></div>
-        <div class="box"><h4>팝콘</h4><div class="big" id="v-pop">-</div></div>
+        <div class="box"><h4>ORCX(지갑)</h4><div class="big" id="v-orcx">0</div></div>
+        <div class="box"><h4>소금</h4><div class="big" id="v-salt">0</div></div>
+        <div class="box"><h4>설탕</h4><div class="big" id="v-sugar">0</div></div>
+        <div class="box"><h4>옥수수</h4><div class="big" id="v-corn">0</div></div>
+        <div class="box"><h4>팝콘</h4><div class="big" id="v-pop">0</div></div>
       </div>
 
       <div class="actions">
@@ -75,18 +62,91 @@
         <button class="secondary" id="btnReload">↻ 다시 불러오기</button>
       </div>
 
-      <div class="result" id="resultBox">조건 및 서버 연결을 확인 중…</div>
+      <div class="result" id="resultBox">준비 중…</div>
 
       <div class="totals">
-        <div class="box"><h4>이번 세션 획득</h4><div class="big" id="v-earned-session">0</div></div>
+        <div class="box"><h4>이번 세션 획득</h4><div class="big" id="v-earned">0</div></div>
         <div class="box"><h4>지갑 보유</h4><div class="big" id="v-wallet">0</div></div>
         <div class="box"><h4>보유+획득 합계</h4><div class="big" id="v-total">0</div></div>
       </div>
-
-      <div class="muted" style="margin-top:8px;">※ 계산·판정·저장은 JS모듈이 서버와 통신하여 처리합니다. 프론트는 결과만 표시합니다.</div>
     </div>
   </div>
 
-  <script src="js/popup.js"></script>
+  <!-- 엔진 모듈 -->
+  <script src="js/pung.module.js"></script>
+  <script>
+    const $ = (id)=>document.getElementById(id);
+    const set = (id,v)=>{ $(id).textContent = v; };
+
+    function paint(state){
+      const u = state.user;
+      set('nickname', u.nickname || '-');
+      set('kakaoId', Pung.state().kakaoId || '-');
+      set('cornColorText', u.cornColor);
+      $('cornImg').src = ({
+        black:'https://byungil-cho.github.io/OrcaX/img/corn-black.png',
+        red:'https://byungil-cho.github.io/OrcaX/img/corn-red.png',
+        yellow:'https://byungil-cho.github.io/OrcaX/img/corn-yellow.png'
+      }[u.cornColor] || 'https://byungil-cho.github.io/OrcaX/img/corn-yellow.png');
+
+      set('v-orcx',  u.wallet.orcx);
+      set('v-salt',  u.inventory.salt);
+      set('v-sugar', u.inventory.sugar);
+      set('v-corn',  u.inventory.corn);
+      set('v-pop',   u.products.popcorn);
+
+      const earned = Pung.state().earnedSession;
+      set('v-earned', earned);
+      set('v-wallet', u.wallet.orcx);
+      set('v-total',  u.wallet.orcx + earned);
+
+      $('btnRun').disabled = (Pung.canTimes() <= 0);
+      $('svtxt').textContent = Pung.state().serverOk ? '서버 연결됨' : '오프라인(로컬 저장 중)';
+      $('dot').className = 'dot ' + (Pung.state().serverOk ? 'ok' : 'bad');
+      $('resultBox').textContent = $('btnRun').disabled ? '❌ 재료 부족 — 소금 1 · 설탕 1 · 옥수수 1 필요' : '✅ 준비 완료';
+    }
+
+    function balloon(token){
+      const card = $('card');
+      const b = document.createElement('div');
+      b.className = 'balloon';
+      b.textContent = '+' + Number(token).toLocaleString();
+      const margin = 24, x = margin + Math.random()*(card.clientWidth - margin*2 - 60), y = card.clientHeight - 120;
+      b.style.left = x + 'px'; b.style.top = y + 'px';
+      card.appendChild(b);
+      const dy = -60 - Math.random()*40, dur = 900 + Math.random()*300;
+      b.animate([{transform:'translateY(0)',opacity:1},{transform:`translateY(${dy}px)`,opacity:0}],{duration:dur,easing:'ease-out'});
+      setTimeout(()=>b.remove(), dur);
+    }
+
+    // 초기 구동
+    (async function start(){
+      // kakaoId 없으면 여기서 임시로 세팅 가능(개발 편의)
+      if(!localStorage.getItem('kakaoId')) localStorage.setItem('kakaoId','4235108081');
+
+      const { user } = await Pung.init({ kakaoId: localStorage.getItem('kakaoId') });
+      paint(Pung.state());
+
+      $('btnRun').addEventListener('click', async ()=>{
+        $('btnRun').disabled = true;
+        $('resultBox').textContent = '🍿 진행 중…';
+        await Pung.popAll({
+          onEach: ({ token, state })=>{
+            balloon(token);
+            $('resultBox').innerHTML = `🎉 축하합니다. <b>${Number(token).toLocaleString()}</b> 토큰을 획득했습니다.`;
+            paint(state);
+          },
+          onDone: ({ total, state })=>{
+            $('resultBox').innerHTML += `<br/><span style="color:#9ca3af">이번 실행 합계: ${Number(total).toLocaleString()} 토큰</span>`;
+            paint(state);
+          },
+          delayMs: 250
+        });
+        $('btnRun').disabled = (Pung.canTimes() <= 0);
+      });
+
+      $('btnReload').addEventListener('click', ()=> paint(Pung.state()));
+    })();
+  </script>
 </body>
 </html>
