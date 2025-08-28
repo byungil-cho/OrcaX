@@ -78,5 +78,43 @@
     <footer class="container">
       <small><a href="#">이용약관</a> • <a href="#">개인정보</a></small>
     </footer>
+
+<script>
+  const BASE_API = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 실제 API 주소로 수정
+  const URL_USERDATA = BASE_API + '/api/userdata';
+  const kakaoId = localStorage.getItem('kakaoId');
+
+  if (!kakaoId) {
+    alert('로그인이 필요합니다.');
+    window.location.href = 'index9.html';
+  } else {
+    fetch(URL_USERDATA, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kakaoId })
+    })
+    .then(r => r.json())
+    .then(data => {
+      const user = data.user;
+      if (!user) return;
+
+      document.querySelector('.asset h2').textContent = `${user.nickname || '유저'}님 보유 자산`;
+      document.querySelector('.asset p:nth-of-type(1) strong').textContent = user.orcx || 0;
+      document.querySelector('.asset p:nth-of-type(2)').innerHTML =
+        `💧 물: <strong>${user.inventory?.water || 0}</strong> / 💩 거름: <strong>${user.inventory?.fertilizer || 0}</strong>`;
+
+      document.querySelector('.loan p:nth-of-type(1) strong').textContent = user.loan?.amount || '0 토큰';
+      document.querySelector('.loan p:nth-of-type(2) strong').textContent = user.loan?.interest ? `${user.loan.interest}% / 일` : '0% / 일';
+    })
+    .catch(err => {
+      console.error('유저 데이터 로딩 실패', err);
+      alert('서버 연결 실패. 다시 시도해 주세요.');
+    });
+  }
+</script>
+
   </body>
 </html>
+
+
+
