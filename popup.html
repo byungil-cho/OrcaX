@@ -72,8 +72,34 @@
     </div>
   </div>
 
-  <!-- 엔진 모듈 -->
-  <script src="js/pung.module.js"></script>
+  <!-- API 베이스를 명시하고 싶으면(ngrok 주소) -->
+<meta name="pung-api" content="https://climbing-wholly-grouper.jp.ngrok.io" />
+
+<script src="js/pung.module.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // kakaoId 자동 인식(쿼리/로컬스토리지/쿠키) → 필요시 수동: Pung.init({kakaoId:'...'})
+    const { serverOk, user } = await Pung.init();
+
+    // UI 갱신 (예: 상태판)
+    // updateUI(user);
+
+    // 실행 가능 여부
+    // const n = Pung.canTimes();
+
+    // 실행 예:
+    // await Pung.popAll({
+    //   onEach: ({token, state}) => drawBalloon(token, state),
+    //   onDone: async ({total}) => { await Pung.sync(); }
+    // });
+  } catch (e) {
+    // 서버 미연결/ID없음 등
+    // showError(e.message);
+  }
+});
+</script>
+
   <script>
     const $ = (id)=>document.getElementById(id);
     const set = (id,v)=>{ $(id).textContent = v; };
