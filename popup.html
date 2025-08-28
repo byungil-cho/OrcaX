@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>🍿 뻥튀기</title>
 <style>
-  :root{ --bg:#0e0e0f; --card:#18181b; --ink:#eaeaea; --muted:#9ca3af; --ok:#22c55e; --bad:#ef4444; --bd:#2a2a2e; }
+  :root{ --bg:#0e0f11; --card:#18181b; --ink:#eaeaea; --muted:#9ca3af; --ok:#22c55e; --bad:#ef4444; --bd:#2a2a2e; }
   html,body{ background:var(--bg); color:var(--ink); margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
   .wrap{ max-width:720px; margin:0 auto; padding:16px 18px 28px; }
   .status{ display:flex; gap:10px; align-items:center; padding:10px 12px; border:1px solid var(--bd); border-radius:12px; margin:12px 0; }
   .dot{ width:10px; height:10px; border-radius:50%; background:var(--muted); }
   .dot.ok{ background:var(--ok); } .dot.bad{ background:var(--bad); }
-  .card{ background:var(--card); border:1px solid var(--bd); border-radius:16px; padding:14px; margin-top:14px; }
+  .card{ background:var(--card); border:1px solid var(--bd); border-radius:16px; padding:14px; margin-top:14px; position:relative; overflow:hidden; }
   .kv{ display:grid; grid-template-columns:120px 1fr; row-gap:8px; column-gap:8px; font-size:15px; }
   .kv b{ color:#cbd5e1; font-weight:600; }
   .nums{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:10px; }
@@ -25,8 +25,10 @@
   button:disabled{ opacity:.5; cursor:not-allowed; }
   .actions{ display:flex; gap:10px; margin-top:14px; }
   .result{ margin-top:14px; padding:14px; border:1px dashed var(--bd); border-radius:14px; background:#121214; min-height:56px; }
-  .muted{ color:var(--muted); font-size:13px; }
+  .muted{ color:#9ca3af; font-size:13px; }
   .totals{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
+  /* 풍선말 */
+  .balloon{ position:absolute; pointer-events:none; padding:6px 10px; border-radius:999px; background:rgba(0,0,0,.7); border:1px solid #2a2a2e; font-weight:800; }
 </style>
 </head>
 <body>
@@ -36,8 +38,8 @@
     <!-- 서버 상태 -->
     <div class="status" id="serverStat"><span class="dot" id="dot"></span><span id="svtxt">서버 상태 확인 중…</span></div>
 
-    <!-- 유저/자산 -->
-    <div class="card">
+    <!-- 유저/자원 -->
+    <div class="card" id="card">
       <div class="kv">
         <b>닉네임</b> <div id="nickname">-</div>
         <b>카카오ID</b> <div id="kakaoId">-</div>
@@ -56,182 +58,29 @@
         <div class="box"><h4>팝콘</h4><div class="big" id="v-pop">-</div></div>
       </div>
 
-      <!-- 액션 -->
       <div class="actions">
         <button id="btnRun" disabled>🎯 뻥튀기 실행</button>
         <button class="secondary" id="btnReload">↻ 다시 불러오기</button>
       </div>
 
-      <!-- 결과: 서버 계산 결과만 표시 -->
       <div class="result" id="resultBox">조건 및 서버 연결을 확인 중…</div>
 
-      <!-- 누적/합계 -->
       <div class="totals">
         <div class="box"><h4>이번 세션 획득</h4><div class="big" id="v-earned-session">0</div></div>
         <div class="box"><h4>지갑 보유</h4><div class="big" id="v-wallet">0</div></div>
         <div class="box"><h4>보유+획득 합계</h4><div class="big" id="v-total">0</div></div>
       </div>
 
-      <div class="muted" style="margin-top:8px;">※ 계산·판정은 서버에서 수행됩니다. 프론트는 결과만 표시합니다.</div>
+      <div class="muted" style="margin-top:8px;">※ 계산·판정·저장은 JS모듈이 서버와 통신하여 처리합니다. 프론트는 결과만 표시합니다.</div>
     </div>
   </div>
 
-<script>
-  // ===== 고정 서버 주소
-  const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
-
-  const S = {
-    kakaoId: localStorage.getItem('kakaoId') || '',
-    user: null,
-    serverOk: false,
-    earnedSession: 0  // 프론트에서만 세션 누적 표시
-  };
-
-  // ----- 유틸
-  const el = id => document.getElementById(id);
-  const set = (id, v) => el(id).textContent = v;
-
-  // ----- 서버 핑
-  async function pingServer(){
-    try{
-      const r = await fetch(API_BASE + '/api/ping', { cache:'no-store' });
-      if(r.ok){ S.serverOk = true; el('dot').className='dot ok'; el('svtxt').textContent='✅ 서버 연결됨'; return; }
-      throw 0;
-    }catch(e){
-      S.serverOk = false; el('dot').className='dot bad'; el('svtxt').textContent='❌ 서버 끊김';
-    }
-  }
-
-  // ----- 유저 불러오기(닉네임 보강)
-  async function loadUser(){
-    const box = el('resultBox');
-    if(!S.kakaoId){ paintUser(null); box.textContent='카카오 로그인 정보가 없습니다.'; return; }
-    try{
-      const res = await fetch(API_BASE + '/api/corn/userdata', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ kakaoId:S.kakaoId })
-      });
-      const data = await res.json();
-      if(!data) throw 0;
-      S.user = data; paintUser(data);
-      checkReady();
-    }catch(e){
-      paintUser(null); box.textContent='❌ 유저 정보를 불러오지 못했습니다.';
-    }
-  }
-
-  // ----- 렌더
-  function paintUser(u){
-    set('kakaoId', S.kakaoId || '-');
-    const nick = u?.nickname || u?.profile?.nickname || localStorage.getItem('nickname') || '-';
-    set('nickname', nick);
-
-    const orcx  = Number(u?.wallet?.orcx ?? 0);
-    const salt  = Number(u?.inventory?.salt ?? 0);
-    const sugar = Number(u?.inventory?.sugar ?? 0);
-    const corn  = Number(u?.inventory?.corn ?? 0);
-    const pop   = Number(u?.products?.popcorn ?? 0);
-
-    set('v-orcx', orcx); set('v-salt', salt); set('v-sugar', sugar); set('v-corn', corn); set('v-pop', pop);
-
-    const color = (u?.inventory?.cornColor || 'yellow').toLowerCase();
-    set('cornColorText', color);
-    el('cornImg').src = ({
-      black:'https://byungil-cho.github.io/OrcaX/img/corn-black.png',
-      red:'https://byungil-cho.github.io/OrcaX/img/corn-red.png',
-      yellow:'https://byungil-cho.github.io/OrcaX/img/corn-yellow.png'
-    }[color]) || 'https://byungil-cho.github.io/OrcaX/img/corn-yellow.png';
-
-    // 지갑/합계 박스 갱신
-    set('v-earned-session', S.earnedSession);
-    set('v-wallet', orcx);
-    set('v-total', orcx + S.earnedSession);
-  }
-
-  // ----- 실행 가능(재료 + 서버)
-  function checkReady(){
-    const salt  = Number(S.user?.inventory?.salt ?? 0);
-    const sugar = Number(S.user?.inventory?.sugar ?? 0);
-    const corn  = Number(S.user?.inventory?.corn ?? 0);
-    const ok = salt>=1 && sugar>=1 && corn>=1 && S.serverOk;
-    el('btnRun').disabled = !ok;
-    el('resultBox').textContent = ok
-      ? '✅ 준비 완료. 뻥튀기를 실행할 수 있습니다.'
-      : `❌ 재료/서버 부족 — 소금:${salt} 설탕:${sugar} 옥수수:${corn} / 서버:${S.serverOk?'✅':'❌'}`;
-  }
-
-  // ----- 뻥튀기 실행(서버가 전부 계산/판정)
-  async function runPung(){
-    if(!S.serverOk) return toast('서버 오프라인입니다.');
-    if(!S.kakaoId)  return toast('카카오 로그인 필요');
-
-    try{
-      const res = await fetch(API_BASE + '/api/corn/pung', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        // 클라이언트는 kakaoId만 전달. 등급/개수/색상/재료 차감/보상은 전부 서버 내부 로직.
-        body: JSON.stringify({ kakaoId: S.kakaoId })
-      });
-
-      if(!res.ok){
-        const t = await res.text().catch(()=> '');
-        return toast('실행 실패: ' + (t||res.status));
-      }
-      const data = await res.json();
-
-      // 서버 표준 응답(추천)
-      // {
-      //   ok:true,
-      //   message:"A급 7개 배치 1회 처리",
-      //   result:{ token:1000, popcorn:1 },
-      //   wallet:{ before:120, after:1120 },
-      //   inventory:{ salt:1, sugar:2, corn:0 },
-      //   products:{ popcorn:5 }
-      // }
-
-      const gotToken = Number(data?.result?.token ?? 0);
-      const msg = data?.message || '처리되었습니다.';
-
-      // 세션 누적(표시용)
-      S.earnedSession += gotToken;
-
-      // 서버가 최신 유저상태를 내려주면 적용
-      if(data?.user){
-        S.user = data.user;
-      }else{
-        // 호환: 내려준 지갑/인벤토리 필드로 갱신
-        S.user = S.user || {};
-        S.user.wallet = data?.wallet ? { orcx:Number(data.wallet.after ?? data.wallet.orcx ?? 0) } : S.user.wallet;
-        S.user.inventory = data?.inventory || S.user.inventory;
-        S.user.products  = data?.products  || S.user.products;
-      }
-      paintUser(S.user);
-
-      // ✅ 결과 문구: “축하합니다. 1000토큰을 획득했습니다.”
-      el('resultBox').innerHTML =
-        `🎉 축하합니다. <b>${gotToken.toLocaleString()}</b> 토큰을 획득했습니다.<br/><span class="muted">${msg}</span>`;
-      checkReady(); // 재료 소모 후 버튼 상태 갱신
-    }catch(e){
-      toast('뻥튀기 처리 중 오류가 발생했습니다.');
-    }
-  }
-
-  function toast(m){ el('resultBox').textContent = '❌ ' + m; }
-
-  // 이벤트
-  el('btnRun').addEventListener('click', runPung);
-  el('btnReload').addEventListener('click', ()=>{ pingServer(); loadUser(); });
-
-  // 시작
-  (async function init(){
-    set('kakaoId', S.kakaoId||'-');
-    await pingServer();
-    await loadUser();
-    checkReady();
-  })();
-</script>
+  <!-- JS 모듈 -->
+  <script src="js/popup.js"></script>
 </body>
 </html>
+
+
 
 
 
