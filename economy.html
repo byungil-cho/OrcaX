@@ -9,6 +9,7 @@
 <body>
   <main class="container">
     <h2>💱 자원 교환소</h2>
+    <p id="diag">🔄 서버 상태 확인 중...</p>
 
     <!-- 팝콘 교환 -->
     <section>
@@ -53,18 +54,18 @@
 
   </main>
 
-  <script type="module" src="js/economy.js"></script>
   <script>
     const BASE_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
     const kakaoId = localStorage.getItem('kakaoId');
     const URL_USERDATA = BASE_API + '/api/userdata';
     const URL_LOAN = BASE_API + '/api/loan';
 
+    const diagEl = document.getElementById('diag');
+
     if (!kakaoId) {
       alert('로그인이 필요합니다.');
       window.location.href = 'index9.html';
     } else {
-      // 대출 상태 조회
       fetch(URL_USERDATA, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -72,11 +73,21 @@
       })
       .then(r => r.json())
       .then(data => {
-        const amount = data?.user?.loan?.amount || 0;
-        document.querySelector('#loanStatus strong').textContent = `${amount} 토큰`;
+        const user = data?.user;
+        if (!user) throw new Error('유저 없음');
+
+        diagEl.textContent = `✅ 연결됨 (${user.nickname || kakaoId})`;
+        console.log('유저 자원:', user);
+
+        const loan = user.loan?.amount || 0;
+        document.querySelector('#loanStatus strong').textContent = `${loan} 토큰`;
+      })
+      .catch(err => {
+        diagEl.textContent = '❌ 서버 오류, API 응답 실패';
+        console.warn('유저 로딩 오류:', err);
+        alert('서버와 연결 실패했습니다.');
       });
 
-      // 대출 신청 처리
       document.getElementById('loanForm').addEventListener('submit', function (e) {
         e.preventDefault();
         const amt = parseInt(document.getElementById('loanAmount').value);
@@ -98,4 +109,5 @@
   </script>
 </body>
 </html>
+
 
