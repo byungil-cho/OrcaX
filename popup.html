@@ -3,123 +3,103 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>옥수수 뻥튀기 결과 - OrcaX</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <title>옥수수 뻥튀기 - OrcaX</title>
   <style>
     body {
-      background: url("img/popup-bg.jpg") no-repeat center center fixed;
-      background-size: cover;
+      background: linear-gradient(to bottom, #333 0%, #111 100%);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
+      margin: 0;
+      font-family: sans-serif;
     }
     .popup-box {
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0,0,0,0.8);
       padding: 2rem;
-      border-radius: 15px;
+      border-radius: 12px;
       text-align: center;
       width: 90%;
       max-width: 400px;
     }
-    .popup-box h2 {
-      margin-bottom: 1rem;
-    }
-    .result {
-      font-size: 1.4rem;
+    .resource-info {
       margin: 1rem 0;
-      padding: 1rem;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.1);
     }
-    .btns {
-      margin-top: 1.5rem;
-      display: flex;
-      justify-content: space-between;
+    .animation-area {
+      position: relative;
+      height: 200px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+    #cornImg {
+      height: 80px;
+      transition: transform 0.8s ease-out;
+    }
+    .pop-up {
+      transform: translateY(-150px) scale(1.3);
+    }
+    #tokenRain {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 100px;
+      height: 100%;
+      pointer-events: none;
+    }
+    .token {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: gold;
+      border-radius: 50%;
+      animation: fall 1.5s linear forwards;
+    }
+    @keyframes fall {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(250px); opacity: 0; }
     }
   </style>
 </head>
 <body>
   <div class="popup-box">
-    <h2>🍿 뻥튀기 결과</h2>
-    <p>닉네임: <strong id="nickname">-</strong></p>
-    <div class="result" id="resultBox">서버 연결 중...</div>
-
-    <div class="btns">
-      <a href="corn-farm.html" role="button">농장으로</a>
-      <button id="retryBtn" disabled>다시 뻥튀기</button>
+    <h2>🍿 뻥튀기 시뮬레이터</h2>
+    <p>닉네임: <strong id="nickname">법고래</strong></p>
+    <div class="resource-info">
+      🌽 옥수수(<span id="cornType">노랑</span>) 🧂 <span id="salt">1</span> 🍬 <span id="sugar">1</span> 🪙 <span id="tokens">90</span>
     </div>
+    <div class="animation-area">
+      <img id="cornImg" src="https://cdn-icons-png.flaticon.com/512/2909/2909835.png" alt="옥수수" />
+      <div id="tokenRain"></div>
+    </div>
+    <button id="puffBtn">🔥 뻥튀기!</button>
   </div>
-
+  <audio id="bbyongSound" src="https://upload.wikimedia.org/wikipedia/commons/6/63/Firecracker_bang.ogg" preload="auto"></audio>
   <script>
-    const BASE_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
-    const kakaoId = localStorage.getItem('kakaoId');
-    const URL_USERDATA = BASE_API + '/api/userdata';
-    const URL_PUFF = BASE_API + '/api/puff';
-    const nicknameEl = document.getElementById('nickname');
-    const resultBox = document.getElementById('resultBox');
-    const retryBtn = document.getElementById('retryBtn');
+    const puffBtn = document.getElementById('puffBtn');
+    const cornImg = document.getElementById('cornImg');
+    const tokenRain = document.getElementById('tokenRain');
+    const bbyongSound = document.getElementById('bbyongSound');
 
-    if (!kakaoId) {
-      alert('로그인이 필요합니다.');
-      window.location.href = 'index9.html';
-    } else {
-      fetch(URL_USERDATA, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kakaoId })
-      })
-      .then(r => r.json())
-      .then(data => {
-        const user = data?.user;
-        if (!user) throw new Error('유저 없음');
-        nicknameEl.textContent = user.nickname || kakaoId;
+    puffBtn.addEventListener('click', () => {
+      bbyongSound.currentTime = 0;
+      bbyongSound.play();
 
-        const corn = user.inventory?.corn || 0;
-        const salt = user.inventory?.salt || 0;
-        const sugar = user.inventory?.sugar || 0;
-        const tokens = user.orcx || 0;
+      cornImg.classList.add('pop-up');
+      setTimeout(() => cornImg.classList.remove('pop-up'), 800);
 
-        if (corn < 1 || salt < 1 || sugar < 1 || tokens < 30) {
-          resultBox.textContent = '❌ 뻥튀기 조건 부족: 옥수수, 소금, 설탕, 토큰 30 필요';
-          retryBtn.disabled = true;
-        } else {
-          resultBox.textContent = '🎯 뻥튀기 가능! 준비 완료';
-          retryBtn.disabled = false;
-        }
-      })
-      .catch(err => {
-        resultBox.textContent = '❌ 서버 오류 / 유저 정보 불러오기 실패';
-        console.warn(err);
-      });
-
-      retryBtn.addEventListener('click', () => {
-        retryBtn.disabled = true;
-        retryBtn.textContent = '처리 중...';
-
-        fetch(URL_PUFF, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId })
-        })
-        .then(r => r.json())
-        .then(data => {
-          const msg = data?.message || '결과 없음';
-          resultBox.textContent = `🍿 ${msg}`;
-        })
-        .catch(err => {
-          resultBox.textContent = '❌ 뻥튀기 실패: 서버 오류';
-          console.warn(err);
-        })
-        .finally(() => {
-          retryBtn.disabled = false;
-          retryBtn.textContent = '다시 뻥튀기';
-        });
-      });
-    }
+      for (let i = 0; i < 10; i++) {
+        const coin = document.createElement('div');
+        coin.className = 'token';
+        coin.style.left = Math.random() * 80 + 'px';
+        tokenRain.appendChild(coin);
+        setTimeout(() => coin.remove(), 1500);
+      }
+    });
   </script>
 </body>
 </html>
+
+
 
 
