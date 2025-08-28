@@ -1,95 +1,78 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>실전 옥수수 뻥튀기 - OrcaX</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>실전 옥수수 뻥튀기</title>
   <style>
-    body {
-      background: #111;
-      color: white;
-      font-family: sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .popup {
-      background: #222;
-      border-radius: 16px;
-      padding: 2rem;
-      text-align: center;
-      width: 95%;
-      max-width: 420px;
-    }
-    .popup h2 { margin-bottom: 1rem; }
-    .info { margin-bottom: 1rem; }
-    .info span { display: inline-block; margin: 0 4px; }
-    .corn-img {
-      height: 90px;
-      transition: transform 0.6s ease-out;
-    }
+    body { background: #111; color: white; font-family: sans-serif; margin: 0; height: 100vh;
+           display: flex; justify-content: center; align-items: center; }
+    .popup { background: #222; border-radius: 12px; padding: 2rem; text-align: center; width: 90%; max-width: 420px; }
+    .info, .result { margin: 1rem 0; font-size: 1.1rem; }
+    .corn-img { height: 90px; transition: transform 0.6s ease-out; }
     .popcorn { transform: translateY(-120px) scale(1.3); }
-    .token-drop {
-      position: relative;
-      height: 120px;
-      margin: 1rem 0;
-      overflow: hidden;
-    }
-    .token {
-      position: absolute;
-      top: 0;
-      width: 22px;
-      height: 22px;
-      background: gold;
-      border-radius: 50%;
-      animation: fall 1.4s linear forwards;
-    }
-    @keyframes fall {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(130px); opacity: 0; }
-    }
-    button {
-      padding: 0.6rem 1.2rem;
-      background: #ffa500;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
+    .token-drop { position: relative; height: 120px; margin: 1rem 0; overflow: hidden; }
+    .token { position: absolute; top: 0; width: 22px; height: 22px; background: gold; border-radius: 50%;
+             animation: fall 1.4s linear forwards; }
+    @keyframes fall { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(130px); opacity: 0; } }
+    button { padding: 0.6rem 1.2rem; background: #ffa500; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
     button:disabled { background: gray; cursor: not-allowed; }
-    .result {
-      margin-top: 1rem;
-      font-weight: bold;
-      font-size: 1.1rem;
-      color: #ffde59;
-    }
   </style>
 </head>
 <body>
   <div class="popup">
     <h2>🔥 옥수수 뻥튀기</h2>
+    <div class="info" id="nickname">유저: 로딩 중...</div>
     <div class="info">
-      <p>유저: <strong id="nickname">법고래</strong></p>
-      <p>🌽 <span id="cornColor">검정</span> 🧂 <span id="salt">1</span> 🍬 <span id="sugar">1</span> 🪙 <span id="tokens">100</span></p>
+      🌽 <span id="cornColor">-</span> 🧂 <span id="salt">-</span> 🍬 <span id="sugar">-</span> 🪙 <span id="tokens">-</span>
     </div>
-    <img id="cornImg" class="corn-img" src="https://cdn-icons-png.flaticon.com/512/2909/2909853.png" alt="옥수수" />
+    <img id="cornImg" class="corn-img" src="" alt="옥수수" />
     <div class="token-drop" id="tokenRain"></div>
-    <button id="puffBtn">💥 뻥튀기!</button>
-    <div class="result" id="resultText">뻥튀기 가능합니다!</div>
+    <button id="puffBtn" disabled>💥 뻥튀기!</button>
+    <div class="result" id="resultText">데이터 불러오는 중...</div>
   </div>
   <audio id="bbyongSound" src="https://upload.wikimedia.org/wikipedia/commons/6/63/Firecracker_bang.ogg" preload="auto"></audio>
   <script>
+    const API = "https://climbing-wholly-grouper.jp.ngrok.io";
+    const kakaoId = localStorage.getItem("kakaoId");
+    const cornMap = {
+      yellow: { name: "노랑", src: "https://cdn-icons-png.flaticon.com/512/2909/2909835.png" },
+      red: { name: "붉은", src: "https://cdn-icons-png.flaticon.com/512/2909/2909889.png" },
+      black: { name: "검정", src: "https://cdn-icons-png.flaticon.com/512/2909/2909853.png" }
+    };
+
     const puffBtn = document.getElementById("puffBtn");
     const cornImg = document.getElementById("cornImg");
     const bbyongSound = document.getElementById("bbyongSound");
-    const resultText = document.getElementById("resultText");
-    const tokens = document.getElementById("tokens");
     const tokenRain = document.getElementById("tokenRain");
+    const resultText = document.getElementById("resultText");
 
-    let totalTokens = 100;
-    const isLoan = true;
+    let user = null;
+
+    if (!kakaoId) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "index9.html";
+    } else {
+      fetch(API + "/api/userdata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kakaoId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        user = data.user;
+        document.getElementById("nickname").textContent = "유저: " + (user.nickname || kakaoId);
+        document.getElementById("cornColor").textContent = cornMap[user.inventory.cornColor].name;
+        document.getElementById("salt").textContent = user.inventory.salt;
+        document.getElementById("sugar").textContent = user.inventory.sugar;
+        document.getElementById("tokens").textContent = user.orcx;
+        cornImg.src = cornMap[user.inventory.cornColor].src;
+
+        const ok = user.inventory.corn >= 1 && user.inventory.salt >= 1 && user.inventory.sugar >= 1 && user.orcx >= 30;
+        puffBtn.disabled = !ok;
+        resultText.textContent = ok ? "뻥튀기 가능합니다!" : "자원이 부족합니다.";
+      });
+    }
 
     function animateTokens(gain) {
       for (let i = 0; i < gain / 2; i++) {
@@ -107,13 +90,21 @@
       bbyongSound.currentTime = 0;
       bbyongSound.play();
 
-      const baseGain = Math.floor(Math.random() * 5 + 5) * 10;
-      const gain = isLoan ? Math.floor(baseGain * 0.7) : baseGain;
-      totalTokens += gain;
-
-      tokens.textContent = totalTokens;
-      resultText.textContent = `+${gain} 토큰 획득! 누적: ${totalTokens}`;
-      animateTokens(gain);
+      fetch(API + "/api/puff", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kakaoId })
+      })
+      .then(r => r.json())
+      .then(res => {
+        const gain = res.token || 0;
+        document.getElementById("tokens").textContent = res.total || (user.orcx + gain);
+        resultText.textContent = `+${gain} 토큰 획득! 누적: ${res.total}`;
+        animateTokens(gain);
+      })
+      .catch(() => {
+        resultText.textContent = "❌ 뻥튀기 실패: 서버 오류";
+      });
     });
   </script>
 </body>
