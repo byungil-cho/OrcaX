@@ -2,59 +2,100 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>옥수수 뻥튀기 결과 - OrcaX</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>유저 정보 팝업</title>
   <style>
     body {
-      background: url("img/popup-bg.jpg") no-repeat center center fixed;
-      background-size: cover;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      font-family: 'Arial', sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
     }
-    .popup-box {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 2rem;
-      border-radius: 15px;
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
+    .status {
+      padding: 10px;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
-    .popup-box h2 {
-      margin-bottom: 1rem;
+    .status.connected { color: #0f0; }
+    .status.disconnected { color: #f33; }
+    .user-info {
+      background: #222;
+      padding: 15px;
+      border-radius: 8px;
     }
-    .result {
-      font-size: 1.4rem;
-      margin: 1rem 0;
-      padding: 1rem;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.1);
-    }
-    .btns {
-      margin-top: 1.5rem;
-      display: flex;
-      justify-content: space-between;
-    }
+    .user-info div { margin-bottom: 6px; }
+    .label { font-weight: bold; color: #ccc; }
   </style>
 </head>
 <body>
-  <div class="popup-box">
-    <h2>🍿 뻥튀기 결과</h2>
-    <p>닉네임: <strong id="nickname">-</strong></p>
-    <div class="result" id="resultBox">결과 대기 중...</div>
 
-    <div class="btns">
-      <a href="corn-farm.html" role="button">농장으로</a>
-      <button id="retryBtn">다시 뻥튀기</button>
-    </div>
+  <div id="serverStatus" class="status">🔄 서버 상태 확인 중...</div>
+
+  <div class="user-info">
+    <div><span class="label">닉네임:</span> <span id="nickname">-</span></div>
+    <div><span class="label">카카오 ID:</span> <span id="kakaoId">-</span></div>
+    <div><span class="label">ORCX 토큰:</span> <span id="orcx">-</span></div>
+    <div><span class="label">물:</span> <span id="water">-</span></div>
+    <div><span class="label">거름:</span> <span id="fertilizer">-</span></div>
   </div>
 
-  <script src="js/popup.js"></script>
+  <script>
+    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 주인님 서버
+
+    async function checkServerStatus() {
+      try {
+        const res = await fetch(API_BASE + '/api/ping');
+        if (res.ok) {
+          document.getElementById('serverStatus').textContent = '✅ 서버 연결됨';
+          document.getElementById('serverStatus').className = 'status connected';
+        } else {
+          throw new Error('응답 비정상');
+        }
+      } catch (e) {
+        document.getElementById('serverStatus').textContent = '❌ 서버 끊김';
+        document.getElementById('serverStatus').className = 'status disconnected';
+      }
+    }
+
+    async function loadUserInfo() {
+      const kakaoId = localStorage.getItem('kakaoId');
+      if (!kakaoId) {
+        alert("카카오 로그인 정보가 없습니다.");
+        return;
+      }
+
+      try {
+        const res = await fetch(API_BASE + '/api/user/info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId })
+        });
+        const data = await res.json();
+
+        if (!data || !data.nickname) {
+          throw new Error('유저 정보 없음');
+        }
+
+        document.getElementById('kakaoId').textContent = kakaoId;
+        document.getElementById('nickname').textContent = data.nickname || '-';
+        document.getElementById('orcx').textContent = data.wallet?.orcx ?? '-';
+        document.getElementById('water').textContent = data.inventory?.water ?? '-';
+        document.getElementById('fertilizer').textContent = data.inventory?.fertilizer ?? '-';
+
+      } catch (e) {
+        alert('❌ 유저 정보를 불러오는 데 실패했습니다.');
+        console.error(e);
+      }
+    }
+
+    // 초기 실행
+    checkServerStatus();
+    loadUserInfo();
+  </script>
 </body>
 </html>
+
 
 
 
