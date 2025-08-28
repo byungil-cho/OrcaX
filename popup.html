@@ -53,5 +53,71 @@
   </div>
 
   <script src="js/popup.js"></script>
+<script>
+  const BASE_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
+  const kakaoId = localStorage.getItem('kakaoId');
+  const URL_USERDATA = BASE_API + '/api/userdata';
+  const URL_PUFF = BASE_API + '/api/puff';
+  const nicknameEl = document.getElementById('nickname');
+  const resultBox = document.getElementById('resultBox');
+  const retryBtn = document.getElementById('retryBtn');
+
+  if (!kakaoId) {
+    alert('로그인이 필요합니다.');
+    window.location.href = 'index9.html';
+  } else {
+    // 유저 데이터 불러오기
+    fetch(URL_USERDATA, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kakaoId })
+    })
+    .then(r => r.json())
+    .then(data => {
+      const user = data?.user;
+      if (!user) throw new Error('유저 없음');
+      nicknameEl.textContent = user.nickname || kakaoId;
+
+      // 기본 메시지 세팅
+      resultBox.textContent = '🎯 뻥튀기 준비 완료!';
+    })
+    .catch(err => {
+      resultBox.textContent = '❌ 서버 오류 / 유저 불러오기 실패';
+      console.warn(err);
+    });
+
+    // 뻥튀기 요청
+    retryBtn.addEventListener('click', () => {
+      retryBtn.disabled = true;
+      retryBtn.textContent = '처리 중...';
+
+      fetch(URL_PUFF, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kakaoId })
+      })
+      .then(r => r.json())
+      .then(data => {
+        const msg = data?.message || '결과 없음';
+        resultBox.textContent = `🍿 ${msg}`;
+      })
+      .catch(err => {
+        resultBox.textContent = '❌ 뻥튀기 실패: 서버 오류';
+        console.warn(err);
+      })
+      .finally(() => {
+        retryBtn.disabled = false;
+        retryBtn.textContent = '다시 뻥튀기';
+      });
+    });
+  }
+</script>
+
 </body>
 </html>
+
+
+  <script src="js/popup.js"></script>
+</body>
+</html>
+
