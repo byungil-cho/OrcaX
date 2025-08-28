@@ -44,11 +44,11 @@
       <div class="grid">
         <section class="asset">
           <hgroup>
-            <h2>법고래님 보유 자산</h2>
+            <h2>유저님 보유 자산</h2>
             <h3>Assets</h3>
           </hgroup>
-          <p>💰 토큰: <strong>76,500</strong></p>
-          <p>💧 물: <strong>50</strong> / 💩 거름: <strong>30</strong></p>
+          <p>💰 토큰: <strong id="orcx">-</strong></p>
+          <p>💧 물: <strong id="water">-</strong> / 💩 거름: <strong id="fertilizer">-</strong></p>
         </section>
 
         <section class="loan">
@@ -56,8 +56,8 @@
             <h2>대출 현황</h2>
             <h3>Loan Status</h3>
           </hgroup>
-          <p>📦 현재 대출: <strong>2000 토큰</strong></p>
-          <p>📈 이자: <strong>5% / 일</strong></p>
+          <p>📦 현재 대출: <strong id="loanAmount">-</strong></p>
+          <p>📈 이자: <strong id="interestRate">-</strong></p>
           <button role="button">💳 상환하기</button>
         </section>
 
@@ -68,8 +68,9 @@
           </hgroup>
           <form class="grid">
             <input type="text" name="wallet" placeholder="솔라나 지갑 주소" required />
-            <button type="submit" onclick="event.preventDefault()">💸 출금 신청</button>
+            <button type="submit" id="withdrawBtn" onclick="event.preventDefault()">💸 출금 신청</button>
           </form>
+          <p id="withdrawNotice" style="color: #ff6666;"></p>
           <small>※ 50,000 토큰 이상 출금 가능</small>
         </section>
       </div>
@@ -79,42 +80,50 @@
       <small><a href="#">이용약관</a> • <a href="#">개인정보</a></small>
     </footer>
 
-<script>
-  const BASE_API = 'https://climbing-wholly-grouper.jp.ngrok.io'; // 실제 API 주소로 수정
-  const URL_USERDATA = BASE_API + '/api/userdata';
-  const kakaoId = localStorage.getItem('kakaoId');
+    <script>
+      const BASE_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
+      const kakaoId = localStorage.getItem('kakaoId');
+      const URL_USERDATA = BASE_API + '/api/userdata';
 
-  if (!kakaoId) {
-    alert('로그인이 필요합니다.');
-    window.location.href = 'index9.html';
-  } else {
-    fetch(URL_USERDATA, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kakaoId })
-    })
-    .then(r => r.json())
-    .then(data => {
-      const user = data.user;
-      if (!user) return;
+      if (!kakaoId) {
+        alert('로그인이 필요합니다.');
+        window.location.href = 'index9.html';
+      } else {
+        fetch(URL_USERDATA, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId })
+        })
+        .then(r => r.json())
+        .then(data => {
+          const user = data?.user;
+          if (!user) throw new Error('유저 없음');
 
-      document.querySelector('.asset h2').textContent = `${user.nickname || '유저'}님 보유 자산`;
-      document.querySelector('.asset p:nth-of-type(1) strong').textContent = user.orcx || 0;
-      document.querySelector('.asset p:nth-of-type(2)').innerHTML =
-        `💧 물: <strong>${user.inventory?.water || 0}</strong> / 💩 거름: <strong>${user.inventory?.fertilizer || 0}</strong>`;
+          document.querySelector('.asset h2').textContent = `${user.nickname || '유저'}님 보유 자산`;
+          document.getElementById('orcx').textContent = user.orcx || 0;
+          document.getElementById('water').textContent = user.inventory?.water || 0;
+          document.getElementById('fertilizer').textContent = user.inventory?.fertilizer || 0;
+          document.getElementById('loanAmount').textContent = user.loan?.amount || '0 토큰';
+          document.getElementById('interestRate').textContent = user.loan?.interest ? `${user.loan.interest}% / 일` : '0% / 일';
 
-      document.querySelector('.loan p:nth-of-type(1) strong').textContent = user.loan?.amount || '0 토큰';
-      document.querySelector('.loan p:nth-of-type(2) strong').textContent = user.loan?.interest ? `${user.loan.interest}% / 일` : '0% / 일';
-    })
-    .catch(err => {
-      console.error('유저 데이터 로딩 실패', err);
-      alert('서버 연결 실패. 다시 시도해 주세요.');
-    });
-  }
-</script>
-
+          // 출금 제한 처리
+          if ((user.loan?.amount || 0) > 0) {
+            const btn = document.getElementById('withdrawBtn');
+            const msg = document.getElementById('withdrawNotice');
+            btn.disabled = true;
+            msg.textContent = '📛 현재 대출이 있어 출금할 수 없습니다.';
+          }
+        })
+        .catch(err => {
+          alert('유저 정보를 불러올 수 없습니다.');
+          console.warn(err);
+        });
+      }
+    </script>
   </body>
 </html>
+
+
 
 
 
