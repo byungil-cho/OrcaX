@@ -40,7 +40,62 @@
       </form>
     </section>
 
+    <!-- 💳 대출 신청 -->
+    <section>
+      <h3>💳 대출 신청</h3>
+      <form id="loanForm">
+        <label>대출 받을 토큰 수량 (단위: 1000/2000/3000)</label>
+        <input type="number" id="loanAmount" placeholder="예: 1000" required />
+        <button type="submit">대출 신청</button>
+      </form>
+      <p id="loanStatus">📦 현재 대출: <strong>조회 중...</strong></p>
+    </section>
+
   </main>
+
   <script type="module" src="js/economy.js"></script>
+  <script>
+    const BASE_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const kakaoId = localStorage.getItem('kakaoId');
+    const URL_USERDATA = BASE_API + '/api/userdata';
+    const URL_LOAN = BASE_API + '/api/loan';
+
+    if (!kakaoId) {
+      alert('로그인이 필요합니다.');
+      window.location.href = 'index9.html';
+    } else {
+      // 대출 상태 조회
+      fetch(URL_USERDATA, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kakaoId })
+      })
+      .then(r => r.json())
+      .then(data => {
+        const amount = data?.user?.loan?.amount || 0;
+        document.querySelector('#loanStatus strong').textContent = `${amount} 토큰`;
+      });
+
+      // 대출 신청 처리
+      document.getElementById('loanForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const amt = parseInt(document.getElementById('loanAmount').value);
+        if (![1000, 2000, 3000].includes(amt)) return alert('1000, 2000, 3000 중 하나를 입력해주세요');
+
+        fetch(URL_LOAN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId, amount: amt })
+        })
+        .then(r => r.json())
+        .then(data => {
+          alert('대출 완료! 현재 대출: ' + data?.loan?.amount + ' 토큰');
+          document.querySelector('#loanStatus strong').textContent = `${data?.loan?.amount} 토큰`;
+        })
+        .catch(err => alert('요청 실패: ' + err));
+      });
+    }
+  </script>
 </body>
 </html>
+
