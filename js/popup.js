@@ -1,133 +1,92 @@
-/* ===== 유틸: 안전한 JSON 요청 (POST/GET 자동 시도 + text/plain로 프리플라이트 회피) ===== */
-async function fetchJson(url, payload){
-  // 1) POST application/json
-  try{
-    const r = await fetch(API_BASE + url, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    if(r.ok) return await r.json();
-  }catch(e){ /* ignore */ }
+// 1) 여러 후보 엔드포인트 자동 시도
+const USERDATA_ENDPOINTS = [
+  '/api/corn/userdata',   // 권장 집계 API (없으면 404)
+  '/api/user/info',
+  '/api/userdata',
+  '/api/users/find',
+  '/api/corn_data/find',
+  '/api/user/by-kakao',
+  '/api/corn/by-kakao',
+  '/users/by-kakao',
+  '/corn/by-kakao'
+];
 
-  // 2) POST text/plain (프리플라이트 회피용, 서버가 body만 읽으면 됨)
-  try{
-    const r = await fetch(API_BASE + url, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify(payload)
-    });
-    if(r.ok) return await r.json();
-  }catch(e){ /* ignore */ }
-
-  // 3) GET ?kakaoId=...
-  try{
-    const qp = '?kakaoId=' + encodeURIComponent(payload.kakaoId);
-    const r = await fetch(API_BASE + url + qp, { method:'GET' });
-    if(r.ok) return await r.json();
-  }catch(e){ /* ignore */ }
-
+// POST(JSON) → POST(text/plain) → GET 쿼리 순서로 시도
+async function fetchJsonAny(endpoint, payload){
+  try {
+    let r = await fetch(API_BASE + endpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    if (r.ok) return await r.json();
+  } catch {}
+  try {
+    let r = await fetch(API_BASE + endpoint, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload)});
+    if (r.ok) return await r.json();
+  } catch {}
+  try {
+    let r = await fetch(API_BASE + endpoint + '?kakaoId=' + encodeURIComponent(payload.kakaoId), {method:'GET'});
+    if (r.ok) return await r.json();
+  } catch {}
   return null;
 }
 
-/* ===== 유저 불러오기: 집계 API 우선 → 없으면 users / corn_data 개별 조회 후 병합 ===== */
-async function loadUser(){
-  const box = $('resultBox');
-  if(!S.kakaoId){ paint(null); box.textContent='카카오 로그인 정보가 없습니다.'; return; }
-
-  try{
-    // 1) 권장: 서버에서 두 컬렉션을 합쳐주는 API
-    //    /api/corn/userdata  (응답 예: { user:{...users}, corn:{...corn_data} } 또는 통합된 1객체)
-    let data = await fetchJson('/api/corn/userdata', { kakaoId:S.kakaoId });
-
-    // 2) 대안: users / corn_data 개별 엔드포인트가 있는 경우 자동 시도
-    if(!data){
-      const [u, c] = await Promise.all([
-        fetchJson('/api/user/by-kakao', { kakaoId:S.kakaoId }),
-        fetchJson('/api/corn/by-kakao', { kakaoId:S.kakaoId })
-      ]);
-      if(u || c) data = { user: u, corn: c };
-    }
-
-    // 3) 그래도 없으면 다른 관용 경로 한 번 더 시도
-    if(!data){
-      const [u2, c2] = await Promise.all([
-        fetchJson('/api/users/find', { kakaoId:S.kakaoId }),      // users 컬렉션
-        fetchJson('/api/corn_data/find', { kakaoId:S.kakaoId })   // corn_data 컬렉션
-      ]);
-      if(u2 || c2) data = { user: u2, corn: c2 };
-    }
-
-    if(!data) throw new Error('NO_DATA');
-
-    // 정규화 → S.user
-    S.raw  = data;
-    S.user = normalizeUser(data);
-    paint(S.user);
-    checkReady();
-  }catch(e){
-    paint(null);
-    $('resultBox').textContent = '❌ 유저 정보를 불러오지 못했습니다.';
-    console.warn('[userdata fetch error]', e);
-  }
-}
-
-/* ===== 정규화: users / corn_data 어떤 형태든 하나의 뷰 모델로 맞춤 =====
-   - users: 토큰/닉네임
-   - corn_data: 소금/설탕/옥수수/팝콘/색상
-*/
+// ✅ users + corn_data 어떤 형식이 와도 하나의 뷰모델로 정규화
 function normalizeUser(raw){
-  // raw가 통합객체일 수도, {user:{}, corn:{}}처럼 분리일 수도 있음
   const userPart = raw?.user || raw?.users || raw;       // users 컬렉션 근원
   const cornPart = raw?.corn || raw?.corn_data || raw;   // corn_data 근원
 
+  const num = v => Number.isFinite(Number(v)) ? Number(v) : 0;
+
   const out = {
-    nickname: (
-      userPart?.nickname ||
-      userPart?.name ||
-      userPart?.profile?.nickname ||
-      localStorage.getItem('nickname') || '-'
-    ),
-    cornColor: (
-      cornPart?.cornColor ||
-      cornPart?.color ||
-      cornPart?.corn_color ||
-      'yellow'
-    ).toLowerCase(),
-    wallet: { orcx: 0 },
-    inventory: { salt:0, sugar:0, corn:0 },
-    products: { popcorn:0 }
+    nickname: (userPart?.nickname || userPart?.name || userPart?.profile?.nickname || localStorage.getItem('nickname') || '-'),
+    cornColor: (cornPart?.cornColor || cornPart?.color || cornPart?.corn_color || 'yellow').toLowerCase(),
+    wallet:   { orcx: num(userPart?.token ?? userPart?.tokens ?? userPart?.orcx ?? userPart?.wallet?.orcx ?? userPart?.wallet?.balance ?? 0) },
+    inventory:{ 
+      salt:  num(cornPart?.salt ?? cornPart?.salts ?? cornPart?.inventory?.salt ?? 0),
+      sugar: num(cornPart?.sugar ?? cornPart?.sugars ?? cornPart?.inventory?.sugar ?? 0),
+      corn:  num(cornPart?.corn ?? cornPart?.cornCount ?? cornPart?.inventory?.corn ?? cornPart?.data?.count ?? 0)
+    },
+    products:{ popcorn: num(cornPart?.popcorn ?? cornPart?.products?.popcorn ?? 0) }
   };
-
-  // users 컬렉션: 토큰 필드 변종 흡수
-  out.wallet.orcx = Number(
-    userPart?.token ??
-    userPart?.tokens ??
-    userPart?.orcx ??
-    userPart?.wallet?.orcx ??
-    userPart?.wallet?.balance ??
-    0
-  ) || 0;
-
-  // corn_data 컬렉션: 수량 필드 변종 흡수
-  out.inventory.salt   = Number(
-    cornPart?.salt ?? cornPart?.salts ?? cornPart?.inventory?.salt ?? 0
-  ) || 0;
-  out.inventory.sugar  = Number(
-    cornPart?.sugar ?? cornPart?.sugars ?? cornPart?.inventory?.sugar ?? 0
-  ) || 0;
-  out.inventory.corn   = Number(
-    cornPart?.corn ??
-    cornPart?.cornCount ??
-    cornPart?.inventory?.corn ??
-    cornPart?.data?.count ??
-    0
-  ) || 0;
-  out.products.popcorn = Number(
-    cornPart?.popcorn ?? cornPart?.products?.popcorn ?? 0
-  ) || 0;
-
   return out;
 }
+
+// 🔄 유저 불러오기: 후보 엔드포인트를 순차 시도해서 성공하는 것 채택
+async function loadUser(){
+  const box = document.getElementById('resultBox');
+  if(!S.kakaoId){ paint(null); box.textContent='카카오 로그인 정보가 없습니다.'; return; }
+
+  let data = null, used = null;
+  for (const ep of USERDATA_ENDPOINTS) {
+    data = await fetchJsonAny(ep, { kakaoId:S.kakaoId });
+    if (data) { used = ep; break; }
+  }
+  if (!data) { paint(null); box.textContent = '❌ 유저 정보를 불러오지 못했습니다. (모든 엔드포인트 실패)'; return; }
+
+  // 통합객체이든 {user,corn}이든 OK
+  S.raw  = data;
+  S.user = normalizeUser(data);
+  paint(S.user);
+  checkReady();
+
+  // 디버깅 보기 좋게
+  console.log('[userdata ok]', used, data);
+}
+// CORS (gh-pages 출처 허용)
+app.use((req,res,next)=>{
+  res.header('Access-Control-Allow-Origin','https://byungil-cho.github.io');
+  res.header('Access-Control-Allow-Methods','GET,POST,OPTIONS');
+  res.header('Access-Control-Allow-Headers','Content-Type');
+  if(req.method==='OPTIONS') return res.sendStatus(200);
+  next();
+});
+
+// users × corn_data 집계
+app.post('/api/corn/userdata', async (req,res)=>{
+  const body = typeof req.body==='string' ? JSON.parse(req.body) : req.body;
+  const { kakaoId } = body;
+  const user = await db.collection('users').findOne({ kakaoId });
+  const corn = await db.collection('corn_data').findOne({ kakaoId });
+  res.json({ user, corn });
+});
+
 
 
