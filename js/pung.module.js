@@ -1,317 +1,304 @@
 /* js/pung.module.js
- * OrcaX Corn Popping Engine (for popup.html)
- * - 불러오기: 카카오ID/닉네임 기반 users, corn_data 조회 (서버 GET 우선, 실패 시 localStorage)
- * - 실행조건: 소금1 + 설탕1 + 옥수수1 + ORCX 30 (매 회차)
- * - 뻥튀기: 수확 수량만큼 1개씩 연속 실행. 결과는 등급 테이블 내 랜덤.
- *   · A급: 5/7/9개 시 고정 조합을 무작위 순서로 배치(3700/5200/6200 총합 예시 보장)
- *   · B~F급: 등급 테이블 값(3종) + 팝콘(0)에서 확률 추출 (필요 시 고정 조합 규칙 추가 가능)
- * - 대출 공제: 씨앗색이 red/black이면 획득 토큰의 30% 공제 적용
- * - UI는 popup.html이 담당 (풍선말, 누적표시 등)
+ * OrcaX Corn Popping Engine — MongoDB API only / KakaoID auto-detect
+ * --------------------------------------------
+ * - 서버: Ngrok 등으로 노출된 Mongo API만 사용
+ * - 카카오ID: 하드코딩 금지. URL → localStorage → cookie 순으로 자동 인식
+ * - 읽기:  GET /api/ping, /api/users/by-kakao, /api/corn/by-kakao
+ * - 쓰기:  POST/PUT 다형 시도(/api/corn/update | /api/corn/userdata | /api/corn/by-kakao)
+ * - 실행조건(매 회차): 소금1 + 설탕1 + 옥수수1 + ORCX 30
+ * - 뻥튀기: 수확수만큼 1개씩 연속. A급 5/7/9개는 고정 조합(순서만 랜덤),
+ *           B~F급은 상위3값+팝콘에서 확률로 추출(필요 시 고정조합도 쉽게 확장 가능)
  */
-(function (global) {
-  // ========================= 설정 =========================
-  const CONFIG = {
-    // 서버 베이스(없으면 ''로 두면 자동 오프라인 모드)
-    serverBase: 'https://climbing-wholly-grouper.jp.ngrok.io',
 
-    // 서버에 존재할 법한 GET 엔드포인트 후보(프리플라이트 회피)
+(function (global) {
+  // ------------------------- Config -------------------------
+  const CFG = {
+    // API 베이스 자동 결정 규칙:
+    // 1) URL ?api=... 또는 ?apiBase=...
+    // 2) window.PUNG_API_BASE
+    // 3) <meta name="pung-api" content="...">
+    // 4) 현재 origin (ngrok 도메인에서 직접 띄우는 경우)
+    resolveApiBase() {
+      const u = new URL(location.href);
+      const q = u.searchParams.get("api") || u.searchParams.get("apiBase");
+      if (q) return q.replace(/\/+$/,'');
+      if (typeof window.PUNG_API_BASE === "string" && window.PUNG_API_BASE) {
+        return window.PUNG_API_BASE.replace(/\/+$/,'');
+      }
+      const meta = document.querySelector('meta[name="pung-api"]');
+      if (meta && meta.content) return meta.content.replace(/\/+$/,'');
+      return location.origin.replace(/\/+$/,'');
+    },
     endpoints: {
-      ping: ['/api/ping'],
-      getUsers: [
-        '/api/users/by-kakao', '/api/users/find',
-        '/users/by-kakao', '/users/find'
+      ping:        '/api/ping',
+      userByKakao: '/api/users/by-kakao',
+      cornByKakao: '/api/corn/by-kakao',
+
+      // 저장(아무거나 하나라도 있으면 성공으로 간주)
+      saveTry: [
+        ['/api/corn/update',    'POST'],
+        ['/api/corn/userdata',  'POST'],
+        ['/api/corn/by-kakao',  'PUT'],
       ],
-      getCorn: [
-        '/api/corn/by-kakao', '/api/corn_data/find',
-        '/corn/by-kakao', '/corn_data/by-kakao'
-      ],
-      // (선택) 서버에도 기록 남기고 싶으면 활성화 가능
-      // pungOnce: ['/api/corn/pung'],
     },
 
-    // 등급별 1회 결과 후보 (팝콘은 0)
+    // 등급별 1회 결과 후보(팝콘=0)
     gradeTable: {
       A: [1000, 900, 800, 0],
-      B: [800, 700, 600, 0],
-      C: [600, 500, 400, 0],
-      D: [400, 300, 200, 0],
-      E: [200, 100, 50,  0],
-      F: [100, 50,  10,  0],
+      B: [800,  700, 600, 0],
+      C: [600,  500, 400, 0],
+      D: [400,  300, 200, 0],
+      E: [200,  100, 50,  0],
+      F: [100,  50,  10,  0],
     },
 
-    // A급 고정 조합 (수확 5/7/9일 때)
-    // 총합은 예시와 맞도록 구성. 순서는 매 실행마다 랜덤 셔플.
-    aFixedCombo: {
-      5:  { 1000:2, 900:1, 800:1, 0:1 },           // 합계 3700
-      7:  { 1000:1, 900:2, 800:3, 0:1 },           // 합계 5200
-      9:  { 1000:1, 900:3, 800:3, 0:2 },           // 합계 6200
+    // A급 수확수별 고정 조합 (순서만 랜덤)
+    aCombo: {
+      5: {1000:2, 900:1, 800:1, 0:1},   // 총합 3700
+      7: {1000:1, 900:2, 800:3, 0:1},   // 총합 5200
+      9: {1000:1, 900:3, 800:3, 0:2},   // 총합 6200
     },
-
-    // 로컬 스토리지 키
-    lskPrefix: 'orca:pung:',
   };
 
-  // ========================= 내부 상태 =========================
+  // ------------------------- State -------------------------
   const S = {
+    apiBase: '',
     kakaoId: '',
-    user: null,     // 정규화된 뷰모델
-    raw:  null,     // { user: usersDoc, corn: cornDoc }
     serverOk: false,
+    userRaw: null,   // users doc
+    cornRaw: null,   // corn_data doc
+    view:   null,    // 정규화된 뷰모델
     earnedSession: 0,
   };
 
-  // ========================= 유틸 =========================
-  const num = v => Number.isFinite(Number(v)) ? Number(v) : 0;
-  const get = (o,p)=> p.split('.').reduce((a,k)=> a && a[k]!==undefined ? a[k] : undefined, o);
+  // ------------------------- Utils -------------------------
+  const num = v => (Number.isFinite(+v) ? +v : 0);
+  const pick = (o, p) => p.split('.').reduce((a,k)=>a && a[k]!==undefined ? a[k] : undefined, o);
   const sleep = ms => new Promise(r=>setTimeout(r,ms));
-  const lsk  = id => CONFIG.lskPrefix + id;
+  function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr; }
 
-  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-  function shuffle(arr){
-    for(let i=arr.length-1;i>0;i--){ const j= Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
-    return arr;
+  function getCookie(name){
+    const m = document.cookie.match(new RegExp('(?:^|; )'+name+'=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
   }
-
-  async function tryGetJson(url){
-    try { const r = await fetch(url, { method:'GET', cache:'no-store' }); if(r.ok) return await r.json(); } catch {}
-    return null;
-  }
-  async function tryPing(){
-    if(!CONFIG.serverBase) return false;
-    for(const ep of CONFIG.endpoints.ping){
-      const data = await tryGetJson(CONFIG.serverBase + ep);
-      if(data) return true;
-    }
-    return false;
-  }
-  async function findFirst(endpointList, params){
-    if(!CONFIG.serverBase) return { json:null, hit:null };
-    const qp = Object.entries(params).map(([k,v])=> `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
-    for(const ep of endpointList){
-      const url = CONFIG.serverBase + ep + (ep.includes('?')?'&':'?') + qp;
-      const json = await tryGetJson(url);
-      if(json && Object.keys(json).length) return { json, hit:ep };
-    }
-    return { json:null, hit:null };
+  function autoKakaoId(){
+    const u = new URL(location.href);
+    return (
+      u.searchParams.get('kakaoId') ||
+      localStorage.getItem('kakaoId') ||
+      getCookie('kakaoId') ||
+      ''
+    );
   }
 
-  // ========================= 정규화 =========================
-  function normalize(userDoc, cornDoc){
+  async function jget(url){
+    const r = await fetch(url, { method:'GET', credentials:'include', cache:'no-store' });
+    if(!r.ok) throw new Error(r.status+' '+r.statusText);
+    return r.json();
+  }
+  async function jwrite(url, method, body){
+    const r = await fetch(url, {
+      method, credentials:'include',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify(body||{})
+    });
+    return r.ok;
+  }
+
+  // ------------------------- Normalize -------------------------
+  function normalize(user, corn){
     const nickname =
-      userDoc?.nickname ?? userDoc?.name ?? userDoc?.profile?.nickname ?? localStorage.getItem('nickname') ?? '-';
+      user?.nickname ?? user?.name ?? user?.profile?.nickname ?? '-';
 
-    // wallet orcx
     const orcx = num(
-      userDoc?.token ?? userDoc?.tokens ?? userDoc?.orcx ?? userDoc?.wallet?.orcx ?? userDoc?.wallet?.balance ?? 0
+      pick(user,'wallet.orcx') ?? user?.orcx ?? user?.tokens ?? user?.token ?? 0
     );
 
-    // 자원
-    const salt   = num(cornDoc?.salt  ?? cornDoc?.salts ?? cornDoc?.inventory?.salt  ?? 0);
-    const sugar  = num(cornDoc?.sugar ?? cornDoc?.sugars?? cornDoc?.inventory?.sugar ?? 0);
-    const corn   = num(cornDoc?.corn  ?? cornDoc?.cornCount ?? cornDoc?.inventory?.corn ?? cornDoc?.data?.count ?? 0);
-    const popcorn= num(cornDoc?.popcorn ?? cornDoc?.products?.popcorn ?? 0);
-
-    // 씨앗 색(대출/미상환 상태 시 red/black로 들어온다고 가정)
-    const cornColor = (cornDoc?.cornColor ?? cornDoc?.color ?? cornDoc?.corn_color ?? 'yellow').toLowerCase();
-
-    // 등급(없으면 A로 가정; 서버가 주면 우선)
-    const grade = (cornDoc?.grade ?? cornDoc?.harvestGrade ?? 'A').toUpperCase();
+    const salt   = num(corn?.salt   ?? corn?.inventory?.salt   ?? 0);
+    const sugar  = num(corn?.sugar  ?? corn?.inventory?.sugar  ?? 0);
+    const cornN  = num(corn?.corn   ?? corn?.cornCount ?? corn?.inventory?.corn ?? 0);
+    const popcorn= num(corn?.popcorn?? corn?.products?.popcorn ?? 0);
+    const grade  = String(corn?.grade ?? 'A').toUpperCase();
+    const color  = String(corn?.cornColor ?? corn?.color ?? 'yellow').toLowerCase();
 
     return {
       nickname,
-      cornColor,
       grade,
+      cornColor: color,
       wallet:   { orcx },
-      inventory:{ salt, sugar, corn },
-      products: { popcorn }
+      inventory:{ salt, sugar, corn: cornN },
+      products: { popcorn },
     };
   }
 
-  // ========================= 로컬 스토리지 =========================
-  function readLocal(kakaoId){
-    try {
-      const raw = JSON.parse(localStorage.getItem(lsk(kakaoId))||'{}');
-      if(!raw.user || !raw.corn) return null;
-      return { user:raw.user, corn:raw.corn };
-    } catch { return null; }
-  }
-  function writeLocal(kakaoId, bundle){
-    localStorage.setItem(lsk(kakaoId), JSON.stringify(bundle));
-  }
-
-  // ========================= 실행 조건/차감 =========================
-  function canRunTimes(){
-    const inv = S.user.inventory;
-    const wallet = S.user.wallet;
-    const limitByOrcx = Math.floor(num(wallet.orcx) / 30); // ORCX 30 per pop
-    return Math.max(0, Math.min(
-      num(inv.salt), num(inv.sugar), num(inv.corn), limitByOrcx
-    ));
+  // ------------------------- Core helpers -------------------------
+  function canTimes(){
+    const inv = S.view.inventory;
+    const w   = S.view.wallet;
+    const byOrcx = Math.floor(num(w.orcx) / 30);
+    return Math.max(0, Math.min(inv.salt, inv.sugar, inv.corn, byOrcx));
   }
 
   function consumeOnce(){
-    // 소금/설탕/옥수수/ORCX 30 차감
-    S.user.inventory.salt  -= 1;
-    S.user.inventory.sugar -= 1;
-    S.user.inventory.corn  -= 1;
-    S.user.wallet.orcx     -= 30;
+    S.view.inventory.salt  -= 1;
+    S.view.inventory.sugar -= 1;
+    S.view.inventory.corn  -= 1;
+    S.view.wallet.orcx     -= 30;
 
-    // 원본에도 반영
-    S.raw.corn.salt   = num(S.raw.corn.salt)   - 1;
-    S.raw.corn.sugar  = num(S.raw.corn.sugar)  - 1;
-    // corn 필드명 다양성 고려
-    if(S.raw.corn.corn !== undefined) S.raw.corn.corn = num(S.raw.corn.corn) - 1;
-    else if(S.raw.corn.cornCount !== undefined) S.raw.corn.cornCount = num(S.raw.corn.cornCount) - 1;
-    S.raw.user = S.raw.user || {};
-    if(get(S.raw.user,'wallet.orcx') !== undefined)      S.raw.user.wallet.orcx = num(S.raw.user.wallet.orcx) - 30;
-    else if(S.raw.user.orcx !== undefined)               S.raw.user.orcx = num(S.raw.user.orcx) - 30;
-    else if(S.raw.user.tokens !== undefined)             S.raw.user.tokens = num(S.raw.user.tokens) - 30;
-    else                                                 S.raw.user.token = num(S.raw.user.token || 0) - 30;
+    // raw에도 반영
+    if (S.cornRaw) {
+      if ('salt'  in S.cornRaw) S.cornRaw.salt  = num(S.cornRaw.salt)  - 1;
+      if ('sugar' in S.cornRaw) S.cornRaw.sugar = num(S.cornRaw.sugar) - 1;
+      if ('corn'  in S.cornRaw) S.cornRaw.corn  = num(S.cornRaw.corn)  - 1;
+      else if ('cornCount' in S.cornRaw) S.cornRaw.cornCount = num(S.cornRaw.cornCount) - 1;
+    }
+    if (S.userRaw) {
+      if (pick(S.userRaw,'wallet.orcx')!==undefined) S.userRaw.wallet.orcx = num(S.userRaw.wallet.orcx) - 30;
+      else if ('orcx' in S.userRaw)                   S.userRaw.orcx       = num(S.userRaw.orcx) - 30;
+      else if ('tokens' in S.userRaw)                 S.userRaw.tokens     = num(S.userRaw.tokens) - 30;
+      else                                            S.userRaw.token      = num(S.userRaw.token || 0) - 30;
+    }
   }
 
   function rewardOnce(token){
-    // 팝콘은 token=0 의미. 토큰이면 지갑+, 팝콘이면 제품+
-    if(token > 0){
-      // 대출/미상환: 씨앗 색 red/black → 30% 공제
-      const loaned = (S.user.cornColor === 'red' || S.user.cornColor === 'black');
-      const after = loaned ? Math.floor(token * 0.7) : token;
+    // 대출/미상환: 씨앗색 red/black → 30% 공제
+    if (token > 0){
+      const loaned = (S.view.cornColor==='red' || S.view.cornColor==='black');
+      const after  = loaned ? Math.floor(token * 0.7) : token;
 
-      S.user.wallet.orcx += after;
-      // 원본 갱신
-      if(get(S.raw.user,'wallet.orcx') !== undefined)      S.raw.user.wallet.orcx = num(S.raw.user.wallet.orcx) + after;
-      else if(S.raw.user.orcx !== undefined)               S.raw.user.orcx = num(S.raw.user.orcx) + after;
-      else if(S.raw.user.tokens !== undefined)             S.raw.user.tokens = num(S.raw.user.tokens) + after;
-      else                                                 S.raw.user.token = num(S.raw.user.token || 0) + after;
-
+      S.view.wallet.orcx += after;
+      if (S.userRaw){
+        if (pick(S.userRaw,'wallet.orcx')!==undefined) S.userRaw.wallet.orcx = num(S.userRaw.wallet.orcx) + after;
+        else if ('orcx' in S.userRaw)                   S.userRaw.orcx       = num(S.userRaw.orcx) + after;
+        else if ('tokens' in S.userRaw)                 S.userRaw.tokens     = num(S.userRaw.tokens) + after;
+        else                                            S.userRaw.token      = num(S.userRaw.token || 0) + after;
+      }
       S.earnedSession += after;
       return after;
-    }else{
-      // 팝콘 +1
-      S.user.products.popcorn += 1;
-      S.raw.corn.popcorn = num(S.raw.corn.popcorn) + 1;
+    } else {
+      S.view.products.popcorn += 1;
+      if (S.cornRaw) S.cornRaw.popcorn = num(S.cornRaw.popcorn) + 1;
       return 0;
     }
   }
 
-  // ========================= 결과 생성 =========================
-  function aFixedOutcomes(n){
-    const def = CONFIG.aFixedCombo[n];
-    if(!def) return null;
+  // A급 수확수 고정 조합 → 배열로 전개(순서 랜덤)
+  function aOutcomes(n){
+    const plan = CFG.aCombo[n]; if(!plan) return null;
     const arr = [];
-    for(const k of Object.keys(def)){
-      for(let i=0;i<def[k];i++) arr.push(Number(k));
+    for (const k of Object.keys(plan)){
+      for (let i=0;i<plan[k];i++) arr.push(+k);
     }
     return shuffle(arr);
   }
 
-  function randomOutcomeFromGrade(grade){
-    const table = CONFIG.gradeTable[grade] || CONFIG.gradeTable.A;
-    // 간단한 가중치: 높은 값이 약간 더 희귀하도록 비율 조정(원하면 조정)
-    // A 기준 예: [1000,900,800,0] → weights [1,2,3,1] 등
-    const weights = {
-      A:[1,2,3,1], B:[1,2,3,1], C:[1,2,3,1],
-      D:[1,2,3,1], E:[1,2,3,1], F:[1,2,3,1],
-    }[grade] || [1,2,3,1];
-
-    const total = weights.reduce((a,b)=>a+b,0);
+  // B~F : 상/중/하/팝콘 가중치 추출(필요 시 조합표 추가 가능)
+  function randomFromGrade(grade){
+    const t = CFG.gradeTable[grade] || CFG.gradeTable.A;
+    const w = [1,2,3,1]; // 높은 값이 조금 더 희귀
+    const total = w.reduce((a,b)=>a+b,0);
     let r = Math.random()*total;
-    for(let i=0;i<table.length;i++){
-      if((r -= weights[i]) < 0) return table[i];
-    }
-    return table[table.length-1];
+    for(let i=0;i<t.length;i++){ r-=w[i]; if(r<0) return t[i]; }
+    return t[t.length-1];
   }
 
-  // ========================= 공개 API =========================
+  // ------------------------- Public API -------------------------
   const Pung = {
-    async init({ kakaoId }){
-      S.kakaoId = kakaoId || localStorage.getItem('kakaoId') || '';
-      if(!S.kakaoId) throw new Error('NO_KAKAO_ID');
 
-      // 서버 체크
-      S.serverOk = await tryPing();
+    // 초기화: KakaoID 자동 인식 + 서버 fetch
+    async init(opts={}){
+      S.apiBase = CFG.resolveApiBase();
+      S.kakaoId = (opts.kakaoId || autoKakaoId()).trim();
 
-      // 불러오기 (서버 → 로컬)
-      let usersJson=null, cornJson=null;
-      if(S.serverOk){
-        const [u, c] = await Promise.all([
-          findFirst(CONFIG.endpoints.getUsers, { kakaoId:S.kakaoId }),
-          findFirst(CONFIG.endpoints.getCorn,  { kakaoId:S.kakaoId })
-        ]);
-        usersJson = u.json;
-        cornJson  = c.json;
-      }
-      if(!usersJson || !cornJson){
-        const loc = readLocal(S.kakaoId);
-        if(loc){ usersJson = usersJson || loc.user; cornJson = cornJson || loc.corn; }
+      if (!S.kakaoId) throw new Error('NO_KAKAO_ID');
+
+      // ping
+      try {
+        await jget(S.apiBase + CFG.endpoints.ping);
+        S.serverOk = true;
+      } catch {
+        S.serverOk = false;
+        throw new Error('SERVER_OFFLINE');
       }
 
-      // 뼈대 보정
-      if(!usersJson) usersJson = { nickname:'-', token:0 };
-      if(!cornJson)  cornJson  = { salt:0, sugar:0, corn:0, popcorn:0, cornColor:'yellow', grade:'A' };
+      // read
+      const q = 'kakaoId=' + encodeURIComponent(S.kakaoId);
+      S.userRaw = await jget(`${S.apiBase}${CFG.endpoints.userByKakao}?${q}`);
+      S.cornRaw = await jget(`${S.apiBase}${CFG.endpoints.cornByKakao}?${q}`);
+      S.view    = normalize(S.userRaw, S.cornRaw);
+      S.earnedSession = 0;
 
-      S.raw  = { user: usersJson, corn: cornJson };
-      S.user = normalize(usersJson, cornJson);
-
-      // 캐시 저장
-      writeLocal(S.kakaoId, S.raw);
-
-      return { serverOk:S.serverOk, user:S.user };
+      return { serverOk: S.serverOk, user: S.view };
     },
 
-    state(){ return { ...S }; },
+    state(){ return {
+      apiBase:S.apiBase, kakaoId:S.kakaoId, serverOk:S.serverOk,
+      view: JSON.parse(JSON.stringify(S.view||{})),
+      raw:  { user:S.userRaw, corn:S.cornRaw },
+      earnedSession:S.earnedSession,
+    };},
 
-    // 실행 가능 회수(소금, 설탕, 옥수수, ORCX/30 중 최솟값)
-    canTimes(){ return canRunTimes(); },
+    // 가능한 회수(소금,설탕,옥수수,ORCX/30 기준 최솟값)
+    canTimes(){ return S.view ? canTimes() : 0; },
 
-    // 단일 회차(임의 사용; popup.html은 popAll 사용)
+    // 한 번(테스트용)
     async popOne({ onUpdate } = {}){
-      if(this.canTimes() <= 0) return { ok:false, reason:'자원 부족' };
+      if (!S.view) throw new Error('NOT_INIT');
+      if (this.canTimes() <= 0) return { ok:false, reason:'자원 부족' };
 
-      // 차감 먼저
       consumeOnce();
-
-      // 결과 산출
-      const grade = (S.user.grade || 'A').toUpperCase();
-      const token = randomOutcomeFromGrade(grade); // 단일회차는 확률 추출
-
-      // 보상 반영
+      const token = randomFromGrade(String(S.view.grade).toUpperCase());
       const gained = rewardOnce(token);
-
-      // 저장
-      writeLocal(S.kakaoId, S.raw);
-
-      onUpdate && onUpdate({ token: gained, state: this.state() });
-      return { ok:true, token: gained };
+      onUpdate && onUpdate({ token:gained, state:this.state() });
+      return { ok:true, token:gained };
     },
 
-    // 가능한 만큼 1개씩 연속
+    // 가능한 만큼 모두(연속)
     async popAll({ onEach, onDone, delayMs=250 } = {}){
+      if (!S.view) throw new Error('NOT_INIT');
       let times = this.canTimes();
-      if(times <= 0) { onDone && onDone({ total:0, state:this.state() }); return { total:0 }; }
+      if (times <= 0){ onDone && onDone({ total:0, state:this.state() }); return { total:0 }; }
 
-      const grade = (S.user.grade || 'A').toUpperCase();
-
-      // A급 & 수확수량이 5/7/9면 고정 조합 적용(순서 랜덤)
-      let plan = (grade==='A' && CONFIG.aFixedCombo[times]) ? aFixedOutcomes(times) : null;
+      const grade = String(S.view.grade).toUpperCase();
+      let plan = (grade==='A' ? aOutcomes(times) : null);
 
       let total = 0;
-      for(let i=0;i<times;i++){
-        // 실행 차감
+      for (let i=0;i<times;i++){
         consumeOnce();
-
-        // 결과 토큰
-        const token = plan ? plan[i] : randomOutcomeFromGrade(grade);
-
+        const token = plan ? plan[i] : randomFromGrade(grade);
         const gained = rewardOnce(token);
         total += gained;
-
-        writeLocal(S.kakaoId, S.raw);
-
-        onEach && onEach({ token: gained, state: this.state() });
-        if(delayMs) await sleep(delayMs);
+        onEach && onEach({ token:gained, state:this.state() });
+        if (delayMs) await sleep(delayMs);
       }
       onDone && onDone({ total, state:this.state() });
       return { total };
+    },
+
+    // 서버 저장(가능한 엔드포인트 중 첫 성공시 OK)
+    async sync(){
+      if (!S.view) throw new Error('NOT_INIT');
+      const body = {
+        kakaoId: S.kakaoId,
+        nickname: S.view.nickname,
+        wallet: { orcx: S.view.wallet.orcx },
+        corn_data: {
+          salt: S.view.inventory.salt,
+          sugar:S.view.inventory.sugar,
+          corn: S.view.inventory.corn,
+          popcorn:S.view.products.popcorn,
+          cornColor:S.view.cornColor,
+          grade:S.view.grade,
+        }
+      };
+      for (const [path, method] of CFG.endpoints.saveTry){
+        try {
+          const ok = await jwrite(S.apiBase + path, method, body);
+          if (ok) return true;
+        } catch {}
+      }
+      return false;
     },
   };
 
