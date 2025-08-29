@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎁 OrcaX 뻥튀기 시뮬레이터</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌽 OrcaX 팝업 시뮬레이터</title>
+  <link rel="stylesheet" href="styles.css" />
   <script type="module" src="pung.module.js"></script>
 </head>
 <body>
   <main class="container">
-    <h1>🎁 <span class="title-accent">OrcaX</span> 뻥튀기 시뮬레이터</h1>
+    <h1>🌽 OrcaX 팝업 시뮬레이터</h1>
 
-    <section class="info-box">
-      <div class="info-item">닉네임: <span id="nickname">-</span></div>
-      <div class="info-item">카카오 ID: <span id="kakaoId">-</span></div>
-      <div class="info-item">ORCX: <span id="orcx">0</span></div>
-      <div class="info-item">소금: <span id="salt">0</span></div>
-      <div class="info-item">설탕: <span id="sugar">0</span></div>
-      <div class="info-item">옥수수: <span id="corn">0</span></div>
+    <section class="user-info">
+      <div><strong>닉네임:</strong> <span id="nickname">-</span></div>
+      <div><strong>카카오 ID:</strong> <span id="kakaoId">-</span></div>
+      <div><strong>현재 ORCX:</strong> <span id="orcx">0</span></div>
     </section>
 
-    <section class="resource-ui">
-      <h2>자원 투입</h2>
-      <label>소금: <input type="number" id="input-salt" min="0" value="0"></label>
-      <label>설탕: <input type="number" id="input-sugar" min="0" value="0"></label>
-      <label>옥수수: <input type="number" id="input-corn" min="0" value="0"></label>
+    <section class="resource-status">
+      <h2>📦 자원 현황</h2>
+      <ul>
+        <li>옥수수: <span id="corn">0</span></li>
+        <li>소금: <span id="salt">0</span></li>
+        <li>설탕: <span id="sugar">0</span></li>
+      </ul>
     </section>
 
-    <section class="status-box">
-      <div id="status" class="status-error">
-        ❌ 초기화 실패. 콘솔 확인
-      </div>
+    <section class="resource-input">
+      <h2>⚙️ 자원 투입</h2>
+      <label>옥수수 <input type="number" id="input-corn" min="0" value="0" /></label>
+      <label>소금 <input type="number" id="input-salt" min="0" value="0" /></label>
+      <label>설탕 <input type="number" id="input-sugar" min="0" value="0" /></label>
     </section>
 
-    <section class="btn-box">
-      <button id="run-btn">🌽 뻥튀기 실행</button>
+    <section class="action">
+      <button id="run-btn">🔥 뻥튀기 실행</button>
+      <div id="status" class="status"></div>
     </section>
   </main>
 </body>
