@@ -1,178 +1,71 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>🍿 뻥튀기</title>
-<style>
-  :root{ --bg:#0e0f11; --card:#18181b; --ink:#eaeaea; --muted:#9ca3af; --ok:#22c55e; --bad:#ef4444; --bd:#2a2a2e; }
-  html,body{ background:var(--bg); color:var(--ink); margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
-  .wrap{ max-width:740px; margin:0 auto; padding:16px 18px 28px; }
-  h2{ margin:10px 0 6px; font-size:28px; }
-  .status{ display:flex; gap:10px; align-items:center; padding:10px 12px; border:1px solid var(--bd); border-radius:12px; margin:12px 0; }
-  .dot{ width:10px; height:10px; border-radius:50%; background:var(--muted); }
-  .dot.ok{ background:var(--ok); } .dot.bad{ background:var(--bad); }
-  .card{ background:var(--card); border:1px solid var(--bd); border-radius:16px; padding:14px; margin-top:14px; position:relative; overflow:hidden; }
-  .kv{ display:grid; grid-template-columns:120px 1fr; row-gap:8px; column-gap:8px; font-size:15px; }
-  .kv b{ color:#cbd5e1; font-weight:600; }
-  .nums{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:10px; }
-  .box{ background:#111114; border:1px solid var(--bd); border-radius:12px; padding:12px; text-align:center; }
-  .box h4{ margin:2px 0 8px; font-size:13px; color:#cbd5e1; font-weight:600; }
-  .big{ font-size:20px; font-weight:800; }
-  .cornline{ display:flex; align-items:center; gap:12px; margin-top:8px; }
-  .cornline img{ width:40px; height:40px; object-fit:contain; }
-  button{ all:unset; background:#2563eb; color:white; padding:12px 16px; border-radius:12px; cursor:pointer; display:inline-block; font-weight:700; text-align:center; }
-  button.secondary{ background:#374151; }
-  button:disabled{ opacity:.5; cursor:not-allowed; }
-  .actions{ display:flex; gap:10px; margin-top:14px; }
-  .result{ margin-top:14px; padding:14px; border:1px dashed var(--bd); border-radius:14px; background:#121214; min-height:56px; }
-  .totals{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
-  .balloon{ position:absolute; pointer-events:none; padding:6px 10px; border-radius:999px; background:rgba(0,0,0,.7); border:1px solid #2a2a2e; font-weight:800; }
-  @media (max-width: 780px){ h2{font-size:24px} .nums{grid-template-columns:repeat(3,1fr)} }
-  @media (max-width: 480px){ h2{font-size:22px} .wrap{padding:12px} .kv{grid-template-columns:100px 1fr} .nums{grid-template-columns:repeat(2,1fr)} .actions{flex-direction:column} button{width:100%} }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🍿 뻥튀기</title>
+  <style>
+    body { background: #0e0f11; color: #eaeaea; font-family: sans-serif; margin: 0; padding: 20px; }
+    .wrap { max-width: 720px; margin: auto; }
+    .card { background: #18181b; padding: 20px; border-radius: 16px; margin-top: 20px; }
+    .result { margin-top: 10px; border: 1px dashed #2a2a2e; padding: 10px; border-radius: 12px; background: #121214; }
+    button { margin-top: 10px; padding: 10px 18px; border: none; border-radius: 8px; background: #2563eb; color: #fff; font-weight: 700; cursor: pointer; }
+  </style>
 </head>
 <body>
   <div class="wrap">
     <h2>🍿 뻥튀기</h2>
-
-    <div class="status"><span class="dot" id="dot"></span><span id="svtxt">상태 확인 중…</span></div>
-
-    <div class="card" id="card">
-      <div class="kv">
-        <b>닉네임</b> <div id="nickname">-</div>
-        <b>카카오ID</b> <div id="kakaoId">-</div>
-        <b>옥수수 색상</b>
-        <div class="cornline">
-          <img id="cornImg" alt="corn"/>
-          <span id="cornColorText">-</span>
-        </div>
-      </div>
-
-      <div class="nums">
-        <div class="box"><h4>ORCX(지갑)</h4><div class="big" id="v-orcx">0</div></div>
-        <div class="box"><h4>소금</h4><div class="big" id="v-salt">0</div></div>
-        <div class="box"><h4>설탕</h4><div class="big" id="v-sugar">0</div></div>
-        <div class="box"><h4>옥수수</h4><div class="big" id="v-corn">0</div></div>
-        <div class="box"><h4>팝콘</h4><div class="big" id="v-pop">0</div></div>
-      </div>
-
-      <div class="actions">
-        <button id="btnRun" disabled>🎯 뻥튀기 실행</button>
-        <button class="secondary" id="btnReload">↻ 다시 불러오기</button>
-      </div>
-
-      <div class="result" id="resultBox">준비 중…</div>
-
-      <div class="totals">
-        <div class="box"><h4>이번 세션 획득</h4><div class="big" id="v-earned">0</div></div>
-        <div class="box"><h4>지갑 보유</h4><div class="big" id="v-wallet">0</div></div>
-        <div class="box"><h4>보유+획득 합계</h4><div class="big" id="v-total">0</div></div>
-      </div>
+    <div class="card">
+      <p>닉네임: <span id="nickname">-</span></p>
+      <p>카카오ID: <span id="kakaoId">-</span></p>
+      <p>ORCX: <span id="v-orcx">0</span></p>
+      <p>소금: <span id="v-salt">0</span></p>
+      <p>설탕: <span id="v-sugar">0</span></p>
+      <p>옥수수: <span id="v-corn">0</span></p>
+      <div class="result" id="resultBox">데이터 로딩 중…</div>
+      <button id="btnRun" disabled>🌽 뻥튀기 실행</button>
     </div>
   </div>
 
-  <!-- API 베이스를 명시하고 싶으면(ngrok 주소) -->
-<meta name="pung-api" content="https://climbing-wholly-grouper.jp.ngrok.io" />
-
-<script src="js/pung.module.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    // kakaoId 자동 인식(쿼리/로컬스토리지/쿠키) → 필요시 수동: Pung.init({kakaoId:'...'})
-    const { serverOk, user } = await Pung.init();
-
-    // UI 갱신 (예: 상태판)
-    // updateUI(user);
-
-    // 실행 가능 여부
-    // const n = Pung.canTimes();
-
-    // 실행 예:
-    // await Pung.popAll({
-    //   onEach: ({token, state}) => drawBalloon(token, state),
-    //   onDone: async ({total}) => { await Pung.sync(); }
-    // });
-  } catch (e) {
-    // 서버 미연결/ID없음 등
-    // showError(e.message);
-  }
-});
-</script>
-
   <script>
-    const $ = (id)=>document.getElementById(id);
-    const set = (id,v)=>{ $(id).textContent = v; };
+    const $ = id => document.getElementById(id);
+    const set = (id, value) => { $(id).textContent = value; };
 
-    function paint(state){
-      const u = state.user;
-      set('nickname', u.nickname || '-');
-      set('kakaoId', Pung.state().kakaoId || '-');
-      set('cornColorText', u.cornColor);
-      $('cornImg').src = ({
-        black:'https://byungil-cho.github.io/OrcaX/img/corn-black.png',
-        red:'https://byungil-cho.github.io/OrcaX/img/corn-red.png',
-        yellow:'https://byungil-cho.github.io/OrcaX/img/corn-yellow.png'
-      }[u.cornColor] || 'https://byungil-cho.github.io/OrcaX/img/corn-yellow.png');
+    const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
+    const kakaoId = localStorage.getItem('kakaoId');
 
-      set('v-orcx',  u.wallet.orcx);
-      set('v-salt',  u.inventory.salt);
-      set('v-sugar', u.inventory.sugar);
-      set('v-corn',  u.inventory.corn);
-      set('v-pop',   u.products.popcorn);
-
-      const earned = Pung.state().earnedSession;
-      set('v-earned', earned);
-      set('v-wallet', u.wallet.orcx);
-      set('v-total',  u.wallet.orcx + earned);
-
-      $('btnRun').disabled = (Pung.canTimes() <= 0);
-      $('svtxt').textContent = Pung.state().serverOk ? '서버 연결됨' : '오프라인(로컬 저장 중)';
-      $('dot').className = 'dot ' + (Pung.state().serverOk ? 'ok' : 'bad');
-      $('resultBox').textContent = $('btnRun').disabled ? '❌ 재료 부족 — 소금 1 · 설탕 1 · 옥수수 1 필요' : '✅ 준비 완료';
-    }
-
-    function balloon(token){
-      const card = $('card');
-      const b = document.createElement('div');
-      b.className = 'balloon';
-      b.textContent = '+' + Number(token).toLocaleString();
-      const margin = 24, x = margin + Math.random()*(card.clientWidth - margin*2 - 60), y = card.clientHeight - 120;
-      b.style.left = x + 'px'; b.style.top = y + 'px';
-      card.appendChild(b);
-      const dy = -60 - Math.random()*40, dur = 900 + Math.random()*300;
-      b.animate([{transform:'translateY(0)',opacity:1},{transform:`translateY(${dy}px)`,opacity:0}],{duration:dur,easing:'ease-out'});
-      setTimeout(()=>b.remove(), dur);
-    }
-
-    // 초기 구동
-    (async function start(){
-      // kakaoId 없으면 여기서 임시로 세팅 가능(개발 편의)
-      if(!localStorage.getItem('kakaoId')) localStorage.setItem('kakaoId','4235108081');
-
-      const { user } = await Pung.init({ kakaoId: localStorage.getItem('kakaoId') });
-      paint(Pung.state());
-
-      $('btnRun').addEventListener('click', async ()=>{
-        $('btnRun').disabled = true;
-        $('resultBox').textContent = '🍿 진행 중…';
-        await Pung.popAll({
-          onEach: ({ token, state })=>{
-            balloon(token);
-            $('resultBox').innerHTML = `🎉 축하합니다. <b>${Number(token).toLocaleString()}</b> 토큰을 획득했습니다.`;
-            paint(state);
-          },
-          onDone: ({ total, state })=>{
-            $('resultBox').innerHTML += `<br/><span style="color:#9ca3af">이번 실행 합계: ${Number(total).toLocaleString()} 토큰</span>`;
-            paint(state);
-          },
-          delayMs: 250
-        });
-        $('btnRun').disabled = (Pung.canTimes() <= 0);
+    if (!kakaoId) {
+      alert('로그인이 필요합니다.');
+      window.location.href = 'index9.html';
+    } else {
+      set('kakaoId', kakaoId);
+      fetch(API_BASE + '/api/userdata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kakaoId })
+      })
+      .then(r => r.json())
+      .then(data => {
+        const user = data?.user;
+        if (!user) throw new Error('유저 정보 없음');
+        set('nickname', user.nickname || '-');
+        set('v-orcx', user.orcx || 0);
+        set('v-salt', user.inventory?.salt || 0);
+        set('v-sugar', user.inventory?.sugar || 0);
+        set('v-corn', user.inventory?.corn || 0);
+        $('resultBox').textContent = "✅ 준비 완료";
+        $('btnRun').disabled = false;
+      })
+      .catch(err => {
+        $('resultBox').textContent = '🚨 유저 정보를 불러올 수 없습니다.';
+        console.error(err);
       });
+    }
 
-      $('btnReload').addEventListener('click', ()=> paint(Pung.state()));
-    })();
+    $('btnRun').addEventListener('click', () => {
+      $('resultBox').textContent = '🎉 뻥튀기 실행됨! (더미 모드)';
+    });
   </script>
 </body>
 </html>
