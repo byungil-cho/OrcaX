@@ -11,6 +11,8 @@
     .card { background: #18181b; padding: 20px; border-radius: 16px; margin-top: 20px; }
     .result { margin-top: 10px; border: 1px dashed #2a2a2e; padding: 10px; border-radius: 12px; background: #121214; }
     button { margin-top: 10px; padding: 10px 18px; border: none; border-radius: 8px; background: #2563eb; color: #fff; font-weight: 700; cursor: pointer; }
+    .ready { color: #22c55e; font-weight: bold; }
+    .not-ready { color: #f87171; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -40,7 +42,7 @@
       window.location.href = 'index9.html';
     } else {
       set('kakaoId', kakaoId);
-      fetch(API_BASE + '/api/userdata', {
+      fetch(API_BASE + '/api/user/resources', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kakaoId })
@@ -48,23 +50,29 @@
       .then(r => r.json())
       .then(data => {
         const user = data?.user;
-        if (!user) throw new Error('유저 정보 없음');
+        const res = data?.resources;
+        if (!user || !res) throw new Error('불완전한 데이터');
+
         set('nickname', user.nickname || '-');
         set('v-orcx', user.orcx || 0);
-        set('v-salt', user.inventory?.salt || 0);
-        set('v-sugar', user.inventory?.sugar || 0);
-        set('v-corn', user.inventory?.corn || 0);
-        $('resultBox').textContent = "✅ 준비 완료";
-        $('btnRun').disabled = false;
+        set('v-salt', res.salt || 0);
+        set('v-sugar', res.sugar || 0);
+        set('v-corn', res.corn || 0);
+
+        const ready = (user.orcx >= 30 && res.salt > 0 && res.sugar > 0 && res.corn > 0);
+        $('resultBox').innerHTML = ready
+          ? '<span class="ready">✅ 준비 완료 - 뻥튀기 가능</span>'
+          : '<span class="not-ready">❌ 재료 부족 - ORCX 30 + 소금 + 설탕 + 옥수수 필요</span>';
+        $('btnRun').disabled = !ready;
       })
       .catch(err => {
-        $('resultBox').textContent = '🚨 유저 정보를 불러올 수 없습니다.';
+        $('resultBox').textContent = '🚨 데이터를 불러올 수 없습니다.';
         console.error(err);
       });
     }
 
     $('btnRun').addEventListener('click', () => {
-      $('resultBox').textContent = '🎉 뻥튀기 실행됨! (더미 모드)';
+      $('resultBox').textContent = '🎉 뻥튀기 실행됨! (로직 연결 필요)';
     });
   </script>
 </body>
