@@ -1,99 +1,41 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🍿 뻥튀기 시뮬레이터</title>
-  <style>
-    body { background: #0e0f11; color: #eaeaea; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
-    .wrap { max-width: 720px; margin: auto; }
-    h2 { color: #facc15; font-size: 24px; }
-    .card { background: #18181b; padding: 20px; border-radius: 16px; margin-top: 20px; }
-    .row { display: flex; justify-content: space-between; margin: 6px 0; }
-    .label { color: #a1a1aa; }
-    .value { font-weight: bold; }
-    #resultBox {
-      white-space: pre-line;
-      background: #121214;
-      padding: 16px;
-      margin-top: 12px;
-      border-radius: 12px;
-      border: 1px dashed #2a2a2e;
-      min-height: 80px;
-    }
-    button {
-      margin-top: 14px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 10px;
-      background: #2563eb;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:disabled {
-      background: #555;
-      cursor: not-allowed;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎁 OrcaX 뻥튀기 시뮬레이터</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="pung.module.js"></script>
 </head>
 <body>
-  <div class="wrap">
-    <h2>🍿 OrcaX 뻥튀기 시뮬레이터</h2>
+  <main class="container">
+    <h1>🎁 <span class="title-accent">OrcaX</span> 뻥튀기 시뮬레이터</h1>
 
-    <div class="card">
-      <div class="row"><span class="label">닉네임:</span><span class="value" id="nickname">-</span></div>
-      <div class="row"><span class="label">카카오 ID:</span><span class="value" id="kakaoId">-</span></div>
-      <div class="row"><span class="label">ORCX:</span><span class="value" id="v-orcx">0</span></div>
-      <div class="row"><span class="label">소금:</span><span class="value" id="v-salt">0</span></div>
-      <div class="row"><span class="label">설탕:</span><span class="value" id="v-sugar">0</span></div>
-      <div class="row"><span class="label">옥수수:</span><span class="value" id="v-corn">0</span></div>
+    <section class="info-box">
+      <div class="info-item">닉네임: <span id="nickname">-</span></div>
+      <div class="info-item">카카오 ID: <span id="kakaoId">-</span></div>
+      <div class="info-item">ORCX: <span id="orcx">0</span></div>
+      <div class="info-item">소금: <span id="salt">0</span></div>
+      <div class="info-item">설탕: <span id="sugar">0</span></div>
+      <div class="info-item">옥수수: <span id="corn">0</span></div>
+    </section>
 
-      <div id="resultBox">🔄 데이터 불러오는 중...</div>
-      <button id="btnRun" disabled>🌽 뻥튀기 실행</button>
-    </div>
-  </div>
+    <section class="resource-ui">
+      <h2>자원 투입</h2>
+      <label>소금: <input type="number" id="input-salt" min="0" value="0"></label>
+      <label>설탕: <input type="number" id="input-sugar" min="0" value="0"></label>
+      <label>옥수수: <input type="number" id="input-corn" min="0" value="0"></label>
+    </section>
 
-  <!-- 엔진 모듈 연결 예정 -->
-  <script src="pung.module.js"></script>
-  <script>
-    const $ = id => document.getElementById(id);
+    <section class="status-box">
+      <div id="status" class="status-error">
+        ❌ 초기화 실패. 콘솔 확인
+      </div>
+    </section>
 
-    (async () => {
-      try {
-        const { user } = await Pung.init();
-        $('nickname').textContent = user.nickname;
-        $('kakaoId').textContent = Pung.state().kakaoId;
-        $('v-orcx').textContent = user.wallet.orcx;
-        $('v-salt').textContent = user.inventory.salt;
-        $('v-sugar').textContent = user.inventory.sugar;
-        $('v-corn').textContent = user.inventory.corn;
-        $('btnRun').disabled = false;
-        $('resultBox').textContent = "✅ 준비 완료";
-
-        $('btnRun').addEventListener('click', async () => {
-          $('btnRun').disabled = true;
-          $('resultBox').textContent = "🔥 뻥튀기 중...";
-          let resultLog = '';
-          await Pung.popAll({
-            onEach: ({ token }) => {
-              resultLog += (token > 0 ? `+${token} ORCX\n` : '🥲 팝콘 (0 토큰)\n');
-              $('resultBox').textContent = resultLog;
-            },
-            onDone: async ({ total }) => {
-              $('resultBox').textContent += `\n✅ 총합: ${total} ORCX`;
-              await Pung.sync(); // 서버 저장
-              $('btnRun').disabled = false;
-            },
-          });
-        });
-
-      } catch (err) {
-        $('resultBox').textContent = '❌ 초기화 실패. 콘솔 확인';
-        console.error(err);
-      }
-    })();
-  </script>
+    <section class="btn-box">
+      <button id="run-btn">🌽 뻥튀기 실행</button>
+    </section>
+  </main>
 </body>
 </html>
