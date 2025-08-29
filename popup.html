@@ -1,36 +1,36 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>🍿 뻥튀기</title>
-<style>
-  :root{ --bg:#0e0f11; --card:#18181b; --ink:#eaeaea; --muted:#9ca3af; --ok:#22c55e; --bad:#ef4444; --bd:#2a2a2e; }
-  html,body{ background:var(--bg); color:var(--ink); margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
-  .wrap{ max-width:740px; margin:0 auto; padding:16px 18px 28px; }
-  h2{ margin:10px 0 6px; font-size:28px; }
-  .status{ display:flex; gap:10px; align-items:center; padding:10px 12px; border:1px solid var(--bd); border-radius:12px; margin:12px 0; }
-  .dot{ width:10px; height:10px; border-radius:50%; background:var(--muted); }
-  .dot.ok{ background:var(--ok); } .dot.bad{ background:var(--bad); }
-  .card{ background:var(--card); border:1px solid var(--bd); border-radius:16px; padding:14px; margin-top:14px; position:relative; overflow:hidden; }
-  .kv{ display:grid; grid-template-columns:120px 1fr; row-gap:8px; column-gap:8px; font-size:15px; }
-  .kv b{ color:#cbd5e1; font-weight:600; }
-  .nums{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:10px; }
-  .box{ background:#111114; border:1px solid var(--bd); border-radius:12px; padding:12px; text-align:center; }
-  .box h4{ margin:2px 0 8px; font-size:13px; color:#cbd5e1; font-weight:600; }
-  .big{ font-size:20px; font-weight:800; }
-  .cornline{ display:flex; align-items:center; gap:12px; margin-top:8px; }
-  .cornline img{ width:40px; height:40px; object-fit:contain; }
-  button{ all:unset; background:#2563eb; color:white; padding:12px 16px; border-radius:12px; cursor:pointer; display:inline-block; font-weight:700; text-align:center; }
-  button.secondary{ background:#374151; }
-  button:disabled{ opacity:.5; cursor:not-allowed; }
-  .actions{ display:flex; gap:10px; margin-top:14px; }
-  .result{ margin-top:14px; padding:14px; border:1px dashed var(--bd); border-radius:14px; background:#121214; min-height:56px; }
-  .totals{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
-  .balloon{ position:absolute; pointer-events:none; padding:6px 10px; border-radius:999px; background:rgba(0,0,0,.7); border:1px solid #2a2a2e; font-weight:800; }
-  @media (max-width: 780px){ h2{font-size:24px} .nums{grid-template-columns:repeat(3,1fr)} }
-  @media (max-width: 480px){ h2{font-size:22px} .wrap{padding:12px} .kv{grid-template-columns:100px 1fr} .nums{grid-template-columns:repeat(2,1fr)} .actions{flex-direction:column} button{width:100%} }
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>🍿 뻥튀기</title>
+  <style>
+    :root{ --bg:#0e0f11; --card:#18181b; --ink:#eaeaea; --muted:#9ca3af; --ok:#22c55e; --bad:#ef4444; --bd:#2a2a2e; }
+    html,body{ background:var(--bg); color:var(--ink); margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
+    .wrap{ max-width:740px; margin:0 auto; padding:16px 18px 28px; }
+    h2{ margin:10px 0 6px; font-size:28px; }
+    .status{ display:flex; gap:10px; align-items:center; padding:10px 12px; border:1px solid var(--bd); border-radius:12px; margin:12px 0; }
+    .dot{ width:10px; height:10px; border-radius:50%; background:var(--muted); }
+    .dot.ok{ background:var(--ok); } .dot.bad{ background:var(--bad); }
+    .card{ background:var(--card); border:1px solid var(--bd); border-radius:16px; padding:14px; margin-top:14px; position:relative; overflow:hidden; }
+    .kv{ display:grid; grid-template-columns:120px 1fr; row-gap:8px; column-gap:8px; font-size:15px; }
+    .kv b{ color:#cbd5e1; font-weight:600; }
+    .nums{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:10px; }
+    .box{ background:#111114; border:1px solid var(--bd); border-radius:12px; padding:12px; text-align:center; }
+    .box h4{ margin:2px 0 8px; font-size:13px; color:#cbd5e1; font-weight:600; }
+    .big{ font-size:20px; font-weight:800; }
+    .cornline{ display:flex; align-items:center; gap:12px; margin-top:8px; }
+    .cornline img{ width:40px; height:40px; object-fit:contain; }
+    button{ all:unset; background:#2563eb; color:white; padding:12px 16px; border-radius:12px; cursor:pointer; display:inline-block; font-weight:700; text-align:center; }
+    button.secondary{ background:#374151; }
+    button:disabled{ opacity:.5; cursor:not-allowed; }
+    .actions{ display:flex; gap:10px; margin-top:14px; }
+    .result{ margin-top:14px; padding:14px; border:1px dashed var(--bd); border-radius:14px; background:#121214; min-height:56px; }
+    .totals{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
+    .balloon{ position:absolute; pointer-events:none; padding:6px 10px; border-radius:999px; background:rgba(0,0,0,.7); border:1px solid #2a2a2e; font-weight:800; }
+    @media (max-width: 780px){ h2{font-size:24px} .nums{grid-template-columns:repeat(3,1fr)} }
+    @media (max-width: 480px){ h2{font-size:22px} .wrap{padding:12px} .kv{grid-template-columns:100px 1fr} .nums{grid-template-columns:repeat(2,1fr)} .actions{flex-direction:column} button{width:100%} }
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -72,37 +72,11 @@
     </div>
   </div>
 
-  <!-- API 베이스를 명시하고 싶으면(ngrok 주소) -->
-<meta name="pung-api" content="https://climbing-wholly-grouper.jp.ngrok.io" />
-
-<script src="js/pung.module.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    // kakaoId 자동 인식(쿼리/로컬스토리지/쿠키) → 필요시 수동: Pung.init({kakaoId:'...'})
-    const { serverOk, user } = await Pung.init();
-
-    // UI 갱신 (예: 상태판)
-    // updateUI(user);
-
-    // 실행 가능 여부
-    // const n = Pung.canTimes();
-
-    // 실행 예:
-    // await Pung.popAll({
-    //   onEach: ({token, state}) => drawBalloon(token, state),
-    //   onDone: async ({total}) => { await Pung.sync(); }
-    // });
-  } catch (e) {
-    // 서버 미연결/ID없음 등
-    // showError(e.message);
-  }
-});
-</script>
-
+  <meta name="pung-api" content="https://climbing-wholly-grouper.jp.ngrok.io" />
+  <script src="js/pung.module.js"></script>
   <script>
-    const $ = (id)=>document.getElementById(id);
-    const set = (id,v)=>{ $(id).textContent = v; };
+    const $ = id => document.getElementById(id);
+    const set = (id, v) => { $(id).textContent = v; };
 
     function paint(state){
       const u = state.user;
@@ -115,21 +89,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         yellow:'https://byungil-cho.github.io/OrcaX/img/corn-yellow.png'
       }[u.cornColor] || 'https://byungil-cho.github.io/OrcaX/img/corn-yellow.png');
 
-      set('v-orcx',  u.wallet.orcx);
-      set('v-salt',  u.inventory.salt);
+      set('v-orcx', u.wallet.orcx);
+      set('v-salt', u.inventory.salt);
       set('v-sugar', u.inventory.sugar);
-      set('v-corn',  u.inventory.corn);
-      set('v-pop',   u.products.popcorn);
+      set('v-corn', u.inventory.corn);
+      set('v-pop', u.products.popcorn);
 
       const earned = Pung.state().earnedSession;
       set('v-earned', earned);
       set('v-wallet', u.wallet.orcx);
-      set('v-total',  u.wallet.orcx + earned);
+      set('v-total', u.wallet.orcx + earned);
 
-      $('btnRun').disabled = (Pung.canTimes() <= 0);
+      const ready = (
+        u.inventory.salt > 0 &&
+        u.inventory.sugar > 0 &&
+        u.inventory.corn > 0 &&
+        u.wallet.orcx >= 30
+      );
+
+      $('btnRun').disabled = !ready;
       $('svtxt').textContent = Pung.state().serverOk ? '서버 연결됨' : '오프라인(로컬 저장 중)';
       $('dot').className = 'dot ' + (Pung.state().serverOk ? 'ok' : 'bad');
-      $('resultBox').textContent = $('btnRun').disabled ? '❌ 재료 부족 — 소금 1 · 설탕 1 · 옥수수 1 필요' : '✅ 준비 완료';
+      $('resultBox').textContent = ready
+        ? '✅ 준비 완료'
+        : '❌ 재료 부족 — 소금 1 · 설탕 1 · 옥수수 1 · ORCX 30 필요';
     }
 
     function balloon(token){
@@ -145,11 +128,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       setTimeout(()=>b.remove(), dur);
     }
 
-    // 초기 구동
     (async function start(){
-      // kakaoId 없으면 여기서 임시로 세팅 가능(개발 편의)
       if(!localStorage.getItem('kakaoId')) localStorage.setItem('kakaoId','4235108081');
-
       const { user } = await Pung.init({ kakaoId: localStorage.getItem('kakaoId') });
       paint(Pung.state());
 
@@ -162,16 +142,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             $('resultBox').innerHTML = `🎉 축하합니다. <b>${Number(token).toLocaleString()}</b> 토큰을 획득했습니다.`;
             paint(state);
           },
-          onDone: ({ total, state })=>{
+          onDone: async ({ total, state })=>{
             $('resultBox').innerHTML += `<br/><span style="color:#9ca3af">이번 실행 합계: ${Number(total).toLocaleString()} 토큰</span>`;
-            paint(state);
+            await Pung.sync();
+            paint(Pung.state());
           },
           delayMs: 250
         });
-        $('btnRun').disabled = (Pung.canTimes() <= 0);
+        $('btnRun').disabled = (Pung.canTimes() <= 0 || Pung.state().user.wallet.orcx < 30);
       });
 
-      $('btnReload').addEventListener('click', ()=> paint(Pung.state()));
+      $('btnReload').addEventListener('click', ()=> setTimeout(() => paint(Pung.state()), 100));
     })();
   </script>
 </body>
