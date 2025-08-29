@@ -9,7 +9,7 @@
     body { background: #0e0f11; color: #eaeaea; font-family: sans-serif; margin: 0; padding: 20px; }
     .wrap { max-width: 720px; margin: auto; }
     .card { background: #18181b; padding: 20px; border-radius: 16px; margin-top: 20px; }
-    .result { margin-top: 10px; border: 1px dashed #2a2a2e; padding: 10px; border-radius: 12px; background: #121214; }
+    .result, .reward { margin-top: 10px; border: 1px dashed #2a2a2e; padding: 10px; border-radius: 12px; background: #121214; }
     button { margin-top: 10px; padding: 10px 18px; border: none; border-radius: 8px; background: #2563eb; color: #fff; font-weight: 700; cursor: pointer; }
     .ready { color: #22c55e; font-weight: bold; }
     .not-ready { color: #f87171; font-weight: bold; }
@@ -25,8 +25,11 @@
       <p>소금: <span id="v-salt">0</span></p>
       <p>설탕: <span id="v-sugar">0</span></p>
       <p>옥수수: <span id="v-corn">0</span></p>
+      <p>누적 토큰 획득: <span id="v-earned">0</span></p>
+      <p>누적 팝콘 수량: <span id="v-popcorn">0</span></p>
       <div class="result" id="resultBox">데이터 로딩 중…</div>
       <button id="btnRun" disabled>🌽 뻥튀기 실행</button>
+      <div class="reward" id="rewardBox">🎁 보상 내역 없음</div>
     </div>
   </div>
 
@@ -36,6 +39,7 @@
 
     const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
     const kakaoId = localStorage.getItem('kakaoId');
+    let user = {}, resources = {}, earnedToken = 0, earnedPopcorn = 0;
 
     if (!kakaoId) {
       alert('로그인이 필요합니다.');
@@ -49,20 +53,19 @@
       })
       .then(r => r.json())
       .then(data => {
-        const user = data?.user;
-        const res = data?.resources;
-        if (!user || !res) throw new Error('불완전한 데이터');
-
+        user = data?.user || {};
+        resources = data?.resources || {};
         set('nickname', user.nickname || '-');
         set('v-orcx', user.orcx || 0);
-        set('v-salt', res.salt || 0);
-        set('v-sugar', res.sugar || 0);
-        set('v-corn', res.corn || 0);
-
-        const ready = (user.orcx >= 30 && res.salt > 0 && res.sugar > 0 && res.corn > 0);
+        set('v-salt', resources.salt || 0);
+        set('v-sugar', resources.sugar || 0);
+        set('v-corn', resources.corn || 0);
+        set('v-earned', 0);
+        set('v-popcorn', resources.popcorn || 0);
+        const ready = (user.orcx >= 30 && resources.salt > 0 && resources.sugar > 0 && resources.corn > 0);
         $('resultBox').innerHTML = ready
           ? '<span class="ready">✅ 준비 완료 - 뻥튀기 가능</span>'
-          : '<span class="not-ready">❌ 재료 부족 - ORCX 30 + 소금 + 설탕 + 옥수수 필요</span>';
+          : '<span class="not-ready">❌ 자원 부족 - 옥수수1 + 소금1 + 설탕1 + 토큰30 필요</span>';
         $('btnRun').disabled = !ready;
       })
       .catch(err => {
@@ -71,8 +74,28 @@
       });
     }
 
-    $('btnRun').addEventListener('click', () => {
-      $('resultBox').textContent = '🎉 뻥튀기 실행됨! (로직 연결 필요)';
+    $('btnRun').addEventListener('click', async () => {
+      $('btnRun').disabled = true;
+      $('resultBox').textContent = '🔥 뻥튀기 실행 중...';
+
+      const res = await fetch(API_BASE + '/api/popcorn/burn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kakaoId })
+      });
+      const result = await res.json();
+
+      if (result && result.success) {
+        earnedToken += result.token;
+        earnedPopcorn += result.popcorn;
+        set('v-earned', earnedToken);
+        set('v-popcorn', (resources.popcorn || 0) + earnedPopcorn);
+        $('rewardBox').innerHTML = `🎁 토큰 +${result.token}, 팝콘 +${result.popcorn}`;
+        $('resultBox').textContent = '✅ 뻥튀기 완료!';
+      } else {
+        $('rewardBox').innerHTML = '🚨 뻥튀기 실패';
+        $('resultBox').textContent = '❌ 실행 오류';
+      }
     });
   </script>
 </body>
