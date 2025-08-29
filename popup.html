@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>🍿 뻥튀기</title>
+  <title>🍿 뻥튀기 상태 확인 포함</title>
   <style>
     body { background: #0e0f11; color: #eaeaea; font-family: sans-serif; margin: 0; padding: 20px; }
     .wrap { max-width: 720px; margin: auto; }
@@ -17,7 +17,11 @@
 </head>
 <body>
   <div class="wrap">
-    <h2>🍿 뻥튀기</h2>
+    <h2>🍿 뻥튀기 (서버상태+로그인체크)</h2>
+
+    <div>🔌 서버 상태: <span id="serverStatus">확인 중...</span></div>
+    <div>👤 로그인 상태: <span id="loginStatus">확인 중...</span></div>
+
     <div class="card">
       <p>닉네임: <span id="nickname">-</span></p>
       <p>카카오ID: <span id="kakaoId">-</span></p>
@@ -27,7 +31,7 @@
       <p>옥수수: <span id="v-corn">0</span></p>
       <p>누적 토큰 획득: <span id="v-earned">0</span></p>
       <p>누적 팝콘 수량: <span id="v-popcorn">0</span></p>
-      <div class="result" id="resultBox">데이터 로딩 중…</div>
+      <div class="result" id="resultBox">데이터 로딩 대기중…</div>
       <button id="btnRun" disabled>🌽 뻥튀기 실행</button>
       <div class="reward" id="rewardBox">🎁 보상 내역 없음</div>
     </div>
@@ -35,26 +39,31 @@
 
   <script>
     const $ = id => document.getElementById(id);
-    const set = (id, value) => { $(id).textContent = value; };
-
+    const set = (id, v) => $(id).textContent = v;
     const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
-    const kakaoId = localStorage.getItem('kakaoId');
     let user = {}, resources = {}, earnedToken = 0, earnedPopcorn = 0;
 
-    if (!kakaoId) {
-      alert('로그인이 필요합니다.');
-      window.location.href = 'index9.html';
-    } else {
-      set('kakaoId', kakaoId);
-      fetch(API_BASE + '/api/user/resources', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kakaoId })
-      })
-      .then(r => r.json())
-      .then(data => {
-        user = data?.user || {};
-        resources = data?.resources || {};
+    async function checkServer() {
+      try {
+        const res = await fetch(API_BASE + '/ping');
+        set('serverStatus', res.ok ? `연결됨 (${res.status})` : `응답 오류 (${res.status})`);
+        return res.ok;
+      } catch {
+        set('serverStatus', '❌ 서버 연결 실패');
+        return false;
+      }
+    }
+
+    async function loadUserResources(kakaoId) {
+      try {
+        const res = await fetch(API_BASE + '/api/user/resources', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId })
+        });
+        const data = await res.json();
+        user = data.user || {};
+        resources = data.resources || {};
         set('nickname', user.nickname || '-');
         set('v-orcx', user.orcx || 0);
         set('v-salt', resources.salt || 0);
@@ -63,40 +72,46 @@
         set('v-earned', 0);
         set('v-popcorn', resources.popcorn || 0);
         const ready = (user.orcx >= 30 && resources.salt > 0 && resources.sugar > 0 && resources.corn > 0);
-        $('resultBox').innerHTML = ready
-          ? '<span class="ready">✅ 준비 완료 - 뻥튀기 가능</span>'
-          : '<span class="not-ready">❌ 자원 부족 - 옥수수1 + 소금1 + 설탕1 + 토큰30 필요</span>';
+        $('resultBox').innerHTML = ready ? '<span class="ready">✅ 준비 완료 - 뻥튀기 가능</span>' : '<span class="not-ready">❌ 자원 부족</span>';
         $('btnRun').disabled = !ready;
-      })
-      .catch(err => {
-        $('resultBox').textContent = '🚨 데이터를 불러올 수 없습니다.';
-        console.error(err);
-      });
+      } catch {
+        $('resultBox').textContent = '❌ 자원 로딩 실패';
+      }
+    }
+
+    async function main() {
+      const kakaoId = localStorage.getItem('kakaoId');
+      set('kakaoId', kakaoId || '-');
+      set('loginStatus', kakaoId ? '✅ 로그인됨' : '❌ 없음');
+      if (!kakaoId) return;
+      const serverOK = await checkServer();
+      if (!serverOK) return;
+      await loadUserResources(kakaoId);
     }
 
     $('btnRun').addEventListener('click', async () => {
       $('btnRun').disabled = true;
-      $('resultBox').textContent = '🔥 뻥튀기 실행 중...';
-
+      $('resultBox').textContent = '🔥 실행 중...';
       const res = await fetch(API_BASE + '/api/popcorn/burn', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kakaoId })
+        body: JSON.stringify({ kakaoId: localStorage.getItem('kakaoId') })
       });
       const result = await res.json();
-
       if (result && result.success) {
         earnedToken += result.token;
         earnedPopcorn += result.popcorn;
         set('v-earned', earnedToken);
         set('v-popcorn', (resources.popcorn || 0) + earnedPopcorn);
         $('rewardBox').innerHTML = `🎁 토큰 +${result.token}, 팝콘 +${result.popcorn}`;
-        $('resultBox').textContent = '✅ 뻥튀기 완료!';
+        $('resultBox').textContent = '✅ 완료';
       } else {
-        $('rewardBox').innerHTML = '🚨 뻥튀기 실패';
-        $('resultBox').textContent = '❌ 실행 오류';
+        $('rewardBox').innerHTML = '🚨 실패';
+        $('resultBox').textContent = '❌ 오류';
       }
     });
+
+    main();
   </script>
 </body>
 </html>
