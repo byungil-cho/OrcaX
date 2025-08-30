@@ -1,75 +1,138 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrcaX 시민에이터</title>
-  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-  <script>
-    Kakao.init('YOUR_APP_KEY'); // 카카오 JavaScript 키
-  </script>
-  <script type="module" src="./pung.module.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>뻥튀기 시민에이터</title>
   <style>
     body {
       font-family: sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
       padding: 20px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
+      background-color: #f5f5f5;
     }
-    .info {
-      margin-bottom: 20px;
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .section {
+      margin-top: 20px;
+    }
+    .label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
     button {
-      margin-top: 10px;
       padding: 10px 20px;
-      background: #fee500;
+      margin-top: 15px;
+      background-color: #0077cc;
+      color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-weight: bold;
+    }
+    .status {
+      margin-top: 10px;
+      color: green;
     }
   </style>
 </head>
 <body>
-  <h1>OrcaX 시민에이터</h1>
+  <div class="container">
+    <h1>판업 시민에이터</h1>
 
-  <div class="info">
-    <p>닉네임: <span id="nickname">-</span></p>
-    <p>카카오 ID: <span id="kakaoId">-</span></p>
-    <p>현재 ORCX: <span id="orcx">0</span></p>
+    <div class="section">
+      <div class="label">니녀임: <span id="nickname">-</span></div>
+      <div class="label">카카오 ID: <span id="kakao">-</span></div>
+      <div class="label">현재 ORCX: <span id="orcx">0</span></div>
+    </div>
+
+    <div class="section">
+      <div class="label">회원 자원 현황</div>
+      <ul>
+        <li>옥수수: <span id="water">0</span></li>
+        <li>소금: <span id="salt">0</span></li>
+        <li>설량: <span id="sugar">0</span></li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="label">자원 투입</div>
+      <div class="input-row">
+        <input type="number" id="input-water" placeholder="옥수수">
+        <input type="number" id="input-salt" placeholder="소금">
+        <input type="number" id="input-sugar" placeholder="설량">
+      </div>
+      <button id="submit-button">화불 날려야지!</button>
+      <div class="status" id="status">(초기화)</div>
+    </div>
   </div>
 
-  <button onclick="loginWithKakao()">카카오 로그인</button>
+  <script type="module">
+    import { Pung } from './pung.module.js';
 
-  <script>
-    function loginWithKakao() {
-      Kakao.Auth.login({
-        success: function (authObj) {
-          Kakao.API.request({
-            url: '/v2/user/me',
-            success: function (res) {
-              const kakaoId = res.id;
-              const nickname = res.properties.nickname;
+    const apiBase = "https://climbing-wholly-grouper.jp.ngrok.io";
 
-              document.getElementById('nickname').textContent = nickname;
-              document.getElementById('kakaoId').textContent = kakaoId;
+    const kakaoId = localStorage.getItem("kakaoId");
+    const nickname = localStorage.getItem("nickname");
 
-              // ORCX 서버 연결 후 사용자 초기화
-              const apiBase = 'https://climbing-wholly-grouper.jp.ngrok.io';
-              const user = { orcx: 0, nickname };
+    if (!kakaoId || !nickname) {
+      document.getElementById("status").textContent = "로그인 정보가 없습니다. index9.html에서 먼저 로그인해주세요.";
+    } else {
+      document.getElementById("nickname").textContent = nickname;
+      document.getElementById("kakao").textContent = kakaoId;
 
-              Pung.init({ kakaoId, user, corn: {}, apiBase });
-            },
-            fail: function (err) {
-              console.error('카카오 사용자 정보 요청 실패:', err);
-            },
-          });
-        },
-        fail: function (err) {
-          console.error('카카오 로그인 실패:', err);
-        },
+      try {
+        const res = await fetch(`${apiBase}/api/user-status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kakaoId })
+        });
+
+        const data = await res.json();
+        const { orcx, water, salt, sugar } = data;
+
+        document.getElementById("orcx").textContent = orcx;
+        document.getElementById("water").textContent = water;
+        document.getElementById("salt").textContent = salt;
+        document.getElementById("sugar").textContent = sugar;
+
+        // 초기화 실행
+        Pung.init({ kakaoId, user: { orcx, nickname }, corn: {}, apiBase });
+
+      } catch (err) {
+        document.getElementById("status").textContent = "자원 정보 가져오기 실패: " + err.message;
+      }
+
+      document.getElementById("submit-button").addEventListener("click", async () => {
+        const water = document.getElementById("input-water").value || 0;
+        const salt = document.getElementById("input-salt").value || 0;
+        const sugar = document.getElementById("input-sugar").value || 0;
+
+        try {
+          const result = await Pung.pung({ kakaoId, water, salt, sugar }, apiBase);
+          document.getElementById("status").textContent = `투입 성공! 결과: ${JSON.stringify(result)}`;
+        } catch (error) {
+          document.getElementById("status").textContent = "오류: " + error.message;
+        }
       });
     }
   </script>
