@@ -1,37 +1,51 @@
-// pung.module.js (ES6 module version)
+// pung.module.js (ES6 모듈 + 프론트 뻥튀기 로직 포함)
 
 export const Pung = {
   init({ kakaoId, user, corn, apiBase }) {
-    console.log('[Pung] 초기화 시작');
-    console.log('kakaoId:', kakaoId);
-    console.log('user:', user);
-    console.log('corn:', corn);
-    console.log('apiBase:', apiBase);
-
-    // 자원 상태 보여주기 예시
+    console.log('[Pung] 초기화');
+    console.log('사용자:', kakaoId, user);
+    // UI 반영 예시
     if (user?.orcx !== undefined) {
-      const statusEl = document.getElementById('orcx');
-      if (statusEl) statusEl.textContent = user.orcx;
+      const el = document.getElementById('orcx');
+      if (el) el.textContent = user.orcx;
     }
-
-    // 향후: corn 상태 또는 대출 상태, 등급에 따른 이미지, 색상 변화 적용 가능
-    // 필요한 경우 여기에서 서버와 추가 통신하거나 로직 실행 가능
   },
 
-  // 자원 투입 후 뻥튀기 처리
-  async pung(userInput, apiBase) {
-    try {
-      const res = await fetch(`${apiBase}/api/resources`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userInput)
-      });
-      const data = await res.json();
-      console.log('뻥튀기 결과:', data);
-      return data;
-    } catch (err) {
-      console.error('뻥튀기 오류:', err);
-      throw err;
+  pung({ kakaoId, water = 0, salt = 0, sugar = 0, grade = "A", loan = false }) {
+    const result = [];
+    const GRADE_TABLE = {
+      A: [1000, 900, 800],
+      B: [800, 700, 600],
+      C: [600, 500, 400],
+      D: [400, 300, 200],
+      E: [200, 100, 50],
+      F: [100, 50, 10]
+    };
+
+    const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    // 5~9개 수확
+    const count = Math.floor(Math.random() * 5) + 5;
+    for (let i = 0; i < count; i++) {
+      const isPopcorn = Math.random() < 0.1; // 10% 확률 꽝
+      if (isPopcorn) {
+        result.push({ type: "팝콘", value: 0 });
+      } else {
+        const value = pickRandom(GRADE_TABLE[grade] || [0]);
+        result.push({ type: grade, value });
+      }
     }
+
+    const gross = result.reduce((sum, r) => sum + r.value, 0);
+    const net = loan ? Math.floor(gross * 0.7) : gross;
+
+    return {
+      grade,
+      count,
+      tokens: result,
+      totalBeforeTax: gross,
+      totalAfterTax: net,
+      loan
+    };
   }
 };
