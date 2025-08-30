@@ -2,32 +2,51 @@
 <html lang="ko">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>마이페이지</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX 마이페이지</title>
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
   <script type="module" src="./js/pung.module.js"></script>
 </head>
 
 <body>
-  <div class="mypage">
-    <h1>🌽 마이페이지</h1>
-    <div class="info">
-      <p>닉네임: <span id="nickname">로딩중...</span></p>
-      <p>카카오 ID: <span id="kakao">-</span></p>
-      <p>현재 ORCX: <span id="orcx">0</span></p>
-      <p>옥수수 등급: <span id="cornGrade">-</span></p>
-    </div>
+  <main class="container">
+    <h1>🌽 OrcaX 마이페이지</h1>
 
-    <div class="withdraw">
-      <h3>출금 신청</h3>
-      <!-- 기존 출금 UI 여기에 위치 -->
-    </div>
+    <section>
+      <hgroup>
+        <h2>회원 정보</h2>
+        <h3>내 정보 확인</h3>
+      </hgroup>
+      <ul>
+        <li>닉네임: <strong id="nickname">-</strong></li>
+        <li>카카오 ID: <strong id="kakao">-</strong></li>
+        <li>보유 ORCX: <strong id="orcx">0</strong></li>
+        <li>옥수수 등급: <strong id="cornGrade">YELLOW</strong></li>
+      </ul>
+    </section>
 
-    <div class="deposit" style="margin-top:10px; font-size: 14px; color: #444;">
-      👉 <a href="/admin/loan-request.html?kakaoId=" id="depositLink">입금(대출) 신청하기</a>
-    </div>
-  </div>
+    <section>
+      <hgroup>
+        <h2>출금 신청</h2>
+        <h3>Withdraw</h3>
+      </hgroup>
+      <form>
+        <label for="amount">출금할 ORCX</label>
+        <input type="number" id="amount" name="amount" placeholder="1000" required>
+        <button type="submit">출금 요청</button>
+      </form>
+    </section>
+
+    <section class="deposit">
+      <hgroup>
+        <h2>입금 신청</h2>
+        <h3>Deposit (Loan)</h3>
+      </hgroup>
+      <p>자금이 부족한 경우 OrcaX로부터 대출을 신청할 수 있습니다. 신청은 관리자에게 전달되어 확인 후 승인됩니다.</p>
+      <button onclick="requestLoan()">📥 대출 신청하기</button>
+    </section>
+  </main>
 
   <script>
     async function loadUserData() {
@@ -36,8 +55,6 @@
 
       document.getElementById("nickname").textContent = nickname;
       document.getElementById("kakao").textContent = kakaoId;
-
-      document.getElementById("depositLink").href = "/admin/loan-request.html?kakaoId=" + kakaoId;
 
       try {
         const res = await fetch("https://climbing-wholly-grouper.jp.ngrok.io/api/userdata", {
@@ -59,11 +76,17 @@
       }
     }
 
+    function requestLoan() {
+      const kakaoId = localStorage.getItem("kakaoId");
+      window.location.href = "/admin/loan-request.html?kakaoId=" + kakaoId;
+    }
+
     loadUserData();
   </script>
 </body>
 
 </html>
+
 
 
 
