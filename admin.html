@@ -1,24 +1,92 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>관리자 모드 - OrcaX</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrcaX 관리자 페이지</title>
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
+  <script type="module" src="./js/admin.js"></script>
 </head>
+
 <body>
   <main class="container">
-    <h2>🛠 관리자 모드</h2>
+    <h1>🛠️ OrcaX 관리자 패널</h1>
+
     <nav>
       <ul>
-        <li><a href="#" id="tab-withdraw">출금 요청</a></li>
-        <li><a href="#" id="tab-deposit">입금 요청</a></li>
-        <li><a href="#" id="tab-loan">대출 현황</a></li>
+        <li><a href="#" id="tab-withdraw" role="button">출금 요청</a></li>
+        <li><a href="#" id="tab-deposit" role="button">입금 요청</a></li>
+        <li><a href="#" id="tab-loan-request" role="button">대출 신청</a></li>
+        <li><a href="#" id="tab-loan" role="button">대출 현황표</a></li>
       </ul>
     </nav>
 
-    <section id="admin-content"></section>
+    <section id="admin-content">
+      <div id="content-withdraw" class="tab-content" hidden>
+        <h2>출금 요청 내역</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>사용자</th>
+              <th>요청 금액</th>
+              <th>요청일</th>
+              <th>처리</th>
+            </tr>
+          </thead>
+          <tbody id="withdraw-list"></tbody>
+        </table>
+      </div>
+
+      <div id="content-deposit" class="tab-content" hidden>
+        <h2>입금 요청 내역</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>사용자</th>
+              <th>입금 금액</th>
+              <th>요청일</th>
+              <th>처리</th>
+            </tr>
+          </thead>
+          <tbody id="deposit-list"></tbody>
+        </table>
+      </div>
+
+      <div id="content-loan-request" class="tab-content" hidden>
+        <h2>대출 신청 내역</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>사용자</th>
+              <th>신청 금액</th>
+              <th>신청일</th>
+              <th>승인/거절</th>
+            </tr>
+          </thead>
+          <tbody id="loan-request-list"></tbody>
+        </table>
+      </div>
+
+      <div id="content-loan" class="tab-content">
+        <h2>진행 중인 대출 현황</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>사용자</th>
+              <th>대출 금액</th>
+              <th>이자율</th>
+              <th>남은 ORCX</th>
+              <th>상환 상태</th>
+            </tr>
+          </thead>
+          <tbody id="loan-status-list"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
-  <script type="module" src="js/admin.js"></script>
 </body>
+
 </html>
+
+
