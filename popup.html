@@ -1,132 +1,140 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OrcaX 관리자 페이지</title>
-  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
-  <script type="module" src="./js/admin.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>뻥튀기 시민에이터</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .section {
+      margin-top: 20px;
+    }
+    .label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 15px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .status {
+      margin-top: 10px;
+      color: green;
+    }
+  </style>
 </head>
-
 <body>
-  <main class="container">
-    <h1>🛠️ OrcaX 관리자 패널</h1>
+  <div class="container">
+    <h1>🌽 뻥튀기 시민에이터</h1>
 
-    <nav>
+    <div class="section">
+      <div class="label">닉네임: <span id="nickname">-</span></div>
+      <div class="label">카카오 ID: <span id="kakao">-</span></div>
+      <div class="label">현재 ORCX: <span id="orcx">0</span></div>
+    </div>
+
+    <div class="section">
+      <div class="label">회원 자원 현황</div>
       <ul>
-        <li><a href="#" id="tab-withdraw" role="button">출금 요청</a></li>
-        <li><a href="#" id="tab-deposit" role="button">입금 요청</a></li>
-        <li><a href="#" id="tab-loan-request" role="button">대출 신청</a></li>
-        <li><a href="#" id="tab-loan" role="button">대출 현황표</a></li>
+        <li>옥수수: <span id="water">0</span></li>
+        <li>소금: <span id="salt">0</span></li>
+        <li>설탕: <span id="sugar">0</span></li>
       </ul>
-    </nav>
+    </div>
 
-    <section id="admin-content">
-      <div id="content-withdraw" class="tab-content" hidden>
-        <h2>출금 요청 내역</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>사용자</th>
-              <th>요청 금액</th>
-              <th>요청일</th>
-              <th>처리</th>
-            </tr>
-          </thead>
-          <tbody id="withdraw-list"></tbody>
-        </table>
+    <div class="section">
+      <div class="label">자원 투입</div>
+      <div class="input-row">
+        <input type="number" id="input-water" placeholder="옥수수">
+        <input type="number" id="input-salt" placeholder="소금">
+        <input type="number" id="input-sugar" placeholder="설탕">
       </div>
+      <button id="submit-button">🔥 뻥튀기 실행!</button>
+      <div class="status" id="status">(초기화 대기중)</div>
+    </div>
+  </div>
 
-      <div id="content-deposit" class="tab-content" hidden>
-        <h2>입금 요청 내역</h2>
-        <form onsubmit="submitAdminDeposit(event)">
-          <label for="depositUser">사용자 카카오 ID</label>
-          <input type="text" id="depositUser" name="depositUser" required>
+  <script type="module">
+    import { Pung } from 'https://byungil-cho.github.io/OrcaX/js/pung.module.js';
 
-          <label for="depositAmount">입금 금액 (최소 5만 ORCX)</label>
-          <input type="number" id="depositAmount" name="depositAmount" min="50000" required>
+    const apiBase = "https://climbing-wholly-grouper.jp.ngrok.io";
 
-          <button type="submit">입금 등록</button>
-        </form>
+    const kakaoId = localStorage.getItem("kakaoId");
+    const nickname = localStorage.getItem("nickname");
 
-        <hr>
+    if (!kakaoId || !nickname) {
+      document.getElementById("status").textContent = "⚠️ 로그인 정보가 없습니다. index9.html에서 먼저 로그인 해주세요.";
+    } else {
+      document.getElementById("nickname").textContent = nickname;
+      document.getElementById("kakao").textContent = kakaoId;
 
-        <table>
-          <thead>
-            <tr>
-              <th>사용자</th>
-              <th>입금 금액</th>
-              <th>요청일</th>
-              <th>처리</th>
-            </tr>
-          </thead>
-          <tbody id="deposit-list"></tbody>
-        </table>
-      </div>
+      // 서버에서 자원 상태 조회
+      fetch(`${apiBase}/api/user-status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kakaoId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const { orcx, water, salt, sugar } = data;
+        document.getElementById("orcx").textContent = orcx;
+        document.getElementById("water").textContent = water;
+        document.getElementById("salt").textContent = salt;
+        document.getElementById("sugar").textContent = sugar;
 
-      <div id="content-loan-request" class="tab-content" hidden>
-        <h2>대출 신청 내역</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>사용자</th>
-              <th>신청 금액</th>
-              <th>신청일</th>
-              <th>승인/거절</th>
-            </tr>
-          </thead>
-          <tbody id="loan-request-list"></tbody>
-        </table>
-      </div>
+        // 초기화
+        Pung.init({ kakaoId, user: { nickname, orcx }, corn: {}, apiBase });
+      })
+      .catch(err => {
+        document.getElementById("status").textContent = "자원 정보 가져오기 실패: " + err.message;
+      });
 
-      <div id="content-loan" class="tab-content">
-        <h2>진행 중인 대출 현황</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>사용자</th>
-              <th>대출 금액</th>
-              <th>이자율</th>
-              <th>남은 ORCX</th>
-              <th>상환 상태</th>
-            </tr>
-          </thead>
-          <tbody id="loan-status-list"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+      // 뻥튀기 실행 버튼
+      document.getElementById("submit-button").addEventListener("click", async () => {
+        const water = parseInt(document.getElementById("input-water").value) || 0;
+        const salt = parseInt(document.getElementById("input-salt").value) || 0;
+        const sugar = parseInt(document.getElementById("input-sugar").value) || 0;
 
-  <script>
-    function submitAdminDeposit(event) {
-      event.preventDefault();
-      const kakaoId = document.getElementById("depositUser").value;
-      const amount = parseInt(document.getElementById("depositAmount").value);
-
-      if (amount < 50000) {
-        alert("입금 금액은 최소 5만 ORCX 이상이어야 합니다.");
-        return;
-      }
-
-      fetch("/api/admin/deposit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kakaoId, amount })
-      }).then(res => {
-        if (res.ok) {
-          alert("입금 요청이 등록되었습니다.");
-          document.getElementById("depositUser").value = "";
-          document.getElementById("depositAmount").value = "";
-          loadDeposits();
-        } else {
-          alert("입금 요청 실패.");
+        try {
+          const result = await Pung.pung({ kakaoId, water, salt, sugar }, apiBase);
+          document.getElementById("status").textContent = `✅ 뻥튀기 완료! 결과: ${JSON.stringify(result)}`;
+        } catch (error) {
+          document.getElementById("status").textContent = "❌ 뻥튀기 실패: " + error.message;
         }
-      }).catch(err => {
-        alert("입금 오류: " + err.message);
       });
     }
   </script>
 </body>
-
 </html>
