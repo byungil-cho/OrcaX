@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>뻥튀기 시민에이터</title>
   <style>
     body {
@@ -57,10 +57,10 @@
 </head>
 <body>
   <div class="container">
-    <h1>판업 시민에이터</h1>
+    <h1>🌽 뻥튀기 시민에이터</h1>
 
     <div class="section">
-      <div class="label">니녀임: <span id="nickname">-</span></div>
+      <div class="label">닉네임: <span id="nickname">-</span></div>
       <div class="label">카카오 ID: <span id="kakao">-</span></div>
       <div class="label">현재 ORCX: <span id="orcx">0</span></div>
     </div>
@@ -70,7 +70,7 @@
       <ul>
         <li>옥수수: <span id="water">0</span></li>
         <li>소금: <span id="salt">0</span></li>
-        <li>설량: <span id="sugar">0</span></li>
+        <li>설탕: <span id="sugar">0</span></li>
       </ul>
     </div>
 
@@ -79,15 +79,15 @@
       <div class="input-row">
         <input type="number" id="input-water" placeholder="옥수수">
         <input type="number" id="input-salt" placeholder="소금">
-        <input type="number" id="input-sugar" placeholder="설량">
+        <input type="number" id="input-sugar" placeholder="설탕">
       </div>
-      <button id="submit-button">화불 날려야지!</button>
-      <div class="status" id="status">(초기화)</div>
+      <button id="submit-button">🔥 뻥튀기 실행!</button>
+      <div class="status" id="status">(초기화 대기중)</div>
     </div>
   </div>
 
   <script type="module">
-    import { Pung } from './pung.module.js';
+    import { Pung } from 'https://byungil-cho.github.io/OrcaX/js/pung.module.js';
 
     const apiBase = "https://climbing-wholly-grouper.jp.ngrok.io";
 
@@ -95,43 +95,43 @@
     const nickname = localStorage.getItem("nickname");
 
     if (!kakaoId || !nickname) {
-      document.getElementById("status").textContent = "로그인 정보가 없습니다. index9.html에서 먼저 로그인해주세요.";
+      document.getElementById("status").textContent = "⚠️ 로그인 정보가 없습니다. index9.html에서 먼저 로그인 해주세요.";
     } else {
       document.getElementById("nickname").textContent = nickname;
       document.getElementById("kakao").textContent = kakaoId;
 
-      try {
-        const res = await fetch(`${apiBase}/api/user-status`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kakaoId })
-        });
-
-        const data = await res.json();
+      // 서버에서 자원 상태 조회
+      fetch(`${apiBase}/api/user-status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kakaoId })
+      })
+      .then(res => res.json())
+      .then(data => {
         const { orcx, water, salt, sugar } = data;
-
         document.getElementById("orcx").textContent = orcx;
         document.getElementById("water").textContent = water;
         document.getElementById("salt").textContent = salt;
         document.getElementById("sugar").textContent = sugar;
 
-        // 초기화 실행
-        Pung.init({ kakaoId, user: { orcx, nickname }, corn: {}, apiBase });
-
-      } catch (err) {
+        // 초기화
+        Pung.init({ kakaoId, user: { nickname, orcx }, corn: {}, apiBase });
+      })
+      .catch(err => {
         document.getElementById("status").textContent = "자원 정보 가져오기 실패: " + err.message;
-      }
+      });
 
+      // 뻥튀기 실행 버튼
       document.getElementById("submit-button").addEventListener("click", async () => {
-        const water = document.getElementById("input-water").value || 0;
-        const salt = document.getElementById("input-salt").value || 0;
-        const sugar = document.getElementById("input-sugar").value || 0;
+        const water = parseInt(document.getElementById("input-water").value) || 0;
+        const salt = parseInt(document.getElementById("input-salt").value) || 0;
+        const sugar = parseInt(document.getElementById("input-sugar").value) || 0;
 
         try {
           const result = await Pung.pung({ kakaoId, water, salt, sugar }, apiBase);
-          document.getElementById("status").textContent = `투입 성공! 결과: ${JSON.stringify(result)}`;
+          document.getElementById("status").textContent = `✅ 뻥튀기 완료! 결과: ${JSON.stringify(result)}`;
         } catch (error) {
-          document.getElementById("status").textContent = "오류: " + error.message;
+          document.getElementById("status").textContent = "❌ 뻥튀기 실패: " + error.message;
         }
       });
     }
