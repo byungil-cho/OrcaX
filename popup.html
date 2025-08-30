@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>뻥튀기 시민에이터</title>
   <style>
     body {
@@ -34,7 +34,7 @@
       gap: 10px;
       margin-top: 10px;
     }
-    input {
+    input, select {
       flex: 1;
       padding: 10px;
       border-radius: 5px;
@@ -52,6 +52,7 @@
     .status {
       margin-top: 10px;
       color: green;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -77,9 +78,20 @@
     <div class="section">
       <div class="label">자원 투입</div>
       <div class="input-row">
-        <input type="number" id="input-water" placeholder="옥수수">
-        <input type="number" id="input-salt" placeholder="소금">
-        <input type="number" id="input-sugar" placeholder="설탕">
+        <input type="number" id="input-water" placeholder="옥수수" />
+        <input type="number" id="input-salt" placeholder="소금" />
+        <input type="number" id="input-sugar" placeholder="설탕" />
+      </div>
+      <div class="input-row">
+        <select id="input-grade">
+          <option value="A">A급</option>
+          <option value="B">B급</option>
+          <option value="C">C급</option>
+          <option value="D">D급</option>
+          <option value="E">E급</option>
+          <option value="F">F급</option>
+        </select>
+        <label><input type="checkbox" id="input-loan" /> 대출 상태</label>
       </div>
       <button id="submit-button">🔥 뻥튀기 실행!</button>
       <div class="status" id="status">(초기화 대기중)</div>
@@ -88,8 +100,6 @@
 
   <script type="module">
     import { Pung } from 'https://byungil-cho.github.io/OrcaX/js/pung.module.js';
-
-    const apiBase = "https://climbing-wholly-grouper.jp.ngrok.io";
 
     const kakaoId = localStorage.getItem("kakaoId");
     const nickname = localStorage.getItem("nickname");
@@ -100,39 +110,27 @@
       document.getElementById("nickname").textContent = nickname;
       document.getElementById("kakao").textContent = kakaoId;
 
-      // 서버에서 자원 상태 조회
-      fetch(`${apiBase}/api/user-status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kakaoId })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const { orcx, water, salt, sugar } = data;
-        document.getElementById("orcx").textContent = orcx;
-        document.getElementById("water").textContent = water;
-        document.getElementById("salt").textContent = salt;
-        document.getElementById("sugar").textContent = sugar;
-
-        // 초기화
-        Pung.init({ kakaoId, user: { nickname, orcx }, corn: {}, apiBase });
-      })
-      .catch(err => {
-        document.getElementById("status").textContent = "자원 정보 가져오기 실패: " + err.message;
-      });
-
-      // 뻥튀기 실행 버튼
-      document.getElementById("submit-button").addEventListener("click", async () => {
+      document.getElementById("submit-button").addEventListener("click", () => {
         const water = parseInt(document.getElementById("input-water").value) || 0;
         const salt = parseInt(document.getElementById("input-salt").value) || 0;
         const sugar = parseInt(document.getElementById("input-sugar").value) || 0;
+        const grade = document.getElementById("input-grade").value;
+        const loan = document.getElementById("input-loan").checked;
 
-        try {
-          const result = await Pung.pung({ kakaoId, water, salt, sugar }, apiBase);
-          document.getElementById("status").textContent = `✅ 뻥튀기 완료! 결과: ${JSON.stringify(result)}`;
-        } catch (error) {
-          document.getElementById("status").textContent = "❌ 뻥튀기 실패: " + error.message;
-        }
+        const result = Pung.pung({ kakaoId, water, salt, sugar, grade, loan });
+
+        const output = [
+          `✅ 뻥튀기 결과:`,
+          `- 등급: ${result.grade}`,
+          `- 수확 수량: ${result.count}`,
+          `- 세전 합계: ${result.totalBeforeTax} ORCX`,
+          `- 세후 지급: ${result.totalAfterTax} ORCX`,
+          `- 대출 상태: ${result.loan ? "있음 (30% 공제)" : "없음"}`,
+          `- 토큰 목록:`,
+          ...result.tokens.map((t, i) => `   ${i + 1}. ${t.type} - ${t.value}`)
+        ].join("\n");
+
+        document.getElementById("status").textContent = output;
       });
     }
   </script>
