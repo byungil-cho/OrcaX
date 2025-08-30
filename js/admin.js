@@ -1,39 +1,152 @@
-// js/admin.js
-import { apiGet, apiPost } from "./api.js";
+// admin.js (ES6 모듈)
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadWithdrawals();
-
-  document.getElementById("tab-withdraw").addEventListener("click", loadWithdrawals);
-  document.getElementById("tab-deposit").addEventListener("click", loadDeposits);
-  document.getElementById("tab-loan").addEventListener("click", loadLoans);
+  initTabs();
+  loadAllData();
+  checkServerStatus();
 });
 
-async function loadWithdrawals() {
-  const data = await apiGet("/api/admin/withdrawals");
-  renderTable("출금 요청", data, ["nickname", "amount", "wallet"]);
+function initTabs() {
+  const tabs = ["withdraw", "deposit", "loan-request", "loan"];
+  tabs.forEach(tab => {
+    const link = document.getElementById(`tab-${tab}`);
+    const content = document.getElementById(`content-${tab}`);
+
+    link.addEventListener("click", () => {
+      document.querySelectorAll(".tab-content").forEach(div => div.hidden = true);
+      content.hidden = false;
+    });
+  });
+}
+
+async function loadAllData() {
+  await loadWithdraws();
+  await loadDeposits();
+  await loadLoanRequests();
+  await loadLoanStatus();
+}
+
+async function loadWithdraws() {
+  const res = await fetch("/api/get-withdraws");
+  const list = await res.json();
+  const tbody = document.getElementById("withdraw-list");
+  tbody.innerHTML = "";
+  list.forEach(row => {
+    const tr = document.createElement("tr");
+    const minCheck = row.amount >= 50000;
+    tr.innerHTML = `
+      <td>${row.nickname}</td>
+      <td>${row.amount}</td>
+      <td>${row.date}</td>
+      <td>
+        ${minCheck ? `<button onclick="approveWithdraw('${row.id}')">승인</button>` : "<span style='color:red'>금액 부족</span>"}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
 async function loadDeposits() {
-  const data = await apiGet("/api/admin/deposits");
-  renderTable("입금 요청", data, ["nickname", "amount", "txHash"]);
-}
-
-async function loadLoans() {
-  const data = await apiGet("/api/admin/loans");
-  renderTable("대출 현황", data, ["nickname", "amount", "interest"]);
-}
-
-function renderTable(title, rows, keys) {
-  const container = document.getElementById("admin-content");
-  let html = `<h3>${title}</h3><table><thead><tr>`;
-  keys.forEach(k => { html += `<th>${k}</th>`; });
-  html += "</tr></thead><tbody>";
-  rows.forEach(r => {
-    html += "<tr>";
-    keys.forEach(k => { html += `<td>${r[k]}</td>`; });
-    html += "</tr>";
+  const res = await fetch("/api/get-deposits");
+  const list = await res.json();
+  const tbody = document.getElementById("deposit-list");
+  tbody.innerHTML = "";
+  list.forEach(row => {
+    const tr = document.createElement("tr");
+    const minCheck = row.amount >= 50000;
+    tr.innerHTML = `
+      <td>${row.nickname}</td>
+      <td>${row.amount}</td>
+      <td>${row.date}</td>
+      <td>
+        ${minCheck ? `<button onclick="confirmDeposit('${row.id}')">확인</button>` : "<span style='color:red'>금액 부족</span>"}
+      </td>
+    `;
+    tbody.appendChild(tr);
   });
-  html += "</tbody></table>";
-  container.innerHTML = html;
+}
+
+async function loadLoanRequests() {
+  const res = await fetch("/api/get-loan-requests");
+  const list = await res.json();
+  const tbody = document.getElementById("loan-request-list");
+  tbody.innerHTML = "";
+  list.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.nickname}</td>
+      <td>${row.amount}</td>
+      <td>${row.date}</td>
+      <td>
+        <button onclick="approveLoan('${row.id}')">승인</button>
+        <button onclick="rejectLoan('${row.id}')">거절</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadLoanStatus() {
+  const res = await fetch("/api/get-loan-status");
+  const list = await res.json();
+  const tbody = document.getElementById("loan-status-list");
+  tbody.innerHTML = "";
+  list.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.nickname}</td>
+      <td>${row.amount}</td>
+      <td>${row.interest}%</td>
+      <td>${row.remaining}</td>
+      <td>${row.status}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// 처리 액션 함수
+async function approveWithdraw(id) {
+  await fetch(`/api/approve-withdraw/${id}`, { method: "POST" });
+  loadWithdraws();
+}
+
+async function confirmDeposit(id) {
+  await fetch(`/api/confirm-deposit/${id}`, { method: "POST" });
+  loadDeposits();
+}
+
+async function approveLoan(id) {
+  await fetch(`/api/approve-loan/${id}`, { method: "POST" });
+  loadLoanRequests();
+  loadLoanStatus();
+}
+
+async function rejectLoan(id) {
+  await fetch(`/api/reject-loan/${id}`, { method: "POST" });
+  loadLoanRequests();
+}
+
+async function checkServerStatus() {
+  try {
+    const res = await fetch("/api/ping");
+    if (res.ok) {
+      const el = document.createElement("div");
+      el.textContent = "🟢 서버 연결됨";
+      el.style.color = "green";
+      el.style.fontSize = "0.9rem";
+      document.querySelector("main").prepend(el);
+    } else {
+      showServerDown();
+    }
+  } catch (err) {
+    showServerDown();
+  }
+}
+
+function showServerDown() {
+  const el = document.createElement("div");
+  el.textContent = "🔴 서버 연결 실패";
+  el.style.color = "red";
+  el.style.fontSize = "0.9rem";
+  document.querySelector("main").prepend(el);
 }
