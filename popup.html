@@ -1,81 +1,77 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OrcaX 팝업 시뮬레이터</title>
-  <link rel="stylesheet" href="styles.css">
-  <script type="module" src="pung.module.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrcaX 시민에이터</title>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <script>
+    Kakao.init('YOUR_APP_KEY'); // 카카오 JavaScript 키
+  </script>
+  <script type="module" src="./pung.module.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    .info {
+      margin-bottom: 20px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #fee500;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🌽 OrcaX 판여 시민에이터</h1>
+  <h1>OrcaX 시민에이터</h1>
 
-    <section class="userinfo">
-      <p>닉네임: <span id="nickname">-</span></p>
-      <p>카카오 ID: <span id="kakaoId">-</span></p>
-      <p>현재 ORCX: <span id="orcx">0</span></p>
-    </section>
-
-    <section class="resources">
-      <h2>🛄 자원 현황</h2>
-      <ul>
-        <li>옥수수: <span id="corn">0</span></li>
-        <li>소금: <span id="salt">0</span></li>
-        <li>설탕: <span id="sugar">0</span></li>
-      </ul>
-    </section>
-
-    <section class="resource-input">
-      <h2>⚙️ 자원 투입</h2>
-      <label>옥수수 <input type="number" id="inputCorn" value="0" min="0"></label>
-      <label>소금 <input type="number" id="inputSalt" value="0" min="0"></label>
-      <label>설탕 <input type="number" id="inputSugar" value="0" min="0"></label>
-    </section>
-
-    <section class="actions">
-      <button id="simulateBtn">🔥 빵통이 실행</button>
-      <p class="status" id="statusMsg">초기화 상태</p>
-    </section>
+  <div class="info">
+    <p>닉네임: <span id="nickname">-</span></p>
+    <p>카카오 ID: <span id="kakaoId">-</span></p>
+    <p>현재 ORCX: <span id="orcx">0</span></p>
   </div>
 
-  <script type="module">
-    import { getUserData, simulateExplosion } from './pung.module.js';
+  <button onclick="loginWithKakao()">카카오 로그인</button>
 
-    async function init() {
-      try {
-        const data = await getUserData();
+  <script>
+    function loginWithKakao() {
+      Kakao.Auth.login({
+        success: function (authObj) {
+          Kakao.API.request({
+            url: '/v2/user/me',
+            success: function (res) {
+              const kakaoId = res.id;
+              const nickname = res.properties.nickname;
 
-        document.getElementById('nickname').textContent = data.nickname;
-        document.getElementById('kakaoId').textContent = data.kakaoId;
-        document.getElementById('orcx').textContent = data.orcx;
+              document.getElementById('nickname').textContent = nickname;
+              document.getElementById('kakaoId').textContent = kakaoId;
 
-        document.getElementById('corn').textContent = data.corn;
-        document.getElementById('salt').textContent = data.salt;
-        document.getElementById('sugar').textContent = data.sugar;
-      } catch (err) {
-        document.getElementById('statusMsg').textContent = '❌ 사용자 정보를 불러오는 데 실패했습니다.';
-      }
+              // ORCX 서버 연결 후 사용자 초기화
+              const apiBase = 'https://climbing-wholly-grouper.jp.ngrok.io';
+              const user = { orcx: 0, nickname };
+
+              Pung.init({ kakaoId, user, corn: {}, apiBase });
+            },
+            fail: function (err) {
+              console.error('카카오 사용자 정보 요청 실패:', err);
+            },
+          });
+        },
+        fail: function (err) {
+          console.error('카카오 로그인 실패:', err);
+        },
+      });
     }
-
-    document.getElementById('simulateBtn').addEventListener('click', async () => {
-      const corn = Number(document.getElementById('inputCorn').value);
-      const salt = Number(document.getElementById('inputSalt').value);
-      const sugar = Number(document.getElementById('inputSugar').value);
-
-      const status = document.getElementById('statusMsg');
-      status.textContent = '⏳ 처리 중...';
-
-      try {
-        const result = await simulateExplosion({ corn, salt, sugar });
-        status.textContent = result.message;
-        await init(); // 업데이트된 데이터 반영
-      } catch (err) {
-        status.textContent = '❌ 뻥튀기 실패: ' + err.message;
-      }
-    });
-
-    init();
   </script>
 </body>
 </html>
