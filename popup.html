@@ -1,140 +1,222 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>뻥튀기 시민에이터</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background-color: #f5f5f5;
-    }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background-color: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    .section {
-      margin-top: 20px;
-    }
-    .label {
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    .input-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      padding: 10px 20px;
-      margin-top: 15px;
-      background-color: #0077cc;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .status {
-      margin-top: 10px;
-      color: green;
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>팝콘 뻥튀기</title>
+<style>
+  :root{ --ink:#222; --muted:#667085; --bg:#f6f7fb; --card:#ffffff; --ok:#12b76a; --warn:#f79009; --danger:#ef4444; --brand:#735cf7; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; background:var(--bg); color:var(--ink); font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif; }
+  header{ position:sticky; top:0; background:linear-gradient(180deg,#fff,rgba(255,255,255,.94)); border-bottom:1px solid #eef0f3; padding:14px 16px; display:flex; align-items:center; gap:12px; z-index:10; }
+  header .seed{ width:38px; height:62px; object-fit:contain; display:block; }
+  header .who{ font-weight:700; font-size:18px; }
+  header .badges{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+  .badge{ background:#f2f4f7; color:#101828; padding:6px 10px; border-radius:999px; font-size:13px; border:1px solid #e5e7eb; }
+  .wrap{ max-width:780px; margin:22px auto; padding:0 14px 60px; }
+  .card{ background:var(--card); border:1px solid #eef0f3; border-radius:16px; padding:16px; box-shadow:0 8px 20px rgba(16,24,40,.06); }
+  .row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .col{ flex:1 1 260px; }
+
+  .title{ font-weight:800; font-size:18px; margin:0 0 10px; }
+  .sub{ color:var(--muted); font-size:13px; margin-top:2px; }
+
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  button.pop{ appearance:none; border:1px solid #e5e7eb; background:#fff; padding:16px; border-radius:14px; font-weight:800; font-size:18px; cursor:pointer; transition:.2s; }
+  button.pop:hover{ transform:translateY(-1px); box-shadow:0 6px 14px rgba(0,0,0,.06); }
+  button.pop:disabled{ opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  .log{ height:160px; overflow:auto; background:#0b1220; color:#d1e9ff; padding:10px 12px; border-radius:12px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; font-size:12px; }
+  .kv{ display:grid; grid-template-columns:120px 1fr; gap:8px 12px; }
+  .kv div:nth-child(odd){ color:#475467; }
+  .kv b{ color:#101828; }
+
+  /* 🔥 불꽃 애니메이션 (짧고 산뜻하게) */
+  .boom{ pointer-events:none; position:fixed; left:0; top:0; right:0; bottom:0; display:none; align-items:center; justify-content:center; z-index:20; }
+  .boom.on{ display:flex; }
+  .spark{ width:14px; height:14px; border-radius:50%; background:radial-gradient(circle,#ffd43b,#fb923c 60%, transparent 70%); position:absolute; animation:fly .9s ease-out forwards; }
+  @keyframes fly{
+    from{ transform:translate(0,0) scale(0.6); opacity:1; }
+    to{ transform:translate(var(--tx), var(--ty)) scale(0); opacity:0; }
+  }
+  .toast{ position:fixed; left:50%; bottom:22px; transform:translateX(-50%); background:#111827; color:#fff; padding:10px 14px; border-radius:10px; font-size:13px; box-shadow:0 8px 20px rgba(0,0,0,.25); display:none; z-index:30; }
+  .toast.on{ display:block; }
+  a.link{ color:#6941c6; text-decoration:none; border-bottom:1px dashed currentColor; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>🌽 뻥튀기 시민에이터</h1>
+<header>
+  <img id="seedIcon" class="seed" src="img/corn-yellow.png" alt="seed"/>
+  <div class="who" id="who">—</div>
+  <div class="badges">
+    <div class="badge">💧 물 <b id="r-water">0</b></div>
+    <div class="badge">🌱 거름 <b id="r-fert">0</b></div>
+    <div class="badge">🌽 준비옥수수 <b id="r-ready">0</b></div>
+    <div class="badge">🍿 팝콘 <b id="r-pop">0</b></div>
+    <div class="badge">🧂 소금 <b id="r-salt">0</b></div>
+    <div class="badge">🍬 설탕 <b id="r-sugar">0</b></div>
+    <div class="badge">🪙 토큰 <b id="r-orcx">0</b></div>
+  </div>
+</header>
 
-    <div class="section">
-      <div class="label">닉네임: <span id="nickname">-</span></div>
-      <div class="label">카카오 ID: <span id="kakao">-</span></div>
-      <div class="label">현재 ORCX: <span id="orcx">0</span></div>
-    </div>
-
-    <div class="section">
-      <div class="label">회원 자원 현황</div>
-      <ul>
-        <li>옥수수: <span id="water">0</span></li>
-        <li>소금: <span id="salt">0</span></li>
-        <li>설탕: <span id="sugar">0</span></li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <div class="label">자원 투입</div>
-      <div class="input-row">
-        <input type="number" id="input-water" placeholder="옥수수">
-        <input type="number" id="input-salt" placeholder="소금">
-        <input type="number" id="input-sugar" placeholder="설탕">
+<div class="wrap">
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3 class="title">뻥튀기</h3>
+        <div class="sub">하나씩 튀겨 <b>5/7/9</b>개를 한 번에 처리합니다. (팝콘은 꽝 보너스: 5→1개, 7→1개, 9→2개)</div>
+        <div style="height:12px"></div>
+        <div class="grid">
+          <button class="pop" data-qty="5">5개 뻥튀기</button>
+          <button class="pop" data-qty="7">7개 뻥튀기</button>
+          <button class="pop" data-qty="9">9개 뻥튀기</button>
+        </div>
+        <div style="height:10px"></div>
+        <div class="sub">자원이 부족하면 버튼이 자동으로 비활성화됩니다.</div>
       </div>
-      <button id="submit-button">🔥 뻥튀기 실행!</button>
-      <div class="status" id="status">(초기화 대기중)</div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3 class="title">상태</h3>
+        <div class="kv">
+          <div>씨앗 색상</div><div id="v-color">—</div>
+          <div>등급(예시)</div><div id="v-grade">—</div>
+          <div>연결</div><div id="v-api">—</div>
+          <div>도움말</div><div><a class="link" href="corn-index.html">⟵ 입구로</a></div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="log" id="log"></div>
+      </div>
     </div>
   </div>
+</div>
 
-  <script type="module">
-    import { Pung } from 'https://byungil-cho.github.io/OrcaX/js/pung.module.js';
+<div class="boom" id="boom"></div>
+<div class="toast" id="toast">처리되었습니다.</div>
 
-    const apiBase = "https://climbing-wholly-grouper.jp.ngrok.io";
+<script>
+(() => {
+  // ====== 환경 ======
+  const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
+  const API_BASE = (localStorage.getItem('orcax_api') || DEFAULT_API).replace(/\/+$/,'');
+  const kakaoId = localStorage.getItem('kakaoId');
+  const nick = localStorage.getItem('nickname') || localStorage.getItem('nick') || '';
 
-    const kakaoId = localStorage.getItem("kakaoId");
-    const nickname = localStorage.getItem("nickname");
+  // ====== 엘리먼트 ======
+  const $ = (sel) => document.querySelector(sel);
+  const logel = $('#log');
+  const toast = $('#toast');
+  const boom = $('#boom');
 
-    if (!kakaoId || !nickname) {
-      document.getElementById("status").textContent = "⚠️ 로그인 정보가 없습니다. index9.html에서 먼저 로그인 해주세요.";
-    } else {
-      document.getElementById("nickname").textContent = nickname;
-      document.getElementById("kakao").textContent = kakaoId;
-
-      // 서버에서 자원 상태 조회
-      fetch(`${apiBase}/api/user-status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kakaoId })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const { orcx, water, salt, sugar } = data;
-        document.getElementById("orcx").textContent = orcx;
-        document.getElementById("water").textContent = water;
-        document.getElementById("salt").textContent = salt;
-        document.getElementById("sugar").textContent = sugar;
-
-        // 초기화
-        Pung.init({ kakaoId, user: { nickname, orcx }, corn: {}, apiBase });
-      })
-      .catch(err => {
-        document.getElementById("status").textContent = "자원 정보 가져오기 실패: " + err.message;
-      });
-
-      // 뻥튀기 실행 버튼
-      document.getElementById("submit-button").addEventListener("click", async () => {
-        const water = parseInt(document.getElementById("input-water").value) || 0;
-        const salt = parseInt(document.getElementById("input-salt").value) || 0;
-        const sugar = parseInt(document.getElementById("input-sugar").value) || 0;
-
-        try {
-          const result = await Pung.pung({ kakaoId, water, salt, sugar }, apiBase);
-          document.getElementById("status").textContent = `✅ 뻥튀기 완료! 결과: ${JSON.stringify(result)}`;
-        } catch (error) {
-          document.getElementById("status").textContent = "❌ 뻥튀기 실패: " + error.message;
-        }
-      });
+  function log(s){ const t = `[${new Date().toLocaleTimeString()}] ${s}\n`; logel.textContent = t + logel.textContent; }
+  function showToast(s){ toast.textContent = s; toast.classList.add('on'); setTimeout(()=>toast.classList.remove('on'), 1400); }
+  function fireBoom(count=26){
+    boom.classList.add('on');
+    for(let i=0;i<count;i++){
+      const sp = document.createElement('div');
+      sp.className = 'spark';
+      const ang = Math.random()*Math.PI*2;
+      const r = 120 + Math.random()*120;
+      sp.style.setProperty('--tx', (Math.cos(ang)*r)+'px');
+      sp.style.setProperty('--ty', (Math.sin(ang)*r)+'px');
+      boom.appendChild(sp);
+      setTimeout(()=>sp.remove(), 900);
     }
-  </script>
+    setTimeout(()=>boom.classList.remove('on'), 950);
+  }
+
+  function seedIconByColor(color='yellow'){
+    if(color==='black') return 'img/corn-black.png';
+    if(color==='red')   return 'img/corn-red.png';
+    return 'img/corn-yellow.png';
+  }
+
+  async function api(path, opt={}){
+    const url = API_BASE + path;
+    const res = await fetch(url, {
+      method: opt.method || 'GET',
+      headers: { 'Content-Type':'application/json' },
+      body: opt.body ? JSON.stringify(opt.body) : undefined,
+    });
+    const j = await res.json().catch(()=>({}));
+    return { ok: res.ok && (j?.ok!==false), status: res.status, data: j };
+  }
+
+  async function paintStatus(){
+    if(!kakaoId){
+      alert('로그인이 필요합니다.\nindex9.html에서 카카오 로그인 후 이용하세요.');
+      location.href = 'index9.html';
+      return;
+    }
+    $('#who').textContent = nick || '로그인 유저';
+    $('#v-api').textContent = API_BASE;
+
+    // GET /api/corn/status
+    const r = await api(`/api/corn/status?kakaoId=${encodeURIComponent(kakaoId)}`);
+    if(!r.ok){ log(`상태 불러오기 실패: ${r.status} ${r.data?.error||''}`); return; }
+    const S = r.data || {};
+    const user = S.user || {};
+    const corn = S.corn || {};
+
+    // 헤더 숫자
+    $('#r-water').textContent = Number(user?.inventory?.water || 0);
+    $('#r-fert').textContent  = Number(user?.inventory?.fertilizer || 0);
+    $('#r-orcx').textContent  = Number(user?.orcx || 0).toLocaleString();
+    $('#r-ready').textContent = Number(S?.corn?.readyCount ?? corn.readyCount ?? 0); // 서버 구현에 따라 둘 다 대응
+    $('#r-pop').textContent   = Number(corn?.popcorn || 0);
+    $('#r-salt').textContent  = Number(corn?.additives?.salt || 0);
+    $('#r-sugar').textContent = Number(corn?.additives?.sugar || 0);
+
+    // 씨앗 아이콘/라벨
+    const color = (corn?.seedType || corn?.color || 'yellow');
+    const grade = (corn?.grade || '—');
+    $('#seedIcon').src = seedIconByColor(color);
+    $('#v-color').textContent = ({yellow:'노란',red:'붉은',black:'검정'}[color] || color);
+    $('#v-grade').textContent = grade;
+
+    // 버튼 활성화: 준비옥수수/첨가물 보유량으로 체크
+    const ready = Number(S?.corn?.readyCount ?? 0);
+    const salt = Number(corn?.additives?.salt || 0);
+    const sugar = Number(corn?.additives?.sugar || 0);
+    document.querySelectorAll('button.pop').forEach(btn=>{
+      const need = Number(btn.dataset.qty||0);
+      const ok = (ready>=need) && (salt>=need) && (sugar>=need);
+      btn.disabled = !ok;
+    });
+
+    log('상태 갱신 완료');
+  }
+
+  async function doPop(qty){
+    if(!kakaoId) return;
+    log(`뻥튀기 요청: qty=${qty}`);
+    const r = await api('/api/corn/pop', { method:'POST', body:{ kakaoId, qty } });
+    if(!r.ok){
+      showToast('실패: ' + (r.data?.error || r.status));
+      log('실패: ' + JSON.stringify(r.data));
+      return;
+    }
+    const d = r.data || {};
+    showToast(`토큰 +${(d.tokenAdded||0).toLocaleString()} / 팝콘 +${d.popcornAdded||0}`);
+    fireBoom(30);
+    // 수치 갱신
+    await paintStatus();
+    log(`성공: token+${d.tokenAdded} (공제30=${d.deducted30}) popcorn+${d.popcornAdded}`);
+  }
+
+  // 이벤트
+  document.querySelectorAll('button.pop').forEach(btn=>{
+    btn.addEventListener('click', ()=> doPop(Number(btn.dataset.qty||0)));
+  });
+
+  // 초기 진입
+  if(!kakaoId){
+    alert('카카오 로그인이 필요합니다.');
+    location.href = 'index9.html';
+  }else{
+    paintStatus();
+  }
+})();
+</script>
 </body>
 </html>
