@@ -21,6 +21,20 @@
     code{ display:inline-block; padding:.2rem .45rem; background:rgba(255,255,255,.07); border-radius:6px; }
     table{ font-size:.95rem; }
   </style>
+<script>
+(function () {
+  if (localStorage.getItem('admin_key') === '7788') return;
+
+  const p = prompt('관리자 비밀번호(힌트: 7788)를 입력하세요');
+  if (p === '7788') {
+    localStorage.setItem('admin_key', '7788');
+  } else {
+    alert('접근이 거부되었습니다.');
+    location.href = 'mypage.html'; // 원하는 페이지로
+  }
+})();
+</script>
+
 </head>
 <body>
   <main class="container">
