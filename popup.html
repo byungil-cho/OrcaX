@@ -26,12 +26,12 @@
   button.pop:hover{ transform:translateY(-1px); box-shadow:0 6px 14px rgba(0,0,0,.06); }
   button.pop:disabled{ opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
 
-  .log{ height:160px; overflow:auto; background:#0b1220; color:#d1e9ff; padding:10px 12px; border-radius:12px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; font-size:12px; }
+  .log{ height:160px; overflow:auto; background:#0b1220; color:#d1e9ff; padding:10px 12px; border-radius:12px; font-family:ui-monospace, Menlo, Monaco, Consolas, monospace; font-size:12px; }
   .kv{ display:grid; grid-template-columns:120px 1fr; gap:8px 12px; }
   .kv div:nth-child(odd){ color:#475467; }
   .kv b{ color:#101828; }
 
-  /* 🔥 불꽃 애니메이션 (짧고 산뜻하게) */
+  /* 🔥 불꽃 애니메이션 */
   .boom{ pointer-events:none; position:fixed; left:0; top:0; right:0; bottom:0; display:none; align-items:center; justify-content:center; z-index:20; }
   .boom.on{ display:flex; }
   .spark{ width:14px; height:14px; border-radius:50%; background:radial-gradient(circle,#ffd43b,#fb923c 60%, transparent 70%); position:absolute; animation:fly .9s ease-out forwards; }
@@ -158,11 +158,16 @@
     const user = S.user || {};
     const corn = S.corn || {};
 
+    // ✅ 물/거름: inventory 우선, 폴백(user.water / user.fertilizer)
+    const inv = user?.inventory || {};
+    const water = Number(inv.water ?? user?.water ?? 0);
+    const fert  = Number(inv.fertilizer ?? user?.fertilizer ?? 0);
+
     // 헤더 숫자
-    $('#r-water').textContent = Number(user?.inventory?.water || 0);
-    $('#r-fert').textContent  = Number(user?.inventory?.fertilizer || 0);
+    $('#r-water').textContent = water;
+    $('#r-fert').textContent  = fert;
     $('#r-orcx').textContent  = Number(user?.orcx || 0).toLocaleString();
-    $('#r-ready').textContent = Number(S?.corn?.readyCount ?? corn.readyCount ?? 0); // 서버 구현에 따라 둘 다 대응
+    $('#r-ready').textContent = Number(corn?.readyCount ?? 0);
     $('#r-pop').textContent   = Number(corn?.popcorn || 0);
     $('#r-salt').textContent  = Number(corn?.additives?.salt || 0);
     $('#r-sugar').textContent = Number(corn?.additives?.sugar || 0);
@@ -175,7 +180,7 @@
     $('#v-grade').textContent = grade;
 
     // 버튼 활성화: 준비옥수수/첨가물 보유량으로 체크
-    const ready = Number(S?.corn?.readyCount ?? 0);
+    const ready = Number(corn?.readyCount || 0);
     const salt = Number(corn?.additives?.salt || 0);
     const sugar = Number(corn?.additives?.sugar || 0);
     document.querySelectorAll('button.pop').forEach(btn=>{
@@ -199,8 +204,7 @@
     const d = r.data || {};
     showToast(`토큰 +${(d.tokenAdded||0).toLocaleString()} / 팝콘 +${d.popcornAdded||0}`);
     fireBoom(30);
-    // 수치 갱신
-    await paintStatus();
+    await paintStatus(); // 수치 갱신
     log(`성공: token+${d.tokenAdded} (공제30=${d.deducted30}) popcorn+${d.popcornAdded}`);
   }
 
