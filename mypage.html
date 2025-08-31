@@ -17,12 +17,19 @@
     .muted{ color:var(--muted); }
     .ok{ color:var(--ok); } .warn{ color:var(--warn); } .bad{ color:var(--bad); }
     .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    @media (max-width: 960px){ .grid-2{ grid-template-columns:1fr; } }
+    .grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+    @media (max-width: 960px){ .grid-2,.grid-3{ grid-template-columns:1fr; } }
     table{ font-size:.95rem; }
     td small{ color:var(--muted); }
     [hidden]{ display:none !important; }
     .pill{ display:inline-block; padding:.15rem .5rem; border-radius:999px; font-size:.8rem; border:1px solid rgba(255,255,255,.1)}
     .s-pen{ color:#c0cfff }
+    .dot{ width:.6rem; height:.6rem; display:inline-block; border-radius:50%; vertical-align:middle; margin-right:.4rem }
+    .dot.ok{ background:var(--ok) } .dot.bad{ background:var(--bad) } .dot.warn{ background:var(--warn) }
+    .stack{ display:flex; gap:.75rem; align-items:center; flex-wrap:wrap }
+    .right{ text-align:right }
+    details summary{ cursor:pointer }
+    .small{ font-size:.9rem }
   </style>
 </head>
 <body>
@@ -32,14 +39,47 @@
       <li><a href="index9.html">홈</a></li>
       <li><a href="corn-index.html">농장 입구</a></li>
       <li><a href="popup.html">🍿 뻥튀기</a></li>
+      <li><a href="admin.html" target="_blank">🛠 관리자 모드</a></li>
     </ul>
   </nav>
 
   <main class="container">
+    <!-- 상단: 연결 상태/헬스체크 -->
+    <section class="card">
+      <div class="grid-3">
+        <div>
+          <h3 class="stack"><span id="connDot" class="dot bad"></span><span id="connTitle">서버 연결: 끊김</span></h3>
+          <div class="muted small">
+            <div>API: <code id="apiBaseView"></code></div>
+            <div>카카오ID: <b id="kakaoIdView">-</b> <span class="muted">(닉네임: <b id="nickView">-</b>)</span></div>
+            <div>네트워크: <b id="netView">-</b> · 핑: <b id="pingView">-</b>ms · 마지막 동기화: <b id="syncAt">-</b></div>
+          </div>
+        </div>
+        <div>
+          <h3>상태 점검</h3>
+          <ul class="small">
+            <li id="chk-login">카카오 로그인: <b class="bad">확인중…</b></li>
+            <li id="chk-status">/api/corn/status: <b class="bad">확인중…</b></li>
+            <li id="chk-tickets">/api/finance/my-tickets: <b class="warn">선택</b></li>
+          </ul>
+        </div>
+        <div class="right">
+          <button id="btnRefresh" class="contrast">상태 재점검</button>
+          <label class="small"><input type="checkbox" id="autoRefresh"/> 자동 새로고침(30초)</label>
+          <details>
+            <summary>API 설정</summary>
+            <input type="text" id="apiInput" placeholder="https://your-ngrok.ngrok.io" />
+            <button id="apiSave">저장 & 재점검</button>
+            <small class="muted">로컬 저장소(orcx_api)에 저장됩니다.</small>
+          </details>
+        </div>
+      </div>
+    </section>
+
     <header>
       <hgroup>
         <h2 id="welcome">유저님 마이페이지</h2>
-        <p class="muted">카카오 로그인 연동: <b id="kakaoIdView">-</b></p>
+        <p class="muted">로그인 연동 상태를 바탕으로 자산/대출/요청을 불러옵니다.</p>
       </hgroup>
     </header>
 
@@ -47,7 +87,6 @@
       <!-- 보유 자산 -->
       <div class="card">
         <h3>보유 자산 <span class="pill s-pen">Assets</span></h3>
-        <p class="muted">서버의 내 지갑 및 농장 상태를 불러옵니다.</p>
         <ul>
           <li>🪙 토큰(ORCX): <b id="orcx">-</b></li>
           <li class="muted">🍿 팝콘: <b id="popcorn">-</b></li>
@@ -61,7 +100,7 @@
 
       <!-- 대출 & 출금/입금 -->
       <div class="card">
-        <h3>대출 & 출금 <span class="pill s-pen">Loan & Withdraw</span></h3>
+        <h3>대출 & 정산 <span class="pill s-pen">Loan & Settlement</span></h3>
         <ul>
           <li>📦 현재 대출: <b id="loanAmount">0</b></li>
           <li>📈 이자율: <b id="interestRate">0% / 일</b></li>
@@ -85,7 +124,7 @@
             <input type="text" id="wallet" placeholder="솔라나 지갑 주소"/>
             <button type="submit" id="withdrawBtn">출금 신청</button>
           </form>
-          <small id="withdrawNotice" class="muted">대출이 없고, 보유 토큰이 충분해야 신청 가능합니다.</small>
+          <small id="withdrawNotice" class="muted">대출 0 & 토큰 충분 조건에서 가능</small>
         </article>
 
         <hr/>
@@ -100,14 +139,14 @@
             </select>
             <button type="submit" id="depositBtn">입금 신청</button>
           </form>
-          <small id="depositMsg" class="muted">신청 후 관리자가 확인/승인합니다.</small>
+          <small id="depositMsg" class="muted">신청 후 관리자가 확인/승인</small>
         </article>
       </div>
     </section>
 
     <section class="card">
       <h3>최근 요청 티켓 <span class="pill s-pen">My Tickets</span></h3>
-      <div class="muted">입금/출금/상환 요청이 관리자 모드와 연동되어 상태가 갱신됩니다.</div>
+      <div class="muted">입금/출금/상환 요청의 처리상태가 표시됩니다. (관리자 모드와 연동)</div>
       <table role="grid">
         <thead>
           <tr><th>종류</th><th>금액</th><th>상태</th><th>요청시각</th></tr>
@@ -124,26 +163,23 @@
   </footer>
 
   <script>
-    // ===== 환경 & 공통 =====
-    const DEFAULT_API = 'https://climbing-wholly-grouper.jp.ngrok.io';
-    const API_BASE = (localStorage.getItem('orcax_api') || DEFAULT_API).replace(/\/+$/,'');
+    // ========= 환경 =========
+    const DEFAULT_API = (localStorage.getItem('orcax_api') || 'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
+    const API_BASE = DEFAULT_API;
     const NICK = localStorage.getItem('nickname') || localStorage.getItem('nick') || '';
+    const $ = s => document.querySelector(s);
+    const fmt = n => Number(n||0).toLocaleString();
+    const nowTxt = () => new Date().toLocaleString();
 
-    const $ = sel => document.querySelector(sel);
-    const $$ = sel => document.querySelectorAll(sel);
-    function toggle(el, show){ if(!el) return; el.hidden = !show; }
-    function fmt(n){ return Number(n||0).toLocaleString(); }
-
-    // kakaoId: localStorage → Kakao SDK → 실패시 로그인 페이지
+    // ========= Kakao ID 확보 =========
     async function ensureKakaoId(){
       let kid = localStorage.getItem('kakaoId');
       if (kid) return kid;
 
-      // Kakao SDK로 시도
+      // Kakao SDK로도 시도
       try{
         if (window.Kakao && !Kakao.isInitialized()) {
-          // 주인님 앱키로 교체하세요
-          Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY');
+          Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY'); // ← 실제 앱키로 교체
         }
         if (window.Kakao){
           const status = await new Promise(res => Kakao.Auth.getStatusInfo(res));
@@ -156,90 +192,117 @@
             return kid;
           }
         }
-      }catch(_e){ /* 무시하고 다음 단계 */ }
-
-      // 최종: 로그인 필요
+      }catch(_e){}
+      // 실패 시 로그인 페이지
       location.href = 'index9.html';
       return '';
     }
 
+    // ========= 공통 fetch =========
     async function api(path, opt = {}){
       const kakaoId = localStorage.getItem('kakaoId') || '';
+      const t0 = performance.now();
       const url = API_BASE + path + (opt.method === 'GET' ? ((path.includes('?')?'&':'?') + '_=' + Date.now()) : '');
-      const res = await fetch(url, {
-        method: opt.method || 'GET',
-        headers: { 'Content-Type':'application/json', 'x-kakao-id': kakaoId },
-        body: opt.body ? JSON.stringify(opt.body) : undefined,
-        cache: 'no-store'
-      });
-      let data = {};
-      try{ data = await res.json(); } catch {}
-      return { ok: res.ok && (data?.ok!==false), status: res.status, data };
+      try{
+        const res = await fetch(url, {
+          method: opt.method || 'GET',
+          headers: { 'Content-Type':'application/json', 'x-kakao-id': kakaoId },
+          body: opt.body ? JSON.stringify(opt.body) : undefined,
+          cache: 'no-store'
+        });
+        const t1 = performance.now();
+        let data={}; try{ data = await res.json(); } catch {}
+        return { ok: res.ok && (data?.ok!==false), status: res.status, data, ping: Math.round(t1-t0) };
+      }catch(e){
+        const t1 = performance.now();
+        return { ok:false, status:0, data:{ error:String(e) }, ping: Math.round(t1-t0) };
+      }
     }
 
-    // ===== 데이터 로드 =====
-    async function loadStatus(){
-      const r = await api('/api/corn/status', { method:'GET' });
-      if(!r.ok){ console.warn('status failed', r); return; }
+    // ========= 헬스체크 / 상태 렌더 =========
+    function mark(el, state, textOK='OK', textBad='실패'){
+      const b = el.querySelector('b');
+      if (!b) return;
+      b.textContent = state ? textOK : textBad;
+      b.className = state ? 'ok' : 'bad';
+    }
+    async function healthCheck(){
+      $('#apiBaseView').textContent = API_BASE;
+      $('#nickView').textContent = localStorage.getItem('nickname') || '-';
+      $('#netView').textContent = navigator.onLine ? 'Online' : 'Offline';
 
-      const S = r.data || {};
-      const user = S.user || {};
-      const corn = S.corn || {};
+      // 로그인 체크
+      const hasLogin = !!localStorage.getItem('kakaoId');
+      mark($('#chk-login'), hasLogin, 'OK', '로그인 필요');
 
-      $('#welcome').textContent = (NICK ? `${NICK}님 ` : '') + '마이페이지';
-      $('#kakaoIdView').textContent = localStorage.getItem('kakaoId') || '-';
+      // /status 핑 & 데이터
+      const s = await api('/api/corn/status', { method:'GET' });
+      $('#pingView').textContent = s.ping;
+      $('#syncAt').textContent = nowTxt();
+      const connOK = s.ok;
+      $('#connTitle').textContent = '서버 연결: ' + (connOK ? '정상' : '오류');
+      $('#connDot').className = 'dot ' + (connOK ? 'ok' : 'bad');
+      mark($('#chk-status'), connOK, 'OK', s.status ? String(s.status) : '오류');
 
-      // 자산
-      const orcx = Number(user.orcx || 0);
-      $('#orcx').textContent = fmt(orcx);
-      $('#popcorn').textContent = fmt(corn.popcorn);
-      $('#salt').textContent = fmt(corn.additives?.salt);
-      $('#sugar').textContent = fmt(corn.additives?.sugar);
-      $('#ready').textContent = fmt(corn.readyCount);
+      if (connOK){
+        // 자산 렌더
+        const user = s.data.user || {};
+        const corn = s.data.corn || {};
+        const inv = user.inventory || {};
 
-      // 물/거름은 있을 때만
-      const inv = user.inventory || {};
-      const water = inv.water; const fert = inv.fertilizer;
-      toggle($('#waterLine'), Number.isFinite(water));
-      toggle($('#fertLine'),  Number.isFinite(fert));
-      if (Number.isFinite(water)) $('#water').textContent = fmt(water);
-      if (Number.isFinite(fert))  $('#fertilizer').textContent = fmt(fert);
+        $('#kakaoIdView').textContent = localStorage.getItem('kakaoId') || '-';
+        $('#welcome').textContent = (NICK ? `${NICK}님 ` : '') + '마이페이지';
+        $('#orcx').textContent = fmt(user.orcx);
+        $('#popcorn').textContent = fmt(corn.popcorn);
+        $('#salt').textContent = fmt(corn.additives?.salt);
+        $('#sugar').textContent = fmt(corn.additives?.sugar);
+        $('#ready').textContent = fmt(corn.readyCount);
 
-      // 대출
-      const loanAmt = Number(corn.loan?.amount || 0);
-      const rate = Number(corn.loan?.interest ?? 0.30);
-      $('#loanAmount').textContent = fmt(loanAmt);
-      $('#interestRate').textContent = `${(rate*100).toFixed(0)}% / 일`;
+        const w = inv.water, f = inv.fertilizer;
+        const wLine = $('#waterLine'), fLine = $('#fertLine');
+        if (Number.isFinite(w)){ wLine.hidden = false; $('#water').textContent = fmt(w); } else { wLine.hidden = true; }
+        if (Number.isFinite(f)){ fLine.hidden = false; $('#fertilizer').textContent = fmt(f); } else { fLine.hidden = true; }
 
-      // 출금 버튼 가드(규칙: 50,000 이상, 대출 0)
-      const wBtn = $('#withdrawBtn');
-      const wMsg = $('#withdrawNotice');
-      let reasons = [];
-      if (orcx < 50000) reasons.push(`토큰 부족 ${fmt(orcx)}/50,000`);
-      if (loanAmt > 0)  reasons.push('대출이 남아있음');
-      if (reasons.length){ wBtn.setAttribute('disabled','disabled'); wMsg.className='bad'; wMsg.textContent = '출금 불가: ' + reasons.join(', '); }
-      else { wBtn.removeAttribute('disabled'); wMsg.className='ok'; wMsg.textContent = '출금 가능'; }
+        const loanAmt = Number(corn.loan?.amount || 0);
+        const loanRate = Number(corn.loan?.interest ?? 0.30);
+        $('#loanAmount').textContent = fmt(loanAmt);
+        $('#interestRate').textContent = `${(loanRate*100).toFixed(0)}% / 일`;
+
+        // 출금 가능 여부(규칙: 토큰 ≥ 50,000 & 대출 0)
+        const wBtn = $('#withdrawBtn');
+        const wMsg = $('#withdrawNotice');
+        const orcx = Number(user.orcx || 0);
+        let reasons = [];
+        if (orcx < 50000) reasons.push(`토큰 부족 ${fmt(orcx)}/50,000`);
+        if (loanAmt > 0)  reasons.push('대출 잔액 존재');
+        if (reasons.length){ wBtn.setAttribute('disabled','disabled'); wMsg.className='bad'; wMsg.textContent = '출금 불가: ' + reasons.join(', '); }
+        else { wBtn.removeAttribute('disabled'); wMsg.className='ok'; wMsg.textContent = '출금 가능'; }
+      }
+
+      // 티켓 엔드포인트(선택)
+      const t = await api('/api/finance/my-tickets', { method:'GET' });
+      mark($('#chk-tickets'), t.ok, 'OK', t.status ? String(t.status) : '오류');
+      if (t.ok && Array.isArray(t.data.items)) renderTickets(t.data.items);
+      else renderTickets([]);
     }
 
-    // ===== 티켓 로드 =====
-    async function loadTickets(){
-      const r = await api('/api/finance/my-tickets', { method:'GET' });
+    function renderTickets(items){
       const tbody = $('#ticketTbody');
       tbody.innerHTML = '';
-      if(!r.ok || !Array.isArray(r.data?.items) || r.data.items.length===0){
+      if (!items || !items.length){
         tbody.innerHTML = '<tr><td colspan="4" class="muted">내역이 없습니다.</td></tr>';
         return;
       }
-      for(const t of r.data.items){
+      for(const x of items){
         const tr = document.createElement('tr');
-        const st = (t.status||'pending');
-        const pill = `<span class="pill ${st==='approved'?'ok':st==='rejected'?'bad':'muted'}">${st}</span>`;
-        tr.innerHTML = `<td>${t.type||'-'}</td><td>${fmt(t.amount)}</td><td>${pill}</td><td>${new Date(t.createdAt||t.ts||Date.now()).toLocaleString()}</td>`;
+        const st = (x.status||'pending');
+        const pillClass = st==='approved'?'ok':(st==='rejected'?'bad':'muted');
+        tr.innerHTML = `<td>${x.type||'-'}</td><td>${fmt(x.amount)}</td><td><span class="pill ${pillClass}">${st}</span></td><td>${new Date(x.createdAt||x.ts||Date.now()).toLocaleString()}</td>`;
         tbody.appendChild(tr);
       }
     }
 
-    // ===== 액션: 상환/출금/입금 =====
+    // ========= 액션: 상환/출금/입금 =========
     $('#repayForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const amt = Number($('#repayAmount').value || 0);
@@ -248,8 +311,7 @@
       const r = await api('/api/loan/repay', { method:'POST', body:{ amount: amt } });
       if(!r.ok){ msg.className='bad'; msg.textContent='상환 실패: ' + (r.data?.error||r.status); return; }
       msg.className='ok'; msg.textContent='상환 완료';
-      $('#repayAmount').value='';
-      await loadStatus(); await loadTickets();
+      $('#repayAmount').value=''; await healthCheck();
     });
 
     $('#withdrawForm').addEventListener('submit', async (e)=>{
@@ -262,8 +324,7 @@
       const r = await api('/api/finance/withdraw-request', { method:'POST', body:{ amount: amt, wallet } });
       if(!r.ok){ msg.className='bad'; msg.textContent='출금 신청 실패: ' + (r.data?.error||r.status); return; }
       msg.className='ok'; msg.textContent='출금 신청 접수됨 (관리자 확인 후 처리)';
-      $('#withdrawAmount').value=''; $('#wallet').value='';
-      await loadTickets();
+      $('#withdrawAmount').value=''; $('#wallet').value=''; await healthCheck();
     });
 
     $('#depositForm').addEventListener('submit', async (e)=>{
@@ -275,17 +336,35 @@
       const r = await api('/api/finance/deposit-request', { method:'POST', body:{ amount: amt, method } });
       if(!r.ok){ msg.className='bad'; msg.textContent='입금 신청 실패: ' + (r.data?.error||r.status); return; }
       msg.className='ok'; msg.textContent='입금 신청 접수됨 (관리자 확인 후 반영)';
-      $('#depositAmount').value=''; 
-      await loadTickets();
+      $('#depositAmount').value=''; await healthCheck();
     });
 
-    // ===== 초기화 =====
+    // ========= UI 이벤트 =========
+    $('#btnRefresh').addEventListener('click', healthCheck);
+    $('#apiSave').addEventListener('click', ()=>{
+      const v = ($('#apiInput').value||'').trim();
+      if(!v) return;
+      localStorage.setItem('orcax_api', v.replace(/\/+$/,''));
+      location.reload();
+    });
+    $('#apiInput').value = API_BASE;
+    $('#autoRefresh').addEventListener('change', (e)=>{
+      if(e.target.checked){
+        e.target.__timer = setInterval(healthCheck, 30000);
+      } else {
+        clearInterval(e.target.__timer);
+      }
+    });
+
+    window.addEventListener('online', ()=>{ $('#netView').textContent='Online'; });
+    window.addEventListener('offline', ()=>{ $('#netView').textContent='Offline'; });
+
+    // ========= 초기화 =========
     (async () => {
       const kid = await ensureKakaoId(); if(!kid) return;
       $('#kakaoIdView').textContent = kid;
-      if (NICK) $('#welcome').textContent = `${NICK}님 마이페이지`;
-      await loadStatus();
-      await loadTickets();
+      if (NICK) $('#nickView').textContent = NICK, $('#welcome').textContent = `${NICK}님 마이페이지`;
+      await healthCheck();
     })();
 
     // 로그인 계정 변경 시 반영
