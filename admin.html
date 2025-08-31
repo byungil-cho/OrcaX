@@ -1,92 +1,236 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OrcaX 관리자 페이지</title>
-  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
-  <script type="module" src="./js/admin.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>관리자 모드 - OrcaX</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <style>
+    :root { --ok:#16d07f; --bad:#ff6767; --muted:#9fb2cc; }
+    body{ background:#0b1220; color:#eaf2ff; }
+    main.container{ margin-top:2rem; background:rgba(7,12,22,.55); border-radius:16px; padding:2rem; }
+    .card{ background:rgba(17,24,39,.75); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:1rem 1.25rem; }
+    .muted{ color:var(--muted); }
+    .ok{ color:var(--ok); } .bad{ color:var(--bad); }
+    .dot{ width:.6rem; height:.6rem; display:inline-block; border-radius:50%; vertical-align:middle; margin-right:.4rem }
+    .dot.ok{ background:var(--ok) } .dot.bad{ background:var(--bad) }
+    .tabs{ display:flex; gap:.5rem; flex-wrap:wrap; margin:.75rem 0 1rem }
+    .tabs button{ cursor:pointer }
+    [hidden]{ display:none !important; }
+    code{ display:inline-block; padding:.2rem .45rem; background:rgba(255,255,255,.07); border-radius:6px; }
+    table{ font-size:.95rem; }
+  </style>
 </head>
-
 <body>
   <main class="container">
-    <h1>🛠️ OrcaX 관리자 패널</h1>
-
-    <nav>
-      <ul>
-        <li><a href="#" id="tab-withdraw" role="button">출금 요청</a></li>
-        <li><a href="#" id="tab-deposit" role="button">입금 요청</a></li>
-        <li><a href="#" id="tab-loan-request" role="button">대출 신청</a></li>
-        <li><a href="#" id="tab-loan" role="button">대출 현황표</a></li>
-      </ul>
-    </nav>
-
-    <section id="admin-content">
-      <div id="content-withdraw" class="tab-content" hidden>
-        <h2>출금 요청 내역</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>사용자</th>
-              <th>요청 금액</th>
-              <th>요청일</th>
-              <th>처리</th>
-            </tr>
-          </thead>
-          <tbody id="withdraw-list"></tbody>
-        </table>
+    <header class="card">
+      <h2 class="stack"><span id="connDot" class="dot bad"></span><span id="connText">서버 연결: 실패</span></h2>
+      <small class="muted">
+        API: <code id="apiBaseView"></code> · 카카오ID: <b id="kakaoIdView">-</b> (닉네임: <b id="nickView">-</b>) ·
+        핑: <b id="pingView">-</b>ms
+      </small>
+      <div class="grid" style="margin-top:.5rem">
+        <div>
+          <button id="btnRefresh" class="contrast">상태 재점검</button>
+          <label style="margin-left:.5rem"><input type="checkbox" id="autoRefresh"> 자동 새로고침(30초)</label>
+        </div>
+        <div>
+          <details role="list" style="float:right">
+            <summary aria-haspopup="listbox">API 설정</summary>
+            <div class="card">
+              <input type="text" id="apiInput" placeholder="https://...ngrok.io"/>
+              <button id="apiSave">저장 & 재점검</button>
+              <small class="muted">로컬 저장소(orcx_api)에 저장됩니다.</small>
+            </div>
+          </details>
+        </div>
       </div>
-
-      <div id="content-deposit" class="tab-content" hidden>
-        <h2>입금 요청 내역</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>사용자</th>
-              <th>입금 금액</th>
-              <th>요청일</th>
-              <th>처리</th>
-            </tr>
-          </thead>
-          <tbody id="deposit-list"></tbody>
-        </table>
+      <div id="adminWalletLine" class="muted" hidden>
+        관리자 솔라나 지갑주소: <code id="adminWallet">-</code>
       </div>
+    </header>
 
-      <div id="content-loan-request" class="tab-content" hidden>
-        <h2>대출 신청 내역</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>사용자</th>
-              <th>신청 금액</th>
-              <th>신청일</th>
-              <th>승인/거절</th>
-            </tr>
-          </thead>
-          <tbody id="loan-request-list"></tbody>
-        </table>
-      </div>
+    <section class="tabs">
+      <button class="secondary" data-tab="withdraw">출금 요청</button>
+      <button class="secondary" data-tab="deposit">입금 요청</button>
+      <button class="secondary" data-tab="all">전체 요청</button>
+    </section>
 
-      <div id="content-loan" class="tab-content">
-        <h2>진행 중인 대출 현황</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>사용자</th>
-              <th>대출 금액</th>
-              <th>이자율</th>
-              <th>남은 ORCX</th>
-              <th>상환 상태</th>
-            </tr>
-          </thead>
-          <tbody id="loan-status-list"></tbody>
-        </table>
-      </div>
+    <section id="withdraw" class="card" hidden>
+      <h3>출금 요청</h3>
+      <table role="grid">
+        <thead><tr><th>사용자</th><th>금액</th><th>지갑</th><th>상태</th><th>시각</th></tr></thead>
+        <tbody id="tbWithdraw"><tr><td colspan="5" class="muted">로드중…</td></tr></tbody>
+      </table>
+      <small class="muted">※ 현재는 로그인한 계정의 티켓만 표시됩니다. (관리자용 전체 조회 엔드포인트 연결 가능)</small>
+    </section>
+
+    <section id="deposit" class="card" hidden>
+      <h3>입금 요청</h3>
+      <table role="grid">
+        <thead><tr><th>사용자</th><th>금액</th><th>방법</th><th>상태</th><th>시각</th></tr></thead>
+        <tbody id="tbDeposit"><tr><td colspan="5" class="muted">로드중…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section id="all" class="card" hidden>
+      <h3>전체 요청</h3>
+      <table role="grid">
+        <thead><tr><th>유형</th><th>사용자</th><th>금액</th><th>상태</th><th>시각</th></tr></thead>
+        <tbody id="tbAll"><tr><td colspan="5" class="muted">로드중…</td></tr></tbody>
+      </table>
     </section>
   </main>
+
+  <script>
+    // ===== 공통 =====
+    const API_BASE = (localStorage.getItem('orcax_api') || 'https://climbing-wholly-grouper.jp.ngrok.io').replace(/\/+$/,'');
+    const $ = sel => document.querySelector(sel);
+    const fmt = n => Number(n||0).toLocaleString();
+    function pill(text, cls){ return `<span style="padding:.1rem .4rem;border-radius:999px;border:1px solid rgba(255,255,255,.15)" class="${cls||'muted'}">${text}</span>`; }
+
+    $('#apiBaseView').textContent = API_BASE;
+    $('#apiInput').value = API_BASE;
+
+    // ===== Kakao =====
+    async function ensureKakaoId(){
+      let kid = localStorage.getItem('kakaoId');
+      if (kid) return kid;
+      try{
+        if (window.Kakao && !Kakao.isInitialized()) Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY');
+        if (window.Kakao){
+          const status = await new Promise(res => Kakao.Auth.getStatusInfo(res));
+          if (status.status === 'connected') {
+            const me = await Kakao.API.request({ url: '/v2/user/me' });
+            kid = String(me.id);
+            localStorage.setItem('kakaoId', kid);
+            const nick = me.properties?.nickname || me.kakao_account?.profile?.nickname;
+            if (nick) localStorage.setItem('nickname', nick);
+          }
+        }
+      }catch(e){}
+      return localStorage.getItem('kakaoId') || '';
+    }
+
+    // ===== API =====
+    async function api(path, opt={}){
+      const kid = localStorage.getItem('kakaoId') || '';
+      const t0 = performance.now();
+      const url = API_BASE + path + (opt.method === 'GET' ? ((path.includes('?')?'&':'?') + '_=' + Date.now()) : '');
+      try{
+        const res = await fetch(url, {
+          method: opt.method || 'GET',
+          headers: { 'Content-Type':'application/json', 'x-kakao-id': kid },
+          body: opt.body ? JSON.stringify(opt.body) : undefined,
+          cache: 'no-store'
+        });
+        const t1 = performance.now();
+        let data={}; try{ data = await res.json(); } catch {}
+        return { ok: res.ok && (data?.ok!==false), status: res.status, data, ping: Math.round(t1-t0) };
+      }catch(e){
+        const t1 = performance.now();
+        return { ok:false, status:0, data:{ error:String(e) }, ping: Math.round(t1-t0) };
+      }
+    }
+
+    // ===== 헬스체크 =====
+    async function health(){
+      $('#kakaoIdView').textContent = localStorage.getItem('kakaoId') || '-';
+      $('#nickView').textContent = localStorage.getItem('nickname') || '-';
+
+      const rStatus = await api('/api/corn/status', { method:'GET' });
+      $('#pingView').textContent = rStatus.ping;
+      const ok = rStatus.ok;
+      $('#connDot').className = 'dot ' + (ok?'ok':'bad');
+      $('#connText').textContent = '서버 연결: ' + (ok?'정상':'실패');
+
+      // 관리자 지갑
+      const cfg = await api('/api/finance/config', { method:'GET' });
+      if (cfg.ok && cfg.data?.solanaAdminWallet){
+        $('#adminWallet').textContent = cfg.data.solanaAdminWallet;
+        $('#adminWalletLine').hidden = false;
+      }
+
+      return ok;
+    }
+
+    // ===== 티켓 로드 =====
+    function renderRows(tbody, rows, mapper){
+      tbody.innerHTML = '';
+      if (!rows || !rows.length){
+        tbody.innerHTML = '<tr><td colspan="5" class="muted">내역이 없습니다.</td></tr>';
+        return;
+      }
+      rows.forEach(x => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = mapper(x);
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function loadTickets(){
+      const r = await api('/api/finance/my-tickets', { method:'GET' });
+      const items = (r.ok && Array.isArray(r.data?.items)) ? r.data.items : [];
+      const toTime = t => new Date(t||Date.now()).toLocaleString();
+
+      const withdraw = items.filter(x => x.type==='withdraw');
+      const deposit  = items.filter(x => x.type==='deposit');
+
+      renderRows($('#tbWithdraw'), withdraw, x => `
+        <td>${x.kakaoId||'-'}</td>
+        <td>${fmt(x.amount)}</td>
+        <td>${x.wallet?`<code>${x.wallet}</code>`:'-'}</td>
+        <td>${pill(x.status, x.status==='approved'?'ok':x.status==='rejected'?'bad':'')}</td>
+        <td>${toTime(x.createdAt)}</td>
+      `);
+      renderRows($('#tbDeposit'), deposit, x => `
+        <td>${x.kakaoId||'-'}</td>
+        <td>${fmt(x.amount)}</td>
+        <td>${x.method||'-'}</td>
+        <td>${pill(x.status, x.status==='approved'?'ok':x.status==='rejected'?'bad':'')}</td>
+        <td>${toTime(x.createdAt)}</td>
+      `);
+      renderRows($('#tbAll'), items, x => `
+        <td>${x.type||'-'}</td>
+        <td>${x.kakaoId||'-'}</td>
+        <td>${fmt(x.amount)}</td>
+        <td>${pill(x.status, x.status==='approved'?'ok':x.status==='rejected'?'bad':'')}</td>
+        <td>${toTime(x.createdAt)}</td>
+      `);
+    }
+
+    // ===== 탭 =====
+    document.querySelectorAll('.tabs [data-tab]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.dataset.tab;
+        ['withdraw','deposit','all'].forEach(t => document.getElementById(t).hidden = (t!==id));
+      });
+    });
+    // 기본 탭
+    document.querySelector('.tabs [data-tab="withdraw"]').click();
+
+    // ===== 이벤트 =====
+    $('#btnRefresh').addEventListener('click', async ()=>{
+      const ok = await health();
+      if (ok) await loadTickets();
+    });
+    $('#apiSave').addEventListener('click', ()=>{
+      const v = ($('#apiInput').value||'').trim();
+      if (!v) return;
+      localStorage.setItem('orcax_api', v.replace(/\/+$/,''));
+      location.reload();
+    });
+    $('#autoRefresh').addEventListener('change', e=>{
+      if (e.target.checked) e.target.__t = setInterval(()=>$('#btnRefresh').click(), 30000);
+      else clearInterval(e.target.__t);
+    });
+
+    // ===== 초기화 =====
+    (async ()=>{
+      await ensureKakaoId();
+      $('#btnRefresh').click();
+    })();
+  </script>
 </body>
-
 </html>
-
-
