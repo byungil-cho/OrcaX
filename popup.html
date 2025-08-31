@@ -49,8 +49,8 @@
   <img id="seedIcon" class="seed" src="img/corn-yellow.png" alt="seed"/>
   <div class="who" id="who">—</div>
   <div class="badges">
-    <div class="badge">💧 물 <b id="r-water">0</b></div>
-    <div class="badge">🌱 거름 <b id="r-fert">0</b></div>
+    <div class="badge" id="badge-water">💧 물 <b id="r-water">0</b></div>
+    <div class="badge" id="badge-fert">🌱 거름 <b id="r-fert">0</b></div>
     <div class="badge">🌽 준비옥수수 <b id="r-ready">0</b></div>
     <div class="badge">🍿 팝콘 <b id="r-pop">0</b></div>
     <div class="badge">🧂 소금 <b id="r-salt">0</b></div>
@@ -101,13 +101,15 @@
   const API_BASE = (localStorage.getItem('orcax_api') || DEFAULT_API).replace(/\/+$/,'');
   const kakaoId = localStorage.getItem('kakaoId');
   const nick = localStorage.getItem('nickname') || localStorage.getItem('nick') || '';
+  const WATER_FERT_MODE = 'auto';
 
   // ====== 엘리먼트 ======
   const $ = (sel) => document.querySelector(sel);
   const logel = $('#log');
   const toast = $('#toast');
   const boom = $('#boom');
-
+// ▼▼ 추가: 토글 유틸
+  function toggle(el, show){ if(!el) return; el.style.display = show ? '' : 'none'; }
   function log(s){ const t = `[${new Date().toLocaleTimeString()}] ${s}\n`; logel.textContent = t + logel.textContent; }
   function showToast(s){ toast.textContent = s; toast.classList.add('on'); setTimeout(()=>toast.classList.remove('on'), 1400); }
   function fireBoom(count=26){
@@ -158,19 +160,30 @@
     const user = S.user || {};
     const corn = S.corn || {};
 
-    // ✅ 물/거름: inventory 우선, 폴백(user.water / user.fertilizer)
+     // ✅ 물/거름: inventory 우선, 폴백(user.water / user.fertilizer)
     const inv = user?.inventory || {};
-    const water = Number(inv.water ?? user?.water ?? 0);
-    const fert  = Number(inv.fertilizer ?? user?.fertilizer ?? 0);
+    const waterRaw = (inv.water ?? user?.water);
+    const fertRaw  = (inv.fertilizer ?? user?.fertilizer);
 
-    // 헤더 숫자
-    $('#r-water').textContent = water;
-    $('#r-fert').textContent  = fert;
+    // 표시 여부 결정
+    const showWater = (WATER_FERT_MODE === 'force') ||
+                      (WATER_FERT_MODE === 'auto' && Number.isFinite(waterRaw));
+    const showFert  = (WATER_FERT_MODE === 'force') ||
+                      (WATER_FERT_MODE === 'auto' && Number.isFinite(fertRaw));
+
+    toggle($('#badge-water'), showWater);
+    toggle($('#badge-fert'),  showFert);
+
+    if (showWater) $('#r-water').textContent = Number(waterRaw);
+    if (showFert)  $('#r-fert').textContent  = Number(fertRaw);
+
+    // 나머지 표시
     $('#r-orcx').textContent  = Number(user?.orcx || 0).toLocaleString();
     $('#r-ready').textContent = Number(corn?.readyCount ?? 0);
     $('#r-pop').textContent   = Number(corn?.popcorn || 0);
     $('#r-salt').textContent  = Number(corn?.additives?.salt || 0);
     $('#r-sugar').textContent = Number(corn?.additives?.sugar || 0);
+
 
     // 씨앗 아이콘/라벨
     const color = (corn?.seedType || corn?.color || 'yellow');
@@ -224,3 +237,4 @@
 </script>
 </body>
 </html>
+
