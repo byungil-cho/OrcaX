@@ -147,113 +147,89 @@
 </table>
 </div>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const API_BASE = "https://climbing-wholly-grouper.jp.ngrok.io";
+document.addEventListener('DOMContentLoaded', () => {
+  const API_BASE = 'https://climbing-wholly-grouper.jp.ngrok.io';
+  const kakaoId  = localStorage.getItem('kakaoId') || localStorage.getItem('kakaoID') || '';
+  const nickname = localStorage.getItem('nickname') || '';
+  const $ = (id) => document.getElementById(id);
 
-  // ✅ 로컬에서 kakaoId/닉네임 확보
-  const kakaoId  = localStorage.getItem("kakaoId") || localStorage.getItem("kakaoID") || "";
-  const nickname = localStorage.getItem("nickname") || "";
+  if ($('nickname'))  $('nickname').textContent = nickname;
+  if ($('wNickname')) $('wNickname').value = nickname;
 
-  document.getElementById("nickname").textContent = nickname;
-  const wNick = document.getElementById("wNickname");
-  if (wNick) wNick.value = nickname;
-
-  // ✅ 마이페이지 핵심(토큰/물/거름/씨감자/씨보리) — compat 엔드포인트 사용
+  // ✅ 마이페이지 기본 자산(토큰/물/거름/씨감자/씨보리)
   (async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/mypage/compat?kakaoId=${encodeURIComponent(kakaoId)}`);
-      const data = await res.json();
-
-      // tokens + inventory 구조로 매핑
-      document.getElementById("tokenBalance").textContent = Number(data.tokens || 0);
-
-      const inv = data.inventory || {};
-      document.getElementById("water").textContent      = Number(inv.water      || 0);
-      document.getElementById("fertilizer").textContent = Number(inv.fertilizer || 0);
-      document.getElementById("seedPotato").textContent = Number(inv.seedPotato || 0);
-      document.getElementById("seedBarley").textContent = Number(inv.seedBarley || 0);
-
-      // 레벨(옵션)
-      document.getElementById("userLevel").textContent = "Lv. " + (data.level || 1);
+      const r = await fetch(`${API_BASE}/api/mypage/compat?kakaoId=${encodeURIComponent(kakaoId)}`);
+      const d = await r.json();
+      const inv = d.inventory || {};
+      if ($('tokenBalance')) $('tokenBalance').textContent = Number(d.tokens || 0);
+      if ($('water'))       $('water').textContent       = Number(inv.water      || 0);
+      if ($('fertilizer'))  $('fertilizer').textContent  = Number(inv.fertilizer || 0);
+      if ($('seedPotato'))  $('seedPotato').textContent  = Number(inv.seedPotato || 0);
+      if ($('seedBarley'))  $('seedBarley').textContent  = Number(inv.seedBarley || 0);
+      if ($('userLevel'))   $('userLevel').textContent   = 'Lv. ' + (d.level || 1);
     } catch (e) {
-      console.warn("compat 불러오기 실패", e);
+      console.warn('compat 불러오기 실패', e);
     }
   })();
 
-  // ✅ 가공식품 보관함 — 별도 API에서 POST로 수신
+  // ✅ 가공식품 보관함
   (async () => {
-    const tbody = document.querySelector("#storageTable tbody");
+    const tbody = document.querySelector('#storageTable tbody');
+    if (!tbody) return;
     try {
-      const res = await fetch(`${API_BASE}/api/processing/get-inventory`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const r = await fetch(`${API_BASE}/api/processing/get-inventory`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kakaoId })
       });
-      const j = await res.json();
-      const products = j.products || j.inventory || {};
-
-      tbody.innerHTML = "";
-      let filled = false;
-      Object.entries(products).forEach(([type, count]) => {
-        if (Number(count) > 0) {
-          filled = true;
-          tbody.insertAdjacentHTML(
-            "beforeend",
-            `<tr><td>${type}</td><td>${Number(count)}</td></tr>`
-          );
+      const j = await r.json();
+      const items = j.products || j.inventory || {};
+      tbody.innerHTML = '';
+      let has = false;
+      Object.entries(items).forEach(([k, v]) => {
+        if (Number(v) > 0) {
+          has = true;
+          tbody.insertAdjacentHTML('beforeend', `<tr><td>${k}</td><td>${Number(v)}</td></tr>`);
         }
       });
-      if (!filled) tbody.innerHTML = "<tr><td colspan='2'>보관한 가공식품이 없습니다.</td></tr>";
+      if (!has) tbody.innerHTML = `<tr><td colspan="2">보관한 가공식품이 없습니다.</td></tr>`;
     } catch (e) {
-      tbody.innerHTML = "<tr><td colspan='2'>❌ 보관함 불러오기 실패</td></tr>";
+      tbody.innerHTML = `<tr><td colspan="2">❌ 보관함 불러오기 실패</td></tr>`;
     }
   })();
 
-  // ✅ 출금신청 (변경 없음)
-  document.getElementById("withdrawForm").addEventListener("submit", async function (e) {
+  // ✅ 출금신청
+  const form = $('withdrawForm');
+  if (form) form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email  = document.getElementById("wEmail").value.trim();
-    const phone  = document.getElementById("wPhone").value.trim();
-    const wallet = document.getElementById("wWallet").value.trim();
-    const amount = parseInt(document.getElementById("wAmount").value.trim(), 10);
-    const withdrawResult = document.getElementById("withdrawResult");
+    const email  = $('wEmail').value.trim();
+    const phone  = $('wPhone').value.trim();
+    const wallet = $('wWallet').value.trim();
+    const amount = parseInt($('wAmount').value.trim(), 10);
+    const out    = $('withdrawResult');
 
     if (!nickname || !email || !phone || !wallet || !amount || isNaN(amount) || amount < 1) {
-      withdrawResult.textContent = "모든 정보를 정확히 입력해 주세요.";
-      withdrawResult.style.color = "#d32f2f";
-      return;
+      out.textContent = '모든 정보를 정확히 입력해 주세요.'; out.style.color = '#d32f2f'; return;
     }
-
-    withdrawResult.textContent = "출금신청 처리 중...";
-    withdrawResult.style.color = "#19713c";
-
+    out.textContent = '출금신청 처리 중...'; out.style.color = '#19713c';
     try {
-      const res = await fetch(`${API_BASE}/api/withdraw`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const r = await fetch(`${API_BASE}/api/withdraw`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nickname, email, phone, wallet, amount })
       });
-      const result = await res.json();
-      if (result.success) {
-        withdrawResult.textContent = "출금 신청이 정상적으로 접수되었습니다.";
-        withdrawResult.style.color = "#19713c";
-        this.reset();
-        document.getElementById("wNickname").value = nickname;
-      } else {
-        withdrawResult.textContent = result.message || "출금 신청 실패. 다시 시도해 주세요.";
-        withdrawResult.style.color = "#d32f2f";
-      }
-    } catch (e) {
-      withdrawResult.textContent = "서버 오류로 신청에 실패했습니다.";
-      withdrawResult.style.color = "#d32f2f";
-    }
+      const res = await r.json();
+      if (res.success) { out.textContent = '출금 신청이 정상적으로 접수되었습니다.'; form.reset(); $('wNickname').value = nickname; }
+      else { out.textContent = res.message || '출금 신청 실패. 다시 시도해 주세요.'; out.style.color = '#d32f2f'; }
+    } catch (e) { out.textContent = '서버 오류로 신청에 실패했습니다.'; out.style.color = '#d32f2f'; }
   });
 
-  // ✅ 관리자 진입 게이트
+  // ✅ 관리자 게이트
   window.goToAdmin = function () {
-    const pw = prompt("관리자 비밀번호를 입력하세요:");
-    if (pw === "7788") location.href = "admin-users.html";
-    else if (pw !== null) alert("비밀번호가 틀렸습니다.");
+    const pw = prompt('관리자 비밀번호를 입력하세요:');
+    if (pw === '7788') location.href = 'admin-users.html';
+    else if (pw !== null) alert('비밀번호가 틀렸습니다.');
   };
 });
 </script>
