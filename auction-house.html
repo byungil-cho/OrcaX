@@ -1,247 +1,40 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="utf-8"/>
-<title>🐋 OrcaX 마이페이지</title>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<style>
-    body { font-family: 'Arial', sans-serif; background: #f7f7f7; padding: 1rem; margin: 0; }
-    h1, h2 { text-align: center; color: #2e2e2e; margin: 1.3rem 0 1.1rem 0; }
-    .top-menu {
-      background: #575757; padding: 0.5rem 0;
-      text-align: center; font-size: 1.08rem;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
-    }
-    .top-menu a, .top-menu span {
-      padding: 0.4rem 1.1rem;
-      border-radius: 16px;
-      margin: 0 0.15rem;
-      font-weight: bold;
-      display: inline-block;
-    }
-    .top-menu a {
-      color: #fff; text-decoration: none;
-      background: #2ebca0;
-      transition: background 0.15s;
-    }
-    .top-menu a:hover { background: #22a6a0; color: #fff; }
-    .top-menu .active-menu {
-      background: #888;
-      color: #fff;
-      cursor: default;
-      pointer-events: none;
-      border: 2px solid #fff2;
-    }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; font-size: 0.97rem; }
-    th { background-color: #efefef; }
-    #notice { margin-top: 1rem; color: #555; text-align: center; }
-    #myStorage { margin-top: 2rem; }
-    #userInfo {
-      background: #fff; padding: 0.7rem 1rem;
-      border-bottom: 2px solid #eee;
-      font-size: 1.05rem; text-align: right; margin-bottom:12px;
-    }
-    #myAssets {
-      margin-bottom: 10px;
-      padding: 0.6rem 1.2rem;
-      background: #e4f8f7;
-      border-radius: 12px;
-      font-size: 1.08em;
-      text-align: center;
-      color: #137877;
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 1.4em;
-    }
-    button {
-      margin: 1.5rem auto 1.1rem auto; display: block;
-      padding: 0.65rem 1.4rem; font-size: 1.06rem;
-      background: #23b399; color: white; border: none;
-      border-radius: 7px; cursor: pointer; font-weight:bold;
-    }
-    button:hover { background-color: #14807d; }
-    .withdraw-form {
-      margin: 2rem auto 1.5rem auto;
-      background: #e8f6ff;
-      border: 1.5px solid #bae2fd;
-      border-radius: 11px;
-      max-width: 420px;
-      padding: 1.4rem 1.2rem 1.2rem 1.2rem;
-      box-shadow: 0 2px 12px #e0e0e040;
-    }
-    .withdraw-form h2 { margin: 0 0 1.1rem 0; color: #268bd2; }
-    .withdraw-form label { display: block; font-weight:bold; margin-bottom: 5px; margin-top: 13px;}
-    .withdraw-form input {
-      width: 100%; padding: 0.55rem; border-radius: 5px; border: 1px solid #b2c2cc;
-      margin-bottom: 2px; font-size: 1rem;
-    }
-    .withdraw-form input:disabled { background: #f2f2f2; }
-    .withdraw-form .tip { font-size: 0.91em; color: #777; margin-bottom: 10px;}
-    .withdraw-form .result-msg { font-size: 0.99em; color: #19713c; margin: 0.5em 0 0.2em 0; text-align:center;}
-    @media screen and (max-width: 600px) {
-      th, td { font-size: 0.85rem; padding: 0.4rem; }
-      button { font-size: 0.95rem; padding: 0.5rem 1rem; }
-      .top-menu a, .top-menu span { padding: 0.4rem 0.6rem; font-size: 0.95rem; }
-      #myAssets { font-size: 0.98em; gap: 0.7em; padding: 0.45rem 0.2rem;}
-      .withdraw-form { padding: 0.7rem 0.7rem;}
-    }
-</style>
-</head>
-<body>
-<div class="top-menu">
-  <a href="index9.html">메인</a>
-  <a href="gamja-market.html">마켓</a>
-  <a href="gamja-shop.html">씨앗상점</a>
-  <span class="active-menu">마이페이지</span>
-  <a href="#" onclick="goToAdmin();return false;">관리자</a>
-</div>
-<div id="userInfo">
-    👤 <span id="nickname">닉네임</span> | 💰 <span id="tokenBalance">0</span> ORCX
-</div>
-<div id="myAssets">
-  💧 물 <span id="water">0</span>
-  🌱 거름 <span id="fertilizer">0</span>
-  🥔 씨감자 <span id="seedPotato">0</span>
-  🌾 씨보리 <span id="seedBarley">0</span>
-</div>
-
-<h1>
-  🐋 OrcaX 마이페이지
-  <span id="userLevel" style="font-size:1.08rem; color:#19713c; margin-left:8px;">Lv. 1</span>
-</h1>
-<div style="text-align:center; color:#14807d; margin-bottom:1.3rem;">
-    환영합니다!<br>
-    아래는 회원님의 OrcaX 자산 및 가공식품 보관 현황입니다.
-</div>
-
-<!-- 🟦 출금신청 폼 (토큰 금액 입력 포함) -->
-<div class="withdraw-form" id="withdrawFormBox">
-  <h2>💸 출금신청</h2>
-  <div class="tip">출금받을 <b>팬텀(솔라나) 지갑 주소</b>와 연락처, 이메일, <b>출금 토큰금액</b>을 입력해 주세요.<br/>신청시 관리자가 직접 확인 후 처리합니다.</div>
-  <form id="withdrawForm" autocomplete="off">
-    <label for="wNickname">닉네임</label>
-    <input type="text" id="wNickname" name="nickname" required disabled>
-    <label for="wEmail">이메일</label>
-    <input type="email" id="wEmail" name="email" placeholder="example@email.com" required>
-    <label for="wPhone">전화번호</label>
-    <input type="tel" id="wPhone" name="phone" placeholder="010-1234-5678" required>
-    <label for="wWallet">팬텀(솔라나) 지갑주소</label>
-    <input type="text" id="wWallet" name="wallet" placeholder="팬텀(Phantom) SOL 주소 입력" required>
-    <label for="wAmount">출금할 ORCX 토큰 수량</label>
-    <input type="number" id="wAmount" name="amount" min="1" step="1" required>
-    <button type="submit">출금신청</button>
-    <div class="result-msg" id="withdrawResult"></div>
-  </form>
-</div>
-
-<div id="myStorage">
-<h2>🗃️ 내 보관 창고 <span style="font-size:0.95rem;">(가공식품 현황)</span></h2>
-<table id="storageTable">
-<thead>
-<tr>
-<th>제품명</th>
-<th>보유 수량</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const API = "https://climbing-wholly-grouper.jp.ngrok.io";
-  const kakaoId  = localStorage.getItem("kakaoId") || localStorage.getItem("kakaoID") || "";
-  const nickname = localStorage.getItem("nickname") || "";
+(() => {
+  const API = 'https://climbing-wholly-grouper.jp.ngrok.io';
+  const kakaoId  = localStorage.getItem('kakaoId') || localStorage.getItem('kakaoID') || '';
+  const nickname = localStorage.getItem('nickname') || localStorage.getItem('nick') || '';
 
-  // 닉네임(문자)
-  const nickEl = document.getElementById("nickname");
-  if (nickEl) nickEl.textContent = nickname;
-  const wNick = document.getElementById("wNickname");
-  if (wNick) wNick.value = nickname;
-
-  // 1) 마이페이지 기본 자산 불러오기 (✅ fetch 포함, ✅ 올바른 필드 매핑)
-  fetch(`${API}/api/mypage/compat?kakaoId=${encodeURIComponent(kakaoId)}&t=${Date.now()}`)
-    .then(res => res.json())
-    .then(d => {
-      const inv = d.inventory || {};
-
-      const setNum = (id, v) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = Number(v ?? 0);
-      };
-
-      setNum("tokenBalance", d.tokens);
-      setNum("water",        inv.water);
-      setNum("fertilizer",   inv.fertilizer);
-      setNum("seedPotato",   inv.seedPotato);
-      setNum("seedBarley",   inv.seedBarley);
-
-      const lvl = document.getElementById("userLevel");
-      if (lvl) lvl.textContent = String(d.level ?? 1);
-    })
-    .catch(console.warn);
-
-  // 2) 가공식품 보관함
-  const tbody = document.querySelector("#storageTable tbody");
-  if (tbody) {
-    fetch(`${API}/api/processing/get-inventory`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ kakaoId })
-    })
-    .then(res => res.json())
-    .then(j => {
-      const items = j.products || j.inventory || {};
-      tbody.innerHTML = "";
-      let has = false;
-      Object.entries(items).forEach(([k, v]) => {
-        if (Number(v) > 0) {
-          has = true;
-          tbody.insertAdjacentHTML("beforeend", `<tr><td>${k}</td><td>${Number(v)}</td></tr>`);
-        }
-      });
-      if (!has) tbody.innerHTML = `<tr><td colspan="2">보관한 가공식품이 없습니다.</td></tr>`;
-    })
-    .catch(() => { tbody.innerHTML = `<tr><td colspan="2">❌ 보관함 불러오기 실패</td></tr>`; });
-  }
-
-  // 3) 출금신청 (기존 동작 유지)
-  const form = document.getElementById("withdrawForm");
-  if (form) form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email  = document.getElementById("wEmail").value.trim();
-    const phone  = document.getElementById("wPhone").value.trim();
-    const wallet = document.getElementById("wWallet").value.trim();
-    const amount = parseInt(document.getElementById("wAmount").value.trim(), 10);
-    const out    = document.getElementById("withdrawResult");
-
-    if (!nickname || !email || !phone || !wallet || isNaN(amount) || amount < 1) {
-      out.textContent = "모든 정보를 정확히 입력해 주세요."; out.style.color = "#d32f2f"; return;
-    }
-    out.textContent = "출금신청 처리 중..."; out.style.color = "#19713c";
-
-    try {
-      const r = await fetch(`${API}/api/withdraw`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname, email, phone, wallet, amount })
-      });
-      const res = await r.json();
-      if (res.success) { out.textContent = "출금 신청이 정상적으로 접수되었습니다."; form.reset(); if (wNick) wNick.value = nickname; }
-      else { out.textContent = res.message || "출금 신청 실패. 다시 시도해 주세요."; out.style.color = "#d32f2f"; }
-    } catch { out.textContent = "서버 오류로 신청에 실패했습니다."; out.style.color = "#d32f2f"; }
+  const setNum = (ids, v) => ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = Number(v ?? 0);
+  });
+  const setText = (ids, v) => ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = v || '';
+    else el.textContent = v || '';
   });
 
-  // 4) 관리자 진입
-  window.goToAdmin = function () {
-    const pw = prompt("관리자 비밀번호를 입력하세요:");
-    if (pw === "7788") location.href = "admin-users.html";
-    else if (pw !== null) alert("비밀번호가 틀렸습니다.");
-  };
-});
+  // 닉네임(문자)
+  setText(['nickname','topNick','wNickname'], nickname);
+
+  // 헤더 자산(모든 페이지 공통) — 서버 호환 엔드포인트로 고정
+  fetch(`${API}/api/mypage/compat?kakaoId=${encodeURIComponent(kakaoId)}&t=${Date.now()}`)
+    .then(r => r.json())
+    .then(d => {
+      const inv = d.inventory || {};
+      setNum (['tokenBalance','topTokens','tokens'], d.tokens);
+      setNum (['water','r-water'],       inv.water);
+      setNum (['fertilizer','r-fert'],   inv.fertilizer);
+      setNum (['seedPotato','r-seedPotato'], inv.seedPotato);
+      setNum (['seedBarley','r-seedBarley'], inv.seedBarley);
+      setText(['userLevel'], String(d.level ?? 1));
+    })
+    .catch(console.warn);
+})();
 </script>
 
-</body>
-</html>
+
 
 
 
