@@ -147,91 +147,101 @@
 </table>
 </div>
 <script>
-(() => {
-  const API = 'https://climbing-wholly-grouper.jp.ngrok.io';
-  const kakaoId  = localStorage.getItem('kakaoId') || localStorage.getItem('kakaoID') || '';
-  const nickname = localStorage.getItem('nickname') || localStorage.getItem('nick') || '';
+document.addEventListener("DOMContentLoaded", () => {
+  const API = "https://climbing-wholly-grouper.jp.ngrok.io";
+  const kakaoId  = localStorage.getItem("kakaoId") || localStorage.getItem("kakaoID") || "";
+  const nickname = localStorage.getItem("nickname") || "";
 
-  const $ = (id) => document.getElementById(id);
-  const setNum  = (ids, v) => { const n = Number(v ?? 0); ids.forEach(id => { const el = $(id); if (el) el.textContent = n; }); };
-  const setText = (ids, v) => { ids.forEach(id => { const el = $(id);
-    if (!el) return;
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = v || '';
-    else el.textContent = v || '';
-  });};
+  // 닉네임(문자)
+  const nickEl = document.getElementById("nickname");
+  if (nickEl) nickEl.textContent = nickname;
+  const wNick = document.getElementById("wNickname");
+  if (wNick) wNick.value = nickname;
 
-  // ✅ 닉네임(문자) — 숫자 변환 금지
-  setText(['nick','nickname','userNick','topNick','wNickname'], nickname);
-
-  // ✅ 마이페이지 기본 자산
+  // 1) 마이페이지 기본 자산 불러오기 (✅ fetch 포함, ✅ 올바른 필드 매핑)
   fetch(`${API}/api/mypage/compat?kakaoId=${encodeURIComponent(kakaoId)}&t=${Date.now()}`)
-    .then(r => r.json())
+    .then(res => res.json())
     .then(d => {
       const inv = d.inventory || {};
-      setNum (['tokenBalance','r-tokens','tokens','balance','topTokens'], d.tokens);
-      setNum (['r-water','water'],       inv.water);
-      setNum (['r-fert','fertilizer'],   inv.fertilizer);
-      setNum (['seedPotato','r-seedPotato','seed_potato','seed-potato'], inv.seedPotato);
-      setNum (['seedBarley','r-seedBarley','seed_barley','seed-barley'], inv.seedBarley);
-      setText(['userLevel'], String(d.level ?? 1));
+
+      const setNum = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = Number(v ?? 0);
+      };
+
+      setNum("tokenBalance", d.tokens);
+      setNum("water",        inv.water);
+      setNum("fertilizer",   inv.fertilizer);
+      setNum("seedPotato",   inv.seedPotato);
+      setNum("seedBarley",   inv.seedBarley);
+
+      const lvl = document.getElementById("userLevel");
+      if (lvl) lvl.textContent = String(d.level ?? 1);
     })
     .catch(console.warn);
 
-  // ✅ 가공식품 보관함
-  const tbody = document.querySelector('#storageTable tbody');
+  // 2) 가공식품 보관함
+  const tbody = document.querySelector("#storageTable tbody");
   if (tbody) {
     fetch(`${API}/api/processing/get-inventory`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ kakaoId })
     })
-    .then(r => r.json())
+    .then(res => res.json())
     .then(j => {
       const items = j.products || j.inventory || {};
-      tbody.innerHTML = '';
+      tbody.innerHTML = "";
       let has = false;
       Object.entries(items).forEach(([k, v]) => {
-        if (Number(v) > 0) { has = true; tbody.insertAdjacentHTML('beforeend', `<tr><td>${k}</td><td>${Number(v)}</td></tr>`); }
+        if (Number(v) > 0) {
+          has = true;
+          tbody.insertAdjacentHTML("beforeend", `<tr><td>${k}</td><td>${Number(v)}</td></tr>`);
+        }
       });
       if (!has) tbody.innerHTML = `<tr><td colspan="2">보관한 가공식품이 없습니다.</td></tr>`;
     })
     .catch(() => { tbody.innerHTML = `<tr><td colspan="2">❌ 보관함 불러오기 실패</td></tr>`; });
   }
 
-  // ✅ 출금신청
-  const form = $('withdrawForm');
-  if (form) form.addEventListener('submit', async (e) => {
+  // 3) 출금신청 (기존 동작 유지)
+  const form = document.getElementById("withdrawForm");
+  if (form) form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email  = $('wEmail').value.trim();
-    const phone  = $('wPhone').value.trim();
-    const wallet = $('wWallet').value.trim();
-    const amount = parseInt(($('wAmount').value || '').trim(), 10);
-    const out    = $('withdrawResult');
+    const email  = document.getElementById("wEmail").value.trim();
+    const phone  = document.getElementById("wPhone").value.trim();
+    const wallet = document.getElementById("wWallet").value.trim();
+    const amount = parseInt(document.getElementById("wAmount").value.trim(), 10);
+    const out    = document.getElementById("withdrawResult");
+
     if (!nickname || !email || !phone || !wallet || isNaN(amount) || amount < 1) {
-      out.textContent = '모든 정보를 정확히 입력해 주세요.'; out.style.color = '#d32f2f'; return;
+      out.textContent = "모든 정보를 정확히 입력해 주세요."; out.style.color = "#d32f2f"; return;
     }
-    out.textContent = '출금신청 처리 중...'; out.style.color = '#19713c';
+    out.textContent = "출금신청 처리 중..."; out.style.color = "#19713c";
+
     try {
       const r = await fetch(`${API}/api/withdraw`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname, email, phone, wallet, amount })
       });
       const res = await r.json();
-      if (res.success) { out.textContent = '출금 신청이 정상적으로 접수되었습니다.'; form.reset(); const wn=$('wNickname'); if(wn) wn.value = nickname; }
-      else { out.textContent = res.message || '출금 신청 실패. 다시 시도해 주세요.'; out.style.color = '#d32f2f'; }
-    } catch { out.textContent = '서버 오류로 신청에 실패했습니다.'; out.style.color = '#d32f2f'; }
+      if (res.success) { out.textContent = "출금 신청이 정상적으로 접수되었습니다."; form.reset(); if (wNick) wNick.value = nickname; }
+      else { out.textContent = res.message || "출금 신청 실패. 다시 시도해 주세요."; out.style.color = "#d32f2f"; }
+    } catch { out.textContent = "서버 오류로 신청에 실패했습니다."; out.style.color = "#d32f2f"; }
   });
 
-  // ✅ 관리자 진입
+  // 4) 관리자 진입
   window.goToAdmin = function () {
-    const pw = prompt('관리자 비밀번호를 입력하세요:');
-    if (pw === '7788') location.href = 'admin-users.html';
-    else if (pw !== null) alert('비밀번호가 틀렸습니다.');
+    const pw = prompt("관리자 비밀번호를 입력하세요:");
+    if (pw === "7788") location.href = "admin-users.html";
+    else if (pw !== null) alert("비밀번호가 틀렸습니다.");
   };
-})();
+});
 </script>
+
 </body>
 </html>
+
 
 
